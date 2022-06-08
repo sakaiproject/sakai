@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,5 +71,11 @@ public class TraditionalComponents {
             log.warn("Error locating components in: {}", componentsRoot, e);
             return List.of();
         }
+    }
+
+    protected Map<TraditionalComponent, Path> findOverrides() {
+        return components.stream()
+                .collect(Collectors.toMap(Function.identity(), c -> overridePath.resolve(c.getName() + ".xml")));
+
     }
 }

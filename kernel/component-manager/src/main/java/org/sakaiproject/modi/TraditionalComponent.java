@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  * directory, there is a {@code WEB-INF/} directory, and a Spring {@code components.xml} file inside.
  */
 @Slf4j
-public class TraditionalComponent implements BeanSource {
+public class TraditionalComponent implements BeanDefinitionSource {
     @Getter private final Path path;
     @Getter private final String name;
 
@@ -110,6 +110,8 @@ public class TraditionalComponent implements BeanSource {
         Thread.currentThread().setContextClassLoader(loader);
     }
     protected Stream<Path> jarFiles() {
+        if (!Files.isDirectory(lib)) return Stream.empty();
+
         List<Path> files = new ArrayList<>();
         try (DirectoryStream<Path> jars = Files.newDirectoryStream(lib, "*.jar")) {
             jars.forEach(files::add);

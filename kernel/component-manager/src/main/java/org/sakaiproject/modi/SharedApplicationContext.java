@@ -20,9 +20,9 @@ import java.util.stream.Stream;
  */
 public class SharedApplicationContext extends AbstractRefreshableApplicationContext {
 
-    protected final List<BeanSource> sources = new ArrayList<>();
+    protected final List<BeanDefinitionSource> sources = new ArrayList<>();
 
-    public void registerBeanSource(BeanSource source) {
+    public void registerBeanSource(BeanDefinitionSource source) {
         sources.add(source);
     }
 

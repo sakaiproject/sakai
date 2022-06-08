@@ -3,7 +3,7 @@ package org.sakaiproject.modi;
 /**
  * A basic singleton / service locator for a global application context.
  *
- * This is used by the Tomcat {@link Bootstrap} listener to ensure that there is a root context available to all of
+ * This is used by the Tomcat {@link TomcatListener} listener to ensure that there is a root context available to all of
  * the components and webapps.
  */
 public class GlobalApplicationContext {

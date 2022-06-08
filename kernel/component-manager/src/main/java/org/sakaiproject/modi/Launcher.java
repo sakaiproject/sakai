@@ -1,22 +1,25 @@
 package org.sakaiproject.modi;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleListener;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-//import java.io.File;
-
-/**
- * Tomcat Bootstrapper for Sakai. Built as a LifecycleListener to be registered in server.xml, to start up all
- * required components early, rather than waiting for them to be tripped by the first webapp.
- */
 @Slf4j
-public class Bootstrap implements LifecycleListener {
+public class Launcher {
+    protected final Path catalinaBase;
+    protected TraditionalComponents components;
+    protected SharedApplicationContext context;
+
+    public Launcher(Path catalinaBase) {
+        this.catalinaBase = catalinaBase;
+    }
+
     /** The java system property name where the full path to the components packages. */
     public static final String SAKAI_COMPONENTS_ROOT_SYS_PROP = "sakai.components.root";
 
@@ -28,32 +31,45 @@ public class Bootstrap implements LifecycleListener {
     protected final static String DEFAULT_CONFIGURATION_FILE = "classpath:/org/sakaiproject/config/sakai-configuration.xml";
     protected final static String CONFIGURATION_FILE_NAME = "sakai-configuration.xml";
 
-    protected TraditionalComponents components;
-
-    protected SharedApplicationContext context;
-
-    @Override
-    public void lifecycleEvent(LifecycleEvent event) {
-        switch (event.getType()) {
-            case Lifecycle.START_EVENT: start(); break;
-            case Lifecycle.STOP_EVENT: stop(); break;
-        }
-    }
+    // take catalina.base as the only param
+    // load config by convention (pick up sysprops)
+    // load components by convention (Traditional, in components/, ComponentsDirectory?)
+    // load overrides by convention -- probably belongs in component load... filtering the files, but also: why?
 
     protected void start() {
-        log.info("Booting Sakai components");
+        log.info("Booting Sakai in Modern Dependency Injection Mode");
+
 //        System.setProperty("sakai.modi", "true");
         Path componentsRoot = getComponentsRoot();
         Path overridePath = getOverridePath();
 
         context = GlobalApplicationContext.getContext();
 
+        try {
+            Resource r = new ClassPathResource("org/sakaiproject/config/sakai-configuration.xml");
+            Files.readAllLines(Path.of(r.getURI())).forEach(log::info);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        BeanDefinitionSource config = new BeanDefinitionSource() {
+            @Override
+            public void registerBeans(BeanDefinitionRegistry registry) {
+                Resource config = new ClassPathResource(DEFAULT_CONFIGURATION_FILE);
+                XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
+                reader.loadBeanDefinitions(config);
+            }
+        };
+
+        context.registerBeanSource(config);
+
         if (componentsRoot != null) {
             System.setProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsRoot.toString());
             components = new TraditionalComponents(componentsRoot, overridePath);
             components.starting(context);
         }
-        context.start();
+        context.refresh();
+        log.info("===================================== and we have started");
 //        ComponentManager.getInstance();
     }
 
@@ -70,8 +86,8 @@ public class Bootstrap implements LifecycleListener {
         Path componentsPath = null;
         if (rootPath != null) {
             componentsPath = Path.of(rootPath);
-        } else if (getCatalina() != null) {
-            componentsPath = Path.of(getCatalina(), "components");
+        } else if (catalinaBase != null) {
+            componentsPath = catalinaBase.resolve("components");
         }
 
         if (Files.isDirectory(componentsPath)) {
@@ -91,17 +107,4 @@ public class Bootstrap implements LifecycleListener {
         }
     }
 
-    /**
-     * Check the environment for catalina's base or home directory.
-     *
-     * @return Catalina's base or home directory.
-     */
-    protected String getCatalina() {
-        String catalina = System.getProperty("catalina.base");
-        if (catalina == null) {
-            catalina = System.getProperty("catalina.home");
-        }
-
-        return catalina;
-    }
 }

@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.sakaiproject.component.impl.ComponentManagerShim;
 import org.sakaiproject.component.impl.MockCompMgr;
 import org.sakaiproject.component.impl.SpringCompMgr;
 
@@ -108,7 +109,9 @@ public class ComponentManager {
 			// if we do not yet have our component manager instance, create and
 			// init / populate it
 			if (m_componentManager == null) {
-			    if (testingMode) {
+				if ("true".equalsIgnoreCase(System.getProperty("sakai.modi", "false"))) {
+					m_componentManager = new ComponentManagerShim(null);
+				} else if (testingMode) {
 			        m_componentManager = new MockCompMgr(false);
 			    } else {
 			        m_componentManager = new SpringCompMgr(null);
