@@ -53,6 +53,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
@@ -324,6 +325,12 @@ public class PublishAssessmentListener
                                                  "gradebook_exception_title_invalid");
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(gbe);
+    } catch (InvalidCategoryException gbe) {
+		log.warn("Incorrect gradebook category settings detected when attempting publish assessment: {}", gbe.toString());
+		String err = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+				"gradebook_exception_category_invalid");
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
+		throw new AbortProcessingException(gbe);
     } catch (Exception e) {
         log.warn(e.getMessage(), e);
         // Add a global message (not bound to any component) to the faces context indicating the failure
