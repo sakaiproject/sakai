@@ -1603,7 +1603,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false) && !securityService.isSuperUser()) {
-				views.put(SiteConstants.SITE_ACTIVE, rb.getString("java.myActive"));
 				views.put(SiteConstants.SITE_INACTIVE, rb.getString("java.myInactive"));
 			}
 			
@@ -5020,11 +5019,9 @@ public class SiteAction extends PagedResourceActionII {
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
 
-					SelectionType selectionType;
+					SelectionType selectionType = SelectionType.ACCESS;
 					if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
 						selectionType = SelectionType.MEMBER;
-					} else {
-						selectionType = SelectionType.ACCESS;
 					}
 
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
@@ -5049,9 +5046,6 @@ public class SiteAction extends PagedResourceActionII {
 							size++;
 						} catch (IdUnusedException e) {
 						}
-					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
-						view = null;
-						size += siteService.countSites(SelectionType.PUBVIEW, view, search, termProp);
 					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
 						size += siteService.countSites(SelectionType.INACTIVE_ONLY,null, search, termProp);
 					} else {
@@ -5152,12 +5146,9 @@ public class SiteAction extends PagedResourceActionII {
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
 
-					SelectionType selectionType;
-
+					SelectionType selectionType = SelectionType.ACCESS;
 					if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
 						selectionType = SelectionType.MEMBER;
-					} else {
-						selectionType = SelectionType.ACCESS;
 					}
 
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
@@ -5182,8 +5173,6 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
 						return siteService.getSites(SelectionType.DELETED, null, search, null, sortType, new PagingPosition(first, last));
-					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
-						rv.addAll(siteService.getSites(SelectionType.PUBVIEW, null, search, termProp, sortType, new PagingPosition(first, last)));
 					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
 						rv.addAll(siteService.getSites(SelectionType.INACTIVE_ONLY, null, search, termProp, sortType, new PagingPosition(first, last)));
 					} else {
