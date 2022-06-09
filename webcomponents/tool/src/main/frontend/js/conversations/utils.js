@@ -23,8 +23,7 @@ export const markThreadViewed = thread => {
   if (!thread.posts) {
     thread.viewed = true;
   } else {
-    const flattened = flattenPosts(thread);
-    thread.viewed = !flattened.filter(p => !p.viewed).length === 0;
+    thread.viewed = flattenPosts(thread.posts).filter(p => !p.viewed).length === 0;
   }
   thread.expanded = !thread.viewed;
 };
