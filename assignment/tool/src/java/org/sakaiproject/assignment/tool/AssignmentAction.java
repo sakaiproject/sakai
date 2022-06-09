@@ -2251,9 +2251,10 @@ public class AssignmentAction extends PagedResourceActionII {
                     
             // Get visibility value of assignments tool
             String isAssignmentsVisible = toolConfig.getConfig().getProperty(ToolManager.PORTAL_VISIBLE);
+            boolean isVisible = StringUtils.isBlank(isAssignmentsVisible) || StringUtils.equalsIgnoreCase(isAssignmentsVisible, Boolean.TRUE.toString());
             
             // Checks if the assignments tool is visible from the LHS Menu.
-            context.put("isAssignmentsToolVisible", StringUtils.equalsIgnoreCase(isAssignmentsVisible, Boolean.TRUE.toString()));
+            context.put("isAssignmentsToolVisible", isVisible);
             
         } catch(IdUnusedException e) {
             log.error(e.getMessage(), e);
