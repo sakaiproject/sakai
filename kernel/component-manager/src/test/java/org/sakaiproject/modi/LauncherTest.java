@@ -102,6 +102,14 @@ public class LauncherTest {
         assertThat(demo.getName()).isEqualTo("Demo Bean");
     }
 
+    /** We enforce that the property ends in a slash because it is used for bare concatenation. */
+    @Test
+    public void givenSakaHomeIsUnset_whenStarted_thenItIsSetToTomcatSakaiSlash() {
+        new Launcher(fakeTomcat).start();
+
+        assertThat(System.getProperty("sakai.home")).isEqualTo(fakeTomcat.resolve("sakai") + "/");
+    }
+
     private SharedApplicationContext globalContext() {
         return GlobalApplicationContext.getContext() ;
     }

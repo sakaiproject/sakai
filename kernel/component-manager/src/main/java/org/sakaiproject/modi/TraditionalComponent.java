@@ -26,8 +26,11 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public class TraditionalComponent implements BeanDefinitionSource {
-    @Getter private final Path path;
+    /** This component's name; by convention, it is the name of the containing directory. */
     @Getter private final String name;
+
+    /** The directory that contains this component. */
+    @Getter private final Path path;
 
     protected final Path webInf;
     protected final Path classes;
@@ -83,6 +86,15 @@ public class TraditionalComponent implements BeanDefinitionSource {
         });
     }
 
+    /**
+     * Wrap a lambda in a new class loader, activated for loading this component/package.
+     *
+     * This creates a new ClassLoader with the existing one for the current thread as the parent,
+     * sets it as current for the thread, then delivers it to the supplied function, and resets to
+     * the parent when the function completes.
+     *
+     * @param function a function that takes the new ClassLoader
+     */
     protected void withPackageLoader(Consumer<ClassLoader> function) {
         ClassLoader parent = getClassLoader();
         try {
@@ -94,6 +106,13 @@ public class TraditionalComponent implements BeanDefinitionSource {
         }
     }
 
+    /**
+     * Create a ClassLoader with our conventions for classpath, which are typical: add
+     * the {@code classes/} directory and all .jar files under {@code lib/}.
+     *
+     * @param parent the ClassLoader to set as the parent of the new one
+     * @return a newly constructed ClassLoader with all classes and jars on the classpath
+     */
     protected ClassLoader newClassLoader(ClassLoader parent) {
         // We stream through both classes/ and lib/*.jar, safely converting to URL.
         Stream<Path> classDir = Stream.of(classes).filter(Files::isDirectory);

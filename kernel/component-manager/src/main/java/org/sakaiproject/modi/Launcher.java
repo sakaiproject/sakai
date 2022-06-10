@@ -6,12 +6,46 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * A launcher for Sakai in its traditional directory structure and conventions. Used to
+ * kick off the configuration and component loading process and ensure that the shared
+ * application context is ready for webapps to load.
+ *
+ * The {@link TomcatListener} is the main consumer of this class, and there is some
+ * conventional overlap and Tomcat naming exposed, despite very little in the way of
+ * actual Tomcat dependency. It is conceivable that another container could serve.
+ */
 @Slf4j
 public class Launcher {
     protected final Path catalinaBase;
     protected TraditionalComponents components;
     protected SharedApplicationContext context;
 
+    /**
+     * Create a Sakai launcher.
+     *
+     * The only parameter here is called catalinaBase because that is from where the other
+     * conventions stem (components/, webapps/, lib/, sakai/). It is effectively the installation
+     * directory for a Sakai instance.
+     *
+     * It should be the root of the Tomcat installation (aka CATALINA_BASE, ${catalina.base}). In
+     * most installations, as by tarball or zip, the CATALINA_HOME ${catalina.home} will the same
+     * directory. This is also sometimes called or set as TOMCAT_BASE, TOMCAT_HOME. In any case,
+     * CATALINA_BASE is the most specific and accurate, so that's what we call it here.
+     *
+     * Calling {@link #start()} will begin the boot process immediately, loading configs and the
+     * default components in the global application context. Calling {@link #stop()} will shut down
+     * the context and unwind all of the beans and webapps.
+     *
+     * There is a shim to preserve the legacy ComponentManager API for those services and tools
+     * that do not make use of dependency injection.
+     *
+     * {@link GlobalApplicationContext}
+     * {@link SharedApplicationContext}
+     * {@link org.sakaiproject.component.impl.ComponentManagerShim}
+     *
+     * @param catalinaBase the root directory for the Sakai / Tomcat instance
+     */
     public Launcher(Path catalinaBase) {
         this.catalinaBase = catalinaBase;
     }
@@ -19,14 +53,16 @@ public class Launcher {
     /** The java system property name where the full path to the components packages. */
     public static final String SAKAI_COMPONENTS_ROOT_SYS_PROP = "sakai.components.root";
 
-    protected final static String CONFIGURATION_FILE_NAME = "sakai-configuration.xml";
-
-    // take catalina.base as the only param
-    // load config by convention (pick up sysprops)
-    // load components by convention (Traditional, in components/, ComponentsDirectory?)
-    // load overrides by convention -- probably belongs in component load... filtering the files, but also: why?
-
-    protected void start() throws MissingConfigurationException {
+    /**
+     * Start the Sakai instance.
+     *
+     * This begins the traditional boot process, checking and ensuring properties/variables
+     * like sakai.home, and then loading all of the shared components into the shared
+     * application context, with a ComponentManager shim in place to preserve the legacy API.
+     *
+     * @throws MissingConfigurationException if sakai-configuration.xml is specified and cannot be read
+     */
+    public void start() throws MissingConfigurationException {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.use.modi", "true");
         ensureSakaiHome();
@@ -35,9 +71,7 @@ public class Launcher {
         Path componentsRoot = getComponentsRoot();
         Path overridePath = getOverridePath();
 
-
         context = GlobalApplicationContext.getContext();
-
         context.registerBeanSource(getConfiguration());
 
         if (componentsRoot != null) {
@@ -50,7 +84,7 @@ public class Launcher {
         context.start();
     }
 
-    protected void stop() {
+    public void stop() {
         log.info("Stopping Sakai components");
         if (components != null) {
             components.stopping();

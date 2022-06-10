@@ -18,8 +18,8 @@ public class GlobalApplicationContext {
             if (context == null) {
                 context = new SharedApplicationContext();
             }
-            return context;
         }
+        return context;
     }
 
     public static void destroyContext() {
