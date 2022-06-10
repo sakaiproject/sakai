@@ -1,11 +1,14 @@
 package org.sakaiproject.modi;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -16,14 +19,21 @@ import static org.assertj.core.api.Assertions.*;
 public class LauncherTest {
 
     public final Path fixtures = Paths.get("src", "test", "resources");
-    public final Path fakeTomcat = fixtures.resolve("fake-tomcat");
+    public final Path fakeTomcat = fixtures.resolve("fake-tomcat").toAbsolutePath();
 
     @Before
-    public void cleanStart() {
+    public void cleanStart() throws IOException {
         GlobalApplicationContext.destroyContext();
         SpyBean.instances = 0;
         System.clearProperty("sakai.home");
         System.clearProperty("sakai.demo");
+        System.setProperty("catalina.base", fakeTomcat.toString());
+        Files.deleteIfExists(fakeTomcat.resolveSibling("missing"));
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(fakeTomcat.resolveSibling("missing"));
     }
 
     @Test
@@ -104,10 +114,40 @@ public class LauncherTest {
 
     /** We enforce that the property ends in a slash because it is used for bare concatenation. */
     @Test
-    public void givenSakaHomeIsUnset_whenStarted_thenItIsSetToTomcatSakaiSlash() {
+    public void givenSakaHomeIsUnset_whenStarted_thenStartupHappensUnderTomcat() {
         new Launcher(fakeTomcat).start();
 
         assertThat(System.getProperty("sakai.home")).isEqualTo(fakeTomcat.resolve("sakai") + "/");
+    }
+
+    @Test
+    public void givenSakaHomeIsSetWithNoSlash_whenStarted_thenItIsUpdatedWithSlash() {
+        String externalHome = fakeTomcat.resolveSibling("external-home").toString();
+        System.setProperty("sakai.home", externalHome);
+
+        new Launcher(fakeTomcat).start();
+
+        assertThat(System.getProperty("sakai.home")).isEqualTo(externalHome + "/");
+    }
+
+    @Test
+    public void givenSakaHomeIsSetWithASlash_whenStarted_thenItIsUsedUnchanged() {
+        String externalHome = fakeTomcat.resolveSibling("external-home").toString();
+        System.setProperty("sakai.home", externalHome + "/");
+
+        new Launcher(fakeTomcat).start();
+
+        assertThat(System.getProperty("sakai.home")).isEqualTo(externalHome + "/");
+    }
+
+    @Test
+    public void givenSakaHomeIsSetToSomethingMissing_whenStarted_thenItIsCreated() {
+        Path missingHome = fakeTomcat.resolveSibling("missing");
+        System.setProperty("sakai.home", missingHome.toString());
+
+        new Launcher(fakeTomcat).start();
+
+        assertThat(missingHome).isDirectory();
     }
 
     private SharedApplicationContext globalContext() {

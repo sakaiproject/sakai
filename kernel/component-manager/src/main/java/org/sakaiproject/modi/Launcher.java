@@ -3,8 +3,10 @@ package org.sakaiproject.modi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * A launcher for Sakai in its traditional directory structure and conventions. Used to
@@ -61,8 +63,14 @@ public class Launcher {
      * application context, with a ComponentManager shim in place to preserve the legacy API.
      *
      * @throws MissingConfigurationException if sakai-configuration.xml is specified and cannot be read
+     * @throws CouldNotReadWriteSakaiHomeException if the sakai.home directory cannot be read/written
+     * @throws CouldNotCreateSakaiHomeException if the sakai.home directory does not exist and could not be created
      */
-    public void start() throws MissingConfigurationException {
+    public void start()
+            throws MissingConfigurationException,
+            CouldNotReadWriteSakaiHomeException,
+            CouldNotCreateSakaiHomeException
+    {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.use.modi", "true");
         ensureSakaiHome();
@@ -125,40 +133,61 @@ public class Launcher {
         }
     }
 
-    private void ensureSakaiHome() {
-        // find a path to sakai files on the app server - if not set, set it
-        String sakaiHomePath = System.getProperty("sakai.home");
-        if (sakaiHomePath == null) {
-            String catalina = catalinaBase.toString();
-            if (catalina != null) {
-                sakaiHomePath = catalina + File.separatorChar + "sakai"
-                        + File.separatorChar;
-            }
-        }
+    /**
+     * Use or infer the sakai.home value, and then check/create the directory.
+     *
+     * When done, we set the property again to ensure that it has a trailing slash
+     * because many places use it for bare concatenation.
+     *
+     * @throws CouldNotCreateSakaiHomeException if the directory cannot be established/created
+     */
+    private void ensureSakaiHome() throws CouldNotCreateSakaiHomeException {
+        Path home = getSakaiHomePath();
+        createHomeIfNeeded(home);
+        checkHomeReadWrite(home);
+        System.setProperty("sakai.home", home.toAbsolutePath() + "/");
+    }
 
-        // strange case...
-        if (sakaiHomePath == null) {
-            // last resort try /tmp/sakai
-            sakaiHomePath = File.separatorChar + "tmp" + File.separatorChar + "sakai" + File.separatorChar;
-        }
-        if (!sakaiHomePath.endsWith(File.separator))
-            sakaiHomePath = sakaiHomePath + File.separatorChar;
+    private Path getSakaiHomePath() {
+        return getConfiguredHome()
+                .or(this::getDefaultHome)
+                .orElseGet(this::fallbackHome);
+    }
 
-        final File sakaiHomeDirectory = new File(sakaiHomePath);
-        if (!sakaiHomeDirectory.exists()) // no sakai.home directory exists,
-        // try to create one
-        {
-            if (sakaiHomeDirectory.mkdir()) {
-                log.debug("Created sakai.home directory at: "
-                        + sakaiHomePath);
-            } else {
-                log.warn("Could not create sakai.home directory at: "
-                        + sakaiHomePath);
-            }
+    private void createHomeIfNeeded(Path path) {
+        try {
+            if (!Files.isDirectory(path))
+                Files.createDirectory(path);
+            log.info("Created Sakai home directory (sakai.home) at: {}", path);
+        } catch (IOException e) {
+            throw new CouldNotCreateSakaiHomeException(path);
         }
+    }
 
-        // make sure it's set properly
-        System.setProperty("sakai.home", sakaiHomePath);
+    private void checkHomeReadWrite(Path path) {
+        if (!(Files.isDirectory(path) && Files.isReadable(path) && Files.isWritable(path)))
+            throw new CouldNotReadWriteSakaiHomeException(path);
+    }
+
+    private Optional<Path> getConfiguredHome() {
+        return getSakaiHomeProp().map(Path::of);
+    }
+
+    private Optional<Path> getDefaultHome() {
+        return getCatalinaBaseProp()
+                .map(Path::of)
+                .map(p -> p.resolve("sakai"));
+    }
+
+    private Path fallbackHome() {
+        return Path.of("/tmp/sakai");
+    }
+    private Optional<String> getSakaiHomeProp() {
+        return Optional.ofNullable(System.getProperty("sakai.home"));
+    }
+
+    private Optional<String> getCatalinaBaseProp() {
+        return Optional.ofNullable(System.getProperty("catalina.base"));
     }
 
     private void checkSecurityPath() {
