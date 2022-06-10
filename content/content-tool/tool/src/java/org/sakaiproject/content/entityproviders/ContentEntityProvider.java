@@ -109,7 +109,6 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + SYS + "type_registry";
 	private static final String PARAMETER_DEPTH = "depth";
 	private static final String PARAMETER_TIMESTAMP = "timestamp";
-	private static final String GENERIC_CKEDITOR_IMAGE_FILENAME = "image";
 
 	private ContentHostingService contentHostingService;
 	private SiteService siteService;
@@ -324,11 +323,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 				String[] fileNameParts = fileItem.getName().split("\\.(?=[^.]+$)");
 				String fileName = fileNameParts[0];
 				// Solving the problem of pasted images in CK editor:
-				// They are always called "image", causing trouble with uniqueness check, so we update the filename with a date suffix
-				if (GENERIC_CKEDITOR_IMAGE_FILENAME.equals(fileName)) {
-					DateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-					fileName = fileName + "_" + df.format(new Date());
-				}
+				// They are always named the same, causing trouble with uniqueness check, so we update the filename with a date suffix
+				DateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+				fileName = fileName + "_" + df.format(new Date());
 				String basename = StringUtils.equals(uploadFolderName, contentHostingService.getStudentUploadFolderName()) ? currentUser.getDisplayId() + "_" + fileName : fileName;
 				securityService.pushAdvisor(allowedAdvisor);
 				ContentResourceEdit resourceEdit = contentHostingService.addResource(
