@@ -3,7 +3,11 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="aSpy" class="org.sakaiproject.modi.SpyBean">
-        <property name="name"><value>Bond</value></property>
+    <bean id="firstBean" class="org.sakaiproject.modi.SpyBean">
+        <property name="name"><value>First Bean</value></property>
+    </bean>
+
+    <bean id="firstOverride" class="org.sakaiproject.modi.SpyBean">
+        <property name="name"><value>original name</value></property>
     </bean>
 </beans>

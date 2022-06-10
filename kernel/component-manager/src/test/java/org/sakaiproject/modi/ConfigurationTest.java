@@ -65,7 +65,7 @@ public class ConfigurationTest {
 
     @Test
     public void givenACustomSakaiProperties_whenRegistering_thenTheDefaultIsOverridden() throws MissingConfigurationException {
-        Configuration config = new Configuration(Path.of("src/test/resources/home-config/sakai-configuration.xml"));
+        Configuration config = new Configuration(Path.of("src/test/resources/override-properties/sakai-configuration.xml"));
         BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 
         config.registerBeans(registry);

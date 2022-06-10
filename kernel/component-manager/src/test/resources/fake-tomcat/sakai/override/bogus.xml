@@ -3,11 +3,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="secondBean" class="org.sakaiproject.modi.SpyBean">
-        <property name="name"><value>Second Bean</value></property>
-    </bean>
-
-    <bean id="secondOverride" class="org.sakaiproject.modi.SpyBean">
-        <property name="name"><value>original name</value></property>
+    <!-- This file should not be loaded because we don't have a "bogus" component defined. -->
+    <bean id="bogusBean" class="org.sakaiproject.modi.SpyBean">
+        <property name="name"><value>should not be loaded</value></property>
     </bean>
 </beans>

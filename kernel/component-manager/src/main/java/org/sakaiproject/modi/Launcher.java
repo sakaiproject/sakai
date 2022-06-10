@@ -29,11 +29,12 @@ public class Launcher {
     protected void start() throws MissingConfigurationException {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.use.modi", "true");
+        ensureSakaiHome();
+        checkSecurityPath();
+
         Path componentsRoot = getComponentsRoot();
         Path overridePath = getOverridePath();
 
-        ensureSakaiHome();
-        checkSecurityPath();
 
         context = GlobalApplicationContext.getContext();
 
@@ -44,13 +45,9 @@ public class Launcher {
             components = new TraditionalComponents(componentsRoot, overridePath);
             components.starting(context);
         }
+
         context.refresh();
-        // These are MAGIC beans.......
-//        context.getBean("org.sakaiproject.component.SakaiPropertyPromoter");
-//        context.getBean("org.sakaiproject.log.api.LogConfigurationManager");
         context.start();
-        log.info("===================================== and we have started");
-//        ComponentManager.getInstance();
     }
 
     protected void stop() {
@@ -140,5 +137,4 @@ public class Launcher {
             System.setProperty("sakai.security", securityPath);
         }
     }
-
 }

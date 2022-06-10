@@ -2,20 +2,13 @@ package org.sakaiproject.modi;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -26,38 +19,90 @@ public class LauncherTest {
     public final Path fakeTomcat = fixtures.resolve("fake-tomcat");
 
     @Before
-    public void resetSpyCount() {
+    public void cleanStart() {
+        GlobalApplicationContext.destroyContext();
         SpyBean.instances = 0;
+        System.clearProperty("sakai.home");
+        System.clearProperty("sakai.demo");
     }
 
     @Test
-    public void givenABad() throws IOException {
-        assertThatNoException().isThrownBy(new Launcher(fakeTomcat)::start);
-    }
-
-    @Test
-    public void createsComponentBeans() {
+    public void givenABeanInComponentsXml_whenStarted_thenTheBeanIsInitialized() {
         new Launcher(fakeTomcat).start();
 
-        assertThat(SpyBean.instances).isEqualTo(1);
+        SpyBean bean = (SpyBean) globalContext().getBean("firstBean");
+
+        assertThat(bean.getName()).isEqualTo("First Bean");
     }
 
     @Test
-    public void givenABeanInComponentsXml_whenCheckingTheGlobalContext_itIsPresent() {
+    public void givenSeparateComponents_whenStarted_thenTheirBeansAreAllRegistered() {
         new Launcher(fakeTomcat).start();
 
-        SpyBean spy = (SpyBean) GlobalApplicationContext.getContext().getBean("aSpy");
+        SpyBean first = (SpyBean) globalContext().getBean("firstBean");
+        SpyBean second = (SpyBean) globalContext().getBean("secondBean");
+        List<String> names = List.of(first.getName(), second.getName());
 
-        assertThat(spy.getName()).isEqualTo("Bond");
+        assertThat(names).containsExactly("First Bean", "Second Bean");
     }
 
     @Test
-    public void givenTwoComponents_theirBeansAreRegistered() {
+    public void givenALocalSakaiConfigurationXml_whenStarted_thenTheConfigIsApplied() {
         new Launcher(fakeTomcat).start();
 
-        Object first = GlobalApplicationContext.getContext().getBean("aSpy");
-        Object second = GlobalApplicationContext.getContext().getBean("secondBean");
+        SpyBean customBean = (SpyBean) globalContext().getBean("customConfig");
 
-        assertThatList(List.of(first, second)).allMatch(Objects::nonNull);
+        assertThat(customBean.getName()).isEqualTo("custom");
+    }
+
+    @Test
+    public void givenAComponentOverride_whenStarted_thenTheComponentIsModified() {
+        new Launcher(fakeTomcat).start();
+
+        SpyBean overridden = (SpyBean) globalContext().getBean("firstOverride");
+
+        assertThat(overridden.getName()).isEqualTo("overridden name");
+    }
+
+    @Test
+    public void givenTwoComponentOverrides_whenStarted_thenBothComponentsAreModified() {
+        new Launcher(fakeTomcat).start();
+
+        SpyBean first = (SpyBean) globalContext().getBean("firstOverride");
+        SpyBean second = (SpyBean) globalContext().getBean("secondOverride");
+        List<String> names = List.of(first.getName(), second.getName());
+
+        assertThat(names).containsExactly("overridden name", "also overridden");
+    }
+
+    /** We should only load files that match component names, not just any XML files in the directory. */
+    @Test
+    public void givenAnExtraneousFileInOverrides_whenStarted_thenItIsNotApplied() {
+        new Launcher(fakeTomcat).start();
+
+        assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+                .isThrownBy(() -> globalContext().getBean("bogusBean"));
+    }
+
+    @Test
+    public void givenDemoModeIsOff_whenStarted_thenDemoFilesAreNotLoaded() {
+        new Launcher(fakeTomcat).start();
+
+        assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+                .isThrownBy(() -> globalContext().getBean("demoBean"));
+    }
+
+    @Test
+    public void givenDemoModeIsOn_whenStarted_thenDemoFilesAreLoaded() {
+        System.setProperty("sakai.demo", "true");
+        new Launcher(fakeTomcat).start();
+
+        SpyBean demo = (SpyBean) globalContext().getBean("demoBean");
+
+        assertThat(demo.getName()).isEqualTo("Demo Bean");
+    }
+
+    private SharedApplicationContext globalContext() {
+        return GlobalApplicationContext.getContext() ;
     }
 }

@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,11 +42,7 @@ public class TraditionalComponents {
     public void starting(SharedApplicationContext context) {
         log.info("Starting traditional components in: {}", componentsRoot);
         components.forEach(context::registerBeanSource);
-
-        if (overridePath != null)
-            log.info("Will apply overrides from: {}", overridePath);
-
-        //TODO: load overrides
+        getOverrides().ifPresent(context::registerBeanSource);
     }
 
     /**
@@ -73,9 +67,9 @@ public class TraditionalComponents {
         }
     }
 
-    protected Map<TraditionalComponent, Path> findOverrides() {
-        return components.stream()
-                .collect(Collectors.toMap(Function.identity(), c -> overridePath.resolve(c.getName() + ".xml")));
-
+    Optional<ComponentOverrides> getOverrides() {
+        return overridePath != null
+                ? Optional.of(new ComponentOverrides(components, overridePath))
+                : Optional.empty();
     }
 }

@@ -75,8 +75,11 @@ public class TraditionalComponent implements BeanDefinitionSource {
             XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
             reader.setBeanClassLoader(loader);
             reader.loadBeanDefinitions(componentBeans());
-            if (isDemoMode())
-                demoBeans().ifPresent(reader::loadBeanDefinitions);
+            log.info("Loaded bean definitions for {} from: {}", getName(), componentsXml);
+            demoBeans().ifPresent(beans -> {
+                reader.loadBeanDefinitions(beans);
+                log.info("Loaded DEMO bean definitions for {} from: {}", getName(), demoComponentsXml);
+            });
         });
     }
 
@@ -136,7 +139,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
     }
 
     protected Optional<Resource> demoBeans() {
-        return hasDemoComponents()
+        return isDemoMode() && hasDemoComponents()
                 ? Optional.of(new FileSystemResource(demoComponentsXml))
                 : Optional.empty();
     }
