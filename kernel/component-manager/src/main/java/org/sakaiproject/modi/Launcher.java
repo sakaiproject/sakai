@@ -1,10 +1,6 @@
 package org.sakaiproject.modi;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -23,12 +19,6 @@ public class Launcher {
     /** The java system property name where the full path to the components packages. */
     public static final String SAKAI_COMPONENTS_ROOT_SYS_PROP = "sakai.components.root";
 
-    /** The Sakai configuration components, which must be the first loaded. */
-    protected final static String[] CONFIGURATION_COMPONENTS = {
-            "org.sakaiproject.component.SakaiPropertyPromoter",
-            "org.sakaiproject.log.api.LogConfigurationManager" };
-
-    protected final static String DEFAULT_CONFIGURATION_FILE = "org/sakaiproject/config/sakai-configuration.xml";
     protected final static String CONFIGURATION_FILE_NAME = "sakai-configuration.xml";
 
     // take catalina.base as the only param
@@ -36,7 +26,7 @@ public class Launcher {
     // load components by convention (Traditional, in components/, ComponentsDirectory?)
     // load overrides by convention -- probably belongs in component load... filtering the files, but also: why?
 
-    protected void start() {
+    protected void start() throws MissingConfigurationException {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.use.modi", "true");
         Path componentsRoot = getComponentsRoot();
@@ -45,24 +35,9 @@ public class Launcher {
         ensureSakaiHome();
         checkSecurityPath();
 
-        log.info("====================> ASKING FOR THE GAC...");
         context = GlobalApplicationContext.getContext();
 
-        BeanDefinitionSource config = new BeanDefinitionSource() {
-            @Override
-            public String getName() {
-                return "Configuration Beans in lambdaaaa";
-            }
-
-            @Override
-            public void registerBeans(BeanDefinitionRegistry registry) {
-                Resource config = new ClassPathResource(DEFAULT_CONFIGURATION_FILE);
-                XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
-                reader.loadBeanDefinitions(config);
-            }
-        };
-
-        context.registerBeanSource(config);
+        context.registerBeanSource(getConfiguration());
 
         if (componentsRoot != null) {
             System.setProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsRoot.toString());
@@ -84,6 +59,13 @@ public class Launcher {
             components.stopping();
         }
         context.stop();
+    }
+
+    protected Configuration getConfiguration() throws MissingConfigurationException {
+        Path localConfig = Path.of(System.getProperty("sakai.home"), "sakai-configuration.xml");
+        return Files.isRegularFile(localConfig)
+                ? new Configuration(localConfig)
+                : new Configuration();
     }
 
     protected Path getComponentsRoot() {
