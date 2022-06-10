@@ -3,7 +3,6 @@ package org.sakaiproject.modi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -73,7 +72,7 @@ public class Launcher {
     {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.use.modi", "true");
-        ensureSakaiHome();
+        SakaiHome.ensure();
         checkSecurityPath();
 
         Path componentsRoot = getComponentsRoot();
@@ -131,63 +130,6 @@ public class Launcher {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Use or infer the sakai.home value, and then check/create the directory.
-     *
-     * When done, we set the property again to ensure that it has a trailing slash
-     * because many places use it for bare concatenation.
-     *
-     * @throws CouldNotCreateSakaiHomeException if the directory cannot be established/created
-     */
-    private void ensureSakaiHome() throws CouldNotCreateSakaiHomeException {
-        Path home = getSakaiHomePath();
-        createHomeIfNeeded(home);
-        checkHomeReadWrite(home);
-        System.setProperty("sakai.home", home.toAbsolutePath() + "/");
-    }
-
-    private Path getSakaiHomePath() {
-        return getConfiguredHome()
-                .or(this::getDefaultHome)
-                .orElseGet(this::fallbackHome);
-    }
-
-    private void createHomeIfNeeded(Path path) {
-        try {
-            if (!Files.isDirectory(path))
-                Files.createDirectory(path);
-            log.info("Created Sakai home directory (sakai.home) at: {}", path);
-        } catch (IOException e) {
-            throw new CouldNotCreateSakaiHomeException(path);
-        }
-    }
-
-    private void checkHomeReadWrite(Path path) {
-        if (!(Files.isDirectory(path) && Files.isReadable(path) && Files.isWritable(path)))
-            throw new CouldNotReadWriteSakaiHomeException(path);
-    }
-
-    private Optional<Path> getConfiguredHome() {
-        return getSakaiHomeProp().map(Path::of);
-    }
-
-    private Optional<Path> getDefaultHome() {
-        return getCatalinaBaseProp()
-                .map(Path::of)
-                .map(p -> p.resolve("sakai"));
-    }
-
-    private Path fallbackHome() {
-        return Path.of("/tmp/sakai");
-    }
-    private Optional<String> getSakaiHomeProp() {
-        return Optional.ofNullable(System.getProperty("sakai.home"));
-    }
-
-    private Optional<String> getCatalinaBaseProp() {
-        return Optional.ofNullable(System.getProperty("catalina.base"));
     }
 
     private void checkSecurityPath() {
