@@ -96,6 +96,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>txw2</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.sun.istack</groupId>
             <artifactId>istack-commons-runtime</artifactId>
             <scope>compile</scope>
