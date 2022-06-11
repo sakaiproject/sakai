@@ -87,7 +87,7 @@ public class ComponentsDirectory {
      * @return any overrides for our components in the override path supplied; may be empty
      */
     protected Optional<ComponentOverrides> findOverrides() {
-        return overridePath != null
+        return overridePath != null && Files.isDirectory(overridePath)
                 ? Optional.of(new ComponentOverrides(components, overridePath))
                 : Optional.empty();
     }

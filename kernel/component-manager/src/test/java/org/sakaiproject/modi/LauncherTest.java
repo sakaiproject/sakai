@@ -3,7 +3,6 @@ package org.sakaiproject.modi;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -27,6 +26,8 @@ public class LauncherTest {
         SpyBean.instances = 0;
         System.clearProperty("sakai.home");
         System.clearProperty("sakai.demo");
+        System.clearProperty("sakai.components.root");
+        System.clearProperty("sakai.security");
         System.setProperty("catalina.base", fakeTomcat.toString());
         Files.deleteIfExists(fakeTomcat.resolveSibling("missing"));
     }

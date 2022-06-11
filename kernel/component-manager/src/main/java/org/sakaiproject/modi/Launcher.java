@@ -20,6 +20,7 @@ public class Launcher {
     protected final Path catalinaBase;
     protected ComponentsDirectory components;
     protected SharedApplicationContext context;
+    protected final Environment env;
 
     /**
      * Create a Sakai launcher.
@@ -48,6 +49,7 @@ public class Launcher {
      */
     public Launcher(Path catalinaBase) {
         this.catalinaBase = catalinaBase;
+        this.env = Environment.initialize();
     }
 
     /** The java system property name where the full path to the components packages. */
@@ -71,20 +73,22 @@ public class Launcher {
     {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.use.modi", "true");
-        SakaiHome.ensure();
-        checkSecurityPath();
+//        checkSecurityPath();
+//        Path componentsRoot = getComponentsRoot();
+//        Path overridePath = getOverridePath();
 
-        Path componentsRoot = getComponentsRoot();
-        Path overridePath = getOverridePath();
+        Path sakaiHome = Path.of(env.getSakaiHome());
+        Path componentsRoot = Path.of(env.getComponentsRoot());
+        Path overridePath = sakaiHome.resolve("override");
 
         context = GlobalApplicationContext.getContext();
         context.registerBeanSource(getConfiguration());
 
-        if (componentsRoot != null) {
-            System.setProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsRoot.toString());
+//        if (componentsRoot != null) {
+//            System.setProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsRoot.toString());
             components = new ComponentsDirectory(componentsRoot, overridePath);
             components.starting(context);
-        }
+//        }
 
         context.refresh();
         context.start();
@@ -99,7 +103,7 @@ public class Launcher {
     }
 
     protected Configuration getConfiguration() throws MissingConfigurationException {
-        Path localConfig = Path.of(System.getProperty("sakai.home"), "sakai-configuration.xml");
+        Path localConfig = Path.of(env.getSakaiHome()).resolve("sakai-configuration.xml");
         return Files.isRegularFile(localConfig)
                 ? new Configuration(localConfig)
                 : new Configuration();
