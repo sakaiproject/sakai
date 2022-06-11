@@ -234,6 +234,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					discussionForumCount++;
 					final Element discussionForumElement = doc.createElement(DISCUSSION_FORUM);
 					discussionForumElement.setAttribute(DISCUSSION_FORUM_TITLE, discussionForum.getTitle());
+					discussionForumElement.setAttribute(ID, discussionForum.getId().toString());
 					discussionForumElement.setAttribute(DRAFT, discussionForum.getDraft().toString());
 					discussionForumElement.setAttribute(LOCKED, discussionForum.getLocked().toString());
 					discussionForumElement.setAttribute(MODERATED, discussionForum.getModerated().toString());
