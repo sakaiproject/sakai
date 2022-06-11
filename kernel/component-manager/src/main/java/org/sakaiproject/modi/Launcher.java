@@ -2,7 +2,6 @@ package org.sakaiproject.modi;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -17,7 +16,6 @@ import java.nio.file.Path;
  */
 @Slf4j
 public class Launcher {
-    protected final Path catalinaBase;
     protected ComponentsDirectory components;
     protected SharedApplicationContext context;
     protected final Environment env;
@@ -45,15 +43,10 @@ public class Launcher {
      * {@link SharedApplicationContext}
      * {@link org.sakaiproject.component.impl.ComponentManagerShim}
      *
-     * @param catalinaBase the root directory for the Sakai / Tomcat instance
      */
-    public Launcher(Path catalinaBase) {
-        this.catalinaBase = catalinaBase;
+    public Launcher() {
         this.env = Environment.initialize();
     }
-
-    /** The java system property name where the full path to the components packages. */
-    public static final String SAKAI_COMPONENTS_ROOT_SYS_PROP = "sakai.components.root";
 
     /**
      * Start the Sakai instance.
@@ -63,19 +56,11 @@ public class Launcher {
      * application context, with a ComponentManager shim in place to preserve the legacy API.
      *
      * @throws MissingConfigurationException if sakai-configuration.xml is specified and cannot be read
-     * @throws CouldNotReadWriteSakaiHomeException if the sakai.home directory cannot be read/written
-     * @throws CouldNotCreateSakaiHomeException if the sakai.home directory does not exist and could not be created
+     * @throws InitializationException if there are unresolvable problems with the core directories
      */
-    public void start()
-            throws MissingConfigurationException,
-            CouldNotReadWriteSakaiHomeException,
-            CouldNotCreateSakaiHomeException
-    {
+    public void start() throws MissingConfigurationException, InitializationException {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.use.modi", "true");
-//        checkSecurityPath();
-//        Path componentsRoot = getComponentsRoot();
-//        Path overridePath = getOverridePath();
 
         Path sakaiHome = Path.of(env.getSakaiHome());
         Path componentsRoot = Path.of(env.getComponentsRoot());
@@ -84,11 +69,8 @@ public class Launcher {
         context = GlobalApplicationContext.getContext();
         context.registerBeanSource(getConfiguration());
 
-//        if (componentsRoot != null) {
-//            System.setProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsRoot.toString());
-            components = new ComponentsDirectory(componentsRoot, overridePath);
-            components.starting(context);
-//        }
+        components = new ComponentsDirectory(componentsRoot, overridePath);
+        components.starting(context);
 
         context.refresh();
         context.start();
@@ -107,42 +89,5 @@ public class Launcher {
         return Files.isRegularFile(localConfig)
                 ? new Configuration(localConfig)
                 : new Configuration();
-    }
-
-    protected Path getComponentsRoot() {
-        String rootPath = System.getProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP);
-        Path componentsPath = null;
-        if (rootPath != null) {
-            componentsPath = Path.of(rootPath);
-        } else if (catalinaBase != null) {
-            componentsPath = catalinaBase.resolve("components");
-        }
-
-        if (Files.isDirectory(componentsPath)) {
-            return componentsPath;
-        } else {
-            log.warn("Bootstrap error: cannot establish a root directory for the components packages");
-            return null;
-        }
-    }
-
-    protected Path getOverridePath() {
-        Path override = Path.of(System.getProperty("sakai.home"), "override");
-        if (Files.isDirectory(override)) {
-            return override;
-        } else {
-            return null;
-        }
-    }
-
-    private void checkSecurityPath() {
-        // check for the security home
-        String securityPath = System.getProperty("sakai.security");
-        if (securityPath != null) {
-            // make sure it's properly slashed
-            if (!securityPath.endsWith(File.separator))
-                securityPath = securityPath + File.separatorChar;
-            System.setProperty("sakai.security", securityPath);
-        }
     }
 }

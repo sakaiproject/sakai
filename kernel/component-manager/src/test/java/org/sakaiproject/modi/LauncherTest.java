@@ -39,7 +39,7 @@ public class LauncherTest {
 
     @Test
     public void givenABeanInComponentsXml_whenStarted_thenTheBeanIsInitialized() {
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         SpyBean bean = (SpyBean) globalContext().getBean("firstBean");
 
@@ -48,7 +48,7 @@ public class LauncherTest {
 
     @Test
     public void givenSeparateComponents_whenStarted_thenTheirBeansAreAllRegistered() {
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         SpyBean first = (SpyBean) globalContext().getBean("firstBean");
         SpyBean second = (SpyBean) globalContext().getBean("secondBean");
@@ -59,7 +59,7 @@ public class LauncherTest {
 
     @Test
     public void givenALocalSakaiConfigurationXml_whenStarted_thenTheConfigIsApplied() {
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         SpyBean customBean = (SpyBean) globalContext().getBean("customConfig");
 
@@ -68,7 +68,7 @@ public class LauncherTest {
 
     @Test
     public void givenAComponentOverride_whenStarted_thenTheComponentIsModified() {
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         SpyBean overridden = (SpyBean) globalContext().getBean("firstOverride");
 
@@ -77,7 +77,7 @@ public class LauncherTest {
 
     @Test
     public void givenTwoComponentOverrides_whenStarted_thenBothComponentsAreModified() {
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         SpyBean first = (SpyBean) globalContext().getBean("firstOverride");
         SpyBean second = (SpyBean) globalContext().getBean("secondOverride");
@@ -89,7 +89,7 @@ public class LauncherTest {
     /** We should only load files that match component names, not just any XML files in the directory. */
     @Test
     public void givenAnExtraneousFileInOverrides_whenStarted_thenItIsNotApplied() {
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
                 .isThrownBy(() -> globalContext().getBean("bogusBean"));
@@ -97,7 +97,7 @@ public class LauncherTest {
 
     @Test
     public void givenDemoModeIsOff_whenStarted_thenDemoFilesAreNotLoaded() {
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
                 .isThrownBy(() -> globalContext().getBean("demoBean"));
@@ -106,7 +106,7 @@ public class LauncherTest {
     @Test
     public void givenDemoModeIsOn_whenStarted_thenDemoFilesAreLoaded() {
         System.setProperty("sakai.demo", "true");
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         SpyBean demo = (SpyBean) globalContext().getBean("demoBean");
 
@@ -116,7 +116,7 @@ public class LauncherTest {
     /** We enforce that the property ends in a slash because it is used for bare concatenation. */
     @Test
     public void givenSakaHomeIsUnset_whenStarted_thenStartupHappensUnderTomcat() {
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         assertThat(System.getProperty("sakai.home")).isEqualTo(fakeTomcat.resolve("sakai") + "/");
     }
@@ -126,7 +126,7 @@ public class LauncherTest {
         String externalHome = fakeTomcat.resolveSibling("external-home").toString();
         System.setProperty("sakai.home", externalHome);
 
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         assertThat(System.getProperty("sakai.home")).isEqualTo(externalHome + "/");
     }
@@ -136,7 +136,7 @@ public class LauncherTest {
         String externalHome = fakeTomcat.resolveSibling("external-home").toString();
         System.setProperty("sakai.home", externalHome + "/");
 
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         assertThat(System.getProperty("sakai.home")).isEqualTo(externalHome + "/");
     }
@@ -146,7 +146,7 @@ public class LauncherTest {
         Path missingHome = fakeTomcat.resolveSibling("missing");
         System.setProperty("sakai.home", missingHome.toString());
 
-        new Launcher(fakeTomcat).start();
+        new Launcher().start();
 
         assertThat(missingHome).isDirectory();
     }

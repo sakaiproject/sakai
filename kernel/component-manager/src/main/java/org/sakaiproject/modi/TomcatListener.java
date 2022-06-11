@@ -18,7 +18,7 @@ public class TomcatListener implements LifecycleListener {
     protected final Launcher launcher;
 
     public TomcatListener() {
-        launcher = new Launcher(getCatalina());
+        launcher = new Launcher();
     }
 
     @Override
@@ -27,19 +27,5 @@ public class TomcatListener implements LifecycleListener {
             case Lifecycle.START_EVENT: launcher.start(); break;
             case Lifecycle.STOP_EVENT: launcher.stop(); break;
         }
-    }
-
-    /**
-     * Check the environment for catalina's base or home directory.
-     *
-     * @return Catalina's base or home directory.
-     * @throws RuntimeException if no base directory can be found
-     */
-    protected Path getCatalina() {
-        Path catalina = Path.of(System.getProperty("catalina.base", System.getProperty("catalina.home")));
-        if (!Files.isDirectory(catalina)) {
-            throw new RuntimeException("Fatal error launching Sakai: Tomcat's catalina.base or catalina.home must available as system properties.");
-        }
-        return catalina;
     }
 }

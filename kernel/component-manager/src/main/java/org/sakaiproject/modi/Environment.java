@@ -47,11 +47,10 @@ public final class Environment {
      * When done, we set the System property again to ensure that it has a trailing
      * slash because many places use it for bare concatenation.
      *
-     * @return
-     * @throws CouldNotCreateSakaiHomeException    if the directory cannot be established/created
-     * @throws CouldNotReadWriteSakaiHomeException if the directory cannot be read/written
+     * @return an initialized environment; see the getters for what is considered core for startup
+     * @throws InitializationException if the directory cannot be created/read/written
      */
-    public static Environment initialize() throws CouldNotCreateSakaiHomeException, CouldNotReadWriteSakaiHomeException {
+    public static Environment initialize() throws InitializationException {
         Environment env = new Environment();
         return env;
     }
@@ -66,10 +65,13 @@ public final class Environment {
 
     /** The Tomcat/Catalina base directory, catalina.base */
     @Getter private final String catalinaBase;
+
     /** The main Sakai Home directory, sakai.home -- usually ${catalina.base}/sakai */
     @Getter private final String sakaiHome;
+
     /** The directory for traditional on-disk components, sakai.components.root -- usually ${catalina.base}/components */
     @Getter private final String componentsRoot;
+
     /** The optional directory for properties files sensitive data, sakai.security -- usually null/empty */
     @Getter private final String sakaiSecurity;
 
@@ -118,20 +120,20 @@ public final class Environment {
     }
 
     /** Create the computed directory, if needed */
-    private void createHomeIfNeeded(Path path) throws CouldNotCreateSakaiHomeException {
+    private void createHomeIfNeeded(Path path) throws InitializationException {
         try {
             if (!Files.isDirectory(path))
                 Files.createDirectory(path);
             log.info("Created Sakai home directory (sakai.home) at: {}", path);
         } catch (IOException e) {
-            throw new CouldNotCreateSakaiHomeException(path);
+            throw couldNotCreateSakaiHome();
         }
     }
 
     /** Ensure a readable/writable directory. */
-    private void checkHomeReadWrite(Path path) throws CouldNotReadWriteSakaiHomeException {
+    private void checkHomeReadWrite(Path path) throws InitializationException {
         if (!(Files.isDirectory(path) && Files.isReadable(path) && Files.isWritable(path)))
-            throw new CouldNotReadWriteSakaiHomeException(path);
+            throw couldNotReadWriteSakaiHome();
     }
 
     /** The optional path as set in system properties (generally with JAVA_OPTS or CATALINA_OPTS). */
@@ -153,13 +155,18 @@ public final class Environment {
     private String withTrailingSlash(String path) {
         return path.endsWith(File.separator)
                 ? path
-                : path + "/";
+                : path + File.separator;
     }
 
-    private static final String MISSING_MESSAGE =
+    private static final String COULD_NOT_CREATE =
+            "Cannot finish initialization; could not create {}.\n"
+                    + "    It is set to: '{}'\n"
+                    + "    Check your Tomcat configuration and environment variables.";
+
+    private static final String COULD_NOT_FIND =
             "Cannot finish initialization; {} is missing or unreadable.\n"
                     + "    It is set to: '{}'\n"
-                    + "    Check your Tomcat configuration.";
+                    + "    Check your Tomcat configuration and environment variables.";
 
     private String format(String msg, Object... args) {
         return MessageFormatter.arrayFormat(msg, Arrays.stream(args).toArray()).getMessage();
@@ -169,15 +176,23 @@ public final class Environment {
         return new InitializationException(format(msg, args));
     }
 
+    private InitializationException couldNotCreateSakaiHome() {
+        return fatalError(COULD_NOT_CREATE, "sakai.home", sakai_home.getRaw());
+    }
+
+    private InitializationException couldNotReadWriteSakaiHome() {
+        return fatalError(COULD_NOT_FIND, "sakai.home", sakai_home.getRaw());
+    }
+
     private InitializationException catalinaBaseMissing() {
-        return fatalError(MISSING_MESSAGE, "catalina.base", catalina_base.getRaw());
+        return fatalError(COULD_NOT_FIND, "catalina.base", catalina_base.getRaw());
     }
 
     private InitializationException componentsUnreadable() {
-        return fatalError(MISSING_MESSAGE, "sakai.components.root", catalina_base.getRaw());
+        return fatalError(COULD_NOT_FIND, "sakai.components.root", catalina_base.getRaw());
     }
 
     private InitializationException securityUnreable() {
-        return fatalError(MISSING_MESSAGE, "sakai.security", sakai_security.getRaw());
+        return fatalError(COULD_NOT_FIND, "sakai.security", sakai_security.getRaw());
     }
 }

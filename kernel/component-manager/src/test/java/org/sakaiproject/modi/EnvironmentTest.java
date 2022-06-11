@@ -83,7 +83,7 @@ public class EnvironmentTest {
 
         assertThatExceptionOfType(InitializationException.class)
                 .isThrownBy(Environment::initialize)
-                .withMessageContaining("Could not create Sakai home");
+                .withMessageContaining("could not create sakai.home");
     }
 
     @Test
