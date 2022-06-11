@@ -16,12 +16,26 @@ import java.util.stream.Stream;
  * means that they are expanded on disk with a {@code WEB-INF} directory, with a {@code components.xml} and {@code lib}
  * directory for jars inside. The {@code components} directory is almost always within Tomcat's main directory
  * (CATALINA_HOME / CATALINA_BASE), a sibling to {@code webapps}.
- *
+ * <p>
  * This class is designed as immutable and essentially context independent, with all fields being set at construction.
  * It does not read any system properties or access the Environment.
  */
 @Slf4j
 public class ComponentsDirectory {
+    /**
+     * Construct a set of traditional components from a root directory and a directory of override files.
+     *
+     * @param rootPath     the root directory for components (one per directory); may not be null
+     * @param overridePath a directory with override files; each matching a component directory name with .xml
+     *                     extension; may be null
+     */
+    public ComponentsDirectory(@NonNull Path rootPath, Path overridePath) {
+        this.rootPath = rootPath;
+        this.overridePath = overridePath;
+        components = findComponents();
+        overrides = findOverrides();
+    }
+
     /** The root directory for these components. */
     protected final Path rootPath;
 
@@ -33,27 +47,13 @@ public class ComponentsDirectory {
 
     /**
      * The overrides for these components.
-     *
-     * There is some debate about whether fields should ever be optional. This is marked
-     * final and set at construction, and used in exactly one place, when starting.
-     * I (@botimer) found the design clarity and syntactic consistency of an Optional better
-     * than a null check in this specific case. This class will never be serialized, so some
-     * of the general concerns about Optional fields do not apply here.
+     * <p>
+     * There is some debate about whether fields should ever be optional. This is marked final and set at construction,
+     * and used in exactly one place, when starting. I (@botimer) found the design clarity and syntactic consistency of
+     * an Optional better than a null check in this specific case. This class will never be serialized, so some of the
+     * general concerns about Optional fields do not apply here.
      */
     protected final Optional<ComponentOverrides> overrides;
-
-    /**
-     * Construct a set of traditional components from a root directory and a directory of override files.
-     * @param rootPath the root directory for components (one per directory); may not be null
-     * @param overridePath a directory with override files; each matching a component directory name
-     *                       with .xml extension; may be null
-     */
-    public ComponentsDirectory(@NonNull Path rootPath, Path overridePath) {
-        this.rootPath = rootPath;
-        this.overridePath = overridePath;
-        components = findComponents();
-        overrides = findOverrides();
-    }
 
     /**
      * Signal that the container has started and components should load.
@@ -65,8 +65,14 @@ public class ComponentsDirectory {
     }
 
     /**
-     * Signal that the container is stopping and components should shut down. Components are typically stateless,
-     * so there is usually very little to do, but this unwinds the application context.
+     * Signal that the container is stopping and components should shut down. Components are typically stateless, so
+     * there is usually very little to do, but this event indicates that the application context is about to be stopped.
+     * There is nothing else for us to do here.
+     * <p>
+     * At this point (and likely permanently, with Spring's rich lifecycle), there is no meaningful entrypoint for the
+     * components themselves, so there aren't any events to send here. A new type of component packaging could listen
+     * for the Spring events directly (and this loader would not apply, in any case). This method is primarily for
+     * symmetry and linearity of logging.
      */
     public void stopping() {
         log.info("Stopping traditional components in: {}", rootPath);
@@ -74,7 +80,7 @@ public class ComponentsDirectory {
 
     /**
      * Find all of the directories that are valid components and construct those objects.
-     *
+     * <p>
      * This does not register or instantiate them, but holds onto them until we start.
      *
      * @return all of the components within this directory, sorted in directory name order
@@ -95,7 +101,7 @@ public class ComponentsDirectory {
 
     /**
      * Look for overrides matching the components we have located.
-     *
+     * <p>
      * It isn't strictly necessary to have overrides, so we use the Optional API.
      *
      * @return any overrides for our components in the override path supplied; may be empty

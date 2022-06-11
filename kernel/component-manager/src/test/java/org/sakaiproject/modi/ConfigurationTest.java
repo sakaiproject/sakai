@@ -14,10 +14,10 @@ import static org.assertj.core.api.Assertions.*;
 
 /**
  * Test that the fundamental configuration loading is working.
- *
- * We don't want to test every detail of sakai-configuration.xml, but we do want to confirm that
- * the three main config/property beans are loaded and that we can supply custom configuration.
- * Everything else depends on these beans, so if something changes, we want to be aware.
+ * <p>
+ * We don't want to test every detail of sakai-configuration.xml, but we do want to confirm that the three main
+ * config/property beans are loaded and that we can supply custom configuration. Everything else depends on these beans,
+ * so if something changes, we want to be aware.
  */
 public class ConfigurationTest {
     @Test

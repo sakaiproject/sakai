@@ -10,12 +10,31 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Bean definition source of overrides (i.e., additional config files) for the supplied set of components, within a
+ * given directory on disk.
+ * <p>
+ * The convention is that the directory of the component is its name, and the override file for that component would be
+ * the name plus a .xml extension. This implies that these overrides are in Spring bean XML format.
+ * <p>
+ * Overrides of another format or convention could be applied as a factory post-processor. There is no direct support
+ * for that in the {@link Launcher}, but any component can register post-processor beans. If using the
+ * {@link SharedApplicationContext} directly, you can simply register another source.
+ */
 @Slf4j
 class ComponentOverrides implements BeanDefinitionSource {
 
     private final List<TraditionalComponent> components;
     private final Path overridesFolder;
 
+    /**
+     * Create an override list for the given components from the given directory.
+     * <p>
+     * Files that do not apply to these components will not be sourced.
+     *
+     * @param components      the list of components to use as a filter/selector for override files
+     * @param overridesFolder the directory to scan for override files
+     */
     public ComponentOverrides(@NonNull List<TraditionalComponent> components, @NonNull Path overridesFolder) {
         this.overridesFolder = overridesFolder;
         this.components = components;

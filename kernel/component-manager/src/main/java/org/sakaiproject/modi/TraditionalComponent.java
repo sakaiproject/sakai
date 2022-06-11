@@ -42,13 +42,11 @@ public class TraditionalComponent implements BeanDefinitionSource {
     /**
      * Create a TraditionalComponent from a path on disk. It will not yet be loaded, but the basic structure will be
      * validated. Any classes will be loaded in their own ClassLoader, as a child of the current thread.
-     *
-     * At a minimum, it must have a WEB-INF/ directory containing a components.xml file.
-     * Optionally, it may have:
-     *
-     *   - a classes/ directory to put on the classpath
-     *   - a lib/ directory with .jar files to put on the classpath
-     *   - a demo-components.xml file for special beans or properties in "demo mode" (when sakai.demo is true)
+     * <p>
+     * At a minimum, it must have a WEB-INF/ directory containing a components.xml file. Optionally, it may have:
+     * <p>
+     * - a classes/ directory to put on the classpath - a lib/ directory with .jar files to put on the classpath - a
+     * demo-components.xml file for special beans or properties in "demo mode" (when sakai.demo is true)
      *
      * @param path absolute path on disk to the component directory
      * @throws MalformedComponentException if the component is not well-formed
@@ -56,17 +54,17 @@ public class TraditionalComponent implements BeanDefinitionSource {
     public TraditionalComponent(Path path) throws MalformedComponentException {
         this.path = path;
         this.name = path.getFileName().toString();
-        this.webInf            = path.resolve("WEB-INF");
-        this.classes           = webInf.resolve("classes");
-        this.lib               = webInf.resolve("lib");
-        this.componentsXml     = webInf.resolve("components.xml");
+        this.webInf = path.resolve("WEB-INF");
+        this.classes = webInf.resolve("classes");
+        this.lib = webInf.resolve("lib");
+        this.componentsXml = webInf.resolve("components.xml");
         this.demoComponentsXml = webInf.resolve("demo-components.xml");
         validate();
     }
 
     /**
-     * Create a TraditionalComponent from a path on disk, but log and return an empty Optional, rather than throw
-     * if there is a problem in validation.
+     * Create a TraditionalComponent from a path on disk, but log and return an empty Optional, rather than throw if
+     * there is a problem in validation.
      *
      * @param path absolute path on disk to the component directory
      * @return a validated {@link TraditionalComponent} or an empty Optional
@@ -81,8 +79,8 @@ public class TraditionalComponent implements BeanDefinitionSource {
     }
 
     /**
-     * Set up a ClassLoader for this components packaged classes/jars, and register the bean definitions
-     * from components.xml (and demo-components.xml, if in demo mode) with the Spring context.
+     * Set up a ClassLoader for this components packaged classes/jars, and register the bean definitions from
+     * components.xml (and demo-components.xml, if in demo mode) with the Spring context.
      *
      * @param registry the bean registry for the active application context
      */
@@ -102,13 +100,12 @@ public class TraditionalComponent implements BeanDefinitionSource {
 
     /**
      * Wrap a lambda in a new class loader, activated for loading this component/package.
-     *
-     * Used so the context can use any referenced classes when instantiating beans, and so this
-     * component's dependencies do not pollute or conflict with a broader ClassLoader.
-     *
-     * This creates a new ClassLoader with the existing one for the current thread as the parent,
-     * sets it as current for the thread, then delivers it to the supplied function, and resets to
-     * the parent when the function completes.
+     * <p>
+     * Used so the context can use any referenced classes when instantiating beans, and so this component's dependencies
+     * do not pollute or conflict with a broader ClassLoader.
+     * <p>
+     * This creates a new ClassLoader with the existing one for the current thread as the parent, sets it as current for
+     * the thread, then delivers it to the supplied function, and resets to the parent when the function completes.
      *
      * @param function a function that takes the new ClassLoader
      */
@@ -124,8 +121,8 @@ public class TraditionalComponent implements BeanDefinitionSource {
     }
 
     /**
-     * Create a ClassLoader with our conventions for classpath, which are typical: add
-     * the {@code classes/} directory and all .jar files under {@code lib/}.
+     * Create a ClassLoader with our conventions for classpath, which are typical: add the {@code classes/} directory
+     * and all .jar files under {@code lib/}.
      *
      * @param parent the ClassLoader to set as the parent of the new one
      * @return a newly constructed ClassLoader with all classes and jars on the classpath
@@ -148,6 +145,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
     private void setClassLoader(ClassLoader loader) {
         Thread.currentThread().setContextClassLoader(loader);
     }
+
     protected Stream<Path> jarFiles() {
         if (!Files.isDirectory(lib)) return Stream.empty();
 
@@ -160,10 +158,11 @@ public class TraditionalComponent implements BeanDefinitionSource {
             log.warn("Unable to read jar files in: {}", lib);
             throw new InitializationException(
                     "Problems loading JAR dependencies for component " + getName() + ".\n"
-                    + "  Filesystem became unavailable while reading; startup canceled.\n"
-                    + "  The directory affected was: " + lib);
+                            + "  Filesystem became unavailable while reading; startup canceled.\n"
+                            + "  The directory affected was: " + lib);
         }
     }
+
     protected Optional<URL> toURL(URI uri) {
         try {
             return Optional.of(uri.toURL());

@@ -21,7 +21,8 @@ import static org.assertj.core.api.Assertions.*;
 public class ComponentLoadingTest {
     public Path componentRoot;
 
-    @Rule public TemporaryFolder tmpDir = TemporaryFolder.builder().assureDeletion().build();
+    @Rule
+    public TemporaryFolder tmpDir = TemporaryFolder.builder().assureDeletion().build();
 
     @Before
     public void makeComponentRoot() throws IOException {

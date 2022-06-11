@@ -6,29 +6,28 @@ import java.util.Optional;
 
 /**
  * Enumerates and encapsulates essential system properties for launching Sakai.
- *
- * This is a better alternative to using the strings everywhere for specific, core properties.
- * They are used by reference, so the compiler can trace them. With managed access, there is
- * also a possibility of moving them out of mutable global state.
- *
- * This interface also wraps return values in Optionals for more convenient handling of missing
- * values or chaining/cascading.
- *
- * We use underscores (but not uppercase) to distinguish them and make it practical to do
- * a static import of SysProp.* and have easy access when you have camelCase variables or fields.
+ * <p>
+ * This is a better alternative to using the strings everywhere for specific, core properties. They are used by
+ * reference, so the compiler can trace them. With managed access, there is also a possibility of moving them out of
+ * mutable global state.
+ * <p>
+ * This interface also wraps return values in Optionals for more convenient handling of missing values or
+ * chaining/cascading.
+ * <p>
+ * We use underscores (but not uppercase) to distinguish them and make it practical to do a static import of SysProp.*
+ * and have easy access when you have camelCase variables or fields.
  */
 public enum SysProp {
     /**
-     * The home directory for Sakai. Used for countless pieces of configuration or transient storage. It is
-     * typically directly within the Tomcat directory as "sakai/".
+     * The home directory for Sakai. Used for countless pieces of configuration or transient storage. It is typically
+     * directly within the Tomcat directory as "sakai/".
      */
     sakai_home("sakai.home"),
 
     /** The "base" directory for Tomcat/Catalina. This is essentially where Sakai is installed. */
     catalina_base("catalina.base"),
     sakai_components_root("sakai.components.root"),
-    sakai_security("sakai.security"),
-    ;
+    sakai_security("sakai.security");
 
     /** The name/key of this property. */
     private String key;
@@ -52,7 +51,10 @@ public enum SysProp {
         return get().map(Path::of);
     }
 
-    /** Get the value of this property as a Path, with a resolved extension; currently implemented over System properties. */
+    /**
+     * Get the value of this property as a Path, with a resolved extension; currently implemented over System
+     * properties.
+     */
     Optional<Path> getPathPlus(String other) {
         return getPath().map(p -> p.resolve(other));
     }
@@ -77,8 +79,9 @@ public enum SysProp {
         return get().map(Path::of).orElse(null);
     }
 
-    /** Get this property as a Path, with a resolved extension; currently implemented over System properties.
-     *
+    /**
+     * Get this property as a Path, with a resolved extension; currently implemented over System properties.
+     * <p>
      * The extension is applied if the property is set. This returns the combined path if so, null otherwise.
      */
     Path getRawPathPlus(String other) {

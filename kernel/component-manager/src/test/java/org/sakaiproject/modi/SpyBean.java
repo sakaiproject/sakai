@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Simple class to spy on creation from the fixture bean definition files.
- *
+ * <p>
  * Reset in a @Before and track instance count or set values on an instance.
  */
 @Slf4j

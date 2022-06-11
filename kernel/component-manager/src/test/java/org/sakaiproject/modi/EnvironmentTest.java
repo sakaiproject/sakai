@@ -12,7 +12,9 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.*;
 
 public class EnvironmentTest {
-    @Rule public TemporaryFolder tmpDir = TemporaryFolder.builder().assureDeletion().build();
+    @Rule
+    public TemporaryFolder tmpDir = TemporaryFolder.builder().assureDeletion().build();
+
     public Path tmp;
 
     @Before

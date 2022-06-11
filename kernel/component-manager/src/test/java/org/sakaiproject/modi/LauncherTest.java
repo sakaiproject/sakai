@@ -187,6 +187,6 @@ public class LauncherTest {
     }
 
     private SharedApplicationContext globalContext() {
-        return GlobalApplicationContext.getContext() ;
+        return GlobalApplicationContext.getContext();
     }
 }
