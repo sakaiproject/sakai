@@ -13,19 +13,33 @@ import java.util.stream.Stream;
 
 /**
  * A collection of "traditional" components. These are the typical impl jars packaged with the "component" type, which
- * means that they are expanded on disk with a {@code WEB-INF} directory, with a {@code lib} directory and
- * {@code components.xml} inside. The {@code components} directory is almost always within Tomcat's main directory
+ * means that they are expanded on disk with a {@code WEB-INF} directory, with a {@code components.xml} and {@code lib}
+ * directory for jars inside. The {@code components} directory is almost always within Tomcat's main directory
  * (CATALINA_HOME / CATALINA_BASE), a sibling to {@code webapps}.
  *
- * This class is designed as immutable, with all fields being set at construction.
+ * This class is designed as immutable and essentially context independent, with all fields being set at construction.
+ * It does not read any system properties or access the Environment.
  */
 @Slf4j
 public class ComponentsDirectory {
+    /** The root directory for these components. */
     protected final Path rootPath;
+
+    /** The directory where there may be override files in the form of Spring bean XML. */
     protected final Path overridePath;
 
+    /** The ordered list of components within this directory. */
     protected final List<TraditionalComponent> components;
 
+    /**
+     * The overrides for these components.
+     *
+     * There is some debate about whether fields should ever be optional. This is marked
+     * final and set at construction, and used in exactly one place, when starting.
+     * I (@botimer) found the design clarity and syntactic consistency of an Optional better
+     * than a null check in this specific case. This class will never be serialized, so some
+     * of the general concerns about Optional fields do not apply here.
+     */
     protected final Optional<ComponentOverrides> overrides;
 
     /**

@@ -32,6 +32,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
     /** The directory that contains this component. */
     @Getter private final Path path;
 
+    // Convenient references to the constituent parts, set and final upon construction.
     protected final Path webInf;
     protected final Path classes;
     protected final Path lib;
@@ -40,7 +41,14 @@ public class TraditionalComponent implements BeanDefinitionSource {
 
     /**
      * Create a TraditionalComponent from a path on disk. It will not yet be loaded, but the basic structure will be
-     * validated.
+     * validated. Any classes will be loaded in their own ClassLoader, as a child of the current thread.
+     *
+     * At a minimum, it must have a WEB-INF/ directory containing a components.xml file.
+     * Optionally, it may have:
+     *
+     *   - a classes/ directory to put on the classpath
+     *   - a lib/ directory with .jar files to put on the classpath
+     *   - a demo-components.xml file for special beans or properties in "demo mode" (when sakai.demo is true)
      *
      * @param path absolute path on disk to the component directory
      * @throws MalformedComponentException if the component is not well-formed
@@ -72,6 +80,12 @@ public class TraditionalComponent implements BeanDefinitionSource {
         }
     }
 
+    /**
+     * Set up a ClassLoader for this components packaged classes/jars, and register the bean definitions
+     * from components.xml (and demo-components.xml, if in demo mode) with the Spring context.
+     *
+     * @param registry the bean registry for the active application context
+     */
     @Override
     public void registerBeans(BeanDefinitionRegistry registry) {
         withPackageLoader(loader -> {
@@ -88,6 +102,9 @@ public class TraditionalComponent implements BeanDefinitionSource {
 
     /**
      * Wrap a lambda in a new class loader, activated for loading this component/package.
+     *
+     * Used so the context can use any referenced classes when instantiating beans, and so this
+     * component's dependencies do not pollute or conflict with a broader ClassLoader.
      *
      * This creates a new ClassLoader with the existing one for the current thread as the parent,
      * sets it as current for the thread, then delivers it to the supplied function, and resets to
@@ -141,7 +158,10 @@ public class TraditionalComponent implements BeanDefinitionSource {
             return files.stream();
         } catch (IOException e) {
             log.warn("Unable to read jar files in: {}", lib);
-            return Stream.empty();
+            throw new InitializationException(
+                    "Problems loading JAR dependencies for component " + getName() + ".\n"
+                    + "  Filesystem became unavailable while reading; startup canceled.\n"
+                    + "  The directory affected was: " + lib);
         }
     }
     protected Optional<URL> toURL(URI uri) {
