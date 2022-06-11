@@ -389,7 +389,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 									sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
 								}
 							} catch (Exception e) {
-								log.error("Failed to get association", e);
+								log.error("Failed to get association: {}", e.toString());
 							}
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
@@ -419,17 +419,18 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 												log.error("Assignment {} is a group assignment, but {} was not in any of the groups", assignmentId, studentUuid);
 											}
 										}
-									} catch (Exception e) {
-										log.error("Failed to determine ownerId for submission", e);
-									}
-									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, AssignmentConstants.TOOL_ID, getCurrentSiteId());
-									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
-									sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
-									try {
+										sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
+
+										String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, AssignmentConstants.TOOL_ID, getCurrentSiteId());
+                                        if (submissionId != null) {
+										    sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
+                                        }
+
 										rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, getCurrentSiteId())
 											.ifPresent(assoc -> sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId)));
 									} catch (Exception e) {
-										log.error("Failed to get association", e);
+										log.error("Failed to configure rubric button for submission: {}", e.toString());
+										sakaiRubricButton.setVisible(false);
 									}
 								} else {
 									log.warn(assignment.getExternalId() + " is not a valid assignment reference");
