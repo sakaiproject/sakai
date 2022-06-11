@@ -151,6 +151,17 @@ public class LauncherTest {
         assertThat(missingHome).isDirectory();
     }
 
+    @Test
+    public void givenANormalLaunch_whenStopping_thenTheContextIsClosed() {
+        Launcher launcher = new Launcher();
+        launcher.start();
+
+        launcher.stop();
+
+        SharedApplicationContext context = GlobalApplicationContext.getContext();
+        assertThat(context.isActive()).isFalse();
+    }
+
     private SharedApplicationContext globalContext() {
         return GlobalApplicationContext.getContext() ;
     }

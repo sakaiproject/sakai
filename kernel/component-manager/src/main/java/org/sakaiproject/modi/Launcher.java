@@ -82,6 +82,7 @@ public class Launcher {
             components.stopping();
         }
         context.stop();
+        context.close();
     }
 
     protected Configuration getConfiguration() throws MissingConfigurationException {
