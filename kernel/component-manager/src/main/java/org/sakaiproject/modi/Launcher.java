@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * A launcher for Sakai in its traditional directory structure and conventions. Used to
@@ -19,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 public class Launcher {
     protected final Path catalinaBase;
-    protected TraditionalComponents components;
+    protected ComponentsDirectory components;
     protected SharedApplicationContext context;
 
     /**
@@ -83,7 +82,7 @@ public class Launcher {
 
         if (componentsRoot != null) {
             System.setProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsRoot.toString());
-            components = new TraditionalComponents(componentsRoot, overridePath);
+            components = new ComponentsDirectory(componentsRoot, overridePath);
             components.starting(context);
         }
 
