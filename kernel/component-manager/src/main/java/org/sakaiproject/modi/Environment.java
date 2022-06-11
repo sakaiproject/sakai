@@ -98,7 +98,8 @@ public final class Environment {
         Path home = computedHomePath();
         createHomeIfNeeded(home);
         checkHomeReadWrite(home);
-        sakai_home.set(withTrailingSlash(home));
+        // Other code that does not use the environment expects a trailing slash
+        sakai_home.set(home + "/");
     }
 
     private void ensureCatalinaBase() {
@@ -155,26 +156,11 @@ public final class Environment {
             throw couldNotReadWriteSakaiHome();
     }
 
-    /** The optional path as set in system properties (generally with JAVA_OPTS or CATALINA_OPTS). */
-    private Optional<Path> configuredHomePath() {
-        return sakai_home.getPath();
-    }
-
     /** The default path if no value is set; the "sakai/" directory within Tomcat's base directory. */
     private Optional<Path> defaultHomePath() {
         return catalina_base.get()
                 .map(Path::of)
                 .map(p -> p.resolve("sakai"));
-    }
-
-    private String withTrailingSlash(Path path) {
-        return withTrailingSlash(path.toString());
-    }
-
-    private String withTrailingSlash(String path) {
-        return path.endsWith(File.separator)
-                ? path
-                : path + File.separator;
     }
 
     private static final String COULD_NOT_CREATE =

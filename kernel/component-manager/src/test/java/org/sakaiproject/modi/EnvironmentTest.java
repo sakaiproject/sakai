@@ -92,7 +92,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void givenUnwritableSakaiHome_whenInitialized_thenInitializationFails() throws IOException {
+    public void givenUnwritableParentOfSakaiHome_whenInitialized_thenInitializationFails() throws IOException {
         tmpDir.newFolder("components");
         File file = tmpDir.newFolder("readonly");
         file.setReadOnly();
@@ -102,6 +102,19 @@ public class EnvironmentTest {
         assertThatExceptionOfType(InitializationException.class)
                 .isThrownBy(Environment::initialize)
                 .withMessageContaining("could not create sakai.home");
+    }
+
+    @Test
+    public void givenUnwritableSakaiHome_whenInitialized_thenInitializationFails() throws IOException {
+        tmpDir.newFolder("components");
+        File file = tmpDir.newFolder("readonly/sakai");
+        file.setReadOnly();
+        System.setProperty("catalina.base", tmp.toString());
+        System.setProperty("sakai.home", tmp.resolve("readonly/sakai").toString());
+
+        assertThatExceptionOfType(InitializationException.class)
+                .isThrownBy(Environment::initialize)
+                .withMessageContaining("sakai.home is missing or unreadable");
     }
 
     @Test

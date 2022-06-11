@@ -4,29 +4,24 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class TraditionalComponentTest {
+public class ComponentLoadingTest {
     public Path componentRoot;
 
     @Rule public TemporaryFolder tmpDir = TemporaryFolder.builder().assureDeletion().build();
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Before
     public void makeComponentRoot() throws IOException {

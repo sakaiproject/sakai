@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -160,6 +161,29 @@ public class LauncherTest {
 
         SharedApplicationContext context = GlobalApplicationContext.getContext();
         assertThat(context.isActive()).isFalse();
+    }
+
+    @Test
+    public void givenACompleteLaunch_whenStarting_thenConfigComponentsAndOverridesAreSourced() {
+        Launcher launcher = new Launcher();
+        launcher.start();
+
+        SharedApplicationContext context = GlobalApplicationContext.getContext();
+        List<Class> sources = context.sources.stream()
+                .map(BeanDefinitionSource::getClass).collect(Collectors.toList());
+
+        assertThat(sources).contains(Configuration.class, TraditionalComponent.class, ComponentOverrides.class);
+    }
+
+    @Test
+    public void givenACompleteLaunch_whenStarting_thenComponentsNamesAreListedInSources() {
+        Launcher launcher = new Launcher();
+        launcher.start();
+
+        SharedApplicationContext context = GlobalApplicationContext.getContext();
+        List<String> sources = context.sources.stream()
+                .map(BeanDefinitionSource::getName).collect(Collectors.toList());
+        assertThat(sources).contains("fake-service", "second-component");
     }
 
     private SharedApplicationContext globalContext() {
