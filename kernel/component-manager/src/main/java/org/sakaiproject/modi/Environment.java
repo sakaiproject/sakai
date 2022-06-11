@@ -13,9 +13,17 @@ import java.util.Optional;
 
 import static org.sakaiproject.modi.SysProp.*;
 
-@Slf4j
 /**
- * Handles the initial resolution of the Sakai home directory ("sakai.home").
+ * Handles the essential filename and directory conventions needed for starting up Sakai. This
+ * includes initial resolution of the Sakai home directory ("sakai.home"). The rest of the
+ * runtime configuration is handled elsewhere (e.g., {@link org.sakaiproject.util.SakaiProperties}
+ * and {@link org.sakaiproject.component.api.ServerConfigurationService}.
+ *
+ * The Environment makes these fundamental values available for read, rather than requiring other
+ * classes to use the string keys and system properties while running. That is fine for an extensible
+ * configuration system, but problematic for what should be fundamental constants for a given launch.
+ * Paths to files and directories are exposed as {@link Path} objects, rather than bare Strings, giving
+ * a better API with less tedious string manipulation.
  *
  * When calling {@link Environment#initialize()}, the system properties are read, and resolved
  * with the conventional defaults/fallback:
@@ -31,28 +39,50 @@ import static org.sakaiproject.modi.SysProp.*;
  * Note that ever attempting to run in /tmp/sakai is dubious. It is worth revisiting whether we should fail
  * before trying it.
  */
+@Slf4j
 public final class Environment {
     /** Public construction is prohibited. We only allow entry through the {@link #initialize()} method. */
     private Environment() {
         ensureRequirements();
-        this.catalinaBase = catalina_base.getRaw();
-        this.sakaiHome = sakai_home.getRaw();
-        this.componentsRoot = sakai_components_root.getRaw();
-        this.sakaiSecurity = sakai_security.getRaw();
+        this.catalinaBase = catalina_base.getRawPath();
+        this.sakaiHome = sakai_home.getRawPath();
+        this.componentsRoot = sakai_components_root.getRawPath();
+        this.sakaiSecurity = sakai_security.getRawPath();
+        this.configurationFile = sakai_home.getRawPathPlus("sakai-configuration.xml");
+        this.overridesFolder = sakai_home.getRawPathPlus("override");
     }
 
+    /** The Tomcat/Catalina base directory, catalina.base */
+    @Getter private final Path catalinaBase;
+
+    /** The main Sakai Home directory, sakai.home -- usually ${catalina.base}/sakai */
+    @Getter private final Path sakaiHome;
+
+    /** The directory for traditional on-disk components, sakai.components.root -- usually ${catalina.base}/components */
+    @Getter private final Path componentsRoot;
+
+    /** The optional directory for properties files sensitive data, sakai.security -- usually null/empty */
+    @Getter private final Path sakaiSecurity;
+
+    /** The main configuration file (Spring file) for startup, ${sakai.home}/sakai-configuration.xml */
+    @Getter private final Path configurationFile;
+
+    /** The directory where component-specific Spring overrides can be, ${sakai.home}/override */
+    @Getter private final Path overridesFolder;
+
     /**
-     * Use or infer the sakai.home value, and then check/create the directory.
-     * <p>
-     * When done, we set the System property again to ensure that it has a trailing
-     * slash because many places use it for bare concatenation.
+     * Set up the required base operating environment for starting Sakai.
+     *
+     * Uses or infers the sakai.home value, and then checks/creates the directory.
+     *
+     * When done, we set the System property again to ensure that it has a trailing slash because
+     * many places use it for bare concatenation.
      *
      * @return an initialized environment; see the getters for what is considered core for startup
      * @throws InitializationException if the directory cannot be created/read/written
      */
     public static Environment initialize() throws InitializationException {
-        Environment env = new Environment();
-        return env;
+        return new Environment();
     }
 
     /** The main workflow method for setup. */
@@ -63,17 +93,6 @@ public final class Environment {
         ensureSecurity();
     }
 
-    /** The Tomcat/Catalina base directory, catalina.base */
-    @Getter private final String catalinaBase;
-
-    /** The main Sakai Home directory, sakai.home -- usually ${catalina.base}/sakai */
-    @Getter private final String sakaiHome;
-
-    /** The directory for traditional on-disk components, sakai.components.root -- usually ${catalina.base}/components */
-    @Getter private final String componentsRoot;
-
-    /** The optional directory for properties files sensitive data, sakai.security -- usually null/empty */
-    @Getter private final String sakaiSecurity;
 
     private void ensureSakaiHome() {
         Path home = computedHomePath();

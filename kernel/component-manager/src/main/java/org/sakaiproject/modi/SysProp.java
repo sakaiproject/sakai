@@ -52,7 +52,7 @@ public enum SysProp {
         return get().map(Path::of);
     }
 
-    /** Get the value of this property as a Path; currently implemented over System properties. */
+    /** Get the value of this property as a Path, with a resolved extension; currently implemented over System properties. */
     Optional<Path> getPathPlus(String other) {
         return getPath().map(p -> p.resolve(other));
     }
@@ -75,6 +75,14 @@ public enum SysProp {
     /** Get the unchecked value of this property as a Path; currently implemented over System properties. */
     Path getRawPath() {
         return get().map(Path::of).orElse(null);
+    }
+
+    /** Get this property as a Path, with a resolved extension; currently implemented over System properties.
+     *
+     * The extension is applied if the property is set. This returns the combined path if so, null otherwise.
+     */
+    Path getRawPathPlus(String other) {
+        return getPath().map(p -> p.resolve(other)).orElse(null);
     }
 
     /** Set the value of this property; currently implemented over System properties. */

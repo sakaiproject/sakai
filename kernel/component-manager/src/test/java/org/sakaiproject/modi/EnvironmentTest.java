@@ -41,7 +41,7 @@ public class EnvironmentTest {
         System.setProperty("catalina.base", tmp.resolve("catalina").toString());
         Environment env = Environment.initialize();
 
-        assertThat(env.getCatalinaBase()).isEqualTo(tmp + "/catalina");
+        assertThat(env.getCatalinaBase()).isEqualTo(tmp.resolve("catalina"));
     }
 
     @Test
@@ -50,27 +50,45 @@ public class EnvironmentTest {
         System.setProperty("catalina.base", tmp.toString());
         Environment env = Environment.initialize();
 
-        assertThat(env.getSakaiHome()).isEqualTo(tmp + "/sakai/");
+        assertThat(env.getSakaiHome()).isEqualTo(tmp.resolve("sakai/"));
     }
 
     @Test
-    public void givenSakaiHomeWithNoSlash_whenInitialized_thenSakaiHomeIsSetWithASlash() throws IOException {
+    public void givenDefaultStartup_whenInitialized_thenConfigurationFileIsInSakaiHome() throws IOException {
+        tmpDir.newFolder("components");
+        System.setProperty("catalina.base", tmp.toString());
+        Environment env = Environment.initialize();
+
+        assertThat(env.getConfigurationFile()).isEqualTo(tmp.resolve("sakai/sakai-configuration.xml"));
+    }
+
+    @Test
+    public void givenDefaultStartup_whenInitialized_thenOverridesAreInSakaiHome() throws IOException {
+        tmpDir.newFolder("components");
+        System.setProperty("catalina.base", tmp.toString());
+        Environment env = Environment.initialize();
+
+        assertThat(env.getOverridesFolder()).isEqualTo(tmp.resolve("sakai/override"));
+    }
+
+    @Test
+    public void givenSakaiHomeWithNoSlash_whenInitialized_thenSystemPropertyHasASlash() throws IOException {
         tmpDir.newFolder("components");
         System.setProperty("catalina.base", tmp.toString());
         System.setProperty("sakai.home", tmp.resolve("-SAKAI-").toString());
         Environment env = Environment.initialize();
 
-        assertThat(env.getSakaiHome()).isEqualTo(tmp.resolve("-SAKAI-") + "/");
+        assertThat(System.getProperty("sakai.home")).isEqualTo(tmp.resolve("-SAKAI-") + "/");
     }
 
     @Test
-    public void givenSakaiHomeWithASlash_whenInitialized_thenSakaiHomeIsUnchanged() throws IOException {
+    public void givenSakaiHomeWithASlash_whenInitialized_thenSakaiHomeIsProperPath() throws IOException {
         tmpDir.newFolder("components");
         System.setProperty("catalina.base", tmp.toString());
         System.setProperty("sakai.home", tmp.resolve("slash") + "/");
         Environment env = Environment.initialize();
 
-        assertThat(env.getSakaiHome()).isEqualTo(tmp.resolve("slash") + "/");
+        assertThat(env.getSakaiHome()).isEqualTo(tmp.resolve("slash"));
     }
 
     @Test
@@ -92,7 +110,7 @@ public class EnvironmentTest {
         System.setProperty("catalina.base", tmp.toString());
         Environment env = Environment.initialize();
 
-        assertThat(env.getComponentsRoot()).isEqualTo(tmp.resolve("components").toString());
+        assertThat(env.getComponentsRoot()).isEqualTo(tmp.resolve("components"));
     }
 
     @Test
@@ -102,7 +120,7 @@ public class EnvironmentTest {
         System.setProperty("sakai.components.root", tmp.resolve("somewhere-else").toString());
         Environment env = Environment.initialize();
 
-        assertThat(env.getComponentsRoot()).isEqualTo(tmp.resolve("somewhere-else").toString());
+        assertThat(env.getComponentsRoot()).isEqualTo(tmp.resolve("somewhere-else"));
     }
 
     @Test
@@ -132,7 +150,7 @@ public class EnvironmentTest {
         System.setProperty("sakai.security", tmp.resolve("secure").toString());
         Environment env = Environment.initialize();
 
-        assertThat(env.getSakaiSecurity()).isEqualTo(tmp.resolve("secure").toString());
+        assertThat(env.getSakaiSecurity()).isEqualTo(tmp.resolve("secure"));
     }
 
     @Test

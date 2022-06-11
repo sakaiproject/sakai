@@ -5,13 +5,11 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 /**
  * Tomcat Bootstrapper for Sakai. Built as a LifecycleListener to be registered in server.xml, to start up all
  * required components early, rather than waiting for them to be tripped by the first webapp.
- * FIXME: this needs rewrite with new design
+ *
+ * Delegates all real work to the {@link Launcher}.
  */
 @Slf4j
 public class TomcatListener implements LifecycleListener {

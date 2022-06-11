@@ -6,38 +6,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * A launcher for Sakai in its traditional directory structure and conventions. Used to
- * kick off the configuration and component loading process and ensure that the shared
- * application context is ready for webapps to load.
+ * A launcher for Sakai in its traditional directory structure and conventions. This
+ * serves as the main entrypoint in "modern" mode. It is used to kick off the configuration
+ * and component loading process and ensure that the shared application context is ready for
+ * webapps to load.
  *
  * The {@link TomcatListener} is the main consumer of this class, and there is some
  * conventional overlap and Tomcat naming exposed, despite very little in the way of
  * actual Tomcat dependency. It is conceivable that another container could serve.
+ *
+ * The actual conventions of which system properties, files, and directories are used are
+ * housed in the {@link Environment}. The launcher is responsible for initializing the
+ * environment, shared application context, and the components so the webapps have
+ * all everything set up when they start.
+ *
+ * The Launcher is meant to start up a deployed instance. It would not be used during
+ * integration tests, which would do some similar setup, not depending on the conventions
+ * of deployment.
  */
 @Slf4j
 public class Launcher {
+    protected final Environment env;
     protected ComponentsDirectory components;
     protected SharedApplicationContext context;
-    protected final Environment env;
 
     /**
      * Create a Sakai launcher.
-     *
-     * The only parameter here is called catalinaBase because that is from where the other
-     * conventions stem (components/, webapps/, lib/, sakai/). It is effectively the installation
-     * directory for a Sakai instance.
-     *
-     * It should be the root of the Tomcat installation (aka CATALINA_BASE, ${catalina.base}). In
-     * most installations, as by tarball or zip, the CATALINA_HOME ${catalina.home} will the same
-     * directory. This is also sometimes called or set as TOMCAT_BASE, TOMCAT_HOME. In any case,
-     * CATALINA_BASE is the most specific and accurate, so that's what we call it here.
      *
      * Calling {@link #start()} will begin the boot process immediately, loading configs and the
      * default components in the global application context. Calling {@link #stop()} will shut down
      * the context and unwind all of the beans and webapps.
      *
-     * There is a shim to preserve the legacy ComponentManager API for those services and tools
-     * that do not make use of dependency injection.
+     * There is a shim set up to preserve the legacy ComponentManager API for those services and
+     * tools that do not make use of dependency injection.
      *
      * {@link GlobalApplicationContext}
      * {@link SharedApplicationContext}
@@ -62,20 +63,19 @@ public class Launcher {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.use.modi", "true");
 
-        Path sakaiHome = Path.of(env.getSakaiHome());
-        Path componentsRoot = Path.of(env.getComponentsRoot());
-        Path overridePath = sakaiHome.resolve("override");
-
         context = GlobalApplicationContext.getContext();
         context.registerBeanSource(getConfiguration());
 
-        components = new ComponentsDirectory(componentsRoot, overridePath);
+        components = new ComponentsDirectory(env.getComponentsRoot(), env.getOverridesFolder());
         components.starting(context);
 
         context.refresh();
         context.start();
     }
 
+    /**
+     * Shut down Sakai. Notify the components that we are stopping and stop the global context.
+     */
     public void stop() {
         log.info("Stopping Sakai components");
         if (components != null) {
@@ -85,7 +85,7 @@ public class Launcher {
     }
 
     protected Configuration getConfiguration() throws MissingConfigurationException {
-        Path localConfig = Path.of(env.getSakaiHome()).resolve("sakai-configuration.xml");
+        Path localConfig = env.getConfigurationFile();
         return Files.isRegularFile(localConfig)
                 ? new Configuration(localConfig)
                 : new Configuration();

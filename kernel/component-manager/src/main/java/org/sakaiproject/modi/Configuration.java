@@ -24,6 +24,8 @@ class Configuration implements BeanDefinitionSource {
 
     /**
      * Create a Configuration loader that will load the default config/properties beans.
+     *
+     * If there is a local configuration file, use {@link #Configuration(Path)}.
      */
     public Configuration() {
         this.localConfigFile = null;
@@ -35,7 +37,7 @@ class Configuration implements BeanDefinitionSource {
      *
      * This file is conventionally known as sakai-configuration.xml, but could now be called
      * something else. The {@link Launcher} is responsible for determining the location and
-     * whether it should be loaded.
+     * whether it should be loaded. If there is no local file, use the default constructor.
      *
      * Within this class, we consider it fatal if the file is missing. We assume that,
      * if supplied, it has essential settings, and it would be more harmful to disregard
