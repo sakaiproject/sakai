@@ -39,6 +39,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -406,13 +407,16 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 												log.error("Assignment {} is a group assignment, but {} was not in any of the groups", assignmentId, studentUuid);
 											}
 										}
-									} catch (Exception e) {
-										log.error("Failed to determine ownerId for submission", e);
-									}
+										sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
 
-									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
-									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
-									sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
+										String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, AssignmentConstants.TOOL_ID);
+                                        if (submissionId != null) {
+										    sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
+                                        }
+									} catch (Exception e) {
+										log.error("Failed to configure rubric button for submission: {}", e.toString());
+										sakaiRubricButton.setVisible(false);
+									}
 								} else {
 									log.warn(assignment.getExternalId() + " is not a valid assignment reference");
 								}
