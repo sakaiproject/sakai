@@ -20,6 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -174,34 +175,11 @@ public class LauncherTest {
 
         launcher.stop();
 
-        SharedApplicationContext context = GlobalApplicationContext.getContext();
+        ConfigurableApplicationContext context = globalContext();
         assertThat(context.isActive()).isFalse();
     }
 
-    @Test
-    public void givenACompleteLaunch_whenStarting_thenConfigComponentsAndOverridesAreSourced() {
-        Launcher launcher = new Launcher();
-        launcher.start();
-
-        SharedApplicationContext context = GlobalApplicationContext.getContext();
-        List<Class> sources = context.sources.stream()
-                .map(BeanDefinitionSource::getClass).collect(Collectors.toList());
-
-        assertThat(sources).contains(Configuration.class, TraditionalComponent.class, ComponentOverrides.class);
-    }
-
-    @Test
-    public void givenACompleteLaunch_whenStarting_thenComponentsNamesAreListedInSources() {
-        Launcher launcher = new Launcher();
-        launcher.start();
-
-        SharedApplicationContext context = GlobalApplicationContext.getContext();
-        List<String> sources = context.sources.stream()
-                .map(BeanDefinitionSource::getName).collect(Collectors.toList());
-        assertThat(sources).contains("fake-service", "second-component");
-    }
-
-    private SharedApplicationContext globalContext() {
+    private ConfigurableApplicationContext globalContext() {
         return GlobalApplicationContext.getContext();
     }
 }

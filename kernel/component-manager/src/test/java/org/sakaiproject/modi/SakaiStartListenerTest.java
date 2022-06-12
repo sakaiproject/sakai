@@ -19,6 +19,7 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.nio.file.Paths;
 
@@ -39,7 +40,7 @@ public class SakaiStartListenerTest {
         LifecycleEvent start = new LifecycleEvent(mock(Lifecycle.class), Lifecycle.START_EVENT, null);
         listener.lifecycleEvent(start);
 
-        SharedApplicationContext context = GlobalApplicationContext.getContext();
+        ConfigurableApplicationContext context = GlobalApplicationContext.getContext();
         assertThat(context.isActive()).isTrue();
     }
 
@@ -52,7 +53,7 @@ public class SakaiStartListenerTest {
         LifecycleEvent stop = new LifecycleEvent(mock(Lifecycle.class), Lifecycle.STOP_EVENT, null);
         listener.lifecycleEvent(stop);
 
-        SharedApplicationContext context = GlobalApplicationContext.getContext();
+        ConfigurableApplicationContext context = GlobalApplicationContext.getContext();
         assertThat(context.isActive()).isFalse();
 
     }

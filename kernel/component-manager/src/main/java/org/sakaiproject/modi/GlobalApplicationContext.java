@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.modi;
 
+import org.springframework.context.ConfigurableApplicationContext;
+
 /**
  * A basic singleton / service locator for a global application context.
  * <p>
@@ -30,23 +32,30 @@ public class GlobalApplicationContext {
     }
 
     /** The underlying context that serves as the singleton. */
-    private static SharedApplicationContext context = null;
+    private static ConfigurableApplicationContext context = null;
 
     /** Simple lock for synchronized blocks when changing the underlying context. */
     private static final Object lock = new Object();
 
     /**
-     * Get the global context. Synchronized for thread safety.
+     * Get the global context. Will always be already configured/refreshed.
      *
-     * @return a new or existing {@link SharedApplicationContext} to be used globally
+     * Because beans access the ComponentManager cover during their init (and hence through the
+     * shim to this context), it must be set before starting.
+     *
+     * @return the configured {@link ConfigurableApplicationContext} to be used globally
+     * @throws IllegalStateException if there is no context established
      */
-    public static SharedApplicationContext getContext() {
-        synchronized (lock) {
-            if (context == null) {
-                context = new SharedApplicationContext();
-            }
-        }
+    public static ConfigurableApplicationContext getContext() throws IllegalStateException {
+        if (context == null)
+            throw new IllegalStateException("Global Application Context accessed, but not set up.");
         return context;
+    }
+
+    public static void setContext(ConfigurableApplicationContext context) {
+        synchronized (lock) {
+            GlobalApplicationContext.context = context;
+        }
     }
 
     /**
