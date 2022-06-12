@@ -51,6 +51,7 @@
     <sakai.woodstox.version>6.2.6</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
+    <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.22</sakai.lombok.version>
     <sakai.lucene.version>8.11.1</sakai.lucene.version>
@@ -368,7 +369,13 @@
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-runtime</artifactId>
-        <version>2.3.6</version>
+        <version>${sakai.jaxb.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>txw2</artifactId>
+        <version>${sakai.jaxb.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
