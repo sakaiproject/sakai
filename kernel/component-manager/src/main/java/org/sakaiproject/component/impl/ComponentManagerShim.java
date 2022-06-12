@@ -9,6 +9,7 @@ import org.sakaiproject.modi.GlobalApplicationContext;
 import org.sakaiproject.modi.SharedApplicationContext;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Properties;
 import java.util.Set;
@@ -28,14 +29,14 @@ import java.util.Set;
 @Slf4j
 @Deprecated
 public class ComponentManagerShim extends SpringCompMgr {
-    private final SharedApplicationContext applicationContext;
+    private final ConfigurableApplicationContext applicationContext;
 
     /**
      * Create a ComponentManager shim that forwards all meaningful methods to an ApplicationContext.
      *
      * @param applicationContext The delegate context; typically global
      */
-    public ComponentManagerShim(SharedApplicationContext applicationContext) {
+    public ComponentManagerShim(ConfigurableApplicationContext applicationContext) {
         super(null);
         this.applicationContext = applicationContext;
     }
@@ -180,7 +181,7 @@ public class ComponentManagerShim extends SpringCompMgr {
      * @return the shared (typically global) context we are wrapping
      */
     @Override
-    public SharedApplicationContext getApplicationContext() {
+    public ConfigurableApplicationContext getApplicationContext() {
         trace("getApplicationContext()");
         return applicationContext;
     }
