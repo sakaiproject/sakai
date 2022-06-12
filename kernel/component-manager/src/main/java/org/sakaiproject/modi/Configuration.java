@@ -42,7 +42,7 @@ import java.util.Optional;
  * merges them, with the latter files taking precedence.
  */
 @Slf4j
-class Configuration implements BeanDefinitionSource {
+public class Configuration implements BeanDefinitionSource {
     /**
      * Create a Configuration loader that will load the default config/properties beans.
      * <p>

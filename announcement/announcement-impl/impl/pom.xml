@@ -75,6 +75,14 @@
                     <include>**/*.properties</include>
                 </includes>
             </resource>
+            <!-- Special case duplication to begin migrating from WAR components to simple JARs; for now, announcement-impl is still packaged as a sakai-component WAR -->
+            <resource>
+                <directory>${basedir}/src/main/webapp/WEB-INF</directory>
+                <targetPath>org/sakaiproject/announcement</targetPath>
+                <includes>
+                    <include>*.xml</include>
+                </includes>
+            </resource>
         </resources>
     </build>
 </project>
