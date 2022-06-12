@@ -69,28 +69,6 @@ import org.springframework.core.io.ClassPathResource;
 public class AnncCtxInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        System.setProperty("sakai.home", "src/test/resources/sakaiHome");
-        System.setProperty("sakai.use.modi", "true");
-
-        SharedApplicationContext shared = GlobalApplicationContext.getContext();
-        shared.registerBeanSource(new org.sakaiproject.modi.Configuration());
-
-        BeanDefinitionSource kernel = new BeanDefinitionSource() {
-            @Override
-            public String getName() {
-                return "kernel beans";
-            }
-
-            @Override
-            public void registerBeans(BeanDefinitionRegistry registry) {
-                XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
-                ClassPathResource beans = new ClassPathResource("org/sakaiproject/kernel/components.xml");
-                reader.loadBeanDefinitions(beans);
-            }
-        };
-        shared.registerBeanSource(kernel);
-
-        shared.refresh();
-        applicationContext.setParent(shared);
+        // we don't need any of what was here... i'm just leaving this class around for the comments above for now.
     }
 }
