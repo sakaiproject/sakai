@@ -586,4 +586,9 @@ public class BasicLTIConstants {
      */
     public static final String TOOLCONSUMERINFO_VERSION = "ToolConsumerInfo.version";
 
+	/**
+	 * Constants for theming and dark mode
+	 */
+	public static final String THEME_BASE_LIGHT_SAK_PROP = "basiclti.theme.base.light";
+	public static final String THEME_BASE_DARK_SAK_PROP = "basiclti.theme.base.dark";
 }

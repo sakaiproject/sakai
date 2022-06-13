@@ -21,6 +21,7 @@ import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.tsugi.lti13.LTICustomVars;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -54,6 +55,12 @@ public class SakaiExtension extends org.tsugi.jackson.objects.JacksonBase {
 	@JsonProperty("sakai_eid")
 	public String sakai_eid;
 
+	@JsonProperty("theme_base")
+	public String theme_base;
+
+	@JsonProperty("theme_dark_mode")
+	public String theme_dark_mode;
+
 	public void copyFromPost(Properties ltiProps) {
 		this.sakai_launch_presentation_css_url_list = ltiProps.getProperty("ext_sakai_launch_presentation_css_url_list");
 		this.sakai_academic_session = ltiProps.getProperty("ext_sakai_academic_session");
@@ -61,6 +68,8 @@ public class SakaiExtension extends org.tsugi.jackson.objects.JacksonBase {
 		this.sakai_server = ltiProps.getProperty("ext_sakai_server");
 		this.sakai_serverid = ltiProps.getProperty("ext_sakai_serverid");
 		this.sakai_eid = ltiProps.getProperty("ext_sakai_eid");
+		this.theme_base = ltiProps.getProperty(LTICustomVars.THEME_BASE);
+		this.theme_dark_mode = ltiProps.getProperty(LTICustomVars.THEME_DARK_MODE);
 	}
 
 }
