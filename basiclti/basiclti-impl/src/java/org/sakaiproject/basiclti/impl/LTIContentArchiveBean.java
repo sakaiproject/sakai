@@ -48,39 +48,6 @@ public class LTIContentArchiveBean {
 			"newpage",
 			"frameheight" );
 
-	/* 
-+--------------------+---------------+------+-----+---------+----------------+
-| id                 | int(11)       | NO   | PRI | NULL    | auto_increment |
-| tool_id            | int(11)       | YES  |     | NULL    |                |
-| SITE_ID            | varchar(99)   | YES  |     | NULL    |                |
-| title              | varchar(1024) | YES  |     | NULL    |                |
-| frameheight        | int(11)       | YES  |     | NULL    |                |
-| newpage            | tinyint(4)    | YES  |     | 0       |                |
-| debug              | tinyint(4)    | YES  |     | 0       |                |
-| custom             | mediumtext    | YES  |     | NULL    |                |
-| launch             | text          | YES  |     | NULL    |                |
-| xmlimport          | mediumtext    | YES  |     | NULL    |                |
-| placement          | varchar(256)  | YES  |     | NULL    |                |
-| created_at         | datetime      | NO   |     | NULL    |                |
-| updated_at         | datetime      | NO   |     | NULL    |                |
-| pagetitle          | varchar(1024) | YES  |     | NULL    |                |
-| consumerkey        | varchar(1024) | YES  |     | NULL    |                |
-| secret             | varchar(1024) | YES  |     | NULL    |                |
-| settings           | mediumtext    | YES  |     | NULL    |                |
-| placementsecret    | text          | YES  |     | NULL    |                |
-| oldplacementsecret | text          | YES  |     | NULL    |                |
-| resource_handler   | text          | YES  |     | NULL    |                |
-| settings_ext       | mediumtext    | YES  |     | NULL    |                |
-| FA_ICON            | varchar(1024) | YES  |     | NULL    |                |
-| CONTENTITEM        | mediumtext    | YES  |     | NULL    |                |
-| toolorder          | int(11)       | YES  |     | 0       |                |
-| lti13              | tinyint(4)    | YES  |     | 0       |                |
-| lti13_settings     | mediumtext    | YES  |     | NULL    |                |
-| description        | mediumtext    | YES  |     | NULL    |                |
-| protect            | tinyint(4)    | YES  |     | 0       |                |
-+--------------------+---------------+------+-----+---------+----------------+
-*/
-
         public LTIContentArchiveBean(Map<String,Object> itemFields)
         {
 		// Create a new bean with a filtered list of items
