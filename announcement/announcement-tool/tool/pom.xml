@@ -90,24 +90,23 @@
             <artifactId>javax.inject</artifactId>
         </dependency>
 
-        <!-- embed a full kernel for testing -->
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-test-helper</artifactId>
-            <version>23-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- grab our impl so we can start our specific services (and its deps, sadly, since they cannot be "provided" here) -->
-        <dependency>
-            <groupId>org.sakaiproject.announcement</groupId>
-            <artifactId>sakai-announcement-impl</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.sakaiproject.scheduler</groupId>
             <artifactId>scheduler-api</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- embed a full kernel and our impl for testing -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-test-helper</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+             <groupId>org.sakaiproject.announcement</groupId>
+             <artifactId>sakai-announcement-impl</artifactId>
+             <scope>test</scope>
+         </dependency>
     </dependencies>
 </project>

@@ -62,6 +62,33 @@
     </dependencies>
 
     <build>
+        <plugins>
+            <!-- We borrow the same recipe from the kernel to make a jar as well as the war. -->
+            <!-- It isn't perfect, but it does make our impl classes available for integration testing. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>
+                                        ${project.build.directory}/${project.build.finalName}/WEB-INF/lib/${project.build.finalName}.jar
+                                    </file>
+                                    <type>jar</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
         <resources>
             <resource>
                 <directory>${basedir}/src/sql</directory>

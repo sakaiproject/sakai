@@ -19,6 +19,7 @@
       <includes>
         <include>org.sakaiproject.kernel:*</include>
         <include>org.springframework:*</include>
+        <include>com.opencsv:*</include>
       </includes>
     </dependencySet>
   </dependencySets>
