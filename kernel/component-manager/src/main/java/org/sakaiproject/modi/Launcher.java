@@ -82,11 +82,8 @@ public class Launcher {
         components = new ComponentsDirectory(env.getComponentsRoot(), env.getOverridesFolder());
         components.starting(context);
 
-        // We refresh to load all of the definitions and then register it as the active global context.
-        // Many beans use the ComponentManager cover during init, so it must be in place before start.
-        // The difference of before or after refresh is somewhat semantic, since we are in a bootstrap mode.
-        context.refresh();
         GlobalApplicationContext.setContext(context);
+        context.refresh();
         context.start();
     }
 
