@@ -272,7 +272,7 @@
 		  	</h:column>
 			<h:column id="_msg_subject">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_subject}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_subject}"/></h:outputLink>
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true" title=" #{rcvdItems.msg.title}">
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
@@ -282,7 +282,7 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_date}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_date}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
 			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
@@ -293,7 +293,7 @@
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_authby}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_authby}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
@@ -303,14 +303,14 @@
 		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' &&
 		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_to}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_to}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_label}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_label}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
