@@ -24,6 +24,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,7 +33,6 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 
 @Slf4j
@@ -57,14 +58,14 @@ public class EventsController extends AbstractSakaiApiController {
     private MessagingService messagingService;
 
     @GetMapping("/users/{userId}/events")
-    public Flux<ServerSentEvent<String>> streamEvents() {
+    public ResponseEntity<Flux<ServerSentEvent<String>>> streamEvents() {
 
         Session session = checkSakaiSession();
 
         final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
-        return Flux.<ServerSentEvent<String>>create(emitter -> {
+        return ResponseEntity.ok().header("X-Accel-Buffering", "no").body(Flux.<ServerSentEvent<String>>create(emitter -> {
 
             messagingService.listen("USER#" + session.getUserId(), message -> {
 
@@ -90,6 +91,6 @@ public class EventsController extends AbstractSakaiApiController {
                     log.error("Failed to emit SSE event", e);
                 }
             });
-        });
+        }));
     }
 }
