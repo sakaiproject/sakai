@@ -63,7 +63,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
         }
 
         public String[] getHandledOutputFormats() {
-            return new String[] { Formats.TXT ,Formats.JSON, Formats.HTML};
+            return new String[] { Formats.TXT ,Formats.JSON, Formats.HTML, Formats.XML};
         }
 
         @EntityCustomAction(action = "tools", viewKey = EntityView.VIEW_SHOW)
@@ -150,7 +150,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 	void adjustMap(Map<String, Object> thing, boolean inAdmin, String siteId, String kind) {
 		Long id = FoormUtil.getLongNull(thing.get(LTIService.LTI_ID));
 		if ( id != null && id >= 0 ) {
-			thing.put("@id","/lti/"+kind+"/"+siteId+"/"+id+".json");
+			thing.put("@id","/lti/"+kind+"/"+siteId+"/"+id);
 		}
 
 		for (String key : thing.keySet()) {
