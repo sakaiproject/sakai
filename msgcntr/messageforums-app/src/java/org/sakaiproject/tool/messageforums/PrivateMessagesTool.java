@@ -2226,8 +2226,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       
       if (searchPvtMsgs != null)
       {
-    	  searchPvtMsgs.clear();
-    	  return DISPLAY_MESSAGES_PG;
+          return processClearSearch();
       }
     }
     return null;
@@ -2263,8 +2262,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       
       if (searchPvtMsgs != null)
       {
-    	  searchPvtMsgs.clear();
-    	  return DISPLAY_MESSAGES_PG;
+          return processClearSearch();
       }
     }
 
