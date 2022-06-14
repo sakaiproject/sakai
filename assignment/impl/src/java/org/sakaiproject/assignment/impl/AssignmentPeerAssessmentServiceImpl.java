@@ -236,19 +236,22 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         for (String sId : snakeSubmissionList) {
             AssignmentSubmission s = submissionIdMap.get(sId);
             Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//do not include assesseeId (aka the user being assessed)
-            if (!assesseeId.equals(ass.get().getSubmitter()) &&
-                    (lowestAssignedAssessorCount == null || peerAssessments.get(ass.get().getSubmitter()).keySet().size() < lowestAssignedAssessorCount)) {
-                //check if this user already has a peer assessment for this assessee
-                boolean found = false;
-                for (PeerAssessmentItem p : peerAssessments.get(ass.get().getSubmitter()).values()) {
-                    if (p.getId().getSubmissionId().equals(assesseeSubmissionId)) {
-                        found = true;
-                        break;
+            if (ass.isPresent()) {
+            	String submitter = ass.get().getSubmitter();
+                if (!assesseeId.equals(submitter) &&
+                        (lowestAssignedAssessorCount == null || peerAssessments.get(submitter).keySet().size() < lowestAssignedAssessorCount)) {
+                    //check if this user already has a peer assessment for this assessee
+                    boolean found = false;
+                    for (PeerAssessmentItem p : peerAssessments.get(submitter).values()) {
+                        if (p.getId().getSubmissionId().equals(assesseeSubmissionId)) {
+                            found = true;
+                            break;
+                        }
                     }
-                }
-                if (!found) {
-                    lowestAssignedAssessorCount = peerAssessments.get(ass.get().getSubmitter()).keySet().size();
-                    lowestAssignedAssessor = ass.get().getSubmitter();
+                    if (!found) {
+                        lowestAssignedAssessorCount = peerAssessments.get(submitter).keySet().size();
+                        lowestAssignedAssessor = submitter;
+                    }
                 }
             }
         }
