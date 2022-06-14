@@ -469,9 +469,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         ${this.submission.showExtension ? html`
             <div id="grader-extension-section" >
                 <input type="checkbox" .checked=${this.allowExtension} id="allowExtensionToggle" name="allowExtensionToggle" @change=${this.toggleExtensionBlock}" />
-                <label for="allowExtensionToggle" >${this.assignmentsI18n["allowExtension"]}</label>
+                <label for="allowExtensionToggle" >${this.assignmentsI18n.allowExtension}</label>
                 ${this.allowExtension ? html`
-                    <div >${this.assignmentsI18n["allowExtensionCaptionGrader"]}</div>
+                    <div >${this.assignmentsI18n.allowExtensionCaptionGrader}</div>
                     <div id="allowExtensionTime" >
                     <label>${this.assignmentsI18n["gen.acesubunt"]}</label>
                     <sakai-date-picker
@@ -606,7 +606,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (!feedbackPanel.dialog("instance")) {
       feedbackPanel.dialog({
         width: "auto",
-        beforeClose: () => { return this.cancelFeedbackToggle() },
+        beforeClose: () => { return this.cancelFeedbackToggle(); },
       });
       this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment");
     } else {
@@ -670,7 +670,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (!privateNotesPanel.dialog("instance")) {
       privateNotesPanel.dialog({
         width: "auto",
-        beforeClose: () => { return this.cancelPrivateNotesToggle() },
+        beforeClose: () => { return this.cancelPrivateNotesToggle(); },
       });
       this.privateNotesEditor = this.replaceWithEditor("grader-private-notes");
     } else {

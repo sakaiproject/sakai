@@ -6,8 +6,6 @@ import {SharingChangeEvent} from "./sharing-change-event.js";
 import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
 const rubricName = 'name';
-const rubricTitle = 'title';
-const rubricCreator = 'creator';
 const rubricModified = 'modified';
 
 export class SakaiRubricsList extends RubricsElement {
@@ -46,7 +44,7 @@ export class SakaiRubricsList extends RubricsElement {
         <div role="tablist">
         ${repeat(this.rubrics, r => r.id, r => html`
           <div class="rubric-item" id="rubric_item_${r.id}">
-            <sakai-rubric @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric>
+            <sakai-rubric site-title="${window.top.portal.siteTitle}" @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric>
           </div>
         `)}
         </div>
@@ -78,10 +76,6 @@ export class SakaiRubricsList extends RubricsElement {
         // To sort the rubrics correctly we need the user and the site names in the arrays, not the ids
         this.rubrics = this.rubrics.map( (rubric) => {
           const metadata = rubric.metadata;
-          const creatorId = metadata.creatorId;
-          const siteId = metadata.ownerId;
-          SakaiRubricsHelpers.getUserDisplayName(sakaiSessionId, creatorId).then( (name) => metadata.creatorName = name);
-          SakaiRubricsHelpers.getSiteTitle(sakaiSessionId, siteId).then( (name) => metadata.siteName = name);
           rubric.metadata = metadata;
           return rubric;
         });
@@ -154,12 +148,6 @@ export class SakaiRubricsList extends RubricsElement {
     switch (rubricType) {
       case rubricName:
         this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
-        break;
-      case rubricTitle:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.siteName.localeCompare(b.metadata.siteName) : b.metadata.siteName.localeCompare(a.metadata.siteName));
-        break;
-      case rubricCreator:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.creatorName.localeCompare(b.metadata.creatorName) : b.metadata.creatorName.localeCompare(a.metadata.creatorName));
         break;
       case rubricModified:
         this.rubrics.sort((a, b) => ascending ? a.metadata.modified.localeCompare(b.metadata.modified) : b.metadata.modified.localeCompare(a.metadata.modified));

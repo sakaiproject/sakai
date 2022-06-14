@@ -1,5 +1,6 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {ifDefined} from "/webcomponents/assets/lit-html/directives/if-defined.js";
 import "./sakai-rubric-criteria.js";
 import "./sakai-rubric-criteria-readonly.js";
 import "./sakai-rubric-edit.js";
@@ -30,6 +31,7 @@ export class SakaiRubric extends RubricsElement {
 
     return {
       rubric: { type: Object},
+      siteTitle: { attribute: "site-title", type: String },
       token: { type: String },
       shareIcon: { type: String },
       weightedIcon: String,
@@ -80,7 +82,7 @@ export class SakaiRubric extends RubricsElement {
           }
         </div>
 
-        <div class="hidden-xs"><sakai-rubric-site-title site-id="${this.rubric.metadata.ownerId}"></sakai-rubric-site-title></div>
+        <div class="hidden-xs"><sakai-rubric-site-title site-title="${ifDefined(this.siteTitle ? this.siteTitle : undefined)}" site-id="${ifDefined(!this.siteTitle ? this.rubric.metadata.ownerId : undefined)}"></sakai-rubric-site-title></div>
         <div class="hidden-xs"><sakai-rubric-creator-name creator-id="${this.rubric.metadata.creatorId}"></sakai-rubric-creator-name></div>
         <div class="hidden-xs"><sakai-rubric-modified-date modified="${this.rubric.metadata.modified}"></sakai-rubric-modified-date></div>
 
