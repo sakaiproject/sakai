@@ -69,7 +69,7 @@ export class Submission {
 
       this.resubmitsAllowed = parseInt(init.properties["allow_resubmit_number"] || 0);
       if (this.resubmitsAllowed === -1 || this.resubmitsAllowed > 0) {
-        this.resubmitDate = moment(parseInt(init.properties["allow_resubmit_closeTime"], 10)).valueOf();
+        this.resubmitDate = moment(parseInt(init.properties.allow_resubmit_closeTime, 10)).valueOf();
       }
 
 

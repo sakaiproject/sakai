@@ -6,8 +6,6 @@ import {SharingChangeEvent} from "./sharing-change-event.js";
 import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
 const rubricName = 'name';
-const rubricTitle = 'title';
-const rubricCreator = 'creator';
 const rubricModified = 'modified';
 
 export class SakaiRubricsList extends RubricsElement {
@@ -40,7 +38,7 @@ export class SakaiRubricsList extends RubricsElement {
         <div role="tablist">
         ${repeat(this.rubrics, r => r.id, r => html`
           <div class="rubric-item" id="rubric_item_${r.id}">
-            <sakai-rubric @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}"></sakai-rubric>
+            <sakai-rubric site-title="${window.top.portal.siteTitle}" @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}"></sakai-rubric>
           </div>
         `)}
         </div>
@@ -137,12 +135,6 @@ export class SakaiRubricsList extends RubricsElement {
     switch (rubricType) {
       case rubricName:
         this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
-        break;
-      case rubricTitle:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.ownerId.localeCompare(b.metadata.ownerId) : b.metadata.ownerId.localeCompare(a.metadata.ownerId));
-        break;
-      case rubricCreator:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.creatorId.localeCompare(b.metadata.creatorId) : b.metadata.creatorId.localeCompare(a.metadata.creatorId));
         break;
       case rubricModified:
         this.rubrics.sort((a, b) => ascending ? a.metadata.modified.localeCompare(b.metadata.modified) : b.metadata.modified.localeCompare(a.metadata.modified));
