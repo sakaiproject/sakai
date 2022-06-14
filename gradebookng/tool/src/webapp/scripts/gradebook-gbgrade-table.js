@@ -2216,10 +2216,10 @@ GbGradeTable.setupColumnSorting = function() {
 };
 
 GbGradeTable.defaultSortCompare = function(a, b) {
-    if (a == null || a == "") {
+    if (a == null || a === "") {
       return -1;
     }
-    if (b == null || b == "") {
+    if (b == null || b === "") {
       return 1;
     }
     if (parseFloat(a) > parseFloat(b)) {
@@ -2256,8 +2256,8 @@ GbGradeTable.sort = function(colIndex, direction) {
   }
 
   clone.sort(function(row_a, row_b) {
-    var a = isNaN(row_a[colIndex]) ? row_a[colIndex] : GbGradeTable.localizedStringToNumber(row_a[colIndex]);
-    var b = isNaN(row_b[colIndex]) ? row_b[colIndex] : GbGradeTable.localizedStringToNumber(row_b[colIndex]);
+    var a = isNaN(parseFloat(row_a[colIndex])) ? row_a[colIndex] : GbGradeTable.localizedStringToNumber(row_a[colIndex]);
+    var b = isNaN(parseFloat(row_b[colIndex])) ? row_b[colIndex] : GbGradeTable.localizedStringToNumber(row_b[colIndex]);
 
     return sortCompareFunction(a, b);
   });
