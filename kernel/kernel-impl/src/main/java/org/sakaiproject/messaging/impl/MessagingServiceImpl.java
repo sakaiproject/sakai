@@ -15,14 +15,7 @@
  */
 package org.sakaiproject.messaging.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -60,13 +53,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MessagingServiceImpl implements MessagingService, Observer {
 
-    private static final List<String> HANDLED_EVENTS = new ArrayList<>();
+    private static final Set<String> HANDLED_EVENTS = new HashSet<>();
 
     @Resource
-    private EagerIgniteSpringBean ignite;
+    /* package */ EagerIgniteSpringBean ignite;
 
     @Resource
-    private EventTrackingService eventTrackingService;
+    /* package */ EventTrackingService eventTrackingService;
     @Resource
     private MemoryService memoryService;
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
@@ -76,7 +69,7 @@ public class MessagingServiceImpl implements MessagingService, Observer {
     @Resource
     private SecurityService securityService;
     @Resource
-    private ServerConfigurationService serverConfigurationService;
+    /* package */ ServerConfigurationService serverConfigurationService;
     @Resource
     private SiteService siteService;
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
@@ -87,7 +80,7 @@ public class MessagingServiceImpl implements MessagingService, Observer {
     private IgniteMessaging messaging;
 
     @Autowired
-    private List<BullhornHandler> handlers;
+    private List<BullhornHandler> handlers = new ArrayList<>();
 
     private Map<String, BullhornHandler> handlerMap = new HashMap<>();
 
@@ -112,6 +105,43 @@ public class MessagingServiceImpl implements MessagingService, Observer {
         }
 
         messaging = ignite.message(ignite.cluster().forLocal());
+    }
+
+    /**
+     * Register a handler for broadcast messages. The most recently registered handler that
+     * handles a given event will receive it exclusively.
+     *
+     * @param handler a broadcast message handler; may handle multiple events
+     */
+    public void registerHandler(BullhornHandler handler) {
+        handler.getHandledEvents().forEach(eventName -> {
+            if (HANDLED_EVENTS.contains(eventName))
+                log.info("Replacing bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+
+            HANDLED_EVENTS.add(eventName);
+            handlerMap.put(eventName, handler);
+            log.debug("Registered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+        });
+    }
+
+    /**
+     * Unregister a handler for broadcast messages from all of the events it handles. If a given event is
+     * handled by a different handler, it will not be unregistered.
+     *
+     * @param handler the broadcast message handler to unregister from events
+     */
+    public void unregisterHandler(BullhornHandler handler) {
+        handler.getHandledEvents().forEach(eventName -> {
+            if (!HANDLED_EVENTS.contains(eventName))
+                log.info("Attempting to unregister for unhandled bullhorn event: {}", eventName);
+
+            BullhornHandler current = handlerMap.get(eventName);
+
+            if (handler == current) {
+                handlerMap.remove(eventName);
+                log.debug("Unregistered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+            }
+        });
     }
 
     public void update(Observable o, final Object arg) {
