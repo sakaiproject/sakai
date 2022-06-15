@@ -147,8 +147,7 @@ ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     for (const [index, key] of Object.entries(messages)) {
       messageArray.push(window.i18nWlogTab[key]);
     }
-    const node = document.createElement("br");
-    alertTsheetAddRecord.appendChild(node);
+    alertTsheetAddRecord.innerHTML= messageArray.join('<br>');
 };
 
 ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
@@ -174,8 +173,7 @@ ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
     for (const [index, key] of Object.entries(messages)) {
       messageArray.push(window.i18nWlogTab[key]);
     }
-    const node = document.createElement("br");
-    alertTsheetDelRecord.appendChild(node);
+    alertTsheetDelRecord.innerHTML= messageArray.join('<br>');
 };
 
 ASN.checkTimesheetRecord = function () {
