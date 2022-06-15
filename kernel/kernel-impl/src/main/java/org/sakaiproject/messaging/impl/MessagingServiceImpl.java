@@ -41,7 +41,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +78,6 @@ public class MessagingServiceImpl implements MessagingService, Observer {
 
     private IgniteMessaging messaging;
 
-    @Autowired
     private List<BullhornHandler> handlers = new ArrayList<>();
 
     private Map<String, BullhornHandler> handlerMap = new HashMap<>();
@@ -87,32 +85,16 @@ public class MessagingServiceImpl implements MessagingService, Observer {
     public void init() {
 
         if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
+            // Site publish is handled specially. It should probably be extracted from the logic below, but for now,
+            // we fake it in the list of handled events to get it into the if branch.
             HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
-
-            handlers.forEach(h -> {
-                h.getHandledEvents().forEach(he -> {
-
-                    HANDLED_EVENTS.add(he);
-                    handlerMap.put(he, h);
-                });
-            });
-
-            if (log.isDebugEnabled()) {
-                HANDLED_EVENTS.forEach(e -> log.debug("BH EVENT: {}", e));
-            }
-
             eventTrackingService.addLocalObserver(this);
         }
 
         messaging = ignite.message(ignite.cluster().forLocal());
     }
 
-    /**
-     * Register a handler for broadcast messages. The most recently registered handler that
-     * handles a given event will receive it exclusively.
-     *
-     * @param handler a broadcast message handler; may handle multiple events
-     */
+    @Override
     public void registerHandler(BullhornHandler handler) {
         handler.getHandledEvents().forEach(eventName -> {
             if (HANDLED_EVENTS.contains(eventName))
@@ -124,12 +106,7 @@ public class MessagingServiceImpl implements MessagingService, Observer {
         });
     }
 
-    /**
-     * Unregister a handler for broadcast messages from all of the events it handles. If a given event is
-     * handled by a different handler, it will not be unregistered.
-     *
-     * @param handler the broadcast message handler to unregister from events
-     */
+    @Override
     public void unregisterHandler(BullhornHandler handler) {
         handler.getHandledEvents().forEach(eventName -> {
             if (!HANDLED_EVENTS.contains(eventName))
@@ -138,6 +115,7 @@ public class MessagingServiceImpl implements MessagingService, Observer {
             BullhornHandler current = handlerMap.get(eventName);
 
             if (handler == current) {
+                HANDLED_EVENTS.remove(eventName);
                 handlerMap.remove(eventName);
                 log.debug("Unregistered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
             }
