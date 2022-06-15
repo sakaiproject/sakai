@@ -185,9 +185,9 @@ public class GroupController {
             }
         }
 
-        // For every member of the site or the filtered group, add it to the selector except if they were provided by a role.
+        // For every active member of the site or the filtered group, add it to the selector except if they were provided by a role.
         for (Member member : filterGroup == null ? site.getMembers() : filterGroup.getMembers()) {
-            if (!roleProviderList.contains(member.getRole().getId()) && sectionProvidedUsers.stream().noneMatch(m -> m.getUserId().equals(member.getUserId()))) {
+            if (!roleProviderList.contains(member.getRole().getId()) && sectionProvidedUsers.stream().noneMatch(m -> m.getUserId().equals(member.getUserId())) && member.isActive()) {
                 Optional<User> memberUserOptional = sakaiService.getUser(member.getUserId());
                 if (memberUserOptional.isPresent()) {
                     siteMemberSet.add(memberUserOptional.get());
