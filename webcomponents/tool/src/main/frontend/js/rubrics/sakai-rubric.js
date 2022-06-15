@@ -286,8 +286,13 @@ export class SakaiRubric extends RubricsElement {
     this.rubric.weighted = !this.rubric.weighted;
     if (this.rubric.weighted) {
       this.rubric.criteria.forEach(cr => cr.weight = 0);
-      this.rubric.criteria[0].weight = 100;
-      this.handleSaveWeights(e);
+      //Try to get first criterion, that is not a criterion group
+      const firstCriterion = this.rubric.criteria.find(criteria => criteria.ratings?.length > 0);
+      if (firstCriterion) {
+        //Set weight of first criterion to 100 (%)
+        firstCriterion.weight = 100;
+        this.handleSaveWeights(e);
+      }
       this.handleRefreshTotalWeight();
     }
 
