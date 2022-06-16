@@ -30,13 +30,13 @@ import org.w3c.dom.Node;
 @Slf4j
 public class LTIContentArchiveBean {
 
-        public final static String ALIAS = "LTIContent";
+	public final static String ALIAS = "LTIContent";
 
 	private Map<String,Object> contents;
 
 	private List<String> allowedFields = Arrays.asList(
-		       	"id",
-		       	"tool_id",
+			"id",
+			"tool_id",
 			"title",
 			"description",
 			"contentitem",
