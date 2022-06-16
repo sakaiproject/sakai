@@ -3038,7 +3038,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		 return null;
 	 }else{
 		 pvtMsg.setDraft(Boolean.TRUE);
-		 setMsgNavMode(PVTMSG_MODE_DRAFT);
 		 String returnVal = processPvtMsgReplySentAction(pvtMsg);
 		 if(returnVal == null){
 			 return null;
