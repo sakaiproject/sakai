@@ -512,8 +512,8 @@ $nav-tabs-active-link-hover-border-color:   var(--tool-tab-background-color);
 //##
 
 $jumbotron-padding:                 18px;
-// $jumbotron-color:                inherit
-// $jumbotron-bg:                   $gray-lighter
+$jumbotron-color:                   var(--jumbotron-color, inherit);
+$jumbotron-bg:                      var(--jumbotron-bg, #{$gray-lighter});
 // $jumbotron-heading-color:        inherit
 $jumbotron-font-size:               $default-font-size;
 $jumbotron-heading-font-size:       $font-size-h4;
