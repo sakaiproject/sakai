@@ -30,64 +30,61 @@ import org.w3c.dom.Node;
 @Slf4j
 public class LTIContentArchiveBean {
 
-	public final static String ALIAS = "LTIContent";
+    public final static String ALIAS = "LTIContent";
 
-	private Map<String,Object> contents;
+    private Map < String, Object > contents;
 
-	private List<String> allowedFields = Arrays.asList(
-			"id",
-			"tool_id",
-			"title",
-			"description",
-			"contentitem",
-			"launch",
-			"custom",
-			"settings",
-			"lti13",
-			"lti13_settings",
-			"newpage",
-			"frameheight" );
+    private List < String > allowedFields = Arrays.asList(
+        "id",
+        "tool_id",
+        "title",
+        "description",
+        "contentitem",
+        "launch",
+        "custom",
+        "settings",
+        "lti13",
+        "lti13_settings",
+        "newpage",
+        "frameheight");
 
-        public LTIContentArchiveBean(Map<String,Object> itemFields)
-        {
-		// Create a new bean with a filtered list of items
-		this.contents = new HashMap();
+    public LTIContentArchiveBean(Map < String, Object > itemFields) {
+        // Create a new bean with a filtered list of items
+        this.contents = new HashMap();
 
-		for (String key : itemFields.keySet()) {
-			if (allowedFields.contains(key)) {
-				contents.put(key, itemFields.get(key));
-			}
-		}
+        for (String key: itemFields.keySet()) {
+            if (allowedFields.contains(key)) {
+                contents.put(key, itemFields.get(key));
+            }
         }
-        
-        public LTIContentArchiveBean(Node basicLTI) throws Exception
-        {
-		throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public LTIContentArchiveBean(Node basicLTI) throws Exception {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public Node toNode(Document doc) {
+        Node node = null;
+        log.debug("Building node");
+
+        // The alias is the name of the root element
+        node = doc.createElement(LTIContentArchiveBean.ALIAS);
+
+        // Set the id as attribute of the item element
+        if (contents.get("id") != null) {
+            Attr itemId = doc.createAttribute("id");
+            itemId.setValue(contents.get("id").toString());
+            node.getAttributes().setNamedItem(itemId);
         }
 
-        public Node toNode(Document doc)
-        {
-        	Node node = null;
-    		log.debug("Building node");
-
-		// The alias is the name of the root element
-		node = doc.createElement(LTIContentArchiveBean.ALIAS);
-			
-		// Set the id as attribute of the item element
-		if (contents.get("id") != null) {
-			Attr itemId = doc.createAttribute("id");
-			itemId.setValue(contents.get("id").toString());
-			node.getAttributes().setNamedItem(itemId);
-		}
-
-		for (String key: contents.keySet()) {
-			Node property = doc.createElement(key);
-			if (contents.get(key) != null) {
-				property.setTextContent(contents.get(key).toString());
-			}
-			node.appendChild(property);
-		}
-
-        	return node;
+        for (String key: contents.keySet()) {
+            Node property = doc.createElement(key);
+            if (contents.get(key) != null) {
+                property.setTextContent(contents.get(key).toString());
+            }
+            node.appendChild(property);
         }
+
+        return node;
+    }
 }
