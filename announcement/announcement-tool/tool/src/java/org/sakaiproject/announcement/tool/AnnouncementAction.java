@@ -1007,8 +1007,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			template = buildShowMetadataContext(portlet, context, rundata, state, sstate);
 		}
-		else if ((statusName.equals("goToReviseAnnouncement")) || (statusName.equals(BACK_TO_EDIT_STATUS))
-				|| (ADD_STATUS.equals(statusName)) || ("stayAtRevise".equals(statusName)))
+		else if (StringUtils.equalsAnyIgnoreCase(statusName, EDIT_STATUS, BACK_TO_EDIT_STATUS, ADD_STATUS, "stayAtRevise"))
 		{
 			template = buildReviseAnnouncementContext(portlet, context, rundata, state, sstate);
 		}
