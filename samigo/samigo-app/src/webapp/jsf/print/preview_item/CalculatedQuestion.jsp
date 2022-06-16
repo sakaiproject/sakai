@@ -28,7 +28,7 @@ should be included in file importing DeliveryMessages
   <%-- questionBlock --%>
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
   
-  <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
+  <h:outputText styleClass="questionBlock" escape="false" value="#{question.calculatedQuestionText}" />
   <h:outputText value="<br />" escape="false" />
 
   <%-- answerBlock --%>
