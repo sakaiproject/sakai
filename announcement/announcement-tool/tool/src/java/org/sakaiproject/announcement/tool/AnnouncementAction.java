@@ -1855,11 +1855,15 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 			//output notification history
 			if (state.getEdit()!= null){
-				List notiHistory= state.getEdit().getProperties().getPropertyList("noti_history");
+				List<String> notiHistory= state.getEdit().getProperties().getPropertyList("noti_history");
 				if (notiHistory!=null){
-					List noti_history=new ArrayList();
-					for(Iterator it = notiHistory.iterator(); it.hasNext();){
-						noti_history.add(it.next().toString().split("_"));
+					List<Collection<String>> noti_history = new ArrayList<>();
+					for(String notification: notiHistory){
+						ArrayList<String> splittedNoti = new ArrayList<>(Arrays.asList(notification.split("_")));
+						if (splittedNoti.size() == 2) {
+							splittedNoti.add("");
+						}
+						noti_history.add(splittedNoti);
 					}			
 					context.put("notiHistory", noti_history);
 				}
