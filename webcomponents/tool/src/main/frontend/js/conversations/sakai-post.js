@@ -147,9 +147,9 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
       if (r.ok) {
         this.post.hidden = !this.post.hidden;
         this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
+      } else {
+        throw new Error(`Network error while hiding/showing post at ${url}: ${r.status}`);
       }
-
-      throw new Error("Network error while hiding/showing post");
     })
     .catch(error => console.error(error));
   }
