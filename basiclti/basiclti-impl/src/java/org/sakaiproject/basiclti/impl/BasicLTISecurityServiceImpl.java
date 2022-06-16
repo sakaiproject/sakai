@@ -833,8 +833,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				List<Map<String,Object>> contents = ltiService.getContentsDao(null, null, 0, 0, siteId, false);
 				for (Map<String,Object> contentItem : contents) {
 					LTIContentArchiveBean ltiContentArchiveBean = new LTIContentArchiveBean(contentItem);
-                                        Node newNode = ltiContentArchiveBean.toNode(doc);
-                                        basicLtiList.appendChild(newNode);
+					Node newNode = ltiContentArchiveBean.toNode(doc);
+					basicLtiList.appendChild(newNode);
 					contentCount++;
 				}
 
