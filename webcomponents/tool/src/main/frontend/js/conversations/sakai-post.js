@@ -506,7 +506,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
     return html`
 
-      <div id="discussion-post-block-${this.post.id}" class="discussion-post-block ${this.post.hidden ? "soft-deleted" : ""}">
+      <div id="discussion-post-block-${this.post.id}" class="discussion-post-block">
 
         <div class="discussion-post-left-column">
           <div class="photo">
@@ -687,7 +687,6 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
       <div id="post-${this.post.id}"
           data-post-id="${this.post.id}"
           class="post ${this.post.isInstructor ? "instructor" : ""}
-          ${this.post.hidden ? "soft-deleted" : ""}
           ${(!this.post.comments || !this.post.comments.length) && !this.post.canComment ? "post-without-comment-block" : ""}">
 
         <div class="post-topbar">
