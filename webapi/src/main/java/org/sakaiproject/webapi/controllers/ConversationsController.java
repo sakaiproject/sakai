@@ -324,11 +324,12 @@ public class ConversationsController extends AbstractSakaiApiController {
     }
 
 	@PostMapping(value = "/sites/{siteId}/topics/{topicId}/posts/{postId}/hidden")
-    public EntityModel<PostTransferBean> hidePost(@PathVariable String siteId, @PathVariable String topicId, @PathVariable String postId, @RequestBody Boolean hidden) throws ConversationsPermissionsException {
+    public ResponseEntity hidePost(@PathVariable String siteId, @PathVariable String topicId, @PathVariable String postId, @RequestBody Boolean hidden) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
 
-        return entityModelForPostBean(conversationsService.hidePost(siteId, topicId, postId, hidden));
+        conversationsService.hidePost(siteId, topicId, postId, hidden);
+        return ResponseEntity.ok().build();
     }
 
     private EntityModel<PostTransferBean> entityModelForPostBean(PostTransferBean postBean) {
