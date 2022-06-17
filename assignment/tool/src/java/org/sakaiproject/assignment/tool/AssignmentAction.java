@@ -2642,6 +2642,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             boolean isAnyRegTimeSheet = false;
             if (submissionSubmitter.isPresent() && assignmentService.existsTimeSheetEntries(submissionSubmitter.get())) {
+                context.put("timeSheetEntries", assignmentService.getTimeSheetEntries(submissionSubmitter.get()));
             	isAnyRegTimeSheet = true;
            		context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
             }
