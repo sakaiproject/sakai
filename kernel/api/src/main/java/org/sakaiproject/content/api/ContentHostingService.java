@@ -2141,9 +2141,18 @@ public interface ContentHostingService extends EntityProducer
 	 *
 	 * @return URL with macro expansion
 	 */
-
 	public String expandMacros(String url);
 
+	/**
+	 * Return a list of the mimetypes handled by the built in Apache based converter.
+	 *
+	 * @return The mimetypes handled by the built in Apache based converter.
+	 */
+	public List<String> getHtmlForRefMimetypes();
+
+	/**
+	 * Returns a map with the converted document html and the conversions status
+	 */
 	public Map<String,String> getHtmlForRef(String ref);
 
 	/**
