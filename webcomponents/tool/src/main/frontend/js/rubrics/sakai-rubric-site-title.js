@@ -12,11 +12,7 @@ export class SakaiRubricSiteTitle extends RubricsElement {
   }
 
   static get properties() {
-
-    return {
-      siteId: { attribute: "site-id", type: String },
-      siteTitle: { attribute: "site-title", type: String },
-    };
+    return { siteId: {attribute: "site-id", type: String}, siteTitle: {attribute: true, type: String} };
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
