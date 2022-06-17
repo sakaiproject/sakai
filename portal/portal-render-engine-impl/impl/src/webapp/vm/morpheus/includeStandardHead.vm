@@ -59,10 +59,12 @@
                 },
                 "portalCDNQuery" : "$!{portalCDNQuery}",
                 "sakaiSkin" : "$!{pageSkin}",
-                "userTheme" : "$!{userTheme}"
-                #if ($themesAutoDetectDark)
-                ,"userThemeAutoDetectDark" : true
-                #end
+                "userTheme" : "$!{userTheme}",
+                #if($themesAutoDetectDark)"userThemeAutoDetectDark" : true,
+                #end"mathJaxConfig" : {
+                    "format" : [#foreach( $format in $mathJaxFormat )"${format}",#end]
+                },
+
             };
         </script>
 

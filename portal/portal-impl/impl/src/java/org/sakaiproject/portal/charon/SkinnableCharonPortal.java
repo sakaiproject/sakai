@@ -41,8 +41,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.jsoup.nodes.Element;
+
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -128,13 +133,11 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.EditorConfiguration;
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.util.RequestFilter;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p/> Charon is the Sakai Site based portal.
@@ -1110,7 +1113,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		//SAK-32224. Ability to disable the animated tool menu by property
 		rcontext.put("scrollingToolbarEnabled", ServerConfigurationService.getBoolean("portal.scrolling.toolbar.enabled",true));
-		
+
+		// Format properties for MathJax.
+		String [] mathJaxFormat = ServerConfigurationService.getStrings("mathjax.config.format");
+		rcontext.put("mathJaxFormat", mathJaxFormat);
+
 		return rcontext;
 	}
 
@@ -1311,24 +1318,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		StringBuilder headJs = new StringBuilder();
 
-        // SAK-22384
-        if (site != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
-        {
-                if (site != null)
-                {                           
-                    String strMathJaxEnabledForSite = site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
-                    if (StringUtils.isNotBlank(strMathJaxEnabledForSite))
-                    {
-                        if (Boolean.valueOf(strMathJaxEnabledForSite))
-                        {
-                            // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
-                            headJs.append("<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\nmessageStyle: \"none\",\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n");
-                            headJs.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\" type=\"text/javascript\"></script>\n");
-                        }                     
-                    }
-                }
-        }
-
 		String contentItemUrl = portalService.getContentItemUrl(site);
 		headJs.append("<script type=\"text/javascript\" src=\"");
 		headJs.append(PortalUtils.getCDNPath());
@@ -1371,6 +1360,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			headJs.append("if ( window.self !== window.top ) {");
 			headJs.append(" setTimeout(function(){ window.top.portal_check_pnotify() }, 3000);");
 			headJs.append("}</script>");
+		}
+
+		// SAK-22384
+		if (site != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
+		{
+			String strMathJaxEnabledForSite = site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
+
+			if (StringUtils.isNotBlank(strMathJaxEnabledForSite) && Boolean.valueOf(strMathJaxEnabledForSite))
+			{
+				// In order to get MathJax to work on the site, the config and source has to be added to the header.
+				Element config = new Element("script");
+				Element srcPath = new Element("script");
+
+				config.attr("src", "/library/js/mathjax-config.js");
+				srcPath.attr("type", "text/javascript").attr("src", MATHJAX_SRC_PATH);
+				headJs.append(config.toString()).append(srcPath.toString());
+			}
 		}
 
 		// TODO: Should we include jquery here?  See includeStandardHead.vm
