@@ -2644,8 +2644,8 @@ public class AssignmentAction extends PagedResourceActionII {
             if (submissionSubmitter.isPresent() && assignmentService.existsTimeSheetEntries(submissionSubmitter.get())) {
                 context.put("timeSheetEntries", assignmentService.getTimeSheetEntries(submissionSubmitter.get()));
             	isAnyRegTimeSheet = true;
-           		context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
             }
+            context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
 
             Map<String, String> submissionProperties = submission.getProperties();
             if (submissionProperties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null) {
