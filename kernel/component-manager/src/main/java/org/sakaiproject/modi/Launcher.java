@@ -1,6 +1,7 @@
 package org.sakaiproject.modi;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.GenericApplicationContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,7 +43,7 @@ public class Launcher {
 
     protected final Environment env;
     protected ComponentsDirectory components;
-    protected SharedApplicationContext context;
+    protected GenericApplicationContext context;
 
     /**
      * Start the Sakai instance.
@@ -61,8 +62,8 @@ public class Launcher {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
         System.setProperty("sakai.modi.enabled", "true");
 
-        context = new SharedApplicationContext();
-        context.registerBeanSource(getConfiguration());
+        context = new GenericApplicationContext();
+        getConfiguration().registerBeans(context);
 
         components = new ComponentsDirectory(env.getComponentsRoot(), env.getOverridesFolder());
         components.starting(context);
