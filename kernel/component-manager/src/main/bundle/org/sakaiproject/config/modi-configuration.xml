@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="sakai-configuration.xml"/>
+
+	<!-- We run a placeholder pass up front to make sure that system properties are expanded for the paths of -->
+	<!-- the properties files in sakai-configuration.xml -->
+	<bean id="ensureSysPropsForFilePaths" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="order" value="-10" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+	<!-- Override the Default bean to set our modi class type, which hooks into the standard context lifecycle. -->
+	<bean id="org.sakaiproject.component.DefaultSakaiProperties" abstract="true" class="org.sakaiproject.modi.ModiSakaiProperties">
+		<property name="order" value="0"/>
+		<property name="properties">
+			<bean class="org.sakaiproject.component.impl.DynamicDefaultSakaiProperties" init-method="init"/>
+		</property>
+		<property name="locations">
+			<list>
+				<value>classpath:org/sakaiproject/config/kernel.properties</value>
+			</list>
+		</property>
+	</bean>
+</beans>
