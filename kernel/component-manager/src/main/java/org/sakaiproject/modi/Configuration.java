@@ -95,7 +95,7 @@ public class Configuration implements BeanDefinitionSource {
      * The base configuration is read directly from the kernel jar, via the classpath.
      */
     protected Resource baseConfig() {
-        return new ClassPathResource("org/sakaiproject/config/sakai-configuration.xml");
+        return new ClassPathResource("org/sakaiproject/config/modi-configuration.xml");
     }
 
     protected Optional<Resource> localConfig() {
