@@ -48,7 +48,9 @@ public class GlobalApplicationContext {
      */
     public static ConfigurableApplicationContext getContext() throws IllegalStateException {
         if (context == null)
-            throw new IllegalStateException("Global Application Context accessed, but not set up.");
+            throw new IllegalStateException("Global Application Context accessed, but not registered. It must be set"
+                    + "before refresh because certain beans must be initialized during refresh AND use this.");
+
         return context;
     }
 

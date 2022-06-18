@@ -21,8 +21,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-        "file:../../announcement-impl/impl/src/webapp/WEB-INF/components.xml",
-        "file:src/test/resources/testContext.xml"
+        "file:../../announcement-impl/impl/src/webapp/WEB-INF/components.xml"
 })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class KernelIntegrityTest extends ModiTest {
