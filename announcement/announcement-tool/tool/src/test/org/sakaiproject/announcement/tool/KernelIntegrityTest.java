@@ -12,6 +12,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -30,6 +31,9 @@ public class KernelIntegrityTest extends ModiTest {
 
     @Inject
     public SecurityService securityService;
+
+    @Inject
+    public ApplicationContext context;
 
     @Test
     public void _1_givenAModiKernel_thenWeCanRunRealIntegrationTests() throws IdUnusedException {
