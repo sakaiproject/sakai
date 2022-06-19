@@ -18,10 +18,13 @@
       <scope>compile</scope>
       <includes>
         <include>org.sakaiproject.kernel:*</include>
+        <include>org.sakaiproject.portal:*</include>
+        <include>org.sakaiproject.edu-services.course-management:*</include>
+        <include>org.sakaiproject.edu-services.scoringservice:*</include>
+        <include>org.sakaiproject.edu-services.sections:*</include>
         <include>org.springframework:*</include>
         <include>com.opencsv:*</include>
       </includes>
     </dependencySet>
   </dependencySets>
 </assembly>
-

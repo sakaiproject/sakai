@@ -1,6 +1,7 @@
 package org.sakaiproject.announcement.tool;
 
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
@@ -8,6 +9,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
  * {@link ContextConfiguration} annotation with the locations (of XML bean files) or classes (Java configuration) set.
  */
 @WebAppConfiguration
-@ContextConfiguration(loader = ModiWebContextLoader.class)
+@ContextHierarchy({
+        @ContextConfiguration(name = "kernel", loader = ModiWebContextLoader.class),
+        @ContextConfiguration(name = "portal", classes = ModiPortalConfig.class)
+})
 public abstract class ModiWebTest extends ModiTest {
 }
