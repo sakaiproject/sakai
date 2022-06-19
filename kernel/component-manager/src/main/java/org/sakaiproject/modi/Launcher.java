@@ -59,7 +59,7 @@ public class Launcher {
      */
     public void start() throws MissingConfigurationException, InitializationException {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
-        System.setProperty("sakai.use.modi", "true");
+        System.setProperty("sakai.modi.enabled", "true");
 
         context = GlobalApplicationContext.getContext();
         context.registerBeanSource(getConfiguration());

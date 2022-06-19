@@ -23,7 +23,7 @@ public class EnvironmentTest {
         System.clearProperty("sakai.home");
         System.clearProperty("sakai.security");
         System.clearProperty("sakai.components.root");
-        System.clearProperty("sakai.use.modi");
+        System.clearProperty("sakai.modi.enabled");
         tmp = tmpDir.getRoot().toPath();
     }
 

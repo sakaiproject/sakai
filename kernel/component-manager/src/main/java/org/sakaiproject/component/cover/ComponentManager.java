@@ -112,7 +112,7 @@ public class ComponentManager {
 			if (m_componentManager == null) {
 				// If we are in modern injection mode, components have already been loaded, so we use
 				// a shim to the global application context.
-				if ("true".equalsIgnoreCase(System.getProperty("sakai.use.modi"))) {
+				if ("true".equalsIgnoreCase(System.getProperty("sakai.modi.enabled"))) {
 					ComponentManagerShim shim = new ComponentManagerShim(GlobalApplicationContext.getContext());
 					shim.setWarnOnAllCalls("true".equalsIgnoreCase(System.getProperty("sakai.modi.alwaysWarn")));
 					shim.setThrowOnAllCalls("true".equalsIgnoreCase(System.getProperty("sakai.modi.alwaysThrow")));
