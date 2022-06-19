@@ -10,6 +10,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.StringUtil;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Slf4j
+@Named
 public class ToolPortalServlet extends HttpServlet {
     /**
      * Create a ToolPortal (Servlet) with all of its dependencies.
@@ -25,6 +28,7 @@ public class ToolPortalServlet extends HttpServlet {
      * See ToolPortal and web.xml in portal-tool for the primary use. This class is here now to facilitate direct tool
      * testing without creating a clone.
      */
+    @Inject
     public ToolPortalServlet(
             ActiveToolManager activeToolManager,
             ServerConfigurationService serverConfigurationService,

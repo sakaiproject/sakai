@@ -14,6 +14,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
@@ -21,9 +22,12 @@ import javax.inject.Inject;
 import static org.assertj.core.api.Assertions.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-        "file:../../announcement-impl/impl/src/webapp/WEB-INF/components.xml"
-})
+@ContextHierarchy(
+        @ContextConfiguration(name = "kernel", locations = {
+                "file:../../announcement-impl/impl/src/webapp/WEB-INF/components.xml"
+        })
+
+)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class KernelIntegrityTest extends ModiTest {
     @Inject

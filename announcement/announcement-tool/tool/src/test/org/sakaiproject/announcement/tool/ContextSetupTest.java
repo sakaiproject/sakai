@@ -20,8 +20,7 @@ import javax.inject.Inject;
 import static org.assertj.core.api.Assertions.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-// TODO: Remove this when everything moves to kernel. Needed for now because the bullhorn class defined here is picked up by the container, so we need the service available
-@ContextConfiguration(locations = {
+@ContextConfiguration(name = "kernel", locations = {
         "file:../../announcement-impl/impl/src/webapp/WEB-INF/components.xml"
 })
 public class ContextSetupTest extends ModiTest {
