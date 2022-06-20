@@ -1,4 +1,4 @@
-package org.sakaiproject.announcement.tool;
+package org.sakaiproject.test;
 
 import org.springframework.test.context.SmartContextLoader;
 import org.springframework.test.context.web.WebDelegatingSmartContextLoader;

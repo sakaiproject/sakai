@@ -1,4 +1,4 @@
-package org.sakaiproject.announcement.tool;
+package org.sakaiproject.test;
 
 import org.sakaiproject.modi.GlobalApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;

@@ -1,4 +1,4 @@
-package org.sakaiproject.announcement.tool;
+package org.sakaiproject.test;
 
 import org.sakaiproject.portal.util.ToolPortalServlet;
 import org.springframework.context.annotation.ComponentScan;
