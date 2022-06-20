@@ -1,9 +1,7 @@
-package org.sakaiproject.announcement.tool;
+package org.sakaiproject.test;
 
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
  * Convenience base class for tests that need a kernel in a generic application context. Extend this class and add a

@@ -28,6 +28,7 @@
         <module>kernel-util</module>
         <module>kernel-storage-util</module>
         <module>kernel-test</module>
+        <module>test-helper</module>
     </modules>
 
     <profiles>

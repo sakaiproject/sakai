@@ -1,6 +1,5 @@
-package org.sakaiproject.announcement.tool;
+package org.sakaiproject.test;
 
-import org.sakaiproject.modi.GlobalApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.MergedContextConfiguration;

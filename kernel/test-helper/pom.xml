@@ -55,6 +55,11 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-test</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.edu-services.course-management</groupId>
       <artifactId>coursemanagement-api</artifactId>
       <scope>compile</scope>
