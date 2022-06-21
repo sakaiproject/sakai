@@ -803,11 +803,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			StringBuilder results = new StringBuilder("archiving basiclti "+siteId+"\n");
 
 			int count = 0;
+			int contentCount = 0;
 			try {
 				Site site = siteService.getSite(siteId);
 				log.info("SITE: {} : {}", site.getId(), site.getTitle());
 				Element basicLtiList = doc.createElement("org.sakaiproject.basiclti.service.BasicLTISecurityService");
 
+				// Export the LTI tools
 				for (SitePage sitePage : site.getPages()) {
 					for (ToolConfiguration toolConfiguration : sitePage.getTools()) {
 						if ( toolConfiguration.getTool() == null ) continue;
@@ -827,6 +829,16 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					}
 				}
 
+				// Export the LTI Content Items
+				List<Map<String,Object>> contents = ltiService.getContentsDao(null, null, 0, 0, siteId, false);
+				for (Map<String,Object> contentItem : contents) {
+					LTIContentArchiveBean ltiContentArchiveBean = new LTIContentArchiveBean(contentItem);
+					Node newNode = ltiContentArchiveBean.toNode(doc);
+					basicLtiList.appendChild(newNode);
+					contentCount++;
+				}
+
+				// Finish
 				((Element) stack.peek()).appendChild(basicLtiList);
 				stack.push(basicLtiList);
 				stack.pop();
@@ -840,7 +852,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				log.warn("Failed to archive: {}, error: {}", siteId, e);
 				results.append("basiclti exception:"+e.getClass().getName()+"\n");
 			}
-			results.append("archiving basiclti ("+count+") tools archived\n");
+			results.append("archiving basiclti: "+count+" tools and " + contentCount + " content items archived\n");
 
 			return results.toString();
 		}
