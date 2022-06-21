@@ -47,10 +47,9 @@
           }
       });
 
-      var parnetBlock = $("main").length === 0 ? $("body") : $("main");
-      parnetBlock.prepend(`
+      var parnetBlock = $("#timerPosition");
+      parnetBlock.after(`
           <link href='/samigo-app/css/timerbar.css' type='text/css' rel='stylesheet' media='all' />
-          <div id='timerBlank'></div>
           <div id='timerBlock' aria-hidden='true'>
               <div class="progress-wrapper">
                   <div class="progress">
@@ -129,9 +128,6 @@
                       timerBlock.css("border-radius", "10px");
                   }
               }
-              timerBlock.css({
-                  "top": newTop,
-              });
           }
       }
 
@@ -161,7 +157,8 @@
       var indicator = timeoutDialog.find("#indicator");
       var showTimer = $("input[name$=\\:showTimer]");
 
-      showHide.click(function() {
+      showHide.click(function(e) {
+          e.preventDefault();
           if (progressbar.is(":visible")) {
               progressWrapper.slideUp();
               showHide.find("#showHideText").text(showMessage);

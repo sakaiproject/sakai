@@ -50,21 +50,10 @@
 }
 
 #timerBlock {
-	position: absolute;
-	top: 0px;
-	width: 75%;
+	position: sticky;
+	top: 52px;
 	background-color: var(--sakai-primary-color-1);
-	margin: 0;
-	margin-left: 15px;
-	padding: 0;
 	z-index: 2;
-}
-
-#timerBlank {
-	height: 110px;
-	border: 0;
-	padding: 0;
-	margin: 0;
 }
 
 #showHide {
@@ -109,14 +98,3 @@ tr.timerSubmission:nth-child(even) {
 	background-color: var(--sakai-background-color-2);
 }
 
-@media only screen and (max-width: 770px) {
-	#timerBlock {
-		position: absolute;
-		top: 0px;
-		width: 100%;
-		margin: 0;
-		padding: 0;
-		z-index: 2;
-		left: 0px;
-	}
-}
