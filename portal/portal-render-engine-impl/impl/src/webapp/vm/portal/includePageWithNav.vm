@@ -1,0 +1,34 @@
+##
+## the Page part of the standard view, with page navigation
+##
+<!-- START VM includePageWithNav.vm -->
+#* TODO: decide - Trinity chopping block
+    <div id="pageBody" class="d-flex">
+*#    
+    #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+
+        #parse("/vm/portal/includePageNav.vm")
+
+    #else 
+
+        <!-- no page nav requested -->
+
+    #end ## END of IF ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+#* TODO: decide - Trinity chopping block
+    <div class="Mrphs-pagebody px-3">
+
+        #parse("/vm/portal/snippets/siteStatus-snippet.vm")
+
+        #parse("/vm/portal/includeSiteHierarchy.vm")
+*#
+        #parse("/vm/portal/includePageBody.vm")
+#* TODO: decide - Trinity chopping block
+    </div>
+    
+    </div>
+  
+
+</div>
+*#
+    
+<!-- END VM includePageWithNav.vm -->

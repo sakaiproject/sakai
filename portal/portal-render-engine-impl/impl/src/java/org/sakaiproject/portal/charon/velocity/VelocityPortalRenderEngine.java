@@ -67,7 +67,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private ServletContext context;
 
-	private String defaultSkin = "trinity";
+	private String defaultSkin = "portal";
 
 	private boolean styleAble = false;
 
@@ -94,7 +94,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 					"portal.styleable.contentSummary", false);
 			
 			//this variable will decide which templates and configs (bundle) are picked
-			defaultSkin = serverConfigurationService.getString("portal.templates", "trinity");
+			defaultSkin = serverConfigurationService.getString("portal.templates", "portal");
 		}
 		catch (Exception ex)
 		{

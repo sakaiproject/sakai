@@ -1,0 +1,10 @@
+<!-- START VM tool.vm -->
+
+    #parse("/vm/portal/includeStandardHead.vm")
+
+    <body class="Mrphs-portalBody Mrphs-portalBody--tool">
+        #parse("/vm/portal/includeToolBody.vm")
+    </body>
+
+<!-- END VM tool.vm -->
+</html>
