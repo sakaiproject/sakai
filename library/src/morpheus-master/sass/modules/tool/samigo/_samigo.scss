@@ -426,8 +426,7 @@
 	}
 
 	#delivAssessmentWrapper {
-		width: 96%;
-		float: left;
+		width: calc(100% - 56px);
 	}
 
 	.downloanQuestionCheckbox label {
