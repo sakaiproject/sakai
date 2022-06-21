@@ -7,6 +7,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -14,6 +15,8 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.util.*;
@@ -24,6 +27,7 @@ import java.nio.file.Paths;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 public class LessonsRejigger {
 
     private final AtomicBoolean insidePage = new AtomicBoolean(false);
@@ -107,23 +111,28 @@ public class LessonsRejigger {
                     for (Item item : items) {
                         if (item.type.equals(ItemType.MULTIMEDIA) &&
                             item.events.get(0).atts.getValue("sakaiid").toLowerCase(Locale.ROOT).matches("^/.*\\." + IMAGE_EXTENSIONS + "$")) {
-                            // Transmogrify into rich text.  That's right: transmogrify.
-                            BufferedSAXEvent elt = item.events.get(0);
-                            AttributesImpl updatedAttributes = new AttributesImpl(elt.atts);
 
-                            String contentPath = updatedAttributes.getValue("sakaiid");
-                            String altText = updatedAttributes.getValue("alt");
+			    try {
+				    // Transmogrify into rich text.  That's right: transmogrify.
+				    BufferedSAXEvent elt = item.events.get(0);
+				    AttributesImpl updatedAttributes = new AttributesImpl(elt.atts);
 
-                            updatedAttributes.setValue(updatedAttributes.getIndex("sakaiid"), "");
-                            updatedAttributes.setValue(updatedAttributes.getIndex("type"), "5"); // text
-                            updatedAttributes.setValue(updatedAttributes.getIndex("name"), altText);
-                            updatedAttributes.setValue(updatedAttributes.getIndex("html"),
-                                                       String.format("<p><img style=\"max-width: 100%%\" alt=\"%s\" src=\"https://vula.uct.ac.za/access/content%s\"></p>",
-                                                                     altText,
-                                                                     contentPath));
+				    String contentPath = updatedAttributes.getValue("sakaiid");
+				    String altText = updatedAttributes.getValue("alt");
 
-                            elt.atts = updatedAttributes;
-                            item.type = ItemType.TEXT;
+				    updatedAttributes.setValue(updatedAttributes.getIndex("sakaiid"), "");
+				    updatedAttributes.setValue(updatedAttributes.getIndex("type"), "5"); // text
+				    updatedAttributes.setValue(updatedAttributes.getIndex("name"), altText);
+				    updatedAttributes.setValue(updatedAttributes.getIndex("html"),
+							       String.format("<p><img style=\"max-width: 100%%\" alt=\"%s\" src=\"https://vula.uct.ac.za/access/content%s\"></p>",
+									     altText,
+									     contentPath));
+
+				    elt.atts = updatedAttributes;
+				    item.type = ItemType.TEXT;
+			    } catch (Exception e) {
+				log.warn("Exception converting Lessons item to rich text (NYU code) for path {}: {}", path, e.getMessage());
+			    }
                         }
                     }
 
