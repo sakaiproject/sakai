@@ -220,10 +220,8 @@
       events: {
         visible: function (event, api) {
 
-          var firstBunch = document.querySelector("#bullhorn-alerts button");
-          if (firstBunch) {
-            firstBunch.focus();
-          }
+          const firstBunch = document.querySelector("#bullhorn-alerts button");
+          firstBunch && firstBunch.focus();
         }
       }
     });
