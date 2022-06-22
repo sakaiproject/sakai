@@ -58,11 +58,6 @@ public class TimeSheetServiceImpl implements TimeSheetService {
     }
 
     @Override
-    public boolean existsAny(String reference) {
-        return timeSheetRepository.findByReference(reference).isPresent();
-    }
-
-    @Override
     public boolean isValidTimeSheetTime(String time) {
         return StringUtils.isNotBlank(time) && timeSheetTimePattern.matcher(time).matches();
     }

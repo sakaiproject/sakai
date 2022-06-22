@@ -1798,9 +1798,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
 
                 String timeSpent = assignmentService.getTotalTimeSheet(submitterA.get());
+                state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent != null ? timeSpent : "");
                	if (StringUtils.isNotBlank(timeSpent)) {
                	    context.put("timeSheetEntries", assignmentService.getTimeSheetEntries(submitterA.get()));
-                    state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
                     isAnyRegTimeSheet = true;
                	}
             }
@@ -2641,7 +2641,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             boolean isAnyRegTimeSheet = false;
-            if (submissionSubmitter.isPresent() && assignmentService.existsTimeSheetEntries(submissionSubmitter.get())) {
+            if (submissionSubmitter.isPresent() && StringUtils.isNotBlank(assignmentService.getTotalTimeSheet(submissionSubmitter.get()))) {
                 context.put("timeSheetEntries", assignmentService.getTimeSheetEntries(submissionSubmitter.get()));
             	isAnyRegTimeSheet = true;
             }
