@@ -269,7 +269,7 @@
     horn.append('<span id="bullhorn-counter" class="bullhorn-counter-red">' + count + '</span>');
   };
 
-  let updateBullhornCounter = function (count) {
+  const updateBullhornCounter = function (count) {
 
       if (count > 0) {
         portal.setBullhornCounter(count);
