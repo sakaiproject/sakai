@@ -214,7 +214,7 @@
 			$tlang.getString("peerassessment.reviewerAttachments")
         </h4>
 		#if(!$view_only)
-            <div class="highlightPanel" style="background:#ffe">
+            <div class="highlightPanel">
                 <h3 style="margin-top:0;margin-bottom:.5em">
 					$tlang.getString("gen.att")
                 </h3>
