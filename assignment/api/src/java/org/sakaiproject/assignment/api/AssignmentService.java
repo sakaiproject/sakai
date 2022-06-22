@@ -870,8 +870,6 @@ public interface AssignmentService extends EntityProducer {
 
     public String getTotalTimeSheet(AssignmentSubmissionSubmitter asnSubmissionSubmiter);
 
-    public boolean existsTimeSheetEntries(AssignmentSubmissionSubmitter asnSubmissionSubmitter);
-
     public Integer timeToInt(String time);
 
     public String intToTime(int time);

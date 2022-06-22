@@ -24,6 +24,4 @@ public interface TimeSheetService {
 
     public String intToTime(int time);
 
-    public boolean existsAny(String reference);
-
 }
