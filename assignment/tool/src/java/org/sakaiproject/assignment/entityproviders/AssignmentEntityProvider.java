@@ -696,7 +696,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
         }
 
-        List<SimpleGroup> groups = assignmentService.getGroupsAllowGradeAssignment(assignmentReference)
+        List<SimpleGroup> groups = assignmentService.getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())
             .stream().map(SimpleGroup::new).sorted((group, otherGroup) -> StringUtils.compare(group.getTitle(), otherGroup.getTitle())).collect(Collectors.toList());
 
         Map<String, Object> data = new HashMap<>();
