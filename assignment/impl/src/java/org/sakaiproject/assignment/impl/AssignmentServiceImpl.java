@@ -5017,13 +5017,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public boolean existsTimeSheetEntries(AssignmentSubmissionSubmitter asnSubmissionSubmitter) {
-        AssignmentSubmission submission = asnSubmissionSubmitter.getSubmission();
-        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-        return timeSheetService.existsAny(reference);
-    }
-
-    @Override
     public boolean isValidTimeSheetTime(String time) {
         return timeSheetService.isValidTimeSheetTime(time);
     }
