@@ -29,6 +29,8 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
+
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -65,32 +67,38 @@ public class EventsController extends AbstractSakaiApiController {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
-        return ResponseEntity.ok().header("X-Accel-Buffering", "no").body(Flux.<ServerSentEvent<String>>create(emitter -> {
+        int pingSeconds = serverConfigurationService.getInt("sse.ping.interval.seconds", 59);
+        Flux<ServerSentEvent<String>> ping = Flux.interval(Duration.ofSeconds(pingSeconds))
+            .map(i -> ServerSentEvent.<String>builder().event("ping").build())
+            .doFinally(signalType -> log.debug("Ping flux ended with signal {}", signalType));
 
-            messagingService.listen("USER#" + session.getUserId(), message -> {
+        return ResponseEntity.ok().header("X-Accel-Buffering", "no")
+                .body(Flux.merge(ping, Flux.<ServerSentEvent<String>>create(emitter -> {
 
-                String event = "notifications";
+                    messagingService.listen("USER#" + session.getUserId(), message -> {
 
-                try {
-                    emitter.next(ServerSentEvent.<String> builder()
-                    .event(event)
-                    .data(mapper.writeValueAsString(message))
-                    .build());
-                } catch (Exception e) {
-                    log.error("Failed to emit SSE event", e);
-                }
-            });
+                        String event = "notifications";
 
-            messagingService.listen("GENERAL", message -> {
+                        try {
+                            emitter.next(ServerSentEvent.<String>builder()
+                            .event(event)
+                            .data(mapper.writeValueAsString(message))
+                            .build());
+                        } catch (Exception e) {
+                            log.error("Failed to emit SSE event", e);
+                        }
+                    });
 
-                try {
-                    emitter.next(ServerSentEvent.<String> builder()
-                    .data((new ObjectMapper()).writeValueAsString(message))
-                    .build());
-                } catch (Exception e) {
-                    log.error("Failed to emit SSE event", e);
-                }
-            });
-        }));
+                    messagingService.listen("GENERAL", message -> {
+
+                        try {
+                            emitter.next(ServerSentEvent.<String> builder()
+                            .data((new ObjectMapper()).writeValueAsString(message))
+                            .build());
+                        } catch (Exception e) {
+                            log.error("Failed to emit SSE event", e);
+                        }
+                    });
+                })));
     }
 }
