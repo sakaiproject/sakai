@@ -54,6 +54,8 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
+import org.sakaiproject.messaging.api.BullhornAlert;
+import org.sakaiproject.messaging.api.MessagingService;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
@@ -167,6 +169,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private BasicAuth basicAuth = null;
 
 	private boolean enableDirect = false;
+
+	private MessagingService messagingService;
 
 	private PortalService portalService;
 	
@@ -1790,10 +1794,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
 			rcontext.put("useBullhornAlerts", useBullhornAlerts);
-			if (useBullhornAlerts) {
-				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 240000);
-				rcontext.put("bullhornsPollInterval", bullhornAlertInterval);
-			}
+			rcontext.put("bullhornAlertCount", useBullhornAlerts ? messagingService.getAlerts(thisUser).size() : 0);
 
 			String faviconURL = ServerConfigurationService.getString("portal.favicon.url");
 			rcontext.put("faviconURL", faviconURL);
@@ -2024,6 +2025,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
+		messagingService = ComponentManager.get(MessagingService.class);
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
