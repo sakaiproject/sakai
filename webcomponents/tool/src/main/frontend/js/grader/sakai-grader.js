@@ -380,6 +380,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               `)}` : ""}
           </div>
         </div> <!-- /grader-submitted-block -->
+        <div class="timeSpent-block">
+          ${this.submission.submitters[0].timeSpent ? html`
+            <span>${this.assignmentsI18n["gen.assign.spent"]}</span>
+            <span> ${this.submission.submitters[0].timeSpent}</span>
+          ` : ""}
+        </div>
 
         ${this.submission.originalityShowing ? html`
           <div>
