@@ -217,20 +217,28 @@
       show: { event: 'click', delay: 0, solo: portal.socialBullhorn },
       style: { classes: 'portal-bullhorns' },
       hide: { event: 'click unfocus' },
-      content: {
-        text: function (event, api) {
+      events: {
+        visible: function (event, api) {
 
-          if (portal.bullhornAlerts && portal.bullhornAlerts.length <= 0) {
-            return portal.wrapNoAlertsString(portal.bullhornsI18n.noAlerts);
+          const firstBunch = document.querySelector("#bullhorn-alerts button");
+          firstBunch && firstBunch.focus();
+        }
+      }
+    });
+  });
+
+  var updateBullhornQtipContent = function(alertCount) {
+          if (alertCount <= 0) {
+             portal.bullhorn.qtip('option', 'content.text', portal.wrapNoAlertsString(portal.bullhorns.i18n.noAlerts));
           } else {
-            var markup = '<div id="portal-bullhorn-alerts" class="accordion">';
+            let markup = '<div id="portal-bullhorn-alerts" class="accordion">';
 
-            var allBunches = [];
-            createBunches(portal.bullhornAlerts, "annc").forEach(alerts => allBunches.push({ type: "announcements", alerts: alerts }));
-            createBunches(portal.bullhornAlerts, "asn").forEach(alerts => allBunches.push({ type: "assignments", alerts: alerts }));
-            createBunches(portal.bullhornAlerts, "commons").forEach(alerts => allBunches.push({ type: "commons", alerts: alerts }));
-            createBunches(portal.bullhornAlerts, "lessonbuilder").forEach(alerts => allBunches.push({ type: "lessonbuilder", alerts: alerts }));
-            createBunches(portal.bullhornAlerts, "profile").forEach(alerts => allBunches.push({ type: "profile", alerts: alerts }));
+            let allBunches = [];
+            createBunches(portal.bullhorns.alerts, "annc").forEach(alerts => allBunches.push({ type: "announcements", alerts: alerts }));
+            createBunches(portal.bullhorns.alerts, "asn").forEach(alerts => allBunches.push({ type: "assignments", alerts: alerts }));
+            createBunches(portal.bullhorns.alerts, "commons").forEach(alerts => allBunches.push({ type: "commons", alerts: alerts }));
+            createBunches(portal.bullhorns.alerts, "lessonbuilder").forEach(alerts => allBunches.push({ type: "lessonbuilder", alerts: alerts }));
+            createBunches(portal.bullhorns.alerts, "profile").forEach(alerts => allBunches.push({ type: "profile", alerts: alerts }));
 
             allBunches.forEach(b => {
               b.alerts.sort((first, second) => first.eventDate.epochSecond - second.eventDate.epochSecond);
@@ -240,30 +248,18 @@
 
             allBunches.sort((a,b) => { return b.latest - a.latest; });
 
-            allBunches.forEach(b => { markup += getBunchMarkup(b, portal.bullhornsI18n) });
+            allBunches.forEach(b => { markup += getBunchMarkup(b, portal.bullhorns.i18n) });
 
             markup += `
                 <div id="portal-bullhorn-clear-all">
-                  <a href="javascript:;" onclick="portal.clearAllBullhornAlerts('${portal.bullhornsI18n.noAlerts}');">${portal.bullhornsI18n.clearAll}</a>
+                  <a href="javascript:;" onclick="portal.clearAllBullhornAlerts('${portal.bullhorns.i18n.noAlerts}');">${portal.bullhorns.i18n.clearAll}</a>
                 </div>
               </div>
             `;
 
-            return markup;
+            portal.bullhorn.qtip('option', 'content.text', markup);
           }
-        }
-      },
-      events: {
-        visible: function (event, api) {
-
-          var firstBunch = document.querySelector("#bullhorn-alerts button");
-          if (firstBunch) {
-            firstBunch.focus();
-          }
-        }
-      }
-    });
-  });
+  }
 
   portal.setBullhornCounter = function (count) {
 
@@ -273,7 +269,7 @@
     horn.append('<span id="bullhorn-counter" class="bullhorn-counter-red">' + count + '</span>');
   };
 
-  var updateCount = function (count) {
+  const updateBullhornCounter = function (count) {
 
       if (count > 0) {
         portal.setBullhornCounter(count);
@@ -282,8 +278,19 @@
       }
   };
 
-  if (portal.loggedIn && portal.bullhorns && portal.bullhorns.enabled) {
-    portal.bullhornAlerts = [];
+  if (portal.loggedIn && portal.bullhorns && portal.bullhorns.enabled && portal.bullhorns.alertCount) {
+    updateBullhornCounter(portal.bullhorns.alertCount);
+  }
+
+  document.getElementById('Mrphs-bullhorn').onclick = function(e) {
+    portal.bullhorns.alerts = [];
+
+    // Dont fetch more than once per minute
+    if (portal.bullhorns.lastFetch && (Date.now() - portal.bullhorns.lastFetch) < 60000) {
+      return false;
+    }
+
+    portal.bullhorns.lastFetch = Date.now();
 
     fetch("/direct/portal/bullhornAlerts.json", {
         credentials: "include",
@@ -293,16 +300,18 @@
       .then(r => r.json())
       .then(data => {
 
-        portal.bullhornAlerts = data.alerts || [];
-        updateCount(portal.bullhornAlerts.length);
-        portal.bullhornsI18n = data.i18n;
-        portal.bullhornMessage = data.message;
+        portal.bullhorns.alerts = data.alerts || [];
+        updateBullhornCounter(portal.bullhorns.alerts.length);
+        portal.bullhorns.i18n = data.i18n;
+        portal.bullhorns.message = data.message;
+        updateBullhornQtipContent(portal.bullhorns.alerts.length);
       });
 
-    portal.registerForMessages("notifications", message => {
-
-      portal.bullhornAlerts.push(message);
-      updateCount(portal.bullhornAlerts.length);
-    });
+    if (portal.sse && portal.sse.enabled) {
+      portal.registerForMessages("notifications", message => {
+        portal.bullhorns.alerts.push(message);
+        updateBullhornCounter(portal.bullhorns.alerts.length);
+      });
+    }
   }
 }) ($PBJQ);
