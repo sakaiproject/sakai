@@ -200,11 +200,16 @@ public class GradeSheetExporter {
             // Assignment title
             tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.title"));
 
-            // Grade
-            tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.grade"));
+            if ("true".equals(params.get("estimate"))) {
+                // Time spent
+                tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("gen.spenttime"));
+            } else {
+                // Grade
+                tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.grade"));
 
-            // Scale
-            tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.scale"));
+                // Scale
+                tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.scale"));	
+            }
 
             // Submission Date
             tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.submitted"));
@@ -301,9 +306,7 @@ public class GradeSheetExporter {
                                 } else {
                                     submissionInfo = new SubmissionInfo(submissionSubmitters[0].getTimeSpent(), submission);
                                 }
-                            }
-
-                            if (submission.getGraded() && submission.getGrade() != null) {
+                            } else if (submission.getGraded() && submission.getGrade() != null) {
                                 // graded and released
                                 String grade = assignmentService.getGradeForSubmitter(submission, submissionSubmitters[0].getSubmitter());
 
