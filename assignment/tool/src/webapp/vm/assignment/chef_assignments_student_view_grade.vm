@@ -265,7 +265,11 @@
 
 	    #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<h4>$tlang.getString("gen.totaltimespent")</h4>
-			<div class="textPanel borderPanel">$formattedText.escapeHtml($!submitter_time_spent)</div>
+			#if ($!submitter_time_spent && !$!submitter_time_spent.equals(""))
+				<div class="textPanel borderPanel">$formattedText.escapeHtml($!submitter_time_spent)</div>
+			#else
+				<div class="textPanel borderPanel">$tlang.getString("gen.noestimate")</div>
+			#end
 		#end
 
         ## Submission Attachments
