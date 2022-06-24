@@ -12,9 +12,9 @@
                                 {{#if ../printMode}}
                                 print
                                 {{/if}}
-                                {{#unless ../viewPicture}}
-                                no-popup
-                                {{/unless}}
+                                {{#if ../viewPicture}}
+                                popup="on"
+                                {{/if}}
             >
             </sakai-user-photo>
         </div> <!-- /roster-picture-card -->
