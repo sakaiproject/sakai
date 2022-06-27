@@ -55,7 +55,7 @@ export class SakaiRubricCriteria extends RubricsElement {
           title="${tr("add_rating")} ${c.title}"
           @click=${this.addRating}
           data-rating-pos="${pos}">
-        <span class="fa fa-plus" />
+        <span class="fa fa-plus"></span>
       </button>
     `;
   }
@@ -194,7 +194,7 @@ export class SakaiRubricCriteria extends RubricsElement {
           <span tabindex="0" role="button" class="add fa fa-plus"></span>
           <sr-lang key="add_criterion">Add Criterion</sr-lang>
         </button>
-        <button class="add-empty-criterion" @click="${(event) => this.createCriterion(event, true)}">
+        <button class="add-empty-criterion" @click="${this.createCriterion}" group>
           <span tabindex="0" role="button" class="add fa fa-plus"></span>
           <sr-lang key="add_criterion_group">Add Criterion Group</sr-lang>
         </button>
@@ -455,7 +455,9 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.dispatchEvent(new CustomEvent('save-weights'));
   }
 
-  createCriterion(e, empty = false) {
+  createCriterion(e) {
+
+    const empty = e.target.hasAttribute("group");
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/default${empty ? "Empty" : ""}`;
     fetch(url, {

@@ -40,8 +40,11 @@ class SakaiDatePicker extends LitElement {
       this.isoDate = null;
     }
 
-    const inputDate = this.shadowRoot.getElementById("date-picker-input");
-    inputDate && (inputDate.value = this.isoDate);
+    this.updateComplete.then(() => {
+
+      const inputDate = this.shadowRoot.getElementById("date-picker-input");
+      inputDate && (inputDate.value = this.isoDate);
+    });
   }
 
   get epochMillis() { return this._epochMillis; }

@@ -1,5 +1,4 @@
 import { html, css, LitElement } from "./assets/lit-element/lit-element.js";
-import "./sakai-icon.js";
 import "./sakai-course-card.js";
 import { loadProperties } from "./sakai-i18n.js";
 
@@ -177,7 +176,13 @@ export class SakaiCourseList extends LitElement {
         </div>
       </div>
       <div>
-        ${this.displayedSites.map(cd => html`<sakai-course-card @favourited=${this.addFavourite} @unfavourited=${this.removeFavourite} course-data="${JSON.stringify(cd)}">`)}
+        ${this.displayedSites.map(cd => html`
+          <sakai-course-card
+              @favourited=${this.addFavourite}
+              @unfavourited=${this.removeFavourite}
+              course-data="${JSON.stringify(cd)}">
+          </sakai-course-card>
+        `)}
       </div>
     `;
   }

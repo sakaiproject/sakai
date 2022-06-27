@@ -7,7 +7,8 @@
     "empathise": "empathise install",
     "storybook": "npm install --force && empathise install --assets-directory=js/assets && start-storybook -p 6006 -s ./storybook-resources",
     "build-storybook": "build-storybook",
-    "eslint": "eslint js"
+    "eslint": "eslint js",
+    "analyze": "lit-analyzer --rules.no-nullable-attribute-binding off --rules.no-incompatible-type-binding off --rules.no-complex-attribute-binding off js"
   },
   "keywords": [],
   "author": "",
@@ -16,9 +17,9 @@
     "@fortawesome/fontawesome-free": "5.15.4",
     "@fortawesome/fontawesome-svg-core": "1.2.36",
     "@fortawesome/free-solid-svg-icons": "5.15.4",
-    "@lion/calendar": "0.15.0",
-    "@lion/dialog": "0.12.0",
-    "@lion/pagination": "0.5.0",
+    "@lion/calendar": "^0.15.3",
+    "@lion/dialog": "^0.12.3",
+    "@lion/pagination": "^0.5.3",
     "@popperjs/core": "2.9.3",
     "cropperjs": "1.5.12",
     "imagesloaded": "5.0.0",
@@ -36,6 +37,9 @@
     "babel-loader": "^8.1.0",
     "eslint": "^7.31.0",
     "eslint-plugin-html": "^6.2.0",
-    "fetch-mock": "^9.10.7"
+    "eslint-plugin-lit": "^1.6.1",
+    "eslint-plugin-wc": "^1.3.2",
+    "fetch-mock": "^9.10.7",
+    "lit-analyzer": "^2.0.0-pre.2"
   }
 }

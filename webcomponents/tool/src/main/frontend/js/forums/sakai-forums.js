@@ -93,6 +93,10 @@ export class SakaiForums extends SakaiPageableElement {
 
   get showOptions() { return this._showOptions; }
 
+  _setShowOptions(e) {
+    this.showOptions = e.target.checked;
+  }
+
   shouldUpdate() {
     return this.dataPage;
   }
@@ -101,7 +105,7 @@ export class SakaiForums extends SakaiPageableElement {
 
     return html`
       <div id="options">
-        <input type="checkbox" id="options-checkbox" @click=${(e) => this.showOptions = e.target.checked}>
+        <input type="checkbox" id="options-checkbox" @click="${this._setShowOptions}">
         <label for="options-checkbox">${this.i18n.syn_options}</label>
       </div>
       <div class="messages ${this.messagesClass}">

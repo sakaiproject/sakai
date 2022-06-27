@@ -40,25 +40,27 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
             <button class="active btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
-            <button class="delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
+            <button class="delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}">
+              <sr-lang key="remove_label"></sr-lang>
+            </button>
             <button class="btn btn-link btn-xs cancel" title="${tr("cancel")}" @click="${this.cancelEdit}">
-              <sr-lang key="cancel" />
+              <sr-lang key="cancel"></sr-lang>
             </button>
           </div>
         </div>
         <div class="popover-content form">
           <div class="first-row">
               <div class="form-group title">
-                <label for="rating-title-${this.rating.id}"><sr-lang key="rating_title" /></label>
+                <label for="rating-title-${this.rating.id}"><sr-lang key="rating_title"></sr-lang></label>
                 <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
               </div>
               <div class="form-group points">
-                <label for="rating-points-${this.rating.id}"><sr-lang key="points" /></label>
+                <label for="rating-points-${this.rating.id}"><sr-lang key="points"></sr-lang></label>
                 <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${ifDefined(this.minpoints)}" max="${ifDefined(this.maxpoints)}" />
               </div>
           </div>
           <div class="form-group">
-            <label for="rating-description-${this.rating.id}"><sr-lang key="rating_description" /></label>
+            <label for="rating-description-${this.rating.id}"><sr-lang key="rating_description"></sr-lang></label>
             <textarea name="" id="rating-description-${this.rating.id}" class="form-control">${this.rating.description}</textarea>
           </div>
         </div>

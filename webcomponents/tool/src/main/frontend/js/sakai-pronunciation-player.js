@@ -34,6 +34,12 @@ class SakaiPronunciationPlayer extends LitElement {
 
   get userId() { return this._userId; }
 
+  _play() { this.shadowRoot.getElementById("player").play(); }
+
+  _setPlaying() { this.playing = true; }
+
+  _setEnded() { this.playing = false; }
+
   render() {
 
     return html`
@@ -42,15 +48,15 @@ class SakaiPronunciationPlayer extends LitElement {
             class="transparent"
             aria-label="${this.i18n.play_pronunciation_tooltip}"
             title="${this.i18n.play_pronunciation_tooltip}"
-            @click=${() => this.shadowRoot.getElementById("player").play()}>
+            @click="${this._play}">
           <sakai-icon type="${this.playing ? "volume_up" : "play"}"
               size="${this.playing ? "small" : "smallest"}">
           </sakai-icon>
         </button>
         <audio id="player"
             src="${this.src}"
-            @playing=${() => this.playing = true}
-            @ended=${() => this.playing = false}>
+            @playing="${this._setPlaying}"
+            @ended="${this._setEnded}">
         </audio>
       </div>
     `;

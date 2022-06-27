@@ -20,6 +20,7 @@ export class SakaiTasksWidget extends SakaiDashboardWidget {
         user-id="${ifDefined(this.userId ? this.userId : "")}"
         site-id="${ifDefined(this.siteId ? this.siteId : "")}"
       >
+      </sakai-tasks>
     `;
   }
 }

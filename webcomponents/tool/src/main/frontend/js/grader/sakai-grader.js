@@ -155,6 +155,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return this._submission;
   }
 
+  _setShowOverrides(e) { this.showOverrides = e.target.checked; }
+
+  _toggleShowingHistory() { this.showingHistory = !this.showingHistory; }
+
+  _setResubmitsAllowed(e) { this.submission.resubmitsAllowed = parseInt(e.target.value); }
+
   shouldUpdate() {
     return this.i18n && this.submission;
   }
@@ -169,7 +175,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
         <div id="grader-settings-wrapper">
           <a id="settings-link" href="javascript;" @click=${this.toggleSettings} title="${this.i18n.settings}">
-            <fa-icon size="1.3em" i-class="fas cogs" path-prefix="/webcomponents/assets" />
+            <fa-icon size="1.3em" i-class="fas cogs" path-prefix="/webcomponents/assets"></fa-icon>
           </a>
           <div id="grader-settings" @keydown=${this.onSettingsKeydown} class="settings">
             <div><label><input type="checkbox" ?disabled=${!this.hasUnsubmitted} @change=${this.submittedOnlyChanged} .checked=${this.submittedOnly} />${this.assignmentsI18n["nav.view.subsOnly"]}</label></div>
@@ -201,13 +207,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
         <div>
           <button class="btn-transparent" @click=${this.previous} aria-label="${this.i18n.previous_submission_label}" ?disabled=${!this.canSave}>
-            <fa-icon size="2em" i-class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;" />
+            <fa-icon size="2em" i-class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
           </button>
           <select aria-label="${this.i18n.student_selector_label}" @change=${this.studentSelected} ?disabled=${!this.canSave}>
             ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
           </select>
           <button class="btn-transparent" @click=${this.next} aria-label="${this.i18n.next_submission_label}" ?disabled=${!this.canSave}>
-            <fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" />
+            <fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
           </button>
         </div>
         <div>${this.currentStudentInfo}</div>
@@ -222,18 +228,18 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         ${this.submission.ltiSubmissionLaunch ? html`
           <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
           <sakai-lti-iframe
-            allow-resize="yes"
-            new-window-text="${this.i18n.lti_grade_launch_button}"
-            launch-url="${this.submission.ltiSubmissionLaunch}"
-         />
+              allow-resize="yes"
+              new-window-text="${this.i18n.lti_grade_launch_button}"
+              launch-url="${this.submission.ltiSubmissionLaunch}">
+          </sakai-lti-iframe>
         ` : "" }
         ${(this.ltiGradableLaunch && ! this.submission.ltiSubmissionLaunch )  ? html`
           <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
           <sakai-lti-iframe
-            allow-resize="yes"
-            new-window-text="${this.i18n.lti_grade_launch_button}"
-            launch-url="${this.ltiGradableLaunch}"
-         />
+              allow-resize="yes"
+              new-window-text="${this.i18n.lti_grade_launch_button}"
+              launch-url="${this.ltiGradableLaunch}">
+          </sakai-lti-iframe>
         ` : "" }
         ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
           ${this.submittedTextMode ? html`
@@ -539,7 +545,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ${this.submission.groupId ? html`
             <div id="grader-overrides-wrapper">
               <label>
-                <input type="checkbox" id="grader-override-toggle" ?checked=${this.showOverrides} @click=${e => this.showOverrides = e.target.checked} />
+                <input type="checkbox" id="grader-override-toggle" ?checked=${this.showOverrides} @click="${this._setShowOverrides}" />
                 <span class="grader-overrides-label">${this.i18n.assign_grade_overrides}</span>
               </label>
               <div id="grader-overrides-block" style="${this.showOverrides ? "display: block" : "display: none"}">
@@ -591,7 +597,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <div id="grader-submission-history-wrapper">
             <div id="grader-submission-history-toggle">
               <a href="javascript:;"
-                @click=${() => this.showingHistory = !this.showingHistory}
+                @click="${this._toggleShowingHistory}"
                 aria-label="${this.showingHistory ? this.i18n.hide_history_tooltip : this.i18n.show_history_tooltip}"
                 title="${this.showingHistory ? this.i18n.hide_history_tooltip : this.i18n.show_history_tooltip}"
               >
@@ -634,14 +640,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         ${this.submission.submittedTime && !this.submission.showExtension ? html`
           <div class="resubmission-checkbox">
             <label>
-              <input type="checkbox" .checked=${this.showResubmission} @change=${this.toggleResubmissionBlock}/>
+              <input type="checkbox" .checked=${this.showResubmission} @change="${this.toggleResubmissionBlock}" />
               <span>${this.assignmentsI18n.allowResubmit}</span>
             </label>
           </div>
           ${this.showResubmission ? html`
             <div class="resubmission-block">
               <span>${this.assignmentsI18n["allow.resubmit.number"]}:</span>
-              <select aria-label="${this.i18n.attempt_selector_label}" @change=${e => this.submission.resubmitsAllowed = parseInt(e.target.value)}>
+              <select aria-label="${this.i18n.attempt_selector_label}" @change="${this._setResubmitsAllowed}">
                 ${Array(10).fill().map((_, i) => html`
                   <option value="${i + 1}" .selected=${this.submission.resubmitsAllowed === (i + 1)}>${i + 1}</option>
                 `)}
@@ -658,7 +664,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         ` : ""}
         ${this.submission.showExtension ? html`
             <div id="grader-extension-section" >
-                <input type="checkbox" .checked=${this.allowExtension} id="allowExtensionToggle" name="allowExtensionToggle" @change=${this.toggleExtensionBlock}" />
+                <input type="checkbox"
+                    .checked="${this.allowExtension}"
+                    id="allowExtensionToggle"
+                    name="allowExtensionToggle"
+                    @change="${this.toggleExtensionBlock}" />
                 <label for="allowExtensionToggle" >${this.assignmentsI18n.allowExtension}</label>
                 ${this.allowExtension ? html`
                     <div >${this.assignmentsI18n.allowExtensionCaptionGrader}</div>
@@ -692,7 +702,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderGraderReturned() {
-    return html`<span class="grader-returned fa fa-eye" title="${this.i18n.returned_tooltip}" />`;
+    return html`<span class="grader-returned fa fa-eye" title="${this.i18n.returned_tooltip}"></span>`;
   }
 
   render() {

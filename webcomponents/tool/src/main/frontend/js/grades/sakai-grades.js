@@ -100,7 +100,7 @@ export class SakaiGrades extends SakaiPageableElement {
           <a href="${a.url}"
               aria-label="${this.i18n.url_tooltip}"
               title="${this.i18n.url_tooltip}">
-            <sakai-icon type="right" size="small">
+            <sakai-icon type="right" size="small"></sakai-icon>
           </a>
         </div>
         `)}

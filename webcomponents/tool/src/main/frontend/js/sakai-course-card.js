@@ -211,7 +211,7 @@ export class SakaiCourseCard extends LitElement {
       </div>
       <a href="${this._courseData.url}" title="${this.i18n.visit} ${this._courseData.title}">
         <div class="tool-alerts-block">
-          ${this._courseData.alerts.map(t => html`<div><a href="${this._toolUrls[t]}" title="${this.i18n[`${t  }_tooltip`]}"><sakai-icon type="${t}" size="small" has-alerts></a></div>`)}
+          ${this._courseData.alerts.map(t => html`<div><a href="${this._toolUrls[t]}" title="${this.i18n[`${t  }_tooltip`]}"><sakai-icon type="${t}" size="small" has-alerts></sakai-icon></a></div>`)}
         </div>
       </a>
     `;

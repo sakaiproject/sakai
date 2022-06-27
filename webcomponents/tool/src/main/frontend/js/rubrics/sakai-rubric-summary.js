@@ -21,7 +21,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
       criteria: { attribute: false, type: Array },
       rubric: { attribute: false, type: Object },
       allEvaluations: { attribute: false, type: Array },
-      averages: { attribute: false, type: Map },
+      averages: { attribute: false },
       averageScore: { attribute: false, type: Number },
     };
   }

@@ -26,10 +26,9 @@ export class SakaiButton extends LitElement {
 
     return html`
       <button
-        class="${this.primary ? "primary" : ""} ${this.type ? this.type : ""}"
-        @click=${this.clicked}
-      >
-        <slot>
+          class="${this.primary ? "primary" : ""} ${this.type ? this.type : ""}"
+          @click=${this.clicked}>
+        <slot></slot>
       </button>
     `;
   }

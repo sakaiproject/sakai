@@ -190,7 +190,7 @@ export class SakaiWidgetPanel extends LitElement {
         return html`
           <div class="${this.state === "add" ? "faded" : ""}">
             <sakai-tasks-widget
-              id="${r}" class="widget"
+              id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : "")}"
               user-id="${ifDefined(this.userId ? this.userId : "")}"
               class="widget"
@@ -198,6 +198,7 @@ export class SakaiWidgetPanel extends LitElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?editing=${this.editing}>
+            </sakai-tasks-widget>
           </div>
         `;
       case "grades":
@@ -212,6 +213,7 @@ export class SakaiWidgetPanel extends LitElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?editing=${this.editing}>
+            </sakai-grades-widget>
           </div>
         `;
       case "announcements":
@@ -226,6 +228,7 @@ export class SakaiWidgetPanel extends LitElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?editing=${this.editing}>
+            </sakai-announcements-widget>
           </div>
         `;
       case "calendar":
@@ -240,6 +243,7 @@ export class SakaiWidgetPanel extends LitElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?editing=${this.editing}>
+            </sakai-calendar-widget>
           </div>
         `;
       case "forums":
@@ -254,6 +258,7 @@ export class SakaiWidgetPanel extends LitElement {
               @remove=${this.removeWidget}
               @move=${this.moveWidget}
               ?editing=${this.editing}>
+            </sakai-forums-widget>
           </div>
         `;
       case "picker":
