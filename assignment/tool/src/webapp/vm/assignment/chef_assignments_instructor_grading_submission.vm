@@ -298,10 +298,10 @@
                 </h3>
                 <p>
                     #if ($!submitterTimeSpent && !$!submitterTimeSpent.equals(""))
-						$!submitterTimeSpent
-					#else
-						$tlang.getString("gen.noestimate")
-					#end
+                        $!submitterTimeSpent
+                    #else
+                        $tlang.getString("gen.noestimate")
+                    #end
                 </p>
             #end
             ## Submitted Attachment

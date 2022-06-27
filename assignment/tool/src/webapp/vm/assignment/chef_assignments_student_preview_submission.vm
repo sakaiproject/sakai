@@ -103,10 +103,10 @@
                 </th>
                 <td>
                     #if ($!assignment_input_add_time_spent && !$!assignment_input_add_time_spent.equals(""))
-						$formattedText.escapeHtml($!assignment_input_add_time_spent)
-					#else
-						$tlang.getString("gen.noestimate")
-					#end
+                        $formattedText.escapeHtml($!assignment_input_add_time_spent)
+                    #else
+                        $tlang.getString("gen.noestimate")
+                    #end
                 </td>
             </tr>
         #end

@@ -143,10 +143,10 @@
                 $tlang.getString("gen.totaltimespent")
             </h4>
                 #if ($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT && !$!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT.equals(""))
-					$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
-				#else
-					$tlang.getString("gen.noestimate")
-				#end
+                    $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+                #else
+                    $tlang.getString("gen.noestimate")
+                #end
         </div>
     #end
 
