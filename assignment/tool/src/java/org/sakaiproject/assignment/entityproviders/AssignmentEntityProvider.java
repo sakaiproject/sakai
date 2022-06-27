@@ -1202,20 +1202,20 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
     }
 
-    @EntityCustomAction(action = "itemSubmision", viewKey = EntityView.VIEW_LIST)
-    public List<SimpleSubmission> getSubmision(EntityView view, Map<String, Object> params) {
-    	String userId = sessionManager.getCurrentSessionUserId();
+    @EntityCustomAction(action = "itemSubmission", viewKey = EntityView.VIEW_LIST)
+    public List<SimpleSubmission> getSubmission(EntityView view, Map<String, Object> params) {
+        String userId = sessionManager.getCurrentSessionUserId();
 
         if (StringUtils.isBlank(userId)) {
             log.warn("You need to be logged in to add time sheet register");
             throw new EntityException("You need to be logged in to get timesheet", "", HttpServletResponse.SC_UNAUTHORIZED);
         }
-        
+
         User u;
-		try {
+        try {
 			u = userDirectoryService.getUser(userId);
 		} catch (UserNotDefinedException e2) {
-            log.warn("You need to be logged in to add time sheet register");
+		    log.warn("You need to be logged in to add time sheet register");
             throw new EntityException("You need to be logged in to get timesheet", "", HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
@@ -1228,18 +1228,18 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		try {
 			assignment = assignmentService.getAssignment(assignmentId);
         } catch (IdUnusedException e) {
-        	log.warn("Assignment not found");
+            log.warn("Assignment not found");
             throw new EntityNotFoundException("Assignment not found", assignmentId, e);
-		} catch (PermissionException e1) {
- 			log.warn("You can't modify this sumbitter");
- 			throw new EntityException("You don't have permissions read assignment " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
-		}
-        
-		List<SimpleSubmission> rv = new ArrayList<>();
+        } catch (PermissionException e1) {
+            log.warn("You can't modify this sumbitter");
+            throw new EntityException("You don't have permissions read assignment " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        List<SimpleSubmission> rv = new ArrayList<>();
 
         Site site = null;
         try {
-        	site = siteService.getSite(assignment.getContext());
+            site = siteService.getSite(assignment.getContext());
         } catch (IdUnusedException e) {
             throw new EntityNotFoundException("No site found", assignment.getContext(), e);
         }
@@ -1259,10 +1259,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			try {
 				as = assignmentService.getSubmission(assignmentId, u);
 			} catch (PermissionException e1) {
-	 			log.warn("You can't modify this sumbitter");
-	 			throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
+		        log.warn("You can't modify this sumbitter");
+		        throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
 			}
-	        
+
 	        if(as == null) {
 	 			throw new EntityException("No existe informacion sobre la tarea para el usuario  ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
 	        }else {
@@ -1276,7 +1276,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		}
 		return rv;
     }
-    
+
     @Getter
     public class DecoratedAttachment implements Comparable<Object> {
 
@@ -1605,39 +1605,39 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             Site site = null;
             try {
-            	site = siteService.getSite(a.getContext());
+                site = siteService.getSite(a.getContext());
             } catch (IdUnusedException e) {
                 throw new EntityNotFoundException("No site found", a.getContext(), e);
             }
             Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
-            
-    		if(assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()) && a.getSubmissions().stream().findAny().isPresent()) {
-    			this.submissions = new ArrayList<>();
-    			this.submissions = a.getSubmissions().stream().map(ss -> {
-    				try {
-    					return new SimpleSubmission(ss, this, activeSubmitters);
-    				} catch (Exception e) {
-    					log.error("Exception while creating SimpleSubmission", e);
-    					return null;
-    				}
-    			}).filter(Objects::nonNull).collect(Collectors.toList());
-    		}else {
-    			AssignmentSubmission as = null;
-    			try {
-    				as = assignmentService.getSubmission(a.getId(), userDirectoryService.getCurrentUser());
-    			} catch (PermissionException e1) {
-    	 			log.warn("You can't modify this sumbitter");
-    			}
-    	        
-    			if(as != null) {
-    				try {
-    					this.submissions = new ArrayList<>();
-    					this.submissions.add(new SimpleSubmission(as, this, activeSubmitters));
-					} catch (Exception e) {
-						log.error("Exception while creating SimpleSubmission", e);
-					}
-    			}
-    		}
+
+            if(assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()) && a.getSubmissions().stream().findAny().isPresent()) {
+                this.submissions = new ArrayList<>();
+                this.submissions = a.getSubmissions().stream().map(ss -> {
+                    try {
+                        return new SimpleSubmission(ss, this, activeSubmitters);
+                    } catch (Exception e) {
+                        log.error("Exception while creating SimpleSubmission", e);
+                        return null;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+            }else {
+                AssignmentSubmission as = null;
+                try {
+                    as = assignmentService.getSubmission(a.getId(), userDirectoryService.getCurrentUser());
+                } catch (PermissionException e1) {
+                    log.warn("You can't modify this sumbitter");
+                }
+
+                if(as != null) {
+                    try {
+                        this.submissions = new ArrayList<>();
+                        this.submissions.add(new SimpleSubmission(as, this, activeSubmitters));
+                    } catch (Exception e) {
+                        log.error("Exception while creating SimpleSubmission", e);
+                    }
+                }
+            }
         }
     }
 
