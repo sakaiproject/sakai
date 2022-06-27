@@ -4755,7 +4755,7 @@ public class SimplePageBean {
 			for(int count=1; count<=pageSubpageCount; count++){
 				pageNow = addPage(pageSubpageTitle + ' ' + count, null, false, false);	//make new page
 				pageNow.setParent(getCurrentPageId());	//clean up page data
-				pageNow.setTopParent(getCurrentPage().getTopParent());
+				pageNow.setTopParent(getCurrentPage().getPageId());
 				update(pageNow);	//save revised page data
 				itemNow = simplePageToolDao.findItemsBySakaiId(Long.toString(pageNow.getPageId())).get(0);	//there should only be one item with this sakaiId, because it was just now created as part of addPage.
 				if(pageSubpageButton){	//clean up item data
