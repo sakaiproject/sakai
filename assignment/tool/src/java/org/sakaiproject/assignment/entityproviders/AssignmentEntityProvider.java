@@ -1620,6 +1620,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String displayId;
         private String grade;
         private boolean overridden;
+        private String timeSpent;
 
         public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) throws UserNotDefinedException {
 
@@ -1637,6 +1638,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
                 this.sortName = this.displayName;
             }
+            this.timeSpent = ass.getTimeSpent();
         }
     }
 
