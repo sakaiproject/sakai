@@ -297,7 +297,11 @@
                     $tlang.getString("gen.totaltimespent")
                 </h3>
                 <p>
-                    $!submitterTimeSpent
+                    #if ($!submitterTimeSpent && !$!submitterTimeSpent.equals(""))
+                        $!submitterTimeSpent
+                    #else
+                        $tlang.getString("gen.noestimate")
+                    #end
                 </p>
             #end
             ## Submitted Attachment

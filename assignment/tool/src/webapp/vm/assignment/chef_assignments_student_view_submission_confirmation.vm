@@ -156,7 +156,11 @@
                 <h4>
                     $tlang.getString("gen.totaltimespentconfirm")
                 </h4>
-                $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+                #if ($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT && !$!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT.equals(""))
+                    $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+                #else
+                    $tlang.getString("gen.noestimate")
+                #end
             </div>
         #end
         ## only show the following if attachment submission is allowed
