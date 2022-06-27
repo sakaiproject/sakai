@@ -379,6 +379,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 <div class="attachment-link"><a href="javascript;" data-url="${r.url}" @click=${this.previewAttachment}>${r.name}</a></div>
               `)}` : ""}
           </div>
+          <div class="timeSpent-block">
+            ${this.submission.submitters[0].timeSpent ? html`
+              <span>${this.assignmentsI18n["gen.assign.spent"]}</span>
+              <span> ${this.submission.submitters[0].timeSpent}</span>
+            ` : ""}
+          </div>
         </div> <!-- /grader-submitted-block -->
 
         ${this.submission.originalityShowing ? html`
