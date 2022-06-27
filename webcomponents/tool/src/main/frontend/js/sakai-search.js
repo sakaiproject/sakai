@@ -135,7 +135,7 @@ class SakaiSearch extends SakaiElement {
             </a>
           </div>
           `)}
-          <sakai-pager count="${this.pages}" current"1" @page-selected=${this.pageSelected}></sakai-pager>
+          <sakai-pager count="${this.pages}" current="1" @page-selected="${this.pageSelected}"></sakai-pager>
         </div>
       ` : ""}
     `;

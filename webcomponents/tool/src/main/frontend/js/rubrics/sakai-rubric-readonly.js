@@ -43,7 +43,7 @@ export class SakaiRubricReadonly extends RubricsElement {
 
         <div class="actions">
           <div class="action-container">
-            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy" /></span>
+            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy"></sr-lang></span>
             <span role="button" title="${tr("copy_to_site", [this.rubric.title])}" tabindex="0" class="clone fa fa-copy" @click="${this.copyToSite}"></span>
           </div>
           ${this.enablePdfExport ? html`
@@ -51,8 +51,8 @@ export class SakaiRubricReadonly extends RubricsElement {
               <sakai-rubric-pdf
                   site-id="${this.siteId}"
                   rubric-title="${this.rubric.title}"
-                  rubricId="${this.rubric.id}"
-              />
+                  rubricId="${this.rubric.id}">
+              </sakai-rubric-pdf>
             </div>
           ` : ""}
         </div>

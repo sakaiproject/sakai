@@ -111,12 +111,12 @@ export class SakaiRubric extends RubricsElement {
             </a>
           </div>
           <div class="action-container">
-            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy" /></span>
+            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy"></sr-lang></span>
             <a role="button" title="${tr("copy")} ${this.rubric.title}" tabindex="0" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneRubric}" href="#"></a>
           </div>
           ${!this.rubric.locked ? html`
             <div class="action-container">
-              <span class="hidden-sm hidden-xs sr-only"><sr-lang key="remove_label" /></span>
+              <span class="hidden-sm hidden-xs sr-only"><sr-lang key="remove_label"></sr-lang></span>
               <sakai-item-delete rubric="${JSON.stringify(this.rubric)}" site-id="${this.siteId}" class="sakai-rubric"></sakai-item-delete>
             </div>
             `
@@ -128,8 +128,8 @@ export class SakaiRubric extends RubricsElement {
               <sakai-rubric-pdf
                   site-id="${this.siteId}"
                   rubric-title="${this.rubric.title}"
-                  rubric-id="${this.rubric.id}"
-              />
+                  rubric-id="${this.rubric.id}">
+              </sakai-rubric-pdf>
             </div>
           ` : ""}
         </div>
@@ -138,23 +138,23 @@ export class SakaiRubric extends RubricsElement {
       <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
           ${this.rubric.locked ? html`
-              <sakai-rubric-criteria-readonly
-                .criteria="${this.rubric.criteria}"
-                .weighted=${this.rubric.weighted}
-              />`
-            : html`
-              <sakai-rubric-criteria
-                rubric-id="${this.rubric.id}"
-                site-id="${this.rubric.ownerId}"
-                .criteria="${this.rubric.criteria}"
-                @save-weights="${this.handleSaveWeights}"
-                @weight-changed="${this.handleCriterionWeightChange}"
-                @refresh-total-weight="${this.handleRefreshTotalWeight}"
-                .weighted=${this.rubric.weighted}
-                total-weight="${this.totalWeight}"
-                ?valid-weight="${this.validWeight}"
-              />`
-          }
+            <sakai-rubric-criteria-readonly
+              .criteria="${this.rubric.criteria}"
+              .weighted=${this.rubric.weighted}>
+            </sakai-rubric-criteria-readonly>
+          ` : html`
+            <sakai-rubric-criteria
+              rubric-id="${this.rubric.id}"
+              site-id="${this.rubric.ownerId}"
+              .criteria="${this.rubric.criteria}"
+              @save-weights="${this.handleSaveWeights}"
+              @weight-changed="${this.handleCriterionWeightChange}"
+              @refresh-total-weight="${this.handleRefreshTotalWeight}"
+              .weighted=${this.rubric.weighted}
+              total-weight="${this.totalWeight}"
+              ?valid-weight="${this.validWeight}">
+            </sakai-rubric-criteria>
+          `}
         </div>
       </div>
     `;

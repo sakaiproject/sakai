@@ -100,8 +100,8 @@ class SakaiRubricStudent extends RubricsElement {
                 rubric-id="${this.rubric.id}"
                 tool-id="${this.toolId}"
                 entity-id="${this.entityId}"
-                evaluated-item-id="${this.evaluatedItemId}"
-            />
+                evaluated-item-id="${this.evaluatedItemId}">
+            </sakai-rubric-pdf>
           ` : ""}
         </h3>
 
@@ -147,6 +147,7 @@ class SakaiRubricStudent extends RubricsElement {
             .weighted=${this.rubric.weighted}
           ></sakai-rubric-criterion-student>
           `}
+        </div>
       </div>
       <div id="rubric-student-summary" class="rubric-tab-content"></div>
       <div id="rubric-criteria-summary" class="rubric-tab-content"></div>

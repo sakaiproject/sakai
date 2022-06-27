@@ -53,7 +53,7 @@ export class SakaiItemDelete extends RubricsElement {
         <div class="popover-content">
           <div class="buttons text-right act">
             <button title="${tr("confirm_remove")}" class="active save" @click="${this.saveDelete}">
-              <sr-lang key="remove_label" />
+              <sr-lang key="remove_label"></sr-lang>
             </button>
             <button class="cancel" @click="${this.cancelDelete}">
               <sr-lang key="cancel">Cancel</sr-lang>

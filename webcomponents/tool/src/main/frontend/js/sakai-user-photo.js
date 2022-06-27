@@ -69,6 +69,7 @@ class SakaiUserPhoto extends SakaiElement {
           data-user-id="${this.userId}"
           class="sakai-user-photo ${this.classes}"
           style="background-image:url(${this.url}) ${this.noPopup ? "" : ";cursor: pointer;"}">
+      </div>
     `;
   }
 }

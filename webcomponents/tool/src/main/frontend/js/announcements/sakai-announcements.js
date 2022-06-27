@@ -126,7 +126,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           <a href="${a.url}"
               title="${this.i18n.url_tooltip}"
               aria-label="${this.i18n.url_tooltip}">
-            <sakai-icon type="right" size="small">
+            <sakai-icon type="right" size="small"></sakai-icon>
           </a>
         </div>
       `)}

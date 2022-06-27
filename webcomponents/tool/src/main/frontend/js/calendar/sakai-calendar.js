@@ -125,6 +125,12 @@ export class SakaiCalendar extends LionCalendar {
       .then(data => this.events = data);
   }
 
+  _setSelectedDate() {
+
+    this.selectedDate = null;
+    this.initCentralDate();
+  }
+
   update(changed) {
 
     super.update(changed);
@@ -151,7 +157,7 @@ export class SakaiCalendar extends LionCalendar {
       <div class="sakai-calendar__navigation-wrapper">
         ${super.__renderNavigation()}
         <div class="sakai-calendar__navigation__today">
-          <a href="javascript:;" @click=${() => { this.selectedDate = null; this.initCentralDate(); } }>${this.i18n.today}</a>
+          <a href="javascript:;" @click="${this._setSelectedDate}">${this.i18n.today}</a>
         </div>
       </div>
     `;

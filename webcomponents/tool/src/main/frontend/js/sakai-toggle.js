@@ -5,8 +5,8 @@ export class SakaiToggle extends LitElement {
   static get properties() {
 
     return {
-      onText: { attribute: "on-text", type: String },
-      offText: { attribute: "off-text", type: String },
+      onText: { attribute: "text-on", type: String },
+      offText: { attribute: "text-off", type: String },
       labelledBy: { attribute: "labelled-by", type: String },
       on: { type: Boolean },
     };

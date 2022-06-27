@@ -63,6 +63,7 @@ class SakaiDialogContent extends LitElement {
           ${this.buttons()}
           <sakai-button @click=${this.cancel}>${this.baseI18n.cancel}</sakai-button>
         </div>
+      </div>
     `;
   }
 

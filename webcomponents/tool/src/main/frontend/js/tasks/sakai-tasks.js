@@ -273,7 +273,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
           <div slot="invoker">
             <a @click=${this.add} href="javascript:;" title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}">
-              <sakai-icon type="add" size="medium">
+              <sakai-icon type="add" size="medium"></sakai-icon>
             </a>
           </div>
 
@@ -311,7 +311,7 @@ export class SakaiTasks extends SakaiPageableElement {
         ${this.dataPage.filter(t => t.visible).map((t, i) => html`
           <div class="priority-block priority_${t.priority} cell ${i % 2 === 0 ? "even" : "odd"}">
             <div tabindex="0" title="${this.i18n[`priority_${t.priority}_tooltip`]}" aria-label="${this.i18n[`priority_${t.priority}_tooltip`]}">
-              <sakai-icon size="small" type="priority">
+              <sakai-icon size="small" type="priority"></sakai-icon>
             </div>
           </div>
           <div class="task-block cell ${i % 2 === 0 ? "even" : "odd"}">

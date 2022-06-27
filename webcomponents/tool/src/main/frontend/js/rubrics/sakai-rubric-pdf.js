@@ -17,6 +17,8 @@ export class SakaiRubricPdf extends RubricsElement {
     };
   }
 
+  _stopPropagation(e) { e.stopPropagation(); }
+
   attributeChangedCallback(name, oldValue, newValue) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
@@ -34,11 +36,11 @@ export class SakaiRubricPdf extends RubricsElement {
   render() {
 
     return html`
-      <span class="hidden-sm hidden-xs sr-only"><sr-lang key="export_label" /></span>
+      <span class="hidden-sm hidden-xs sr-only"><sr-lang key="export_label"></sr-lang></span>
       <a role="button"
         title="${tr("export_title", [this.rubricTitle])}"
         href="${this.url}"
-        @click=${e => e.stopPropagation()}
+        @click="${this._stopPropagation}"
         class="linkStyle pdf fa fa-file-pdf-o">
       </a>
     `;

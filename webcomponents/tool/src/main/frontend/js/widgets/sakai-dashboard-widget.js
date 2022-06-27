@@ -81,7 +81,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.moveUp}
                     title="${this.baseI18n.up}"
                     arial-label="${this.baseI18n.up}">
-                  <sakai-icon type="up" size="small">
+                  <sakai-icon type="up" size="small"></sakai-icon>
                 </a>
               </div>
               <div>
@@ -89,7 +89,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.moveDown}
                     title="${this.baseI18n.down}"
                     arial-label="${this.baseI18n.down}">
-                  <sakai-icon type="down" size="small">
+                  <sakai-icon type="down" size="small"></sakai-icon>
                 </a>
               </div>
               <div>
@@ -97,7 +97,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.moveLeft}
                     title="${this.baseI18n.left}"
                     arial-label="${this.baseI18n.left}">
-                  <sakai-icon type="left" size="small">
+                  <sakai-icon type="left" size="small"></sakai-icon>
                 </a>
               </div>
               <div>
@@ -105,7 +105,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.moveRight}
                     title="${this.baseI18n.right}"
                     arial-label="${this.baseI18n.right}">
-                  <sakai-icon type="right" size="small">
+                  <sakai-icon type="right" size="small"></sakai-icon>
                 </a>
               </div>
               <div>
@@ -113,7 +113,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.remove}
                     title="${this.baseI18n.remove} ${this.title}"
                     aria-label="${this.baseI18n.remove} ${this.title}">
-                  <sakai-icon type="close" size="small">
+                  <sakai-icon type="close" size="small"></sakai-icon>
                 </a>
               </div>
             </div>

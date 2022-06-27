@@ -35,6 +35,10 @@ class SakaiSubmissionMessager extends SakaiElement {
     };
   }
 
+  _setSubject(e) { this.subject = e.target.value; }
+
+  _setBody(e) { this.body = e.target.value; }
+
   shouldUpdate() {
     return this.i18n;
   }
@@ -52,17 +56,17 @@ class SakaiSubmissionMessager extends SakaiElement {
         <div class="sm-block">
           <span id="sm-subject-label-${this.assignmentId}" class="sm-label">${this.i18n.subject}</span>
           <input class="subject-input" aria-labelledby="sm-subject-label-${this.assignmentId}"
-                  type="text" .value=${this.subject} @change=${e => this.subject = e.target.value}
+                  type="text" .value=${this.subject} @change="${this._setSubject}"
                   placeholder="${this.i18n.subject_placeholder}"/>
           <div id="sm-body-label-${this.assignmentId}" class="sm-label">${this.i18n.message}</div>
-          <textarea aria-labelledby="sm-body-label-${this.assignmentId}" .value=${this.body} class="message-input" @change=${e => this.body = e.target.value}>${this.body}</textarea>
+          <textarea aria-labelledby="sm-body-label-${this.assignmentId}" .value=${this.body} class="message-input" @change="${this._setBody}">${this.body}</textarea>
         </div>
         <div class="sm-block">
           <span id="sm-action-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_action}</span>
           <select aria-labelledby="sm-action-selector-label-${this.assignmentId}" class="group-select" @change=${this.actionChanged}>
-            <option value="1" ?selected=${this.action === "1"}>${this.i18n.ungraded_students}
-            <option value="2">${this.i18n.graded_students}
-            <option value="3">${this.i18n.all_students}
+            <option value="1" ?selected="${this.action === "1"}">${this.i18n.ungraded_students}</option>
+            <option value="2">${this.i18n.graded_students}</option>
+            <option value="3">${this.i18n.all_students}</option>
           </select>
         </div>
         <div class="sm-score-block" style="display: ${this.action === "2" ? "block" : "none"}">

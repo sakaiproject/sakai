@@ -22,7 +22,7 @@ class SakaiCourseOverview extends SakaiElement {
 
     return html`
       ${this.editing && !this.editorShowing ? html`
-        <sakai-editor content="${this.overview}" toolbar="basic"/>
+        <sakai-editor content="${this.overview}" toolbar="basic"></sakai-editor>
       ` : html`
         <div id="sakai-course-overview-display">${unsafeHTML(this.overview)}</div>
       `}

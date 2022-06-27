@@ -92,6 +92,7 @@ export class SakaiHomeDashboard extends LitElement {
     }).catch(error => console.error(error.message));
   }
 
+  _toggleShowMotd() { this.showMotd = !this.showMotd; }
 
   render() {
 
@@ -127,7 +128,7 @@ export class SakaiHomeDashboard extends LitElement {
         ` : ""}
         ${this.data.motd ? html`
           <div id="motd">
-            <div id="motd-title-block" @click=${() => this.showMotd = !this.showMotd}>
+            <div id="motd-title-block" @click="${this._toggleShowMotd}">
               <div id="motd-title">${this.i18n.motd}</div>
               <div id="motd-icon">
                 <a href="javascript:;"
@@ -154,6 +155,7 @@ export class SakaiHomeDashboard extends LitElement {
               user-id="${ifDefined(this.userId ? this.userId : "")}"
               columns="2"
               ?editing=${this.editing}>
+            </sakai-widget-panel>
           </div>
         </div>
       </div>
@@ -214,8 +216,6 @@ export class SakaiHomeDashboard extends LitElement {
 
           #motd-title {
             margin-right: 14px;
-          }
-          #motd-icon {
           }
           #motd-message {
             font-size: var(--sakai-motd-message-font-size);

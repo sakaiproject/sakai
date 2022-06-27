@@ -83,7 +83,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                 tool-id="${this.toolId}"
                 entity-id="${this.entityId}"
                 evaluated-item-id="${this.evaluatedItemId}"
-            />
+            >
+            </sakai-rubric-pdf>
           ` : ""}
         </h3>
         <div class="rubrics-tab-row">
@@ -196,6 +197,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                 </div>
               </div>
             `}
+            </div>
           `)}
           </div>
           <div class="rubric-totals">
