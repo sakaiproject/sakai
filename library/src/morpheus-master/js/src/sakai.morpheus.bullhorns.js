@@ -282,7 +282,9 @@
     updateBullhornCounter(portal.bullhorns.alertCount);
   }
 
-  document.getElementById('Mrphs-bullhorn').onclick = function(e) {
+  const bullhornEl = document.getElementById('Mrphs-bullhorn');
+  bullhornEl && (bullhornEl.onclick = function (e) {
+
     portal.bullhorns.alerts = [];
 
     // Dont fetch more than once per minute
@@ -313,5 +315,5 @@
         updateBullhornCounter(portal.bullhorns.alerts.length);
       });
     }
-  }
+  });
 }) ($PBJQ);
