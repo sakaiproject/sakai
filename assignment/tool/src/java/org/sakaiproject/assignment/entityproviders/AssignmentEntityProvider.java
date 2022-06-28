@@ -1207,26 +1207,26 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String userId = sessionManager.getCurrentSessionUserId();
 
         if (StringUtils.isBlank(userId)) {
-            log.warn("You need to be logged in to add time sheet register");
-            throw new EntityException("You need to be logged in to get timesheet", "", HttpServletResponse.SC_UNAUTHORIZED);
+            log.warn("You need to be logged in to get the assignment");
+            throw new EntityException("You need to be logged in to get the assignment", "", HttpServletResponse.SC_UNAUTHORIZED);
         }
 
         User u;
         try {
-			u = userDirectoryService.getUser(userId);
-		} catch (UserNotDefinedException e2) {
-		    log.warn("You need to be logged in to add time sheet register");
-            throw new EntityException("You need to be logged in to get timesheet", "", HttpServletResponse.SC_UNAUTHORIZED);
-		}
+            u = userDirectoryService.getUser(userId);
+        } catch (UserNotDefinedException e2) {
+            log.warn("You need to be logged in to get the assignment");
+            throw new EntityException("You need to be logged in to get the assignment", "", HttpServletResponse.SC_UNAUTHORIZED);
+        }
 
-		String assignmentId = view.getPathSegment(2);
+        String assignmentId = view.getPathSegment(2);
         if (StringUtils.isBlank(assignmentId)) {
             log.warn("You need to supply the assignmentId and ref");
             throw new EntityException("Cannot execute custom action (getTimeSheet): Illegal arguments: Must include context and assignmentId in the path (/assignment.json): e.g. /assignment/getTimeSheet/{assignmentId} (rethrown)", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
         }
         Assignment assignment;
-		try {
-			assignment = assignmentService.getAssignment(assignmentId);
+        try {
+            assignment = assignmentService.getAssignment(assignmentId);
         } catch (IdUnusedException e) {
             log.warn("Assignment not found");
             throw new EntityNotFoundException("Assignment not found", assignmentId, e);
@@ -1241,6 +1241,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         try {
             site = siteService.getSite(assignment.getContext());
         } catch (IdUnusedException e) {
+            log.warn("Site not found");
             throw new EntityNotFoundException("No site found", assignment.getContext(), e);
         }
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
@@ -1611,7 +1612,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
             Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
-            if(assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()) && a.getSubmissions().stream().findAny().isPresent()) {
+            if (assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()) && a.getSubmissions().stream().findAny().isPresent()) {
                 this.submissions = new ArrayList<>();
                 this.submissions = a.getSubmissions().stream().map(ss -> {
                     try {
@@ -1621,7 +1622,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         return null;
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList());
-            }else {
+            } else {
                 AssignmentSubmission as = null;
                 try {
                     as = assignmentService.getSubmission(a.getId(), userDirectoryService.getCurrentUser());
@@ -1629,7 +1630,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     log.warn("You can't modify this sumbitter");
                 }
 
-                if(as != null) {
+                if (as != null) {
                     try {
                         this.submissions = new ArrayList<>();
                         this.submissions.add(new SimpleSubmission(as, this, activeSubmitters));
