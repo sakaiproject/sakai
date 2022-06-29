@@ -1502,6 +1502,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 return;
             }
 
+            Site site = null;
+            try {
+                site = siteService.getSite(a.getContext());
+            } catch (IdUnusedException e) {
+                throw new EntityNotFoundException("No site found", a.getContext(), e);
+            }
+            
             this.id = a.getId();
             this.openTime = a.getOpenDate();
             this.openTimeString = a.getOpenDate().toString();
@@ -1604,12 +1611,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             this.allowPeerAssessment = a.getAllowPeerAssessment();
 
-            Site site = null;
-            try {
-                site = siteService.getSite(a.getContext());
-            } catch (IdUnusedException e) {
-                throw new EntityNotFoundException("No site found", a.getContext(), e);
-            }
             Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
             if (assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()) && a.getSubmissions().stream().findAny().isPresent()) {
