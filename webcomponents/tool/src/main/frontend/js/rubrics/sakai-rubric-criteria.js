@@ -71,7 +71,13 @@ export class SakaiRubricCriteria extends RubricsElement {
               <h4 class="criterion-title">
                 <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
                 ${c.title}
-                <sakai-rubric-criterion-edit @criterion-edited="${this.criterionEdited}" criterion="${JSON.stringify(c)}" token="${this.token}" ?is-criterion-group="${true}"></sakai-rubric-criterion-edit>
+                <sakai-rubric-criterion-edit
+                    @criterion-edited="${this.criterionEdited}"
+                    site-id="${this.siteId}"
+                    rubric-id="${this.rubricId}"
+                    criterion="${JSON.stringify(c)}"
+                    ?is-criterion-group="${true}">
+                </sakai-rubric-criterion-edit>
               </h4>
               <p>${unsafeHTML(c.description)}</p>
             </div>
@@ -86,7 +92,8 @@ export class SakaiRubricCriteria extends RubricsElement {
               <h4 class="criterion-title">
                 <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
                 ${c.title}
-                <sakai-rubric-criterion-edit @criterion-edited="${this.criterionEdited}"
+                <sakai-rubric-criterion-edit
+                    @criterion-edited="${this.criterionEdited}"
                     site-id="${this.siteId}"
                     rubric-id="${this.rubricId}"
                     criterion="${JSON.stringify(c)}">
