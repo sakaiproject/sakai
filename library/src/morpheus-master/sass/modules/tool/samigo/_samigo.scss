@@ -447,4 +447,16 @@
 		background-color: transparent;
 		color: var(--sakai-text-color-disabled);
 	}
+
+	.display-flex {
+		display: flex;
+		margin-bottom: 5px;
+		label {
+			padding-top: 3px;
+		}
+	}
+
+	input[type="text"].hasDatepicker {
+		margin: 0 4px 4px 0;
+	}
 }
