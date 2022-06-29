@@ -59,7 +59,6 @@ import org.sakaiproject.tool.assessment.ui.bean.print.settings.PrintSettingsBean
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.QuestionUtils;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -427,9 +426,7 @@ public class PDFAssessmentBean implements Serializable {
 						contentBuffer.append(deliveryMessages.getString("fin_accepted_instruction"));
 						contentBuffer.append("<br />");
 					} else if (TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId())) {
-						text = QuestionUtils.replaceTextVariables(text, "[[", "]]", "______");
-						text = QuestionUtils.replaceTextVariables(text, "{{", "}}", "______");
-						text = QuestionUtils.replaceTextVariables(text, "{", "}", "______");
+						text = item.getCalculatedQuestionText();
 					}
 					contentBuffer.append("<br />");
 					contentBuffer.append(convertFormattedText(text));
