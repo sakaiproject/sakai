@@ -61,7 +61,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
-import org.sakaiproject.tool.assessment.util.QuestionUtils;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -281,10 +280,14 @@ public class ItemContentsBean implements Serializable {
 	 * @return
 	 */
 	public String getCalculatedQuestionText() {
-		String text = itemData.getText();
-		text = QuestionUtils.replaceTextVariables(text, "[[", "]]", "______");
-		text = QuestionUtils.replaceTextVariables(text, "{{", "}}", "______");
-		text = QuestionUtils.replaceTextVariables(text, "{", "}", "______");
+		String text = "";
+		for (FinBean fbean : this.getFinArray()) {
+			if (StringUtils.isNotBlank(text)) {
+				text += "______" + fbean.getText();
+			} else {
+				text += fbean.getText();	
+			}
+		}
 		return text;
 	}
 
