@@ -3,28 +3,28 @@
     <h:outputLabel value="#{assessmentSettingsMessages.extendedTimeNew}" />
 </h:panelGroup>
 <h:panelGroup styleClass="row" layout="block">
-    <h:panelGroup styleClass="col-md-10" layout="block">
+    <h:panelGroup styleClass="col-md-12" layout="block">
         <h:panelGroup styleClass="form-group row" layout="block">
-                <h:panelGroup styleClass="col-md-2" layout="block">
+                <h:panelGroup styleClass="col-xs-12 col-lg-2 display-flex" layout="block">
                     <h:selectOneRadio id="extendedEnableUser" group="userOrGroup">
                         <f:selectItem itemLabel="#{assessmentSettingsMessages.extendedTimeUser}" />
                     </h:selectOneRadio>
                 </h:panelGroup>
                 <h:outputLabel styleClass="sr-only" for="newEntry-user" value="#{assessmentSettingsMessages.extendedTimeUser}"/>
-                <h:panelGroup styleClass="col-md-4" layout="block">
+                <h:panelGroup styleClass="col-xs-12 col-lg-4" layout="block">
                     <h:selectOneMenu id="newEntry-user" value="#{publishedSettings.extendedTime.user}">
                         <f:selectItems value="#{publishedSettings.usersInSite}" />
                     </h:selectOneMenu>
                 </h:panelGroup>
         </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block">
-                <h:panelGroup styleClass="col-md-2" layout="block">
+                <h:panelGroup styleClass="col-xs-12 col-lg-2 display-flex" layout="block">
                     <h:selectOneRadio id="extendedEnableGroup" group="userOrGroup">
                         <f:selectItem itemLabel="#{assessmentSettingsMessages.extendedTimeGroup}" />
                     </h:selectOneRadio>
                 </h:panelGroup>
                 <h:outputLabel styleClass="sr-only" for="newEntry-group" value="#{assessmentSettingsMessages.extendedTimeGroup}"/>
-                <h:panelGroup styleClass="col-md-4" layout="block">
+                <h:panelGroup styleClass="col-xs-12 col-lg-4" layout="block">
                     <h:selectOneMenu id="newEntry-group" value="#{publishedSettings.extendedTime.group}">
                         <f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
                     </h:selectOneMenu>
