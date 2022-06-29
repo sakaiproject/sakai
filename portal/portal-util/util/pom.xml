@@ -14,9 +14,9 @@
     <artifactId>sakai-portal-util</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <deploy.target>shared</deploy.target>
-    </properties>
+<!--    <properties>-->
+<!--        <deploy.target>shared</deploy.target>-->
+<!--    </properties>-->
 
     <dependencies>
          <dependency>
@@ -34,6 +34,10 @@
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util-app</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

@@ -19,6 +19,14 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-portal-impl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util-app</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
