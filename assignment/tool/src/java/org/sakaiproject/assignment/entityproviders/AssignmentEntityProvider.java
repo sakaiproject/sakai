@@ -1246,36 +1246,36 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
-		if(assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())) {
-			rv = assignment.getSubmissions().stream().map(ss -> {
-				try {
-					return new SimpleSubmission(ss, new SimpleAssignment(assignment), activeSubmitters);
-				} catch (Exception e) {
-					log.error("Exception while creating SimpleSubmission", e);
-					return null;
-				}
-			}).filter(Objects::nonNull).collect(Collectors.toList());
-		}else {
-			AssignmentSubmission as;
-			try {
-				as = assignmentService.getSubmission(assignmentId, u);
-			} catch (PermissionException e1) {
-		        log.warn("You can't modify this sumbitter");
-		        throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
-			}
+        if (assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())) {
+            rv = assignment.getSubmissions().stream().map(ss -> {
+                try {
+                    return new SimpleSubmission(ss, new SimpleAssignment(assignment), activeSubmitters);
+                } catch (Exception e) {
+                    log.error("Exception while creating SimpleSubmission", e);
+                    return null;
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+        } else {
+            AssignmentSubmission as;
+            try {
+                as = assignmentService.getSubmission(assignmentId, u);
+            } catch (PermissionException e1) {
+                log.warn("You can't modify this sumbitter");
+                throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
+            }
 
-	        if(as == null) {
-	 			throw new EntityException("No existe informacion sobre la tarea para el usuario  ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
-	        }else {
-		        try {
-			        rv.add(new SimpleSubmission(as, new SimpleAssignment(assignment), activeSubmitters));
-			    } catch (Exception e) {
-			        log.error("Exception while creating SimpleSubmission", e);
-			        return null;
-			    }
-	        }
-		}
-		return rv;
+            if (as == null) {
+                throw new EntityException("No existe informacion sobre la tarea para el usuario  ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
+            } else {
+                try {
+                    rv.add(new SimpleSubmission(as, new SimpleAssignment(assignment), activeSubmitters));
+                } catch (Exception e) {
+                    log.error("Exception while creating SimpleSubmission", e);
+                    return null;
+                }
+            }
+        }
+        return rv;
     }
 
     @Getter
@@ -1508,7 +1508,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             } catch (IdUnusedException e) {
                 throw new EntityNotFoundException("No site found", a.getContext(), e);
             }
-            
+
             this.id = a.getId();
             this.openTime = a.getOpenDate();
             this.openTimeString = a.getOpenDate().toString();
