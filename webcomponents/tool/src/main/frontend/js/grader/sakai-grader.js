@@ -237,6 +237,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         ` : "" }
         ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
           ${this.submittedTextMode ? html`
+            <h3>${this.assignmentsI18n["gen.subm"]}</h3>
             <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>
             <textarea id="grader-feedback-text-editor" style="display: none">${this.submission.feedbackText}</textarea>
             <div id="grader-feedback-text">${unsafeHTML(this.submission.feedbackText)}</div>
