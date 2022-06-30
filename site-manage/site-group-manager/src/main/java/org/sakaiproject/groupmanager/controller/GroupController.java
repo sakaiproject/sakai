@@ -185,9 +185,9 @@ public class GroupController {
             }
         }
 
-        // For every member of the site or the filtered group, add it to the selector except if they were provided by a role.
+        // For every active member of the site or the filtered group, add it to the selector except if they were provided by a role.
         for (Member member : filterGroup == null ? site.getMembers() : filterGroup.getMembers()) {
-            if (!roleProviderList.contains(member.getRole().getId()) && sectionProvidedUsers.stream().noneMatch(m -> m.getUserId().equals(member.getUserId()))) {
+            if (!roleProviderList.contains(member.getRole().getId()) && sectionProvidedUsers.stream().noneMatch(m -> m.getUserId().equals(member.getUserId())) && member.isActive()) {
                 Optional<User> memberUserOptional = sakaiService.getUser(member.getUserId());
                 if (memberUserOptional.isPresent()) {
                     siteMemberSet.add(memberUserOptional.get());
@@ -207,7 +207,7 @@ public class GroupController {
                 // Remove from selectable users the ones that are currently in any group from the joinable set
                 if (!groupForm.isGroupJoinableShowAllUsers()) {
                     joinableMemberSet.addAll(group.getUsers());
-                    if (!groupForm.getGroupId().equals(group.getId())) {
+                    if (StringUtils.isNotBlank(groupForm.getGroupId()) && !groupForm.getGroupId().equals(group.getId())) {
                         selectableMemberList = selectableMemberList.stream().filter(user -> {
                             // If the user is not in any group from the joinable set, or the user joined the current group, then the participant is a selectable member
                             return !joinableMemberSet.contains(user.getId()) || groupForm.getGroupMembers().contains(user.getId());

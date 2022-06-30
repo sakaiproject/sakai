@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -195,23 +194,32 @@ public class ConfirmPublishAssessmentListener
         context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, noDueDate, null));
         error=true;
     }
-    
-    // SAM-1088
-    // if late submissions not allowed and late submission date is null, set late submission date to due date
-    final boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", true);
-    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
-    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
-    	if (autoSubmitEnabled) {
-    		assessmentSettings.setRetractDate(dueDate);
-    	}
-    }
-    // if auto-submit is enabled, make sure late submission date is set
-    else if (assessmentSettings.getAutoSubmit() && retractDate == null) {
-    	if (autoSubmitEnabled) {
-    		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
-    		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
-    		error=true;
-    	}
+
+    // If auto-submit is enabled, make sure there is either a due date or late submission deadline set (depending on the late handling setting)
+    if (assessmentSettings.getAutoSubmit()) {
+        boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", true);
+
+        // If late submissions not allowed and late submission date is null but due date is populated, set late submission date to due date
+        if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
+                retractDate == null && dueDate != null && autoSubmitEnabled) {
+            assessmentSettings.setRetractDate(dueDate);
+        }
+
+        // If late submissions not allowed and due date is null, throw error
+        if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
+                dueDate == null && autoSubmitEnabled) {
+            String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_required_with_auto_submit");
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
+            error = true;
+        }
+
+        // If late submissions are allowed and late submission date is null, throw error
+        if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
+                retractDate == null && autoSubmitEnabled) {
+            String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "retract_required_with_auto_submit");
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
+            error = true;
+        }
     }
 
     if (!isFromActionSelect) {
@@ -382,10 +390,10 @@ public class ConfirmPublishAssessmentListener
 	}
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
-    GradebookExternalAssessmentService g = null;
+    org.sakaiproject.grading.api.GradingService g = null;
     if (integrated){
-      g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+            getBean("org.sakaiproject.grading.api.GradingService");
     }
     try{
 	if (assessmentSettings.getToDefaultGradebook() && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){

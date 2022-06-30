@@ -17,6 +17,9 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="resourceLoader">
+            <bean class="org.sakaiproject.util.ResourceLoader"/>
+        </property>
     </bean>
 
     <bean id="org.sakaiproject.time.impl.UserLocaleServiceImpl"

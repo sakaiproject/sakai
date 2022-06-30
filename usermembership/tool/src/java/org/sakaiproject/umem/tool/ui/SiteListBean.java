@@ -42,6 +42,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.event.ValueChangeEvent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -601,7 +602,7 @@ public class SiteListBean {
 	}
 
 	/**
-	 * SAK-29637 - Action listener for the 'Set to Active' button.
+	 * SAK-29637 - Action listener for the 'Set to Inactive' button.
 	 * 
 	 * @param event 
 	 */
@@ -611,7 +612,7 @@ public class SiteListBean {
 	}
 
 	/**
-	 * SAK-29637 - Action listener for the 'Set to Inactive' button.
+	 * SAK-29637 - Action listener for the 'Set to Active' button.
 	 * 
 	 * @param event 
 	 */

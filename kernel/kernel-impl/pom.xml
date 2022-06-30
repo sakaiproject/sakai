@@ -270,6 +270,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spring-cache-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-hibernate-core</artifactId>
         </dependency>
         <dependency>
@@ -305,7 +309,7 @@
         <dependency>
             <groupId>org.owasp.antisamy</groupId>
             <artifactId>antisamy</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.8</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
@@ -407,10 +411,15 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.31</version>
         </dependency>
-		<dependency>
-			<groupId>org.simpleframework</groupId>
-		    <artifactId>simple-xml</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${json.simple.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>

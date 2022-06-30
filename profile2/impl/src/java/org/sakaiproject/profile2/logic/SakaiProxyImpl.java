@@ -1277,6 +1277,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean isUsingOfficialImage() {
+
+		return getProfilePictureType() == ProfileConstants.PICTURE_SETTING_OFFICIAL;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean isUsingOfficialImageButAlternateSelectionEnabled() {
 
 		if (isOfficialImageEnabledGlobally() &&

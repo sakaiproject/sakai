@@ -21,6 +21,7 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import lombok.Getter;
+import org.sakaiproject.gradebookng.business.model.GbUnidentifiedUser;
 
 import org.sakaiproject.gradebookng.business.model.GbUser;
 
@@ -38,7 +39,7 @@ public class UserIdentificationReport implements Serializable
     private final SortedSet<GbUser> missingUsers; // users that could have been matched against an id but weren't
 
     @Getter
-    private final SortedSet<GbUser> unknownUsers; // ids that couldn't be matched against a user
+    private final SortedSet<GbUnidentifiedUser> unknownUsers; // ids that couldn't be matched against a user
 
     @Getter
     private final SortedSet<GbUser> duplicateUsers; // users that have more than one entry in the sheet
@@ -67,7 +68,7 @@ public class UserIdentificationReport implements Serializable
         }
     }
 
-    public void addUnknownUser(GbUser user)
+    public void addUnknownUser(GbUnidentifiedUser user)
     {
         if (user != null)
         {

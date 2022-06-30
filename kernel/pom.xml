@@ -30,6 +30,7 @@
         <module>kernel-util</module>
         <module>kernel-util-app</module>
         <module>kernel-storage-util</module>
+        <module>kernel-test</module>
     </modules>
 
     <profiles>

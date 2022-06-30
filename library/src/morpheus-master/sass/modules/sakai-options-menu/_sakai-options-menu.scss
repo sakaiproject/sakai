@@ -12,3 +12,8 @@
   font-size: 10px;
   text-transform: uppercase;
 }
+
+html {
+  --sakai-options-menu-background-color: var(--sakai-background-color-3);
+  --sakai-options-menu-border-color: var(--sakai-border-color);
+}

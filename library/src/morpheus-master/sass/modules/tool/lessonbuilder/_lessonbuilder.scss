@@ -184,17 +184,16 @@
 	// Example usage 
 	//      @include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'lighter', 'gray');
 
-		$shade1: #{$color}--#{$lighterOrDarker}-4;
-		$shade2: #{$color}--#{$lighterOrDarker}-5;
-		$shade3: #{$color}--#{$lighterOrDarker}-3;
+		$shade1: #{$color}--#{$lighterOrDarker}-1;
+		$shade2: #{$color}--#{$lighterOrDarker}-2;
+		$shade3: #{$color};
 		$shade4: #{$color}--#{$lighterOrDarker}-7;
-		@if $lighterOrDarker == 'darker' {
-			$shade1: #{$color}--#{$lighterOrDarker}-3;
-			$shade2: #{$color}--#{$lighterOrDarker}-4;
-			$shade3: #{$color}--#{$lighterOrDarker}-2;
-			$shade4: #{$color}--#{$lighterOrDarker}-6;
+		@if $lighterOrDarker == "darker" {
+			$shade1: #{$color}--#{$lighterOrDarker}-4;
+			$shade2: #{$color}--#{$lighterOrDarker}-5;
+			$shade3: #{$color}--#{$lighterOrDarker}-3;
+			$shade4: #{$color}--#{$lighterOrDarker}-7;
 		}
-		
 		.coln#{$name}, .coln#{$name}-trans {
 			background: var(--sakai-background-color-1);
 			border: 1px solid var($shade1);
@@ -242,8 +241,19 @@
 
 		.usebutton.n#{$name},
 		.usebutton.n#{$name}-trans {
-			background-color: var(#{$shade1}) !important;
-			color: white !important;
+			@extend .sakai-colorize#{$shade2};
+			border: 1px solid var(#{$shade2});
+
+			&:hover,
+			&:focus {
+			@extend .sakai-colorize#{$shade1};
+			border: 1px solid var(#{$shade1});
+			}
+
+			&:active {
+			@extend .sakai-colorize#{$shade3};
+			border: 1px solid var(#{$shade3});
+			}
 		}
 	}
 

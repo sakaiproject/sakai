@@ -16,7 +16,6 @@
 	<script src="/messageforums-tool/js/forum.js"></script>
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/permissions_header.js"></script>
-	<script src="/messageforums-tool/js/datetimepicker.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 	<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
@@ -34,30 +33,32 @@
   		}
 	</script> 
 	<script>
+	$(document).ready(function() {
+		const radioButtonRestrictedAvailability = document.getElementById('revise:availabilityRestricted:1');
+		if (radioButtonRestrictedAvailability.checked && $(".calWidget")[0].style['display'] === 'none') {
+			setDatesEnabled(radioButtonRestrictedAvailability);
+		}
+	});
+
 	function setDatesEnabled(radioButton){
 		$(".calWidget").fadeToggle('slow');
-	}
-
-	function openDateCal(){
-			NewCal('revise:openDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
-	}
-
-	function closeDateCal(){
-			NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
 	}
 
 	function updateGradeAssignment(){
 		var elems = document.getElementsByTagName('sakai-rubric-association');
 		var forumAssignments = document.getElementById("revise:forum_assignments");
-		if( forumAssignments != null && forumAssignments.value != null && forumAssignments.value != 'Default_0'){
+		const createTaskGroup = document.getElementById("revise:createTaskGroup");
+		if (forumAssignments?.value && forumAssignments.value !== "Default_0") {
 			for (var i = 0; i<elems.length; i++) {
                 elems[i].setAttribute("entity-id", forumAssignments.value);
 				elems[i].style.display = 'inline';
 			}
+			createTaskGroup.style.display = 'inline';
 		} else {
 			for (var i = 0; i<elems.length; i++) {
 				elems[i].style.display = 'none';
 			}
+			createTaskGroup.style.display = 'none';
 		}
 	}
 
@@ -91,6 +92,13 @@
 					$(this).attr('aria-labelledby', 'forum_posting_head ' + $(this).attr('id') + '_label');
 				});
 
+                $('#revise\\:availabilityRestricted\\:0, #revise\\:availabilityRestricted\\:1').each(function() {
+                   let label = $('#revise\\:forumAvailabilityLabel2').text() + " " + $(this).next().text();
+                   $(this).attr('aria-label', label);
+                });
+                $('input[id*="forum_siteGroupCheck"]').each(function() {
+                      $(this).attr('aria-labelledby', 'revise:createForumsForGroups:1 ' + $(this).attr('id') + '_label');
+                });
 				$('.displayMore').click(function(e){
 					e.preventDefault();
 					$('.displayMorePanel').fadeIn('slow')
@@ -264,7 +272,7 @@
 					<h:outputLabel for="postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>
 
-			<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
+			<h2><h:outputText id="forumAvailabilityLabel2" value="#{msgs.cdfm_forum_availability}" /></h2>
 			<h:panelGroup layout="block" styleClass="indnt1">
               <h:panelGroup styleClass="checkbox">
                  <h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedForum.availabilityRestricted}">
@@ -273,36 +281,44 @@
                </h:selectOneRadio>
                </h:panelGroup>
                <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
-               	   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
-
-	               <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}"/>
-
-              	</h:panelGroup>
-               <h:panelGroup id="closeDateSpan" styleClass="indnt2 closeDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
-              		<h:outputLabel value="#{msgs.closeDate}: " for="closeDate" />
-	               <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}"/>
-
-              	</h:panelGroup>
-           <%-- </h:panelGrid> --%>
+                   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
+                   <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}" onchange="storeOpenDateISO(event)"/>
+                   <h:inputText id="openDateISO" styleClass="openDateISO hidden" value="#{ForumTool.selectedForum.openDateISO}"></h:inputText>
+               </h:panelGroup>
+               <h:panelGroup id="closeDateSpan" styleClass="indnt2 closeDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
+                   <h:outputLabel value="#{msgs.closeDate}: " for="closeDate" />
+                   <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}" onchange="storeCloseDateISO(event)"/>
+                   <h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedForum.closeDateISO}"></h:inputText>
+               </h:panelGroup>
 			</h:panelGroup>
 
- 		<script>
- 		      localDatePicker({
- 		      	input:'.openDate', 
- 		      	allowEmptyDate:true, 
- 		      	ashidden: { iso8601: 'openDateISO8601' },
- 		      	getval:'.openDate',
- 		      	useTime:1 
- 		      });
+			<script>
+				function storeOpenDateISO(e) {
+					e.preventDefault();
+					document.getElementById("revise:openDateISO").value = document.getElementById("openDateISO8601").value;
+				}
 
- 		      localDatePicker({
- 		      	input:'.closeDate', 
- 		      	allowEmptyDate:true, 
- 		      	ashidden: { iso8601: 'closeDateISO8601' },
- 		      	getval:'.closeDate',
- 		      	useTime:1 
- 		      });
- 		</script>
+				function storeCloseDateISO(e) {
+					e.preventDefault();
+					document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
+				}
+
+				localDatePicker({
+					input: '.openDate',
+					allowEmptyDate: true,
+					ashidden: { iso8601: 'openDateISO8601' },
+					value: '.openDate',
+					useTime: 1
+				});
+
+				localDatePicker({
+					input: '.closeDate',
+					allowEmptyDate: true,
+					ashidden: { iso8601: 'closeDateISO8601' },
+					value: '.closeDate',
+					useTime: 1
+				});
+			</script>
 
 		<h2><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h2>
 			
@@ -322,28 +338,34 @@
 				<h:panelGroup layout="block" styleClass="row form-group" id="forum_grading">
 					<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}" styleClass="col-md-2 col-sm-2"></h:outputLabel>  
 					<h:panelGroup layout="block" styleClass="col-md-10 col-sm-10">
-						<h:panelGroup layout="block" styleClass="row">
-				  		<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
-							<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
-			   	    			<f:selectItems value="#{ForumTool.assignments}" />
-			      			</h:selectOneMenu>
-							<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
-							<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
-							<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
-			    		</h:panelGroup>
-			    		</h:panelGroup>
-			    		<h:panelGroup layout="block" styleClass="row"> 
-							<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
-							<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
-								<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
-			    			</h:panelGroup>
-			    		</h:panelGroup>
+						<h:panelGrid>
+							<h:panelGroup layout="block" styleClass="row">
+								<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
+									<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
+										<f:selectItems value="#{ForumTool.assignments}" />
+									</h:selectOneMenu>
+									<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
+									<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
+									<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
+								</h:panelGroup>
+							</h:panelGroup>
+							<h:panelGroup layout="block" styleClass="row"> 
+								<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
+								<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
+									<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
+								</h:panelGroup>
+							</h:panelGroup>
+							<h:panelGroup id="createTaskGroup" style="display:#{((ForumTool.selectedForum.gradeAssign != null && ForumTool.selectedForum.gradeAssign != 'Default_0') ? 'block' : 'none')}">
+								<h:selectBooleanCheckbox id="createTask" title="createTask" value="#{ForumTool.selectedForum.createTask}"/>
+								<h:outputLabel for="createTask" value="#{msgs.perm_create_task_forum}" style="margin-left:5px"/>
+							</h:panelGroup>
+						</h:panelGrid>
 					</h:panelGroup>
 				</h:panelGroup>
 			
 		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none;"
 
-			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
+            site-id='<h:outputText value="#{ForumTool.siteId}" />'
 			dont-associate-label='<h:outputText value="#{msgs.forum_dont_associate_label}" />'
 			dont-associate-value="0"
 			associate-label='<h:outputText value="#{msgs.forum_associate_label}" />'
@@ -388,8 +410,8 @@
 					<h:dataTable value="#{ForumTool.siteGroups}" var="siteGroup" cellpadding="0" cellspacing="0" styleClass="indnt1 jsfFormTable" 
 								 rendered="#{ForumTool.selectedForum.forum.id==null}">
 						<h:column>
-							<h:selectBooleanCheckbox value="#{siteGroup.createForumForGroup}" />
-							<h:outputText value="#{siteGroup.group.title}" />
+						    <h:selectBooleanCheckbox value="#{siteGroup.createForumForGroup}" id="forum_siteGroupCheck" />
+                            <h:outputText value="#{siteGroup.group.title}" id="forum_siteGroupCheck_label" />
 						</h:column>
 					</h:dataTable>
 				</h:panelGroup>

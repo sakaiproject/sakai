@@ -22,7 +22,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
 
 /**
  * Renders the course grade graph in a modal window
@@ -32,10 +32,10 @@ public class StudentCourseGradeStatisticsPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
-	private final CourseGrade studentGrade;
+	private final CourseGradeTransferBean studentGrade;
 
 	public StudentCourseGradeStatisticsPanel(final String id, final IModel<String> model, final ModalWindow window,
-			final CourseGrade courseGrade) {
+			final CourseGradeTransferBean courseGrade) {
 		super(id, model);
 		this.window = window;
 		this.studentGrade = courseGrade;

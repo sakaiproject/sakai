@@ -6,7 +6,7 @@
 CKEDITOR.plugins.add( 'bt_table', {
   requires: 'dialog,table',
   icons: 'table', // %REMOVE_LINE_CORE%
-  lang: 'en,et,ru,fr,de',
+  lang: 'en,et,ru,fr,de,es,ca',
   hidpi: true, // %REMOVE_LINE_CORE%
     init: function( editor ) {
       if ( editor.blockless )

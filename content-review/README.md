@@ -5,7 +5,6 @@ The content-review project adds plagiarism integrations to sakai that can be use
 ### Integrations
 
 Currently there are 4 integrations with built in support:
-- [VeriCite](impl/vericite/README.md)
 - [Turnitin](impl/turnitin/README.md)
 - [TurnitinOC](impl/turnitin-oc/README.md)
 - [Urkund](impl/urkund/readme.md)
@@ -18,16 +17,14 @@ Each integration has its own properties to configure.
 The federated provider enables providers and also selects a default provider. OOTB a no op provider is configured until a provider is configured.
 
 To enable providers:
-contentreview.enabledProviders=VeriCite,Turnitin,Urkund,Compilatio
+contentreview.enabledProviders=Turnitin,Urkund,Compilatio
 
 When multiple providers are configured it is ideal to select the default otherwise one is selected for you:
-contentreview.defaultProvider=VeriCite
+contentreview.defaultProvider=Turnitin
 
 The log will show what providers are configured
 ```
-...ContentReviewFederatedServiceImpl - Found Content Review Provider: VeriCite with providerId of 1930781763
 ...ContentReviewFederatedServiceImpl - Found Content Review Provider: Turnitin with providerId of 199481773
-...ContentReviewFederatedServiceImpl - Enabled Content Review Provider: VeriCite with providerId of 1930781763
 ...ContentReviewFederatedServiceImpl - Enabled Content Review Provider: Turnitin with providerId of 199481773
 ...ContentReviewFederatedServiceImpl - Default Content Review Provider: Turnitin with providerId of 199481773
 ```

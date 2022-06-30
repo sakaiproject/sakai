@@ -126,6 +126,7 @@
 
   @each $icon, $options in $icons {
     .icon-sakai--#{$icon} {
+      font-family: FontAwesome, "Open Sans", sans-serif;
       @each $option, $value in $options {
         @if $option == extend {
           @extend .#{$value};

@@ -28,8 +28,8 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradingService;
 
 /**
  * Interface to Gradebook
@@ -39,16 +39,16 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
  */
 @Slf4j
 public class GradebookIfc {
-    private static GradebookExternalAssessmentService gbExternalService = null;
+    private static GradingService gradingService = null;
 
-    public void setGradebookExternalAssessmentService (GradebookExternalAssessmentService s) {
-	gbExternalService = s;
+    public void setGradingService (GradingService s) {
+	gradingService = s;
     }
 
     public boolean addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
 	try {
-	    gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
+	    gradingService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
 	} catch (ConflictingAssignmentNameException cane) {
 	    // already exists
 	    log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane.getMessage());
@@ -63,7 +63,7 @@ public class GradebookIfc {
     public boolean updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					    final String title, final double points, final Date dueDate) {
 	try {
-	    gbExternalService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, points, dueDate);
+	    gradingService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, points, dueDate);
 	} catch (Exception e) {
 	    return false;
 	}
@@ -73,7 +73,7 @@ public class GradebookIfc {
 
     public boolean removeExternalAssessment(final String gradebookUid, final String externalId) {
 	try {
-	    gbExternalService.removeExternalAssessment(gradebookUid, externalId);
+	    gradingService.removeExternalAssignment(gradebookUid, externalId);
 	} catch (Exception e) {
 	    log.info("failed remove " + e);
 	    return false;
@@ -84,7 +84,7 @@ public class GradebookIfc {
     public boolean updateExternalAssessmentScore(final String gradebookUid, final String externalId,
 						 final String studentUid, final String points) {
 	try {
-	    gbExternalService.updateExternalAssessmentScore(gradebookUid, externalId, studentUid, points);
+	    gradingService.updateExternalAssessmentScore(gradebookUid, externalId, studentUid, points);
 	} catch (Exception e) {
 	    return false;
 	}
@@ -95,7 +95,7 @@ public class GradebookIfc {
     public boolean updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map studentUidsToScores) {
 	
 	try {
-	    gbExternalService.updateExternalAssessmentScoresString(gradebookUid, externalId, studentUidsToScores);
+	    gradingService.updateExternalAssessmentScoresString(gradebookUid, externalId, studentUidsToScores);
 	} catch (Exception e) {
 	    return false;
 	}

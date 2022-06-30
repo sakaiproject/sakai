@@ -91,7 +91,7 @@
 										</td>
 									</tr>
 								#end
-								#if (!$!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT.equals(""))
+								#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
 									<tr>
 										<th>
 											$tlang.getString("gen.estimatedselfempl")
@@ -240,7 +240,7 @@
 								</td>
 							</tr>
 						#end
-						#if (!$!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT.equals(""))
+						#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
 							<tr>
 								<th>
 									$tlang.getString("gen.estimatedselfempl")
@@ -305,14 +305,14 @@
 								</div>
 								<textarea cols="80" rows="8" wrap="virtual" name="textarea" id="textarea" disabled="disabled">&nbsp;</textarea>						
 						#end
-						#if (!$!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT.equals(""))
+						#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
 						<div id="spenttimepanel">
 							<h4>
 								$tlang.getString("gen.spenttime")
 							</h4>
 							<div class="row">
 								<div class="col-sm-3">
-									<div class="itemSummaryHeader">$tlang.getString("gen.totaltimespent")</div>
+									<div class="itemSummaryHeader itemSummaryWrap">$tlang.getString("gen.totaltimespent")</div>
 								</div>
 								<div class="col-sm-2">
 									<div class="itemSummaryValue">

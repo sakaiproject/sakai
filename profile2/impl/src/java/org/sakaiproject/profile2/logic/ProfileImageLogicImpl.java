@@ -56,6 +56,7 @@ import org.sakaiproject.user.api.User;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.profile2.model.UserProfile;
 
 /**
  * Implementation of ProfileImageLogic API
@@ -83,6 +84,9 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 
 	@Setter
 	private CacheManager cacheManager;
+
+	@Setter
+	private ProfileLogic profileLogic;
 
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.images";
@@ -1127,6 +1131,26 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		String[] profileAvatarColors = sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.colors", ProfileConstants.DFLT_PROFILE_AVATAR_COLORS).split(",");
 		int colorIndex = (int) (Math.floor(rand % profileAvatarColors.length));
 		return profileAvatarColors[colorIndex];
+	}
+
+	public boolean isPicEditorEnabled() {
+		String userUuid = sakaiProxy.getCurrentUserId();
+		UserProfile userProfile = (UserProfile) profileLogic.getUserProfile(userUuid);
+		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
+		// -is picture changing disabled? (property, or locked).
+		// -if using official images, is the user allowed to select an alternate?
+		//  or have they specified the official image in their preferences.
+		// -last condition prevents the editor being enabled when only official img is allowed by property. 
+		if ((!sakaiProxy.isProfilePictureChangeEnabled() || userProfile.isLocked()) && !sakaiProxy.isSuperUser()) {
+			return false;
+		}
+		if (sakaiProxy.isOfficialImageEnabledGlobally() && (!sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled() || prefs.isUseOfficialImage())) {
+			return false;
+		}
+		if (sakaiProxy.isProfilePictureChangeEnabled() && sakaiProxy.isUsingOfficialImage()) {
+			return false;
+		}
+		return true;
 	}
 
 	public void init() {

@@ -46,7 +46,10 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.jsoup.nodes.Document;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -351,6 +354,8 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private boolean anonymousLogin = false;
   @Getter @Setter
+  private boolean accessByUrlAndAuthorized = false;
+  @Getter @Setter
   private String contextPath;
 
   // SAK-6990 daisyf added this for timed assessment, to check if mutiple windows were open during timed assessment
@@ -444,8 +449,6 @@ public class DeliveryBean implements Serializable {
   private long lastTimer=0;
 
   // Rubrics
-  @Getter @Setter
-  private String rbcsToken;
   @Getter @Setter
   private String rubricAssociation;
 
@@ -2623,21 +2626,21 @@ public class DeliveryBean implements Serializable {
 		return timeLimit;
 	}
 
-	  //SAM-2517
-	  public boolean getIsMathJaxEnabled(){
-		  String siteId = AgentFacade.getCurrentSiteId();
-		  if(siteId == null) {
-		    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		    siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.parseLong(getAssessmentId()));
-		  }
-		  return Boolean.parseBoolean(getCurrentSite(siteId).getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
-	  }
-	  public String getMathJaxHeader(){
-		  StringBuilder headMJ = new StringBuilder();
-		  headMJ.append("<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\nmessageStyle: \"none\",\ntex2jax: { inlineMath: [['$$','$$'],['\\\\(','\\\\)']] }, TeX: { equationNumbers: { autoNumber: 'AMS' } }\n});\n</script>\n");
-		  headMJ.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\" type=\"text/javascript\"></script>\n");
-		  return headMJ.toString();
-	  }
+    //SAM-2517
+    public boolean getIsMathJaxEnabled(){
+      String siteId = AgentFacade.getCurrentSiteId();
+      if(siteId == null) {
+        PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+        siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.parseLong(getAssessmentId()));
+      }
+      return Boolean.parseBoolean(getCurrentSite(siteId).getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
+    }
+    public String getMathJaxHeader(){
+      Document headMJ = new Document("");
+      headMJ.appendElement("script").attr("src", "/library/js/mathjax-config.js");
+      headMJ.appendElement("script").attr("type", "text/javascript").attr("src", MATHJAX_SRC_PATH);
+      return headMJ.toString();
+    }
 
     public String getQuestionProgressUnansweredPath () {
       return questionProgressUnansweredPath;

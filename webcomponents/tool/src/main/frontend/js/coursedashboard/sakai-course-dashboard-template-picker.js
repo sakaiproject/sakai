@@ -1,7 +1,6 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
 import { loadProperties } from "../sakai-i18n.js";
 import { SakaiDialogContent } from "../sakai-dialog-content.js";
-import "../sakai-editor.js";
 
 export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
 

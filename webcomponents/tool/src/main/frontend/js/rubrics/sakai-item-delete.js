@@ -12,19 +12,13 @@ export class SakaiItemDelete extends RubricsElement {
     this._criterion;
 
     this.popoverOpen = "false";
-
-    this.deleteItemConfig = {
-      url: "/rubrics-service/rest/",
-      method: "DELETE",
-      contentType: "application/json"
-    };
   }
 
   static get properties() {
 
     return {
-      token: { type: String},
       rubricId: {attribute: "rubric-id", type: String},
+      siteId: { attribute: "site-id", type: String },
       rubric: { type: Object },
       criterionId: {attribute: "criterion-id", type: String},
       criterion: { type: Object }
@@ -70,13 +64,16 @@ export class SakaiItemDelete extends RubricsElement {
     `;
   }
 
-  onFocus(e){
-    const criterionRow= e.target.closest('.criterion-row');
-    if(criterionRow!=undefined) criterionRow.classList.add("focused");
+  onFocus(e) {
+
+    const criterionRow = e.target.closest('.criterion-row');
+    if (criterionRow != undefined) criterionRow.classList.add("focused");
   }
-  focusOut(e){
-    const criterionRow= e.target.closest('.criterion-row');
-    if(criterionRow!=undefined) criterionRow.classList.remove("focused");
+
+  focusOut(e) {
+
+    const criterionRow = e.target.closest('.criterion-row');
+    if (criterionRow != undefined) criterionRow.classList.remove("focused");
   }
 
   closeOpen() {
@@ -99,7 +96,7 @@ export class SakaiItemDelete extends RubricsElement {
       const target = this.querySelector(".fa-times");
 
       popover[0].style.left = `${target.offsetLeft - 280  }px`;
-      popover[0].style.top = `${target.offsetTop - this.offsetHeight*2 - 10  }px`;
+      popover[0].style.top = `${target.offsetTop - this.offsetHeight * 2 - 10  }px`;
 
       $('.btn-danger').focus();
 
@@ -126,78 +123,37 @@ export class SakaiItemDelete extends RubricsElement {
   saveDelete(e) {
 
     e.stopPropagation();
-    let url = "/rubrics-service/rest/rubrics/";
+    let url = `/api/sites/${this.siteId}/rubrics/`;
 
     if (this.type === "criterion") {
       url += `${this.rubricId}/criterions/${this.criterion.id}`;
     } else {
       url += this.rubric.id;
-
-      // SAK-42944 removing the soft-deleted associations
-      $.ajax({
-        url: `/rubrics-service/rest/rubric-associations/search/by-rubric?rubricId=${this.rubric.id}`,
-        headers: {"authorization": this.token},
-        async: false
-      }).done(data => {
-        if (data._embedded['rubric-associations'].length) {
-          data._embedded['rubric-associations'].forEach( assoc => {
-            $.ajax({
-              url: `/rubrics-service/rest/evaluations/search/by-association?toolItemRubricAssociationId=${assoc.id}`,
-              headers: {"authorization": this.token},
-              async: false
-            }).done(data1 => {
-              if (data1._embedded.evaluations.length) {
-                data1._embedded.evaluations.forEach( rubeval => {
-                  const evalUrl = `/rubrics-service/rest/evaluations/${rubeval.id}`;
-                  $.ajax({
-                    url: evalUrl,
-                    method: "DELETE",
-                    headers: {"authorization": this.token},
-                    contentType: "application/json"
-                  }).fail((jqXHR, error, message) => {
-                    console.error(error);
-                    console.log(message);
-                  });
-                });
-              }
-            });
-            const assocUrl = `/rubrics-service/rest/rubric-associations/${assoc.id}`;
-            $.ajax({
-              url: assocUrl,
-              method: "DELETE",
-              headers: {"authorization": this.token},
-              contentType: "application/json"
-            }).fail((jqXHR, error, message) => {
-              console.error(error);
-              console.log(message);
-            });
-          });
-        }
-      });
     }
 
-    $.ajax({
-      url,
+    fetch(url, {
       method: "DELETE",
-      headers: {"authorization": this.token},
-      contentType: "application/json"
+      credentials: "include",
     })
-    .done(data => this.updateUi(data))
-    .fail((jqXHR, error, message) => {
-      console.log(error);
-      console.log(message);
-    });
+    .then(r => {
+
+      if (r.ok) {
+        this.updateUi();
+      } else {
+        throw new Error("Network error while deleting rubric/criterion");
+      }
+    })
+    .catch (error => console.error(error));
   }
 
   updateUi() {
 
     this.dispatchEvent(new CustomEvent('delete-item', {detail: this.item, bubbles: true, composed: true}));
     this.hideToolTip();
-    $(`#delete_${this.type}_${this.item.id}`).hide();
   }
 
   openEditWithKeyboard(e) {
-    if(e.keyCode == 32) {
+    if (e.keyCode == 32) {
       this.deleteItem(e);
     }
   }

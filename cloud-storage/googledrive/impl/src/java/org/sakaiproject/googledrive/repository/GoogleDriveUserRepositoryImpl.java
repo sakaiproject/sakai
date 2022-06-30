@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 
 import org.sakaiproject.googledrive.model.GoogleDriveUser;
-import org.sakaiproject.googledrive.repository.GoogleDriveUserRepository;
 
 /**
  * Created by bgarcia

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.grading.api.GradeDefinition;
 
 import java.io.Serializable;
 import java.util.Optional;

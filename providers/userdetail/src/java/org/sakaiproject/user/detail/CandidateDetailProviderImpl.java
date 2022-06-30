@@ -132,9 +132,31 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	@Override
 	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
 	{
+		if (site == null) {
+			return getNumericId(candidate);
+		}
+
 		return getNumericId(candidate, site, false);
 	}
-	
+
+	private Optional<String> getNumericId(User user) {
+
+		try {
+			String studentNumber = user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER);
+			if (serverConfigurationService.getBoolean(PROP_ENCRYPT_NUMERIC_ID, true)) {
+				studentNumber = encryptionUtilities.decrypt(studentNumber);
+			}
+				
+			if (StringUtils.isNotBlank(studentNumber)) {
+				return Optional.of(studentNumber);
+			}
+		} catch (Exception e) {
+			log.warn("Error getting studentNumber for {}", user.getId(), e);
+		}
+		
+		return Optional.empty();
+	}
+
 	private Optional<String> getNumericId(User user, Site site, boolean checkVisibilityPermission)
 	{
 		if (user == null || site == null || !isInstitutionalNumericIdEnabled(site)
@@ -142,26 +164,8 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 		{
 			return Optional.empty();
 		}
-		
-		try
-		{
-			String studentNumber = user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER);
-			if (serverConfigurationService.getBoolean(PROP_ENCRYPT_NUMERIC_ID, true))
-			{
-				studentNumber = encryptionUtilities.decrypt(studentNumber);
-			}
-				
-			if (StringUtils.isNotBlank(studentNumber))
-			{
-				return Optional.of(studentNumber);
-			}
-		}
-		catch (Exception e)
-		{
-			log.warn("Error getting studentNumber for {}", user.getId(), e);
-		}
-		
-		return Optional.empty();
+
+		return getNumericId(user);
 	}
 	
 	@Override

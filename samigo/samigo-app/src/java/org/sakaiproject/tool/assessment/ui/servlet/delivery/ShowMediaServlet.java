@@ -38,6 +38,12 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -202,34 +208,12 @@ public class ShowMediaServlet extends HttpServlet
       
 
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
-      FileInputStream inputStream = null;
-      BufferedInputStream buf_inputStream = null;
-      ServletOutputStream outputStream = res.getOutputStream();
-      BufferedOutputStream buf_outputStream = null;
-      ByteArrayInputStream byteArrayInputStream = null;
-      if (mediaLocation == null || (mediaLocation.trim()).equals("")){
-        try{
-          byteArrayInputStream = new ByteArrayInputStream(mediaData.getMedia());
-          buf_inputStream = new BufferedInputStream(byteArrayInputStream);
-        }
-        catch(Exception e){
-          log.error("****empty media save to DB="+e.getMessage());
-        }
-      }
-      else{
-    	  try{
-    		  inputStream = getFileStream(mediaLocation);
-    		  buf_inputStream = new BufferedInputStream(inputStream);
-    	  }
-    	  catch(Exception e){
-    		  log.error("****empty media save to file ="+e.getMessage());
-    	  }
+      try (BufferedInputStream buf_inputStream = (StringUtils.isBlank(mediaLocation)) ?
+    		  new BufferedInputStream(new ByteArrayInputStream(mediaData.getMedia()))
+    		  :
+    		  new BufferedInputStream(getFileStream(mediaLocation));
+    		  BufferedOutputStream buf_outputStream = new BufferedOutputStream(res.getOutputStream());){
 
-      }
-
-      try{
-    	  
-    	  buf_outputStream = new BufferedOutputStream(outputStream);
         int i=0;
         if (buf_inputStream != null)  {
         	// skip to the start of the possible range request
@@ -247,50 +231,11 @@ public class ShowMediaServlet extends HttpServlet
         
         res.flushBuffer();
       }
+      catch(IOException ioe) {
+    	  log.warn("Error handling with IO in doPost", ioe);
+      }
       catch(Exception e){
         log.warn(e.getMessage());
-      }
-      finally {
-    	  if (buf_outputStream != null) {
-			  try {
-				  buf_outputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-    	  }
-    	  if (buf_inputStream != null) {
-			  try {
-				  buf_inputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-    	  }
-          if (inputStream != null) {
-			  try {
-				  inputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-          }
-          if (outputStream != null) {
-			  try {
-				  outputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-          }
-          if (byteArrayInputStream != null) {
-			  try {
-				  byteArrayInputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-          }
       }
     }
   }

@@ -3293,7 +3293,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// Output the poll data
 					if("multipleChoice".equals(i.getAttribute("questionType")) &&
 							(canEditPage || ("true".equals(i.getAttribute("questionShowPoll")) &&
-									(questionStatus == Status.COMPLETED || questionStatus == Status.FAILED)))) {
+									(questionStatus == Status.COMPLETED || questionStatus == Status.FAILED || questionStatus == Status.NEEDSGRADING)))) {
 						UIOutput.make(tableRow, "showPollGraph", messageLocator.getMessage("simplepage.show-poll"));
 						UIOutput questionGraph = UIOutput.make(tableRow, "questionPollGraph");
 						questionGraph.decorate(new UIFreeAttributeDecorator("id", "poll" + i.getId()));
@@ -5014,7 +5014,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookDiv");
-		if(simplePageBean.isStudentPage(page) || simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
+		if(simplePageBean.isStudentPage(page) || !simplePageBean.isGradebookExists()) {
 			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
 		}
 		
@@ -5179,12 +5179,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "comments-anonymous", "#{simplePageBean.anonymous}");
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookCommentsDiv");
-		if(simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
+		if(!simplePageBean.isGradebookExists()) {
 			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
 		}
 		UIBoundBoolean.make(form, "comments-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "comments-max", "#{simplePageBean.maxPoints}");
-		
+
 		UIBoundBoolean.make(form, "comments-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "comments-prerequisite", "#{simplePageBean.prerequisite}");
 
@@ -5231,10 +5231,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");
-
+		
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookStudentsDiv");
 		UIOutput gradeBook2 = UIOutput.make(form, "gradeBookStudentCommentsDiv");
-		if(simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
+		if(!simplePageBean.isGradebookExists()) {
 			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
 			gradeBook2.decorate(new UIStyleDecorator("noDisplay"));
 		}
@@ -5275,7 +5275,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "question-answer-full-shortanswer", "#{simplePageBean.questionAnswer}");
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookQuestionsDiv");
-		if(simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {
+		if(!simplePageBean.isGradebookExists()) {
 			gradeBook.decorate(new UIStyleDecorator("noDisplay"));
 		}
 		UIBoundBoolean.make(form, "question-graded", "#{simplePageBean.graded}");
@@ -5303,7 +5303,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIForm form = UIForm.make(tofill, "layout-form");
 		makeCsrf(form, "csrf28");
 
-		UIInput.make(form, "layout-section-title", "#{simplePageBean.layoutSectionTitle}");
+		UIInput input = UIInput.make(form, "layout-section-title", "#{simplePageBean.layoutSectionTitle}");
+		input.decorate(new UIFreeAttributeDecorator("placeholder", messageLocator.getMessage("simplepage.layout.section.title")));
 
 		UISelect colorSchemes = UISelect.make(form, "layout-color-scheme", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.layoutColorScheme}", SimplePageBean.NewColors[0]);
 

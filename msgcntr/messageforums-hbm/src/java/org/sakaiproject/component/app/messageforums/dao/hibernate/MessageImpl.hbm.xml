@@ -80,8 +80,10 @@
 	<property name="deleted">
 		<column name="DELETED" not-null="true" />
 	</property> 
-	
-    
+	<property name="scheduler">
+      <column name="SCHEDULER" not-null="true" default="0"/>
+    </property>
+    <property name="scheduledDate" column="SCHEDULED_DATE" type="timestamp" />
     <many-to-one name="topic" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
       not-null="false" index="MFR_MESSAGE_PARENT_TOPIC_I" cascade="none" />
@@ -193,11 +195,21 @@
 
   <query name="findViewableMessageCountByTopicIdByUserId">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message 
-    				where message.topic.id = :topicId and 
+    				where message.topic.id = :topicId and
     				message.draft = false and
     				message.deleted = false and
     				(message.approved = true or
-    				message.createdBy = :userId) 
+    				message.createdBy = :userId)
+    ]]>
+  </query>
+
+  <query name="findViewableMessageCountByTopicIdByUserIds">
+    <![CDATA[select message.createdBy, message.approved, count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message 
+            where message.topic.id = :topicId and 
+            message.draft = false and
+            message.deleted = false 
+            and message.createdBy IN (:userIds)
+            group by message.createdBy, message.approved
     ]]>
   </query>
 
@@ -435,7 +447,27 @@
     where area.contextId = :contextId and message.draft = false and message.deleted = false
     group by message.createdBy
   ]]></query>
-  
+
+  <query name="findAuthoredNewMessageCountForAllStudents"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and message.inReplyTo is null
+    group by message.createdBy
+  ]]></query>
+
+  <query name="findAuthoredRepliesMessageCountForAllStudents"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and message.inReplyTo is not null
+    group by message.createdBy
+  ]]></query>
+
   <query name="findAuthoredMessageCountForAllStudentsByTopicId"><![CDATA[
     select message.createdBy, count(*) 
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
@@ -756,14 +788,13 @@
   <query name="findAllPendingMsgsByContextByMembershipByPermissionLevel">
     <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
     					org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-    				 join message.topic as topic
+             join message.topic as topic
              join topic.openForum as forum
-             join forum.area as area
              join topic.membershipItemSet as membershipItem   
-             where area.contextId = :contextId and
+             where topic in ( :topicList ) and
              membershipItem.name in ( :membershipList ) and
              message.deleted = false and
-             message.approved = null and
+             message.approved is null and
              membershipItem.permissionLevel = pl.id and
              pl.moderatePostings = true
     ]]>    
@@ -771,30 +802,28 @@
   
   <!--  second check by permissionLevelName (non-custom permission) -->
   <query name="findAllPendingMsgsByContextByMembershipByPermissionLevelName">
-    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
-    					org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-    				 join message.topic as topic
+    <![CDATA[select message, topic, forum, membershipItem.permissionLevelName
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+             join message.topic as topic
              join topic.openForum as forum
-             join forum.area as area
              join topic.membershipItemSet as membershipItem   
-             where area.contextId = :contextId and
+             where topic in ( :topicList ) and
              membershipItem.name in ( :membershipList ) and
+             membershipItem.permissionLevel is null and
              message.deleted = false and
-             message.approved = null and
-             (pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) and
-             pl.moderatePostings = true
+             message.approved is null
     ]]>    
   </query>
   
   <query name="findPendingMsgsByTopicId">
-    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message      
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
     				 join message.topic as topic
     				 join topic.openForum as forum    
              where topic.id = :topicId and
              topic.draft = false and
              forum.draft = false and
              message.deleted = false and
-             message.approved = null
+             message.approved is null
     ]]>    
   </query>
   

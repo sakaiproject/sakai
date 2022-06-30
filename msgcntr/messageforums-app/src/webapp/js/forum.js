@@ -844,12 +844,21 @@ $(document).ready(function(){
 
 });
 
-var MFR_RBC = MFR_RBC || {};
+var MFR = MFR || {};
 
-MFR_RBC.saveRubric = function() {
-    const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
-    rubricGrading && rubricGrading.release();
+MFR.saveRubric = function () {
+
+  const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+  rubricGrading && rubricGrading.release();
 };
+
+MFR.cancelGrading = function () {
+
+  SPNR.disableControlsAndSpin(this, null);
+  const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+  rubricGrading && rubricGrading.cancel();
+  closeDialogBoxIfExists();
+}
 
 window.onload = function() {
     document.querySelectorAll("[id*=createEmail1").forEach(item => {

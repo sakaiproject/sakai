@@ -19,15 +19,16 @@
     #propertyDetails($props)
 #end
 
-#macro( assignmentTitleIcon $assignment )
+#macro( assignmentIcons $assignment )
     #if ($!assignment.IsGroup)
         <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
     #end
-#end
-
-#macro( sectionIcon $group )
-    #if ($!group.getProperties().get("sections_category"))
-        <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.section.info')"></i>
+    #if (!$assignment.getAttachments().isEmpty())
+        <i class="icon-sakai--clip" aria-hidden="true"></i>
+        <span class="sr-only">$tlang.getString("gen.has.att")</span>
+    #end
+    #if ($assignment.getContentReview())
+        <img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
     #end
 #end
 
@@ -383,7 +384,7 @@
                     #if ($reference)
                         #set ($props = false)
                         #set ($props = $reference.Properties)
-                        #if ($!props)
+                        #if ($!props && !$!props.isEmpty())
                             <li>
                                 #if ($props.getBooleanProperty($props.NamePropIsCollection))
                                     <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
@@ -411,24 +412,25 @@
         #set($dynWidth = 100.0 / $!progressStatus.size())
         #set($totalWidthBg = 0)
         #set($statusSet = $!progressStatus.keySet())
-        <div class="progress-container">
+        #set($currentStatus = $tlang.getString("gen.notsta"))
+        <div tabindex="0" class="progress-container" role="status" aria-labelledby="status">
             <div class="progress progress-cols">
                 #foreach ($status in $!statusSet.iterator())
+                    <div class="progress-bar progress-bar-empty" style="width: $dynWidth%">$status</div>
                     #if($!progressStatus.get($status))
-                        <div class="progress-bar progress-bar-empty progress-bar-active" role="progressbar" style="width: $dynWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$dynWidth">$status</div>
                         #set($totalWidthBg = $totalWidthBg + $dynWidth)
-                    #else
-                        <div class="progress-bar progress-bar-empty" role="progressbar" style="width: $dynWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$dynWidth">$status</div>
+                        #set($currentStatus = $status) ## Saves the last status of the hashmap that equals true, used for screen reader
                     #end
                 #end
             </div>
+            <div id="status" hidden>$currentStatus</div>
             <div class="progress">
                 #set($minWidth = $totalWidthBg - $dynWidth)
-                <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: $minWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$totalWidthBg"></div>
+                <div class="progress-bar active" style="width: $minWidth%"></div>
             </div>
             <script>
                 $(document).ready(function() {
-                    $('.progress-bar.progress-bar-striped').css('width', $totalWidthBg + '%');
+                    $('.progress-bar.active').css('width', $totalWidthBg + '%');
                 });
             </script>
         </div>

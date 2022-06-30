@@ -1,7 +1,7 @@
 import {SakaiElement} from "./sakai-element.js";
 import {html} from "./assets/lit-element/lit-element.js";
-import { ifDefined } from "./assets/lit-html/directives/if-defined.js";
-import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js";
+import {ifDefined} from "./assets/lit-html/directives/if-defined.js";
+import {unsafeHTML} from "./assets/lit-html/directives/unsafe-html.js";
 
 class SakaiEditor extends SakaiElement {
 
@@ -10,10 +10,11 @@ class SakaiEditor extends SakaiElement {
     return {
       elementId: { attribute: "element-id", type: String },
       debug: { type: Boolean },
-      content: String,
+      content: { attribute: "content", type: String},
       active: { type: Boolean },
       delay: { type: Boolean },
-      toolbar: String,
+      textarea: { type: Boolean },
+      toolbar: { attribute: "toolbar", type: String},
       setFocus: { attribute: "set-focus", type: Boolean },
     };
   }
@@ -24,28 +25,47 @@ class SakaiEditor extends SakaiElement {
 
     if (this.debug) console.debug("Sakai Editor constructor");
     this.content = "";
-    this.elementId = `editable_${Math.floor(Math.random() * 20) + 1}`;
+    this.elementId = `editable_${Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1)}`;
   }
 
   getContent() {
+
+    if (this.textarea) {
+      return this.querySelector(`#${this.elementId}`).value;
+    }
     return this.editor.getData();
   }
 
+  setContent(text) {
+    this.content = text;
+    if (this.textarea) {
+      return this.querySelector(`#${this.elementId}`).value = this.content;
+    }
+    return this.editor.setData(this.content);
+  }
+
   clear() {
-    this.editor.setData("");
+
+    if (this.textarea) {
+      this.querySelector(`#${this.elementId}`).value = "";
+    } else {
+      this.editor.setData("");
+    }
   }
 
   shouldUpdate() {
-    return (this.content || this.elementId) && typeof CKEDITOR !== "undefined";
+    return (this.content || this.elementId);
   }
 
   set active(value) {
 
     this._active = value;
-    if (value) {
-      this.attachEditor();
-    } else {
-      this.editor.destroy();
+    if (!this.textarea) {
+      if (value) {
+        this.attachEditor();
+      } else {
+        this.editor.destroy();
+      }
     }
   }
 
@@ -58,7 +78,13 @@ class SakaiEditor extends SakaiElement {
     }
 
     if (sakai?.editor?.launch) {
-      this.editor = sakai.editor.launch(this.elementId, { autosave: { delay: 10000000, messageType: "no" } });
+      this.editor = sakai.editor.launch(this.elementId, {
+        autosave: {
+          delay: 10000000,
+          messageType: "no"
+        },
+        toolbar: this.toolbar
+      });
     } else {
       this.editor = CKEDITOR.replace(this.elementId, {toolbar: SakaiEditor.toolbars.get("basic")});
     }
@@ -78,12 +104,18 @@ class SakaiEditor extends SakaiElement {
 
     super.firstUpdated(changed);
 
-    if (!this.delay) {
+    if (!this.delay && !this.textarea) {
       this.attachEditor();
     }
   }
 
   render() {
+
+    if (this.textarea) {
+      return html `
+        <textarea style="width: 100%" id="${this.elementId}" aria-label="Sakai editor textarea" tabindex="0">${unsafeHTML(this.content)}</textarea>
+      `;
+    }
 
     return html `
       <div id="${this.elementId}" tabindex="0" contenteditable=${ifDefined(this.type === "inline" && this.active ? "true" : undefined)}>${unsafeHTML(this.content)}</div>
@@ -91,9 +123,8 @@ class SakaiEditor extends SakaiElement {
   }
 }
 
-if (!customElements.get("sakai-editor")) {
-  customElements.define("sakai-editor", SakaiEditor);
-}
+const tagName = "sakai-editor";
+!customElements.get(tagName) && customElements.define(tagName, SakaiEditor);
 
 SakaiEditor.toolbars = new Map();
 SakaiEditor.toolbars.set("basic", [{ name: 'document', items : ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList', 'BulletedList', 'Blockquote']}]);

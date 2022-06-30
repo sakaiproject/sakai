@@ -74,54 +74,65 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
 	});
 };
 
+sakai.setupGroupModalLinks = function (dialogTarget, memberstr, printstr, tablestr1,tablestr2,tablestr3){
+
+	[...document.querySelectorAll(".group-membership-button")].forEach(el => {
+
+		el.addEventListener("click", e => {
+
+			e.preventDefault();
+			sakai.getGroupInfo(e.target.dataset.groupId, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3);
+		});
+	});
+};
 
 /*
  calling template has dom placeholder for dialog,
  args:class of trigger, id of dialog, message strings
  */
-sakai.getGroupInfo = function(trigger, dialogTarget, memberstr, printstr, tablestr1,tablestr2,tablestr3){
-	$('.' + trigger).click(function(e){
-		e.preventDefault();
-		$("#" + dialogTarget).modal('show');
-	});
+sakai.getGroupInfo = function (id, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3) {
 
-	const id = $("." + trigger).attr('id');
-	if (!id) {
-		return;
-	}
-	var title = $('#group' + id).html();
+	if (!id) return;
+
+	const title = document.getElementById(`group${id}`).innerHTML;
 	const groupURL = `/direct/membership/group/${id}.json`;
-	var list = "";
+	let list = "";
 
-	jQuery.getJSON(groupURL, function(data){
-		$.each(data.membership_collection, function(i, item){
-			var sortName = $('<div>').text(item.userSortName).html();
-			var role = $('<div>').text(item.memberRole).html();
-			var email = $('<div>').text(item.userEmail).html();
-			list = list + "<tr><td>" + sortName + "</td><td>" + role + "</td><td><a href=\'mailto:" + email + "\'>" + email + "</a></td></tr>";
+	jQuery.getJSON(groupURL, function (data) {
+
+		$.each(data.membership_collection, function (i, item) {
+
+			const sortName = $('<div>').text(item.userSortName).html();
+			const role = $('<div>').text(item.memberRole).html();
+			const email = $('<div>').text(item.userEmail).html();
+			list = `${list}<tr><td>${sortName}</td><td>${role}</td><td><a href='mailto:${email}'>${email}</a></td></tr>`;
 		});
-		content = (
-			'<div class="modal-dialog modal-md">' +
-				'<div class="modal-content">' +
-					'<div class="modal-header">' +
-						'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>' +
-						'<button type="button" id="printme" class="print-window close" onclick="printPreview(\'/direct/membership/group/' + id + '.json\')" aria-label="' + printstr + '"><span class="fa fa-print" aria-hidden="true"></span></button>' +
-						'<h4 class="modal-title">' + title + '</h4>' +
-					'</div>' +
-					'<div class="modal-body" id="groupListContent">' +
-						'<table class="table table-striped table-bordered table-hover">' +
-						'<tr>' +
-							'<th>' + tablestr1 + '</th>' +
-							'<th>' + tablestr2 + '</th>' +
-							'<th>' + tablestr3 + '</th>' +
-						'</tr>' +
-							list +
-						'</table>' +
-					'</div>' +
-				'</div>' +
-			'</div>'
-		);
-		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+
+		const content = `
+			<div class="modal-dialog modal-md">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>
+						<button type="button" id="printme" class="print-window close" onclick="printPreview('/direct/membership/group/'${id}.json')" aria-label="${printstr}"><span class="fa fa-print" aria-hidden="true"></span></button>
+						<h4 class="modal-title">${title}</h4>
+					</div>
+					<div class="modal-body" id="groupListContent">
+						<table class="table table-striped table-bordered table-hover">
+							<tr>
+								<th>${tablestr1}</th>
+								<th>${tablestr2}</th>
+								<th>${tablestr3}</th>
+							</tr>
+							${list}
+						</table>
+					</div>
+				</div>
+			</div>`;
+
+		$(`#${dialogTarget}`).html(content).attr('aria-hidden','true')
+			.attr('tabindex', '-1').attr('role', 'dialog')
+			.addClass('modal fade').modal('show');
+
 		return false;
 	});
 };
@@ -528,28 +539,6 @@ sakai.siteTypeSetup = function(){
     
     // Click the first item in the create site screen
     $('input[name="itemType"]').first().click();
-};
-
-sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
-    // toggler=class of click target
-    // togglee=class of container to expand
-    // openInit=true - all togglee open on enter
-    // speed=speed of expand/collapse animation
-
-    if (openInit === true && openInit !== null) {
-        $('.expand').hide();
-    }
-    else {
-        $('.' + togglee).hide();
-        $('.collapse').hide();
-        utils.resizeFrame();
-    }
-    $('.' + toggler).click(function(){
-        $(this).next('.' + togglee).fadeToggle(speed);
-        $(this).find('.expand').toggle();
-        $(this).find('.collapse').toggle();
-        utils.resizeFrame();
-    });
 };
 
 /*

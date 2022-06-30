@@ -347,6 +347,8 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
 		
 		short rowPos = 0;
+		CellStyle style = wb.createCellStyle();
+		style.setDataFormat((short) 15);
 		while (dataIter.hasNext()) {
 			List<Object> rowData = dataIter.next();
 
@@ -372,6 +374,7 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 				Row row = sheet.createRow(rowPos++);
 				short colPos = 0;
 				Iterator colIter = rowData.iterator();
+
 				while (colIter.hasNext()) {
 				//for (short i = 0; i < rowData.size(); i++) {
 					Cell cell = null;
@@ -393,8 +396,6 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 								cell.setCellValue(ContextUtil.getRoundedValue(((Double)data).doubleValue(), 2));
 							} else if (data instanceof Date) {
 								// tell Excel this is a date
-								CellStyle style = wb.createCellStyle();
-								style.setDataFormat((short) 15);
 								cell.setCellStyle(style);
 								cell.setCellValue((Date) data);
 							} else {

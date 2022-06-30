@@ -76,7 +76,8 @@ public class SchedulerTool
   
   private static String BEFORE = "before";
   private static String AFTER = "after";
-  private static String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm";
+  private static String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm";
+  private static String DEFAULT_TIME = "0000-00-00T00:00";
 
   private SchedulerManager schedulerManager;
   private String jobName;
@@ -1468,7 +1469,9 @@ public class SchedulerTool
        Map<String, String> req = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
        String beforeText = req.get(BEFORE);
        String afterText = req.get(AFTER);
-       SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
+       SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_PATTERN);
+       getEventPager().setBefore(null);
+       getEventPager().setAfter(null);
        try {
            if (StringUtils.isNotBlank(beforeText)) {
                getEventPager().setBefore(sdf.parse(beforeText));
@@ -1511,6 +1514,24 @@ public class SchedulerTool
         output = StringUtils.remove(output, ";");
         output = StringUtils.remove(output, "'");
         return output;
+    }
+
+    public String getAfterFilter() {
+        if (getEventPager().getAfter() == null) {
+            return DEFAULT_TIME;
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_PATTERN);
+            return sdf.format(getEventPager().getAfter());
+        }
+    }
+
+    public String getBeforeFilter() { 	
+    	if (getEventPager().getBefore() == null) {
+            return DEFAULT_TIME;
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_PATTERN);
+            return sdf.format(getEventPager().getBefore());
+        }
     }
 
 }

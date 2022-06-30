@@ -224,17 +224,6 @@ public class ControllerServlet2 extends HttpServlet
 			template = path;
 		}
 		log.debug("Path is "+template+" for "+request.getPathInfo());
-		if ( "sakai.gif".equals(template) ) {
-			try
-			{
-				searchBeanFactory.newSherlockSearchBean(request).sendIcon(response);
-			}
-			catch (PermissionException e)
-			{
-				log.warn("Failed to send gif ",e);
-			}
-			return;
-		}
 		try
 		{
 			vc.put("searchModel", searchBeanFactory.newSearchBean(request));
@@ -250,14 +239,6 @@ public class ControllerServlet2 extends HttpServlet
 				return;
 			}
 			vc.put("adminModel", searchBeanFactory.newSearchAdminBean(request));
-		}
-		catch (PermissionException e1)
-		{
-			log.debug(e1.getMessage());
-		}
-		try
-		{
-			vc.put("sherlockModel", searchBeanFactory.newSherlockSearchBean(request));
 		}
 		catch (PermissionException e1)
 		{

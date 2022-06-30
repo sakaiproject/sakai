@@ -41,6 +41,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import lombok.Data;
+import org.sakaiproject.user.api.User;
 
 /**
  * <code>RosterMember</code> wraps together fields from <code>User</code>,
@@ -69,6 +70,7 @@ public class RosterMember {
 	private int connectionStatus; // connection status to the current user
 	private int totalSiteVisits;
 	private long lastVisitTime;
+	private User user;
 
 	public void addGroup(String groupId, String groupTitle) {
 

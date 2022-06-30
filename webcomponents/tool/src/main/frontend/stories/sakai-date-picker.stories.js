@@ -4,11 +4,12 @@ import fetchMock from "fetch-mock";
 import { styles } from "./styles/sakai-styles.js";
 import { datepickerI18n } from "./i18n/datepicker-i18n.js";
 
-import '../js/datepicker/sakai-date-picker.js';
+import '../js/sakai-date-picker.js';
 
 export default {
   title: 'Sakai Date Picker',
-  decorators: [(storyFn) => {
+  decorators: [storyFn => {
+
     parent.portal = {locale: "en-GB"};
     const baseUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en-GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=";
     const datepickerI18nUrl = `${baseUrl}date-picker-wc`;

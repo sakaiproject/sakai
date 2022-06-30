@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -37,6 +38,10 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -45,12 +50,13 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradingType;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,7 +80,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 		// settings for stats display
 		final GradebookInformation settings = getSettings();
-		this.assignmentStatsEnabled = settings.isAssignmentStatsDisplayed();
+		this.assignmentStatsEnabled = settings.getAssignmentStatsDisplayed();
 
 	}
 
@@ -92,7 +98,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final boolean categoriesEnabled = (boolean) data.get("categoriesEnabled");
 		final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
-		final GradingType gradingType = (GradingType) data.get("gradingType");
+		final GradeType gradeType = (GradeType) data.get("gradeType");
 		final String studentUuid = (String) data.get("studentUuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
@@ -302,9 +308,9 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 										this.
 										serverConfigService.
 										getBoolean("gradebookng.allowStudentsToCompareGradesWithClassmates", false) &&
-										getSettings().isAllowStudentsToCompareGrades() &&
+										getSettings().getAllowStudentsToCompareGrades() &&
 										// Inlcuding all assigments that doesn't count if this property is set
-										(getSettings().isComparingIncludeAllGrades() || assignment.isCounted())
+										(getSettings().getComparingIncludeAllGrades() || assignment.getCounted())
 										&&
 										// Only show this to students because this panel is also accesible for instructors
 										GradeSummaryTablePanel.this.getUserRole() == GbRole.STUDENT;
@@ -313,20 +319,21 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						assignmentItem.add(compareLink);
 
 						// popover flags
+						String externalAppIconClass = assignment.getExternallyMaintained() ? "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment) : "";
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracredit"), assignment.isExtraCredit()));
-						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.isCounted()));
-						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.isReleased()));
+						flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracredit"), assignment.getExtraCredit()));
+						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.getCounted()));
+						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.getReleased()));
 						flags.add(newPopoverFlag("isExcused", getString("grade.notifications.excused"), excused));
-						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { assignment.getExternalAppName() }).getString();
-						flags.add(newPopoverFlag("isExternal", extAppName, assignment.isExternallyMaintained())
-								.add(new AttributeModifier("class", "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment))));
+						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { GradeSummaryTablePanel.this.businessService.getExternalAppName(assignment.getExternalAppName()) }).getString();
+						flags.add(newPopoverFlag("isExternal", extAppName, assignment.getExternallyMaintained())
+								.add(new AttributeModifier("class", externalAppIconClass)));
 						flags.setVisible(
-								assignment.isExtraCredit() ||
-								!assignment.isCounted() ||
-								!assignment.isReleased() ||
+								assignment.getExtraCredit() ||
+								!assignment.getCounted() ||
+								!assignment.getReleased() ||
 								excused ||
-								assignment.isExternallyMaintained()
+								assignment.getExternallyMaintained()
 						);
 						assignmentItem.add(flags);
 
@@ -340,7 +347,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						assignmentItem.add(dueDate);
 
 						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
-						if (GradingType.PERCENTAGE.equals(gradingType)) {
+						if (GradeType.PERCENTAGE == gradeType) {
 							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued", null,
 											new Object[] { FormatHelper.formatGrade(rawGrade) })) {
@@ -354,9 +361,9 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
+							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
 							sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
-							sakaiRubricButton.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
@@ -373,18 +380,58 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
-							sakaiRubricButton.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
+
+							 try {
+								Optional<AssociationTransferBean> optAssociation
+									= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+								if (optAssociation.isPresent()) {
+									sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
+								}
+							} catch (Exception e) {
+								log.error("Failed to get association: {}", e.toString());
+							}
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
-							if (assignment.isExternallyMaintained()) {
-								sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
+							if (assignment.getExternallyMaintained()) {
+								sakaiRubricButton.add(AttributeModifier.append("tool-id", AssignmentConstants.TOOL_ID));
 								String[] bits = assignment.getExternalId().split("/");
 								if (bits != null && bits.length >= 1) {
 									String assignmentId = bits[bits.length-1];
-									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
-									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
-									sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
+									String ownerId = studentUuid;
+									try {
+										org.sakaiproject.assignment.api.model.Assignment assignmentsAssignment = assignmentService.getAssignment(assignmentId);
+										if (assignmentsAssignment.getIsGroup()) {
+											Optional<String> groupId = assignmentsAssignment.getGroups().stream().filter(g -> {
+
+												try {
+													AuthzGroup group = authzGroupService.getAuthzGroup(g);
+													return group.getMember(studentUuid) != null;
+												} catch (GroupNotDefinedException gnde) {
+													return false;
+												}
+											}).findAny();
+
+											if (groupId.isPresent()) {
+												ownerId = groupId.get();
+											} else {
+												log.error("Assignment {} is a group assignment, but {} was not in any of the groups", assignmentId, studentUuid);
+											}
+										}
+										sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
+
+										String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, AssignmentConstants.TOOL_ID, getCurrentSiteId());
+                                        if (submissionId != null) {
+										    sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
+                                        }
+
+										rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, getCurrentSiteId())
+											.ifPresent(assoc -> sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId)));
+									} catch (Exception e) {
+										log.error("Failed to configure rubric button for submission: {}", e.toString());
+										sakaiRubricButton.setVisible(false);
+									}
 								} else {
 									log.warn(assignment.getExternalId() + " is not a valid assignment reference");
 								}
@@ -436,7 +483,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 			sakaiRubricButton.add(AttributeModifier.append("instructor", true));
 		} else {
 			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(studentId, assignment.getId());
-			if (assignment.isExternallyMaintained() && gradeDefinition.getGrade() == null) {
+			if (assignment.getExternallyMaintained() && gradeDefinition.getGrade() == null) {
 				sakaiRubricButton.add(AttributeModifier.replace("force-preview", true));
 			}
 		}

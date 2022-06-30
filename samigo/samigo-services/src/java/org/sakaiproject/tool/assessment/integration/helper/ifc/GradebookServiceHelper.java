@@ -23,8 +23,7 @@ package org.sakaiproject.tool.assessment.integration.helper.ifc;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -41,33 +40,29 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
  */
 public interface GradebookServiceHelper extends Serializable
 {
-  public boolean gradebookExists(String gradebookUId, GradebookExternalAssessmentService g);
-  
-  public boolean isGradebookExist(String SiteId);
-
   public void removeExternalAssessment(String gradebookUId,
-     String publishedAssessmentId, GradebookExternalAssessmentService g) throws Exception;
+     String publishedAssessmentId, GradingService g) throws Exception;
 
   public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId,
-		  GradebookExternalAssessmentService g) throws Exception;
+		  GradingService g) throws Exception;
 
   public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
-		  GradebookExternalAssessmentService g) throws Exception;
+		  GradingService g) throws Exception;
 
   public boolean isAssignmentDefined(String assessmentTitle,
-		  GradebookExternalAssessmentService g) throws Exception;
+		  GradingService g) throws Exception;
 
   public void updateExternalAssessmentScore(AssessmentGradingData ag,
-		  GradebookExternalAssessmentService g) throws Exception;
+		  GradingService g) throws Exception;
   
   public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
-		  GradebookExternalAssessmentService g) throws Exception;
+		  GradingService g) throws Exception;
   
   public void updateExternalAssessmentComment(Long publishedAssessmentId, String studentUid, String comment, 
-		  GradebookExternalAssessmentService g) throws Exception;
+		  GradingService g) throws Exception;
   
   public Long getExternalAssessmentCategoryId(String gradebookUId,
-		  String publishedAssessmentId, GradebookExternalAssessmentService g);
+		  String publishedAssessmentId, GradingService g);
 
   public String getAppName();
 }

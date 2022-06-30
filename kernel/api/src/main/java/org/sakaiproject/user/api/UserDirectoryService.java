@@ -494,6 +494,14 @@ public interface UserDirectoryService extends EntityProducer
 	String userReference(String id);
 
 	/**
+	 * Extract the user id from the a user reference.
+	 *
+	 * @param reference A user reference, eg: /user/difji53iskojf
+	 * @return The user id portion, the bit after the last slash
+	 */
+	String idFromReference(String reference);
+
+	/**
 	 * Indicates if a password is valid and if it has passed the validation check
 	 * Use the {@link #passed()} method for a boolean check if the password passed or failed
 	 */

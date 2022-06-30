@@ -212,6 +212,20 @@ public interface ResourceProperties extends Serializable
 	Iterator<String> getPropertyNames();
 
 	/**
+	 * Returns the number of defined properties
+	 *
+	 * @return the number of defined properties
+	 */
+	int size();
+
+	/**
+	 * Returns true if there are no defined properties
+	 *
+	 * @return true if there are no defined properties
+	 */
+	boolean isEmpty();
+
+	/**
 	 * Access a named property as a string (won't find multi-valued ones.)
 	 * 
 	 * @param name

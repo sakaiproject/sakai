@@ -300,7 +300,9 @@
 							$.each([updates.assignmentsUpd.filter(el=>el), updates.assessmentsUpd.filter(el=>el), updates.gradebookItemsUpd.filter(el=>el), updates.signupMeetingsUpd.filter(el=>el), 
 							updates.resourcesUpd.filter(el=>el), updates.calendarEventsUpd.filter(el=>el), updates.forumsUpd.filter(el=>el), updates.announcementsUpd.filter(el=>el), updates.lessonsUpd.filter(el=>el)], function(idx, elt) {
 								$.each(elt, function(idx, elt) {
-									$('#modified-dates').append('<li>' + elt.tool_title + ' - ' + elt.title + '</li>');
+									const title = elt.title + (elt.extraInfo !== 'false' ? ` (${elt.extraInfo})` : "");
+									$('#modified-dates').append(`<li>${elt.tool_title} - ${title}</li>`);
+
 								});
 							});
 						});

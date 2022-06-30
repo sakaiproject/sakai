@@ -65,6 +65,7 @@ import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeStatisticsAction
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeLogAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
+import org.sakaiproject.gradebookng.tool.actions.ViewRubricPreviewAction;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.GbGradeTable;
@@ -76,12 +77,12 @@ import org.sakaiproject.gradebookng.tool.panels.BulkEditItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.SortGradeItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GraderPermission;
-import org.sakaiproject.service.gradebook.shared.GradingType;
-import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
-import org.sakaiproject.service.gradebook.shared.SortType;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GraderPermission;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.PermissionDefinition;
+import org.sakaiproject.grading.api.SortType;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 /**
@@ -104,6 +105,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow studentGradeSummaryWindow;
 	GbModalWindow updateUngradedItemsWindow;
 	GbModalWindow rubricGradeWindow;
+	GbModalWindow rubricPreviewWindow;
 	GbModalWindow gradeLogWindow;
 	GbModalWindow gradeCommentWindow;
 	GbModalWindow deleteItemWindow;
@@ -152,7 +154,7 @@ public class GradebookPage extends BasePage {
 			// no perms
 			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
 			if (this.permissions.isEmpty()
-					|| (this.permissions.size() == 1 && StringUtils.equals(((PermissionDefinition) this.permissions.get(0)).getFunction(), GraderPermission.NONE.toString()))) {
+					|| (this.permissions.size() == 1 && StringUtils.equals(((PermissionDefinition) this.permissions.get(0)).getFunctionName(), GraderPermission.NONE.toString()))) {
 				sendToAccessDeniedPage(getString("ta.nopermission"));
 			}
 		}
@@ -186,6 +188,10 @@ public class GradebookPage extends BasePage {
 		this.rubricGradeWindow = new GbModalWindow("rubricGradeWindow");
 		this.rubricGradeWindow.setPositionAtTop(true);
 		this.form.add(this.rubricGradeWindow);
+
+		this.rubricPreviewWindow = new GbModalWindow("rubricPreviewWindow");
+		this.rubricPreviewWindow.setPositionAtTop(true);
+		this.form.add(this.rubricPreviewWindow);
 
 		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
 		this.form.add(this.gradeLogWindow);
@@ -239,7 +245,7 @@ public class GradebookPage extends BasePage {
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
 		// grading type?
-		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
+		final GradeType gradingType = gradebook.getGradeType();
 
 		this.tableArea = new WebMarkupContainer("gradeTableArea");
 		if (!this.hasGradebookItems) {
@@ -292,6 +298,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		this.gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
 		this.gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
+		this.gradeTable.addEventListener("previewRubric", new ViewRubricPreviewAction());
 		this.gradeTable.addEventListener("overrideCourseGrade", new OverrideCourseGradeAction());
 		this.gradeTable.addEventListener("editComment", new EditCommentAction());
 		this.gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
@@ -396,7 +403,7 @@ public class GradebookPage extends BasePage {
 
 				// but need to double check permissions to see if we have any permissions with no group reference
 				this.permissions.forEach(p -> {
-					if (!StringUtils.equalsIgnoreCase(p.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())
+					if (!StringUtils.equalsIgnoreCase(p.getFunctionName(), GraderPermission.VIEW_COURSE_GRADE.toString())
 							&& StringUtils.isBlank(p.getGroupReference())) {
 						this.showGroupFilter = true;
 					}
@@ -504,6 +511,10 @@ public class GradebookPage extends BasePage {
 
 	public GbModalWindow getRubricGradeWindow() {
 		return this.rubricGradeWindow;
+	}
+
+	public GbModalWindow getRubricPreviewWindow() {
+		return this.rubricPreviewWindow;
 	}
 
 	public GbModalWindow getGradeLogWindow() {

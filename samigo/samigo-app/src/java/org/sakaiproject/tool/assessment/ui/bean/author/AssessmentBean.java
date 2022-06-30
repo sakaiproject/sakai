@@ -32,6 +32,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.util.PortalUtils;

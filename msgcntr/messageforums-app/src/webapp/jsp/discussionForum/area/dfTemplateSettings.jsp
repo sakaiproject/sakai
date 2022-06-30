@@ -37,6 +37,23 @@
              var menuLinkSpan = menuLink.closest('span');
              menuLinkSpan.addClass('current');
              menuLinkSpan.html(menuLink.text());
+             $('#revise\\:moderated\\:0, #revise\\:moderated\\:1').each(function() {
+                     let label = $('#revise\\:forumPostingLabel1').text() + " " + $('#revise\\:outputLabel4').text() + " " + $(this).next().text();
+                     $(this).attr('aria-label', label);
+              });
+              $('#revise\\:postFirst\\:0, #revise\\:postFirst\\:1').each(function() {
+                      let label = $('#revise\\:forumPostingLabel1').text() + " " + $('#revise\\:outputLabel15').text() + " " + $(this).next().text();
+                      $(this).attr('aria-label', label);
+              });
+              $('#revise\\:autoMarkThreadsRead\\:0, #revise\\:autoMarkThreadsRead\\:1').each(function() {
+                       let label = $('#revise\\:outputLabel5').text() + " " + $(this).next().text();
+                       $(this).attr('aria-label', label);
+              });
+              $('#revise\\:availabilityRestricted\\:0, #revise\\:availabilityRestricted\\:1').each(function() {
+                        let label = $('#revise\\:forumAvailabilityLabel').text() + " " + $(this).next().text();
+                        $(this).attr('aria-label', label);
+              });
+
          });
 
 	</script> 
@@ -68,7 +85,7 @@
 				</div>
 				<h:messages styleClass="messageAlert" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 
-				<h2><h:outputText value="#{msgs.cdfm_forum_posting}" /></h2>
+				<h2><h:outputText id="forumPostingLabel1" value="#{msgs.cdfm_forum_posting}" /></h2>
 				<h3><h:outputText id="outputLabel4" value="#{msgs.cdfm_moderate_forums}" /></h3>
 				<h:panelGroup layout="block" styleClass="indnt1">
 					<h:panelGroup styleClass="checkbox">
@@ -89,7 +106,7 @@
 					</h:panelGroup>
 				</h:panelGroup>
 
-				<h2><h:outputText value="#{msgs.cdfm_forum_availability}" /></h2>
+				<h2><h:outputText id="forumAvailabilityLabel" value="#{msgs.cdfm_forum_availability}" /></h2>
 				<h:panelGroup layout="block" styleClass="indnt1">
 					<h:panelGroup styleClass="checkbox">
 						<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.template.availabilityRestricted}">
@@ -124,7 +141,7 @@
 					});
 				</script>
 
-				<h2><h:outputText  value="#{msgs.cdfm_forum_mark_read}" /></h2>
+				<h2><h:outputText id="forumMarkReadLabel" value="#{msgs.cdfm_forum_mark_read}" /></h2>
 				<h:outputLabel id="outputLabel5" for="autoMarkThreadsRead" value="#{msgs.cdfm_auto_mark_threads_read}"/>
 				<h:panelGroup layout="block" styleClass="indnt1">
 					<h:panelGroup styleClass="checkbox">

@@ -27,7 +27,6 @@ export class SakaiRubricEdit extends RubricsElement {
   static get properties() {
 
     return {
-      token: String,
       rubric: { type: Object }
     };
   }
@@ -64,19 +63,19 @@ export class SakaiRubricEdit extends RubricsElement {
   firstUpdated() {
 
     $(this).find(".popover.rubric-edit-popover input").on('keydown', function(event) {
-      if(event.keyCode == 9){
+      if (event.keyCode == 9) {
         event.preventDefault();
         $(this).parents('.popover.rubric-edit-popover').find('.save').focus();
       }
     });
     $(this).find(".popover.rubric-edit-popover .save").on('keydown', function(event) {
-      if(event.keyCode == 9){
+      if (event.keyCode == 9) {
         event.preventDefault();
         $(this).parents('.popover.rubric-edit-popover').find('.cancel').focus();
       }
     });
     $(this).find(".popover.rubric-edit-popover .cancel").on('keydown', function(event) {
-      if(event.keyCode == 9){
+      if (event.keyCode == 9) {
         event.preventDefault();
         $(this).parents('.popover.rubric-edit-popover').find('input').focus();
       }
@@ -87,13 +86,15 @@ export class SakaiRubricEdit extends RubricsElement {
     e.stopPropagation();
   }
 
-  openEditWithKeyboard(e){
-    if(e.keyCode == 32 || e.keyCode == 32 ){
+  openEditWithKeyboard(e) {
+
+    if (e.keyCode == 32 || e.keyCode == 32 ) {
       this.editRubric(e);
     }
   }
 
   editRubric(e) {
+
     e.preventDefault();
     e.stopPropagation();
     this.dispatchEvent(new CustomEvent("show-tooltip", {detail: this.rubric}));

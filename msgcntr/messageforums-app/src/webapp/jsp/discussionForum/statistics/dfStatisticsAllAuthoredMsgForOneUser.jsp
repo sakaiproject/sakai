@@ -226,9 +226,18 @@
 	  					<h:outputText escape="false" value="#{stat.message}"/>
 					<f:verbatim>
 	  					</span>
-		  				<h4 style="border-bottom:1px solid #ccc;padding-bottom:5px;overflow:hidden">
-						<span><img src="/library/image/silk/table_add.png" />&nbsp;</f:verbatim><h:outputText value="#{msgs.cdfm_message_count}" /><f:verbatim>:&nbsp;<span  id="wordCountSpan</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>"> </span></span>
+						<span>
+							<i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;</f:verbatim>
+							<h:outputText value="#{msgs.cdfm_message_count}" />
+							<f:verbatim>:&nbsp;
+							<span  id="wordCountSpan</f:verbatim>
+								<h:outputText value="#{stat.msgId}"/>">
+								<h:outputText value="#{stat.wordCount}"/>
+								<f:verbatim>
+							</span>
+						</span>
 						<br>
+						<h4 style="border-bottom:1px solid #ccc;padding-bottom:5px;overflow:hidden">
 						<p style="width:74%;float:left;margin:0;padding:0;font-size:110%;color:#000"></f:verbatim>
 						<h:outputText value="#{stat.forumTitle}" />
 						<h:outputText value=" / " />

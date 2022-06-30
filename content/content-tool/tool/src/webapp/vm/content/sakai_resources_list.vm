@@ -354,7 +354,7 @@
 					<td headers="expansion" class="attach hidden-sm hidden-xs">
 					</td>
 					<td headers="checkboxes" class="attach">
-						#if($item.depth > 0 && $item.hasMultipleItemActions())
+						#if($item.depth > 0 && ($item.hasMultipleItemActions() || $canZipDownload))
 							<input type="checkbox" name="selectedMembers" id="list$num" 
 									#if($selectedItems.contains($item.id))checked="checked"#end
 									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this);adjustCount(this,'zipdownload');"

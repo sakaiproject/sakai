@@ -24,10 +24,13 @@ import java.io.Serializable;
 import java.sql.Time;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -53,6 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AddSectionsBean extends CourseDependentBean implements SectionEditor, Serializable {
 	private static final long serialVersionUID = 1L;
+    public static final String READ_ONLY_SECTION_CATEGORIES = "section.info.readonly.section.categories";
 
 	private Integer numToAdd;
 	private String category;
@@ -63,6 +67,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	private 	String elementToFocus;
 	private transient boolean sectionsChanged;
     private String[] daysOfWeek = null;
+    private static Set<String> readOnlyCategories;
 
 	/**
 	 * @inheritDoc
@@ -73,6 +78,8 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager.getInstance();
 		ServerConfigurationService serverConfigurationService = (ServerConfigurationService) cm.get(ServerConfigurationService.class); 
+
+		initReadOnlyCategories(serverConfigurationService);
 
 		int limit = serverConfigurationService.getInt("sections.maxgroups.category", 10);
 		if (limit <= 0) limit = 10;
@@ -91,7 +98,9 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 			categoryItems = new ArrayList<SelectItem>();
 			for(Iterator iter = categories.iterator(); iter.hasNext();) {
 				String cat = (String)iter.next();
-				categoryItems.add(new SelectItem(cat, getCategoryName(cat)));
+				if (!readOnlyCategories.contains(cat)) {
+					categoryItems.add(new SelectItem(cat, getCategoryName(cat)));
+				}
 			}
 		}
         initDaysOfWeek();
@@ -496,4 +505,17 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
        DateFormatSymbols dfs = DateFormatSymbols.getInstance(rl.getLocale());
        daysOfWeek = dfs.getWeekdays();
     }
+
+	static void initReadOnlyCategories(ServerConfigurationService serverConfigurationService) {
+		if (readOnlyCategories == null) {
+			readOnlyCategories = new HashSet<>();
+			if (serverConfigurationService != null) {
+				String[] readOnlySectionCategories = serverConfigurationService
+						.getStrings(READ_ONLY_SECTION_CATEGORIES);
+				if (readOnlySectionCategories != null) {
+					readOnlyCategories = new HashSet<>(Arrays.asList(readOnlySectionCategories));
+				}
+			}
+		}
+	}
 }

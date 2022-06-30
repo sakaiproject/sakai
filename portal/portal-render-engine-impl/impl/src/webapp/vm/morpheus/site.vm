@@ -125,10 +125,6 @@
             <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
         #end ## END of IF ($loggedIn)
         
-        <!--[if lt IE 9]>
-            <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
-<![endif]-->
-
         <script>
             if (typeof Handlebars == 'undefined') {
                 document.write('\x3Cscript src="${pageWebjarsPath}handlebars/4.0.6/handlebars.runtime.min.js$!{portalCDNQuery}">\x3C/script>');
@@ -213,10 +209,6 @@
     #end
         </script>
 
-        <!--[if lt IE 9]>
-        <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>
-<![endif]-->
-
         <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
 
         <script src="$!{portalCDNPath}/portal/scripts/jumptotop.js$!{portalCDNQuery}"></script>
@@ -246,25 +238,31 @@
                         <div id="cropme">
                             <img style="maxWidth: 100%" />
                         </div>
-                        <div id="cropToolbar" class="btn-toolbar" style="display: none;">
-                            <div class="btn-group">
-                                <a class="profile-image-zoom-in btn btn-sm btn-default" href="javascript:void(0)"></a>
-                                <a class="profile-image-zoom-out btn btn-sm btn-default" href="javascript:void(0)"></a>
+                        <div id="cropToolbar">
+                            <div class="btn-toolbar toolbar-divider">
+                                <div class="btn-group">
+                                    <button class="profile-image-zoom-in btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_zoom_in")}"></button>
+                                    <button class="profile-image-zoom-out btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_zoom_out")}"></button>
+                                </div>
+                                <div class="btn-group">
+                                    <button class="profile-image-rotate btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_rotate")}"></button>
+                                </div>
                             </div>
-                            <div class="btn-group">
-                                <a class="profile-image-pan-up btn btn-sm btn-default" href="javascript:void(0)"></a>
-                                <a class="profile-image-pan-down btn btn-sm btn-default" href="javascript:void(0)"></a>
-                                <a class="profile-image-pan-left btn btn-sm btn-default" href="javascript:void(0)"></a>
-                                <a class="profile-image-pan-right btn btn-sm btn-default" href="javascript:void(0)"></a>
-                            </div>
-                            <div class="btn-group">
-                                <a class="profile-image-rotate btn btn-sm btn-default" href="javascript:void(0)"></a>
+                            <div class="btn-toolbar toolbar-divider">
+                                <div class="btn-group">
+                                    <button class="profile-image-pan-up btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_pan_up")}"></button>
+                                    <button class="profile-image-pan-down btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_pan_down")}"></button>
+                                </div>
+                                <div class="btn-group">
+                                    <button class="profile-image-pan-left btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_pan_left")}"></button>
+                                    <button class="profile-image-pan-right btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_pan_right")}"></button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="button_color pull-left" id="save" disabled="disabled">${rloader.getString("pic_changer_save")}</button>
-                        <button type="button" class="button pull-left" data-dismiss="modal">${rloader.getString("pic_changer_cancel")}</button>
+                        <button type="button" class="button pull-left" id="close" data-dismiss="modal">${rloader.getString("pic_changer_cancel")}</button>
                         <button class="btn btn-link remove-profile-image pull-right">${rloader.getString("pic_changer_remove")}</button>
                     </div>
                 </div>

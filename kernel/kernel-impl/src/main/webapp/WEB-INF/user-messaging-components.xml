@@ -5,10 +5,16 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
+    <bean id="org.sakaiproject.util.ResourceLoader.usermessagingservice"
+          class="org.sakaiproject.util.ResourceLoader">
+        <constructor-arg value="usermessagingservice" />
+    </bean>
+
     <bean id="org.sakaiproject.messaging.api.UserMessagingService"
-        class="org.sakaiproject.messaging.impl.UserMessagingServiceImpl"
-		init-method="init"
-		destroy-method="destroy">
+            class="org.sakaiproject.messaging.impl.UserMessagingServiceImpl"
+		    init-method="init"
+		    destroy-method="destroy">
+        <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.usermessagingservice" />
     </bean>
 
 </beans>

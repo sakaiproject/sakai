@@ -35,6 +35,10 @@
             <artifactId>sakai-site-manage-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-site-manage-hbm</artifactId>
         </dependency>
@@ -51,9 +55,8 @@
             <artifactId>shortenedurl-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-api</artifactId>
-            <version>23-SNAPSHOT</version>
+            <groupId>org.sakaiproject.conversations</groupId>
+            <artifactId>sakai-conversations-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

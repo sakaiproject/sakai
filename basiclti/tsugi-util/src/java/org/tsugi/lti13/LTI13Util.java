@@ -424,25 +424,46 @@ public class LTI13Util {
 			"error" : "invalid_scope"
 		}
 	*/
-	public static void return400(HttpServletResponse response, String error, String detail) {
-			response.setContentType("application/json;charset=UTF-8");
-			response.setHeader("Cache-Control", "no-store");
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			if ( detail != null ) response.setHeader("X-Tsugi-LTI13-Error-Detail", detail);
-			JSONObject job = new JSONObject();
-			job.put("error", error);
-			String retval = org.tsugi.jackson.JacksonUtil.toString(job);
-			try {
-				PrintWriter out = response.getWriter();
-				out.println(retval);
-			} catch (IOException e) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				log.error(e.getMessage(), e);
-		}
-	}
 
 	public static void return400(HttpServletResponse response, String error) {
-		return400(response, error, null);
+		return4XX(response, error, null, HttpServletResponse.SC_BAD_REQUEST);
+	}
+
+	public static void return400(HttpServletResponse response, String error, String detail) {
+		return4XX(response, error, detail, HttpServletResponse.SC_BAD_REQUEST);
+	}
+
+	public static void return403(HttpServletResponse response, String error) {
+		return4XX(response, error, null, HttpServletResponse.SC_FORBIDDEN);
+	}
+
+	public static void return403(HttpServletResponse response, String error, String detail) {
+		return4XX(response, error, detail, HttpServletResponse.SC_FORBIDDEN);
+	}
+
+	public static void return404(HttpServletResponse response, String error) {
+		return4XX(response, error, null, HttpServletResponse.SC_NOT_FOUND);
+	}
+
+	public static void return404(HttpServletResponse response, String error, String detail) {
+		return4XX(response, error, detail, HttpServletResponse.SC_NOT_FOUND);
+	}
+
+	public static void return4XX(HttpServletResponse response, String error, String detail, int httpStatus) {
+		response.setContentType("application/json;charset=UTF-8");
+		response.setHeader("Cache-Control", "no-store");
+		response.setStatus(httpStatus);
+		if ( detail != null ) response.setHeader("X-Tsugi-LTI13-Error-Detail", detail);
+		JSONObject job = new JSONObject();
+		job.put("error", error);
+		String retval = org.tsugi.jackson.JacksonUtil.toString(job);
+		try {
+			PrintWriter out = response.getWriter();
+			out.println(retval);
+		} catch (IOException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			log.error(e.getMessage(), e);
+		}
 	}
 
     public static void substituteCustom(Properties custom, Properties lti2subst)

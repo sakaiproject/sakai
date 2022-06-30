@@ -45,6 +45,7 @@ public interface SectionDataIfc
   public static final String NUM_QUESTIONS_DRAWN = "NUM_QUESTIONS_DRAWN";
   public static final String QUESTIONS_RANDOM_DRAW_DATE = "QUESTIONS_RANDOM_DRAW_DATE";
   
+  public static final String RANDOMIZATION_SEED = "RANDOMIZATION_SEED";
   public static final String RANDOMIZATION_TYPE = "RANDOMIZATION_TYPE";
   public static final String PER_SUBMISSION = "1";
   public static final String PER_STUDENT = "2";

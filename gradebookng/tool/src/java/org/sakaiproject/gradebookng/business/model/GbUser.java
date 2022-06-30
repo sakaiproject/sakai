@@ -28,6 +28,7 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 
 import java.util.Collections;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 
 /**
  * DTO for a user. Enhance as required.
@@ -36,10 +37,12 @@ import java.util.List;
  *
  */
 @Getter
-public class GbUser implements Serializable, Comparable<GbUser> {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class GbUser implements GbUserBase, Serializable, Comparable<GbUser> {
 
 	private static final long serialVersionUID = 1L;
 
+	@EqualsAndHashCode.Include
 	private final String userUuid;
 
 	/**
@@ -54,6 +57,8 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	private final String lastName;
 
 	private final String studentNumber;
+
+	private final String sortName;
 
 	@Setter
 	@Accessors(chain = true)
@@ -71,20 +76,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.lastName = FormatHelper.htmlEscape(u.getLastName());
 		this.studentNumber = FormatHelper.htmlEscape(studentNumber);
 		this.sections = Collections.emptyList();
-	}
-
-	public GbUser(final String userUUID, final String displayID, final String displayName, final String firstName, final String lastName, final String studentNumber) {
-		this.userUuid = userUUID;
-		this.displayId = displayID;
-		this.displayName = FormatHelper.htmlEscape(displayName);
-		this.firstName = FormatHelper.htmlEscape(firstName);
-		this.lastName = FormatHelper.htmlEscape(lastName);
-		this.studentNumber = FormatHelper.htmlEscape(studentNumber);
-		this.sections = Collections.emptyList();
-	}
-
-	public static GbUser forDisplayOnly(final String displayID, final String displayName) {
-		return new GbUser("", displayID, displayName, "", "", "");
+		this.sortName = u.getSortName();
 	}
 
 	public boolean isValid() {
@@ -92,14 +84,20 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	}
 
 	@Override
-	public int compareTo(GbUser user)
+	public int compareTo(GbUser other)
 	{
-		int comp = displayId.compareToIgnoreCase(user.displayId);
-		if (comp == 0) {
-			comp = displayName.compareToIgnoreCase(user.displayName);
+		String prop1 = sortName;
+		String prop2 = other.getSortName();
+		if (StringUtils.isBlank(prop1) && StringUtils.isBlank(prop2)) {
+			prop1 = displayName;
+			prop2 = other.getDisplayName();
+		}
+		if (StringUtils.equalsIgnoreCase(prop1, prop2)) {
+			prop1 = displayId;
+			prop2 = other.getDisplayId();
 		}
 
-		return comp;
+		return StringUtils.compareIgnoreCase(prop1, prop2);
 	}
 
 	@Override

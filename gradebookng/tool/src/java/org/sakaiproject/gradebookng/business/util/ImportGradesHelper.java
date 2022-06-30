@@ -66,7 +66,8 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.opencsv.CSVParser;
@@ -78,6 +79,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.gradebookng.business.model.GbUnidentifiedUser;
 
 /**
  * Helper to handling parsing and processing of an imported gradebook file
@@ -462,6 +464,34 @@ public class ImportGradesHelper {
 			sourcePanel.error(MessageHelper.getString("importExport.error.noValidGrades"));
 		}
 
+		// if assignment is in a category that uses keep / drop, check if all assignments points in that category are equal
+		final List<CategoryDefinition> categories = businessService.getGradebookCategories();
+		for (CategoryDefinition category : categories) {
+			List<Assignment> catAssignmentList = category.getAssignmentList();
+			if (category.getDropKeepEnabled() && catAssignmentList != null) {
+				Double matchedPoints = null;
+				for (Assignment catAssignment : catAssignmentList) {
+					for (ProcessedGradeItem processedGradeItem : processedGradeItems) {
+						if (catAssignment.getId().equals(processedGradeItem.getItemId())) {
+							if (matchedPoints == null) {
+								matchedPoints = Double.parseDouble(processedGradeItem.getItemPointValue());
+							} else if (!matchedPoints.equals(Double.parseDouble(processedGradeItem.getItemPointValue()))) {
+								hasValidationErrors = true;
+								sourcePanel.error(MessageHelper.getString("importExport.error.dropKeepPointsMismatch"));
+							}
+							break;
+						}
+					}
+					if (hasValidationErrors) {
+						break;
+					}
+				}
+				if (hasValidationErrors) {
+					break;
+				}
+			}
+		}
+
 		boolean hasChanges = false;
 		for (ProcessedGradeItem item : processedGradeItems) {
 			if (item.getStatus() == ProcessedGradeItem.Status.MODIFIED || item.getStatus() == ProcessedGradeItem.Status.NEW ||
@@ -626,7 +656,7 @@ public class ImportGradesHelper {
 					// Only process the grade item if the user is valid (present in the site/gradebook)
 					if (row.getUser().isValid()) {
 						final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
-						processedGradeItemDetail.setUser(row.getUser());
+						processedGradeItemDetail.setUser((GbUser) row.getUser());
 						processedGradeItemDetail.setGrade(cell.getScore());
 						processedGradeItemDetail.setComment(cell.getComment());
 						processedGradeItemDetails.add(processedGradeItemDetail);
@@ -694,12 +724,11 @@ public class ImportGradesHelper {
 
 		// for grade items, only need to check if we dont already have a status, as grade items are always imported for NEW and MODIFIED items
 		// for comments we always check unless external as we might have a NEW item but with no data which means SKIP
-		SortedSet<GbUser> usersInGradebook = importedGradeWrapper.getUserIdentifier().getReport().getIdentifiedUsers();
 		if ((column.isGradeItem() && status == null) || (column.isComment() && status != Status.EXTERNAL)) {
 			for (final ImportedRow row : importedGradeWrapper.getRows()) {
 
 				// if the user is not a member of the site/gradebook, we don't need to consider the data for the column's status
-				if (!usersInGradebook.contains(row.getUser())) {
+				if (row.getUser() instanceof GbUnidentifiedUser) {
 					continue;
 				}
 

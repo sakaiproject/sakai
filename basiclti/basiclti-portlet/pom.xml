@@ -66,6 +66,10 @@
             <artifactId>entitybroker-utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -76,11 +80,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-api</artifactId>
-            <scope>provided</scope>
         </dependency>
                 <dependency>
                         <groupId>com.fasterxml.jackson.core</groupId>

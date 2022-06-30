@@ -31,10 +31,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.grading.api.GradebookInformation;
 
 public class SettingsGradeReleasePanel extends BasePanel {
 
@@ -132,7 +132,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 
 				// if we have disabled this, enable categories and weighting
 				// if its enabled then catgories and weighting may or may not be enabled depending on other rules
-				final Radio<Integer> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
+				final Radio<GradingCategoryType> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
 				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
 				target.add(categoriesAndWeightingRadio);
 
@@ -310,7 +310,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 				target.add(SettingsGradeReleasePanel.this.minimumOptions);
 
 				// if points selected, disable categories and weighting
-				final Radio<Integer> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
+				final Radio<GradingCategoryType> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
 				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
 				target.add(categoriesAndWeightingRadio);
 			}
@@ -327,15 +327,15 @@ public class SettingsGradeReleasePanel extends BasePanel {
 				final GradebookInformation settings = SettingsGradeReleasePanel.this.model.getObject().getGradebookInformation();
 
 				// validation label
-				if (settings.isCourseGradeDisplayed()) {
+				if (settings.getCourseGradeDisplayed()) {
 					int displayOptions = 0;
-					if (settings.isCourseLetterGradeDisplayed()) {
+					if (settings.getCourseLetterGradeDisplayed()) {
 						displayOptions++;
 					}
-					if (settings.isCourseAverageDisplayed()) {
+					if (settings.getCourseAverageDisplayed()) {
 						displayOptions++;
 					}
-					if (settings.isCoursePointsDisplayed()) {
+					if (settings.getCoursePointsDisplayed()) {
 						displayOptions++;
 					}
 					if (displayOptions == 0) {
@@ -360,11 +360,11 @@ public class SettingsGradeReleasePanel extends BasePanel {
 
 				final GradebookInformation settings = SettingsGradeReleasePanel.this.model.getObject().getGradebookInformation();
 
-				if (settings.isCourseLetterGradeDisplayed()) {
+				if (settings.getCourseLetterGradeDisplayed()) {
 					parts.add(getString("settingspage.displaycoursegrade.preview-letter"));
 				}
 
-				if (settings.isCourseAverageDisplayed()) {
+				if (settings.getCourseAverageDisplayed()) {
 					if (parts.isEmpty()) {
 						parts.add(getString("settingspage.displaycoursegrade.preview-percentage-first"));
 					} else {
@@ -372,7 +372,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 					}
 				}
 
-				if (settings.isCoursePointsDisplayed()) {
+				if (settings.getCoursePointsDisplayed()) {
 					if (parts.isEmpty()) {
 						parts.add(getString("settingspage.displaycoursegrade.preview-points-first"));
 					} else {
@@ -433,11 +433,11 @@ public class SettingsGradeReleasePanel extends BasePanel {
 	void updatePointsCheckboxState() {
 
 		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
-		final GbCategoryType type = GbCategoryType.valueOf(settings.getCategoryType());
+		final GradingCategoryType type = settings.getCategoryType();
 
 		// if categories and weighting, disable course grade points
-		if (settings.isCourseGradeDisplayed()) {
-			if (type == GbCategoryType.WEIGHTED_CATEGORY) {
+		if (settings.getCourseGradeDisplayed()) {
+			if (type == GradingCategoryType.WEIGHTED_CATEGORY) {
 				this.points.setEnabled(false);
 			} else {
 				this.points.setEnabled(true);
@@ -445,7 +445,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		}
 
 		// if course grade disabled, clear this field
-		if (!settings.isCourseGradeDisplayed()) {
+		if (!settings.getCourseGradeDisplayed()) {
 			this.points.setDefaultModelObject(Boolean.FALSE);
 		}
 	}
@@ -454,7 +454,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
 
 		// if course grade disabled, clear this field
-		if (!settings.isCourseGradeDisplayed()) {
+		if (!settings.getCourseGradeDisplayed()) {
 			this.letterGrade.setDefaultModelObject(Boolean.FALSE);
 		}
 	}
@@ -463,7 +463,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
 
 		// if course grade disabled, clear this field
-		if (!settings.isCourseGradeDisplayed()) {
+		if (!settings.getCourseGradeDisplayed()) {
 			this.percentage.setDefaultModelObject(Boolean.FALSE);
 		}
 	}

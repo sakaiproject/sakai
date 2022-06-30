@@ -1,6 +1,6 @@
 portal = portal || {};
 
-if (portal?.user?.id) {
+if (portal?.sse?.enabled && portal?.user?.id) {
   portal.messagesEventSource = new EventSource("/api/users/me/events");
 
   portal.messagesEventSource.onopen = e => console.debug("events connection established");

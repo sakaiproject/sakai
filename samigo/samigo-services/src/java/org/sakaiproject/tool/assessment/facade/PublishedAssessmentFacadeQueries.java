@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
@@ -45,9 +46,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -347,6 +347,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 					sectionMetaData.getEntry());
 			h.add(publishedSectionMetaData);
 		}
+		// Persist the random seed in the section to use it and preserve the order.
+		h.add(new PublishedSectionMetaData(publishedSection, SectionDataIfc.RANDOMIZATION_SEED, String.valueOf(UUID.randomUUID().hashCode())));
 		return h;
 	}
 
@@ -654,7 +656,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	/**
-	 * This was created for GradebookExternalAssessmentService.
+	 * This was created for org.sakaiproject.grading.api.GradingService.
 	 * We just want a quick answer whether Samigo is responsible for an id.
 	 */
 	public boolean isPublishedAssessmentIdValid(Long publishedAssessmentId) {
@@ -759,20 +761,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			boolean integrated = IntegrationContextFactory.getInstance()
 					.isIntegrated();
-			GradebookExternalAssessmentService g = null;
+			org.sakaiproject.grading.api.GradingService g = null;
 			if (integrated) {
-				g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean(
-						"org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+				g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+						"org.sakaiproject.grading.api.GradingService");
 			}
 
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory
 					.getInstance().getGradebookServiceHelper();
 
-			if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)
-					&& toGradebook != null
-					&& toGradebook
-							.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK
-									.toString())) {
+			if (toGradebook != null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 				try {
 					gbsHelper.addToGradebook(publishedAssessment, publishedAssessment.getCategoryId(), g);
 				} catch (Exception e) {
@@ -1074,7 +1072,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 			try {
 				saveOrUpdate(assessment);
-				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 				rubricsService.softDeleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 			} catch (Exception e) {
 				log.warn(e.getMessage());
@@ -2789,7 +2787,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
     	assessment.setLastModifiedDate(new Date());
     	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
 
-    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
     	rubricsService.restoreRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedAssessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 
     	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();

@@ -49,9 +49,9 @@
             rendered="#{SiteListBean.renderTable}" >
 			<h:column id="statusToggle">
 				<f:facet name="header">
-					<h:selectBooleanCheckbox title="#{msgs.select_all}/#{msgs.deselect_all}" styleClass="selectAllCheckbox" onclick="sakaiUserMembership.selectAll(); sakaiUserMembership.checkSiteSelection();" />
+					<h:selectBooleanCheckbox title="#{msgs.select_all}/#{msgs.deselect_all}" styleClass="selectAllCheckbox" onclick="sakaiUserMembership.selectAll();" />
 				</f:facet>
-				<h:selectBooleanCheckbox value="#{row1.selected}" styleClass="chkStatus" onclick="sakaiUserMembership.checkSiteSelection();"/>
+				<h:selectBooleanCheckbox value="#{row1.selected}" styleClass="chkStatus" />
 			</h:column>
 			<h:column id="siteName">
 				<f:facet name="header">
@@ -117,21 +117,23 @@
 			</p>
 		</h:panelGroup>
 
-		<t:div rendered="#{SiteListBean.renderTable && !SiteListBean.emptySiteList}">
-			<t:div styleClass="act">
-				<h:commandButton type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="sakaiUserMembership.invertSelection(); sakaiUserMembership.checkSiteSelection();" />
-				<h:commandButton id="setToInactive" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"
-								 onclick="SPNR.disableControlsAndSpin( this, null );" />
-				<h:commandButton id="setToActive" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" 
-								 onclick="SPNR.disableControlsAndSpin( this, null );" />
-				<h:commandButton id="exportCsv" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_selected_to_csv}" disabled="true" />
-				<h:commandButton id="exportXls" actionListener="#{SiteListBean.exportAsXls}" value="#{msgs.export_selected_to_excel}" disabled="true" />
+		<h:form id="buttonholder">
+			<t:div rendered="#{SiteListBean.renderTable && !SiteListBean.emptySiteList}">
+				<t:div styleClass="act">
+					<h:commandButton id="invert-selection" type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="sakaiUserMembership.invertSelection(); sakaiUserMembership.checkSiteSelection();" />
+					<h:commandButton id="set-to-inactive" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}"
+									 onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<h:commandButton id="set-to-active" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}"
+									 onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<h:commandButton id="export-csv" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_selected_to_csv}" />
+					<h:commandButton id="export-xls" actionListener="#{SiteListBean.exportAsXls}" value="#{msgs.export_selected_to_excel}" />
+				</t:div>
 			</t:div>
-		</t:div>
 
-		<t:div styleClass="act">
-			<h:commandButton id="userlist" action="#{SiteListBean.processActionBack}" value="#{msgs.back_button}" styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
-		</t:div>
+			<t:div styleClass="act">
+				<h:commandButton id="userlist" action="#{SiteListBean.processActionBack}" value="#{msgs.back_button}" styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</t:div>
+		</h:form>
 	</h:form>
 </sakai:view>
 </f:view>

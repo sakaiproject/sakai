@@ -116,6 +116,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	/** SAK-29003 Google needs .ics at end of URL **/
 	public static final String ICAL_EXTENSION = ".ics";
+	
+	private static final String EVENT_URL_PATTERN = "%s?eventReference=%s&panel=Main&sakai_action=doDescription&sakai.state.reset=true";
 
    private DocumentBuilder docBuilder = null;
    
@@ -1293,10 +1295,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean parseEntityReference(String reference, Reference ref)
-	{
-		if (reference.startsWith(CalendarService.REFERENCE_ROOT))
-		{
+	public boolean parseEntityReference(String reference, Reference ref) {
+		if (reference.startsWith(CalendarService.REFERENCE_ROOT)) {
 			String[] parts = reference.split(Entity.SEPARATOR);
 
 			String subType = null;
@@ -1305,78 +1305,61 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			String container = null;
 
 			// the first part will be null, then next the service, the third will be "calendar" or "event"
-			if (parts.length > 2)
-			{
+			if (parts.length > 2) {
 				subType = parts[2];
 				// Opaque URLs put the opaque GUID where the context ID would normally be:
-				if (REF_TYPE_CALENDAR_OPAQUEURL.equals(subType) && parts.length > 3)
-				{
+				if (REF_TYPE_CALENDAR_OPAQUEURL.equals(subType) && parts.length > 3) {
 					parts[3] = mapOpaqueGuidToContextId(ref, parts[3]);
 				}
-				if (REF_TYPE_CALENDAR.equals(subType) || 
-						 REF_TYPE_CALENDAR_PDF.equals(subType) || 
-						 REF_TYPE_CALENDAR_ICAL.equals(subType) ||
-						 REF_TYPE_CALENDAR_SUBSCRIPTION.equals(subType) ||
-						 REF_TYPE_CALENDAR_OPAQUEURL.equals(subType))
+				if ( REF_TYPE_CALENDAR.equals(subType) || 
+					 REF_TYPE_CALENDAR_PDF.equals(subType) || 
+					 REF_TYPE_CALENDAR_ICAL.equals(subType) ||
+					 REF_TYPE_CALENDAR_SUBSCRIPTION.equals(subType) ||
+					 REF_TYPE_CALENDAR_OPAQUEURL.equals(subType))
 				{
 					// next is the context id
-					if (parts.length > 3)
-					{
+					if (parts.length > 3) {
 						context = parts[3];
 
 						// next is the optional calendar id
-						if (parts.length > 4)
-						{
+						if (parts.length > 4) {
 							id = parts[4];
 						}
 					}
-				}
-				else if (REF_TYPE_EVENT.equals(subType) || REF_TYPE_EVENT_SUBSCRIPTION.equals(subType))
-				{
+				} else if (REF_TYPE_EVENT.equals(subType) || REF_TYPE_EVENT_SUBSCRIPTION.equals(subType) || REF_TYPE_DASHBOARD.equals(subType)) {
 					// next three parts are context, channel (container) and event id
-					if (parts.length > 5)
-					{
+					if (parts.length > 5) {
 						context = parts[3];
 						container = parts[4];
 						id = parts[5];
 					}
-				}
-				else
+				} else
 					log.warn(".parseEntityReference(): unknown calendar subtype: " + subType + " in ref: " + reference);
 			}
 
 			// Translate context alias into site id if necessary
-			if ((context != null) && (context.length() > 0))
-			{
-				if (!m_siteService.siteExists(context))
-				{
-					try
-					{
+			if ((context != null) && (context.length() > 0)) {
+				if (!m_siteService.siteExists(context)) {
+					try {
 						Calendar calendarObj = getCalendar(m_aliasService.getTarget(context));
 						context = calendarObj.getContext();
-					}
-
-					catch (IdUnusedException ide) {
-							log.info(".parseEntityReference():"+ide.toString()); 
-							return false;
-					}
-          catch (PermissionException pe) {
-              log.info(".parseEntityReference():"+pe.toString());
-              return false;
-          }
-					catch (Exception e)
-					{
-                  log.warn(".parseEntityReference(): ", e);
-                  return false;
+					} catch (IdUnusedException ide) {
+						log.info(".parseEntityReference():"+ide.toString()); 
+						return false;
+					} catch (PermissionException pe) {
+						log.info(".parseEntityReference():"+pe.toString());
+						return false;
+					} catch (Exception e) {
+						log.warn(".parseEntityReference(): ", e);
+						return false;
 					}
 				}
 			}
-
-         // if context still isn't valid, then no valid alias or site was specified
-			if (!m_siteService.siteExists(context))
-			{
-            log.warn(".parseEntityReference() no valid site or alias: " + context);
-            return false;
+			
+			// if context still isn't valid, then no valid alias or site was specified
+			if (!m_siteService.siteExists(context)) {
+				log.warn(".parseEntityReference() no valid site or alias: " + context);
+				return false;
 			}
 
 			// build updated reference          
@@ -1607,43 +1590,34 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getEntityUrl(Reference ref)
-	{
+	public String getEntityUrl(Reference ref) {
 		// double check that it's mine
 		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		String rv = null;
 
-		try
-		{
+		try {
 			// if this is a calendar
-			if (REF_TYPE_CALENDAR.equals(ref.getSubType()) || REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()))
-			{
+			if (REF_TYPE_CALENDAR.equals(ref.getSubType()) || REF_TYPE_CALENDAR_PDF.equals(ref.getSubType())) {
 				Calendar cal = getCalendar(ref.getReference());
 				rv = cal.getUrl();
 			}
-
 			// otherwise a event
-			else if (REF_TYPE_EVENT.equals(ref.getSubType()))
-			{
+			else if (REF_TYPE_EVENT.equals(ref.getSubType())) {
 				Calendar cal = getCalendar(calendarReference(ref.getContext(), ref.getContainer()));
 				CalendarEvent event = cal.getEvent(ref.getId());
 				rv = event.getUrl();
 			}
-
-			else
-				log.warn("getEntityUrl(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
-		}
-		catch (PermissionException e)
-		{
-			log.warn(".getEntityUrl(): " + e);
-		}
-		catch (IdUnusedException e)
-		{
-			log.warn(".getEntityUrl(): " + e);
-		}
-		catch (NullPointerException e)
-		{
+			// an event referenced from the dashboard
+			else if (REF_TYPE_DASHBOARD.equals(ref.getSubType())) {
+				String baseUrl = getDirectToolUrl(ref.getContext());
+				String eventReference = ref.getReference().replaceFirst(REF_TYPE_DASHBOARD, REF_TYPE_EVENT);
+				rv = String.format(EVENT_URL_PATTERN, baseUrl, eventReference);
+			} else {
+				log.warn("getEntityUrl(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());	
+			}
+			
+		} catch (PermissionException | IdUnusedException | NullPointerException e) {
 			log.warn(".getEntityUrl(): " + e);
 		}
 
@@ -5948,6 +5922,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	// Checks the calendar has been created. For now just returning true to support the API contract.
 	public boolean isCalendarToolInitialized(String siteId){
 		return true;
+	}
+	
+	private String getDirectToolUrl(String siteId) throws IdUnusedException {
+		ToolConfiguration toolConfig = m_siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
+		return m_serverConfigurationService.getPortalUrl() + "/directtool/" + toolConfig.getId();
 	}
 	
 } // BaseCalendarService

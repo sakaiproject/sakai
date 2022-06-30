@@ -381,6 +381,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Maximize', 'ShowBlocks']
             ,['A11ychecker']
         ].filter(el => el !== undefined),
+        toolbar_BasicText:
+        [
+            ['Bold', 'Italic', 'Underline']
+        ],
         toolbar: 'Full',
         removeButtons: '',
         removeDialogTabs: 'image:advanced;link:advanced',
@@ -444,9 +448,16 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             }
         }
 
+        if (ckconfig.toolbar === "BasicText") {
+            ckconfig.toolbarStartupExpanded = true;
+            ckconfig.toolbarCanCollapse = false;
+            detectWidth = false;
+        }
+
         if (detectWidth == true && getWidth() < 800) {
             ckconfig.toolbar = 'Basic';
         }
+
         //These could be applicable to the basic toolbar
         CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js');
         CKEDITOR.plugins.addExternal('html5video',webJars+'github-com-bahriddin-ckeditor-html5-video/${ckeditor.html5video.version}/html5video/', 'plugin.js');

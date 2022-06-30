@@ -74,6 +74,7 @@
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
         
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
@@ -192,7 +193,7 @@
                 <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
                 <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-                <property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService"/>
+                <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
                </bean>
         </property>
         
@@ -213,6 +214,7 @@
                 <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
                 <property name="sessionManager"  ref="org.sakaiproject.tool.api.SessionManager" />
                 <property name="typeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+                <property name="permissionLevelManager" ref="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
                 <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
                 <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
                 <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
@@ -540,6 +542,21 @@
                 <prop key="*">PROPAGATION_REQUIRED</prop>
             </props>
         </property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.messageforums.scheduler.PrivateMessageSchedulerService"
+          class="org.sakaiproject.component.app.messageforums.scheduler.PrivateMessageSchedulerServiceImpl"
+          init-method="init" destroy-method="destroy">
+        <property name="prtMsgManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" />
+        <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
+        <property name="synopticMsgcntrManager" ref="org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager" />
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="messageManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
     </bean>
 
     <bean id="org.sakaiproject.component.app.messageforums.elfinder.ForumToolFsVolumeFactory"

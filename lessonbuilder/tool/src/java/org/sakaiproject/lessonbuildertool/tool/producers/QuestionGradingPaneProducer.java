@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
+import lombok.Setter;
+
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
@@ -37,6 +39,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.sakaiproject.time.api.UserTimeService;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -64,6 +67,7 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 	private SimplePageToolDao simplePageToolDao;
         private SecurityService securityService;
         private SiteService siteService;
+	@Setter private UserTimeService userTimeService;
 	private MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
 	
@@ -190,10 +194,10 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		boolean graded = "true".equals(questionItem.getAttribute("questionGraded")) || questionItem.getGradebookId() != null;
 		
 		if (graded) {
-		    UIOutput.make(tofill, "clickToSubmit", messageLocator.getMessage("simplepage.update-points")).
-			    decorate(new UIFreeAttributeDecorator("title", 
-								  messageLocator.getMessage("simplepage.update-points")));
-		    UIOutput.make(tofill, "grade-header",  messageLocator.getMessage("simplepage.grading-grade"));
+			UIOutput.make(tofill, "clickToSubmit", messageLocator.getMessage("simplepage.update-points")).
+				decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.update-points")));
+			UIOutput.make(tofill, "grade-header", messageLocator.getMessage("simplepage.grading-grade"));
+			UIOutput.make(tofill, "last-row-grade");
 		}
 		
 		String pointsText = messageLocator.getMessage("simplepage.question-points");
@@ -208,19 +212,19 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 			}else {
 				UIOutput.make(branch, "student-response", user.response.getShortanswer());
 			}
-			
-			// The grading stuff
-			UIOutput.make(branch, "student-grade");
-			UIOutput.make(branch, "gradingSpan");
-			UIOutput.make(branch, "responseId", String.valueOf(user.response.getId()));
+			UIOutput.make(branch, "student-date", userTimeService.dateTimeFormat(user.response.getTimeAnswered().toInstant(), null, null));
+
 			if (graded) {
-			    UIOutput.make(branch, "points-text", pointsText);
-			    UIOutput.make(branch, "responsePoints",
-					  (user.grade == null? "" : String.valueOf(user.grade)));
-			    UIOutput.make(branch, "pointsBox").
-				decorate(new UIFreeAttributeDecorator("title", 
-								      messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.displayName)));
-			    UIOutput.make(branch, "maxpoints", " / " + (questionItem.getGradebookPoints()));
+				// The grading stuff
+				UIOutput.make(branch, "student-grade");
+				UIOutput.make(branch, "gradingSpan");
+				UIOutput.make(branch, "responseId", String.valueOf(user.response.getId()));
+				UIOutput.make(branch, "points-text", pointsText);
+				UIOutput.make(branch, "responsePoints",
+					(user.grade == null? "" : String.valueOf(user.grade)));
+				UIOutput.make(branch, "pointsBox").
+					decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.displayName)));
+				UIOutput.make(branch, "maxpoints", " / " + (questionItem.getGradebookPoints()));
 			}
 		}
 		

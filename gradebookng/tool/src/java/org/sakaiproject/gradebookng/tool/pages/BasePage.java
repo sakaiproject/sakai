@@ -42,7 +42,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,7 +60,7 @@ public class BasePage extends WebPage {
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	@SpringBean(name = "org.sakaiproject.rubrics.logic.RubricsService")
+	@SpringBean(name = "org.sakaiproject.rubrics.api.RubricsService")
 	protected RubricsService rubricsService;
 
 	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")

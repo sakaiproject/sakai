@@ -91,8 +91,13 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>txw2</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -189,6 +194,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- openpdf library -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- lucene jars required by elasticsearch and help -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -252,16 +264,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial-extras</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-spatial3d</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -292,6 +294,21 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch-geo</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch-lz4</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <scope>compile</scope>
@@ -312,7 +329,7 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
+            <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -461,11 +478,6 @@
         </dependency>
 
         <!-- portal -->
-        <dependency>
-            <groupId>org.codehaus.castor</groupId>
-            <artifactId>castor</artifactId>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
@@ -791,6 +803,21 @@
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-spring</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spring-cache-ext</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spring-data-commons</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spring-data-2.2-ext</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

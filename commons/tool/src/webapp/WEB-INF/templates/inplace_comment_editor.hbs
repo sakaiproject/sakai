@@ -1,4 +1,4 @@
-<div class="commons-photo commons-comment-photo" style="background-image:url(/direct/profile/{{#if currentUserId}}{{currentUserId}}{{else}}{{creatorId}}{{/if}}/image/thumb)"></div>
+<sakai-user-photo user-id="{{#if currentUserId}}{{currentUserId}}{{else}}{{creatorId}}{{/if}}" no-popup></sakai-user-photo>
 <div class="commons-editor-text-wrapper">
     <div class="commons-editor-text commons-comment-editor-text" data-post-id="{{id}}"><textarea id="commons-comment-textarea-{{id}}" class="commons-comment-textarea" data-post-id="{{id}}"></textarea></div>
     <div id="commons-comment-post-buttons-{{id}}">

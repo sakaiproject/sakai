@@ -143,15 +143,15 @@ export class SakaiHomeDashboard extends LitElement {
         <div id="courses-and-widgets">
           ${this.showSites ? html`
           <div id="courses"><sakai-course-list></div>
-          `: ""}
+          ` : ""}
           <div id="widgets">
             <sakai-widget-panel
               id="widget-grid"
               @changed=${this.widgetLayoutChange}
               widget-ids=${JSON.stringify(this.data.widgets)}
               layout="${JSON.stringify(this.data.layout)}"
-              site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
-              user-id="${ifDefined(this.userId ? this.userId : undefined)}"
+              site-id=""
+              user-id="${ifDefined(this.userId ? this.userId : "")}"
               columns="2"
               ?editing=${this.editing}>
           </div>

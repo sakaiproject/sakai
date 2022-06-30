@@ -24,6 +24,8 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,9 +48,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
@@ -78,7 +80,11 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
  * <p>
@@ -204,8 +210,6 @@ import org.sakaiproject.util.api.FormattedText;
     	questionbean.setOtherMaxDisplayedScoreRows(0);
     	questionbean.setAudioMaxDisplayedScoreRows(5);
     }
-
-    submissionbean.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO));
 
     if (!totalScores(pubAssessment, bean, false))
     {
@@ -558,12 +562,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     GradingService delegate = new GradingService();
     List allscores = bean.getAssessmentGradingList();
     if (allscores == null || allscores.size()==0){
-      PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
-      EvaluationModelIfc model = p.getEvaluationModel();
-      // If the assessment is set to anonymous grading, we don't want to get assessmentGrading records which has not
-      // submitted by students but has been updated by grader (ie, forGrade != true, lastGradedBy and lastGradedDate is not null) 
-      boolean getSubmittedOnly = model.getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING);
-      allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions(), getSubmittedOnly);
+      allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions(), false);
       bean.setAssessmentGradingList(allscores);
     }
     getFilteredList(bean, allscores, scores, students_not_submitted, useridMap);
@@ -750,6 +749,15 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     }
   }
 
+  private static User getUser(String userId) {
+	try {
+		return UserDirectoryService.getUser(userId);
+	} catch (UserNotDefinedException e) {
+		log.error("User {} does not exist", userId);
+	}
+	return null;
+  }
+
   public List getAgentIds(Map useridMap){
     List agentUserIds = new ArrayList();
     Iterator iter = useridMap.keySet().iterator();
@@ -786,7 +794,6 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     
     bs = new BeanSort(agents, sortProperty);
 
-    if ((sortProperty).equals("lastName")) bs.toStringSort();
     if ((sortProperty).equals("agentDisplayId")) bs.toStringSort();
     if ((sortProperty).equals("idString")) bs.toStringSort();
     if ((sortProperty).equals("agentEid")) bs.toStringSort();
@@ -802,11 +809,33 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     
     if (sortAscending) {
     	log.debug("TotalScoreListener: setRoleAndSortSection() :: sortAscending");
-    	agents = (List)bs.sort();
+    	if (!sortProperty.equals("lastName")) {
+    		agents = (List)bs.sort();
+    	} else {
+    		if (!agents.isEmpty()) {
+    			Collections.sort(agents, new Comparator<AgentResults>() {
+    				public int compare(AgentResults a1, AgentResults a2) {
+    					UserSortNameComparator userComparator = new UserSortNameComparator();
+    					return userComparator.compare(getUser(a1.getAgentId()), getUser(a2.getAgentId()));
+    				}
+    			});
+    		}
+    	}
     }
     else {
     	log.debug("TotalScoreListener: setRoleAndSortSection() :: !sortAscending");
-    	agents = (List)bs.sortDesc();
+    	if (!sortProperty.equals("lastName")) {
+    		agents = (List)bs.sortDesc();
+    	} else {
+    		if (!agents.isEmpty()) {
+    			Collections.sort(agents, new Comparator<AgentResults>() {
+    				public int compare(AgentResults a1, AgentResults a2) {
+    					UserSortNameComparator userComparator = new UserSortNameComparator();
+    					return userComparator.compare(getUser(a2.getAgentId()), getUser(a1.getAgentId()));
+    				}
+    			});
+    		}
+    	}
     }
   }
 
@@ -860,6 +889,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       }
       //results.setIdString(agent.getEidString());
       results.setIdString(agent.getIdString());
+      results.setAgentId(agent.getAgentInstanceString());
       results.setAgentEid(agent.getEidString());
       results.setAgentDisplayId(agent.getDisplayIdString());
       results.setRole((String)userRoles.get(studentid));

@@ -1,7 +1,6 @@
 <!-- start: chef_assignments_instructor_grading_submission_withgrader.vm  -->
 
 <!-- GRADER JAVASCRIPT -->
-<script>window.top.includeWebjarLibrary("flatpickr");</script>
 #module("/webcomponents/grader/sakai-grader.js")
 <script>
   ASN.currentGradingSubmission = "$formattedText.escapeUrl( $!submissionReference )";
@@ -19,10 +18,12 @@
         current-student-id="$!submitterId"
         has-associated-rubric="$!hasAssociatedRubric"
         #if ($!hasAssociatedRubric)
-        token="$!rbcs-token"
-        tool-id="sakai.assignment"
+        tool-id="sakai.assignment.grades"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
+        #end
+        #if ($enablePdfExport)
+        enable-pdf-export
         #end
     >
     </sakai-grader>

@@ -42,8 +42,8 @@ import org.sakaiproject.gradebookng.business.model.ImportedRow;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Status;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.user.api.User;
 
 /**

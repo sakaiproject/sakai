@@ -32,6 +32,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.BaseResourceProperties;
 
 /**
  * <p>
@@ -184,16 +185,14 @@ public class ReferenceComponent implements Reference
 	 * 
 	 * @return A ResourcesProperties object found (or constructed) for this reference.
 	 */
-	public ResourceProperties getProperties()
-	{
+	public ResourceProperties getProperties() {
 		ResourceProperties props = null;
 
-		if (m_service != null)
-		{
+		if (m_service != null) {
 			props = m_service.getEntityResourceProperties(this);
 		}
 
-		return props;
+		return (props != null) ? props : new BaseResourceProperties();
 	}
 
 	/**

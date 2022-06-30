@@ -59,10 +59,17 @@ commons.switchState = function (state, arg) {
 
             var editor = $('#commons-post-creator-editor');
             var wrapAndInsert = function (link, loadThumbnail, text) {
+
+                    const clean = DOMPurify.sanitize(link, {USE_PROFILES: {html: true}});
+                    if (DOMPurify.removed) {
+                        console.warn("DOMPurify removed some dangerous stuff:");
+                        console.warn(DOMPurify.removed);
+                    }
+
                     var url;
                     var wrapped;
-                    if (commons.urlRegex.test(link)) {
-                        var matched_url = link.match(commons.urlRegex)[0];
+                    if (commons.urlRegex.test(clean)) {
+                        var matched_url = clean.match(commons.urlRegex)[0];
                         var a = document.createElement('a');
                         a.href = matched_url;
                         // We need to add the protocol for the server side code. It needs a valid URL.
@@ -72,9 +79,9 @@ commons.switchState = function (state, arg) {
                         }
                         text = text || matched_url;
 
-                        wrapped = link.replace(matched_url, '<a href=\"' + url + '" target="_blank">' + text + "</a>");
+                        wrapped = clean.replace(matched_url, '<a href=\"' + url + '" target="_blank">' + text + "</a>");
 					} else {
-						text = text || link;
+						text = text || clean;
 					    loadThumbnail = false;
 						wrapped = text;
 					}

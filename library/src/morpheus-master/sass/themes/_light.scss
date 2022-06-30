@@ -518,6 +518,10 @@
     --sakai-calendar-has-events-fg-color: var(--sakai-text-color-inverted);
     --sakai-grades-count-color: var(--sakai-text-color-dimmed);
 
+    // Jumbotron
+    --jumbotron-bg: var(--sakai-color-gray--lighter-6);
+    --jumbotron-color: var(--sakai-text-color-1);
+
     // sakai-options-menu
     --sakai-options-menu-background-color: #D4EBF9;
     --sakai-options-menu-color: black;
@@ -528,7 +532,12 @@
     --sakai-popover-title-background: var(--sakai-background-color-1);
     --sakai-hightlight-color: var(--errorBanner-color);
 
-    --progress-bar-bg: var(--infoBanner-bordercolor);
+    //Timer progress bar backgrounds
+    --timer-bar-full-bg: var(--sakai-color-green);
+    --timer-bar-medium-bg: var(--sakai-color-orange);
+    --timer-bar-low-bg: var(--sakai-color-red--lighter-1);
+
+    --progress-bar-bg: var(--sakai-color-blue--lighter-6);
 }
 
 // Tables
