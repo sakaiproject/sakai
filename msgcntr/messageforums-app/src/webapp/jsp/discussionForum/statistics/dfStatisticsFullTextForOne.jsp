@@ -82,7 +82,15 @@
   					<h:outputText escape="false" value="#{stat.message}"/>
 				<f:verbatim>  					
   					</span>  	
-  					<span><img src="/library/image/silk/table_add.png" />&nbsp;</f:verbatim><h:outputText value="#{msgs.cdfm_message_count}" /><f:verbatim>:&nbsp;<span  id="wordCountSpan</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>"> </span></span>			
+					<span>
+						</f:verbatim>
+						<i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;
+						<h:outputText value="#{msgs.cdfm_message_count}" />
+						<f:verbatim>:&nbsp;
+						<span  id="wordCountSpan</f:verbatim><h:outputText value="#{stat.msgId}"/>">
+							<h:outputText value="#{stat.wordCount}"/><f:verbatim>
+						</span>
+					</span>
 	  			</f:verbatim>
 				<h:panelGroup>
 					<f:verbatim><div style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden"></f:verbatim>

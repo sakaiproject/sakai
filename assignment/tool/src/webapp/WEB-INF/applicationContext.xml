@@ -6,9 +6,7 @@
     <bean id="org.sakaiproject.assignment.tool.AssignmentToolUtils"
         class="org.sakaiproject.assignment.tool.AssignmentToolUtils">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
-		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
-        <property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
-		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
@@ -28,8 +26,7 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService" />
-		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
-		<property name="gradebookExternalService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />

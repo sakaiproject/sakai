@@ -487,7 +487,7 @@ public interface AssignmentService extends EntityProducer {
      * @param submissionId
      * @return
      */
-    public String getSubmissionStatus(String submissionId);
+    public String getSubmissionStatus(String submissionId, boolean returnFormattedDate);
 
     /**
      * @param submissionId
@@ -695,15 +695,41 @@ public interface AssignmentService extends EntityProducer {
      */
     public String getXmlAssignment(Assignment assignment);
 
+    /**
+     * Gets the effective grade for the submitter on this submission. If there is an
+     * override, that is the grade returned. Otherwise, the main submission grade is
+     * returned
+     *
+     * @param submissionId The id of the overall submission
+     * @param submitter The individual submitter we're interested in
+     */
     String getGradeForSubmitter(String submissionId, String submitter);
 
+    /**
+     * Gets the effective grade for the submitter on this submission. If there is an
+     * override, that is the grade returned. Otherwise, the main submission grade is
+     * returned
+     *
+     * @param submission The overall submission
+     * @param submitter The individual submitter we're interested in
+     */
     String getGradeForSubmitter(AssignmentSubmission submission, String submitter);
+
+    /**
+     * Returns true if this submitter has an overridden grade. This is useful as it avoids
+     * bug prone comparisons of the submission grade and individual submitter grades
+     *
+     * @param submission The overall submission (must be on a group assignment)
+     * @param submitter The individual submitter we're interested in
+     * @return true if overridden, false if not a group assignment or not overridden.
+     */
+    boolean isGradeOverridden(AssignmentSubmission submission, String submitter);
 
     /**
      * @param grade
      * @param typeOfGrade
      * @param scaleFactor
-     * @return
+     * @return The grade, formatted for display
      */
     public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
 
@@ -760,10 +786,10 @@ public interface AssignmentService extends EntityProducer {
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
     /**
-     * This will return the internationalized title of the tool.
+     * This will return the assignment tool id.
      * This is used when creating a new gradebook item.
      */
-    public String getToolTitle();
+    public String getToolId();
 
     /**
      * This will return the reference removing from it the auxiliar prefix.
@@ -796,11 +822,11 @@ public interface AssignmentService extends EntityProducer {
      * Get an assignment that is linked with a gradebook item
      * @param context the context (site id)
      * @param linkId the link id of the gradebook item, usually the gradebook item name or id
-     * @return the matching assignment if found or null if none
+     * @return the matching assignment if found or empty if none
      * @throws IdUnusedException if the assignment doesn't exist
      * @throws PermissionException if the current user is not allowed to access the assignment
      */
-    Assignment getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
+    Optional<Assignment> getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
 
     /**
      * Returns a list of users that belong to multiple groups, if the user is considered a "student" in the group
@@ -844,11 +870,15 @@ public interface AssignmentService extends EntityProducer {
 
     public String getTotalTimeSheet(AssignmentSubmissionSubmitter asnSubmissionSubmiter);
 
-    public boolean existsTimeSheetEntries(AssignmentSubmissionSubmitter asnSubmissionSubmitter);
-
     public Integer timeToInt(String time);
 
     public String intToTime(int time);
 
     public boolean isTimeSheetEnabled(String siteId);
+
+    /**
+     * The the name of the content review service being used e.g. Turnitin
+     * @return A String containing the name of the content review service
+     */
+    public String getContentReviewServiceName();
 }

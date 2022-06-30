@@ -1,5 +1,9 @@
 .#{$namespace}sakai-conversations {
 
+  sakai-conversations-settings h1 {
+    color: var(--sakai-text-color);
+  }
+
   #settings-grid {
     display: grid;
     grid-template-columns: min-content min-content;

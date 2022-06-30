@@ -221,7 +221,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>fullcalendar</artifactId>
-			<version>5.9.0</version>
+			<version>5.10.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Tests&Quizzes, Private Messages, search, pagination and sort options for tables -->
@@ -310,10 +310,11 @@
 			<!-- Might be able to pass icon list to newer versions -->
 			<version>1.4.1</version>
 		</dependency>
+		<!--Used in the Commons-->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
-			<artifactId>flatpickr</artifactId>
-			<version>4.6.9</version>
+			<artifactId>dompurify</artifactId>
+			<version>2.3.6</version>
 		</dependency>
 	</dependencies>
 	<profiles>

@@ -3,13 +3,13 @@ export class SakaiRubricsHelpers {
   static handleErrors(response) {
 
     if (!response.ok) {
-      console.log(`Error : ${  response.statusText || response.status}`);
+      console.error(`Error : ${  response.statusText || response.status}`);
       throw Error((response.statusText || response.status));
     }
     return response;
   }
 
-  static get(baseUrl, token, extraOptions) {
+  static get(baseUrl, extraOptions) {
 
     let url = baseUrl;
     if (extraOptions.params) {
@@ -20,8 +20,8 @@ export class SakaiRubricsHelpers {
 
     const options = {
       method: "GET",
+      credentials: "include",
       headers: {
-        "Authorization": token,
         "Accept": "application/json",
         "Content-Type": "application/json",
       }
@@ -32,7 +32,7 @@ export class SakaiRubricsHelpers {
     return fetch(url, options).then(SakaiRubricsHelpers.handleErrors).then(response => response.json());
   }
 
-  static post(url, token, extraOptions) {
+  static post(url, extraOptions) {
 
     const body
       = extraOptions.body ? Object.entries(extraOptions.body).reduce((acc, [k, v]) => acc.append(k, v), new FormData())
@@ -40,10 +40,8 @@ export class SakaiRubricsHelpers {
 
     const options = {
       method: "POST",
-      headers: {
-        "Authorization": token,
-        "Content-Type": "application/json",
-      },
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
       body,
     };
 
@@ -51,15 +49,4 @@ export class SakaiRubricsHelpers {
 
     return fetch(url, options).then(SakaiRubricsHelpers.handleErrors).then(response => response.json());
   }
-
-  static getUserDisplayName(sakaiSessionId, creatorId) {
-    return fetch(`/sakai-ws/rest/sakai/getUserDisplayName?sessionid=${sakaiSessionId}&eid=${creatorId}`)
-      .then( (response) => response.text() );
-  }
-
-  static getSiteTitle(sakaiSessionId, siteId) {
-    return fetch(`/sakai-ws/rest/sakai/getSiteTitle?sessionid=${sakaiSessionId}&siteid=${siteId}`)
-      .then( (response) => response.text());
-  }
-
 }

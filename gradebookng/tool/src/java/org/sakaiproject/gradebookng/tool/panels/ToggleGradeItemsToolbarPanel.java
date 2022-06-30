@@ -36,7 +36,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 
 /**
  * Panel that renders the list of assignments and categories and allows the user to toggle each one on and off from the display.

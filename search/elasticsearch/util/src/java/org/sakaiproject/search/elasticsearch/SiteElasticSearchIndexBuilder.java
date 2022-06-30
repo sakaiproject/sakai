@@ -104,6 +104,10 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
      */
     private List<String> ignoredSitesList = new ArrayList<>();
 
+    public void init() {
+        onlyIndexSearchToolSites = serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", true);
+    }
+
     @Override
     protected void beforeElasticSearchConfigInitialization() {
         if (StringUtils.isEmpty(this.indexedDocumentType)) {
@@ -114,16 +118,22 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                     SearchService.FIELD_TYPE,
                     SearchService.FIELD_REFERENCE,
                     SearchService.FIELD_SITEID,
+                    SearchService.FIELD_CREATOR_DISPLAY_NAME,
+                    SearchService.FIELD_CREATOR_ID,
+                    SearchService.FIELD_CREATOR_USER_NAME,
                     SearchService.FIELD_TITLE
             };
         }
         if ( ArrayUtils.isEmpty(this.searchResultFieldNames)) {
             this.searchResultFieldNames = new String[] {
+                    SearchService.FIELD_TYPE,
                     SearchService.FIELD_REFERENCE,
                     SearchService.FIELD_SITEID,
+                    SearchService.FIELD_CREATOR_DISPLAY_NAME,
+                    SearchService.FIELD_CREATOR_ID,
+                    SearchService.FIELD_CREATOR_USER_NAME,
                     SearchService.FIELD_TITLE,
                     SearchService.FIELD_URL,
-                    SearchService.FIELD_TYPE,
                     SearchService.FIELD_TOOL
             };
         }
@@ -202,6 +212,9 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     protected XContentBuilder addFields(XContentBuilder contentSourceBuilder, String resourceName,
                                         EntityContentProducer ecp, boolean includeContent) throws IOException {
         return contentSourceBuilder.field(SearchService.FIELD_SITEID, ecp.getSiteId(resourceName))
+                .field(SearchService.FIELD_CREATOR_DISPLAY_NAME, ecp.getCreatorDisplayName(resourceName))
+                .field(SearchService.FIELD_CREATOR_ID, ecp.getCreatorId(resourceName))
+                .field(SearchService.FIELD_CREATOR_USER_NAME, ecp.getCreatorUserName(resourceName))
                 .field(SearchService.FIELD_TITLE, ecp.getTitle(resourceName))
                 .field(SearchService.FIELD_REFERENCE, resourceName)
                 .field(SearchService.FIELD_URL, ecp.getUrl(resourceName, Entity.UrlType.PORTAL))
@@ -254,7 +267,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                             //updating was causing issues without a _source, so doing delete and re-add
                             try {
                                 deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
-                                bulkRequest.add(prepareIndex(reference, ecp, false));
+                                bulkRequest.add(prepareIndex(reference, ecp, true));
                                 numberOfDocs++;
                             } catch (Exception e) {
                                 getLog().error(e.getMessage(), e);

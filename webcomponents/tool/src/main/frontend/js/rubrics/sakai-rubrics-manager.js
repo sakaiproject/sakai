@@ -18,19 +18,16 @@ class SakaiRubricsManager extends RubricsElement {
   }
 
   static get properties() {
-    return { token: String, i18nLoaded: Boolean, enablePdfExport : Boolean };
+
+    return {
+      siteId: { attribute: "site-id", type: String },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+      i18nLoaded: { attribute: false, type: Boolean },
+    };
   }
 
   shouldUpdate() {
     return this.i18nLoaded;
-  }
-
-  set enablePdfExport(newValue) {
-    this._enablePdfExport = (newValue === 'true');
-  }
-
-  get enablePdfExport() {
-    return this._enablePdfExport;
   }
 
   render() {
@@ -66,7 +63,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-list id="sakai-rubrics" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" token="Bearer ${this.token}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubrics-list>
+        <sakai-rubrics-list id="sakai-rubrics" site-id="${this.siteId}" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-list>
       </div>
       
       <hr>
@@ -90,7 +87,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-shared-list token="Bearer ${this.token}" id="sakai-rubrics-shared-list" @copy-share-site="${this.copyShareSite}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubrics-shared-list>
+        <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-shared-list>
       </div>
       <br>
       </div>
@@ -165,13 +162,13 @@ class SakaiRubricsManager extends RubricsElement {
     }
 
     // If the user clicks on an arrow, it provides all the classes including the icons, we must cleanup the class list.
-    if (sortInput.includes('name')){
+    if (sortInput.includes('name')) {
       sortInput = sortInput.includes('shared') ? 'shared-name' : 'site-name';
-    } else if (sortInput.includes('title')){
+    } else if (sortInput.includes('title')) {
       sortInput = sortInput.includes('shared') ? 'shared-title' : 'site-title';
-    } else if (sortInput.includes('creator')){
+    } else if (sortInput.includes('creator')) {
       sortInput = sortInput.includes('shared') ? 'shared-creator' : 'site-creator';
-    } else if (sortInput.includes('modified')){
+    } else if (sortInput.includes('modified')) {
       sortInput = sortInput.includes('shared') ? 'shared-modified' : 'site-modified';
     } else {
       return;

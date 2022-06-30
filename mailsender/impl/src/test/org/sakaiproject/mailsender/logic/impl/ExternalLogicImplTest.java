@@ -69,6 +69,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 
 import javax.activation.DataSource;
 
@@ -108,6 +109,8 @@ public class ExternalLogicImplTest {
     EntityManager entityManager;
     @Mock
     ContentHostingService contentHostingService;
+    @Mock
+    FormattedText formattedText;
 
 	static final String LOCATION_ID = "locationId";
 	static final String LOCATION_TITLE = "Location Title";
@@ -142,6 +145,7 @@ public class ExternalLogicImplTest {
 		impl.setEventTrackingService(eventService);
 		impl.setEntityManager(entityManager);
 		impl.setContentHostingService(contentHostingService);
+		impl.setFormattedText(formattedText);
 
 		impl.init();
 	}

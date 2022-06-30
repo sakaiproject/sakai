@@ -33,8 +33,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -115,6 +115,7 @@ import lombok.extern.slf4j.Slf4j;
       bean.setAssessmentGradingId(ContextUtil.lookupParam("gradingData"));
       bean.setItemId(ContextUtil.lookupParam("itemId"));
       bean.setEmail(agent.getEmail());
+      bean.setDisplayId(agent.getDisplayIdString());
       
       DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
       dbean.setActionString("gradeAssessment");

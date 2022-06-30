@@ -49,15 +49,13 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.messaging.api.MessagingService;
 import org.sakaiproject.messaging.api.UserMessagingService;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.tasks.api.TaskService;
@@ -208,19 +206,9 @@ public class AssignmentTestConfiguration {
         return mock(FunctionManager.class);
     }
 
-    @Bean(name = "org_sakaiproject_service_gradebook_GradebookExternalAssessmentService")
-    public GradebookExternalAssessmentService gradebookExternalAssessmentService() {
-        return mock(GradebookExternalAssessmentService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.service.gradebook.GradebookFrameworkService")
-    public GradebookFrameworkService gradebookFrameworkService() {
-        return mock(GradebookFrameworkService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.service.gradebook.GradebookService")
-    public GradebookService gradebookService() {
-        return mock(GradebookService.class);
+    @Bean(name = "org.sakaiproject.grading.api.GradingService")
+    public GradingService gradingService() {
+        return mock(GradingService.class);
     }
 
     @Bean(name = "org.sakaiproject.assignment.impl.GradeSheetExporter")
@@ -303,7 +291,7 @@ public class AssignmentTestConfiguration {
         return mock(PreferencesService.class);
     }
 
-    @Bean(name = "org.sakaiproject.rubrics.logic.RubricsService")
+    @Bean(name = "org.sakaiproject.rubrics.api.RubricsService")
     public RubricsService rubricsService() {
         return mock(RubricsService.class);
     }

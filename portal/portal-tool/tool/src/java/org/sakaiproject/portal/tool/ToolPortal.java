@@ -233,7 +233,6 @@ public class ToolPortal extends HttpServlet
 		}
 
 		// prepare for the forward
-		setupForward(req, res, siteTool, siteTool.getSkin());
 		req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 
 		// let the tool do the the work (forward)
@@ -265,71 +264,4 @@ public class ToolPortal extends HttpServlet
 		doGet(req, res);
 	}
 
-	/**
-	 * Setup the request attributes with information used by the tools in their
-	 * response.
-	 * 
-	 * @param req
-	 * @param res
-	 * @param p
-	 * @param skin
-	 * @throws ToolException
-	 */
-	// NOTE: This code is duplicated in SkinnableCharonPortal.java
-	// make sure to change code both places
-	protected void setupForward(HttpServletRequest req, HttpServletResponse res,
-			Placement p, String skin) throws ToolException
-	{
-		boolean isInlineReq = ToolUtils.isInlineRequest(req);
-		// setup html information that the tool might need (skin, body on load,
-		// js includes, etc).
-		String headCss = CSSUtils.getCssHead(skin, isInlineReq);
-		String headJs = "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n";
-        
-        Site site=null;
-        // SAK-22384
-        if (p != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
-        {  
-            ToolConfiguration toolConfig = SiteService.findTool(p.getId());
-            if (toolConfig != null) {
-                String siteId = toolConfig.getSiteId();
-                try {
-                    site = SiteService.getSiteVisit(siteId);
-                }
-                catch (IdUnusedException e) {
-                    site = null;
-                }
-                catch (PermissionException e) {
-                    site = null;
-                }
-
-                if (site != null)
-                {                           
-                    boolean mathJaxAllowedForSite = Boolean.parseBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
-                    if (mathJaxAllowedForSite)
-                    {
-                        // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
-                        headJs += "<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\nmessageStyle: \"none\",\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n";
-                        headJs += "<script src=\"" + MATHJAX_SRC_PATH + "\" type=\"text/javascript\"></script>\n";
-                    }
-                }
-            }
-        }
-        
-		String head = headCss + headJs;
-		StringBuilder bodyonload = new StringBuilder();
-		if (p != null)
-		{
-			String element = Web.escapeJavascript("Main" + p.getId());
-			bodyonload.append("setMainFrameHeight('" + element + "');");
-		}
-		bodyonload.append("setFocus(focus_path);");
-
-		req.setAttribute("sakai.html.head", head);
-		req.setAttribute("sakai.html.head.css", headCss);
-		req.setAttribute("sakai.html.head.css.base", CSSUtils.getCssToolBaseLink(CSSUtils.getSkinFromSite(site), isInlineReq));
-		req.setAttribute("sakai.html.head.css.skin", CSSUtils.getCssToolSkinLink(CSSUtils.getSkinFromSite(site), isInlineReq));
-		req.setAttribute("sakai.html.head.js", headJs);
-		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
-	}
 }

@@ -5024,7 +5024,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (points != null) {
 			pointString = points.toString();
 		}
-		UIBoundBoolean.make(form, "page-task", "#{simplePageBean.createTask}", true);
 		
 		if(!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(form, "csssection");
@@ -5186,8 +5185,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "comments-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "comments-max", "#{simplePageBean.maxPoints}");
 
-		UIBoundBoolean.make(form, "comments-create-task", "#{simplePageBean.commentsCreateTask}", true);
-
 		UIBoundBoolean.make(form, "comments-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "comments-prerequisite", "#{simplePageBean.prerequisite}");
 
@@ -5235,8 +5232,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");
 		
-		UIBoundBoolean.make(form, "student-create-task", "#{simplePageBean.studentContentsCreateTask}", true);
-
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookStudentsDiv");
 		UIOutput gradeBook2 = UIOutput.make(form, "gradeBookStudentCommentsDiv");
 		if(!simplePageBean.isGradebookExists()) {
@@ -5286,8 +5281,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "question-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "question-gradebook-title", "#{simplePageBean.gradebookTitle}");
 		UIInput.make(form, "question-max", "#{simplePageBean.maxPoints}");
-		
-		UIBoundBoolean.make(form, "question-create-task", "#{simplePageBean.questionCreateTask}", true);
 		
 		UIInput.make(form, "question-multiplechoice-answer-complete", "#{simplePageBean.addAnswerData}");
 		UIInput.make(form, "question-multiplechoice-answer-id", null);

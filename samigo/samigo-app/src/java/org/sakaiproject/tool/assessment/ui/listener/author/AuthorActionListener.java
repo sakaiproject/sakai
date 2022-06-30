@@ -392,7 +392,7 @@ public class AuthorActionListener
 			  
 			  int submittedCounts = 0;
 			  int inProgressCounts = 0;
-			  if (userIdList != null) {
+			  if (userIdList != null && !userIdList.isEmpty()) {
 				  Iterator<String> iter = userIdList.iterator();
 				  String userId;
 				  boolean isStillAvailable;

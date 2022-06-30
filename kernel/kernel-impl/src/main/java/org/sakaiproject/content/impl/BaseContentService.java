@@ -1634,22 +1634,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			String creator = entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR);
 			String userId = sessionManager.getCurrentSessionUserId();
 			
-			// if we are in a roleswapped state, we want to ignore the creator check since it would not necessarily reflect an alternate role
 			// FIXME - unsafe check (vulnerable to collision of siteids that are the same as path elements in a resource)
 			String[] refs = StringUtil.split(id, Entity.SEPARATOR);
-			String roleswap = null;
-			for (int i = 0; i < refs.length; i++)
-			{
-				roleswap = m_securityService.getUserEffectiveRole("/site/" + refs[i]);
-				if (roleswap!=null)
-					break;
-			}
-			if (roleswap==null)
-			{
-				// available if user is creator
-				available = ( creator != null && userId != null && creator.equals(userId) ) 
+			
+			// available if user is creator
+			available = ( creator != null && userId != null && creator.equals(userId) ) 
 				|| ( creator == null && userId == null );
-			}
+			
 			if(! available)
 			{
 				// available if user has permission to view hidden entities

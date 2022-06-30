@@ -26,7 +26,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.stats.CourseGradeStatistics;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.grading.api.GradebookInformation;
 
 /**
  * Renders the course grade graph in a modal window

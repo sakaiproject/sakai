@@ -261,6 +261,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     @Override
     public boolean isRead(DiscussionTopic topic, DiscussionForum forum, String userId, String siteId) {
+
+        if (userId == null) {
+            userId = sessionManager.getCurrentSessionUserId();
+        }
+
         if (checkBaseConditions(topic, forum, userId, "/site/" + siteId)) return true;
         if (forum.getDraft() || topic.getDraft()) return false;
 

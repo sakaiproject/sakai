@@ -46,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
@@ -80,7 +81,7 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -119,7 +120,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private AuthzGroupService authzGroupService;
     @Autowired private EntityManager entityManager;
     @Autowired private FormattedText formattedText;
-    @Autowired private GradebookService gradebookService;
+    @Autowired private GradingService gradingService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
@@ -139,7 +140,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("gen.dra2")).thenReturn("Draft -");
         when(resourceLoader.getString("gen.subm4")).thenReturn("Submitted");
         when(resourceLoader.getString("gen.nograd")).thenReturn("No Grade");
-        when(resourceLoader.getString("ungra")).thenReturn("Ungraded");
+        when(resourceLoader.getString("ungra")).thenReturn(AssignmentConstants.UNGRADED_GRADE_TYPE_STRING);
         when(resourceLoader.getString("gen.returned")).thenReturn("Returned");
         when(resourceLoader.getString("pass")).thenReturn("Pass");
         when(resourceLoader.getString("fail")).thenReturn("Fail");
@@ -157,8 +158,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void checkAssignmentToolTitle() {
-        Assert.assertNotNull(assignmentService.getToolTitle());
+    public void checkAssignmentToolId() {
+        Assert.assertNotNull(assignmentService.getToolId());
     }
 
     @Test
@@ -357,7 +358,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String context = UUID.randomUUID().toString();
         String submitterId = UUID.randomUUID().toString();
         try {
-            AssignmentSubmission savedSubmission = createNewSubmission(context, submitterId);
+            AssignmentSubmission savedSubmission = createNewSubmission(context, submitterId, null);
             Assert.assertNotNull(savedSubmission);
             Assert.assertNotNull(savedSubmission.getId());
 
@@ -411,6 +412,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             submissionSubmitters.forEach(s -> Assert.assertTrue(submitters.contains(s.getSubmitter())));
             Assert.assertEquals(1, submissionSubmitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).collect(Collectors.toList()).size());
             Assert.assertEquals(groupSubmitter, getSubmission.getGroupId());
+
+            getSubmission.setGrade("44");
+            Optional<AssignmentSubmissionSubmitter> optAss = submissionSubmitters.stream().filter(ass -> ass.getSubmitter().equals(submitter1)).findAny();
+            Assert.assertTrue(optAss.isPresent());
+            optAss.get().setGrade("22");
+            assignmentService.updateSubmission(getSubmission);
+            Assert.assertTrue(assignmentService.isGradeOverridden(getSubmission, submitter1));
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
         }
@@ -423,7 +431,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         AssignmentSubmission submission = null;
         try {
-            submission = createNewSubmission(context, submitterId);
+            submission = createNewSubmission(context, submitterId, null);
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
         }
@@ -454,7 +462,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         AssignmentSubmission submission = null;
 
         try {
-            submission = createNewSubmission(context, submitterId);
+            submission = createNewSubmission(context, submitterId, null);
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
         }
@@ -477,7 +485,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         AssignmentSubmission submission = null;
 
         try {
-            submission = createNewSubmission(context, submitterId);
+            submission = createNewSubmission(context, submitterId, null);
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
         }
@@ -511,7 +519,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         AssignmentSubmission submission = null;
 
         try {
-            submission = createNewSubmission(context, submitterId);
+            submission = createNewSubmission(context, submitterId, null);
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
         }
@@ -601,6 +609,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void duplicateAssignment() throws IdUnusedException {
         // Setup a new Assignment
         String context = UUID.randomUUID().toString();
+        User mockUser = mock(User.class);
         Assignment assignment = createNewAssignment(context);
         Assert.assertNotNull(assignment);
 
@@ -627,6 +636,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         // Duplicate the Assignment
         Assignment duplicateAssignment = null;
         try {
+            when(userDirectoryService.getCurrentUser()).thenReturn(mockUser);
             duplicateAssignment = assignmentService.addDuplicateAssignment(context, assignment.getId());
         } catch (IdInvalidException | PermissionException | IdUsedException e) {
             Assert.fail("Duplicating assignment\n" + e.toString());
@@ -994,14 +1004,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String submitterId = UUID.randomUUID().toString();
 
         // test for non existent submission
-        String status = assignmentService.getSubmissionStatus("SUBMISSION_DOESNT_EXIST");
+        String status = assignmentService.getSubmissionStatus("SUBMISSION_DOESNT_EXIST", true);
         Assert.assertEquals("Not Started", status);
 
         try {
-            AssignmentSubmission submission = createNewSubmission(context, submitterId);
+            AssignmentSubmission submission = createNewSubmission(context, submitterId, null);
             when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
                                         AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())).thenReturn(true);
-            status = assignmentService.getSubmissionStatus(submission.getId());
+            status = assignmentService.getSubmissionStatus(submission.getId(), true);
             Assert.assertEquals("In progress", status);
             AssignmentConstants.SubmissionStatus subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, subStatus);
@@ -1010,7 +1020,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             // A grader should see additional info before about the status
             String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
-            status = assignmentService.getSubmissionStatus(submission.getId());
+            status = assignmentService.getSubmissionStatus(submission.getId(), true);
             Assert.assertEquals("Ungraded - In progress", status);
 
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
@@ -1021,8 +1031,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             submission.setDateSubmitted(Instant.now());
             submission.setSubmittedText("submittedText");
             assignmentService.updateSubmission(submission);
-            status = assignmentService.getSubmissionStatus(submission.getId());
+            status = assignmentService.getSubmissionStatus(submission.getId(), true);
             Assert.assertEquals("Submitted " + assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted()), status);
+            String statusWithDate = assignmentService.getSubmissionStatus(submission.getId(), false);
+            Assert.assertEquals("Submitted " + submission.getDateSubmitted(), statusWithDate);
             subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, subStatus);
 
@@ -1255,7 +1267,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String instructorId = UUID.randomUUID().toString();
         Long itemId = new Random().nextLong();
         try {
-            AssignmentSubmission newSubmission = createNewSubmission(context, submitterId);
+            AssignmentSubmission newSubmission = createNewSubmission(context, submitterId, null);
             Assignment assignment = newSubmission.getAssignment();
             assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, itemId.toString());
             assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
@@ -1266,9 +1278,9 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
             Event event = createMockEvent(context, gradebookId, itemId, submitterId, "25", instructorId);
 
-            org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = mock(org.sakaiproject.service.gradebook.shared.Assignment.class);
+            org.sakaiproject.grading.api.Assignment gradebookAssignment = mock(org.sakaiproject.grading.api.Assignment.class);
             when(gradebookAssignment.getName()).thenReturn(itemId.toString());
-            when(gradebookService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
+            when(gradingService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
             User mockUser = mock(User.class);
             when(mockUser.getId()).thenReturn(submitterId);
             when(userDirectoryService.getUser(submitterId)).thenReturn(mockUser);
@@ -1330,8 +1342,74 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
     }
 
-    private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
+    @Test
+    public void canSubmit() {
+
+        String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
+
+        String userId = "user1";
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
+
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+        String siteRef = "/site/" + context;
+
+        when(securityService.unlock(userId, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, siteRef)).thenReturn(true);
+
+        when(siteService.siteReference(context)).thenReturn(siteRef);
+
+        assignment.setOpenDate(Instant.now().plus(Period.ofDays(1)));
+        assignment.setCloseDate(Instant.now().plus(Duration.ofDays(3)));
+
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+        Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(2)));
+        assignment.setCloseDate(Instant.now().minus(Duration.ofDays(1)));
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+        assignment.setCloseDate(Instant.now().plus(Duration.ofDays(3)));
+
+        try {
+            AssignmentSubmission submission = createNewSubmission(context, userId, assignment);
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
+            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            String user2 = "user2";
+            when(sessionManager.getCurrentSessionUserId()).thenReturn(user2);
+            String addSubmissionRef = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
+            when(securityService.unlock(user2, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, null)).thenReturn(true);
+
+            assignment.setOpenDate(Instant.now().minus(Period.ofDays(3)));
+            assignment.setCloseDate(Instant.now().minus(Duration.ofDays(1)));
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+            submission = createNewSubmission(context, user2, assignment);
+            submission.setSubmitted(false);
+            submission.setUserSubmission(false);
+            Map<String, String> props = submission.getProperties();
+            props.put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(Instant.now().plus(Duration.ofDays(5)).toEpochMilli()));
+
+            reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            assignmentService.updateSubmission(submission);
+        } catch (Exception e) {
+            Assert.fail("Could not create submission\n" + e.toString());
+        }
+    }
+
+    private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {
+
+        if (assignment == null) {
+            assignment = createNewAssignment(context);
+        }
+
         String addSubmissionRef = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
         Site site = mock(Site.class);
         when(site.getGroup(submitterId)).thenReturn(mock(Group.class));

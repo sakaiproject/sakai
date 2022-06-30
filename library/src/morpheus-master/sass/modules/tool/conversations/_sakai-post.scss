@@ -3,7 +3,7 @@
   .post-creator-name {
     font-weight: bold;
     font-size: 14px;
-    color: #262626;
+    color: var(--sakai-text-color);
   }
 
   .post-creator-instructor {
@@ -21,14 +21,14 @@
 
   .post-created-date {
     font-size: 14px;
-    color: #666666;
+    color: var(--sakai-text-color-dimmed);
     margin-left: 5px;
   }
 
   .conv-instructors-answer {
     font-weight: bold;
     font-size: 14px;
-    color: #262626;
+    color: var(--sakai-text-color);
     white-space: nowrap;
   }
 
@@ -44,8 +44,9 @@
   }
 
   .post-comments-block {
-    background: #F1F2F3;
+    background: var(--sakai-background-color-2);
     border-radius: 0 0 4px 4px;
+    border: solid 1px var(--sakai-border-color);
   }
 
   .post-comments, .post-add-comment-block {
@@ -76,10 +77,6 @@
 
   .post-editor-block {
     margin: 8px 0 0 8px;
-  }
-
-  .conv-toolbar a {
-    display: inline-block;
   }
 
   .post-comment-editor {
@@ -124,22 +121,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #A0D3F2;
-    border: 1px solid #E0E0E0;
+    background: var(--sakai-background-color-4);
+    border: 1px solid var(--sakai-border-color);
     box-sizing: border-box;
     border-radius: 4px;
     font-size: 12px;
-    color: #0F4B6F;
+    color: var(--link-color);
     padding: 2px 4px;
   }
 
   .no-votes {
-    background: white;
+    background: var(--sakai-background-color-2)
   }
 
   .post-message {
     font-size: 14px;
-    color: #262626;
+    color: var(--sakai-text-color);
   }
 
   .post-main {
@@ -159,24 +156,11 @@
     display: flex;
     margin-left: auto;
     font-size: 14px;
-    color: #176EA3;
+    color: var(--link-color);
   }
 
   .post-comment-toggle-block .reactions-link > a {
-    color: #176EA3;
-  }
-
-  .post-actions-block {
-    display: flex;
-    display: inline-grid;
-    grid-template-columns: min-content min-content;
-    align-items: center;
-    gap: 14px;
-    font-weight: 500;
-    font-size: 10px;
-    line-height: 16px;
-    text-transform: uppercase;
-    color: #176EA3;
+    color: var(--link-color);
   }
 
   .post-option {
@@ -186,6 +170,22 @@
     align-items: center;
     white-space: nowrap;
     padding: 4px;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  .post-option.single {
+    display: block;
+  }
+
+  .post-option.postoption {
+    padding: 0;
+  }
+
+  .post-option a div {
+      pointer-events: none;
   }
 
   .post-comment-toggle-icon {
@@ -198,7 +198,7 @@
   }
 
   .post {
-    border: 1px solid #E0E0E0;
+    border: 1px solid var(--sakai-border-color);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
     padding: 8px;
@@ -206,12 +206,8 @@
   }
 
   .post-without-comment-block {
-    border: 1px solid #E0E0E0;
+    border: 1px solid var(--sakai-border-color);
     border-radius: 4px;
-  }
-
-  .soft-deleted {
-    opacity: 0.5;
   }
 
   .post-soft-deleted {
@@ -231,8 +227,7 @@
   }
 
   .instructor {
-    background: #E3F5EB;
-    border: 1px solid #F1F2F3;
+    background: var(--sakai-background-color-4);
   }
 
   .post .message {
@@ -249,4 +244,127 @@
       margin: 0 !important;
   }
 
+  .discussion-post-block {
+    display: flex;
+    padding-top: 10px;
+  }
+  .discussion-post-left-column {
+    width: 40px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+  .discussion-post-vbar {
+    height: 100%;
+    width: 4px;
+    background-color: var(--sakai-border-color);
+  }
+  .discussion-post-right-column {
+    margin-left: 8px;
+    width: 100%;
+  }
+
+  .discussion-post-content-wrapper {
+    background-color: var(--sakai-background-color-2);
+    border-radius: 4px;
+    border-color: var(--sakai-border-color);
+    padding: 10px;
+
+    &.new {
+      background-color: var(--sakai-background-color-4);
+    }
+  }
+
+  .discussion-post-content {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .discussion-post-content > div:nth-child(4) {
+    text-align: right;
+  }
+
+  .discussion-post-continue-block {
+    display: flex;
+    align-items: center;
+    margin-top: 6px;
+
+    div:nth-child(2) {
+      margin-left: 6px;
+      padding-top: 4px;
+    }
+  }
+
+  .discussion-post-bottom-bar {
+    margin-top: 6px;
+  }
+
+  .discussion-post-reply-options {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+
+  .post-actions-block {
+    display: flex;
+    grid-template-columns: min-content min-content min-content min-content;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 16px;
+    color: var(--link-color);
+  }
+  .discussion-post-toggle-replies {
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  .post-replies-toggle-block {
+    display: flex;
+    margin-left: auto;
+    font-size: 14px;
+    color: var(--sakai-link-color);
+    align-items: center;
+  }
+
+  .post-replies-toggle-block div {
+    flex: 1;
+    white-space: nowrap;
+  }
+  .post-replies-toggle-block > div:nth-child(2) {
+    margin-left: 5px;
+  }
+
+  .discussion-post-reply-block {
+    display: flex;
+    margin-top: 20px;
+  }
+  .discussion-post-reply-block > div:nth-child(2) {
+    margin-left: 10px;
+    width: 100%;
+  }
+  .topic-posts-header {
+    display: flex;
+    justify-content: space-between;
+  }
+  .topic-posts-header > div:nth-child(2) {
+    margin-left: auto;
+  }
+  .discussion-post-new {
+    background: #19884B;
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--sakai-text-color);
+    padding: 5px 10px;
+  }
+  .discussion-post-late {
+    background: #CB2148;
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--sakai-text-color-inverted);
+    padding: 5px 10px;
+  }
 }

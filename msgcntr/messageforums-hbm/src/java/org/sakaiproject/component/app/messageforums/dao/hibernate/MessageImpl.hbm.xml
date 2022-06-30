@@ -80,8 +80,10 @@
 	<property name="deleted">
 		<column name="DELETED" not-null="true" />
 	</property> 
-	
-    
+	<property name="scheduler">
+      <column name="SCHEDULER" not-null="true" default="0"/>
+    </property>
+    <property name="scheduledDate" column="SCHEDULED_DATE" type="timestamp" />
     <many-to-one name="topic" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
       not-null="false" index="MFR_MESSAGE_PARENT_TOPIC_I" cascade="none" />
@@ -445,7 +447,27 @@
     where area.contextId = :contextId and message.draft = false and message.deleted = false
     group by message.createdBy
   ]]></query>
-  
+
+  <query name="findAuthoredNewMessageCountForAllStudents"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and message.inReplyTo is null
+    group by message.createdBy
+  ]]></query>
+
+  <query name="findAuthoredRepliesMessageCountForAllStudents"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and message.inReplyTo is not null
+    group by message.createdBy
+  ]]></query>
+
   <query name="findAuthoredMessageCountForAllStudentsByTopicId"><![CDATA[
     select message.createdBy, count(*) 
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message

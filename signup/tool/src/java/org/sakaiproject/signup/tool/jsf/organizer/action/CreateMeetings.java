@@ -543,10 +543,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		copy.setMeetingType(s.getMeetingType());
 		copy.setSignupTimeSlots(timeSlots);
 		copy.setSignupSites(indivSite); // copy sites
-		Date sBegin = Utilities.subTractTimeToDate(s.getStartTime(), getSignupBegins(), getSignupBeginsType());
-		Date sDeadline = Utilities.subTractTimeToDate(s.getEndTime(), getDeadlineTime(), getDeadlineTimeType());
-		copy.setSignupBegins(sBegin);
-		copy.setSignupDeadline(sDeadline);
+		copy.setSignupBegins(s.getSignupBegins());
+		copy.setSignupDeadline(s.getSignupDeadline());
 		copy.setRepeatType(s.getRepeatType());
 		copy.setRepeatUntil(s.getRepeatUntil());
 		copy.setReceiveEmailByOwner(s.isReceiveEmailByOwner());

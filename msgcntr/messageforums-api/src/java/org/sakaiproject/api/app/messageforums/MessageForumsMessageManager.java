@@ -145,6 +145,10 @@ public interface MessageForumsMessageManager {
      * to the number of messages that student has authored in the site.
      */
     public List<Object[]> findAuthoredMessageCountForAllStudents();
+    public List<Object[]> findAuthoredNewMessageCountForAllStudents();
+
+    public List<Object[]> findAuthoredRepliesMessageCountForAllStudents();
+
     public List<Object[]> findAuthoredMessageCountForAllStudentsByTopicId(final Long topicId);
     public List<Object[]> findAuthoredMessageCountForAllStudentsByForumId(final Long forumId);
     

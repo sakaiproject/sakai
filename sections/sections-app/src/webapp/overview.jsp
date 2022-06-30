@@ -75,7 +75,7 @@
 						<h:outputText value=" (#{section.title})" styleClass="skip"/>
                 </h:commandLink>
     
-                <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
+                <h:panelGroup rendered="#{!overviewBean.externallyManaged and section.currentUserEnrollmentPermission}">
                     <h:outputFormat
                         value=" #{msgs.overview_link_sep_char} "
                         rendered="#{overviewBean.sectionTaManagementEnabled}"/>

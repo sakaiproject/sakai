@@ -630,24 +630,19 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 		return true;
 	}
 
-	public boolean canRead(String ref)
-	{
-		log.debug("canRead(" + ref);
-		try
-		{
+	public boolean canRead(String ref) {
+		log.debug("Check if resource is allowed to be read [{}]", ref);
+		try {
 			Reference reference = entityManager.newReference(ref);
-			contentHostingService.checkResource(reference.getId());
-			return true;
-		}
-		catch (Exception ex)
-		{
-			if (log.isDebugEnabled())
-			{
-				log.debug("Current user cannot read ref: " + ref, ex);
+			if (!Boolean.TRUE.toString().equalsIgnoreCase(reference.getProperties().get(ResourceProperties.PROP_SECURED).toString())) {
+				contentHostingService.checkResource(reference.getId());
+				return true;
 			}
-
-			return false;
+		} catch (Exception e) {
+			log.debug("Failed to check if resource can be read [{}]: {}", ref, e.toString());
 		}
+		log.debug("Resource is not allowed to be read [{}]", ref);
+		return false;
 	}
 
 	public Map<String, String[]> getCustomProperties(String ref)

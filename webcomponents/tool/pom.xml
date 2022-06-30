@@ -76,7 +76,6 @@
                             </includes>
                             <excludes>
                                 <exclude>js/**</exclude>
-                                <exclude>.config/**</exclude>
                                 <exclude>stories/**</exclude>
                                 <exclude>storybook-resources/**</exclude>
                                 <exclude>test/**</exclude>
@@ -104,7 +103,6 @@
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <packagingExcludes>
                         js/**,
-                        .config/**,
                         node_modules/**,
                         package.json,
                         package-lock.json,
@@ -115,7 +113,6 @@
                             <directory>src/main/frontend</directory>
                             <excludes>
                                 <exclude>js/**</exclude>
-                                <exclude>.config/**</exclude>
                                 <exclude>node_modules/**</exclude>
                                 <exclude>stories/**</exclude>
                                 <exclude>.storybook/**</exclude>
@@ -140,26 +137,17 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v16.8.0</nodeVersion>
-                            <npmVersion>7.21.1</npmVersion>
+                            <nodeVersion>v16.15.0</nodeVersion>
+                            <npmVersion>8.5.5</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm install dependencies</id>
+                        <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>
-                                ci --unsafe-perm --save-dev
-                                @ckeditor/ckeditor5-dev-webpack-plugin
-                                @ckeditor/ckeditor5-dev-utils
-                                postcss-loader@3
-                                raw-loader@3
-                                style-loader@1
-                                webpack@4
-                                webpack-cli@3
-                            </arguments>
+                            <arguments>install</arguments>
                         </configuration>
                     </execution>
                     <execution>

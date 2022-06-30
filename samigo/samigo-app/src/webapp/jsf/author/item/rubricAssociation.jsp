@@ -1,7 +1,7 @@
 <div class="form-group row">
     <div class="col-sm-12">
         <sakai-rubric-association
-            token='<h:outputText value="#{itemauthor.rbcsToken}" />'
+            site-id='<h:outputText value="#{itemauthor.currentItem.siteId}" />'
             dont-associate-label='<h:outputText value="#{assessmentSettingsMessages.dont_associate_label} "/>'
             dont-associate-value="0"
             associate-label='<h:outputText value="#{assessmentSettingsMessages.associate_label} "/>'

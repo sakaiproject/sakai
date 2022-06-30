@@ -69,7 +69,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparato
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -611,38 +611,19 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("getTopicById executing with topicId: " + topicId);
 
-        HibernateCallback<List> hcb = session -> {
-            String query;
-            if (open) {
-                query = QUERY_OPEN_BY_TOPIC_AND_PARENT;
-            } else {
-                query = QUERY_PRIVATE_BY_TOPIC_AND_PARENT;
-            }
-            Query q = session.getNamedQuery(QUERY_OPEN_BY_TOPIC_AND_PARENT);
+        HibernateCallback<Topic> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
             q.setParameter("id", topicId, LongType.INSTANCE);
-            return q.list();
+            return (Topic) q.getSingleResult();
         };
 
-        Topic res = null;
-		try {
-			List temp = getHibernateTemplate().execute(hcb);
-			if (temp != null && temp.size() > 0) {
+        Topic res = getHibernateTemplate().execute(hcb);
 
-				Object[] results = (Object[]) temp.get(0);
-				if (results != null && results.length > 1) {
-					if (results[0] instanceof Topic) {
-						res = (Topic) Hibernate.unproxy(results[0]);
-						res.setBaseForum((BaseForum) Hibernate.unproxy(results[1]));
-					} else {
-						res = (Topic) Hibernate.unproxy(results[1]);
-						res.setBaseForum((BaseForum) Hibernate.unproxy(results[0]));
-					}
-				}
-			}
-		} catch (Exception e) {
-			log.warn(e.getMessage());
-		}
-	
+        if (res != null) {
+            BaseForum parentForum = open ? (BaseForum) Hibernate.unproxy(res.getOpenForum()) : (BaseForum) Hibernate.unproxy(res.getPrivateForum());
+            res.setBaseForum(parentForum);
+        }
+
         return res;
     }
 

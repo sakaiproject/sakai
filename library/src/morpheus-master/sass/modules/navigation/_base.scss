@@ -763,6 +763,9 @@ body.is-logged-out{
 	padding-left: $top-header-item-spacing;
 	border-left: $top-header-separators-thickness solid var(--topNav-border-color);
     white-space: nowrap;
+    a {
+        text-decoration: none;
+    }
 }
 
 ##{$namespace}bullhorn {
@@ -1265,22 +1268,14 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 		}
 	}
 
-	&.is-unpublished{
-		color: var(--siteUnpublish-color);
-		background-color: var(--siteUnpublish-background);
-		border: $siteUnpublish-border;
-		border-color: var(--siteUnpublish-border-color);
-
-		h4{
-			display: inline-block;
-			margin: 0;
-			padding: 0;
-		}
-		button{
-			@extend .button;
-			margin: 0 0 0 $standard-spacing;
-		}
+	button{
+		@extend .button;
+		margin: 0 0 0 $standard-spacing;
 	}
+}
+
+.title-size {
+	font-size: $default-font-size + 2px;
 }
 
 .user-dropdown-overlay{
@@ -1324,7 +1319,7 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
     }
 
     #cropToolbar {
-        margin-top: 10px;
+
         .profile-image-zoom-in {
             &:before {
                 font-family: 'FontAwesome';

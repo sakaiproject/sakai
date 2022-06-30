@@ -29,9 +29,9 @@ import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.CategoryScoreData;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.model.Gradebook;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -114,7 +114,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 String.format("GbGradeTable.updateExcuse('%s', '%s', '%s');", assignmentId, studentUuid, excuse));
 
 
-        final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
+        final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(studentUuid);
 
         boolean isOverride = false;
         String grade = getGrade(studentCourseGrade, page);
@@ -141,7 +141,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 droppedItems);
     }
 
-    private String getGrade(CourseGrade studentCourseGrade, GradebookPage page) {
+    private String getGrade(CourseGradeTransferBean studentCourseGrade, GradebookPage page) {
 
         final GradebookUiSettings uiSettings = page.getUiSettings();
         final Gradebook gradebook = businessService.getGradebook();

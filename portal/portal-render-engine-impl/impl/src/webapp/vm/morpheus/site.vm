@@ -239,7 +239,7 @@
                             <img style="maxWidth: 100%" />
                         </div>
                         <div id="cropToolbar">
-                            <div class="btn-toolbar">
+                            <div class="btn-toolbar toolbar-divider">
                                 <div class="btn-group">
                                     <button class="profile-image-zoom-in btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_zoom_in")}"></button>
                                     <button class="profile-image-zoom-out btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_zoom_out")}"></button>
@@ -248,7 +248,7 @@
                                     <button class="profile-image-rotate btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_rotate")}"></button>
                                 </div>
                             </div>
-                            <div id="cropToolbar" class="btn-toolbar">
+                            <div class="btn-toolbar toolbar-divider">
                                 <div class="btn-group">
                                     <button class="profile-image-pan-up btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_pan_up")}"></button>
                                     <button class="profile-image-pan-down btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_pan_down")}"></button>

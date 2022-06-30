@@ -50,19 +50,19 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.facades.Authz;
+import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
@@ -103,10 +103,13 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	private GradebookNgBusinessService businessService;
 
 	@Setter
-	private GradebookService gradebookService;
+	private GradingService gradingService;
 
 	@Setter
 	private UserDirectoryService userDirectoryService;
+
+	@Setter
+	private FormattedText formattedText;
 
 	@Override
 	public String[] getHandledOutputFormats() {
@@ -234,7 +237,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		checkValidSite(siteId);
 		checkInstructorOrTA(siteId);
 
-		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
+		return formattedText.escapeHtml(businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid));
 	}
 
 	private Set<String> getRecipients(Map<String, Object> params) {
@@ -261,14 +264,14 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
 			recipients = authzGroup.getUsers();
 			// Remove the instructors
-			recipients.removeAll(authzGroup.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
-			recipients.removeAll(authzGroup.getUsersIsAllowed(Authz.PERMISSION_GRADE_SECTION));
+			recipients.removeAll(authzGroup.getUsersIsAllowed(GradingAuthz.PERMISSION_GRADE_ALL));
+			recipients.removeAll(authzGroup.getUsersIsAllowed(GradingAuthz.PERMISSION_GRADE_SECTION));
 		} catch (GroupNotDefinedException gnde) {
 			throw new IllegalArgumentException("No group defined for " + groupRef);
 		}
 
 		List<GradeDefinition> grades
-			= gradebookService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(recipients));
+			= gradingService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(recipients));
 
 		if (MESSAGE_GRADED.equals(action)) {
 			// We want to message graded students. Filter by min and max score, if needed.

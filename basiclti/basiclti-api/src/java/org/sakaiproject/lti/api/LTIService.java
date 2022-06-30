@@ -395,11 +395,20 @@ public interface LTIService extends LTISubstitutionsFilter {
     // Tool Retrieval
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId);
 
+    List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed);
+
     /**
      * Gets a list of the launchable tools in the site
      * @param siteId
      */
     List<Map<String, Object>> getToolsLaunch(String siteId);
+
+    /**
+     * Gets a list of the launchable tools in the site, optionally including stealthed LTI tools
+     * @param siteId
+     * @param includeStealthed
+     */
+    List<Map<String, Object>> getToolsLaunch(String siteId, boolean includeStealthed);
 
     /**
      * Gets a list of tools that can configure themselves in the site
@@ -440,6 +449,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId);
 
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin);
+
+    List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin, boolean includeStealthed);
 
 
     // --- Content

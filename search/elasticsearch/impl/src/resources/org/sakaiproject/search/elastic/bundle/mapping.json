@@ -7,6 +7,18 @@
             "type": "keyword",
             "store": "true"
         },
+        "creatorDisplayName": {
+            "type": "text",
+            "store": "true"
+        },
+        "creatorUserName": {
+            "type": "text",
+            "store": "true"
+        },
+        "creatorId": {
+            "type": "keyword",
+            "store": "true"
+        },
         "title": {
             "type": "text",
             "store": "true",

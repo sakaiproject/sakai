@@ -2,12 +2,12 @@
 
     <div class="commons-post-inner-container" id="commons-post-inner-container-{{id}}">
 
-        <div class="commons-photo" style="background-image:url(/direct/profile/{{creatorId}}/image/thumb)"></div>
+        <sakai-user-photo user-id="{{creatorId}}"></sakai-user-photo>
         <div class="commons-post-text-container">
             <div class="commons-post-body">
                 <div class="commons-post-content">
                     <span id="commons-high-priority-{{id}}" class="fa fa-flag commons-high-priority" title={{tr 'priority_icon'}} style="display:none;"></span>
-                    <a id="commons-author-name-{{id}}" class="commons-post-author-name profile-popup-trigger" data-user-id="{{creatorId}}" href="javascript:;">{{creatorDisplayName}}</a>
+                    <a id="commons-author-name-{{id}}" class="commons-post-author-name" data-user-id="{{creatorId}}" href="javascript:;">{{creatorDisplayName}}</a>
                     <span class="commons-post-content" id="commons-post-content-{{id}}">{{{content}}}<span>
                 </div>
                 <div id="commons-post-options-{{id}}" class="commons-post-options">

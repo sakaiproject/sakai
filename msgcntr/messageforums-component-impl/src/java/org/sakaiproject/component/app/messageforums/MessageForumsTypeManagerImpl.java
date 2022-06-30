@@ -60,6 +60,8 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
 
   private static final String DRAFT = "DraftPrivateMessageType";
   
+  private static final String SCHEDULER = "SchedulerPrivateMessageType";
+
   
   
   // Permission Level Types
@@ -392,6 +394,24 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, DRAFT,
           "Draft Private Message Type", "Draft Private Message Type").getUuid());
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.MessageForumsTypeManager#getSchedulerPrivateMessageType()
+   */
+  public String getSchedulerPrivateMessageType()
+  {
+    log.debug("getSchedulerPrivateMessageType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, SCHEDULER);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, SCHEDULER,
+          "Scheduler Private Message Type", "Scheduler Private Message Type").getUuid());
     }
   }
 

@@ -26,6 +26,7 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
+import java.util.HashSet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -98,11 +99,10 @@ import org.tsugi.lti13.objects.LTIPlatformMessage;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CommentDefinition;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -872,6 +872,9 @@ public class LTI13Servlet extends HttpServlet {
 		Long issued = new Long(System.currentTimeMillis() / 1000L);
 		sat.expires = issued + 3600L;
 
+		// https://datatracker.ietf.org/doc/html/rfc6749#section-5.1
+		HashSet<String> returnScopeSet = new HashSet<String> ();
+
 		// Work through requested scopes
 		if (scope.contains(Endpoint.SCOPE_LINEITEM_READONLY)) {
 			if (allowLineItems != 1) {
@@ -879,6 +882,7 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
+			returnScopeSet.add(Endpoint.SCOPE_LINEITEM_READONLY);
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
 		}
 
@@ -888,6 +892,8 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
+			returnScopeSet.add(Endpoint.SCOPE_LINEITEM);
+
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS);
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
 		}
@@ -898,6 +904,8 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
+			returnScopeSet.add(Endpoint.SCOPE_SCORE);
+
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
 
@@ -907,6 +915,8 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
+			returnScopeSet.add(Endpoint.SCOPE_RESULT_READONLY);
+
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
 
@@ -916,6 +926,8 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
+			returnScopeSet.add(LaunchLIS.SCOPE_NAMES_AND_ROLES);
+
 			sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
 		}
 
@@ -924,6 +936,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		AccessToken at = new AccessToken();
 		at.access_token = jws;
+		at.scope = String.join(" ", new ArrayList<String>(returnScopeSet));
 
 		String atsp = JacksonUtil.prettyPrintLog(at);
 
@@ -1978,8 +1991,8 @@ public class LTI13Servlet extends HttpServlet {
 		response.setContentType(Result.CONTENT_TYPE_CONTAINER);
 
 		// Look up the assignment so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 		Session sess = SessionManager.getCurrentSession();
 
 		// Indicate "who" is reading this grade - needs to be a real user account
@@ -2039,7 +2052,7 @@ public class LTI13Servlet extends HttpServlet {
 					if (commentDef != null) {
 						result.comment = commentDef.getCommentText();
 					}
-				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
+				} catch(AssessmentNotFoundException e) {
 					log.error(e.getMessage(), e);  // Unexpected
 					break;
 				}
@@ -2048,7 +2061,7 @@ public class LTI13Servlet extends HttpServlet {
 				result.resultScore = null;
 				try {
 					actualGrade = g.getAssignmentScoreString(context_id, a.getId(), user.getId());
-				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
+				} catch(AssessmentNotFoundException e) {
 					log.error(e.getMessage(), e);  // Unexpected
 					break;
 				}

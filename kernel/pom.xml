@@ -29,6 +29,7 @@
         <module>kernel-impl</module>
         <module>kernel-util</module>
         <module>kernel-storage-util</module>
+        <module>kernel-test</module>
     </modules>
 
     <profiles>

@@ -31,16 +31,16 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.model.Gradebook;
 
 /**
  * Panel for the course grade override window
@@ -76,7 +76,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 		final Gradebook gradebook = getGradebook();
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(currentUserUuid);
 
-		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
+		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(studentUuid);
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				currentUserRole,
@@ -202,13 +202,13 @@ public class CourseGradeOverridePanel extends BasePanel {
 	 * @param gradebook the {@link Gradebook} which has the settings
 	 * @return fully formatted string ready for display
 	 */
-	private String formatPoints(final CourseGrade courseGrade, final Gradebook gradebook) {
+	private String formatPoints(final CourseGradeTransferBean courseGrade, final Gradebook gradebook) {
 
 		String rval;
 
 		// only display points if not weighted category type
-		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
-		if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
+		final GradingCategoryType categoryType = gradebook.getCategoryType();
+		if (categoryType != GradingCategoryType.WEIGHTED_CATEGORY) {
 
 			final Double pointsEarned = courseGrade.getPointsEarned();
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();

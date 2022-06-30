@@ -39,8 +39,6 @@ import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
-import org.exolab.castor.util.Configuration.Property;
-import org.exolab.castor.util.LocalConfiguration;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -105,23 +103,6 @@ public class PortalServiceImpl implements PortalService
 					.get(StyleAbleProvider.class.getName());
 			serverConfigurationService = (ServerConfigurationService) ComponentManager
 					.get(ServerConfigurationService.class.getName());
-
-			try
-			{	
-				// configure the parser for castor.. before anything else get a
-				// chance
-				Properties castorProperties = LocalConfiguration.getDefault();
-				String parser = serverConfigurationService.getString(
-						"sakai.xml.sax.parser",
-						"com.sun.org.apache.xerces.internal.parsers.SAXParser");
-				log.info("Configured Castor to use SAX Parser " + parser);
-				castorProperties.put(Property.Parser, parser);
-			}
-			catch (Exception ex)
-			{
-				log.error("Failed to configure Castor", ex);
-			}
-			
 		}
 		catch (Exception ex)
 		{

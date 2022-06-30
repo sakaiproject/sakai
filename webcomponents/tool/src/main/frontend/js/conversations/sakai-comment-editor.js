@@ -46,6 +46,9 @@ export class SakaiCommentEditor extends SakaiElement {
 
     const postId = this.postId || this.comment.post;
 
+    this.comment.post = postId;
+    this.comment.topicId = this.topicId;
+
     const url = `/api/sites/${this.siteId}/topics/${this.topicId}/posts/${postId}/comments${  this.comment.id ? `/${this.comment.id}` : ""}`;
     fetch(url, {
       method: this.comment.id ? "PUT" : "POST",
@@ -95,7 +98,7 @@ export class SakaiCommentEditor extends SakaiElement {
           <input type="button" @click=${this.cancelEditing} value="${this.i18n.cancel}">
         </div>
         ` : html`
-        <input class="comment-editor-input" value="${this.i18n.add_a_comment}" @click=${() => this.editing = true} @keydown=${() => this.editing = true}/>
+        <input class="comment-editor-input" value="${this.i18n.add_a_comment}" @click=${() => this.editing = true} @keydown=${() => this.editing = true} />
         `}
       </div>
     `;

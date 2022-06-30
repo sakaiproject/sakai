@@ -204,10 +204,7 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	
 	@Override
 	public Optional<String> getInstitutionalNumericId(User user, Site site){
-		if(site == null) {
-			log.error("getInstitutionalNumericId: Null site.");
-			return Optional.empty();
-		}
+
 		try {
 			if(user != null) {
 				//check if student number is enabled (system-wide or site-based)

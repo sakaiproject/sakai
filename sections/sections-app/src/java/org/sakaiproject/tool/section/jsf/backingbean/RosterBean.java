@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Set;
 
 import javax.faces.application.Application;
@@ -79,6 +80,8 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	private List<EnrollmentRecord> siteStudents;
 	private List<EnrollmentDecorator> unpagedEnrollments;
 	@Getter private List<SelectItem> sectionFilterSelectItems;
+	private boolean currentUserisTA;
+	private boolean currentUserisInstructor;
 
     public void init() {
 		// Determine whether this course is externally managed
@@ -117,6 +120,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			filterItems.add(new SelectItem(cat, JsfUtil.getLocalizedMessage("filter_my_category_sections",
 					new String[] {getCategoryName(cat)})));
 		}
+		filterItems.add(new SelectItem(NO_SECTIONS_FILTER_KEY, JsfUtil.getLocalizedMessage("filter_no_sections")));
 
 		// If this is a TA, and we're filtering, get the TA's participation records
 		List<CourseSection> assignedSections = null;
@@ -146,6 +150,22 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 
 	private void decorateEnrollments(List<EnrollmentRecord> siteStudents, SectionEnrollments sectionEnrollments, List<CourseSection> assignedSections) {
 		unpagedEnrollments = new ArrayList<>();
+
+		// Check if current user is Instructor in site
+		currentUserisInstructor = getSiteInstructors().stream().map(s -> s.getUser().getUserUid())
+				.collect(Collectors.toList()).contains(getUserUid());
+
+		// Check if current user is TA in site
+		List<CourseSection> all= getAllSiteSections();
+		Map<String, List<ParticipationRecord>> sectionTAMap = getSectionTeachingAssistantsMap();
+		for (CourseSection section : all) {
+			String sectionUid = section.getUuid();
+			if (sectionTAMap.get(sectionUid).stream()
+					.anyMatch(s -> s.getUser().getUserUid().equals(getUserUid()))) {
+				currentUserisTA = true;
+			}
+		}
+
 		siteStudents.forEach(enrollment -> {
 			// Build a map of categories to sections in which the student is enrolled
 			Map<String, CourseSection> studentSectionsMap = new HashMap<>();
@@ -154,32 +174,45 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			boolean includeStudent = categories.stream().filter(category -> {
 				CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), category);
 				boolean isValidSection = false;
+				boolean currentUserisTAinSection = false;
 
 				if (section != null) {
-					if(("MY".equals(getFilter()) || section.getCategory().equals(getFilter()))
-							&& assignedSections.contains(section)) {
-						isValidSection = true;
-
-					} else if (StringUtils.isNotBlank(section.getEid()) && section.getEid().equals(getFilter())) {
-						isValidSection = true;
-
-					} else if (StringUtils.isNotBlank(section.getTitle()) && section.getTitle().equals(getFilter())) {
-						isValidSection = true;
+					List<ParticipationRecord> tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
+					List<String> taUids = generateTaUids(tas);
+					if (taUids.contains(getUserUid())) {
+						currentUserisTAinSection = true;
 					}
 
+					if (currentUserisTAinSection || currentUserisInstructor) {
+						if (("MY".equals(getFilter()) || section.getCategory().equals(getFilter()))
+								&& assignedSections.contains(section)) {
+							isValidSection = true;
+
+						} else if (StringUtils.isNotBlank(section.getEid()) && section.getEid().equals(getFilter())) {
+							isValidSection = true;
+
+						} else if (StringUtils.isNotBlank(section.getTitle())
+								&& section.getTitle().equals(getFilter())) {
+							isValidSection = true;
+						}// If there is no filter, the section is valid and the student shouldn't be excluded
+						else if (StringUtils.isBlank(getFilter())) {
+							isValidSection = true;
+						}
+					}
 					studentSectionsMap.put(category, section);
 				}
-
 				return isValidSection;
 			}).count() > 0; // If there are valid sections for the current filter, include the student in the view
 
 			// If there is no filter, the section is valid and the student shouldn't be excluded
-			if (StringUtils.isBlank(getFilter())) {
+			if (StringUtils.isBlank(getFilter()) && currentUserisInstructor) {
 				includeStudent = true;
 			}
 
-			// If the filter is set to "no sections" filter and the student sections map is empty, student should be included
-			if (NO_SECTIONS_FILTER_KEY.equals(getFilter()) && studentSectionsMap.isEmpty()) {
+			// If the filter is set to "no sections" filter and the student sections map is
+			// empty, student should be included
+			if ((NO_SECTIONS_FILTER_KEY.equals(getFilter()) || (StringUtils.isBlank(getFilter())))
+					&& studentSectionsMap.isEmpty() && (currentUserisInstructor || currentUserisTA)) {
 				includeStudent = true;
 			}
 
@@ -203,6 +236,14 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		}
 		enrollments.addAll(unpagedEnrollments.subList(firstRow, lastRow));
 		enrollmentsSize = unpagedEnrollments.size();
+	}
+
+	protected List<String> generateTaUids(List<ParticipationRecord> tas) {
+		List<String> taUids = new ArrayList<>();
+		for(Iterator<ParticipationRecord> iter = tas.iterator(); iter.hasNext();) {
+			taUids.add(iter.next().getUser().getUserUid());
+		}
+		return taUids;
 	}
 
 	private List<CourseSection> findAssignedSections() {

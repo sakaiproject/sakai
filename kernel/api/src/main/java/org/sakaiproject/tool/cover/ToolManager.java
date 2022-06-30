@@ -97,10 +97,15 @@ public class ToolManager
 
 	public static java.util.Set findTools(java.util.Set param0, java.util.Set param1)
 	{
+		return findTools(param0, param1, false);
+	}
+
+	public static java.util.Set findTools(java.util.Set<String> categories, java.util.Set<String> keywords, boolean includeStealthed)
+	{
 		org.sakaiproject.tool.api.ToolManager manager = getInstance();
 		if (manager == null) return null;
 
-		return manager.findTools(param0, param1);
+		return manager.findTools(categories, keywords, includeStealthed);
 	}
 
 	public static org.sakaiproject.tool.api.Tool getCurrentTool()

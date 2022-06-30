@@ -55,12 +55,8 @@
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
-			<artifactId>gradebook-service-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
-			<artifactId>gradebook-service-hibernate</artifactId>
+			<groupId>org.sakaiproject.grading</groupId>
+			<artifactId>sakai-grading-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.edu-services.course-management</groupId>
@@ -76,7 +72,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.rubrics</groupId>
-			<artifactId>rubrics-service-api</artifactId>
+			<artifactId>rubrics-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.portal</groupId>
@@ -127,6 +123,10 @@
 			<scope>provided</scope> <!-- to satisfy EB and eclipse -->
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 		</dependency>
@@ -162,6 +162,9 @@
 		</dependency>
 	</dependencies>
 	<build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <scriptSourceDirectory>src/webapp</scriptSourceDirectory>
+        <testSourceDirectory>src/test</testSourceDirectory>
 		<resources>
 			<!-- include everything except the Java source -->
 			<resource>

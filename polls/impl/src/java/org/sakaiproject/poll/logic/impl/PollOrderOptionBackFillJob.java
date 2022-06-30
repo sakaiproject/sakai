@@ -72,67 +72,58 @@ public class PollOrderOptionBackFillJob implements Job
         log.info( "Attempting to back-fill all existing Poll option orders..." );
         int modifiedCount = 0;
 
-        // Iterate over sites in the system, ordered by creation date...
-        List<Site> sites = siteService.getSites( SelectionType.ANY, null, null, null, SortType.CREATED_ON_DESC, null );
-        if( !CollectionUtils.isEmpty( sites ) )
+        List<Poll> pollsForSite = pollService.findAllPolls();
+        if( !CollectionUtils.isEmpty( pollsForSite ) )
         {
-            for( Site site : sites )
+            // Iterate over the polls for the site...
+            for( Poll poll : pollsForSite )
             {
-                String siteID = site.getId();
-                List<Poll> pollsForSite = pollService.findAllPolls( siteID );
-                if( !CollectionUtils.isEmpty( pollsForSite ) )
+                try
                 {
-                    // Iterate over the polls for the site...
-                    for( Poll poll : pollsForSite )
+                    // Iterate over Options in the poll...
+                    securityService.pushAdvisor( YES_MAN );
+                    List<Option> pollOptions = pollService.getOptionsForPoll( poll );
+                    if( !CollectionUtils.isEmpty( pollOptions ) )
                     {
-                        try
+                        // Check if any options have a null order
+                        boolean hasNullOptionOrder = false;
+                        for( Option option : pollOptions )
                         {
-                            // Iterate over Options in the poll...
-                            securityService.pushAdvisor( YES_MAN );
-                            List<Option> pollOptions = pollService.getOptionsForPoll( poll );
-                            if( !CollectionUtils.isEmpty( pollOptions ) )
+                            if( option.getOptionOrder() == null )
                             {
-                                // Check if any options have a null order
-                                boolean hasNullOptionOrder = false;
-                                for( Option option : pollOptions )
-                                {
-                                    if( option.getOptionOrder() == null )
-                                    {
-                                        hasNullOptionOrder = true;
-                                        break;
-                                    }
-                                }
-
-                                // If any of the option's order is null, we need to back-fill them
-                                if( hasNullOptionOrder )
-                                {
-                                    log.info( "Poll ID {} has options with null order, processing...", poll.getId() );
-
-                                    // Order the list by ID
-                                    pollOptions.sort( Comparator.comparingLong( Option::getOptionId ) );
-
-                                    // Iterate over the list
-                                    for( int i = 0; i < pollOptions.size(); i++ )
-                                    {
-                                        // Add order based on ID
-                                        Option option = pollOptions.get( i );
-                                        option.setOptionOrder(i);
-                                        pollService.saveOption( option );
-                                        modifiedCount++;
-                                        log.info( "Option {} ---> new order == {}", option.getId(), i );
-                                    }
-                                }
+                                hasNullOptionOrder = true;
+                                break;
                             }
                         }
-                        catch( Exception ex )
+
+                        // If any of the option's order is null, we need to back-fill them
+                        if( hasNullOptionOrder )
                         {
-                            log.error( "Unexcepted exception", ex );
-                        }
-                        finally
-                        {
-                            securityService.popAdvisor( YES_MAN );
+                            log.info( "Poll ID {} has options with null order, processing...", poll.getId() );
+
+                            // Order the list by ID
+                            pollOptions.sort( Comparator.comparingLong( Option::getOptionId ) );
+
+                            // Iterate over the list
+                            for( int i = 0; i < pollOptions.size(); i++ )
+                            {
+                                // Add order based on ID
+                                Option option = pollOptions.get( i );
+                                option.setOptionOrder(i);
+                                pollService.saveOption( option );
+                                modifiedCount++;
+                                log.info( "Option {} ---> new order == {}", option.getId(), i );
+                            }
                         }
                     }
+                }
+                catch( Exception ex )
+                {
+                    log.error( "Unexcepted exception", ex );
+                }
+                finally
+                {
+                    securityService.popAdvisor( YES_MAN );
                 }
             }
         }

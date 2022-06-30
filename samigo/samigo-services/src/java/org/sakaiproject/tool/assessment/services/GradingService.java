@@ -59,7 +59,6 @@ import org.apache.commons.math3.util.Precision;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -1652,12 +1651,12 @@ public class GradingService
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
-    GradebookExternalAssessmentService g = null;
+    org.sakaiproject.grading.api.GradingService g = null;
     boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     if (integrated)
     {
-      g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-        getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.grading.api.GradingService");
     }
 
     GradebookServiceHelper gbsHelper =
@@ -1665,8 +1664,7 @@ public class GradingService
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 	String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
-    if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)
-        && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+    if (toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         if(log.isDebugEnabled()) log.debug("Attempting to update a score in the gradebook");
 
     // add retry logic to resolve deadlock problem while sending grades to gradebook
@@ -1678,7 +1676,7 @@ public class GradingService
     		gbsHelper.updateExternalAssessmentScore(data, g);
     		retryCount = 0;
     	}
-      catch (org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException ante) {
+      catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
     	  log.warn("problem sending grades to gradebook: {}", ante.getMessage());
           if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
         	  retryCount = retry(retryCount, ante, pub, true);
@@ -3049,17 +3047,18 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    *    placed in the text where the {{..}}'s appear.
    * <br>2. It will call methods to swap out the defined variables with randomly generated values
    *    within the ranges defined by the user.
-   * <br>3. It updates the HashMap answerList with the calculated answers in sequence. It will 
+   * <br>3. It populates the HashMap answerList with the calculated answers in sequence. It will
    *    parse and calculate what each answer needs to be.
-   * <p>Note: If a divide by zero occurs. We change the random values and try again. It gets limited chances to
+   * <p>Note: If a divide by zero occurs, we change the random values and try again. It gets limited chances to
    *    get valid values and then will return "infinity" as the answer.
-   * @param answerList will enter the method empty and be filled with sequential answers to the question
+   * @param answerList is cleared and filled with sequential answers to the question
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
   public List<String> extractCalcQAnswersArray(Map<Integer, String> answerList, ItemDataIfc item, Long gradingId, String agentId) {
       boolean hasErrors = true;
       Map<String, String> variableRangeMap = buildVariableRangeMap(item);
       List<String> instructionSegments = new ArrayList<>(0);
+      answerList.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
@@ -3079,10 +3078,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
                   instructionSegments = extractInstructionSegments(instructions);
                   hasErrors = false;
               } catch (SamigoExpressionError e1) {
-                  log.warn("Samigo calculated item ("+item.getItemId()+") calculation invalid: "+e1.get());
+                  log.warn("Samigo calculated item ({}) calculation invalid: {}", item.getItemId(), e1.get());
                   attemptCount++;
               }
           } catch (Exception e) {
+              // possible division by zero error
               attemptCount++;
           }
       }

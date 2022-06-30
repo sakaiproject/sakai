@@ -62,6 +62,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.*;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -150,6 +151,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 
     public void setCurrentToolSession(ToolSession toolSession) {
         sessionManager.setCurrentToolSession(toolSession);
+    }
+
+    public User getUser(String userId) {
+
+        try {
+            return userDirectoryService.getUser(userId);
+        } catch (UserNotDefinedException e) {
+            log.error("No user for id: {}", userId);
+        }
+        return null;
     }
 
     public String getDisplayNameForTheUser(String userId) {

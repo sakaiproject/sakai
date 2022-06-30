@@ -1,119 +1,82 @@
-import {SakaiElement} from "./sakai-element.js";
-import {html} from "./assets/lit-element/lit-element.js";
+import { LitElement, html } from "./assets/lit-element/lit-element.js";
+import { getOffsetFromServerMillis } from "./sakai-portal-utils.js";
 
 /**
- * Renders an input which, when clicked, launches a Flatpickr instance. This tag relies
- * on both flatpickr.js and moment.js being in scope.
+ * Renders an input which, when clicked, launches a date picker.
  *
  * @example <caption>Usage:</caption>
  * <sakai-date-picker epoch-millis="345922925445" @/>
- * <sakai-date-picker hours-from-now="5" />
  *
  * The tag fires the event 'datetime-selected'. You'd handle that with (vanillajs):
  *
- * sakaiDatePicker.addEventListener("datetime-selected", (e) => console.log(e.detail.epochMillis));
+ * sakaiDatePicker.addEventListener("datetime-selected", e => console.log(e.detail.epochMillis));
  *
- * @extends SakaiElement
- * @author Adrian Fish <adrian.r.fish@gmail.com>
+ * @extends LitElement
+ * @property {number} [epochMillis] The milliseconds since the unix epoch to set this datetime to
+ * @property {string} [isoDate] The ISO8601 string to set this datetime to
+ * @property {boolean} [disabled] Disable the date controls
+ * @property {string} [label] The a11y label to use for the aria-label and title attributes
+ * @fires datetime-selected This event has epochMillis and epochSeconds as the detail object
  */
-class SakaiDatePicker extends SakaiElement {
-
-  constructor() {
-
-    super();
-
-    this.hoursFromNow = 0;
-
-    this.idSalt = Math.floor(Math.random() * Math.floor(1000));
-    this.start = moment();
-
-    this.i18n = {};
-    this.loadTranslations("date-picker-wc").then(r => this.i18n = r);
-  }
+class SakaiDatePicker extends LitElement {
 
   static get properties() {
 
     return {
-      hoursFromNow: { attribute: "hours-from-now", type: Number },
       epochMillis: { attribute: "epoch-millis", type: Number },
+      isoDate: { attribute: "iso-date", type: String },
+      disabled: { attribute: false, type: Boolean },
+      label: { type: String },
     };
   }
 
-  set epochMillis(newValue) {
+  set epochMillis(value) {
 
-    this._epochMillis = newValue;
-
-    if (newValue) {
-      this.start = this.getPreferredSakaiDatetime(newValue);
+    if (value) {
+      this._epochMillis = value;
+      this.isoDate = (new Date(value + parseInt(getOffsetFromServerMillis()))).toISOString().substring(0, 16);
+    } else {
+      this._epochMillis = null;
+      this.isoDate = null;
     }
+
+    const inputDate = this.shadowRoot.getElementById("date-picker-input");
+    inputDate && (inputDate.value = this.isoDate);
   }
 
-  get epochMillis() {
-    return this._epochMillis;
+  get epochMillis() { return this._epochMillis; }
+
+  disable() {
+
+    this.disabled = true;
   }
 
-  set hoursFromNow(newValue) {
+  enable() {
 
-    this._hoursFromNow = newValue;
-
-    if (newValue) {
-      this.start = moment(this.start).add(this.hoursFromNow, "hours");
-    }
+    this.disabled = false;
   }
 
-  get hoursFromNow() {
-    return this._hoursFromNow;
-  }
+  dateSelected(e) {
 
-  firstUpdated() {
-
-    const self = this;
-
-    const config = {
-      enableTime: true,
-      time_24hr: true,
-      allowInput: true,
-      defaultHour: this.start.hours(),
-      defaultMinute: this.start.minutes(),
-      position: "auto",
-      confirmDate: {
-        "enableTime": true,
-        "plugins": [new confirmDatePlugin({})]
-      },
-      onReady() {
-        this.showTimeInput = true;
-        this.setDate(self.start.toDate());
-      },
-      onChange(selectedDates) {
-        self.dispatchEvent(new CustomEvent("datetime-selected", { detail: { epochMillis: selectedDates[0].getTime() }, bubbles: true }));
-      }
-    };
-
-    config.locale = window.top.portal && window.top.portal.locale ? window.top.portal.locale.split("-")[0] : "default";
-    if (config.locale === "en") config.locale = "default";
-
-    flatpickr(`#picker-${this.idSalt}`, config);
+    const d = new Date(e.target.value);
+    const epochMillis = d.getTime() - parseInt(getOffsetFromServerMillis()) - (d.getTimezoneOffset() * 60000);
+    const epochSeconds = epochMillis / 1000;
+    this.dispatchEvent(new CustomEvent("datetime-selected", { detail: { epochMillis, epochSeconds }, bubbles: true }));
   }
 
   render() {
 
     return html`
-      <input type="text" id="picker-${this.idSalt}" size="30"
-          placeholder="${this.i18n.input_placeholder}"
-          aria-label="${this.i18n.input_placeholder}" />
+      <input type="datetime-local"
+          id="date-picker-input"
+          @change=${this.dateSelected}
+          value="${this.isoDate}"
+          .disabled=${this.disabled}
+          aria-label="${this.label}"
+          title="${this.label}">
     `;
-  }
-
-  getPreferredSakaiDatetime(epochMillis) {
-
-    if (portal.user && portal.user.offsetFromServerMillis) {
-      const osTzOffset = new Date().getTimezoneOffset();
-      return moment(epochMillis).add(portal.user.offsetFromServerMillis, 'ms').add(osTzOffset, 'm');
-    }
-    window.console && console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");
-    return moment();
-
   }
 }
 
-customElements.define("sakai-date-picker", SakaiDatePicker);
+const tagName = "sakai-date-picker";
+!customElements.get(tagName) && customElements.define(tagName, SakaiDatePicker);

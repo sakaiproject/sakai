@@ -19,10 +19,10 @@
 --%>
 <h:panelGroup>
   <ul class='navIntraTool actionToolbar' role='menu'>
-    <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+    <h:panelGroup rendered="#{(histogramScores.hasNav==null || histogramScores.hasNav=='true') && totalScores.anonymous eq 'false'}">
     <li role='menuitem'>
-      <h:panelGroup id="submissionStatusMenuLink">
-        <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true">
+      <h:panelGroup id="submissionStatusMenuLink" rendered="#{totalScores.anonymous eq 'false'}">
+        <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true" rendered="#{totalScores.anonymous eq 'false'}">
           <h:outputText value="#{evaluationMessages.sub_status}" />
           <f:param name="allSubmissions" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />

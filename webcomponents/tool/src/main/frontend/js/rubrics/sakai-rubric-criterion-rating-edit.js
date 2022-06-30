@@ -10,6 +10,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     return {
       rating: { type: Object },
       criterionId: { attribute: "criterion-id", type: String },
+      removable: {attribute: "removable", type: Boolean},
       minpoints: Number,
       maxpoints:  Number,
     };
@@ -39,7 +40,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
             <button class="active btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
-            <button class="delete" title="${tr("remove_label")} ${this.rating.title}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
+            <button class="delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
             <button class="btn btn-link btn-xs cancel" title="${tr("cancel")}" @click="${this.cancelEdit}">
               <sr-lang key="cancel" />
             </button>
@@ -65,7 +66,8 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     `;
   }
 
-  onFocus(e){
+  onFocus(e) {
+
     e.target.closest('.criterion-row').classList.add("focused");
   }
 
@@ -83,7 +85,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
       const popover = $(`#edit_criterion_rating_${this.rating.id}`);
 
       popover[0].style.top = `${e.target.offsetTop + 20  }px`;
-      popover[0].style.left = `${e.target.offsetLeft - popover.width()/2  }px`;
+      popover[0].style.left = `${e.target.offsetLeft - popover.width() / 2  }px`;
 
       popover.show();
       const titleinput = this.querySelector('[type="text"]');
@@ -133,7 +135,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     this.resetFields();
 
-    this.dispatchEvent(new CustomEvent('save-rating', {detail: this.rating}));
+    this.dispatchEvent(new CustomEvent('save-rating', { detail: { rating: this.rating, criterionId: this.criterionId }}));
     this.hideToolTip();
   }
 
@@ -151,6 +153,13 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     if (e.keyCode == 32) {
       this.editRating(e);
     }
+  }
+
+  removeButtonTitle() {
+    if (this.removable) {
+      return `${tr("remove_label")} ${this.rating.title}`;
+    }
+    return tr("remove_rating_disabled");
   }
 }
 

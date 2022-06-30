@@ -122,13 +122,13 @@
 					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 				</h:panelGroup>
 				<h:panelGroup layout="block">
-					<p id="openLinkBlock" class="toggleParent openLinkBlock display-none">
+					<p id="openLinkBlock" class="toggleParent openLinkBlock">
 						<a href="#" id="showMessage" class="toggle show">
 							<h:graphicImage url="/images/collapse.gif" alt=""/>
 							<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 						</a>
 					</p>
-					<p id="hideLinkBlock" class="toggleParent hideLinkBlock">
+					<p id="hideLinkBlock" class="toggleParent hideLinkBlock display-none">
 						<a href="#" id="hideMessage" class="toggle show">
 							<h:graphicImage url="/images/expand.gif" alt="" />
 							<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
@@ -250,7 +250,7 @@
 					<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
 					<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" style="display:block">
 						<h:panelGroup styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !ForumTool.selectedMessage.useAnonymousId}">
-							<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}">
+							<h:outputLink value="#{ForumTool.serverUrl}/direct/portal/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}">
 								<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" />
 							</h:outputLink>
 							<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" rendered="#{!ForumTool.showProfileLink}"/>

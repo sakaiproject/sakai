@@ -22,6 +22,16 @@ package org.sakaiproject.content.impl;
 
 import java.text.MessageFormat;
 
+import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
+
+import org.apache.commons.lang3.StringUtils;
+
+import org.jsoup.nodes.Document;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentFilter;
 import org.sakaiproject.content.api.ContentResource;
@@ -33,8 +43,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.api.FormattedText;
 
-import lombok.Setter;
-
 /**
  * Simple filter that adds header and footer fragments to HTML pages, it can detect
  * to add HTML or be forced to/not.
@@ -42,6 +50,7 @@ import lombok.Setter;
  * @author buckett
  *
  */
+@Slf4j
 public class HtmlPageFilter implements ContentFilter {
 
 	private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
@@ -71,12 +80,78 @@ public class HtmlPageFilter implements ContentFilter {
 "  </body>\n" +
 "</html>\n";
 
-	private String mathjaxTemplate =
-"    <script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config('{'\nmessageStyle: \"none\",\ntex2jax: '{' inlineMath: [[''\\\\('',''\\\\)'']] '}'\n'}');\n</script>\n" +
-"    <script src=\"{0}\" type=\"text/javascript\"></script>\n" ;
+	private JSONArray ext = new JSONArray();
+	private	JSONArray jax = new JSONArray();
+	private	Boolean defaultDelimiters = false;
 
+	public String getMathJaxConfig() {
+		// The HTML file generated from Resources can be used outside Sakai, so mathjax-config.js won't work.
+		String [] mathJaxFormat = serverConfigurationService.getStrings("mathjax.config.format");
+		JSONObject jsonMathjaxConfig = new JSONObject();
 
+		if (mathJaxFormat == null) {
+			log.error("No property for MathJax config was specified. Using LaTeX as default.");
+			useDefaultFormat();
+		} else {
+			for (String format : mathJaxFormat) {
+
+				switch (format) {
+					case "LaTeX":
+						useDefaultFormat();
+						break;
+					case "AsciiMath":
+						ext.add("asciimath2jax.js");
+						jax.add("input/AsciiMath");
+						break;
+					default:
+						log.error(format + " is not a supported format." +
+						" Check available options on Sakai default properties");
+						break;
+				}
+			}
+		}
+
+		if (ext.isEmpty()) {
+			log.error("None of the received formats match the supported ones. Using LaTeX as default.");
+			useDefaultFormat();
+		}
+
+		jax.add("output/HTML-CSS");
+
+		jsonMathjaxConfig.put("extensions", ext);
+		jsonMathjaxConfig.put("jax", jax);
+		jsonMathjaxConfig.put("messageStyle", "none");
+
+		if (defaultDelimiters) {
+			JSONArray delimiter1 = new JSONArray();
+			delimiter1.add("$$");
+			delimiter1.add("$$");
 	
+			JSONArray delimiter2 = new JSONArray();
+			delimiter2.add("\\(");
+			delimiter2.add("\\)");
+	
+			JSONArray delimiters = new JSONArray();
+			delimiters.add(delimiter1);
+			delimiters.add(delimiter2);
+	
+			JSONObject inlineMath = new JSONObject();
+			inlineMath.put("inlineMath", delimiters);
+			jsonMathjaxConfig.put("tex2jax", inlineMath);
+		}
+
+		String mathjaxConfig = jsonMathjaxConfig.toJSONString();
+		mathjaxConfig = "MathJax.Hub.Config (" + mathjaxConfig + ");";
+
+		return mathjaxConfig;
+	}
+
+	public void useDefaultFormat() {
+		ext.add("tex2jax.js");
+		jax.add("input/TeX");
+		defaultDelimiters = true;
+	}
+
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
@@ -115,16 +190,15 @@ public class HtmlPageFilter implements ContentFilter {
 			String docType = serverConfigurationService.getString("content.html.doctype", "<!DOCTYPE html>");
 			header.append(docType + "\n");
 		}
-		StringBuilder additionalScripts = new StringBuilder();
-		if (isMathJaxEnabled(entity)) {
-			additionalScripts.append(MessageFormat.format(mathjaxTemplate,
-				serverConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP
-				)
-			));
+
+		Document additionalScripts = new Document("");
+		if (isMathJaxEnabled(entity)) {		
+			additionalScripts.appendElement("script").attr("type", "text/x-mathjax-config").text(getMathJaxConfig());
+			additionalScripts.appendElement("script").attr("type", "text/javascript").attr("src", serverConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP));
 		}
-		additionalScripts.append(serverConfigurationService.getString("portal.include.extrahead", ""));
-		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, additionalScripts));
-        
+		additionalScripts.appendElement("script").attr("type", "text/javascript").attr("src", serverConfigurationService.getString("portal.include.extrahead", ""));
+		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, additionalScripts.toString()));
+
 		return new WrappedContentResource(content, header.toString(), footerTemplate, detectHtml);
 	}
 

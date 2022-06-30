@@ -1,4 +1,4 @@
-import { html } from "../assets/@lion/core/index.js";
+import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
 import "../sakai-toggle.js";
 import "../sakai-editor.js";

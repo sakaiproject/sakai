@@ -74,7 +74,6 @@ commons.utils = {
         $('#commons-comment-edit-link-' + comment.id).click(commons.utils.editCommentHandler);
         $('#commons-comment-delete-link-' + comment.id).click(commons.utils.deleteCommentHandler);
         $('#commons-like-link-' + comment.id).click(commons.utils.likePostHandler);
-        profile.attachPopups($("#commons-author-name-" + comment.id));
     },
     editPostHandler: function (e) {
 
@@ -424,8 +423,6 @@ commons.utils = {
 
         $(document).ready(function () {
 
-            profile.attachPopups($("#commons-author-name-" + post.id));
-
             $('#commons-post-edit-link-' + post.id).click(self.editPostHandler);
             $('#commons-post-delete-link-' + post.id).click(self.deletePostHandler);
             $('#commons-like-link-' + post.id).click(self.likePostHandler);
@@ -551,8 +548,6 @@ commons.utils = {
 
                     // Now render them into their placeholders
                     posts.forEach(function (p) { commons.utils.renderPost(p, 'commons-post-' + p.id); });
-
-                    profile.attachPopups($('.profile-popup-trigger'));
 
                     loadImage.hide();
                     try {

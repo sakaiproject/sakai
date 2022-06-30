@@ -3615,6 +3615,7 @@ function addShortanswer() {
 	elt = clonedAnswer.find("input");
 	elt.attr("name", elt.attr("name") + n);
 
+	clonedAnswer.attr("id", "otherShortAnswer" + n);
 	clonedAnswer.appendTo("#shortAnswersTableBody");
 	// Re-assign the options to the question list
 	reassignAnswerOptions();
@@ -3698,11 +3699,16 @@ function resetMultipleChoiceAnswers() {
 	firstMultipleChoice.find(".question-multiplechoice-answer-id").val("-1");
 	firstMultipleChoice.find(".question-multiplechoice-answer").val("");
 	firstMultipleChoice.find(".question-multiplechoice-answer-correct").prop("checked", false);
+	$("#multipleChoiceAnswersBody").empty();
+	$("#multipleChoiceAnswersBody").append(firstMultipleChoice);
 }
 
 //Reset the shortanswers to prevent problems when submitting a multiple choice
 function resetShortanswers() {
-	$("#copyableShortanswer").find(".question-shortanswer-answer").val("");
+	var firstShortAnswerChoice = $("#copyableShortanswer");
+	firstShortAnswerChoice.find(".question-shortanswer-answer").val("");
+	$("#shortAnswersTableBody").empty();
+	$("#shortAnswersTableBody").append(firstShortAnswerChoice);
 }
 
 

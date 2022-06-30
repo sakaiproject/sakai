@@ -35,11 +35,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.ExternalAssignmentProvider;
+import org.sakaiproject.grading.api.ExternalAssignmentProviderCompat;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
-import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -60,7 +60,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 @Slf4j
 public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
 
-    private GradebookExternalAssessmentService geaService;
+    private GradingService gradingService;
     private UserDirectoryService userDirectoryService;
     private SiteService siteService;
     private MemoryService memoryService;
@@ -70,14 +70,14 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     
     public void init() {
         log.info("INIT and Register Samigo AssessmentGradeInfoProvider");
-        geaService.registerExternalAssignmentProvider(this);
+        gradingService.registerExternalAssignmentProvider(this);
         groupedCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.groupedCache");
         pubAssessmentCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.pubAssessmentCache");
     }
 
     public void destroy() {
         log.info("DESTROY and unregister Samigo AssessmentGradeInfoProvider");
-        geaService.unregisterExternalAssignmentProvider(getAppKey());
+        gradingService.unregisterExternalAssignmentProvider(getAppKey());
     }
 
     public String getAppKey() {
@@ -414,12 +414,12 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         return false;
     }
 
-    public GradebookExternalAssessmentService getGradebookExternalAssessmentService() {
-        return geaService;
+    public GradingService getGradingService() {
+        return gradingService;
     }
 
-    public void setGradebookExternalAssessmentService( GradebookExternalAssessmentService geaService) {
-        this.geaService = geaService;
+    public void setGradingService( GradingService gradingService) {
+        this.gradingService = gradingService;
     }
 
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {

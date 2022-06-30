@@ -2,7 +2,7 @@
 <registration>
 	<tool id="sakai.conversations"
 		title="Conversations"
-		description="Sakai Conversations Tool">
+		description="Create question and answer forums and threaded discussions">
 
         <category name="course" />
         <category name="project" />

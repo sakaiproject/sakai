@@ -34,9 +34,9 @@ Once you have your App successfully registered, you can make use of the related 
 	googledrive.enabled=true
 	googledrive.client_id=--CLIENT_ID--
 	googledrive.client_secret=--SECRET--
-	googledrive.redirect_uri=${serverUrl}/sakai-googledrive-tool
 
-	
+The previous configuration is for single tenant institutions, if the instance is going to use multiple google domains you must configure multiple google tenants, please read the default.sakai.properties documentation to enable the multitenant configuration.
+
 Special features
 ----------------
 

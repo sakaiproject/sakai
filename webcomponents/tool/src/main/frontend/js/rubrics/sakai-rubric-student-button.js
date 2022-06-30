@@ -1,7 +1,6 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
-import { SakaiRubricsHelpers } from "./sakai-rubrics-helpers.js";
 
 class SakaiRubricStudentButton extends RubricsElement {
 
@@ -9,7 +8,6 @@ class SakaiRubricStudentButton extends RubricsElement {
 
     super();
 
-    this.hidden = true;
     this.instructor = false;
     this.forcePreview = false;
     this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
@@ -18,70 +16,62 @@ class SakaiRubricStudentButton extends RubricsElement {
   static get properties() {
 
     return {
-      token: String,
+      rubricId: { attribute: "rubric-id", type: Number },
+      siteId: { attribute: "site-id", type: String },
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
-      hidden: Boolean,
       instructor: Boolean,
       forcePreview: { attribute: "force-preview", type: Boolean },
       dontCheckAssociation: { attribute: "dont-check-association", type: Boolean },
     };
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  set siteId(value) {
 
-    super.attributeChangedCallback(name, oldValue, newValue);
-
-    if (this.token && this.toolId && this.entityId) {
-      this.setupHidden();
-    }
+    this._siteId = value;
+    this.i18nPromise.then(r => this.initLightbox(r, value));
   }
 
-  set token(newValue) {
-
-    this.i18nPromise.then(r => this.initLightbox(newValue, r));
-    this._token = newValue;
-  }
-
-  get token() { return this._token; }
+  get siteId() { return this._siteId; }
 
   render() {
 
-    return html`${this.hidden ? "" : html`
+    return html`
       <a @click=${this.showRubric} href="javascript:;" title="${tr("preview_rubric")}"><span class="fa icon-sakai--sakai-rubrics" /></a>
-    `}`;
+    `;
   }
 
-  showRubric(e) {
-    this.showRubricLightbox(undefined, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor, "force-preview": this.forcePreview }, e.target);
+  showRubric() {
+
+    if (this.forcePreview) {
+      this.showRubricLightbox(this.rubricId);
+    } else {
+      this.showRubricLightbox(this.rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId });
+    }
   }
 
   releaseEvaluation() {
 
-    const token = `Bearer ${this.token}`;
+    let url = `/api/sites/${this.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
+    return fetch(url, { credentials: "include" })
+    .then(r => {
 
-    let url = `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
-    return fetch(url, {
-      credentials: "same-origin",
-      headers: {
-        "Authorization": token,
-      },
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while getting evaluation");
     })
-    .then(r => r.json())
     .then(async data => {
 
       const evaluation = data._embedded.evaluations[0];
       if (evaluation) {
         evaluation.status = 2;
-        url = `/rubrics-service/rest/evaluations/${evaluation.id}`;
+        url = `/api/sites/${this.siteId}/rubric-evaluations/${evaluation.id}`;
         await fetch(url, {
           body: JSON.stringify(evaluation),
-          credentials: "same-origin",
-          headers: {
-            "Authorization": token,
-            "Content-Type": "application/json",
-          },
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
           method: "PATCH",
         })
         .then(r => {
@@ -91,27 +81,43 @@ class SakaiRubricStudentButton extends RubricsElement {
           }
         });
       }
-    }).catch(error => console.error(error));
+    })
+    .catch (error => console.error(error));
   }
 
   setupHidden() {
 
+    /*
     if (this.dontCheckAssociation) {
       this.hidden = true;
     } else {
-      SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment"
-        , `Bearer ${  this.token}`, { params: { toolId: this.toolId, itemId: this.entityId } }).then(data => {
+      let url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}`;
+      if (this.entityId) url += `/items/${this.entityId}`;
 
-        const association = data._embedded["rubric-associations"][0];
+      fetch(url, {
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(r => {
+
+        if (r.ok) {
+          return r.json();
+        }
+        throw new Error("Network error while getting association");
+      })
+      .then(association => {
 
         if (!association) {
           this.hidden = true;
         } else {
           this.hidden = association.parameters.hideStudentPreview && !this.instructor;
         }
-      });
+      })
+      .catch (error => console.error(error));
     }
+    */
   }
 }
 
-customElements.define("sakai-rubric-student-button", SakaiRubricStudentButton);
+const tagName = "sakai-rubric-student-button";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricStudentButton);

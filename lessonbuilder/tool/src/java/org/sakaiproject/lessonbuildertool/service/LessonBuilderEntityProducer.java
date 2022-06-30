@@ -58,7 +58,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -69,6 +68,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -99,7 +99,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
-import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -114,7 +113,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -937,7 +936,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   }
 
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, "Lesson Builder");
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LESSONBUILDER_ID);
 			       needupdate = true;
 			       item.setGradebookId(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -963,7 +962,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			       title = title.substring(0, ii+1) + item.getId() + ")";
 			   }
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, "Lesson Builder");
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LESSONBUILDER_ID);
 			       needupdate = true;
 			       item.setAltGradebook(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -1048,50 +1047,71 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     // fix up items on page. does any updates that need the whole page and item map
     private void fixItems(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap) {
-  
-       String oldSiteId = element.getAttribute("siteid");
-       String oldPageIdString = element.getAttribute("pageid");
-       Long oldPageId = Long.valueOf(oldPageIdString);
-       Long pageId = pageMap.get(oldPageId);
-       Site site = null;
 
-       List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+		String oldPageIdString = element.getAttribute("pageid");
+		Long oldPageId = Long.valueOf(oldPageIdString);
+		Long pageId = pageMap.get(oldPageId);
 
-       if (items == null)
-	   return;
+		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+		if (items == null) return;
 
-       for (SimplePageItem item: items) {
-           if (item.getType() == SimplePageItem.TEXT) {
-               String s = item.getHtml();
-               if (StringUtils.isNotBlank(s)) {
-                   String fixed = fixUrls(s, oldServer, siteId, fromSiteId, itemMap);
-                   if (!StringUtils.equals(s ,fixed)) {
-                       item.setHtml(fixed);
-                       simplePageToolDao.quickUpdate(item);
-                   }
-               }
-           } else if (item.getType() == SimplePageItem.CHECKLIST) {
-	           String attrString = item.getAttributeString(); //json encoded attributes
-	           final JSONParser jsonParser = new JSONParser(); // JSON parser used to parse the attribute string into a JSON object
-	           try {
-	               JSONObject attributeObj = (JSONObject) jsonParser.parse(attrString); // Get full attribute string as JSON object
-	               JSONArray checklistArr = (JSONArray) attributeObj.get("checklistItems"); // Get the checklist JSON array from the object
-	               if (checklistArr != null && !checklistArr.isEmpty()) {
-		               for (Object checklistObj : checklistArr) {
-			               JSONObject checklistObjJson = (JSONObject) checklistObj;
-			               checklistObjJson.put("link", itemMap.get(checklistObjJson.get("link")));
-		               }
-	               }
-	               attributeObj.put("checklistItems", checklistArr); // Update the JSON object for the JSON attribute with the modified checklist
-	               attrString = attributeObj.toJSONString(); // Replace the attribute string with the version with the modified checklist
-	               item.setAttributeString(attrString);
-	               simplePageToolDao.quickUpdate(item);
-	           } catch (ParseException e) {
-	               log.error("Exception caught while parsing checklist array. No modifications will be made to attribute string.", e.getMessage(), e);
-	           }
-	       }
-       }
-    }
+		for (SimplePageItem item : items) {
+			boolean itemUpdated = false;
+			switch (item.getType()) {
+				case SimplePageItem.TEXT:
+					String html = item.getHtml();
+					if (StringUtils.isNotBlank(html)) {
+						String fixed = fixUrls(html, oldServer, siteId, fromSiteId, itemMap);
+						if (!StringUtils.equals(html, fixed)) {
+							item.setHtml(fixed);
+							itemUpdated = true;
+						}
+					}
+					break;
+				case SimplePageItem.CHECKLIST:
+					String attribute = item.getAttributeString(); // json encoded attributes
+					if (StringUtils.isNotBlank(attribute)) {
+						final JSONParser jsonParser = new JSONParser();
+						try {
+							Object parsedAttributeObj = jsonParser.parse(attribute);
+							if (parsedAttributeObj instanceof JSONObject) {
+								JSONObject parsedAttribute = (JSONObject) parsedAttributeObj;
+								Object checklistItemsObj = parsedAttribute.get("checklistItems");
+								if (checklistItemsObj instanceof JSONArray) {
+									JSONArray checklistItems = (JSONArray) checklistItemsObj;
+									for (Object checklistItemObj : checklistItems) {
+										if (checklistItemObj instanceof JSONObject) {
+											JSONObject checklistItem = (JSONObject) checklistItemObj;
+											Object link = checklistItem.get("link");
+											if (link != null) {
+												Long linkId = NumberUtils.toLong(link.toString(), -1L);
+												if (linkId != -1L) {
+													Long newLink = itemMap.get(linkId);
+													if (newLink != null) {
+														linkId = newLink;
+													}
+												}
+												checklistItem.put("link", linkId);
+												parsedAttribute.put("checklistItems", checklistItems); // Update the JSON object for the JSON attribute with the modified checklist
+												item.setAttributeString(parsedAttribute.toJSONString());
+												itemUpdated = true;
+											}
+										}
+									}
+								}
+							}
+						} catch (ParseException pe) {
+							log.warn("Exception caught while parsing checklist array: {}", pe.toString());
+							break;
+						}
+
+					}
+					break;
+				default:
+			}
+			if (itemUpdated) simplePageToolDao.quickUpdate(item);
+		}
+	}
 
     public String fixUrls(String s, String oldServer, String siteId, String fromSiteId, Map<Long,Long> itemMap) {
         ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId, oldServer);
@@ -1167,7 +1187,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     if (StringUtils.isNotEmpty(gradebookPoints)) {
 		       try {
 			     gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
-							    title, Double.valueOf(gradebookPoints), null, "Lesson Builder");
+							    title, Double.valueOf(gradebookPoints), null, LESSONBUILDER_ID);
 			   } catch(ConflictingAssignmentNameException cane){
 			     log.error("merge: ConflictingAssignmentNameException for title {}.", title);
 			   }
