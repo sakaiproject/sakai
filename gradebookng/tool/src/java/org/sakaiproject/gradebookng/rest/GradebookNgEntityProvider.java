@@ -63,6 +63,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
  * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
@@ -325,7 +326,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			} else {
 				// Cache the users in the session. The client needs to show the users to the caller, so they can
 				// confirm, but we don't want to call this logic again for no reason.
-				List<BasicUser> basicUsers = users.stream().map(BasicUser::new).collect(Collectors.toList());
+				List<BasicUser> basicUsers = users.stream().sorted(new UserSortNameComparator()).map(BasicUser::new).collect(Collectors.toList());
 				return new ActionReturn(basicUsers);
 			}
 		} else {
@@ -468,7 +469,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
             super();
 
             this.id = u.getId();
-            this.displayName = u.getDisplayName();
+            this.displayName = u.getSortName();
         }
     }
 }
