@@ -112,6 +112,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private static final String RBCS_PERMISSIONS_EVALUEE = "rubrics.evaluee";
     private static final String RBCS_PERMISSIONS_ASSOCIATOR = "rubrics.associator";
     private static final String RBCS_PERMISSIONS_SUPERUSER = "rubrics.superuser";
+    private static final String RBCS_PERMISSIONS_MANAGER_VIEW = "rubrics.manager.view";
 
     private static final String RBCS_SERVICE_URL_PREFIX = "/rubrics-service/rest/";
 
@@ -158,6 +159,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         functionManager.registerFunction(RBCS_PERMISSIONS_EDITOR);
         functionManager.registerFunction(RBCS_PERMISSIONS_EVALUEE);
         functionManager.registerFunction(RBCS_PERMISSIONS_ASSOCIATOR);
+        functionManager.registerFunction(RBCS_PERMISSIONS_MANAGER_VIEW, true);
 
         hasAssociatedRubricCache = memoryService.<String, Boolean>getCache("org.sakaiproject.rubrics.logic.hasAssociatedRubricCache");
     }

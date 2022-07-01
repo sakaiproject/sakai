@@ -48,4 +48,5 @@ public interface RubricsConstants {
 	public static final	String RBCS_TOPIC_ENTITY_PREFIX = "top.";
 	public static final	String RBCS_MSG_ENTITY_PREFIX = "msg.";
 	
+    public static final String RBCS_PERMISSIONS_EDITOR = "rubrics.editor";
 }

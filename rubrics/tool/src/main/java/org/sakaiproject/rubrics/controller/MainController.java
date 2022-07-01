@@ -17,8 +17,13 @@ package org.sakaiproject.rubrics.controller;
 
 import javax.annotation.Resource;
 
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +35,18 @@ public class MainController {
     @Resource(name = "org.sakaiproject.rubrics.logic.RubricsService")
     private RubricsService rubricsService;
 
-    @GetMapping("/")
+    @Resource
+    private SecurityService securityService;
+
+    @Resource
+    private SessionManager sessionManager;
+
+    @Resource
+    private ServerConfigurationService serverConfigurationService;
+
+    @Resource
+    private ToolManager toolManager;
+
     public String indexRedirect() {
         return "redirect:/index";
     }
@@ -39,8 +55,18 @@ public class MainController {
     public String index(ModelMap model) {
         String token = rubricsService.generateJsonWebToken("sakai.rubrics");
         model.addAttribute("token", token);
-        model.addAttribute("sakaiSessionId", rubricsService.getCurrentSessionId());
+
+        String siteId = toolManager.getCurrentPlacement().getContext();
+        model.addAttribute("siteId", siteId);
+        model.addAttribute("sakaiSessionId", sessionManager.getCurrentSession().getId());
         model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
-        return "index";
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+
+        if (securityService.unlock(currentUserId, RubricsConstants.RBCS_PERMISSIONS_EDITOR, "/site/" + siteId)) {
+            return "editor_index";
+        } else {
+            return "viewer_index";
+        }
     }
 }
