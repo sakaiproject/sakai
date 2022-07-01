@@ -1554,6 +1554,8 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment rv = null;
         SecurityAdvisor secAdv = null;
         String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
+        // if assignmentId is blank then it is not an assignment reference and is likely an id
+        if (StringUtils.isBlank(assignmentId)) assignmentId = assignmentReference;
         Session session = sessionManager.getCurrentSession();
 
         try {
