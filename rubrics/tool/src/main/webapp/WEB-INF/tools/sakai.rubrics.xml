@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <registration>
-	<tool id="sakai.rubrics"
-		title="Rubrics"
-		description="For creating grading rubrics, which can be associated with items in Gradebook and individual assessment tools.">
+    <tool id="sakai.rubrics"
+        title="Rubrics"
+        description="For creating grading rubrics, which can be associated with items in Gradebook and individual assessment tools.">
 
-		<category name="course" />
-      	<category name="project" />
+        <category name="course" />
+        <category name="project" />
 
-        <configuration name="functions.require" value="rubrics.editor" />
+        <configuration name="functions.require" value="rubrics.manager.view" />
 
     </tool>
 </registration>
