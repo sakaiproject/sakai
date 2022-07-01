@@ -268,6 +268,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			for (DiscussionTopic discussionTopic : discussionTopics) {
 				final Element discussionTopicElement = doc.createElement(DISCUSSION_TOPIC);
 				discussionTopicElement.setAttribute(TOPIC_TITLE, discussionTopic.getTitle());
+				discussionTopicElement.setAttribute(ID, discussionTopic.getId().toString());
 				discussionTopicElement.setAttribute(DRAFT, discussionTopic.getDraft().toString());
 				discussionTopicElement.setAttribute(LOCKED, discussionTopic.getLocked().toString());
 				discussionTopicElement.setAttribute(MODERATED, discussionTopic.getModerated().toString());
