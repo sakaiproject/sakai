@@ -136,6 +136,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_EVALUATOR, true);
         functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_EDITOR, true);
         functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_EVALUEE, true);
+        functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_MANAGER_VIEW, true);
     }
 
     public RubricTransferBean createDefaultRubric(String siteId) {
