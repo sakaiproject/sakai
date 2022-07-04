@@ -35,6 +35,8 @@ import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMapping
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.impl.repository.ConversationsCommentRepositoryImpl;
@@ -59,6 +61,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -191,6 +194,11 @@ public class ConversationsTestConfiguration {
         return tagRepository;
     }
 
+    @Bean(name = "org.sakaiproject.calendar.api.CalendarService")
+    public CalendarService calendarService() {
+        return mock(CalendarService.class);
+    }
+
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
     public AuthzGroupService authzGroupService() {
         return mock(AuthzGroupService.class);
@@ -244,6 +252,11 @@ public class ConversationsTestConfiguration {
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")
     public UserTimeService userTimeService() {
         return mock(UserTimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.time.api.TimeService")
+    public TimeService timeService() {
+        return mock(TimeService.class);
     }
 
     @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")

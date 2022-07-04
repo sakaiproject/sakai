@@ -177,6 +177,8 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 		private String location;
 
+		private String eventUrl;
+
 		private String type;
 
 		private String description;
@@ -245,6 +247,12 @@ public class GenericCalendarImporter implements CalendarImporterService
 		public String getLocation()
 		{
 			return this.location;
+		}
+
+		@Override
+		public String getEventUrl()
+		{
+			return this.eventUrl;
 		}
 
 		/*
@@ -440,6 +448,12 @@ public class GenericCalendarImporter implements CalendarImporterService
 		public void setLocation(String location)
 		{
 			this.location = location;
+		}
+
+		@Override
+		public void setEventUrl(String url)
+		{
+			this.eventUrl = url;
 		}
 
 		/**
