@@ -102,6 +102,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import org.hibernate.exception.ConstraintViolationException;
+
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1354,7 +1356,12 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
             .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
         topicStatus.setViewed(numberOfUnreadPosts == 0L);
-        topicStatus = topicStatusRepository.save(topicStatus);
+        try {
+            topicStatusRepository.save(topicStatus);
+        } catch (ConstraintViolationException e) {
+            log.debug("Caught a constraint exception while saving topic status. This can happen " +
+                "due to the way the client detects posts scrolling into view");
+        }
 
         Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
         if (topicCache != null) topicCache.remove(currentUserId);
@@ -1368,8 +1375,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         status.setViewedDate(Instant.now());
         try {
             postStatusRepository.save(status);
-        } catch (Exception e) {
-            log.debug("Caught exception while marking post viewed. This can happen " +
+        } catch (ConstraintViolationException e) {
+            log.debug("Caught constraint exception while marking post viewed. This can happen " +
                 "due to the way the client detects posts scrolling into view");
         }
     }
