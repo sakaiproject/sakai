@@ -285,7 +285,7 @@ ASN.setupAssignNew = function(){
     });
 
     const isEstimate = document.getElementById('new_assignment_check_add_estimate');
-    if (isEstimate.checked) {
+    if (isEstimate && isEstimate.checked) {
         document.getElementById('checkestimaterequired').classList.remove('hidden');
         document.getElementById('inputtimestimate').classList.remove('hidden');
     }
