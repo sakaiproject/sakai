@@ -55,7 +55,7 @@ class SakaiProfile extends LitElement {
   }
 
   shouldUpdate() {
-    return this.i18n;
+    return this.i18n && this.profile;
   }
 
   render() {
