@@ -59,14 +59,14 @@ portal.toggleMinimizeNav = function () {
   }
 };
 
-const indicator = document.querySelector("#maximised-indicator a");
-indicator && indicator.addEventListener("click", portal.minimiseTool);
-
-$PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);
-
 $PBJQ(document).ready(function () {
 //Shows or hides the subsites in a popout div. This isn't used unless
 // portal.showSubsitesAsFlyout is set to true in sakai.properties.
+
+    const indicator = document.querySelector("#maximised-indicator a");
+    indicator && indicator.addEventListener("click", portal.minimiseTool);
+
+    $PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);
     $PBJQ("#toggleSubsitesLink").click(function (e) {
         var subsitesLink = $PBJQ(this);
         if ($PBJQ('#subSites').css('display') == 'block') {
