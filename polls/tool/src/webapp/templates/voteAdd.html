@@ -128,24 +128,7 @@
 		<span rsf:id="msg=new_poll_min_limits">What is the minimum number of Answer Options that can be selected?</span>
 	</label>
 	<div class="col-md-4">
-		<select name="minOptions" rsf:id="min-votes" id="min-votes">
-			<option value="0">0</option>
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="6">6</option>
-			<option value="7">7</option>
-			<option value="8">8</option>
-			<option value="9">9</option>
-			<option value="10">10</option>
-			<option value="11">11</option>
-			<option value="12">12</option>
-			<option value="13">13</option>
-			<option value="14">14</option>
-			<option value="15">15</option>
-		</select>
+		<input type="number" name="minOptions" rsf:id="min-votes" id="min-votes" min="0" max="15"/>
 	</div>
 </div>		
 <div class="form-group row">
@@ -154,23 +137,7 @@
 		<span rsf:id="msg=new_poll_max_limits">What is the maximum number of Answer Options that can be selected?</span>
 	</label>
 	<div class="col-md-4">
-		<select name="maxOptions" rsf:id="max-votes" id="max-votes">
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="6">6</option>
-			<option value="7">7</option>
-			<option value="8">8</option>
-			<option value="9">9</option>
-			<option value="10">10</option>
-			<option value="11">11</option>
-			<option value="12">12</option>
-			<option value="13">13</option>
-			<option value="14">14</option>
-			<option value="15">15</option>
-		</select>
+		<input type="number" name="maxOptions" rsf:id="max-votes" id="max-votes" min="0" max="15"/>
 	</div>
 </div>
 
