@@ -31,6 +31,25 @@
 				getval: '#closeDate-iso8601',
 				ashidden: { iso8601: 'closeDate-iso8601' }
 			});
+
+            const optionTableElem = document.getElementById('optionTable');
+            if (optionTableElem) {
+                // The header is not inside thead element, is in the body.
+                const optionCount = optionTableElem.rows.length - 1;
+                const limitOptionsElem = document.getElementById('limit-options');
+                limitOptionsElem.style.display = 'block';
+                const minVotesElem = document.getElementById('max-votes');
+                const maxVotesElem = document.getElementById('min-votes');
+                minVotesElem.setAttribute('max', optionCount);
+                maxVotesElem.setAttribute('max', optionCount);
+                if (minVotesElem.value > optionCount) {
+                    minVotesElem.value = optionCount;
+                }
+                if (maxVotesElem.value > optionCount) {
+                    maxVotesElem.value = optionCount;
+                }
+            }
+
 		});
 	</script>
 </head>
@@ -107,7 +126,7 @@
 <a rsf:id="option-add" href="pollOption.html">Add Option</a>&nbsp;&nbsp;
 <a rsf:id="option-add-batch" href="pollOptionBatch.html">Add options in batch</a></p>
 
-<table class="listHier lines" cellspacing="0" border="0">
+<table id="optionTable" class="listHier lines" cellspacing="0" border="0">
 	<tr>
 		<th rsf:id="msg=add_option">Option</th>
 		<th rsf:id="msg=add_actions">actions</th>
@@ -121,23 +140,25 @@
 	</tr>
 </table>
 </div>
-<p><strong rsf:id="new-poll-limits">Limits:</strong></p>
-<div class="form-group row">
-	<label for="min-votes" class="col-md-4 col-lg-2 form-control-label">
-		<span class="reqStarInline">*</span>
-		<span rsf:id="msg=new_poll_min_limits">What is the minimum number of Answer Options that can be selected?</span>
-	</label>
-	<div class="col-md-4">
-		<input type="number" name="minOptions" rsf:id="min-votes" id="min-votes" min="0" max="15"/>
-	</div>
-</div>		
-<div class="form-group row">
-	<label for="max-votes" class="col-md-4 col-lg-2 form-control-label">
-		<span class="reqStarInline">*</span>
-		<span rsf:id="msg=new_poll_max_limits">What is the maximum number of Answer Options that can be selected?</span>
-	</label>
-	<div class="col-md-4">
-		<input type="number" name="maxOptions" rsf:id="max-votes" id="max-votes" min="0" max="15"/>
+<div id="limit-options" style="display:none;">
+	<p><strong rsf:id="new-poll-limits">Limits:</strong></p>
+	<div class="form-group row">
+		<label for="min-votes" class="col-md-4 col-lg-2 form-control-label">
+			<span class="reqStarInline">*</span>
+			<span rsf:id="msg=new_poll_min_limits">What is the minimum number of Answer Options that can be selected?</span>
+		</label>
+		<div class="col-md-4">
+			<input type="number" name="minOptions" rsf:id="min-votes" id="min-votes" min="0" max="15"/>
+		</div>
+	</div>		
+	<div class="form-group row">
+		<label for="max-votes" class="col-md-4 col-lg-2 form-control-label">
+			<span class="reqStarInline">*</span>
+			<span rsf:id="msg=new_poll_max_limits">What is the maximum number of Answer Options that can be selected?</span>
+		</label>
+		<div class="col-md-4">
+			<input type="number" name="maxOptions" rsf:id="max-votes" id="max-votes" min="0" max="15"/>
+		</div>
 	</div>
 </div>
 
