@@ -187,9 +187,16 @@ public class PollToolBean {
 
 		log.info("Poll saved with id of " + poll.getPollId());
 		//if this is not a new poll populate the options list
-		if (!isNew)
-			poll.setOptions(manager.getOptionsForPoll(poll));
-		
+		if (!isNew) {
+			List<Option> pollOptionList = manager.getOptionsForPoll(poll);
+			poll.setOptions(pollOptionList);
+			int pollOptionListLength = pollOptionList.size();
+			if (pollOptionListLength < poll.getMinOptions() || pollOptionListLength < poll.getMaxOptions()) {
+				messages.addMessage(new TargettedMessage("invalid_poll_limits"));
+				throw new IllegalArgumentException("invalid_poll_limits");
+			}
+		}
+
 		voteBean.poll = poll;
 		
 		return poll;
