@@ -41,10 +41,18 @@
 
 <p class="act">
   <input name="submit" type="submit" id="submit" value="Vote!" rsf:id="submit-new-vote" class="active"/>
-  <input name="reset" type="reset" value="Reset" rsf:id="reset"/> 
+  <input id="reset" name="reset" type="reset" value="Reset" rsf:id="reset"/> 
   <input name="cancel" type="submit" value="Cancel" rsf:id="cancel"/>   
 </p>
 </form>
 </div>
+<script>
+  const resetButtonElem = document.getElementById('reset');
+  // When the reset button is clicked, we must deselect all the checkboxes.
+  resetButtonElem.addEventListener('click', (e) => {
+     e.preventDefault();
+     document.getElementsByName('optionform-selection').forEach( (pollOption) => pollOption.checked = false );
+  });
+</script>
 </body>
 </html>
