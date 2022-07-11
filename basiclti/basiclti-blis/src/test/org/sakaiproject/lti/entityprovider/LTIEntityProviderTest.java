@@ -63,7 +63,7 @@ public class LTIEntityProviderTest {
     public void testAdjustMapAddId() {
         map.put(LTIService.LTI_ID, "1");
         provider.adjustMap(map, true, "siteId", "kind");
-        assertThat(map, hasEntry("@id", "/lti/kind/siteId/1.json"));
+        assertThat(map, hasEntry("@id", "/lti/kind/siteId/1"));
     }
 
     @Test
