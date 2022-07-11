@@ -36,19 +36,21 @@ class SakaiUserPhoto extends SakaiElement {
     };
   }
 
-  connectedCallback() {
+  attributeChangedCallback(name, oldValue, newValue) {
 
-    super.connectedCallback();
+    super.attributeChangedCallback(name, oldValue, newValue);
 
-    this.generatedId = `sakai-user-photo-${this.userId}-${Math.floor(Math.random() * 100)}`;
+    if (this.userId) {
+      this.generatedId = `sakai-user-photo-${this.userId}-${Math.floor(Math.random() * 100)}`;
 
-    this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
-                + (this.siteId && `?siteId=${this.siteId}`);
+      this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
+                  + (this.siteId && `?siteId=${this.siteId}`);
 
-    if (!this.noPopup) {
-      this.updateComplete.then(() => {
-        profile.attachPopups($(`#${this.generatedId}`));
-      });
+      if (!this.noPopup) {
+        this.updateComplete.then(() => {
+          profile.attachPopups($(`#${this.generatedId}`));
+        });
+      }
     }
   }
 
