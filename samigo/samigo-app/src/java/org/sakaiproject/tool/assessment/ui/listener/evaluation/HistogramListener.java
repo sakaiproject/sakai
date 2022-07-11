@@ -1638,7 +1638,7 @@ public class HistogramListener
 				Long answerId = (Long) sequenceMap.get(sequenceId);
 				AnswerIfc answer = (AnswerIfc) texts.get(answerId);
 
-				if (answer.getText() == null || "".equals(answer.getText())) continue;
+				if (StringUtils.isBlank(answer.getText()) continue;
 				barsFilteredSize++;
 				
 				int num = ((Integer) results.get(answerId)).intValue();
