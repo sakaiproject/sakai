@@ -18,7 +18,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this.criteria = [];
     this.totalPoints = 0;
 
-    SakaiRubricsLanguage.loadTranslations().then(r => this.i18nLoaded = r);
+    SakaiRubricsLanguage.loadTranslations().then(r => this.i18n = r);
   }
 
   static get properties() {
@@ -66,7 +66,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   get toolId() { return this._toolId; }
 
   shouldUpdate() {
-    return this.i18nLoaded;
+    return this.i18n;
   }
 
   render() {

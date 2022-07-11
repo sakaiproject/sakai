@@ -40,6 +40,8 @@ export const rubricsApiMixin = Base => class extends Base {
 
         if (r.status !== 404) {
           throw new Error("Network error while getting evaluation");
+        } else {
+          console.warn(this.i18n.no_evaluation_404_warning.replace("{}", this.entityId));
         }
       });
   }
