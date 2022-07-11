@@ -18,6 +18,7 @@ package org.sakaiproject.search.elasticsearch;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
@@ -862,7 +863,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      */
     protected void indexAdd(String resourceName, EntityContentProducer ecp) {
         try {
-            prepareIndexAdd(resourceName, ecp, true);
+            prepareIndexAdd(resourceName, ecp, false);
         } catch (NoContentException e) {
             deleteDocument(e);
         } catch (Exception e) {
@@ -1135,6 +1136,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             // little fragile but seems like most providers follow this convention, there isn't a nice way to get the type
             // without a handle to a reference.
             query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
+            query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
         } else {
             query.must(simpleQueryStringQuery(searchTerms));
         }
