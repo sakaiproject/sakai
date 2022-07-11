@@ -84,39 +84,6 @@ class SakaiRubricStudentButton extends RubricsElement {
     })
     .catch (error => console.error(error));
   }
-
-  setupHidden() {
-
-    /*
-    if (this.dontCheckAssociation) {
-      this.hidden = true;
-    } else {
-      let url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}`;
-      if (this.entityId) url += `/items/${this.entityId}`;
-
-      fetch(url, {
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      })
-      .then(r => {
-
-        if (r.ok) {
-          return r.json();
-        }
-        throw new Error("Network error while getting association");
-      })
-      .then(association => {
-
-        if (!association) {
-          this.hidden = true;
-        } else {
-          this.hidden = association.parameters.hideStudentPreview && !this.instructor;
-        }
-      })
-      .catch (error => console.error(error));
-    }
-    */
-  }
 }
 
 const tagName = "sakai-rubric-student-button";
