@@ -14328,6 +14328,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
     	return url;
     }
 
+    public List<String> getHtmlForRefMimetypes() {
+        return Arrays.asList(new String[] { ODP_MIMETYPE, PDF_MIMETYPE, DOCX_MIMETYPE, ODT_MIMETYPE });
+    }
+
     public Map<String, String> getHtmlForRef(String ref) {
 
         Map<String, String> map = new HashMap<>();
@@ -14360,18 +14364,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
                         map.put("content", html);
                         return map;
                     }
-                case ODT_MIMETYPE:
-                    try (InputStream in = cr.streamContent()) {
-                        OdfTextDocument document = OdfTextDocument.loadDocument(in);
-                        StringWriter sw = new StringWriter();
-                        XHTMLConverter.getInstance().convert( document, sw, null );
-                        map.put("status", CONVERSION_OK);
-                        map.put("content", sw.toString());
-                        return map;
-                    } catch (Throwable e) {
-                        log.error("Failed to convert ref {}", ref, e);
-                    }
-                    break;
                 default:
                     map.put("status", CONVERSION_NOT_SUPPORTED);
                     return map;

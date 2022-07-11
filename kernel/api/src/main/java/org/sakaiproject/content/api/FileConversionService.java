@@ -26,8 +26,6 @@ public interface FileConversionService {
     public static final List<String> DEFAULT_TYPES =
         Arrays.asList(ContentHostingService.DOCX_MIMETYPE
             , ContentHostingService.DOC_MIMETYPE
-            , ContentHostingService.ODT_MIMETYPE
-            , ContentHostingService.ODP_MIMETYPE
             , ContentHostingService.PPT_MIMETYPE
             , ContentHostingService.PPTX_MIMETYPE);
 
