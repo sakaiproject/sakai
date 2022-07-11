@@ -1630,12 +1630,16 @@ public class HistogramListener
 			// iter = results.keySet().iterator();
 			int i = 0;
 			int correctresponses = 0;
+			int barsFilteredSize = 0;
 	
 			// find answers sorted by sequence
 			while (iter.hasNext()) {
 				Long sequenceId = (Long) iter.next();
 				Long answerId = (Long) sequenceMap.get(sequenceId);
 				AnswerIfc answer = (AnswerIfc) texts.get(answerId);
+
+				if (answer.getText() == null || "".equals(answer.getText())) continue;
+				barsFilteredSize++;
 				
 				int num = ((Integer) results.get(answerId)).intValue();
 				// set i to be the sequence, so that the answer choices will be in
@@ -1657,15 +1661,7 @@ public class HistogramListener
 					bars[i].setLabel(answer.getText());
 				}
 				bars[i].setIsCorrect(answer.getIsCorrect());
-				if ((num > 1) || (num == 0)) {
-					bars[i].setNumStudentsText(num + " "
-							+ rb.getString("responses"));
-				} else {
-					bars[i]
-							.setNumStudentsText(num + " "
-									+ rb.getString("response"));
-	
-				}
+				bars[i].setNumStudentsText(String.valueOf(num));
 				bars[i].setNumStudents(num);
 				if (answer.getIsCorrect() != null
 						&& answer.getIsCorrect().booleanValue()) {
@@ -1676,15 +1672,19 @@ public class HistogramListener
 			// NEW
 			int[] heights = calColumnHeight(numarray, qbean.getNumResponses());
 			// int[] heights = calColumnHeight(numarray);
-			for (i = 0; i < bars.length; i++) {
+			HistogramBarBean[] barsFiltered = new HistogramBarBean[barsFilteredSize];
+			int barsFilteredIndex = 0;
+			for (i = 0; i < barsFilteredSize; i++) {
 				try {
-					bars[i].setColumnHeight(Integer.toString(heights[i]));
+					barsFiltered[barsFilteredIndex] = bars[i];
+					barsFiltered[barsFilteredIndex].setColumnHeight(Integer.toString(heights[i]));
+					barsFilteredIndex++;
 				}
 				catch (NullPointerException npe) {
 					log.warn("bars[" + i + "] is null. " + npe);
 				}
 			}
-			qbean.setHistogramBars(bars);
+			qbean.setHistogramBars(barsFiltered);
 			if (qbean.getNumResponses() > 0)
 				qbean
 						.setPercentCorrect(Integer
