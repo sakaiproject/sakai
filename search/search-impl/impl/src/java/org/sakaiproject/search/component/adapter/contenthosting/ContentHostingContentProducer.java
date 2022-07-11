@@ -634,12 +634,14 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 		log.debug("Check if resource is allowed to be read [{}]", ref);
 		try {
 			Reference reference = entityManager.newReference(ref);
-			if (!Boolean.TRUE.toString().equalsIgnoreCase(reference.getProperties().get(ResourceProperties.PROP_SECURED).toString())) {
+			ResourceProperties refProperties = reference.getProperties();
+			boolean isSecured = refProperties.getProperty(ResourceProperties.PROP_SECURED) != null && refProperties.getBooleanProperty(ResourceProperties.PROP_SECURED);
+			if (!isSecured) {
 				contentHostingService.checkResource(reference.getId());
 				return true;
 			}
 		} catch (Exception e) {
-			log.debug("Failed to check if resource can be read [{}]: {}", ref, e.toString());
+			log.warn("Failure while checking if resource can be read [{}]: {}", ref, e.toString());
 		}
 		log.debug("Resource is not allowed to be read [{}]", ref);
 		return false;
