@@ -10,7 +10,7 @@ import { html } from "./assets/lit-html/lit-html.js";
  * @element sakai-user-photo
  * @property {string} user-id - A Sakai user id
  * @property {string} [classes] - Extra classes to style the content
- * @property {boolean} [no-popup] Set this if you don't want the profile popup
+ * @property {string} [popup] By default, profile popups are off. Set this to "on" if you want them
  * @property {boolean} [official] Set this if you want the official Sakai photo
  * @property {string} [site-id] Set this to trigger permissions checks on the photo
  * @property {boolean} [print] Set this to trigger the render of a print friendly img tag
@@ -22,6 +22,7 @@ class SakaiUserPhoto extends SakaiElement {
     super();
 
     this.classes = "large-thumbnail";
+    this.popup = SakaiUserPhoto.OFF;
   }
 
   static get properties() {
@@ -29,7 +30,7 @@ class SakaiUserPhoto extends SakaiElement {
     return {
       userId: { attribute: "user-id", type: String },
       classes: { type: String },
-      noPopup: { attribute: "no-popup", type: Boolean },
+      popup: { type: String },
       official: { type: Boolean },
       siteId: { attribute: "site-id", type: String },
       print: { type: Boolean },
@@ -45,12 +46,12 @@ class SakaiUserPhoto extends SakaiElement {
 
       this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
                   + (this.siteId && `?siteId=${this.siteId}`);
+    }
 
-      if (!this.noPopup) {
-        this.updateComplete.then(() => {
-          profile.attachPopups($(`#${this.generatedId}`));
-        });
-      }
+    if (this.popup == SakaiUserPhoto.ON && this.generatedId) {
+      this.updateComplete.then(() => {
+        profile.attachPopups($(`#${this.generatedId}`));
+      });
     }
   }
 
@@ -74,6 +75,9 @@ class SakaiUserPhoto extends SakaiElement {
     `;
   }
 }
+
+SakaiUserPhoto.OFF = "off";
+SakaiUserPhoto.ON = "on";
 
 const tagName = "sakai-user-photo";
 !customElements.get(tagName) && customElements.define(tagName, SakaiUserPhoto);
