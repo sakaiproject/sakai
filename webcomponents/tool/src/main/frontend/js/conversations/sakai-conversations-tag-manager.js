@@ -30,9 +30,22 @@ export class SakaiConversationsTagManager extends SakaiElement {
   createTags() {
 
     const field = this.querySelector("#tag-creation-field");
-    const tagLabels = field?.value?.split(",").map(s => s.trim());
 
-    if (!tagLabels?.length) return;
+    // Split it, trim it, filter it and use a Set to make them unique, no duplicates!
+    const tagLabels
+      = [...new Set(field?.value?.split(",").map(t => t.trim()).filter(t => t.length > 0))];
+
+    // If any tags are already defined, ignore them
+    this.tags.map(t => t.label).forEach(t => {
+
+      const i = tagLabels.indexOf(t);
+      (i !== -1) && tagLabels.splice(i, 1);
+    });
+
+    if (!tagLabels?.length) {
+      field.value = "";
+      return;
+    }
 
     const tagsData = tagLabels.map(label => ({ label, siteId: this.siteId }));
 
