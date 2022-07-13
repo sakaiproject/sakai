@@ -103,6 +103,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.event.api.Event;
 
 /**
  * AnnouncementAction is an implementation of Announcement service, which provides the complete function of announcements. User could check the announcements, create own new and manage all the announcement items, under certain permission check.
@@ -2863,7 +2864,29 @@ public class AnnouncementAction extends PagedResourceActionII
 					{
 						// availablity changed
 						eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY, msg.getReference(), true));
+
+						//SAK-44622:
+						//check if an delay might exist
+						if ((StringUtils.isNotEmpty(oReleaseDate) && releaseDate == null) || (StringUtils.isNotEmpty(oReleaseDate) && releaseDate != null && !oReleaseDate.equals(releaseDate.toString()))) {
+
+							eventTrackingService.cancelDelays(msg.getReference(), org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC);
+
+							//check if new date is in future
+							if(msg.getHeader().getInstant().isAfter(Instant.now())){
+								Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
+								eventTrackingService.delay(event,msg.getHeader().getInstant());
+							}
+						}
 					}
+				}
+				//SAK-44622:
+				//Create delay
+				Instant nowInstant = Instant.now();
+				Instant date = msg.getHeader().getInstant();
+				if (nowInstant.isBefore(date)){
+					// track event
+					Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
+					eventTrackingService.delay(event,date);
 				}
 			}
 			catch (IdUnusedException e)
@@ -2967,6 +2990,13 @@ public class AnnouncementAction extends PagedResourceActionII
 					//AnnouncementMessageEdit edit = channel.editAnnouncementMessage(message.getId());
 					//channel.removeMessage(edit); 
 					channel.removeAnnouncementMessage(message.getId());
+
+					//SAK-44622
+					//Delete possible delay
+					Instant date = message.getHeader().getInstant();
+					if(date.isAfter(Instant.now())){
+						eventTrackingService.cancelDelays(message.getReference(), org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC);
+					}
 				}
 				else
 				{
