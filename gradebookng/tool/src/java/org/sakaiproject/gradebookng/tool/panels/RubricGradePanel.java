@@ -75,8 +75,14 @@ public class RubricGradePanel extends BasePanel {
         final WebMarkupContainer sakaiRubricGrading = new WebMarkupContainer("sakai-rubric-grading");
         sakaiRubricGrading.add(AttributeModifier.append("id", assignmentId));
         sakaiRubricGrading.add(AttributeModifier.append("site-id", getCurrentSiteId()));
+        final WebMarkupContainer sakaiRubricViewer = new WebMarkupContainer("sakai-rubric-viewer"); // View only rubric component for externally maintained assignments
+        sakaiRubricViewer.add(AttributeModifier.append("id", assignmentId));
+        sakaiRubricViewer.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
         Assignment assignment = businessService.getAssignment(assignmentId);
         sakaiRubricGrading.add(AttributeModifier.append("tool-id", assignment.getExternallyMaintained() ? AssignmentConstants.TOOL_ID : RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+        sakaiRubricGrading.setVisible(!assignment.getExternallyMaintained());
+        sakaiRubricViewer.add(AttributeModifier.append("tool-id", assignment.getExternallyMaintained() ? AssignmentConstants.TOOL_ID : RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+        sakaiRubricViewer.setVisible(assignment.getExternallyMaintained());
         String entityId = assignmentId.toString();
         String evaluatedItemId = assignmentId + "." + studentUuid;
         if (assignment.getExternallyMaintained()) {
@@ -86,10 +92,14 @@ public class RubricGradePanel extends BasePanel {
         sakaiRubricGrading.add(AttributeModifier.append("entity-id", entityId));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", evaluatedItemId));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
+        sakaiRubricViewer.add(AttributeModifier.append("entity-id", entityId));
+        sakaiRubricViewer.add(AttributeModifier.append("evaluated-item-id", evaluatedItemId));
         if (serverConfigService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true)) {
             sakaiRubricGrading.add(AttributeModifier.append("enable-pdf-export", true));
+            sakaiRubricViewer.add(AttributeModifier.append("enable-pdf-export", true));
         }
         form.add(sakaiRubricGrading);
+        form.add(sakaiRubricViewer);
 
         final GbAjaxButton submit = new GbAjaxButton("submit") {
             @Override
@@ -98,6 +108,7 @@ public class RubricGradePanel extends BasePanel {
                 RubricGradePanel.this.window.close(target);
             }
         };
+        submit.setVisible(!assignment.getExternallyMaintained());
         submit.setOutputMarkupId(true).setMarkupId("saverubric");
         form.add(submit);
 
@@ -107,9 +118,20 @@ public class RubricGradePanel extends BasePanel {
                 RubricGradePanel.this.window.close(target);
             }
         };
+        cancel.setVisible(!assignment.getExternallyMaintained());
+        final GbAjaxButton closeViewer = new GbAjaxButton("closeViewer") {
+            @Override
+            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                RubricGradePanel.this.window.close(target);
+            }
+        };
+        closeViewer.setVisible(assignment.getExternallyMaintained());
         cancel.setOutputMarkupId(true).setMarkupId("cancelrubric");
         cancel.setDefaultFormProcessing(false);
+        closeViewer.setOutputMarkupId(true).setMarkupId("closerubric");
+        closeViewer.setDefaultFormProcessing(false);
         form.add(cancel);
+        form.add(closeViewer);
 
         add(form);
 
