@@ -57,6 +57,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -263,12 +264,14 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		Set<String> recipients = null;
 		try {
 			AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
-			recipients = authzGroup.getUsers();
-			// Remove the instructors
-			recipients.removeAll(authzGroup.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
-			recipients.removeAll(authzGroup.getUsersIsAllowed(Authz.PERMISSION_GRADE_SECTION));
+			Set<String> totalRecipients = authzGroup.getUsers();
+			Site site = siteService.getSite(siteId);
+			recipients = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
+			recipients.retainAll(totalRecipients);
 		} catch (GroupNotDefinedException gnde) {
 			throw new IllegalArgumentException("No group defined for " + groupRef);
+		} catch (IdUnusedException idune) {
+			log.warn("IdUnusedException trying to getRecipients", idune);
 		}
 
 		List<GradeDefinition> grades
