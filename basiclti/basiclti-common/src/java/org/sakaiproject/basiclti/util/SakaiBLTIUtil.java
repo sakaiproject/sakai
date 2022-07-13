@@ -1023,6 +1023,10 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 			}
 
+			// Make sure the gradebook is initialised
+			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+
 			// See if there are the necessary items
 			String secret = getSecret(tool, content);
 			String key = getKey(tool, content);
