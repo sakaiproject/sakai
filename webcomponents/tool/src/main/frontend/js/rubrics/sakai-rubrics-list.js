@@ -1,6 +1,5 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
-import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
 import "./sakai-rubric.js";
 import { SharingChangeEvent } from "./sharing-change-event.js";
 
@@ -35,6 +34,15 @@ export class SakaiRubricsList extends RubricsElement {
 
   get siteId() { return this._siteId; }
 
+  search(search) {
+
+    this.querySelectorAll("sakai-rubric, sakai-rubric-readonly").forEach(rubric => {
+
+      rubric.classList.remove("hidden");
+      rubric.classList.toggle("hidden", !rubric.matches(search));
+    });
+  }
+
   shouldUpdate() {
     return this.rubrics;
   }
@@ -44,10 +52,8 @@ export class SakaiRubricsList extends RubricsElement {
     return html`
       <div role="presentation">
         <div role="tablist">
-        ${repeat(this.rubrics, r => r.id, r => html`
-          <div class="rubric-item" id="rubric_item_${r.id}">
-            <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric>
-          </div>
+        ${this.rubrics.map(r => html`
+          <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric>
         `)}
         </div>
       </div>
