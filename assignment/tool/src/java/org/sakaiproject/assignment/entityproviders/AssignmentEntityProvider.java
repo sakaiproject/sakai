@@ -458,6 +458,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     @EntityCustomAction(action = "gradable", viewKey = EntityView.VIEW_LIST)
     public ActionReturn getGradableForSite(EntityView view , Map<String, Object> params) {
 
+        getCheckedCurrentUser();
+
         String gradableId = (String) params.get("gradableId");
 
         if (StringUtils.isBlank(gradableId)) {
@@ -474,6 +476,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
 
         String siteId = assignment.getContext();
+
+        String assignmentReference
+            = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        if (!assignmentService.allowGradeSubmission(assignmentReference)) {
+            throw new EntityException("Forbidden", "", HttpServletResponse.SC_FORBIDDEN);
+        }
 
         Site site = null;
         try {
@@ -515,12 +524,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     @EntityCustomAction(action = "grades", viewKey = EntityView.VIEW_LIST)
     public ActionReturn getGrades(Map<String, Object> params) {
 
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("getGrades attempt when not logged in");
-            throw new EntityException("You need to be logged in to get grades", "", HttpServletResponse.SC_UNAUTHORIZED);
-        }
+        String userId = getCheckedCurrentUser();
 
         String courseId = (String) params.get("courseId");
         String gradableId = (String) params.get("gradableId");
@@ -536,10 +540,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("The courseId (site id) you supplied is invalid", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        if (!securityService.unlock(userId, SECURE_GRADE_ASSIGNMENT_SUBMISSION, "/site/" + courseId)) {
-            throw new EntityException("You don't have permission to get grades", "", HttpServletResponse.SC_FORBIDDEN);
-        }
-
         Assignment assignment;
 
         try {
@@ -548,6 +548,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("No gradable for id " + gradableId, "", HttpServletResponse.SC_BAD_REQUEST);
         } catch (PermissionException pe) {
             throw new EntityException("You don't have permission to read the assignment", "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        String assignmentReference
+            = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        if (!assignmentService.allowGradeSubmission(assignmentReference)) {
+            throw new EntityException("You don't have permission to get grades", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
         // A map of submissionId -> grade
@@ -575,12 +582,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     @EntityCustomAction(action = "setGrade", viewKey = EntityView.VIEW_NEW)
     public ActionReturn setGrade(Map<String, Object> params) {
 
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("setGrade attempt when not logged in");
-            throw new EntityException("You need to be logged in to set grades", "", HttpServletResponse.SC_UNAUTHORIZED);
-        }
+        String userId = getCheckedCurrentUser();
 
         String courseId = (String) params.get("courseId");
         String gradableId = (String) params.get("gradableId");
@@ -687,12 +689,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     @EntityCustomAction(action = "removeFeedbackAttachment", viewKey = EntityView.VIEW_LIST)
     public String removeFeedbackAttachment(Map<String, Object> params) {
 
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("removeFeedbackAttachment attempt when not logged in");
-            throw new EntityException("You need to be logged in to remove feedback attachments", "", HttpServletResponse.SC_UNAUTHORIZED);
-        }
+        String userId = getCheckedCurrentUser();
 
         String submissionId = (String) params.get("submissionId");
         String ref = (String) params.get("ref");
@@ -926,6 +923,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("Site Id must be provided.");
         }
+    }
+
+
+    public String getCheckedCurrentUser() throws EntityException {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current session user");
+            throw new EntityException("Unauthorized", "", HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
+        return userId;
     }
 
     @Getter
