@@ -105,7 +105,8 @@ class SakaiDocumentViewer extends SakaiElement {
       this.nomargins = true;
       // Let PDFJS handle this. We can just literally use the viewer, like Firefox and Chrome do.
       this.documentMarkup = `<iframe src="/library/webjars/pdf-js/2.9.359/web/viewer.html?file=/access/${encodeURIComponent(ref)}" width="100%" height="${this.height}" />`;
-    } else if (type === "application/vnd.oasis.opendocument.presentation") {
+    } else if (type === "application/vnd.oasis.opendocument.presentation"
+                || type === "application/vnd.oasis.opendocument.text") {
       this.nomargins = true;
       this.documentMarkup = `<iframe src="/library/webjars/viewerjs/0.5.9#/access${ref}" width="100%" height="${this.height}" />`;
     } else if (type.includes("image/")) {

@@ -106,6 +106,7 @@
       class="org.sakaiproject.conversations.impl.ConversationsServiceImpl" init-method="init">
 
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
     <property name="commentRepository" ref="org.sakaiproject.conversations.api.repository.ConversationsCommentRepository" />
     <property name="convStatusRepository" ref="org.sakaiproject.conversations.api.repository.ConvStatusRepository" />
     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
@@ -123,6 +124,7 @@
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
     <property name="tagRepository" ref="org.sakaiproject.conversations.api.repository.TagRepository" />
+    <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     <property name="topicRepository" ref="org.sakaiproject.conversations.api.repository.ConversationsTopicRepository" />
     <property name="topicReactionRepository" ref="org.sakaiproject.conversations.api.repository.TopicReactionRepository" />
     <property name="topicReactionTotalRepository" ref="org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository" />

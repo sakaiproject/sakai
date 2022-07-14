@@ -17,6 +17,7 @@ body{
 		overflow: hidden;
 		display: none;
 		left: 50%;
+		top: 0;
 		transform: translateX(-50%);
 		z-index: 100000;
 		div {
@@ -36,6 +37,19 @@ body{
 	&.tool-maximised {
 		#maximised-indicator {
 			display: block;
+		}
+	}
+}
+
+sakai-maximise-button {
+	@media #{$phone} {
+		display: none;
+	}
+
+	body.tool-maximised & {
+		.#{$namespace}toolTitleNav__link {
+			@extend .btn;
+			@extend .btn-primary;
 		}
 	}
 }

@@ -168,6 +168,7 @@
         if ($.trim($('#name').val()) === '') {
             $('#checklist-error').text(msg("simplepage.checklist-name-required"));
             $('#checklist-error-container').show();
+            $(window).scrollTop(0);
             return false;
         } else {
             $('#checklist-error-container').hide();

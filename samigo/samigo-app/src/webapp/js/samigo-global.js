@@ -145,7 +145,10 @@ $(function () {
     // handles point changes for assignments, updating the grade field if it exists.
     var gradeField = $('.adjustedScore' + e.detail.evaluatedItemId.replace("\.", "\\."));
     if (gradeField) {
-      gradeField.val(e.detail.value);
+      let score = e.detail.value;
+      // In some locales Rubrics may set comma instead of dot as decimal separator.
+      score = score.replace(",", ".");
+      gradeField.val(score);
     }
   });
 

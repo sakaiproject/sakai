@@ -6,12 +6,6 @@
 
     <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass} #if ( ${toolsCollapsed} ) Mrphs-toolMenu-collapsed #end #if ( ${toolMaximised} ) tool-maximised #end" #end $pageSiteType>
 
-        <div id="maximised-indicator">
-            <div>
-                <a href="javascript:;">${rloader.sit_fullscreen_message}</a>
-            </div>
-        </div>
-
         <noscript>
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
         </noscript>
@@ -270,6 +264,10 @@
         </div>
         #parse("/vm/morpheus/connection-manager.vm")
         #end
-
+        <div id="maximised-indicator">
+            <div>
+                <a href="javascript:;">${rloader.sit_fullscreen_message}</a>
+            </div>
+        </div>
     </body>
 </html>

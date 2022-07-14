@@ -358,18 +358,18 @@ public class PermissionsPage extends BasePage {
 				item.add(new Label("can", new ResourceModel("permissionspage.item.can")));
 
 				// function list
-				final DropDownChoice<String> functionChooser = new DropDownChoice<String>("function",
-						new PropertyModel<String>(permission, "function"), assignablePermissions, new ChoiceRenderer<String>() {
+				final DropDownChoice<String> functionChooser = new DropDownChoice<String>("functionName",
+						new PropertyModel<String>(permission, "functionName"), assignablePermissions, new ChoiceRenderer<String>() {
 							private static final long serialVersionUID = 1L;
 
 							@Override
-							public Object getDisplayValue(final String function) {
-								return getString("permissionspage.function." + function);
+							public Object getDisplayValue(final String functionName) {
+								return getString("permissionspage.function." + functionName);
 							}
 
 							@Override
-							public String getIdValue(final String function, final int index) {
-								return function;
+							public String getIdValue(final String functionName, final int index) {
+								return functionName;
 							}
 
 						});

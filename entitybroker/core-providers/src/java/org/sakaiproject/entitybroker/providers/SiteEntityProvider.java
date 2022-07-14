@@ -81,8 +81,10 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 
 
 /**
@@ -106,6 +108,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     private SecurityService securityService;
     private FormattedText formattedText;
     private ThreadLocalManager threadLocalManager;
+    private SessionManager sessionManager;
 
     public static String PREFIX = "site";
 
@@ -309,7 +312,11 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         // check if the user can access site
         isAllowedAccessSite(site);
 
-        List<EntityGroup> groups = site.getGroups().stream().map(EntityGroup::new).collect(Collectors.toList());
+        List<EntityGroup> groups = securityService.isSuperUser() ?
+                site.getGroups().stream().map(EntityGroup::new).collect(Collectors.toList())
+                :
+                site.getGroupsWithMember(sessionManager.getCurrentSessionUserId()).stream()
+                .map(EntityGroup::new).sorted((group, other) -> new AlphaNumericComparator().compare(group.getTitle(), other.getTitle())).collect(Collectors.toList());
         return new ActionReturn(groups);
     }
 

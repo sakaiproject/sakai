@@ -17,6 +17,7 @@ package org.sakaiproject.rubrics.tool.controller;
 
 import javax.annotation.Resource;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -37,6 +38,9 @@ public class RubricsController {
     private RubricsService rubricsService;
 
     @Resource
+    private SecurityService securityService;
+
+    @Resource
     private SessionManager sessionManager;
 
     @Autowired
@@ -53,11 +57,19 @@ public class RubricsController {
     @GetMapping("/index")
     public String index(ModelMap model) {
 
+        String siteId = toolManager.getCurrentPlacement().getContext();
         boolean enablePdfExport = serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true);
         model.addAttribute("enablePdfExport", enablePdfExport);
-        model.addAttribute("siteId", toolManager.getCurrentPlacement().getContext());
+        model.addAttribute("siteId", siteId);
         model.addAttribute("sakaiSessionId", sessionManager.getCurrentSession().getId());
         model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
-        return "index";
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+
+        if (securityService.unlock(currentUserId, RubricsConstants.RBCS_PERMISSIONS_EDITOR, "/site/" + siteId)) {
+            return "editor_index";
+        } else {
+            return "viewer_index";
+        }
     }
 }

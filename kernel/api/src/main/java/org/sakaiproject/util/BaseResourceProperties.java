@@ -720,6 +720,12 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 		return PROP_CALENDAR_LOCATION;
 	}
 
+	@Override
+	public String getNamePropCalendarUrl()
+	{
+		return PROP_CALENDAR_URL;
+	}
+
 	/**
 	 * Get the static String of PROP_REPLY_STYLE
 	 * 

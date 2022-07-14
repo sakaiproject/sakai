@@ -39,6 +39,9 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
@@ -82,6 +85,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.Message;
@@ -91,16 +95,21 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import org.hibernate.exception.ConstraintViolationException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -114,6 +123,8 @@ import lombok.Setter;
 public class ConversationsServiceImpl implements ConversationsService, Observer {
 
     private AuthzGroupService authzGroupService;
+
+    private CalendarService calendarService;
 
     private FunctionManager functionManager;
 
@@ -146,6 +157,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
     private StatsManager statsManager;
 
     private TagRepository tagRepository;
+
+    private TimeService timeService;
 
     private TopicReactionRepository topicReactionRepository;
 
@@ -406,6 +419,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         }
 
         boolean wasDraft = false;
+        ConversationsTopic existingTopic = null;
+        String oldDueDateCalendarEventId = null;
 
         Instant now = Instant.now();
         if (isNew) {
@@ -418,31 +433,33 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                 topicBean.lockDate = null;
             }
         } else {
-            ConversationsTopic topic = topicRepository.findById(topicBean.id)
+            existingTopic = topicRepository.findById(topicBean.id)
                 .orElseThrow(() -> new IllegalArgumentException("No existing topic for " + topicBean.id));
 
-            wasDraft = topic.getDraft() && !topicBean.draft;
+            oldDueDateCalendarEventId = existingTopic.getDueDateCalendarEventId();
 
-            if (topic.getLocked() && !isModerator) {
+            wasDraft = existingTopic.getDraft() && !topicBean.draft;
+
+            if (existingTopic.getLocked() && !isModerator) {
                 throw new ConversationsPermissionsException("Current user cannot update topic.");
             }
 
-            if (topicBean.showDate == null && topic.getShowDate() != null) {
+            if (topicBean.showDate == null && existingTopic.getShowDate() != null) {
                 // show date has been removed
                 if (topicBean.hideDate == null || topicBean.hideDate.isAfter(now)) {
                     topicBean.hidden = false;
                 }
             }
 
-            if (topicBean.lockDate == null && topic.getLockDate() != null) {
+            if (topicBean.lockDate == null && existingTopic.getLockDate() != null) {
                 // lock date has been removed
                 topicBean.locked = false;
             }
 
             // Only moderators can set a show or lock date
-            if ((!Objects.equals(topic.getShowDate(), topicBean.showDate)
-                || !Objects.equals(topic.getHideDate(), topicBean.hideDate)
-                || !Objects.equals(topic.getLockDate(), topicBean.lockDate)) && !isModerator) {
+            if ((!Objects.equals(existingTopic.getShowDate(), topicBean.showDate)
+                || !Objects.equals(existingTopic.getHideDate(), topicBean.hideDate)
+                || !Objects.equals(existingTopic.getLockDate(), topicBean.lockDate)) && !isModerator) {
                 throw new ConversationsPermissionsException("Current user cannot update show, hide or lock dates.");
             }
 
@@ -461,6 +478,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
         ConversationsTopic topic = topicRepository.save(topicBean.asTopic());
 
+        topic = updateCalendarForTopic(oldDueDateCalendarEventId, topic);
+
         TopicTransferBean outTopicBean = TopicTransferBean.of(topic);
 
         outTopicBean.tags = topic.getTagIds().stream().map(tagId -> {
@@ -476,23 +495,24 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         TopicTransferBean decoratedBean = decorateTopicBean(outTopicBean, topic, currentUserId, settings);
 
         final boolean finalWasDraft = wasDraft;
+        final ConversationsTopic finalTopic = topic;
 
         this.afterCommit(() -> {
 
             ConversationsEvents event = isNew ? ConversationsEvents.TOPIC_CREATED : ConversationsEvents.TOPIC_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, decoratedBean.siteId, true, NotificationService.NOTI_OPTIONAL));
 
-            if (sendMessage && (isNew || finalWasDraft) && !topic.getDraft()) {
+            if (sendMessage && (isNew || finalWasDraft) && !finalTopic.getDraft()) {
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
                     Set<User> users = null;
-                    switch (topic.getVisibility()) {
+                    switch (finalTopic.getVisibility()) {
                         case SITE:
                             users = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
                             break;
                         case GROUP:
-                            Set<String> userIds = new HashSet<>(authzGroupService.getAuthzUsersInGroups(topic.getGroups()));
+                            Set<String> userIds = new HashSet<>(authzGroupService.getAuthzUsersInGroups(finalTopic.getGroups()));
                             users = new HashSet<>(userDirectoryService.getUsers(userIds));
                             break;
                         case INSTRUCTORS:
@@ -512,7 +532,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                         Message.builder()
                             .siteId(decoratedBean.siteId)
                             .tool(TOOL_ID)
-                            .type(topic.getType() == TopicType.QUESTION ? "newquestion" : "newdiscussion").build(),
+                            .type(finalTopic.getType() == TopicType.QUESTION ? "newquestion" : "newdiscussion").build(),
                         Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
                 } catch (IdUnusedException iue) {
                     log.error("No group for site reference {}", siteRef);
@@ -521,6 +541,49 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         });
         
         return decoratedBean;
+    }
+
+    private CalendarEventEdit populateCalendarEvent(CalendarEventEdit calEdit, ConversationsTopic topic) {
+
+        long start = topic.getDueDate().toEpochMilli();
+        calEdit.setRange(timeService.newTimeRange(timeService.newTime(start), timeService.newTime(start), true, false));
+        calEdit.setDisplayName(resourceLoader.getString("topic_due") + " " + topic.getTitle());
+        calEdit.setDescription(topic.getMessage());
+        calEdit.setType(CalendarEventType.DEADLINE.getType());
+        calEdit.setEventUrl(getTopicPortalUrl(topic.getId()).orElse(""));
+        return calEdit;
+    }
+
+    private ConversationsTopic updateCalendarForTopic(String oldCalId, ConversationsTopic newTopic) {
+
+        Calendar cal = this.getCalendar(newTopic.getSiteId());
+
+        if ((newTopic.getDueDate() == null || newTopic.getDraft()) && oldCalId != null) {
+
+            // Either the due date has been removed, or the topic has been set to draft at some point.
+
+            try {
+                cal.removeEvent(cal.getEditEvent(oldCalId, CalendarService.EVENT_REMOVE_CALENDAR));
+                newTopic.setDueDateCalendarEventId(null);
+                return topicRepository.save(newTopic);
+            } catch (Exception e) {
+                log.error("Failed to remove due date from calendar: {}", e.toString());
+            }
+        }
+
+        if (newTopic.getDueDate() != null && !newTopic.getDraft()) {
+
+            try {
+                CalendarEventEdit calEdit = populateCalendarEvent(oldCalId != null ? cal.getEditEvent(oldCalId, CalendarService.EVENT_MODIFY_CALENDAR) : cal.addEvent(), newTopic);
+                cal.commitEvent(calEdit);
+                newTopic.setDueDateCalendarEventId(calEdit.getId());
+                return topicRepository.save(newTopic);
+            } catch (Exception e) {
+                log.error("Failed to add due date to calendar: {}", e.toString());
+            }
+        }
+
+        return newTopic;
     }
 
     public void pinTopic(String topicId, boolean pinned) throws ConversationsPermissionsException {
@@ -634,6 +697,15 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         topicReactionRepository.deleteByTopicId(topicId);
         topicReactionTotalRepository.deleteByTopicId(topicId);
         topicRepository.delete(topic);
+
+        if (topic.getDueDateCalendarEventId() != null) {
+            Calendar cal = this.getCalendar(topic.getSiteId());
+            try {
+                cal.removeEvent(cal.getEditEvent(topic.getDueDateCalendarEventId(), CalendarService.EVENT_REMOVE_CALENDAR));
+            } catch (Exception e) {
+                log.error("Failed to remove due date event from calendar: {}", e.toString());
+            }
+        }
 
         afterCommit(() -> {
             String ref = ConversationsReferenceReckoner.reckoner()
@@ -791,7 +863,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         }
         this.markPostViewed(postBean.topic, post.getId(), currentUserId);
 
-        if (!post.getDraft() && !post.getPrivatePost()
+        if (!post.getDraft() && !post.getPrivatePost() && !post.getAnonymous()
             && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
 
             topic.setResolved(true);
@@ -1183,13 +1255,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             throw new ConversationsPermissionsException("Current user is not allowed to delete post.");
         }
 
-        if (setTopicResolved && securityService.unlock(post.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
-            topicRepository.findById(post.getTopicId()).ifPresent(t -> {
-                setTopicResolved(t);
-                topicRepository.save(t);
-            });
-        }
-
         if (postRepository.countByParentPostId(postId) > 0) {
             throw new IllegalArgumentException("Post " + postId + " has children. It cannot be deleted, only hidden");
         }
@@ -1207,6 +1272,13 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             });
         }
         postRepository.delete(post);
+
+        if (setTopicResolved && securityService.unlock(post.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
+            topicRepository.findById(post.getTopicId()).ifPresent(t -> {
+                setTopicResolved(t);
+                topicRepository.save(t);
+            });
+        }
 
         postsCache.remove(topicId);
 
@@ -1354,7 +1426,12 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
             .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
         topicStatus.setViewed(numberOfUnreadPosts == 0L);
-        topicStatus = topicStatusRepository.save(topicStatus);
+        try {
+            topicStatusRepository.save(topicStatus);
+        } catch (ConstraintViolationException e) {
+            log.debug("Caught a constraint exception while saving topic status. This can happen " +
+                "due to the way the client detects posts scrolling into view");
+        }
 
         Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
         if (topicCache != null) topicCache.remove(currentUserId);
@@ -1368,8 +1445,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         status.setViewedDate(Instant.now());
         try {
             postStatusRepository.save(status);
-        } catch (Exception e) {
-            log.debug("Caught exception while marking post viewed. This can happen " +
+        } catch (ConstraintViolationException e) {
+            log.debug("Caught constraint exception while marking post viewed. This can happen " +
                 "due to the way the client detects posts scrolling into view");
         }
     }
@@ -1458,10 +1535,12 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     private void setTopicResolved(ConversationsTopic topic) {
 
-        String siteRef = "/site/" + topic.getSiteId();
+        String siteRef = siteService.siteReference(topic.getSiteId());
 
         topic.setResolved(postRepository.findByTopicId(topic.getId()).stream().anyMatch(p -> {
-            return !p.getDraft() && securityService.unlock(p.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
+
+            return !p.getDraft() && !p.getAnonymous()
+                && securityService.unlock(p.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
         }));
     }
 
@@ -1547,7 +1626,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         } else {
             topicBean.canEdit = securityService.unlock(Permissions.MODERATE.label, siteRef);
         }
-
 
         topicBean.url = "/api/sites/" + topicBean.siteId + "/topics/" + topicBean.id;
         getTopicPortalUrl(topicBean.id).ifPresent(portalUrl -> topicBean.portalUrl = portalUrl);
@@ -2101,5 +2179,23 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     public String[] getEventKeys() {
         return new String[] { ConversationsEvents.TOPIC_CREATED.label, ConversationsEvents.POST_CREATED.label, ConversationsEvents.REACTED_TO_TOPIC.label };
+    }
+
+    private Calendar getCalendar(String site) {
+
+        Calendar calendar = null;
+
+        String calendarId = calendarService.calendarReference(site, siteService.MAIN_CONTAINER);
+        try {
+            calendar = calendarService.getCalendar(calendarId);
+        } catch (IdUnusedException e) {
+            log.warn("No calendar found for site: {}", site);
+        } catch (PermissionException e) {
+            log.error("The current user does not have permission to access the calendar for site: {}", site, e.toString());
+        } catch (Exception ex) {
+            log.error("Unknown exception occurred retrieving calendar for site: {}", site, ex.toString());
+        }
+
+        return calendar;
     }
 }

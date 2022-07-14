@@ -1554,6 +1554,8 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment rv = null;
         SecurityAdvisor secAdv = null;
         String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
+        // if assignmentId is blank then it is not an assignment reference and is likely an id
+        if (StringUtils.isBlank(assignmentId)) assignmentId = assignmentReference;
         Session session = sessionManager.getCurrentSession();
 
         try {
@@ -2738,9 +2740,10 @@ public class AssignmentAction extends PagedResourceActionII {
                     
             // Get visibility value of assignments tool
             String isAssignmentsVisible = toolConfig.getConfig().getProperty(ToolManager.PORTAL_VISIBLE);
-            
+            boolean isVisible = StringUtils.isBlank(isAssignmentsVisible) || StringUtils.equalsIgnoreCase(isAssignmentsVisible, Boolean.TRUE.toString());
+
             // Checks if the assignments tool is visible from the LHS Menu.
-            context.put("isAssignmentsToolVisible", StringUtils.equalsIgnoreCase(isAssignmentsVisible, Boolean.TRUE.toString()));
+            context.put("isAssignmentsToolVisible", isVisible);
             
         } catch(IdUnusedException e) {
             log.error(e.getMessage(), e);
