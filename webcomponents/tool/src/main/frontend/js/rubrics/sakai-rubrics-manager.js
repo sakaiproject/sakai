@@ -189,22 +189,11 @@ class SakaiRubricsManager extends RubricsElement {
 
   filterRubrics() {
 
-    const searchInput = document.getElementById('rubrics-search-bar');
-    const searchInputValue = searchInput.value.toLowerCase();
+    const search = document.getElementById('rubrics-search-bar').value.toLowerCase();
 
     this.querySelectorAll('sakai-rubrics-list, sakai-rubrics-shared-list').forEach(rubricList => {
-      rubricList.querySelectorAll('.rubric-item').forEach(rubricItem => {
-        rubricItem.classList.remove('hidden');
-        const rubricTitle = rubricItem.querySelector('.rubric-name').textContent;
-        const rubricAuthor = rubricItem.querySelector('sakai-rubric-creator-name').textContent;
-        const rubricSite = rubricItem.querySelector('sakai-rubric-site-title').textContent;
-        if (!rubricAuthor.toLowerCase().includes(searchInputValue) &&
-            !rubricTitle.toLowerCase().includes(searchInputValue) &&
-            !rubricSite.toLowerCase().includes(searchInputValue)
-        ) {
-          rubricItem.classList.add('hidden');
-        }
-      });
+
+      rubricList.search(search);
     });
   }
 

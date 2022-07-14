@@ -10,18 +10,6 @@
         margin: $standard-spacing 0;
     }
 
-    .rubric-item {
-        position: relative;
-        .div-description{
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .cr-table{
-            table-layout: fixed;
-        }
-    }
-
     .rubric-title {
         background: $rubrics-title-bg;
         padding: 20px;

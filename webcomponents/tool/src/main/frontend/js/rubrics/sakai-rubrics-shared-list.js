@@ -1,15 +1,14 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import "./sakai-rubric-readonly.js";
-import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
+import { SakaiRubricsHelpers } from "./sakai-rubrics-helpers.js";
+import { SakaiRubricsList } from "./sakai-rubrics-list.js";
 
 const rubricName = 'name';
 const rubricTitle = 'title';
 const rubricCreator = 'creator';
 const rubricModified = 'modified';
 
-export class SakaiRubricsSharedList extends RubricsElement {
+export class SakaiRubricsSharedList extends SakaiRubricsList {
 
   constructor() {
 
@@ -35,10 +34,8 @@ export class SakaiRubricsSharedList extends RubricsElement {
 
     return html`
       <div role="tablist">
-      ${repeat(this.rubrics, r => r.id, r => html`
-        <div class="rubric-item" id="rubric_item_${r.id}">
-          <sakai-rubric-readonly rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric-readonly>
-        </div>
+      ${this.rubrics.map(r => html`
+        <sakai-rubric-readonly rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric-readonly>
       `)}
       </div>
     `;
