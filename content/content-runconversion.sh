@@ -75,9 +75,7 @@ CLASSPATH="$CLASSPATH:"$m2repository"/commons-pool/commons-pool/1.3/commons-pool
 CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-api/$KERNELVERSION/sakai-kernel-api-$KERNELVERSION.jar"
 CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-impl/$KERNELVERSION/sakai-kernel-impl-$KERNELVERSION.jar"
 CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-util/$KERNELVERSION/sakai-kernel-util-$KERNELVERSION.jar"
-CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-common/$KERNELVERSION/sakai-kernel-common-$KERNELVERSION.jar"
 CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-component/$KERNELVERSION/sakai-kernel-component-$KERNELVERSION.jar"
-CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-private/$KERNELVERSION/sakai-kernel-private-$KERNELVERSION.jar"
 CLASSPATH="$CLASSPATH:"$m2repository"/log4j/log4j/1.2.9/log4j-1.2.9.jar"
 
 # For Cygwin, ensure paths are in the proper format.

@@ -65,10 +65,6 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util-app</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>

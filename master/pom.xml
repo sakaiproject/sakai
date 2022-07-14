@@ -1171,22 +1171,10 @@
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-util</artifactId>
         <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-kernel-util-app</artifactId>
-        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-storage-util</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-kernel-private</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>

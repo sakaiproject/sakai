@@ -55,10 +55,6 @@
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-util-app</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.sakaiproject.grading</groupId>
 			<artifactId>sakai-grading-api</artifactId>
 		</dependency>

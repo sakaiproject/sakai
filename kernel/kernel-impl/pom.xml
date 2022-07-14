@@ -76,10 +76,6 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-util-app</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-storage-util</artifactId>
         </dependency>
         <dependency>
@@ -115,10 +111,6 @@
             <groupId>org.zwobble.mammoth</groupId>
             <artifactId>mammoth</artifactId>
             <version>1.4.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-private</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
