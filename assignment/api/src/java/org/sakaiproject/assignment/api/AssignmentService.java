@@ -281,13 +281,12 @@ public interface AssignmentService extends EntityProducer {
     boolean allowReviewService(Site site);
 
     /**
-     * Check permissions for grading Submission
+     * Check permissions for grading submissions on an assignment
      *
-     * @param submissionReference -
-     *                            The Submission's reference.
-     * @return True if the current User is allowed to grade the AssignmentSubmission, false if not.
+     * @param assignmentReference The assignment's reference.
+     * @return true if the current user is allowed to grade submissions for the assignment.
      */
-    public boolean allowGradeSubmission(String submissionReference);
+    public boolean allowGradeSubmission(String assignmentReference);
 
     /**
      * Creates and adds a new Assignment to the service.
