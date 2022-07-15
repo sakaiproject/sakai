@@ -1196,7 +1196,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		Iterator iter = itemSet.iterator();
 		while (iter.hasNext()) {
 			ItemData item = (ItemData) iter.next();
-			if (qpItemHash.get(item.getItemId().toString()) != null) {
+			if (qpItemHash.get(item.getItemId()) != null) {
 				// item belongs to a pool, in this case, set section=null so
 				// item won't get deleted during section deletion
 				item.setSection(null);
