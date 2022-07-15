@@ -1072,6 +1072,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             try {
                 Rubric clone = rubric.clone(toContext);
+                clone.setCreated(Instant.now());
+                clone.setModified(Instant.now());
                 clone = rubricRepository.save(clone);
                 traversalMap.put(RubricsConstants.RBCS_PREFIX + rubric.getId(), RubricsConstants.RBCS_PREFIX + clone.getId());
             } catch (Exception e) {
