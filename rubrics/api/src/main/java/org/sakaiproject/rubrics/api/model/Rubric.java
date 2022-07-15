@@ -115,12 +115,12 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
 
         Rubric clonedRubric = new Rubric();
         clonedRubric.setId(null);
+        clonedRubric.setCreatorId(this.creatorId);
         clonedRubric.setOwnerId(siteId);
         clonedRubric.setTitle(this.title);
         clonedRubric.setWeighted(this.weighted);
         clonedRubric.setLocked(false);
         clonedRubric.setShared(false);
-        clonedRubric.setOwnerId(this.ownerId);
         clonedRubric.setCriteria(this.getCriteria().stream().map(c -> c.clone())
             .collect(Collectors.toList()));
         return clonedRubric;
