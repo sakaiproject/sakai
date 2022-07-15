@@ -364,8 +364,16 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
 							sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
+							sakaiRubricButton.setVisible(false);
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
+
+							Optional<AssociationTransferBean> optAssociation
+								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+							if (optAssociation.isPresent()) {
+								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
+								sakaiRubricButton.setVisible(true);
+							}
 
 							if (assignment.getId() != null) {
 								sakaiRubricButton.add(AttributeModifier.append("entity-id", assignment.getId()));
@@ -381,18 +389,16 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
 							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
-
-							 try {
-								Optional<AssociationTransferBean> optAssociation
-									= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
-								if (optAssociation.isPresent()) {
-									sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
-								}
-							} catch (Exception e) {
-								log.error("Failed to get association: {}", e.toString());
-							}
+							sakaiRubricButton.setVisible(false);
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
+
+							Optional<AssociationTransferBean> optAssociation
+								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+							if (optAssociation.isPresent()) {
+								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
+								sakaiRubricButton.setVisible(true);
+							}
 
 							if (assignment.getExternallyMaintained()) {
 								sakaiRubricButton.add(AttributeModifier.append("tool-id", AssignmentConstants.TOOL_ID));
