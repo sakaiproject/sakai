@@ -393,12 +393,12 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
-							Optional<AssociationTransferBean> optAssociation
-								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
-							if (optAssociation.isPresent()) {
-								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
-								sakaiRubricButton.setVisible(true);
-							}
+							rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId())
+								.ifPresent(assoc -> {
+
+									sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId));
+									sakaiRubricButton.setVisible(true);
+								});
 
 							if (assignment.getExternallyMaintained()) {
 								sakaiRubricButton.add(AttributeModifier.append("tool-id", AssignmentConstants.TOOL_ID));
@@ -434,7 +434,11 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 	                                        }
 	
 											rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, getCurrentSiteId())
-												.ifPresent(assoc -> sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId)));
+												.ifPresent(assoc -> {
+
+													sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId));
+													sakaiRubricButton.setVisible(true);
+												});
 											
 										} catch (Exception e) {
 											log.error("Failed to configure rubric button for submission: {}", e.toString());
@@ -451,6 +455,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 								if (assignment.getId() != null) {
 									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignment.getId()));
 								}
+
+								rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId())
+									.ifPresent(assoc -> {
+
+										sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId));
+										sakaiRubricButton.setVisible(true);
+									});
 							}
 
 							gradeScore.add(sakaiRubricButton);
