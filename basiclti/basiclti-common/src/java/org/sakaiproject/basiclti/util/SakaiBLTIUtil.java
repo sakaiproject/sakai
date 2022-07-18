@@ -84,6 +84,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
@@ -1025,8 +1026,8 @@ public class SakaiBLTIUtil {
 			}
 
 			// SAK-47573 - Make sure the gradebook is initialised
-			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+            GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			Gradebook gb = (Gradebook) g.getGradebook(context);
 
 			// See if there are the necessary items
 			String secret = getSecret(tool, content);
@@ -1453,8 +1454,8 @@ public class SakaiBLTIUtil {
 			}
 
 			// SAK-47573 - Make sure the gradebook is initialised
-			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+            GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			Gradebook gb = (Gradebook) g.getGradebook(context);
 
 			Properties lti13subst = new Properties();
 			addGlobalData(site, ltiProps, lti13subst, rb);
