@@ -124,7 +124,7 @@ public interface AnnouncementService extends MessageService
 
     public static final String MOTD_TOOL_ID = "sakai.motd";
 
-	/** SAK-44622 **/
+	/** Event for delayed announcement **/
 	public static final String EVENT_AVAILABLE_ANNC = SECURE_ANNC_ROOT + "available.announcement";
 
 	/**

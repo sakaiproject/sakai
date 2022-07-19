@@ -2865,13 +2865,13 @@ public class AnnouncementAction extends PagedResourceActionII
 						// availablity changed
 						eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY, msg.getReference(), true));
 
-						//SAK-44622:
+
 						//check if an delay might exist
 						if ((StringUtils.isNotEmpty(oReleaseDate) && releaseDate == null) || (StringUtils.isNotEmpty(oReleaseDate) && releaseDate != null && !oReleaseDate.equals(releaseDate.toString()))) {
 
-							eventTrackingService.cancelDelays(msg.getReference(), org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC);
+							eventTrackingService.cancelDelays(msg.getReference(), AnnouncementService.EVENT_AVAILABLE_ANNC);
 
-							//check if new date is in future
+							//check if new date has passed already
 							if(msg.getHeader().getInstant().isAfter(Instant.now())){
 								Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
 								eventTrackingService.delay(event,msg.getHeader().getInstant());
@@ -2879,11 +2879,10 @@ public class AnnouncementAction extends PagedResourceActionII
 						}
 					}
 				}
-				//SAK-44622:
+
 				//Create delay
-				Instant nowInstant = Instant.now();
 				Instant date = msg.getHeader().getInstant();
-				if (nowInstant.isBefore(date)){
+				if (date.isAfter(Instant.now()) {
 					// track event
 					Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
 					eventTrackingService.delay(event,date);
@@ -2991,10 +2990,9 @@ public class AnnouncementAction extends PagedResourceActionII
 					//channel.removeMessage(edit); 
 					channel.removeAnnouncementMessage(message.getId());
 
-					//SAK-44622
+
 					//Delete possible delay
-					Instant date = message.getHeader().getInstant();
-					if(date.isAfter(Instant.now())){
+					if (message.getHeader().getInstant().isAfter(Instant.now())) {
 						eventTrackingService.cancelDelays(message.getReference(), org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC);
 					}
 				}
