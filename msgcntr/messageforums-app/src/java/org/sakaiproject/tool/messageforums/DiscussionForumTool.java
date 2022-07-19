@@ -1448,7 +1448,8 @@ public class DiscussionForumTool {
     
     // Update or create task if needed
     String gradeAssign = selectedForum.getGradeAssign();
-    if (!draft) {
+	gradeAssign = gradeAssign == null ? selectedForum.getForum().getDefaultAssignName() : gradeAssign;
+    if (!draft && gradeAssign != null) {
       GradingService gradingService = getGradingService();
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
       Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
