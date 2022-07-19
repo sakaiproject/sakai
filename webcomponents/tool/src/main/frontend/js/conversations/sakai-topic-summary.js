@@ -43,7 +43,7 @@ export class SakaiTopicSummary extends SakaiElement {
               <sakai-icon type="questioncircle"
                   class="question-icon"
                   size="medium"
-                  arial-label="${this.i18n.question_tooltip}"
+                  aria-label="${this.i18n.question_tooltip}"
                   title="${this.i18n.question_tooltip}">
               </sakai-icon>
             ` : ""}
@@ -52,7 +52,7 @@ export class SakaiTopicSummary extends SakaiElement {
               <sakai-icon type="forums"
                   class="discussion-icon"
                   size="small"
-                  arial-label="${this.i18n.discussion_tooltip}"
+                  aria-label="${this.i18n.discussion_tooltip}"
                   title="${this.i18n.discussion_tooltip}">
               </sakai-icon>
             </div>
@@ -68,7 +68,7 @@ export class SakaiTopicSummary extends SakaiElement {
             <div>
               <sakai-icon type="pin"
                   size="small"
-                  arial-label="${this.i18n.pinned_tooltip}"
+                  aria-label="${this.i18n.pinned_tooltip}"
                   title="${this.i18n.pinned_tooltip}">
               </sakai-icon>
             </div>
@@ -78,14 +78,14 @@ export class SakaiTopicSummary extends SakaiElement {
               <sakai-icon type="favourite"
                   size="small"
                   class="bookmarked"
-                  arial-label="${this.i18n.bookmarked_tooltip}"
+                  aria-label="${this.i18n.bookmarked_tooltip}"
                   title="${this.i18n.bookmarked_tooltip}">
               </sakai-icon>
             </div>
             ` : ""}
             ${this.topic.locked ? html`
             <div class="topic-status"
-                role="image"
+                role="img"
                 title="${this.i18n.topic_locked_tooltip}"
                 aria-label="${this.i18n.topic_locked_tooltip}">
               <sakai-icon type="lock" size="small"></sakai-icon></div>
@@ -93,7 +93,7 @@ export class SakaiTopicSummary extends SakaiElement {
             ` : ""}
             ${this.topic.hidden ? html`
             <div class="topic-status"
-                role="image"
+                role="img"
                 title="${this.i18n.topic_hidden_tooltip}"
                 aria-label="${this.i18n.topic_hidden_tooltip}">
               <sakai-icon type="hidden" size="small"></sakai-icon></div>
@@ -111,7 +111,7 @@ export class SakaiTopicSummary extends SakaiElement {
           ${this.topic.numberOfUnreadPosts > 0 ? html`
             <sakai-icon type="circle"
                 size="small"
-                arial-label="${this.i18n.read_tooltip}"
+                aria-label="${this.i18n.read_tooltip}"
                 title="${this.i18n.read_tooltip}">
             </sakai-icon>
           ` : ""}

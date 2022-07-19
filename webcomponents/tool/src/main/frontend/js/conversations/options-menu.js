@@ -1,5 +1,4 @@
 import { css, html, LitElement } from "../assets/lit-element/lit-element.js";
-import "../sakai-icon.js";
 
 class OptionsMenu extends LitElement {
 
@@ -37,10 +36,16 @@ class OptionsMenu extends LitElement {
 
   get placement() { return this._placement; }
 
+  _toggleShowing(e) {
+
+    e.stopPropagation();
+    this.showing = !this.showing;
+  }
+
   render() {
 
     return html`
-      <slot name="trigger" @click=${e => { this.showing = !this.showing; e.stopPropagation(); }}></slot>
+      <slot name="trigger" @click="${this._toggleShowing}"></slot>
       <slot name="content" class="content" style="display: ${this.showing ? "block" : "none"}; transform: ${this.transform}"></slot>
     `;
   }
