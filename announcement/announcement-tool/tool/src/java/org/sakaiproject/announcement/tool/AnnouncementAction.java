@@ -2882,7 +2882,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				//Create delay
 				Instant date = msg.getHeader().getInstant();
-				if (date.isAfter(Instant.now()) {
+				if (date.isAfter(Instant.now())) {
 					// track event
 					Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
 					eventTrackingService.delay(event,date);
