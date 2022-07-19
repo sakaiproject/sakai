@@ -47,7 +47,7 @@ public final class AssignmentConstants {
 
 
     /**
-     *  SAK-44623: event for delayed assignment
+     *  Event for delayed assignment
      */
     public static final String EVENT_AVAILABLE_ASSIGNMENT = "asn.available.assignment";
 
