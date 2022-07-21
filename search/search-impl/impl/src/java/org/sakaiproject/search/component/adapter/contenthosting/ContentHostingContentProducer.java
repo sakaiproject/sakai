@@ -635,7 +635,9 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 		try {
 			Reference reference = entityManager.newReference(ref);
 			ResourceProperties refProperties = reference.getProperties();
-			boolean isSecured = refProperties.getProperty(ResourceProperties.PROP_SECURED) != null && refProperties.getBooleanProperty(ResourceProperties.PROP_SECURED);
+			boolean isSecured = refProperties != null &&
+					refProperties.getProperty(ResourceProperties.PROP_SECURED) != null &&
+					refProperties.getBooleanProperty(ResourceProperties.PROP_SECURED);
 			if (!isSecured) {
 				contentHostingService.checkResource(reference.getId());
 				return true;
