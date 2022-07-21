@@ -192,7 +192,7 @@ public class ReferenceComponent implements Reference
 			props = m_service.getEntityResourceProperties(this);
 		}
 
-		return (props != null) ? props : new BaseResourceProperties();
+		return props;
 	}
 
 	/**
