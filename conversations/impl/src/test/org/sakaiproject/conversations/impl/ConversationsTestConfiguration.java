@@ -32,12 +32,14 @@ import org.hsqldb.jdbcDriver;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.conversations.api.TopicShowDateMessager;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.impl.repository.ConversationsCommentRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
@@ -277,6 +279,16 @@ public class ConversationsTestConfiguration {
     @Bean(name = "org.sakaiproject.search.api.SearchService")
     public SearchService searchService() {
         return mock(SearchService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.api.app.scheduler.ScheduledInvocationManager")
+    public ScheduledInvocationManager scheduledInvocationManager() {
+        return mock(ScheduledInvocationManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.conversations.api.TopicShowDateMessager")
+    public TopicShowDateMessager topicShowDateMessager() {
+        return mock(TopicShowDateMessager.class);
     }
 
     @Bean(name = "org.sakaiproject.user.api.UserNotificationPreferencesRegistration")
