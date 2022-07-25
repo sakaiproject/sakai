@@ -184,7 +184,7 @@ export class SakaiRubricGrading extends RubricsElement {
     console.debug("release");
 
     // If there are no criteria, this evaluation has been cancelled.
-    if (this.criteria.length == 0) return;
+    if (this.criteria.length == 0 || !this.evaluation.criterionOutcomes.length) return;
 
     this.dispatchRatingChanged(this.criteria, 2).then(evaluation => {
 
@@ -511,7 +511,6 @@ export class SakaiRubricGrading extends RubricsElement {
           this.criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
           // And set the original ones
           this.decorateCriteria();
-          this.updateTotalPoints();
         });
       } else {
         this.deleteEvaluation();
@@ -599,7 +598,6 @@ export class SakaiRubricGrading extends RubricsElement {
         });
 
         this.decorateCriteria();
-        this.updateTotalPoints();
       })
       .catch(error => console.error(error));
     })
