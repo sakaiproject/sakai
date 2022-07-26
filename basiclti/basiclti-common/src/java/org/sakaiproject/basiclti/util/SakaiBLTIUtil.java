@@ -1894,7 +1894,7 @@ public class SakaiBLTIUtil {
 				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 			}
 
-			if (signed_placement != null && (
+			if (context_id != null && (
 				  ( (allowOutcomes != 0 && outcomesEnabled()) ||
 					(allowLineItems != 0 && lineItemsEnabled()) )
 				  )
@@ -1908,14 +1908,18 @@ public class SakaiBLTIUtil {
 					if ( defaultLineItem != null ) endpoint.lineitem = defaultLineItem.id;
 				}
 				if ( allowOutcomes != 0 && outcomesEnabled() ) {
-					endpoint.lineitems = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement;
+					// SAK-47261 - Legacy URL patterns with signed placement
+					// endpoint.lineitems = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement;
+					endpoint.lineitems = getOurServerUrl() + LTI13_PATH + "lineitems/" + context_id;
 				}
 				lj.endpoint = endpoint;
 			}
 
-			if (allowRoster != 0 && rosterEnabled() && signed_placement != null) {
+			if (allowRoster != 0 && rosterEnabled() && context_id != null) {
 				NamesAndRoles nar = new NamesAndRoles();
-				nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+				// SAK-47261 - Legacy URL patterns with signed placement
+				// nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+				nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + context_id;
 				lj.names_and_roles = nar;
 			}
 
