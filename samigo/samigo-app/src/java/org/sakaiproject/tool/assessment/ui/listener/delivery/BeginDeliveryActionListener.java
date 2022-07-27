@@ -228,7 +228,7 @@ public class BeginDeliveryActionListener implements ActionListener
     else {
     	delivery.setFeedbackComponentOption("1");
     }
-    
+
     // important: set feedbackOnDate last
     Date currentDate = new Date();
     if (component.getShowDateFeedback()) {
@@ -254,7 +254,7 @@ public class BeginDeliveryActionListener implements ActionListener
   {
     FeedbackComponent component = new FeedbackComponent();
     AssessmentFeedbackIfc info =  pubAssessment.getAssessmentFeedback();
-    if ( info != null) {
+    if (info != null) {
       component.setAssessmentFeedback(info);
     }
     return component;

@@ -174,6 +174,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   // properties of PublishedFeedback
   private String feedbackDelivery; // immediate, on specific date , no feedback
   private String feedbackComponentOption; // 2 = select options, 1 = total scores only 
+  private String correctAnswerOption;
   private String feedbackAuthoring;
   private boolean showQuestionText = false;
   private boolean showStudentResponse = false;
@@ -382,6 +383,10 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
           this.feedbackDelivery = feedback.getFeedbackDelivery().toString();
         if (feedback.getFeedbackComponentOption()!=null)
             this.feedbackComponentOption = feedback.getFeedbackComponentOption().toString();
+
+        if (feedback.getCorrectAnswerOption() != null) {
+            this.correctAnswerOption = feedback.getCorrectAnswerOption().toString();
+        }
 
       if (feedback.getFeedbackAuthoring()!=null)
           this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
@@ -822,6 +827,14 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
 
 public void setFeedbackComponentOption(String feedbackComponentOption) {
 		this.feedbackComponentOption = feedbackComponentOption;
+  }
+
+  public String getCorrectAnswerOption() {
+		return this.correctAnswerOption;
+  }
+
+  public void setCorrectAnswerOption(String correctAnswerOption) {
+		this.correctAnswerOption = correctAnswerOption;
   }
 
   public String getFeedbackAuthoring() {
