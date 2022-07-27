@@ -6794,7 +6794,11 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                     try {
                         submission = assignmentService.addSubmission(a.getId(), submitterId);
-
+                        if (submission == null) {
+                            log.warn("NULL returned while attempting to add a submission to assignment : {}, for submitter: {}", a.getId(), submitterId);
+                            addAlert(state, rb.getString("youarenot13"));
+                            return;
+                        }
                         submission.setUserSubmission(true);
                         submission.setSubmittedText(text);
                         submission.setSubmitted(post);
@@ -6804,7 +6808,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // set the resubmission properties
                         setResubmissionProperties(a, submission);
                     } catch (PermissionException e) {
-                        log.warn("Could not add submission for assignment/submitter: {}/{}, {}", a.getId(), submitterId, e.getMessage());
+                        log.warn("Could not add submission for assignment/submitter: {}/{}, {}", a.getId(), submitterId, e.toString());
                         addAlert(state, rb.getString("youarenot13"));
                         return;
                     }

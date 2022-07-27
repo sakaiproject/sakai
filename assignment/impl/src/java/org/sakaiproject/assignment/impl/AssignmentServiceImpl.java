@@ -1348,7 +1348,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             if (submissionSubmitters.isEmpty()) {
-                log.warn("A new submission can't be added to assignment {} with no submitters");
+                log.warn("A submission can't be added to assignment {} with no submitters", a.getId());
                 return null;
             }
 
