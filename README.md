@@ -66,7 +66,7 @@ If you want more immediate response during M-F typical business hours you could 
 
 https://apereo.slack.com/signup
 
-If you can't find your  "at institution.edu" on the Apereo signup page then send an email requesting access for yourself and your institution either to sakai-qa-planners@apereo.org or sakaicoordinator@apereo.org .
+If you can't find your  "at institution.edu" on the Apereo signup page then send an email requesting access for yourself and your institution either to sakai-qa-planners@apereo.org or sakaicoordinator@apereo.org.
 
 ## Community supported versions
 
