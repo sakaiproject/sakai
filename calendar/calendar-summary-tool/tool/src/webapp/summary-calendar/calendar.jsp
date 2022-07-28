@@ -34,10 +34,31 @@
 			</f:subview>
 
 	        <h:panelGroup>
-                <f:verbatim><fieldset><legend></f:verbatim><h:outputText value="#{msgs.previous}"/><f:verbatim></legend></f:verbatim><h:commandButton value=" < " actionListener="#{CalBean.prev}" immediate="true"/><f:verbatim></fieldset></f:verbatim>
-                <h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currDay}" immediate="true" styleClass="todayButton" />
-                <f:verbatim><fieldset><legend></f:verbatim><h:outputText value="#{msgs.next}"/><f:verbatim></legend></f:verbatim><h:commandButton value=" > " actionListener="#{CalBean.next}" immediate="true"/><f:verbatim></fieldset></f:verbatim>
+                <f:verbatim><fieldset><legend></f:verbatim><h:outputText value="#{msgs.previous}"/><f:verbatim></legend></f:verbatim>
+                    <h:commandButton id="id_left_month" value=" < " actionListener="#{CalBean.prev}" title="#{msgs.a11y_last_month}" rendered="#{(CalBean.viewMode eq 'month') or (empty CalBean.viewMode)}" immediate="true"/>
+                    <h:commandButton id="id_left_week" value=" < " actionListener="#{CalBean.prev}" title="#{msgs.a11y_last_week}" rendered="#{CalBean.viewMode eq 'week'}" immediate="true"/>
+                <f:verbatim></fieldset></f:verbatim>
+                <h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currDay}" title="#{msgs.today}" immediate="true" styleClass="todayButton" />
+                <f:verbatim><fieldset><legend></f:verbatim><h:outputText value="#{msgs.next}"/><f:verbatim></legend></f:verbatim>
+                    <h:commandButton id="id_right_month" value=" > " actionListener="#{CalBean.next}" title="#{msgs.a11y_next_month}" rendered="#{(CalBean.viewMode eq 'month') or (empty CalBean.viewMode)}" immediate="true"/>
+                    <h:commandButton id="id_right_week" value=" > " actionListener="#{CalBean.next}" title="#{msgs.a11y_next_week}" rendered="#{CalBean.viewMode eq 'week'}" immediate="true"/>
+                <f:verbatim></fieldset></f:verbatim>
 	        </h:panelGroup>
+
+            <script type="text/javascript">
+                window.onload = load;
+                function load() {
+                    var my_left_month = document.getElementById("calendarForm:id_left_month");
+                    var my_right_month = document.getElementById("calendarForm:id_right_month");
+                    var my_left_week = document.getElementById("calendarForm:id_left_week");
+                    var my_right_week = document.getElementById("calendarForm:id_right_week");
+                    if (my_left_month!=null) {my_left_month.setAttribute("aria-label", document.getElementById("calendarForm:id_left_month").getAttribute("title"));}
+                    if (my_right_month!=null) {my_right_month.setAttribute("aria-label", document.getElementById("calendarForm:id_right_month").getAttribute("title"));}
+                    if (my_left_week!=null) {my_left_week.setAttribute("aria-label", document.getElementById("calendarForm:id_left_week").getAttribute("title"));}
+                    if (my_right_week!=null) {my_right_week.setAttribute("aria-label", document.getElementById("calendarForm:id_right_week").getAttribute("title"));}
+                }
+            </script>
+
 		</h:panelGrid>
 
 		<h:dataTable
