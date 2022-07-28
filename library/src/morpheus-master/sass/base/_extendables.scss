@@ -398,6 +398,9 @@ button.btn-transparent {
 	&:hover, &:focus {
 		color: var(--sakai-text-color);
 		background: var(--sakai-background-color);
+	}
+
+	&:focus:not(:focus-visible) { // adds outline only when using tab key to focus #a11y
 		box-shadow: none;
 	}
 
@@ -410,6 +413,27 @@ button.btn-transparent {
 		}
 	}
 
+	&.link-color {
+		color: var(--link-color);
+
+		&:hover, &:focus {
+			color: var(--link-hover-color);
+		}
+	}
+
+}
+
+button.btn-tab {
+	background-color: transparent;
+
+	&:hover, &:focus {
+		background-color: var(--tool-menu-hover-background-color);
+	}
+
+	&.selected {
+		background-color: var(--tool-menu-item-selected-background-color);
+		font-weight: 600;
+	}
 }
 
 .input-group-btn .btn {
