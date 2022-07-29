@@ -147,7 +147,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
 
     // If any grade overrides have been set, check the overrides box
-    this.showOverrides = this.submission.submitters.some(s => s.overridden);
+    this.showOverrides = this.submission.submitters?.some(s => s.overridden);
   }
 
   get submission() {
@@ -729,6 +729,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   render() {
 
     return html`
+      ${this.areSettingsInAction() ? html`
+      <div class="sak-banner-warn">${this.i18n.filter_settings_warning}</div>
+      ` : ""}
       <div class="grader-nav">
       ${this.renderNav()}
       </div>
@@ -1345,6 +1348,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.submittedOnly = e.target.checked;
     this.applyFilters(e);
+  }
+
+  areSettingsInAction() {
+
+    return (this.currentGroup && this.currentGroup !== `/site/${portal.siteId}`) || this.submittedOnly || this.ungradedOnly;
   }
 
   removeAttachment(e) {
