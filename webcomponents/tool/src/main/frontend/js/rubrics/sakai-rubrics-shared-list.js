@@ -62,7 +62,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
   copyToSite(e) {
 
-    SakaiRubricsHelpers.post(`/api/sites/${this.siteId}/rubrics/${e.detail}/copyToSite`, {})
+    SakaiRubricsHelpers.get(`/api/sites/${this.siteId}/rubrics/${e.detail}/copyToSite`, {})
       .then(() => this.dispatchEvent(new CustomEvent("copy-share-site")));
   }
 
