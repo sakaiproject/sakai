@@ -112,7 +112,7 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 			}, 500);
 		});
 	} else {
-		$( "#accordion span" ).sortable('disabled');
+        $( "#accordion > span > div" ).sortable({disable: true});
 	}
 	Array.prototype.move = function(from,to){
 		this.splice(to,0,this.splice(from,1)[0]);
