@@ -47,22 +47,23 @@ public class MainController {
     @Resource
     private ToolManager toolManager;
 
+    @GetMapping("/")
     public String indexRedirect() {
         return "redirect:/index";
     }
 
     @GetMapping("/index")
     public String index(ModelMap model) {
+
         String token = rubricsService.generateJsonWebToken("sakai.rubrics");
         model.addAttribute("token", token);
 
-        String siteId = toolManager.getCurrentPlacement().getContext();
-        model.addAttribute("siteId", siteId);
         model.addAttribute("sakaiSessionId", sessionManager.getCurrentSession().getId());
         model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
+        String siteId = toolManager.getCurrentPlacement().getContext();
         if (securityService.unlock(currentUserId, RubricsConstants.RBCS_PERMISSIONS_EDITOR, "/site/" + siteId)) {
             return "editor_index";
         } else {
