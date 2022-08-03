@@ -1806,7 +1806,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
             this.status = assignmentService.getSubmissionStatus(id, true);
             this.graded = as.getGraded();
-            this.grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().stream().findAny().isPresent() ? as.getSubmitters().stream().findAny().get().getSubmitter() : null);
+            this.grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
             this.properties.putAll(as.getProperties());
         }
     }
