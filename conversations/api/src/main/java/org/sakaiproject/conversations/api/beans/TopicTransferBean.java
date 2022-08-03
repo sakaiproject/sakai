@@ -69,6 +69,8 @@ public class TopicTransferBean implements Entity {
     public Instant hideDate;
     public Instant lockDate;
     public Instant dueDate;
+    public String dueDateCalendarEventId;
+    public String showMessageScheduleId;
     public boolean pastDueDate;
     public String formattedDueDate;
     public boolean bookmarked;
@@ -120,6 +122,8 @@ public class TopicTransferBean implements Entity {
         topicBean.lockDate = topic.getLockDate();
         topicBean.dueDate = topic.getDueDate();
         topicBean.pastDueDate = topicBean.dueDate != null && topicBean.dueDate.isBefore(Instant.now());
+        topicBean.dueDateCalendarEventId = topic.getDueDateCalendarEventId();
+        topicBean.showMessageScheduleId = topic.getShowMessageScheduleId();
         topicBean.draft = topic.getDraft();
         topicBean.anonymous = topic.getAnonymous();
         topicBean.allowAnonymousPosts = topic.getAllowAnonymousPosts();
@@ -165,6 +169,8 @@ public class TopicTransferBean implements Entity {
         topic.setDraft(this.draft);
         topic.setAnonymous(this.anonymous);
         topic.setAllowAnonymousPosts(this.allowAnonymousPosts);
+        topic.setDueDateCalendarEventId(this.dueDateCalendarEventId);
+        topic.setShowMessageScheduleId(this.showMessageScheduleId);
 
         return topic;
     }
