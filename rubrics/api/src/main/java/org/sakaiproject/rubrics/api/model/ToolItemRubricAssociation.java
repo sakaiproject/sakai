@@ -73,7 +73,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Table(name = "rbc_tool_item_rbc_assoc",
-    indexes = { @Index(name = "rbc_tool_item_owner", columnList = "toolId, itemId, siteId"),
+    indexes = { @Index(name = "rbc_tool_item", columnList = "toolId, itemId"),
                 @Index(name = "rbc_item_rubric", columnList = "itemId, rubric_id", unique = true) }
 )
 @ToString(exclude = {"rubric", "parameters"})
@@ -105,9 +105,6 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
 
     @Column(length = 99)
     private String creatorId;
-
-    @Column(length = 99)
-    private String siteId;
 
     @Column(name = "active", nullable = false)
     private Boolean active = Boolean.TRUE;
