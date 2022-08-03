@@ -37,7 +37,7 @@ public class AssociationTransferBean {
         bean.id = assoc.getId();
         bean.toolId = assoc.getToolId();
         bean.itemId = assoc.getItemId();
-        bean.siteId = assoc.getSiteId();
+        bean.siteId = assoc.getRubric().getOwnerId();
         bean.rubricId = assoc.getRubricId();
         bean.parameters = assoc.getParameters();
         return bean;
@@ -49,7 +49,6 @@ public class AssociationTransferBean {
         assoc.setId(id);
         assoc.setToolId(toolId);
         assoc.setItemId(itemId);
-        assoc.setSiteId(siteId);
         assoc.setRubricId(rubricId);
         assoc.setParameters(parameters);
         return assoc;
