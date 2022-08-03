@@ -45,6 +45,7 @@ export class SakaiRubric extends RubricsElement {
     this.handleWeightLink();
     this.handleShareLink();
     this.requestUpdate("rubric", oldValue);
+    this.updateComplete.then(() => newValue.expanded && this.toggleRubric());
   }
 
   get rubric() { return this._rubric; }

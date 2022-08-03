@@ -104,11 +104,9 @@ export class SakaiRubricsList extends RubricsElement {
     this.rubrics = [];
     this.rubrics = tmp;
 
+    nr.expanded = true;
+
     this.requestUpdate();
-    this.updateComplete.then(async() => {
-      await this.createRubricUpdateComplete;
-      this.querySelector(`#rubric_item_${nr.id} sakai-rubric`).toggleRubric();
-    });
   }
 
   deleteRubric(e) {
@@ -159,13 +157,6 @@ export class SakaiRubricsList extends RubricsElement {
     })
     .then(rubric => this.createRubricResponse(rubric))
     .catch (error => console.error(error));
-  }
-
-  get createRubricUpdateComplete() {
-
-    return (async () => {
-      return this.querySelector(`#rubric_item_${this.rubrics[this.rubrics.length - 1].id} sakai-rubric`).updateComplete;
-    })();
   }
 
   sortRubrics(rubricType, ascending) {
