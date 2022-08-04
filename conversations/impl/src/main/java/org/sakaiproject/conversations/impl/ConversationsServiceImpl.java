@@ -520,7 +520,9 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
         boolean finalWasDraft = wasDraft;
 
-        this.afterCommit(() -> this.sendOrScheduleTopicMessages(finalTopic.getId(), isNew, finalWasDraft));
+        if (sendMessage) {
+            this.afterCommit(() -> this.sendOrScheduleTopicMessages(finalTopic.getId(), isNew, finalWasDraft));
+        }
 
         return decoratedBean;
     }
