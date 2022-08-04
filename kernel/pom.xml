@@ -30,6 +30,7 @@
         <module>kernel-util</module>
         <module>kernel-storage-util</module>
         <module>kernel-test</module>
+        <module>test-helper</module>
     </modules>
 
     <profiles>
@@ -102,6 +103,14 @@
                 <includes>
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <!-- Special case duplication to begin migrating from WAR components to simple JARs; kernel-impl is still packaged as a sakai-component -->
+            <resource>
+                <directory>${basedir}/src/main/webapp/WEB-INF</directory>
+                <targetPath>org/sakaiproject/kernel</targetPath>
+                <includes>
+                    <include>*.xml</include>
                 </includes>
             </resource>
         </resources>
