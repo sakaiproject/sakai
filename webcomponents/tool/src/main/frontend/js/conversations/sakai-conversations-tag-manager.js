@@ -1,6 +1,5 @@
 import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
-import "../sakai-icon.js";
 
 export class SakaiConversationsTagManager extends SakaiElement {
 
@@ -128,6 +127,8 @@ export class SakaiConversationsTagManager extends SakaiElement {
     });
   }
 
+  _setSaveable() { this.saveable = true; }
+
   render() {
 
     return html`
@@ -136,7 +137,10 @@ export class SakaiConversationsTagManager extends SakaiElement {
         <div class="add-topic-label">Tags</div>
         <div id="tag-creation-block" style="flex-wrap: wrap;">
           <div>
-            <textarea id="tag-creation-field" @input=${() => this.saveable = true}></textarea>
+            <textarea id="tag-creation-field"
+                aria-labelledby="tag-creation-instruction"
+                @input="${this._setSaveable}">
+            </textarea>
             <div id="tag-creation-instruction" class="topic-option-label-text">Add multiple tags separated by a comma</div>
           </div>
           <div class="act" style="white-space: nowrap;">

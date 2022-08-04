@@ -135,6 +135,10 @@ export class SakaiTopicList extends SakaiElement {
     }
   }
 
+  _toggleExpandDraft() { this.expandDraft = !this.expandDraft; }
+
+  _toggleExpandTheRest() { this.expandTheRest = !this.expandTheRest; }
+
   shouldUpdate() {
     return this.i18n && this.data;
   }
@@ -185,7 +189,7 @@ export class SakaiTopicList extends SakaiElement {
           ` : ""}
 
           ${this.filteredDraftTopics.length > 0 ? html`
-          <a href="javascript:;" @click=${() => this.expandDraft = !this.expandDraft}>
+          <a href="javascript:;" @click="${this._toggleExpandDraft}">
             <div class="topic-list-pinned-header">
               <div class="topic-header-icon">
                 <sakai-icon type="${this.expandDraft ? "chevron-down" : "chevron-up"}" size="small"></sakai-icon>
@@ -204,7 +208,7 @@ export class SakaiTopicList extends SakaiElement {
 
 
           ${this.filteredUnpinnedTopics.length > 0 ? html`
-          <a href="javascript:;" @click=${() => this.expandTheRest = !this.expandTheRest}>
+          <a href="javascript:;" @click="${this._toggleExpandTheRest}">
             <div class="topic-list-pinned-header">
               <div class="topic-header-icon">
                 <sakai-icon type="${this.expandTheRest ? "chevron-down" : "chevron-up"}" size="small"></sakai-icon>
