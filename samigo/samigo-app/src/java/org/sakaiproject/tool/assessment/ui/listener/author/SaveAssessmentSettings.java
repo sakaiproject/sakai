@@ -231,6 +231,11 @@ public class SaveAssessmentSettings
      feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
     if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
         feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
+
+    if (StringUtils.isNotBlank(assessmentSettings.getCorrectAnswerOption())) {
+        feedback.setCorrectAnswerOption(new Integer(assessmentSettings.getCorrectAnswerOption()));
+    }
+
     if (assessmentSettings.getFeedbackAuthoring()!=null)
      feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
     // if 'No feedback' (it corresponds to value 3) is selected, 

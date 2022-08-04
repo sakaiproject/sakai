@@ -255,6 +255,8 @@ public class SelectActionListener implements ActionListener {
                                                  publishedAssessmentHash));
         delivery.setFeedbackComponentOption(getFeedbackComponentOption(g.getPublishedAssessmentId(),
                                                  publishedAssessmentHash));
+        delivery.setCorrectAnswerOption(getCorrectAnswerOption(g.getPublishedAssessmentId(),
+                                                 publishedAssessmentHash));
         delivery.setFeedbackDate(getFeedbackDate(g.getPublishedAssessmentId(),
                                                  publishedAssessmentHash));
         delivery.setFeedbackEndDate(getFeedbackEndDate(g.getPublishedAssessmentId(),
@@ -835,6 +837,20 @@ public class SelectActionListener implements ActionListener {
 	    } else
 	      return null;
 	  }
+
+  private String getCorrectAnswerOption(Long publishedAssessmentId, Map publishedAssessmentHash){
+    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.get(publishedAssessmentId);
+      if (p!=null) {
+        Integer option = p.getCorrectAnswerOption();
+        if (option == null) {
+          return null;
+        } else {
+          return option.toString();
+        }
+      } else {
+        return null;
+      }
+    }
   
   private boolean getHasAssessmentBeenModified(SelectAssessmentBean select, AssessmentGradingData g, Map publishedAssessmentHash){
 	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.

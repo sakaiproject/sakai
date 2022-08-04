@@ -36,6 +36,7 @@ private Long id;
   private AssessmentIfc assessment;
   private Integer feedbackDelivery; // 0 = cannot edit, 1=immediate, 2=on specific date , 3= no feedback
   private Integer feedbackComponentOption; // total scores only, or select components 
+  private Integer correctAnswerOption; // Show either all questions, or just incorrect ones
   private Integer feedbackAuthoring; // 0 = cannot edit, 1=questionlevel, 2=sectionlevel, 3= both feedback
   private Integer editComponents; // 0 = cannot
   private Boolean showQuestionText;
@@ -64,12 +65,13 @@ private Long id;
     setShowStudentQuestionScore(Boolean.FALSE);
     setFeedbackDelivery(AssessmentFeedbackIfc.NO_FEEDBACK);
     setFeedbackComponentOption(AssessmentFeedbackIfc.SELECT_COMPONENTS);
+    setCorrectAnswerOption(AssessmentFeedbackIfc.ALL_QUESTIONS);
     setFeedbackAuthoring(AssessmentFeedbackIfc.QUESTIONLEVEL_FEEDBACK);
   }
 
   public PublishedFeedback(
       Long assessmentId,
-      Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
+      Integer feedbackDelivery, Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
       Boolean showStudentResponse, Boolean showCorrectResponse,
       Boolean showStudentScore,  Boolean showStudentQuestionScore, 
       Boolean showQuestionLevelFeedback, Boolean showSelectionLevelFeedback,
@@ -78,6 +80,7 @@ private Long id;
     this.assessmentId = assessmentId;
     this.feedbackDelivery = feedbackDelivery;
     this.feedbackComponentOption = feedbackComponentOption;
+    this.correctAnswerOption = correctAnswerOption;
     this.feedbackAuthoring = feedbackAuthoring;
     this.editComponents = editComponents;
     this.showQuestionText = showQuestionText;
@@ -92,7 +95,7 @@ private Long id;
   }
 
   public PublishedFeedback(
-      Integer feedbackDelivery,Integer feedbackComponentOption, Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
+      Integer feedbackDelivery,Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
       Boolean showStudentResponse, Boolean showCorrectResponse,
       Boolean showStudentScore,  Boolean showStudentQuestionScore,
       Boolean showQuestionLevelFeedback, Boolean showSelectionLevelFeedback,
@@ -100,6 +103,7 @@ private Long id;
   {
     this.feedbackDelivery = feedbackDelivery;
     this.feedbackComponentOption = feedbackComponentOption;
+    this.correctAnswerOption = correctAnswerOption;
     this.feedbackAuthoring = feedbackAuthoring;
     this.editComponents = editComponents;
     this.showQuestionText = showQuestionText;
@@ -115,7 +119,7 @@ private Long id;
 
   public Object clone() throws CloneNotSupportedException{
     Object cloned = new PublishedFeedback(
-        this.getFeedbackDelivery(), this.getFeedbackComponentOption(), this.getFeedbackAuthoring(), this.getEditComponents(),
+        this.getFeedbackDelivery(), this.getFeedbackComponentOption(), this.getCorrectAnswerOption(), this.getFeedbackAuthoring(), this.getEditComponents(),
         this.getShowQuestionText(),
         this.getShowStudentResponse(), this.getShowCorrectResponse(),
         this.getShowStudentScore(),   this.getShowStudentQuestionScore(), 
@@ -281,13 +285,20 @@ private Long id;
     this.assessmentId = assessmentId;
   }
 
-public Integer getFeedbackComponentOption() {
-	return feedbackComponentOption;
-}
+  public Integer getFeedbackComponentOption() {
+    return feedbackComponentOption;
+  }
 
-public void setFeedbackComponentOption(Integer feedbackComponentOption) {
-	this.feedbackComponentOption = feedbackComponentOption;
-	
-}
+  public void setFeedbackComponentOption(Integer feedbackComponentOption) {
+    this.feedbackComponentOption = feedbackComponentOption;
+  }
+
+  public Integer getCorrectAnswerOption() {
+    return correctAnswerOption;
+  }
+
+  public void setCorrectAnswerOption(Integer correctAnswerOption) {
+    this.correctAnswerOption = correctAnswerOption;
+  }
 
 }
