@@ -427,6 +427,13 @@ public interface GradingService extends EntityProducer {
     public Gradebook getGradebook(String uid);
 
     /**
+     * Ensure that a gradebook exists for the given id
+     *
+     * @param gradebookUid The gradebook we want to initialise.
+     */
+    public void initGradebook(String gradebookUid);
+
+    /**
      * Check if there are students that have not submitted
      *
      * @param gradebookUid
