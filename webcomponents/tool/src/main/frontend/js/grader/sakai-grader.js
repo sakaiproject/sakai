@@ -653,7 +653,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         ${this.submission.submittedTime && !this.submission.showExtension ? html`
           <div class="resubmission-checkbox">
             <label>
-              <input type="checkbox" .checked=${this.showResubmission} @change=${this.toggleResubmissionBlock}/>
+              <input type="checkbox" .checked=${this.showResubmission} @change="${this.toggleResubmissionBlock}"/>
               <span>${this.assignmentsI18n.allowResubmit}</span>
             </label>
           </div>

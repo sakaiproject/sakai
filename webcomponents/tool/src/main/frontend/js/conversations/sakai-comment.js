@@ -52,6 +52,10 @@ export class SakaiComment extends SakaiElement {
     this.editing = false;
   }
 
+  _startEditing() { this.editing = true; }
+
+  _stopEditing() { this.editing = false; }
+
   updated() {
 
     if (typeof MathJax !== "undefined") {
@@ -82,8 +86,8 @@ export class SakaiComment extends SakaiElement {
           <div>
             <a href="javascript:;"
                 title="${this.i18n.edit_this_comment}"
-                @click=${() => this.editing = true}
-                arial-label="${this.i18n.edit_this_comment}">
+                @click="${this._startEditing}"
+                aria-label="${this.i18n.edit_this_comment}">
               ${this.i18n.edit}
             </a>
           </div>
@@ -93,7 +97,7 @@ export class SakaiComment extends SakaiElement {
             <a href="javascript:;"
                 @click=${this.deleteComment}
                 title="${this.i18n.delete_this_comment}"
-                arial-label="${this.i18n.delete_this_comment}">
+                aria-label="${this.i18n.delete_this_comment}">
               ${this.i18n.delete}
             </a>
           </div>
@@ -133,7 +137,7 @@ export class SakaiComment extends SakaiElement {
                   topic-id="${this.topicId}"
                   comment="${JSON.stringify(this.comment)}"
                   @comment-updated=${this.commentUpdated}
-                  @editing-cancelled=${() => this.editing = false}
+                  @editing-cancelled="${this._stopEditing}"
                   show-buttons>
               </sakai-comment-editor>
             </div>
