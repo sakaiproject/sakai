@@ -103,6 +103,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.event.api.Event;
 
 /**
  * AnnouncementAction is an implementation of Announcement service, which provides the complete function of announcements. User could check the announcements, create own new and manage all the announcement items, under certain permission check.
@@ -2863,7 +2864,28 @@ public class AnnouncementAction extends PagedResourceActionII
 					{
 						// availablity changed
 						eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY, msg.getReference(), true));
+
+
+						//check if an delay might exist
+						if ((StringUtils.isNotEmpty(oReleaseDate) && releaseDate == null) || (StringUtils.isNotEmpty(oReleaseDate) && releaseDate != null && !oReleaseDate.equals(releaseDate.toString()))) {
+
+							eventTrackingService.cancelDelays(msg.getReference(), AnnouncementService.EVENT_AVAILABLE_ANNC);
+
+							//check if new date has passed already
+							if(msg.getHeader().getInstant().isAfter(Instant.now())){
+								Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
+								eventTrackingService.delay(event,msg.getHeader().getInstant());
+							}
+						}
 					}
+				}
+
+				//Create delay
+				Instant date = msg.getHeader().getInstant();
+				if (date.isAfter(Instant.now())) {
+					// track event
+					Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
+					eventTrackingService.delay(event,date);
 				}
 			}
 			catch (IdUnusedException e)
@@ -2967,6 +2989,12 @@ public class AnnouncementAction extends PagedResourceActionII
 					//AnnouncementMessageEdit edit = channel.editAnnouncementMessage(message.getId());
 					//channel.removeMessage(edit); 
 					channel.removeAnnouncementMessage(message.getId());
+
+
+					//Delete possible delay
+					if (message.getHeader().getInstant().isAfter(Instant.now())) {
+						eventTrackingService.cancelDelays(message.getReference(), org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC);
+					}
 				}
 				else
 				{

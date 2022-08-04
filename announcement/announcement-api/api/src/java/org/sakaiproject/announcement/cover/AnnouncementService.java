@@ -50,7 +50,8 @@ public class AnnouncementService
     public static final String EVENT_ANNC_UPDATE_TITLE = org.sakaiproject.announcement.api.AnnouncementService.EVENT_ANNC_UPDATE_TITLE;
     public static final String EVENT_ANNC_UPDATE_ACCESS = org.sakaiproject.announcement.api.AnnouncementService.EVENT_ANNC_UPDATE_ACCESS;
     public static final String EVENT_ANNC_UPDATE_AVAILABILITY = org.sakaiproject.announcement.api.AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY;
-   
+	public static final String EVENT_AVAILABLE_ANNC = org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC;
+
 	/**
 	 * Access the component instance: special cover only method.
 	 * 
