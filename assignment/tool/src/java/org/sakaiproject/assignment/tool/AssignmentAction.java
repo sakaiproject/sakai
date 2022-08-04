@@ -8587,6 +8587,18 @@ public class AssignmentAction extends PagedResourceActionII {
                             }
                         }
 
+
+                        if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
+                            //cancel not fired event
+                            eventTrackingService.cancelDelays(assignmentReference, AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT);
+                            // open time change
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentId, true));
+                            if (a.getOpenDate().isAfter(Instant.now())) {
+                                eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
+                                        true), openTime);
+                            }
+                        }
+
                         if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
                             // open time change
                             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentReference, true));
@@ -8604,10 +8616,27 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
-            //SAK-45967
-            if (newAssignment || !a.getDraft()) {
-                // post new assignment event since it is fully initialized by now
-                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
+
+            if ((newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
+
+                Collection aGroups = a.getGroups();
+                if (aGroups.size() != 0) {
+                    // If already open
+                    if (openTime.isBefore(Instant.now())) {
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
+                    } else {
+                        // Not open yet, delay the event
+                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
+                                true), openTime);
+                    }
+                } else {
+                    if (openTime.isBefore(Instant.now())) {
+                        // post new assignment event since it is fully initialized by now
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
+                    } else {
+                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
+                    }
+                }
             }
         }
     }
