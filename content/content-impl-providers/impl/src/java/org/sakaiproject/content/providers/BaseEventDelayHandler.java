@@ -21,7 +21,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
@@ -308,12 +308,23 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	
 				securityService.pushAdvisor(new SecurityAdvisor() {
 				    public SecurityAdvice isAllowed(String userId, String function, String reference) {
-				            if (securityService.unlock(event.getUserId(), function, reference)) {
-				                return SecurityAdvice.ALLOWED;
-				             }
-				            return SecurityAdvice.PASS;
-				         }
-				    });
+						//SAK-44623: bullhorn notification execution of delayed "asn.available.assignment" event would build wrong DeepLink for users with no "asn.new" permission.
+						if (StringUtils.isNotEmpty(userId)) {
+							if (event.getUserId().equals(userId)) {
+								if (securityService.unlock(event.getUserId(), function, reference)) {
+									return SecurityAdvice.ALLOWED;
+								}
+								return SecurityAdvice.PASS;
+							}
+							return SecurityAdvice.PASS;
+						} else {
+							if (securityService.unlock(event.getUserId(), function, reference)) {
+								return SecurityAdvice.ALLOWED;
+							}
+							return SecurityAdvice.PASS;
+						}
+					}
+				});
 	
 				eventService.post(event, user);
 			}
