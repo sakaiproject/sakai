@@ -1315,7 +1315,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.submissions = [...this.originalSubmissions];
 
     if (this.ungradedOnly) {
-      this.submissions = this.submissions.filter(s => !s.grade);
+      this.submissions = this.submissions.filter(s => !s.graded);
     }
 
     if (this.submittedOnly) {
