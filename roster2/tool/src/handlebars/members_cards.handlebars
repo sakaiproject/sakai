@@ -3,15 +3,15 @@
         {{#if ../viewPicture}}
         <div class="roster-picture-card">
             <sakai-user-photo user-id="{{userId}}"
-                                alt="{{tr 'profile_picture_alt'}} {{displayName}}"
-                                site-id="{{siteId}}"
-                                classes="roster-photo"
-                                {{#if official}}
-                                official
-                                {{/if}}
-                                {{#if ../printMode}}
-                                print
-                                {{/if}}
+                label="{{tr 'profile_picture_alt'}} {{displayName}}"
+                site-id="{{siteId}}"
+                classes="roster-photo"
+                {{#if official}}
+                official
+                {{/if}}
+                {{#if ../printMode}}
+                print
+                {{/if}}
             >
             </sakai-user-photo>
         </div> <!-- /roster-picture-card -->

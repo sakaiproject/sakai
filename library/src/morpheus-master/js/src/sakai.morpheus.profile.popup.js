@@ -147,6 +147,7 @@ var profile = profile || {};
       $(this).qtip({
         position: position,
         show: { event: 'click', delay: 0 },
+        suppress: false,
         style: { classes: 'profile-popup-qtip qtip-shadow' },
         hide: { event: 'click unfocus' },
         content: {
