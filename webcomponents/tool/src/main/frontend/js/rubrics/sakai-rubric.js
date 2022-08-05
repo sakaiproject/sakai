@@ -7,6 +7,7 @@ import "./sakai-item-delete.js";
 import "./sakai-rubric-pdf.js";
 import {tr} from "./sakai-rubrics-language.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
+import {calculateCriteriaPoints} from "./sakai-rubrics-utils.js";
 
 export class SakaiRubric extends RubricsElement {
 
@@ -34,6 +35,8 @@ export class SakaiRubric extends RubricsElement {
       weightedIcon: { attribute: false, type: String },
       totalWeight: { attribute: false, type: String },
       validWeight: { attribute: false, type: Boolean },
+      maxPoints: { attribute: false, type: String },
+      minPoints: { attribute: false, type: String },
     };
   }
 
@@ -165,6 +168,8 @@ export class SakaiRubric extends RubricsElement {
                 .weighted=${this.rubric.weighted}
                 total-weight="${this.totalWeight}"
                 ?valid-weight="${this.validWeight}"
+                max-points="${this.maxPoints}"
+                min-points="${this.minPoints}"
               />`
           }
         </div>
@@ -274,8 +279,9 @@ export class SakaiRubric extends RubricsElement {
     const total = this.rubric.criteria.reduce((acc, el) => acc + el.weight, 0);
 
     this.validWeight = total == 100;
-
     this.totalWeight = total.toLocaleString(this.locale);
+    this.maxPoints = this.getMaxPoints(this.rubric.criteria);
+    this.minPoints = this.getMinPoints(this.rubric.criteria);
     this.requestUpdate();
   }
 
@@ -289,6 +295,8 @@ export class SakaiRubric extends RubricsElement {
       this.totalWeight = this.totalWeight + cr.weight;
     });
     this.validWeight = this.totalWeight == 100;
+    this.maxPoints = this.getMaxPoints(this.rubric.criteria);
+    this.minPoints = this.getMinPoints(this.rubric.criteria);
   }
 
   weightedChange(e) {
@@ -390,6 +398,26 @@ export class SakaiRubric extends RubricsElement {
     if (spaceBarKeyCode && e.target.classList.contains('clone')) {
       this.cloneRubric(e);
     }
+  }
+
+  // SAK-47640 - Get the maximum and minimum possible grade of the whole rubric,
+  // multiplying the max-min rating points of each criterion by the criterion weight, and adding them up
+  getMaxPoints(criterions) {
+    return this.getPoints(criterions, Math.max);
+  }
+
+  getMinPoints(criterions) {
+    return this.getPoints(criterions, Math.min);
+  }
+
+  getPoints(criterions, minOrMax) {
+
+    let totalPoints = 0;
+
+    criterions.forEach( (criterion) => {
+      totalPoints += calculateCriteriaPoints(criterion, minOrMax);
+    });
+    return parseFloat(totalPoints).toLocaleString(this.locale);
   }
 }
 

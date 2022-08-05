@@ -9,6 +9,7 @@ import "./sakai-rubric-criterion-rating-edit.js";
 import { SharingChangeEvent } from "./sharing-change-event.js";
 import { Sortable } from "/webcomponents/assets/sortablejs/modular/sortable.esm.js";
 import { tr } from "./sakai-rubrics-language.js";
+import {calculateCriteriaPoints} from "./sakai-rubrics-utils.js";
 
 export class SakaiRubricCriteria extends RubricsElement {
 
@@ -20,6 +21,8 @@ export class SakaiRubricCriteria extends RubricsElement {
       weighted: { type: Boolean },
       totalWeight: { attribute: "total-weight", type: String },
       validWeight: { attribute: "valid-weight", type: Boolean },
+      maxPoints: { attribute: "max-points", type: String },
+      minPoints: { attribute: "min-points", type: String },
       criteria: { type: Array }
     };
   }
@@ -104,7 +107,7 @@ export class SakaiRubricCriteria extends RubricsElement {
               </p>
               ${this.weighted ? html`
                   <div class="form-inline weight-field">
-                      <div class="form-group input-group-sm ${this.validWeight ? "" : "has-error"}">
+                      <div class="field-item form-group input-group-sm ${this.validWeight ? "" : "has-error"}">
                         <label
                             for="weight_input_${c.id}"
                             class="control-label"
@@ -127,6 +130,9 @@ export class SakaiRubricCriteria extends RubricsElement {
                         >
                           <sr-lang key="percent_sign">%</sr-lang>
                         </span>
+                      </div>
+                      <div class="field-item">
+                        <span>${tr('min_max_points', [this.getCriterionMinPoints(c.id), this.getCriterionMaxPoints(c.id)])}</span>
                       </div>
                   </div>` : ""
                 }
@@ -175,13 +181,25 @@ export class SakaiRubricCriteria extends RubricsElement {
       `)}
       </div>
       ${this.weighted ? html`
-        <br>
-        <div class="total-weight ${this.validWeight ? "" : "has-error"}">
-          <span class="control-label">${tr('total_weight', [this.totalWeight])}</span>
+        <div class="weighted-grade-info">
+          <div class="total-data">
+            <div class="${this.validWeight ? "" : "has-error"}">
+              <span class="control-label">
+                <span class="bold-header">${tr("total_weight")}</span>
+                <span>${this.totalWeight}<sr-lang key="percent_sign">%</sr-lang></span>
+              </span>
+            </div>
+            <div>
+              <span class="bold-header">${tr("total_grade")}</span>
+              <span>${tr('min_max_points', [this.minPoints, this.maxPoints])}</span>
+            </div>
+          </div>
+          <div class="sak-banner-error ${this.validWeight ? "hidden" : ""}">
+            <sr-lang key="total_weight_wrong">%</sr-lang>
+          </div>
         </div>`
         : ""
       }
-      <br>
       <div>
         ${this.weighted ? html`
           <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight}">
@@ -408,6 +426,25 @@ export class SakaiRubricCriteria extends RubricsElement {
       this.requestUpdate();
     })
     .catch (error => console.error(error));
+  }
+
+  // SAK-47640 - Get the maximum and minimum possible grade of the criterion,
+  // multiplying the max-min rating points of the criterion by the criterion weight
+  getCriterionMaxPoints(criterionId) {
+    return this.getCriterionPoints(criterionId, Math.max);
+  }
+
+  getCriterionMinPoints(criterionId) {
+    return this.getCriterionPoints(criterionId, Math.min);
+  }
+
+  getCriterionPoints(criterionId, minOrMax) {
+
+    let totalPoints = 0;
+    const criterion = this.criteria.find(c => c.id == criterionId);
+
+    totalPoints += calculateCriteriaPoints(criterion, minOrMax);
+    return parseFloat(totalPoints).toLocaleString(this.locale);
   }
 
   cloneCriterion(e) {
