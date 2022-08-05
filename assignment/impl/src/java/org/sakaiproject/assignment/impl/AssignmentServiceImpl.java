@@ -2954,19 +2954,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (returnGrade.equalsIgnoreCase("Fail")) {
                     returnGrade = resourceLoader.getString("fail");
                 } else {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
                 break;
             case CHECK_GRADE_TYPE:
                 if (returnGrade.equalsIgnoreCase("Checked")) {
                     returnGrade = resourceLoader.getString("gen.checked");
                 } else {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
                 break;
             default:
                 if (returnGrade.isEmpty()) {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
         }
         return returnGrade;

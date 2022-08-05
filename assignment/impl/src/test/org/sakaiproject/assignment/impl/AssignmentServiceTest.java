@@ -1076,12 +1076,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         Assert.assertEquals("Pass", assignmentService.getGradeDisplay("pass", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
         Assert.assertEquals("Fail", assignmentService.getGradeDisplay("fail", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
-        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("any", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
+        Assert.assertEquals("", assignmentService.getGradeDisplay("any", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
 
-        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("any", Assignment.GradeType.CHECK_GRADE_TYPE, null));
+        Assert.assertEquals("", assignmentService.getGradeDisplay("any", Assignment.GradeType.CHECK_GRADE_TYPE, null));
         Assert.assertEquals("Checked", assignmentService.getGradeDisplay("checked", Assignment.GradeType.CHECK_GRADE_TYPE, null));
 
-        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("", Assignment.GradeType.GRADE_TYPE_NONE, null));
+        Assert.assertEquals("", assignmentService.getGradeDisplay("", Assignment.GradeType.GRADE_TYPE_NONE, null));
         Assert.assertEquals("self", assignmentService.getGradeDisplay("self", Assignment.GradeType.GRADE_TYPE_NONE, null));
     }
 
