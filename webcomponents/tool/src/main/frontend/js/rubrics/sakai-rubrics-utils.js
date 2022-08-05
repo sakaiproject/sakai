@@ -109,4 +109,11 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
   }
 };
 
-//export {rubricsUtils};
+function calculateCriteriaPoints (criterion, minOrMax) {
+
+  return minOrMax(...criterion.ratings.map(rating => {
+    return rating.points * (criterion.weight / 100);
+  }));
+}
+
+export {calculateCriteriaPoints};

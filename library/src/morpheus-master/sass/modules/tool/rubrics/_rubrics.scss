@@ -89,6 +89,29 @@
 
     .rubric-details {
         padding: $standard-spacing;
+        .weighted-grade-info {
+            display: flex;
+            margin: 0 4px 11px 4px;
+            @media #{$phone} {
+                flex-direction: column;
+            }
+            .total-data {
+                margin-right: 25px;
+                min-width: 256px;
+                .bold-header {
+                    font-weight: 600;
+                    margin-right: 4px;
+                }
+            }
+            .total-data > div {
+                margin-bottom: 4px;
+            }
+            .sak-banner-error {
+                flex-grow: 1;
+                padding: 14px 16px 14px calc(16px * 2 + 18px);
+                margin: 0;
+            }
+        }
     }
 
     .rubric-title-sorting {
@@ -268,6 +291,7 @@
     &.sakai-rubric-criterion-student,
     &.sakai-rubric-criterion-readonly {
         width: 100%;
+        margin-bottom: 15px;
         border-bottom: $rubrics-crit-border-size solid $rubrics-crit-border-color;
 
         .criterion-row {
@@ -276,16 +300,16 @@
             display: table;
             border: $rubrics-crit-border-size solid $rubrics-crit-border-color;
             border-width: $rubrics-crit-border-size 0 0 0;
-            
+
             .div-description{
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
-    
+
             .cr-table{
                 table-layout: fixed;
             }
-            
+
             &.sortable-ghost, .sortable-ghost {
                 opacity: 0.25;
             }
@@ -467,26 +491,28 @@
             }
         }
         .weight-field {
-            .form-group {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                flex-wrap: wrap;
+            .field-item {
                 margin-top: 10px;
                 margin-bottom: -5px;
-                > {
-                    label {
-                        margin: 0;
-                        font-weight: inherit;
-                        margin-right: 5px;
-                    }
-                    input {
-                        max-width: 60px;
-                        text-align: center;
-                        margin-right: 5px;
-                    }
-                    span {
-                        font-size: 12px;
+                &.form-group {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    > {
+                        label {
+                            margin: 0;
+                            font-weight: inherit;
+                            margin-right: 5px;
+                        }
+                        input {
+                            max-width: 60px;
+                            text-align: center;
+                            margin-right: 5px;
+                        }
+                        span {
+                            font-size: 12px;
+                        }
                     }
                 }
             }
