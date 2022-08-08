@@ -50,9 +50,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
@@ -1285,7 +1287,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             if (MapUtils.isEmpty(index)) {
                 final List<RosterMember> membership = getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
-                index = membership.stream().collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
+                index = Optional.ofNullable(membership).map(Collection::stream).orElseGet(Stream::empty)
+                        .collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
                 cache.put(siteId+groupId, index);
             }
 		
