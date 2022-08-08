@@ -629,7 +629,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Assignment assignment = null;
         try {
-            assignment = assignmentService.getAssignmentWithGradeableSubmissions(gradableId);
+            assignment = assignmentService.getAssignment(gradableId);
         } catch (IdUnusedException e) {
             throw new EntityException("No assignment for id", gradableId, HttpServletResponse.SC_BAD_REQUEST);
         } catch (PermissionException e) {
