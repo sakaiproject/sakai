@@ -285,6 +285,9 @@ public class ResourcesWidget extends Panel {
 				String val = null;
 				if(mostOpenedFile != null) {
 					val = Locator.getFacade().getStatsManager().getResourceName(mostOpenedFile, false);
+					if ("null".equals(val)) {
+						return (String) new ResourceModel("overview_file_unavailable").getObject();
+					}
 				}else{
 					val = "-";
 				}
@@ -300,7 +303,11 @@ public class ResourcesWidget extends Panel {
 			@Override
 			public String getTooltip() {
 				if(mostOpenedFile != null) {
-					return Locator.getFacade().getStatsManager().getResourceName(mostOpenedFile, true);
+					if (Locator.getFacade().getStatsManager().getResourceName(mostOpenedFile, true) == null) {
+						return Locator.getFacade().getStatsManager().getResourceName(mostOpenedFile, true);
+					} else {
+						return (String) new ResourceModel("overview_file_unavailable").getObject();
+					}
 				}else{
 					return null;
 				}
