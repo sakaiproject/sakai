@@ -30,7 +30,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.StringUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -126,8 +125,6 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     public static final String PROP_SITE_PROVIDER_PAGESIZE_MAXIMUM = "site.entity.pagesize.maximum";
 
     private static final String PERMISSION_QUERY_PROPERTY_NAME = "permission";
-
-    private static final String INSTRUCTOR_ROLE_ID = "Instructor";
 
     /**
      * The default page size for lists of entities. May be overridden with
@@ -315,8 +312,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         // check if the user can access site
         isAllowedAccessSite(site);
 
-        List<EntityGroup> groups =
-                securityService.isSuperUser() || StringUtils.equalsIgnoreCase(site.getUserRole(sessionManager.getCurrentSessionUserId()).getId(), INSTRUCTOR_ROLE_ID)  ?
+        List<EntityGroup> groups = securityService.isSuperUser() ?
                 site.getGroups().stream().map(EntityGroup::new).collect(Collectors.toList())
                 :
                 site.getGroupsWithMember(sessionManager.getCurrentSessionUserId()).stream()
