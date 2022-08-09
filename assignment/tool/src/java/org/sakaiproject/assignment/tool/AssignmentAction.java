@@ -1780,78 +1780,80 @@ public class AssignmentAction extends PagedResourceActionII {
                 newAttachments = CollectionUtils.isNotEmpty(currentAttachments);
             }
 
-            log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", submitter);
-            context.put("submission", s);
-            String currentUser = userDirectoryService.getCurrentUser().getId();
-            String grade = assignmentService.getGradeForSubmitter(s, currentUser);
-            context.put("grade", grade);
-            if (assignment.getIsGroup()) {
-                context.put("selectedGroup", s.getGroupId());
-                context.put("originalGroup", s.getGroupId());
-                context.put("submitterId", s.getGroupId());
-            }else {
-            	s.getSubmitters().stream().findAny().ifPresent(u -> context.put("submitterId", u.getId()));
+            if (s != null) {
+	            log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", submitter);
+	            context.put("submission", s);
+	            String currentUser = userDirectoryService.getCurrentUser().getId();
+	            String grade = assignmentService.getGradeForSubmitter(s, currentUser);
+	            context.put("grade", grade);
+	            if (assignment.getIsGroup()) {
+	                context.put("selectedGroup", s.getGroupId());
+	                context.put("originalGroup", s.getGroupId());
+	                context.put("submitterId", s.getGroupId());
+	            }else {
+	                s.getSubmitters().stream().findAny().ifPresent(u -> context.put("submitterId", u.getId()));
+	            }
+
+	            Optional<AssignmentSubmissionSubmitter> submitterA = s.getSubmitters().stream().findAny();
+	            if(submitterA.isPresent()) {
+	                String submissionTimeSpent = StringUtils.isNotBlank(submitterA.get().getTimeSpent()) ?
+	                        submitterA.get().getTimeSpent() : "";
+	                state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
+
+	                String timeSpent = assignmentService.getTotalTimeSheet(submitterA.get());
+	                state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent != null ? timeSpent : "");
+	                if (StringUtils.isNotBlank(timeSpent)) {
+		                context.put("timeSheetEntries", assignmentService.getTimeSheetEntries(submitterA.get()));
+		                isAnyRegTimeSheet = true;
+	                }
+	            }
+	            setScoringAgentProperties(context, assignment, s, false);
+
+	            Map<String, Reference> submissionFeedbackAttachmentReferences = new HashMap<>();
+	            s.getFeedbackAttachments().forEach(r -> submissionFeedbackAttachmentReferences.put(r, entityManager.newReference(r)));
+	            context.put("submissionFeedbackAttachmentReferences", submissionFeedbackAttachmentReferences);
+
+	            Map<String, String> p = s.getProperties();
+	            if (p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null) {
+	                context.put("prevFeedbackText", p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
+	            }
+
+	            if (p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null) {
+	                context.put("prevFeedbackComment", p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT));
+	            }
+
+	            if (p.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS) != null) {
+	                context.put("prevFeedbackAttachments", getPrevFeedbackAttachments(p));
+	            }
+
+	            String resubmitNumber = p.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null ? p.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) : "0";
+	            context.put("allowResubmitNumber", resubmitNumber);
+	            if (!"0".equals(resubmitNumber)) {
+	                Instant resubmitTime = null;
+	                if (p.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME) == null) {
+	                    resubmitTime = assignment.getCloseDate();
+	                } else {
+	                    resubmitTime = Instant.ofEpochSecond(Long.parseLong(p.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME)));
+	                }
+	               context.put("allowResubmitCloseTime", resubmitTime);
+	             }
+
+	            context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
+	            state.setAttribute("isAnyRegTimeSheet", isAnyRegTimeSheet);
+	            // put the resubmit information into context
+	            assignment_resubmission_option_into_context(context, state);
+	            assignment_extension_option_into_context(context, state);
+	            context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
+
+	            rangeAndGroups.buildStudentViewSubmissionContext(state, context, user.getId(), assignment, this);
+
+	            // can the student view model answer or not
+	            canViewAssignmentIntoContext(context, assignment, s);
+
+	            addAdditionalNotesToContext(submitter, context, state);
+
+	            putSubmissionLogMessagesInContext(context, s);
             }
-
-            Optional<AssignmentSubmissionSubmitter> submitterA = s.getSubmitters().stream().findAny();
-            if(submitterA.isPresent()) {
-                String submissionTimeSpent = StringUtils.isNotBlank(submitterA.get().getTimeSpent()) ?
-                        submitterA.get().getTimeSpent() : "";
-                state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
-
-                String timeSpent = assignmentService.getTotalTimeSheet(submitterA.get());
-                state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent != null ? timeSpent : "");
-               	if (StringUtils.isNotBlank(timeSpent)) {
-               	    context.put("timeSheetEntries", assignmentService.getTimeSheetEntries(submitterA.get()));
-                    isAnyRegTimeSheet = true;
-               	}
-            }
-            setScoringAgentProperties(context, assignment, s, false);
-
-            Map<String, Reference> submissionFeedbackAttachmentReferences = new HashMap<>();
-            s.getFeedbackAttachments().forEach(r -> submissionFeedbackAttachmentReferences.put(r, entityManager.newReference(r)));
-            context.put("submissionFeedbackAttachmentReferences", submissionFeedbackAttachmentReferences);
-
-            Map<String, String> p = s.getProperties();
-            if (p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null) {
-                context.put("prevFeedbackText", p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
-            }
-
-            if (p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null) {
-                context.put("prevFeedbackComment", p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT));
-            }
-
-            if (p.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS) != null) {
-                context.put("prevFeedbackAttachments", getPrevFeedbackAttachments(p));
-            }
-
-            String resubmitNumber = p.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null ? p.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) : "0";
-            context.put("allowResubmitNumber", resubmitNumber);
-            if (!"0".equals(resubmitNumber)) {
-                Instant resubmitTime = null;
-                if (p.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME) == null) {
-                    resubmitTime = assignment.getCloseDate();
-                } else {
-                    resubmitTime = Instant.ofEpochSecond(Long.parseLong(p.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME)));
-                }
-               context.put("allowResubmitCloseTime", resubmitTime);
-             }
-
-            context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
-            state.setAttribute("isAnyRegTimeSheet", isAnyRegTimeSheet);
-            // put the resubmit information into context
-            assignment_resubmission_option_into_context(context, state);
-            assignment_extension_option_into_context(context, state);
-            context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
-
-            rangeAndGroups.buildStudentViewSubmissionContext(state, context, user.getId(), assignment, this);
-
-            // can the student view model answer or not
-            canViewAssignmentIntoContext(context, assignment, s);
-
-            addAdditionalNotesToContext(submitter, context, state);
-
-            putSubmissionLogMessagesInContext(context, s);
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
@@ -6857,7 +6859,11 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                     try {
                         submission = assignmentService.addSubmission(a.getId(), submitterId);
-
+                        if (submission == null) {
+                            log.warn("NULL returned while attempting to add a submission to assignment : {}, for submitter: {}", a.getId(), submitterId);
+                            addAlert(state, rb.getString("youarenot13"));
+                            return;
+                        }
                         submission.setUserSubmission(true);
                         submission.setSubmittedText(text);
                         submission.setSubmitted(post);
@@ -6867,7 +6873,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // set the resubmission properties
                         setResubmissionProperties(a, submission);
                     } catch (PermissionException e) {
-                        log.warn("Could not add submission for assignment/submitter: {}/{}, {}", a.getId(), submitterId, e.getMessage());
+                        log.warn("Could not add submission for assignment/submitter: {}/{}, {}", a.getId(), submitterId, e.toString());
                         addAlert(state, rb.getString("youarenot13"));
                         return;
                     }
@@ -8641,6 +8647,18 @@ public class AssignmentAction extends PagedResourceActionII {
                             }
                         }
 
+
+                        if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
+                            //cancel not fired event
+                            eventTrackingService.cancelDelays(assignmentReference, AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT);
+                            // open time change
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentId, true));
+                            if (a.getOpenDate().isAfter(Instant.now())) {
+                                eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
+                                        true), openTime);
+                            }
+                        }
+
                         if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
                             // open time change
                             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentReference, true));
@@ -8658,10 +8676,27 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
-            //SAK-45967
-            if (newAssignment || !a.getDraft()) {
-                // post new assignment event since it is fully initialized by now
-                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
+
+            if ((newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
+
+                Collection aGroups = a.getGroups();
+                if (aGroups.size() != 0) {
+                    // If already open
+                    if (openTime.isBefore(Instant.now())) {
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
+                    } else {
+                        // Not open yet, delay the event
+                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
+                                true), openTime);
+                    }
+                } else {
+                    if (openTime.isBefore(Instant.now())) {
+                        // post new assignment event since it is fully initialized by now
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
+                    } else {
+                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
+                    }
+                }
             }
         }
     }

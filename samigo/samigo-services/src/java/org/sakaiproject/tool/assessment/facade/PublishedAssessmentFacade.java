@@ -76,7 +76,7 @@ public class PublishedAssessmentFacade
   private Date lastModifiedDate;
   private AssessmentAccessControlIfc publishedAccessControl;
   private EvaluationModelIfc publishedEvaluationModel;
-  private AssessmentFeedbackIfc publishedFeedback;
+  @Getter @Setter private AssessmentFeedbackIfc publishedFeedback;
   private Set publishedMetaDataSet;
   private Map<String, String> publishedMetaDataMap = new HashMap<String, String>();
   private Set publishedSectionSet;
@@ -93,6 +93,7 @@ public class PublishedAssessmentFacade
   private Integer scoringType;
   private Integer feedbackDelivery;
   private Integer feedbackComponentOption;
+  private Integer correctAnswerOption;
   private Integer feedbackAuthoring;
   private Date feedbackDate;
   @Getter @Setter private Date feedbackEndDate;
@@ -163,46 +164,46 @@ public class PublishedAssessmentFacade
   // constructor that whole min. info, used for listing
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
-                                 Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
+                                 Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
                                  Integer lateHandling, Boolean unlimitedSubmissions,
                                  Integer submissionsAllowed, Date feedbackEndDate, Double feedbackScoreThreshold){
     
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null, feedbackEndDate, feedbackScoreThreshold);  
+			  feedbackDelivery, feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null, feedbackEndDate, feedbackScoreThreshold);
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
           Integer lateHandling, Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType, Date feedbackEndDate, Double feedbackScoreThreshold){
 
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null, feedbackEndDate, feedbackScoreThreshold);  
+			  feedbackDelivery, feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null, feedbackEndDate, feedbackScoreThreshold);
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
-			Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
+			Integer feedbackDelivery, Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
 			Integer submissionsAllowed, Integer scoringType, Integer status, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null, feedbackEndDate, feedbackScoreThreshold);  
+			  feedbackDelivery,feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null, feedbackEndDate, feedbackScoreThreshold);
 	  
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
-			Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
+			Integer feedbackDelivery,  Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
 			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null, feedbackEndDate, feedbackScoreThreshold);  
+			  feedbackDelivery,feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null, feedbackEndDate, feedbackScoreThreshold);
 	  
   }
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
-			Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
+			Integer feedbackDelivery,  Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
 			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Integer timeLimit, Date feedbackEndDate, Double feedbackScoreThreshold) {
 		this.publishedAssessmentId = id;
@@ -213,6 +214,7 @@ public class PublishedAssessmentFacade
 		this.retractDate = retractDate;
 		this.feedbackDelivery = feedbackDelivery; // =publishedFeedback.feedbackDelivery
 		this.feedbackComponentOption = feedbackComponentOption;
+		this.correctAnswerOption = correctAnswerOption;
 		this.feedbackAuthoring = feedbackAuthoring; // =publishedFeedback.feedbackAuthoring
 		this.feedbackDate = feedbackDate;
 		this.lateHandling = lateHandling;
@@ -698,7 +700,17 @@ public class PublishedAssessmentFacade
   {
     this.feedbackComponentOption = feedbackComponentOption;
   }
-  
+
+  public Integer getCorrectAnswerOption()
+  {
+    return correctAnswerOption;
+  }
+
+  public void setCorrectAnswerOption(Integer correctAnswerOption)
+  {
+    this.correctAnswerOption = correctAnswerOption;
+  }
+
  public Integer getFeedbackAuthoring()
   {
     return feedbackAuthoring;

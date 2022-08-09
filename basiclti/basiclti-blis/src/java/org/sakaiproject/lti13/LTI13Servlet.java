@@ -1306,7 +1306,7 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Could not load content from signed placement = {}", signed_placement);
 				return;
 			}
-
+  
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");

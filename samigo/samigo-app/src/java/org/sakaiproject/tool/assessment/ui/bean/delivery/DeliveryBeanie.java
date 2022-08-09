@@ -66,6 +66,7 @@ public class DeliveryBeanie
   @Getter @Setter private Double feedbackScoreThreshold;
   private String feedbackDelivery;
   private String feedbackComponentOption;
+  @Getter @Setter private String correctAnswerOption;
   private String showScore;
   private String submissionHours; 
   private String submissionMinutes; 

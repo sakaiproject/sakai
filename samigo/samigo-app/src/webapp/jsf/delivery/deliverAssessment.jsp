@@ -46,6 +46,12 @@
       </head>
 	<body>
 
+    <h:panelGroup rendered="#{delivery.onlyShowingIncorrect}">
+      <div class="sak-banner-info">
+         <h:outputText value="#{deliveryMessages.only_showing_incorrect} " />
+      </div>
+    </h:panelGroup>
+
   <h:panelGroup rendered="#{delivery.assessmentSubmitted}">
     <%@ include file="/jsf/delivery/assessmentHasBeenSubmittedContent.jsp" %>
   </h:panelGroup>

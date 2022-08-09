@@ -652,6 +652,10 @@ implements ActionListener
 		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
 		    feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
 
+		if (StringUtils.isNotBlank(assessmentSettings.getCorrectAnswerOption())) {
+			feedback.setCorrectAnswerOption(new Integer(assessmentSettings.getCorrectAnswerOption()));
+		}
+
 		control.setFeedbackDate(assessmentSettings.getFeedbackDate());
 		control.setFeedbackEndDate(assessmentSettings.getFeedbackEndDate());
 		//Set the value if the checkbox is selected, wipe the value otherwise.

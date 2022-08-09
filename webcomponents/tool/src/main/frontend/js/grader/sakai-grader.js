@@ -147,7 +147,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
 
     // If any grade overrides have been set, check the overrides box
-    this.showOverrides = this.submission.submitters.some(s => s.overridden);
+    this.showOverrides = this.submission.submitters?.some(s => s.overridden);
   }
 
   get submission() {
@@ -359,7 +359,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div class="grader ${this.graderOnLeft ? "on-left" : ""}">
         <div id="grader-submitted-block" class="grader-block">
           <div style="display: flex;">
-            <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" ?official=${this.showOfficialPhoto}></sakai-user-photo>
+            <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" popup="on"></sakai-user-photo>
             <div class="submitted-time" style="flex: 4;">
               ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
                 <span class="submitter-name">${this.renderSubmitter()}</span>
@@ -653,7 +653,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         ${this.submission.submittedTime && !this.submission.showExtension ? html`
           <div class="resubmission-checkbox">
             <label>
-              <input type="checkbox" .checked=${this.showResubmission} @change=${this.toggleResubmissionBlock}/>
+              <input type="checkbox" .checked=${this.showResubmission} @change="${this.toggleResubmissionBlock}"/>
               <span>${this.assignmentsI18n.allowResubmit}</span>
             </label>
           </div>
@@ -729,6 +729,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   render() {
 
     return html`
+      ${this.areSettingsInAction() ? html`
+      <div class="sak-banner-warn">${this.i18n.filter_settings_warning}</div>
+      ` : ""}
       <div class="grader-nav">
       ${this.renderNav()}
       </div>
@@ -1315,7 +1318,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.submissions = [...this.originalSubmissions];
 
     if (this.ungradedOnly) {
-      this.submissions = this.submissions.filter(s => !s.grade);
+      this.submissions = this.submissions.filter(s => !s.graded);
     }
 
     if (this.submittedOnly) {
@@ -1345,6 +1348,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.submittedOnly = e.target.checked;
     this.applyFilters(e);
+  }
+
+  areSettingsInAction() {
+
+    return (this.currentGroup && this.currentGroup !== `/site/${portal.siteId}`) || this.submittedOnly || this.ungradedOnly;
   }
 
   removeAttachment(e) {

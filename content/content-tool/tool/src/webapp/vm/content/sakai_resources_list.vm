@@ -372,7 +372,11 @@
 								#if($item.isCollection()) 
 									<span class="skip">$newNote</span>
 									#if($item.isEmpty() || $item.isTooBig() || $item.depth < 1 || $item.isTooBigNav())
-										<span class="$iconDecor $item.iconClass" aria-hidden="true"></span>
+										#if($item.isEmpty())
+											<span class="$iconDecor $item.iconClass" aria-hidden="true" title="$clang.getString('sh.emptyfolder')"></span>
+										#else
+											<span class="$iconDecor $item.iconClass" aria-hidden="true" title="$clang.getString('sh.thisfolder')"></span>
+										#end
 										<span class="sr-only">$!item.hoverText</span>
 									#else
 										<span class="sr-only">$!item.hoverText</span>
@@ -393,7 +397,7 @@
 											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
 										>
 									#else
-										<a class="$item.iconClass" href="${item.accessUrl}" target="${item.target}">
+										<a class="$item.iconClass" href="${item.accessUrl}" target="${item.target}" title="$clang.getString('sh.openfile')">
 									#end
 									</a>
 								#end

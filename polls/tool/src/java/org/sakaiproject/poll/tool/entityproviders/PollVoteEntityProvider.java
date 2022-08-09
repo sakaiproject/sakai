@@ -391,7 +391,8 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         try {
             voteId = Long.valueOf(id);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Cannot convert id ("+id+") to long: " + e.getMessage(), e);
+            log.warn("Attempting to load a vote with an invalid id ({}): {}", id, e.toString());
+            throw new EntityException("Invalid identifier provided for poll-vote", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
         }
         Vote vote = pollVoteManager.getVoteById(voteId);
         return vote;

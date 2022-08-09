@@ -665,7 +665,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         String associationId = null;
         String created = "";
-        String owner = "";
         String ownerType = "";
         String creatorId = "";
         String oldRubricId = null;
@@ -677,7 +676,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             if (optAssociation.isPresent()) {
                 association = optAssociation.get();
                 created = association.getCreated().toString();
-                owner = association.getSiteId();
                 creatorId = association.getCreatorId();
                 oldParams = association.getParameters();
                 oldRubricId = association.getRubricId().toString();
@@ -699,7 +697,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     }
 
                     // See if there's already an association for the requested rubric and reuse that.
-                    Optional<ToolItemRubricAssociation> optionalExisting = findAssociationByItemIdAndRubricId(toolItemId, Long.parseLong(rubricId), toolId, null);
+                    Optional<ToolItemRubricAssociation> optionalExisting = findAssociationByItemIdAndRubricId(toolItemId, Long.parseLong(rubricId), toolId);
                     if (optionalExisting.isPresent()) {
                         return Optional.of(setAssociationActive(optionalExisting.get(), true, toolId));
                     } else {
@@ -711,7 +709,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                         LocalDateTime now = LocalDateTime.now();
                         newAssociation.setCreated(now);
                         newAssociation.setModified(now);
-                        newAssociation.setSiteId(siteId);
                         newAssociation.setCreatorId(userDirectoryService.getCurrentUser().getId());
                         newAssociation.setParameters(setConfigurationParameters(params, oldParams));
 
@@ -736,9 +733,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
-    private Optional<ToolItemRubricAssociation> findAssociationByItemIdAndRubricId(String toolItemId, Long rubricId, String toolId, String siteId) {
+    private Optional<ToolItemRubricAssociation> findAssociationByItemIdAndRubricId(String toolItemId, Long rubricId, String toolId) {
 
         return associationRepository.findByItemIdAndRubricId(toolItemId, rubricId).map(assoc -> {
+
+            String siteId = assoc.getRubric().getOwnerId();
 
             String currentUserId = userDirectoryService.getCurrentUser().getId();
 
@@ -795,7 +794,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             String currentUserId = userDirectoryService.getCurrentUser().getId();
 
-            if (isEditor(assoc.getSiteId()) || assoc.getCreatorId().equalsIgnoreCase(currentUserId)) {
+            if (isEditor(assoc.getRubric().getOwnerId()) || assoc.getCreatorId().equalsIgnoreCase(currentUserId)) {
                 return assoc;
             } else {
                 return null;
@@ -826,7 +825,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         associationRepository.findByItemIdPrefix(toolId, itemId).forEach(assoc -> {
 
-            if (securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteService.siteReference(assoc.getSiteId()))) {
+            if (securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteService.siteReference(assoc.getRubric().getOwnerId()))) {
                 try {
                     evaluationRepository.deleteByToolItemRubricAssociation_Id(assoc.getId());
                 } catch (Exception e) {
@@ -1096,6 +1095,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             try {
                 Rubric clone = rubric.clone(toContext);
+                clone.setCreated(Instant.now());
+                clone.setModified(Instant.now());
                 clone = rubricRepository.save(clone);
                 traversalMap.put(RubricsConstants.RBCS_PREFIX + rubric.getId(), RubricsConstants.RBCS_PREFIX + clone.getId());
             } catch (Exception e) {

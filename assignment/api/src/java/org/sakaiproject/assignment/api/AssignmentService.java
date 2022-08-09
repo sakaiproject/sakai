@@ -281,13 +281,12 @@ public interface AssignmentService extends EntityProducer {
     boolean allowReviewService(Site site);
 
     /**
-     * Check permissions for grading Submission
+     * Check permissions for grading submissions on an assignment
      *
-     * @param submissionReference -
-     *                            The Submission's reference.
-     * @return True if the current User is allowed to grade the AssignmentSubmission, false if not.
+     * @param assignmentReference The assignment's reference.
+     * @return true if the current user is allowed to grade submissions for the assignment.
      */
-    public boolean allowGradeSubmission(String submissionReference);
+    public boolean allowGradeSubmission(String assignmentReference);
 
     /**
      * Creates and adds a new Assignment to the service.
@@ -335,13 +334,11 @@ public interface AssignmentService extends EntityProducer {
     public void deleteAssignmentAndAllReferences(Assignment assignment) throws PermissionException;
 
     /**
-     * Adds an AssignmentSubmission
+     * Adds a new submission to an Assignment
      *
-     * @param assignmentId The assignment id
-     * @param submitter    The submitter id
-     * @return The new AssignmentSubmission.
-     * @throws IdInvalidException  if the submission id is invalid.
-     * @throws IdUsedException     if the submission id is already used.
+     * @param assignmentId The assignment's id the submission will be added to
+     * @param submitter    The submitter's id of who is submitting this submission, can also be a group id for a group submission
+     * @return new {@link AssignmentSubmission}, or null if the submission could not be created
      * @throws PermissionException if the current User does not have permission to do this.
      */
     public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException;
@@ -385,6 +382,16 @@ public interface AssignmentService extends EntityProducer {
      * @throws PermissionException if the current user is not allowed to read this.
      */
     public Assignment getAssignment(String assignmentId) throws IdUnusedException, PermissionException;
+
+    /**
+     * Access the Assignment with the specified id, returning just the submissions that the user
+     * is able to see.
+     * @param assignmentId - The id of the Assignment.
+     * @return The assignment corresponding to the id and the filtered submissions, null if it does not exists.
+     * @throws IdUnusedException if the is no assignment with the passed id.
+     * @throws PermissionException if the current user is not allowed to read the assignment.
+     */
+    public Assignment getAssignmentWithGradeableSubmissions(String assignmentId) throws IdUnusedException, PermissionException;
 
     /**
      * Retrieves the current status of the specified assignment.

@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -51,6 +52,8 @@ import org.sakaiproject.conversations.api.ConversationsEvents;
 import org.sakaiproject.conversations.api.Permissions;
 import org.sakaiproject.conversations.api.PostSort;
 import org.sakaiproject.conversations.api.Reaction;
+import org.sakaiproject.conversations.api.ShowDateContext;
+import org.sakaiproject.conversations.api.TopicShowDateMessager;
 import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
@@ -95,7 +98,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -104,6 +106,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -144,6 +149,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     private PostStatusRepository postStatusRepository;
 
+    private ScheduledInvocationManager scheduledInvocationManager;
+
     private SecurityService securityService;
 
     private ServerConfigurationService serverConfigurationService;
@@ -164,6 +171,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     private TopicReactionTotalRepository topicReactionTotalRepository;
 
+    private TopicShowDateMessager topicShowDateMessager;
+
     private ConversationsTopicRepository topicRepository;
 
     private TopicStatusRepository topicStatusRepository;
@@ -178,6 +187,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     private Cache<String, List<ConversationsStat>> sortedStatsCache;
     private Cache<String, Map<String, Map<String, Object>>> postsCache;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public void init() {
 
@@ -421,6 +432,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         boolean wasDraft = false;
         ConversationsTopic existingTopic = null;
         String oldDueDateCalendarEventId = null;
+        String oldShowMessageScheduleId = null;
+        boolean removeScheduledMessage = false;
 
         Instant now = Instant.now();
         if (isNew) {
@@ -437,6 +450,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                 .orElseThrow(() -> new IllegalArgumentException("No existing topic for " + topicBean.id));
 
             oldDueDateCalendarEventId = existingTopic.getDueDateCalendarEventId();
+            oldShowMessageScheduleId = existingTopic.getShowMessageScheduleId();
 
             wasDraft = existingTopic.getDraft() && !topicBean.draft;
 
@@ -449,6 +463,19 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                 if (topicBean.hideDate == null || topicBean.hideDate.isAfter(now)) {
                     topicBean.hidden = false;
                 }
+
+                removeScheduledMessage = true;
+            }
+
+            if (topicBean.showDate != null && existingTopic.getShowDate() != null && !topicBean.showDate.equals(existingTopic.getShowDate())) {
+                // The show date has been changed
+                removeScheduledMessage = true;
+            }
+
+            // If a show date was set in the past (it was in this case) we need to remove the
+            // scheduled message invocation that was previously set
+            if (removeScheduledMessage && oldShowMessageScheduleId != null) {
+                scheduledInvocationManager.deleteDelayedInvocation(oldShowMessageScheduleId);
             }
 
             if (topicBean.lockDate == null && existingTopic.getLockDate() != null) {
@@ -469,6 +496,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             // has been updated, or whatever.
             postsCache.remove(topicBean.id);
         }
+
         topicBean.setModifier(currentUserId);
         topicBean.setModified(now);
 
@@ -482,65 +510,57 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
         TopicTransferBean outTopicBean = TopicTransferBean.of(topic);
 
-        outTopicBean.tags = topic.getTagIds().stream().map(tagId -> {
-
-            Optional<Tag> optTag = tagRepository.findById(tagId);
-            if (optTag.isPresent()) {
-                return optTag.get();
-            } else {
-                return null;
-            }
-        }).collect(Collectors.toList());
+        outTopicBean.tags = topic.getTagIds().stream()
+            .map(tagId -> tagRepository.findById(tagId).orElse(null))
+            .collect(Collectors.toList());
 
         TopicTransferBean decoratedBean = decorateTopicBean(outTopicBean, topic, currentUserId, settings);
 
-        final boolean finalWasDraft = wasDraft;
-        final ConversationsTopic finalTopic = topic;
+        ConversationsTopic finalTopic = topic;
 
-        this.afterCommit(() -> {
+        boolean finalWasDraft = wasDraft;
 
-            ConversationsEvents event = isNew ? ConversationsEvents.TOPIC_CREATED : ConversationsEvents.TOPIC_UPDATED;
-            eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, decoratedBean.siteId, true, NotificationService.NOTI_OPTIONAL));
+        if (sendMessage) {
+            this.afterCommit(() -> this.sendOrScheduleTopicMessages(finalTopic.getId(), isNew, finalWasDraft));
+        }
 
-            if (sendMessage && (isNew || finalWasDraft) && !finalTopic.getDraft()) {
-                try {
-                    Site site = siteService.getSite(decoratedBean.siteId);
-
-                    Set<User> users = null;
-                    switch (finalTopic.getVisibility()) {
-                        case SITE:
-                            users = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
-                            break;
-                        case GROUP:
-                            Set<String> userIds = new HashSet<>(authzGroupService.getAuthzUsersInGroups(finalTopic.getGroups()));
-                            users = new HashSet<>(userDirectoryService.getUsers(userIds));
-                            break;
-                        case INSTRUCTORS:
-                            userIds = site.getUsersIsAllowed(Permissions.ROLETYPE_INSTRUCTOR.label);
-                            users = new HashSet<>(userDirectoryService.getUsers(userIds));
-                            break;
-                        default:
-                    }
-
-                    Map<String, Object> replacements = new HashMap<>();
-                    replacements.put("siteTitle", site.getTitle());
-                    replacements.put("topicTitle", decoratedBean.title);
-                    replacements.put("topicUrl", decoratedBean.portalUrl);
-                    replacements.put("bundle", new ResourceLoader("conversations_notifications"));
-
-                    userMessagingService.message(users,
-                        Message.builder()
-                            .siteId(decoratedBean.siteId)
-                            .tool(TOOL_ID)
-                            .type(finalTopic.getType() == TopicType.QUESTION ? "newquestion" : "newdiscussion").build(),
-                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
-                } catch (IdUnusedException iue) {
-                    log.error("No group for site reference {}", siteRef);
-                }
-            }
-        });
-        
         return decoratedBean;
+    }
+
+    @Transactional
+    private void sendOrScheduleTopicMessages(String topicId, boolean isNew, boolean wasDraft) {
+
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        Instant showDate = topic.getShowDate();
+
+        if (showDate != null && showDate.isAfter(Instant.now())) {
+
+            (new Thread(() -> {
+
+                // This topic has a show date in the future. We need to set up a scheduled task to
+                // send out email alerts on the show date
+
+                try {
+                    ShowDateContext showDateContext = new ShowDateContext();
+                    showDateContext.setTopicId(topicId);
+                    showDateContext.setWasNew(isNew);
+                    String context = objectMapper.writeValueAsString(showDateContext);
+                    if (!topic.getDraft()) {
+                        String invocationId = scheduledInvocationManager.createDelayedInvocation(showDate, "org.sakaiproject.conversations.impl.TopicShowDateMessager", context);
+                        topic.setShowMessageScheduleId(invocationId);
+                        topicRepository.save(topic);
+                    }
+                } catch (JsonProcessingException e) {
+                    log.error("Exception while building json context for topic message sheduler: {}", e.toString());
+                }
+            })).start();
+        } else {
+            if ((isNew || wasDraft) && !topic.getDraft()) {
+                topicShowDateMessager.message(topic, isNew);
+            }
+        }
     }
 
     private CalendarEventEdit populateCalendarEvent(CalendarEventEdit calEdit, ConversationsTopic topic) {

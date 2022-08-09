@@ -51,6 +51,7 @@ import org.hibernate.StaleObjectStateException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
@@ -187,14 +188,15 @@ public class GradingServiceImpl implements GradingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<Assignment> getAssignments(String gradebookUid) {
 
+        initGradebook(gradebookUid);
         return getAssignments(gradebookUid, SortType.SORT_BY_NONE);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<Assignment> getAssignments(String gradebookUid, SortType sortBy) {
 
         if (!isUserAbleToViewAssignments(gradebookUid)) {
@@ -4815,6 +4817,19 @@ public class GradingServiceImpl implements GradingService {
     public Gradebook getGradebook(String uid) {
 
         return gradingPersistenceManager.getGradebook(uid).orElseGet(() -> addGradebook(uid));
+    }
+
+    @Transactional
+    public void initGradebook(String uid) {
+
+        try {
+            siteService.getSite(uid);
+        } catch (IdUnusedException idue) {
+            log.warn("No site with id: {}", uid);
+            throw new IllegalArgumentException(uid + " is not a valid site id");
+        }
+
+        getGradebook(uid);
     }
 
     private List<GradebookAssignment> getAssignments(Long gradebookId) {

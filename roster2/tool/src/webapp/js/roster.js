@@ -778,6 +778,10 @@ roster.calculatePageSizes = function () {
   // width of container = width + left and right padding
   var containerWidth = parseInt($('#roster-members-content').width());
 
+  if (containerWidth < bigCardWidth) {
+    containerWidth = bigCardWidth;
+  }
+
   // number of cards per row = containerWidth / cardWith, rounded down to nearest whole number
   var numBigCardsPerRow = Math.floor(containerWidth / bigCardWidth);
   var numSmallCardsPerRow = Math.floor(containerWidth / smallCardWidth);

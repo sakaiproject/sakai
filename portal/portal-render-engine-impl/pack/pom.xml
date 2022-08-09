@@ -42,7 +42,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-portal-util</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

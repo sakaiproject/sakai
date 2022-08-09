@@ -1344,7 +1344,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             if (submissionSubmitters.isEmpty()) {
-                log.warn("A new submission can't be added to assignment {} with no submitters");
+                log.warn("A submission can't be added to assignment {} with no submitters", a.getId());
                 return null;
             }
 
@@ -1605,6 +1605,27 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // check security on the assignment
 
         return checkAssignmentAccessibleForUser(assignment, currentUserId);
+    }
+
+    @Override
+    public Assignment getAssignmentWithGradeableSubmissions(String assignmentId) throws IdUnusedException, PermissionException {
+
+        Assignment assignment = getAssignment(assignmentId);
+
+        // Obtain the user ids for every group that the current user should see
+        Set<String> currentUserGroups = getGroupsAllowGradeAssignment(assignmentReference(assignmentId)).stream()
+                .flatMap(group -> group.getMembers().stream()).map(Member::getUserId).collect(Collectors.toSet());
+
+        // Take the submissions of the previous users
+        Set<AssignmentSubmission> submissions = assignment.getSubmissions().stream()
+                .filter(submission -> !submission.getSubmitters().stream()
+                .map(AssignmentSubmissionSubmitter::getSubmitter).filter(currentUserGroups::contains)
+                .collect(Collectors.toList()).isEmpty()).collect(Collectors.toSet());
+
+        // Replace all submissions by the filtered submissions
+        assignment.setSubmissions(submissions);
+
+        return assignment;
     }
 
     @Override
@@ -2974,19 +2995,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (returnGrade.equalsIgnoreCase("Fail")) {
                     returnGrade = resourceLoader.getString("fail");
                 } else {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
                 break;
             case CHECK_GRADE_TYPE:
                 if (returnGrade.equalsIgnoreCase("Checked")) {
                     returnGrade = resourceLoader.getString("gen.checked");
                 } else {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
                 break;
             default:
                 if (returnGrade.isEmpty()) {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
         }
         return returnGrade;
