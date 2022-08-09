@@ -117,8 +117,8 @@ DTMN.attachDatePicker = function(selector, updates, notModified)
 			}
 		};
 		// Allow null dates where appropriate
-                if (dataTool === 'gradebookItems' || dataTool === 'resources' || dataTool === 'forums' ||
-                    (dataTool === 'assessments' && (dataField === 'accept_until' || dataField === 'due_date'))) {
+                if (dataTool === 'gradebookItems' || dataTool === 'resources' || dataTool === 'forums' || dataTool === 'lessons' || dataTool === 'announcements' ||
+                    (dataTool === 'assessments' && (dataField === 'accept_until' || dataField === 'due_date' || dataField === 'feedback_end' || dataField === 'feedback_start'))) {
                         datepickerOpts.allowEmptyDate = true;
                 }
 
