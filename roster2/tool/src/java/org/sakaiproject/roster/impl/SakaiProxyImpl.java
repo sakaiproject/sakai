@@ -859,7 +859,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         if (siteMembers != null) {
             log.debug("Cache hit on '{}'.", key);
-            return siteMembers;
+            return new ArrayList<>(siteMembers);
         } else {
             log.debug("Cache miss on '{}'.", key);
 
@@ -938,7 +938,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 // Cache the main site list
                 cache.put(siteId, siteMembers);
 
-                return (List<RosterMember>) cache.get(key);
+                return new ArrayList<>((List<RosterMember>) cache.get(key));
             }
         }
     }
