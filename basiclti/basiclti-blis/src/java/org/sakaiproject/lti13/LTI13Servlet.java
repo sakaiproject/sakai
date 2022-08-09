@@ -951,6 +951,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
+	// SAK-47261 - lineItemId can only be null for old-style signed placements
 	protected void handleLineItemScore(String signed_placement, String lineItemId, HttpServletRequest request, HttpServletResponse response) {
 
 		// Make sure the lineItemId is a long
@@ -1005,37 +1006,75 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
-		if (content == null) {
-			return;
+		// YADA
+		Site site = null;
+		Map<String, Object> tool = null;
+		Map<String, Object> content = null;
+		String assignment_name = null;
+
+		// SAK-47261 - Legacy URL patterns with actual signed placement
+		if ( isSignedPlacement(signed_placement) ) {
+			content = loadContentCheckSignature(signed_placement, response);
+			if (content == null) {
+				LTI13Util.return400(response, "Could not load content from signed placement");
+				log.error("Could not load content from signed placement = {}", signed_placement);
+				return;
+			}
+
+			site = loadSiteFromContent(content, signed_placement, response);
+			if (site == null) {
+				LTI13Util.return400(response, "Could not load site associated with content");
+				log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+				return;
+			}
+
+			tool = loadToolForContent(content, site, sat.tool_id, response);
+			if (tool == null) {
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				return;
+			}
+
+			assignment_name = (String) content.get(LTIService.LTI_TITLE);
+			if (assignment_name == null || assignment_name.length() < 1) {
+				log.error("Could not determine assignment_name title {}", content.get(LTIService.LTI_ID));
+				LTI13Util.return400(response, "Could not determine assignment_name");
+				return;
+			}
+
+		} else { // SAK-47261 - It is just a site_id
+			if ( lineitem_key == null ) {
+				log.error("lineItem is required in url for site-id style urls={}", signed_placement);
+				LTI13Util.return400(response, "lineItem is required in url for site-id style urls");
+				return;
+			}
+
+			try {
+				site = SiteService.getSite(signed_placement);
+			} catch (IdUnusedException e) {
+				log.error("No site/page associated with content siteId={}", signed_placement);
+				LTI13Util.return400(response, "Could not load site associated with content");
+				return;
+			}
+
+			tool = ltiService.getToolDao(sat.tool_id, site.getId());
+			if (tool == null) {
+				log.error("Could not load tool={}", sat.tool_id);
+				LTI13Util.return400(response, "Missing tool");
+				return;
+			}
+
+			if ( ! checkToolHasPlacements(sat.tool_id, signed_placement, response) ) return;
+
 		}
 
-		Site site = loadSiteFromContent(content, signed_placement, response);
-		if (site == null) {
-			return;
-		}
-
-		String context_id = site.getId();
 		userId = SakaiBLTIUtil.parseSubject(userId);
 		if (!checkUserInSite(site, userId)) {
-			log.warn("User {} not found in siteId={}", userId, context_id);
+			log.warn("User {} not found in siteId={}", userId, site.getId());
 			LTI13Util.return400(response, "User does not belong to site");
 			return;
 		}
 
-		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
-		if (tool == null) {
-			return;
-		}
-
 		// TODO: Check if sat and tool match
-
-		String assignment_name = (String) content.get(LTIService.LTI_TITLE);
-		if (assignment_name == null || assignment_name.length() < 1) {
-			log.error("Could not determine assignment_name title {}", content.get(LTIService.LTI_ID));
-			LTI13Util.return400(response, "Could not determine assignment_name");
-			return;
-		}
 
 		// When lineitem_key is null we are the "default" lineitem associated with the content object
 		// if the content item is associated with an assignment, we talk to the assignment API,
@@ -1267,7 +1306,7 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Could not load content from signed placement = {}", signed_placement);
 				return;
 			}
-
+  
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");

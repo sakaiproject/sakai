@@ -1903,7 +1903,7 @@ public class SakaiBLTIUtil {
 				endpoint.scope = new ArrayList<>();
 				endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
 
-				if ( allowOutcomes != 0 && outcomesEnabled() ) {
+				if ( allowOutcomes != 0 && outcomesEnabled() && content != null) {
 					SakaiLineItem defaultLineItem = LineItemUtil.getDefaultLineItem(site, content);
 					if ( defaultLineItem != null ) endpoint.lineitem = defaultLineItem.id;
 				}
