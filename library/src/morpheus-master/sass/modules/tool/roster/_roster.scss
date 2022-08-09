@@ -232,10 +232,4 @@
         }
 
     }
-
-    @media #{$phone} {
-        input#roster-spreadsheet-view-radio, label[for=roster-spreadsheet-view-radio] {
-            display: none;
-        }
-    }
 }
