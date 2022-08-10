@@ -1198,6 +1198,8 @@ public class AnnouncementAction extends PagedResourceActionII
 								}
 							} catch(IdUnusedException e) {
 								log.debug("No announcement channel for ID: {}", channeIDD);
+							} catch(PermissionException e) {
+								log.debug("Permission exception for channelID: {}", channeIDD, e);
 							} catch(Exception e) {
 								log.warn("ChannelID: {}", channeIDD, e);
 							}
