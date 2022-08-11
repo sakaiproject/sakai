@@ -1235,7 +1235,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * Return a ISO 8601 formatted date
+	 * Return a ISO 8601 formatted date
 	 */
 	public static String getISO8601(Date date) {
 		if ( date == null ) {
@@ -1246,6 +1246,66 @@ public class BasicLTIUtil {
 		String timestamp = isoFormat.format(date);
 		timestamp = timestamp.replace("GMT", "Z");
 		return timestamp;
+	}
+
+	/**
+	 * Parse a String Date, prefer the strict ISO8601 but at the same time be flexible about it...
+	 */
+	// https://stackoverflow.com/questions/4024544/how-to-parse-dates-in-multiple-formats-using-simpledateformat
+	// https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
+	public static Date parseGMTDate(String timestamp) {
+
+		if ( timestamp == null ) return null;
+
+		// Make sure that ISO8601 Z format dates are *perfect*
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		df.setTimeZone(TimeZone.getTimeZone("GMT"));
+		try {
+			Date result =  df.parse(timestamp);
+			return result;
+		} catch(java.text.ParseException e) {
+			// Ignore
+		}
+
+        String[] possibleDateFormats =
+              {
+                    "yyyy.MM.dd G 'at' HH:mm:ss z",
+                    "EEE, MMM d, ''yy",
+                    "h:mm a",
+                    "hh 'o''clock' a, zzzz",
+                    "K:mm a, z",
+                    "yyyyy.MMMMM.dd GGG hh:mm aaa",
+                    "EEE, d MMM yyyy HH:mm:ss Z",
+                    "yyMMddHHmmssZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+                    "YYYY-'W'ww-u",
+                    "EEE, dd MMM yyyy HH:mm:ss z",
+                    "EEE, dd MMM yyyy HH:mm zzzz",
+                    "yyyy-MM-dd'T'HH:mm:ssX",
+                    "yyyy-MM-dd'T'HH:mm:ssZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSzzzz",
+                    "yyyy-MM-dd'T'HH:mm:sszzzz",
+                    "yyyy-MM-dd'T'HH:mm:ss z",
+                    "yyyy-MM-dd'T'HH:mm:ssz",
+                    "yyyy-MM-dd'T'HH:mm:ss",
+                    "yyyy-MM-dd'T'HHmmss.SSSz",
+                    "yyyy-MM-dd",
+                    "yyyyMMdd",
+                    "dd/MM/yy",
+                    "dd/MM/yyyy"
+              };
+
+		for( int i = 0; i<possibleDateFormats.length; i++) {
+			df = new SimpleDateFormat(possibleDateFormats[i]);
+			try {
+				Date result =  df.parse(timestamp);
+				return result;
+			} catch(java.text.ParseException e) {
+				continue;
+			}
+		}
+		return null;
 	}
 
 	// Parse and return a JSONObject (empty if necessary)
