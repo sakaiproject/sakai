@@ -107,11 +107,11 @@ public class BasicLTIUtilTest {
 		assertEquals(y,iso8601);
 
 		// Now lets parse some iso dates
-		result = BasicLTIUtil.parseGMTDate(iso8601);
+		result = BasicLTIUtil.parseIMS8601(iso8601);
 		String z = BasicLTIUtil.getISO8601(result);
 		assertEquals(z, iso8601);
 
-		result = BasicLTIUtil.parseGMTDate(null);
+		result = BasicLTIUtil.parseIMS8601(null);
 		assertNull(result);
 
 		String[] variations = {
@@ -128,7 +128,7 @@ public class BasicLTIUtilTest {
 		};
 
 		for(int i=0; i<variations.length; i++) {
-			result = BasicLTIUtil.parseGMTDate(variations[i]);
+			result = BasicLTIUtil.parseIMS8601(variations[i]);
 			z = BasicLTIUtil.getISO8601(result);
 			assertEquals(z, iso8601);
 		}

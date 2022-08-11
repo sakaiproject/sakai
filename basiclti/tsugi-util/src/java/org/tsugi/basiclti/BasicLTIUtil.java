@@ -1249,11 +1249,23 @@ public class BasicLTIUtil {
 	}
 
 	/**
-	 * Parse a String Date, prefer the strict ISO8601 but at the same time be flexible about it...
+	 * Parse an IMS 8601 date the strict ISO8601 but at the same time be flexible about it...
+	 *
+	 * We keep this in our own litte corner in case special adjustments are needed as
+	 * we gain experience with the variatios in date formats in actual LTI Advantage tool practice.
+	 *
+	 * All the IMS examples  use the most common ISO8601/UTC format as in:
+	 *
+	 *   "startDateTime": "2018-03-06T20:05:02Z",
+	 *   "endDateTime": "2018-04-06T22:05:03Z"
+	 *
+	 * So we make particular effort to make sure this works and gives the right kind of date.  And then
+	 * for any other reasonable format, we try our best.
 	 */
-	// https://stackoverflow.com/questions/4024544/how-to-parse-dates-in-multiple-formats-using-simpledateformat
+	// https://www.imsglobal.org/spec/lti-ags/v2p0/#startdatetime
 	// https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
-	public static Date parseGMTDate(String timestamp) {
+	// https://stackoverflow.com/questions/4024544/how-to-parse-dates-in-multiple-formats-using-simpledateformat
+	public static Date parseIMS8601(String timestamp) {
 
 		if ( timestamp == null ) return null;
 

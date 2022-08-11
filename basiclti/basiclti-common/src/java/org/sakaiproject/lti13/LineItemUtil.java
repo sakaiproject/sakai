@@ -51,7 +51,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
-import static org.tsugi.basiclti.BasicLTIUtil.parseGMTDate;
+import static org.tsugi.basiclti.BasicLTIUtil.parseIMS8601;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
@@ -197,7 +197,7 @@ public class LineItemUtil {
 					assignmentObject.setReleased(releaseToStudent); // default true
 					assignmentObject.setCounted(includeInComputation); // default true
 					assignmentObject.setUngraded(false);
-					Date endDateTime = parseGMTDate(lineItem.endDateTime);
+					Date endDateTime = parseIMS8601(lineItem.endDateTime);
 					assignmentObject.setDueDate(endDateTime);
 					// NOTE: addAssignment does *not* set the external values - Update *does* store them
 					assignmentId = g.addAssignment(context_id, assignmentObject);
@@ -272,7 +272,7 @@ public class LineItemUtil {
 		assignmentObject.setReleased(releaseToStudent); // default true
 		assignmentObject.setCounted(includeInComputation); // default true
 		assignmentObject.setUngraded(false);
-		Date dueDate = org.tsugi.basiclti.BasicLTIUtil.parseGMTDate(lineItem.endDateTime);
+		Date dueDate = org.tsugi.basiclti.BasicLTIUtil.parseIMS8601(lineItem.endDateTime);
 		if ( dueDate != null ) assignmentObject.setDueDate(dueDate);
 
 		pushAdvisor();
