@@ -301,7 +301,7 @@
         <dependency>
             <groupId>org.owasp.antisamy</groupId>
             <artifactId>antisamy</artifactId>
-            <version>1.6.8</version>
+            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
@@ -396,7 +396,7 @@
         <dependency>
             <groupId>org.passay</groupId>
             <artifactId>passay</artifactId>
-            <version>1.6.1</version>
+            <version>1.6.2</version>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
