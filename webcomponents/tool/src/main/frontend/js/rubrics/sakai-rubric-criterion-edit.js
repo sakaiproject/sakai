@@ -40,7 +40,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   render() {
 
     return html`
-      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}" href="#"></a>
+      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}" aria-label="${tr("edit_criterion")} ${this.criterion.title}" href="#"></a>
 
       <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom">
         <div class="arrow"></div>

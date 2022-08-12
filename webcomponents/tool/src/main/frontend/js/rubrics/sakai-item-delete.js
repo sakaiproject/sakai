@@ -46,7 +46,7 @@ export class SakaiItemDelete extends RubricsElement {
   render() {
 
     return html`
-      <a @focus="${this.onFocus}" @focusout="${this.focusOut}" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove", [this.item.title])}" class="linkStyle delete fa fa-times" @keyup="${this.openEditWithKeyboard}" @click="${this.deleteItem}" href="#"></a>
+      <a @focus="${this.onFocus}" @focusout="${this.focusOut}" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" title="${tr("remove", [this.item.title])}" aria-label="${tr("remove", [this.item.title])}" class="linkStyle delete fa fa-times" @keyup="${this.openEditWithKeyboard}" @click="${this.deleteItem}" href="#"></a>
       <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left">
         <div class="arrow"></div>
         <div class="popover-title" tabindex="0">${tr("confirm_remove")} ${this.item.title}</div>

@@ -34,9 +34,9 @@ export class SakaiRubricPdf extends RubricsElement {
   render() {
 
     return html`
-      <span class="hidden-sm hidden-xs sr-only"><sr-lang key="export_label" /></span>
       <a role="button"
         title="${tr("export_title", [this.rubricTitle])}"
+        aria-label="${tr("export_title", [this.rubricTitle])}"
         href="${this.url}"
         @click=${e => e.stopPropagation()}
         class="linkStyle pdf fa fa-file-pdf-o">
