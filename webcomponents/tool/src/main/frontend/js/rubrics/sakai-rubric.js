@@ -73,16 +73,12 @@ export class SakaiRubric extends RubricsElement {
     return html`
       <div class="rubric-title" @click="${this.toggleRubric}">
         <div>
-          <a href="#" class="rubric-name" id="rubric_toggle_${this.rubric.id}" aria-expanded="${this.rubricExpanded}" role="tab" title="${tr("toggle_details")} ${this.rubric.title}" tabindex="0" >
+          <a href="#" class="rubric-name" id="rubric_toggle_${this.rubric.id}" aria-expanded="${this.rubricExpanded}" role="tab" title="${tr("toggle_details")} ${this.rubric.title}" >
             <span class="fa fa-chevron-right"></span>
             ${this.rubric.title}
           </a>
-
-          ${this.rubric.locked ?
-            html`<span tabindex="0" role="display" title="${this.rubric.title} ${tr("is_locked")}" class="locked fa fa-lock"></span>`
-            :
-            html`<sakai-rubric-edit @show-tooltip="${this.showToolTip}" @update-rubric-title="${this.updateRubricTitle}" rubric="${JSON.stringify(this.rubric)}"></sakai-rubric-edit>`
-          }
+          ${this.rubric.locked ? html`<span tabindex="0" role="tooltip" title="${this.rubric.title} ${tr("is_locked")}" aria-label="${this.rubric.title} ${tr("is_locked")}" class="locked fa fa-lock icon-spacer"></span>` : ""}
+          <sakai-rubric-edit @show-tooltip="${this.showToolTip}" @update-rubric-title="${this.updateRubricTitle}" rubric="${JSON.stringify(this.rubric)}" class="icon-spacer"></sakai-rubric-edit>
         </div>
 
         <div class="hidden-xs rubric-site-title">${this.rubric.siteTitle}</div>
@@ -92,17 +88,11 @@ export class SakaiRubric extends RubricsElement {
         <div class="actions">
           ${!this.rubric.locked ? html`
             <div class="action-container">
-              <span class="hidden-sm hidden-xs sr-only">
-                ${this.rubric.weighted ?
-                  html`<sr-lang key="weighted_label">weighted_label</sr-lang>`
-                  :
-                  html`<sr-lang key="standard_label">standard_label</sr-lang>`
-                }
-              </span>
               <a role="button"
                   class="linkStyle weighted fa ${this.weightedIcon}"
                   href="javascript:;"
                   title="${this.weightLabel}"
+                  aria-label="${this.weightLabel}"
                   tabindex="0"
                   @keyup="${this.openEditWithKeyboard}"
                   @click="${this.weightedChange}">
@@ -111,32 +101,22 @@ export class SakaiRubric extends RubricsElement {
           : ""
           }
           <div class="action-container">
-            <span class="hidden-sm hidden-xs sr-only">
-              ${this.rubric.shared ?
-                html`<sr-lang key="revoke_label">revoke_label</sr-lang>`
-                :
-                html`<sr-lang key="share_label">share_label</sr-lang>`
-              }
-            </span>
             <a role="button"
                 title="${tr(this.shareTitleKey, [this.rubric.title])}"
+                aria-label="${tr(this.shareTitleKey, [this.rubric.title])}"
                 tabindex="0" class="linkStyle share fa ${this.shareIcon}"
                 @keyup="${this.openEditWithKeyboard}"
                 @click="${this.sharingChange}" href="javascript:;">
             </a>
           </div>
           <div class="action-container">
-            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy" /></span>
-            <a role="button" title="${tr("copy")} ${this.rubric.title}" tabindex="0" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneRubric}" href="#"></a>
+            <a role="button" title="${tr("copy")} ${this.rubric.title}" aria-label="${tr("copy")} ${this.rubric.title}" tabindex="0" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneRubric}" href="#"></a>
           </div>
           ${!this.rubric.locked ? html`
             <div class="action-container">
-              <span class="hidden-sm hidden-xs sr-only"><sr-lang key="remove_label" /></span>
               <sakai-item-delete rubric="${JSON.stringify(this.rubric)}" site-id="${this.siteId}" class="sakai-rubric"></sakai-item-delete>
-            </div>
-            `
-            :
-            ""
+            </div>`
+            : ""
           }
           ${this.enablePdfExport ? html`
             <div class="action-container">
@@ -145,33 +125,28 @@ export class SakaiRubric extends RubricsElement {
                   rubric-title="${this.rubric.title}"
                   rubric-id="${this.rubric.id}"
               />
-            </div>
-          ` : ""}
+            </div>`
+            : ""
+          }
         </div>
       </div>
 
       <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
-          ${this.rubric.locked ? html`
-              <sakai-rubric-criteria-readonly
-                .criteria="${this.rubric.criteria}"
-                .weighted=${this.rubric.weighted}
-              />`
-            : html`
-              <sakai-rubric-criteria
-                rubric-id="${this.rubric.id}"
-                site-id="${this.rubric.ownerId}"
-                .criteria="${this.rubric.criteria}"
-                @save-weights="${this.handleSaveWeights}"
-                @weight-changed="${this.handleCriterionWeightChange}"
-                @refresh-total-weight="${this.handleRefreshTotalWeight}"
-                .weighted=${this.rubric.weighted}
-                total-weight="${this.totalWeight}"
-                ?valid-weight="${this.validWeight}"
-                max-points="${this.maxPoints}"
-                min-points="${this.minPoints}"
-              />`
-          }
+          <sakai-rubric-criteria
+            rubric-id="${this.rubric.id}"
+            site-id="${this.rubric.ownerId}"
+            .criteria="${this.rubric.criteria}"
+            @save-weights="${this.handleSaveWeights}"
+            @weight-changed="${this.handleCriterionWeightChange}"
+            @refresh-total-weight="${this.handleRefreshTotalWeight}"
+            .weighted=${this.rubric.weighted}
+            total-weight="${this.totalWeight}"
+            ?valid-weight="${this.validWeight}"
+            max-points="${this.maxPoints}"
+            min-points="${this.minPoints}"
+            ?is-locked="${this.rubric.locked}"
+          />
         </div>
       </div>
     `;
@@ -243,14 +218,20 @@ export class SakaiRubric extends RubricsElement {
 
         if (r.ok) {
 
-          if (saveSuccessLbl) saveSuccessLbl.classList.add('in');
+          if (saveSuccessLbl) {
+            saveSuccessLbl.classList.remove('hidden');
+            saveSuccessLbl.classList.add('in');
+          }
 
           setTimeout(() => {
             if (saveWeightsBtn) saveWeightsBtn.removeAttribute('disabled');
           }, 1000);
 
           setTimeout(() => {
-            if (saveSuccessLbl) saveSuccessLbl.classList.remove('in');
+            if (saveSuccessLbl) {
+              saveSuccessLbl.classList.remove('in');
+              saveSuccessLbl.classList.add('hidden');
+            }
           }, 5000);
 
           this.requestUpdate();
