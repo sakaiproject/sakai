@@ -55,18 +55,9 @@
       <artifactId>sakai-rwiki-api</artifactId>
       <type>jar</type>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}jar-->
     <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xmlParserAPIs</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
   </dependencies>
 </project>

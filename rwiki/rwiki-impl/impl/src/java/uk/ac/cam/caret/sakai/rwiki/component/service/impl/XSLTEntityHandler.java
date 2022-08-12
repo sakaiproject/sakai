@@ -43,11 +43,11 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.TransformerHandler;
 
+import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
+import com.sun.org.apache.xml.internal.serializer.Serializer;
+import com.sun.org.apache.xml.internal.serializer.SerializerFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.xml.serializer.OutputPropertiesFactory;
-import org.apache.xml.serializer.Serializer;
-import org.apache.xml.serializer.SerializerFactory;
 
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -102,11 +102,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * dependency
 	 */
 	private String hrefTagFormat = null;
-
-	/**
-	 * dependency
-	 */
-	private String xalan270ContentHandler = null;
 
 	/**
 	 * dependency
@@ -1254,25 +1249,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	{
 		this.breadCrumbParameter = breadCrumbParameter;
 	}
-	
-	/**
-	 * @return the xalan270ContentHandler
-	 */
-	public String getXalan270ContentHandler()
-	{
-		return xalan270ContentHandler;
-	}
 
-	/**
-	 * @param xalan270ContentHandler
-	 *        the xalan270ContentHandler to set
-	 */
-	public void setXalan270ContentHandler(String xalan270ContentHandler)
-	{
-		this.xalan270ContentHandler = xalan270ContentHandler;
-	}
-    
-    public boolean isEscaped() {
+	public boolean isEscaped() {
         return escaped;
     }
     
