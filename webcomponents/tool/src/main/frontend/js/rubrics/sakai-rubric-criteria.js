@@ -9,7 +9,6 @@ import "./sakai-rubric-criterion-rating-edit.js";
 import { SharingChangeEvent } from "./sharing-change-event.js";
 import { Sortable } from "/webcomponents/assets/sortablejs/modular/sortable.esm.js";
 import { tr } from "./sakai-rubrics-language.js";
-import {calculateCriteriaPoints} from "./sakai-rubrics-utils.js";
 
 export class SakaiRubricCriteria extends RubricsElement {
 
@@ -366,7 +365,6 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.criteriaMap.delete(e.detail.id);
     this.requestUpdate();
     this.letShareKnow();
-    this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
   }
 
   emitWeightChanged(e) {
@@ -470,7 +468,10 @@ export class SakaiRubricCriteria extends RubricsElement {
     let totalPoints = 0;
     const criterion = this.criteria.find(c => c.id == criterionId);
 
-    totalPoints += calculateCriteriaPoints(criterion, minOrMax);
+    totalPoints += minOrMax(...criterion.ratings.map(rating => {
+      return rating.points * (criterion.weight / 100);
+    }));
+    this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
     return parseFloat(totalPoints).toLocaleString(this.locale);
   }
 

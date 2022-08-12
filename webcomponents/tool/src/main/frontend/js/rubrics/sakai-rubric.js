@@ -7,7 +7,6 @@ import "./sakai-item-delete.js";
 import "./sakai-rubric-pdf.js";
 import {tr} from "./sakai-rubrics-language.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
-import {calculateCriteriaPoints} from "./sakai-rubrics-utils.js";
 
 export class SakaiRubric extends RubricsElement {
 
@@ -395,8 +394,12 @@ export class SakaiRubric extends RubricsElement {
 
     let totalPoints = 0;
 
-    criterions.forEach( (criterion) => {
-      totalPoints += calculateCriteriaPoints(criterion, minOrMax);
+    criterions
+    .filter( (criterion) => criterion.ratings.length > 0)
+    .forEach( (criterion) => {
+      totalPoints += minOrMax(...criterion.ratings.map(rating => {
+        return rating.points * (criterion.weight / 100);
+      }));
     });
     return parseFloat(totalPoints).toLocaleString(this.locale);
   }
