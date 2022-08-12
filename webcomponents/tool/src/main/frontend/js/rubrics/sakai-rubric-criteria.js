@@ -350,6 +350,7 @@ export class SakaiRubricCriteria extends RubricsElement {
         rating.new = false;
         this.requestUpdate();
         this.letShareKnow();
+        this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
       } else {
         throw new Error("Network error while saving rating");
       }
@@ -365,6 +366,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.criteriaMap.delete(e.detail.id);
     this.requestUpdate();
     this.letShareKnow();
+    this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
   }
 
   emitWeightChanged(e) {
@@ -447,8 +449,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     })
     .then(c => {
 
+      // The current weight may be lost because comes from DB and the UI can have a different value.
+      c.weight = criterion.weight;
+
       Object.assign(criterion, c);
       this.requestUpdate();
+      this.letShareKnow();
+      this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
     })
     .catch (error => console.error(error));
   }
@@ -468,10 +475,10 @@ export class SakaiRubricCriteria extends RubricsElement {
     let totalPoints = 0;
     const criterion = this.criteria.find(c => c.id == criterionId);
 
-    totalPoints += minOrMax(...criterion.ratings.map(rating => {
+    totalPoints += minOrMax(...criterion.ratings.map( (rating) => {
       return rating.points * (criterion.weight / 100);
     }));
-    this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
+
     return parseFloat(totalPoints).toLocaleString(this.locale);
   }
 
