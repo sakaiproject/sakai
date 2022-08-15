@@ -1235,17 +1235,90 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * Return a ISO 8601 formatted date
+	 * Return a ISO 8601 formatted date
 	 */
 	public static String getISO8601(Date date) {
 		if ( date == null ) {
 			date = new Date();
 		}
 		SimpleDateFormat isoFormat = new SimpleDateFormat(ISO_8601_FORMAT);
-		isoFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String timestamp = isoFormat.format(date);
-		timestamp = timestamp.replace("GMT", "Z");
+		timestamp = timestamp.replace("UTC", "Z");
 		return timestamp;
+	}
+
+	/**
+	 * Parse an IMS 8601 date the strict ISO8601 but at the same time be flexible about it...
+	 *
+	 * We keep this in our own litte corner in case special adjustments are needed as
+	 * we gain experience with the variatios in date formats in actual LTI Advantage tool practice.
+	 *
+	 * All the IMS examples  use the most common ISO8601/UTC format as in:
+	 *
+	 *   "startDateTime": "2018-03-06T20:05:02Z",
+	 *   "endDateTime": "2018-04-06T22:05:03Z"
+	 *
+	 * So we make particular effort to make sure this works and gives the right kind of date.  And then
+	 * for any other reasonable format, we try our best.
+	 */
+	// https://www.imsglobal.org/spec/lti-ags/v2p0/#startdatetime
+	// https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
+	// https://stackoverflow.com/questions/4024544/how-to-parse-dates-in-multiple-formats-using-simpledateformat
+	public static Date parseIMS8601(String timestamp) {
+
+		if ( timestamp == null ) return null;
+
+		// Make sure that ISO8601 Z format dates are *perfect*
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		df.setTimeZone(TimeZone.getTimeZone("UTC"));
+		try {
+			Date result =  df.parse(timestamp);
+			return result;
+		} catch(java.text.ParseException e) {
+			// Ignore
+		}
+
+        String[] possibleDateFormats =
+              {
+                    "yyyy.MM.dd G 'at' HH:mm:ss z",
+                    "EEE, MMM d, ''yy",
+                    "h:mm a",
+                    "hh 'o''clock' a, zzzz",
+                    "K:mm a, z",
+                    "yyyyy.MMMMM.dd GGG hh:mm aaa",
+                    "EEE, d MMM yyyy HH:mm:ss Z",
+                    "yyMMddHHmmssZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+                    "YYYY-'W'ww-u",
+                    "EEE, dd MMM yyyy HH:mm:ss z",
+                    "EEE, dd MMM yyyy HH:mm zzzz",
+                    "yyyy-MM-dd'T'HH:mm:ssX",
+                    "yyyy-MM-dd'T'HH:mm:ssZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSzzzz",
+                    "yyyy-MM-dd'T'HH:mm:sszzzz",
+                    "yyyy-MM-dd'T'HH:mm:ss z",
+                    "yyyy-MM-dd'T'HH:mm:ssz",
+                    "yyyy-MM-dd'T'HH:mm:ss",
+                    "yyyy-MM-dd'T'HHmmss.SSSz",
+                    "yyyy-MM-dd",
+                    "yyyyMMdd",
+                    "dd/MM/yy",
+                    "dd/MM/yyyy",
+                    "MM/dd/yyyy",
+              };
+
+		for( int i = 0; i<possibleDateFormats.length; i++) {
+			df = new SimpleDateFormat(possibleDateFormats[i]);
+			try {
+				Date result =  df.parse(timestamp);
+				return result;
+			} catch(java.text.ParseException e) {
+				continue;
+			}
+		}
+		return null;
 	}
 
 	// Parse and return a JSONObject (empty if necessary)
