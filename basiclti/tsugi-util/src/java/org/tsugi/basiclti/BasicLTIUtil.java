@@ -1242,9 +1242,9 @@ public class BasicLTIUtil {
 			date = new Date();
 		}
 		SimpleDateFormat isoFormat = new SimpleDateFormat(ISO_8601_FORMAT);
-		isoFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String timestamp = isoFormat.format(date);
-		timestamp = timestamp.replace("GMT", "Z");
+		timestamp = timestamp.replace("UTC", "Z");
 		return timestamp;
 	}
 
@@ -1271,7 +1271,7 @@ public class BasicLTIUtil {
 
 		// Make sure that ISO8601 Z format dates are *perfect*
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		df.setTimeZone(TimeZone.getTimeZone("GMT"));
+		df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		try {
 			Date result =  df.parse(timestamp);
 			return result;
@@ -1305,7 +1305,8 @@ public class BasicLTIUtil {
                     "yyyy-MM-dd",
                     "yyyyMMdd",
                     "dd/MM/yy",
-                    "dd/MM/yyyy"
+                    "dd/MM/yyyy",
+                    "MM/dd/yyyy",
               };
 
 		for( int i = 0; i<possibleDateFormats.length; i++) {

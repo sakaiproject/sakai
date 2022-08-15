@@ -100,6 +100,7 @@ public class BasicLTIUtilTest {
 		assertTrue(x.contains("T"));
 		String target = "2017-08-20:10:00:00";
 		String iso8601 = "2017-01-20T10:00:00Z";
+
 		DateFormat df = new SimpleDateFormat("yyyy-mm-dd:hh:mm:ss");
                 df.setTimeZone(TimeZone.getTimeZone("GMT"));
 		Date result = df.parse(target);
