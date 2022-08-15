@@ -97,12 +97,42 @@ public class BasicLTIUtilTest {
 	public void iso8601Text() throws Exception {
 		String x = BasicLTIUtil.getISO8601();
 		assertTrue(x.contains("Z"));
+		assertTrue(x.contains("T"));
 		String target = "2017-08-20:10:00:00";
+		String iso8601 = "2017-01-20T10:00:00Z";
+
 		DateFormat df = new SimpleDateFormat("yyyy-mm-dd:hh:mm:ss");
                 df.setTimeZone(TimeZone.getTimeZone("GMT"));
-		Date result =  df.parse(target);
+		Date result = df.parse(target);
 		String y = BasicLTIUtil.getISO8601(result);
-		assertEquals(y,"2017-01-20T10:00:00Z");
+		assertEquals(y,iso8601);
+
+		// Now lets parse some iso dates
+		result = BasicLTIUtil.parseIMS8601(iso8601);
+		String z = BasicLTIUtil.getISO8601(result);
+		assertEquals(z, iso8601);
+
+		result = BasicLTIUtil.parseIMS8601(null);
+		assertNull(result);
+
+		String[] variations = {
+			"2017-01-20T10:00:00+0000",
+			"2017-01-20T11:00:00+0100",
+			"2017-01-20T09:00:00-0100",
+			"2017-01-20T10:00:00+00:00",
+			"2017-01-20T11:00:00+01:00",
+			"2017-01-20T09:00:00-01:00",
+			"2017-01-20T10:00:00+00",
+			"2017-01-20T11:00:00+01",
+			"2017-01-20T09:00:00-01",
+			"2017-01-20T05:00:00 EST",
+		};
+
+		for(int i=0; i<variations.length; i++) {
+			result = BasicLTIUtil.parseIMS8601(variations[i]);
+			z = BasicLTIUtil.getISO8601(result);
+			assertEquals(z, iso8601);
+		}
 	}
 
 	@Test
