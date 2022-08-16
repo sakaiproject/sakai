@@ -401,7 +401,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void setAssignmentScoreComment() {
+    public void assignmentScoreComment() {
 
         assertThrows(IllegalArgumentException.class, () -> gradingService.setAssignmentScoreComment(null, null, user1, "Great!"));
 
@@ -409,10 +409,16 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         Long ass1Id = createAssignment1(gradebook);
 
-        gradingService.setAssignmentScoreComment(gradebook.getUid(), ass1Id, user1, "Great!");
+        String comment = "Great!";
+
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), ass1Id, user1, comment);
 
         CommentDefinition commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), ass1Id, user1);
-        assertEquals("Great!", commentDefinition.getCommentText());
+        assertEquals(comment, commentDefinition.getCommentText());
+
+        gradingService.deleteAssignmentScoreComment(gradebook.getUid(), ass1Id, user1);
+        commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), ass1Id, user1);
+        assertNull(commentDefinition);
     }
 
     @Test

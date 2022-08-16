@@ -2448,14 +2448,18 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, null, "External Outcome");
-				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, null);
+				g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
 				retval = Boolean.TRUE;
 			} else {
 				String gradeI18n = getRoundedGrade(scoreGiven, gradebookColumn.getPoints());
 				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
-				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
+				if ( StringUtils.isBlank(comment) ) {
+					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
+				} else {
+					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
+				}
 
 				log.info("Stored Score={} title={} user_id={} score={}", siteId, title, user_id, scoreGiven);
 
@@ -2542,8 +2546,11 @@ public class SakaiBLTIUtil {
 			if (scoreGiven == null) {
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, null, "External Outcome");
 				// Since LTI 13 uses update semantics on grade delete, we accept the comment if it is there
-				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
-
+				if ( StringUtils.isBlank(comment) ) {
+					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
+				} else {
+					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
+				}
 				log.info("Delete Score site={} title={} userId={}", siteId, title, userId);
 				return Boolean.TRUE;
 			} else {
@@ -2555,8 +2562,11 @@ public class SakaiBLTIUtil {
 					assignedGrade = (scoreGiven / scoreMaximum) * gradebookColumnPoints;
 				}
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, assignedGrade.toString(), "External Outcome");
-				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
-
+				if ( StringUtils.isBlank(comment) ) {
+					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
+				} else {
+					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
+				}
 				log.info("Stored Score={} title={} userId={} score={}", siteId, title, userId, scoreGiven);
 				return Boolean.TRUE;
 			}

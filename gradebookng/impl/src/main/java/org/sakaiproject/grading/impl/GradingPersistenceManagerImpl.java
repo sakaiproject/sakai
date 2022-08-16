@@ -215,6 +215,11 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
             studentUid, gradebookUid, assignmentId, false);
     }
 
+    public void deleteInternalComment(String studentUid, String gradebookUid, Long assignmentId) {
+
+        getInternalComment(studentUid, gradebookUid, assignmentId).ifPresent(commentRepository::delete);
+    }
+
     public Comment saveComment(Comment comment) {
         return commentRepository.save(comment);
     }
