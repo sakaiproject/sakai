@@ -37,6 +37,8 @@ package org.sakaiproject.signup.tool.entityproviders;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
@@ -48,6 +50,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -95,7 +98,7 @@ public class SignupEventEntityProvider extends AbstractEntityProvider implements
 		try {
 			eventId = new Long(id);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Invalid event id (" + id + "), the id must be a number");
+			throw new EntityException("Invalid identifier provided for signupEvent", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}
 		return getSignupMeetingService().isEventExisted(eventId);
 	}
@@ -109,7 +112,7 @@ public class SignupEventEntityProvider extends AbstractEntityProvider implements
 		try {
 			eventId = new Long(id);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Invalid event id (" + id + "), the id must be a number");
+			throw new EntityException("Invalid identifier provided for signupEvent", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}
 
 		String siteId = developerHelperService.getCurrentLocationId();
