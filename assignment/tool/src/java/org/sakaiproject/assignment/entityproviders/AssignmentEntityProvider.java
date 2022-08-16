@@ -629,7 +629,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Assignment assignment = null;
         try {
-            assignment = assignmentService.getAssignmentWithGradeableSubmissions(gradableId);
+            assignment = assignmentService.getAssignment(gradableId);
         } catch (IdUnusedException e) {
             throw new EntityException("No assignment for id", gradableId, HttpServletResponse.SC_BAD_REQUEST);
         } catch (PermissionException e) {
@@ -655,7 +655,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         // A list of mappings of submission id to student id list
         List<SimpleSubmission> submissions
-            = assignment.getSubmissions().stream().map(as -> {
+            = assignmentService.getGradeableSubmissions(assignment).stream().map(as -> {
                 try {
                     SimpleSubmission simple = new SimpleSubmission(as, simpleAssignment, activeSubmitters);
                     simple.setProperties(addOriginalityProperties(as));
