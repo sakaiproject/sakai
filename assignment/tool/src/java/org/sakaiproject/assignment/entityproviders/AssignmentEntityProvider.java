@@ -1691,6 +1691,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String gradableId;
         private String submittedText;
         private String dateSubmitted;
+        private Long dateSubmittedEpochSeconds;
         private Boolean submitted;
         private List<DecoratedAttachment> submittedAttachments;
         private Map<String, DecoratedAttachment> previewableAttachments = new HashMap<>();
@@ -1704,6 +1705,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String privateNotes;
         private String groupId;
         private String status;
+        private String grade;
         private List<DecoratedAttachment> feedbackAttachments;
         private Map<String, String> properties = new HashMap<>();
         private Instant assignmentCloseTime;
@@ -1731,6 +1733,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 if (this.submitted) {
                     this.dateSubmitted
                         = userTimeService.dateTimeFormat(as.getDateSubmitted(), null, null);
+                    this.dateSubmittedEpochSeconds = as.getDateSubmitted() != null ? as.getDateSubmitted().getEpochSecond() : 0;
                 }
                 if (as.getDateSubmitted() != null) {
                     this.late = as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0;
@@ -1815,6 +1818,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
             this.status = assignmentService.getSubmissionStatus(id, true);
             this.graded = as.getGraded();
+            this.grade = assignmentService.getGradeForSubmitter(as, as.getSubmitters().isEmpty() ? null : as.getSubmitters().stream().findAny().get().getSubmitter());
             this.properties.putAll(as.getProperties());
         }
     }
