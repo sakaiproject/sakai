@@ -27,7 +27,6 @@ export class SakaiRubricEdit extends RubricsElement {
   static get properties() {
 
     return {
-      token: String,
       rubric: { type: Object }
     };
   }
@@ -35,7 +34,7 @@ export class SakaiRubricEdit extends RubricsElement {
   render() {
 
     return html`
-      <a class="linkStyle edit fa fa-edit" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="edit_rubric_${this.rubric.id}" tabindex="0" @keyup="${this.openEditWithKeyboard}" @click="${this.editRubric}" title="${tr("edit_rubric")} ${this.rubric.title}" href="#"></a>
+      <a class="linkStyle edit fa fa-edit" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="edit_rubric_${this.rubric.id}" tabindex="0" @keyup="${this.openEditWithKeyboard}" @click="${this.editRubric}" title="${tr("edit_rubric")} ${this.rubric.title}" aria-label="${tr("edit_rubric")} ${this.rubric.title}" href="#"></a>
 
       <div id="edit_rubric_${this.rubric.id}" @click="${this.eatEvent}" class="popover rubric-edit-popover bottom">
         <div class="arrow"></div>
@@ -64,19 +63,19 @@ export class SakaiRubricEdit extends RubricsElement {
   firstUpdated() {
 
     $(this).find(".popover.rubric-edit-popover input").on('keydown', function(event) {
-      if(event.keyCode == 9){
+      if (event.keyCode == 9) {
         event.preventDefault();
         $(this).parents('.popover.rubric-edit-popover').find('.save').focus();
       }
     });
     $(this).find(".popover.rubric-edit-popover .save").on('keydown', function(event) {
-      if(event.keyCode == 9){
+      if (event.keyCode == 9) {
         event.preventDefault();
         $(this).parents('.popover.rubric-edit-popover').find('.cancel').focus();
       }
     });
     $(this).find(".popover.rubric-edit-popover .cancel").on('keydown', function(event) {
-      if(event.keyCode == 9){
+      if (event.keyCode == 9) {
         event.preventDefault();
         $(this).parents('.popover.rubric-edit-popover').find('input').focus();
       }
@@ -87,13 +86,15 @@ export class SakaiRubricEdit extends RubricsElement {
     e.stopPropagation();
   }
 
-  openEditWithKeyboard(e){
-    if(e.keyCode == 32 || e.keyCode == 32 ){
+  openEditWithKeyboard(e) {
+
+    if (e.keyCode == 32 || e.keyCode == 32 ) {
       this.editRubric(e);
     }
   }
 
   editRubric(e) {
+
     e.preventDefault();
     e.stopPropagation();
     this.dispatchEvent(new CustomEvent("show-tooltip", {detail: this.rubric}));

@@ -241,6 +241,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					discussionForumCount++;
 					final Element discussionForumElement = doc.createElement(DISCUSSION_FORUM);
 					discussionForumElement.setAttribute(DISCUSSION_FORUM_TITLE, discussionForum.getTitle());
+					discussionForumElement.setAttribute(ID, discussionForum.getId().toString());
 					discussionForumElement.setAttribute(DRAFT, discussionForum.getDraft().toString());
 					discussionForumElement.setAttribute(LOCKED, discussionForum.getLocked().toString());
 					discussionForumElement.setAttribute(MODERATED, discussionForum.getModerated().toString());
@@ -274,6 +275,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			for (DiscussionTopic discussionTopic : discussionTopics) {
 				final Element discussionTopicElement = doc.createElement(DISCUSSION_TOPIC);
 				discussionTopicElement.setAttribute(TOPIC_TITLE, discussionTopic.getTitle());
+				discussionTopicElement.setAttribute(ID, discussionTopic.getId().toString());
 				discussionTopicElement.setAttribute(DRAFT, discussionTopic.getDraft().toString());
 				discussionTopicElement.setAttribute(LOCKED, discussionTopic.getLocked().toString());
 				discussionTopicElement.setAttribute(MODERATED, discussionTopic.getModerated().toString());

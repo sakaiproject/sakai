@@ -76,7 +76,7 @@ public interface ChartService {
 	 * @see org.jfree.data.general.Dataset
 	 */
 	public byte[] generateChart(
-			String siteId, Object dataset, String chartType,
+			String siteId, String reportWhat, Object dataset, String chartType,
 			int width, int height,
 			boolean render3d, float transparency,
 			boolean itemLabelsVisible, String timePeriod);   

@@ -354,6 +354,14 @@
 				margin-right: 10px;
 			}
 		}
+
+		span:focus, th:focus {
+			outline: 3px solid var(--focus-outline-color);			
+			border-radius: 2px;
+		}
+		th:focus {
+			outline-offset: -3px;
+		}
 	}
 
 	.dataTable {
@@ -426,8 +434,7 @@
 	}
 
 	#delivAssessmentWrapper {
-		width: 96%;
-		float: left;
+		width: calc(100% - 56px);
 	}
 
 	.downloanQuestionCheckbox label {
@@ -446,6 +453,18 @@
 	.disabled.awesomplete {
 		background-color: transparent;
 		color: var(--sakai-text-color-disabled);
+	}
+
+	.display-flex {
+		display: flex;
+		margin-bottom: 5px;
+		label {
+			padding-top: 3px;
+		}
+	}
+
+	input[type="text"].hasDatepicker {
+		margin: 0 4px 4px 0;
 	}
 }
 

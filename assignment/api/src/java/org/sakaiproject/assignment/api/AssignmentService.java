@@ -281,13 +281,12 @@ public interface AssignmentService extends EntityProducer {
     boolean allowReviewService(Site site);
 
     /**
-     * Check permissions for grading Submission
+     * Check permissions for grading submissions on an assignment
      *
-     * @param submissionReference -
-     *                            The Submission's reference.
-     * @return True if the current User is allowed to grade the AssignmentSubmission, false if not.
+     * @param assignmentReference The assignment's reference.
+     * @return true if the current user is allowed to grade submissions for the assignment.
      */
-    public boolean allowGradeSubmission(String submissionReference);
+    public boolean allowGradeSubmission(String assignmentReference);
 
     /**
      * Creates and adds a new Assignment to the service.
@@ -335,13 +334,11 @@ public interface AssignmentService extends EntityProducer {
     public void deleteAssignmentAndAllReferences(Assignment assignment) throws PermissionException;
 
     /**
-     * Adds an AssignmentSubmission
+     * Adds a new submission to an Assignment
      *
-     * @param assignmentId The assignment id
-     * @param submitter    The submitter id
-     * @return The new AssignmentSubmission.
-     * @throws IdInvalidException  if the submission id is invalid.
-     * @throws IdUsedException     if the submission id is already used.
+     * @param assignmentId The assignment's id the submission will be added to
+     * @param submitter    The submitter's id of who is submitting this submission, can also be a group id for a group submission
+     * @return new {@link AssignmentSubmission}, or null if the submission could not be created
      * @throws PermissionException if the current User does not have permission to do this.
      */
     public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException;
@@ -385,6 +382,16 @@ public interface AssignmentService extends EntityProducer {
      * @throws PermissionException if the current user is not allowed to read this.
      */
     public Assignment getAssignment(String assignmentId) throws IdUnusedException, PermissionException;
+
+    /**
+     * Access the Assignment with the specified id, returning just the submissions that the user
+     * is able to see.
+     * @param assignmentId - The id of the Assignment.
+     * @return The assignment corresponding to the id and the filtered submissions, null if it does not exists.
+     * @throws IdUnusedException if the is no assignment with the passed id.
+     * @throws PermissionException if the current user is not allowed to read the assignment.
+     */
+    public Collection<AssignmentSubmission> getGradeableSubmissions(Assignment assignment);
 
     /**
      * Retrieves the current status of the specified assignment.
@@ -487,7 +494,7 @@ public interface AssignmentService extends EntityProducer {
      * @param submissionId
      * @return
      */
-    public String getSubmissionStatus(String submissionId);
+    public String getSubmissionStatus(String submissionId, boolean returnFormattedDate);
 
     /**
      * @param submissionId
@@ -695,15 +702,41 @@ public interface AssignmentService extends EntityProducer {
      */
     public String getXmlAssignment(Assignment assignment);
 
+    /**
+     * Gets the effective grade for the submitter on this submission. If there is an
+     * override, that is the grade returned. Otherwise, the main submission grade is
+     * returned
+     *
+     * @param submissionId The id of the overall submission
+     * @param submitter The individual submitter we're interested in
+     */
     String getGradeForSubmitter(String submissionId, String submitter);
 
+    /**
+     * Gets the effective grade for the submitter on this submission. If there is an
+     * override, that is the grade returned. Otherwise, the main submission grade is
+     * returned
+     *
+     * @param submission The overall submission
+     * @param submitter The individual submitter we're interested in
+     */
     String getGradeForSubmitter(AssignmentSubmission submission, String submitter);
+
+    /**
+     * Returns true if this submitter has an overridden grade. This is useful as it avoids
+     * bug prone comparisons of the submission grade and individual submitter grades
+     *
+     * @param submission The overall submission (must be on a group assignment)
+     * @param submitter The individual submitter we're interested in
+     * @return true if overridden, false if not a group assignment or not overridden.
+     */
+    boolean isGradeOverridden(AssignmentSubmission submission, String submitter);
 
     /**
      * @param grade
      * @param typeOfGrade
      * @param scaleFactor
-     * @return
+     * @return The grade, formatted for display
      */
     public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
 
@@ -760,10 +793,10 @@ public interface AssignmentService extends EntityProducer {
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
     /**
-     * This will return the internationalized title of the tool.
+     * This will return the assignment tool id.
      * This is used when creating a new gradebook item.
      */
-    public String getToolTitle();
+    public String getToolId();
 
     /**
      * This will return the reference removing from it the auxiliar prefix.
@@ -796,11 +829,11 @@ public interface AssignmentService extends EntityProducer {
      * Get an assignment that is linked with a gradebook item
      * @param context the context (site id)
      * @param linkId the link id of the gradebook item, usually the gradebook item name or id
-     * @return the matching assignment if found or null if none
+     * @return the matching assignment if found or empty if none
      * @throws IdUnusedException if the assignment doesn't exist
      * @throws PermissionException if the current user is not allowed to access the assignment
      */
-    Assignment getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
+    Optional<Assignment> getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
 
     /**
      * Returns a list of users that belong to multiple groups, if the user is considered a "student" in the group
@@ -844,11 +877,15 @@ public interface AssignmentService extends EntityProducer {
 
     public String getTotalTimeSheet(AssignmentSubmissionSubmitter asnSubmissionSubmiter);
 
-    public boolean existsTimeSheetEntries(AssignmentSubmissionSubmitter asnSubmissionSubmitter);
-
     public Integer timeToInt(String time);
 
     public String intToTime(int time);
 
     public boolean isTimeSheetEnabled(String siteId);
+
+    /**
+     * The the name of the content review service being used e.g. Turnitin
+     * @return A String containing the name of the content review service
+     */
+    public String getContentReviewServiceName();
 }

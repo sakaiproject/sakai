@@ -68,6 +68,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.Validator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -91,6 +92,7 @@ public class ExternalLogicImpl implements ExternalLogic
 	private EventTrackingService eventService;
 	private ContentHostingService contentHostingService;
 	private EntityManager entityManager;
+	private FormattedText formattedText;
 
 	/**
 	 * Place any code that should run when this class is initialized by spring here
@@ -327,7 +329,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			MailArchiveMessageHeaderEdit header = edit.getMailArchiveHeaderEdit();
 			edit.setBody(body);
 			header.replaceAttachments(null);
-			header.setSubject(subject);
+			header.setSubject(formattedText.processFormattedText(subject, new StringBuilder()));
 			header.setFromAddress(sender);
 			header.setInstantSent(Instant.now());
 			header.setMailHeaders(mailHeaders);
@@ -585,5 +587,9 @@ public class ExternalLogicImpl implements ExternalLogic
 
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
+	}
+
+	public void setFormattedText(FormattedText formattedText) {
+		this.formattedText = formattedText;
 	}
 }

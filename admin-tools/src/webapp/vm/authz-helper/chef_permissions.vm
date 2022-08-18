@@ -14,6 +14,9 @@
 	<div class="instruction">
 		$formattedText.escapeHtml($!description)
 	</div>
+	#if ($!warning)
+		<div class="sak-banner-warn">$warning</div>
+	#end
 	## no need to show the drop down menu if there is no group defined for the site
 	<div class="navPanel">
 		#if ($!groups && $groups.size()>0)

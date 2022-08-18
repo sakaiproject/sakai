@@ -21,7 +21,7 @@ import java.util.Map;
 
 import javax.faces.context.FacesContext;
 
-import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsConstants;
 
 public class ParameterUtil {
     /**

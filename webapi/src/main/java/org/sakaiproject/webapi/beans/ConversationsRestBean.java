@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.springframework.hateoas.EntityModel;
 
+import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
 
@@ -36,4 +37,7 @@ public class ConversationsRestBean {
     public Settings settings;
     public boolean showGuidelines;
     public List<Tag> tags;
+    public int maxThreadDepth;
+    public boolean disableDiscussions;
+    public TopicTransferBean blankTopic;
 }

@@ -43,7 +43,9 @@ public interface Entity
 	 * 
 	 * @return The URL which can be used to access the entity.
 	 */
-	String getUrl();
+	default String getUrl() {
+        return "";
+    }
 
 	/**
 	 * Access the internal reference which can be used to access the entity from within the system.

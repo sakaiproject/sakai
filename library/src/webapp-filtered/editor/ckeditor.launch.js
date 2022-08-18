@@ -201,6 +201,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         }
     }
 
+    const directUploadUrl = `/direct/content/direct-upload.json?context=${siteId}`;
+
     var ckconfig = {
     //Some defaults for audio recorder
         audiorecorder : {
@@ -229,17 +231,16 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder plugin.
         // TODO Get this to work with elfinder.
-        // TODO May be a problem after SAK-44872
-        fileConnectorUrl : '',
+        fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
 
         // These are the general URLs for browsing generally and specifically for images/flash object.
         filebrowserBrowseUrl :      filebrowser.browseUrl,
         filebrowserImageBrowseUrl : filebrowser.imageBrowseUrl,
         filebrowserFlashBrowseUrl : filebrowser.flashBrowseUrl,
 
-        filebrowserUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
-        uploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
-        imageUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
+        filebrowserUploadUrl: directUploadUrl,
+        uploadUrl: directUploadUrl,
+        imageUploadUrl: directUploadUrl,
         sakaiDropdownToolbar: true,
         toolbarCanCollapse: true,
         toolbarStartupExpanded: false,
@@ -381,6 +382,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Maximize', 'ShowBlocks']
             ,['A11ychecker']
         ].filter(el => el !== undefined),
+        toolbar_BasicText:
+        [
+            ['Bold', 'Italic', 'Underline']
+        ],
         toolbar: 'Full',
         removeButtons: '',
         removeDialogTabs: 'image:advanced;link:advanced',
@@ -444,9 +449,16 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             }
         }
 
+        if (ckconfig.toolbar === "BasicText") {
+            ckconfig.toolbarStartupExpanded = true;
+            ckconfig.toolbarCanCollapse = false;
+            detectWidth = false;
+        }
+
         if (detectWidth == true && getWidth() < 800) {
             ckconfig.toolbar = 'Basic';
         }
+
         //These could be applicable to the basic toolbar
         CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js');
         CKEDITOR.plugins.addExternal('html5video',webJars+'github-com-bahriddin-ckeditor-html5-video/${ckeditor.html5video.version}/html5video/', 'plugin.js');

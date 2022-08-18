@@ -1362,7 +1362,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public List<User> getUsers(int first, int last)
 	{
 		List<User> all = m_storage.getAll(first, last);
-
 		return all;
 	}
 
@@ -1387,7 +1386,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		
 		List<User> userList = new ArrayList<User>(users);
-		
 		//sort on sortName, default.
 		Collections.sort(userList);
 		

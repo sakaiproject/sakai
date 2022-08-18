@@ -6,12 +6,6 @@
 
     <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass} #if ( ${toolsCollapsed} ) Mrphs-toolMenu-collapsed #end #if ( ${toolMaximised} ) tool-maximised #end" #end $pageSiteType>
 
-        <div id="maximised-indicator">
-            <div>
-                <a href="javascript:;">${rloader.sit_fullscreen_message}</a>
-            </div>
-        </div>
-
         <noscript>
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
         </noscript>
@@ -239,7 +233,7 @@
                             <img style="maxWidth: 100%" />
                         </div>
                         <div id="cropToolbar">
-                            <div class="btn-toolbar">
+                            <div class="btn-toolbar toolbar-divider">
                                 <div class="btn-group">
                                     <button class="profile-image-zoom-in btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_zoom_in")}"></button>
                                     <button class="profile-image-zoom-out btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_zoom_out")}"></button>
@@ -248,7 +242,7 @@
                                     <button class="profile-image-rotate btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_rotate")}"></button>
                                 </div>
                             </div>
-                            <div id="cropToolbar" class="btn-toolbar">
+                            <div class="btn-toolbar toolbar-divider">
                                 <div class="btn-group">
                                     <button class="profile-image-pan-up btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_pan_up")}"></button>
                                     <button class="profile-image-pan-down btn btn-sm btn-default" aria-label="${rloader.getString("pic_changer_pan_down")}"></button>
@@ -270,6 +264,10 @@
         </div>
         #parse("/vm/morpheus/connection-manager.vm")
         #end
-
+        <div id="maximised-indicator">
+            <div>
+                <a href="javascript:;">${rloader.sit_fullscreen_message}</a>
+            </div>
+        </div>
     </body>
 </html>

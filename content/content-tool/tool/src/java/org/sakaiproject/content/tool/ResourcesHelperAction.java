@@ -2266,13 +2266,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		 */
 		JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
 		ParameterParser params = rundata.getParameters();
-		
+
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		if (pipe == null) {
+			log.error("The file has a null pipe, notifications will not be sent.");
+			return;
+		}
 		ListItem item = new ListItem(pipe.getContentEntity());
-		
 		int notificationPriority = determineNotificationPriority(params, item.isDropbox());
-		
+
 		SessionState state = getState(request);
 
 		SiteEmailNotificationDragAndDrop sendnd = null;

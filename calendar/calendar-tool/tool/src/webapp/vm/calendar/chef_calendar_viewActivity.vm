@@ -156,8 +156,14 @@
 			#end
 			#if($event.Location && $event.Location !="")
 				<tr> 
-					 <th>$tlang.getString("new.location")</th>
-					 <td>$formattedText.escapeHtml($event.Location)</td>
+					<th>$tlang.getString("new.location")</th>
+					<td>$formattedText.escapeHtml($event.Location)</td>
+				</tr>
+			#end
+			#if($event.EventUrl && $event.EventUrl != "")
+				<tr>
+					<th>$tlang.getString("gen.url")</th>
+					<td><a href="$event.EventUrl">$event.DisplayName</a></td>
 				</tr>
 			#end
 			#set ($calObj = $CalendarService.getCalendar($event.CalendarReference))

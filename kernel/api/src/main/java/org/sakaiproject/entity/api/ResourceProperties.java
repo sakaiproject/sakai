@@ -95,6 +95,8 @@ public interface ResourceProperties extends Serializable
 	/** Property for calendar event location (user settable). [String] */
 	static final String PROP_CALENDAR_LOCATION = "CHEF:calendar-location";
 
+	static final String PROP_CALENDAR_URL = "CHEF:calendar-url";
+
 	/** Property for the channel to categories names inside a discussion channel (user settable). [String] */
 	static final String PROP_DISCUSSION_CATEGORIES = "CHEF:discussion-categories";
 
@@ -210,6 +212,20 @@ public interface ResourceProperties extends Serializable
 	 * @return An iterator on the names of the defined properties (Strings) (may be empty).
 	 */
 	Iterator<String> getPropertyNames();
+
+	/**
+	 * Returns the number of defined properties
+	 *
+	 * @return the number of defined properties
+	 */
+	int size();
+
+	/**
+	 * Returns true if there are no defined properties
+	 *
+	 * @return true if there are no defined properties
+	 */
+	boolean isEmpty();
 
 	/**
 	 * Access a named property as a string (won't find multi-valued ones.)
@@ -432,6 +448,8 @@ public interface ResourceProperties extends Serializable
 	 * @return The static String of PROP_CALENDAR_LOCATION
 	 */
 	String getNamePropCalendarLocation();
+
+	String getNamePropCalendarUrl();
 
 	/**
 	 * Get the static String of PROP_REPLY_STYLE

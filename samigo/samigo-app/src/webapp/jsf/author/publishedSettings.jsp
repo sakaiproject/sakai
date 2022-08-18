@@ -388,7 +388,7 @@
           <h:selectOneMenu id="releaseTo" disabled="true" value="#{publishedSettings.firstTargetSelected}" onclick="setBlockDivs();">
               <f:selectItems value="#{publishedSettings.publishingTargets}" />
           </h:selectOneMenu>
-          <h:outputLabel id="releaseToHelp" rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true || (assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
+          <h:outputLabel id="releaseToHelp" rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true || assessmentSettings.valueMap.toGradebook_isInstructorEditable==true}"
                          styleClass="help-block info-text small" value="#{assessmentSettingsMessages.released_to_help}" />
        </div>
   </div>
@@ -555,7 +555,7 @@
     </h:panelGroup>
 
     <!-- info message about the anonymous and gradebook options below, will be shown only if quiz released to "Anonymous Users" -->
-    <h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true || (publishedSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
+    <h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true || publishedSettings.valueMap.toGradebook_isInstructorEditable==true}"
                   layout="block" id="gradingOptionsDisabledInfo" styleClass="row sak-banner-info" style="display: none">
         <h:outputText value="#{assessmentSettingsMessages.grading_options_disabled_info}" />
     </h:panelGroup>
@@ -570,7 +570,7 @@
     </h:panelGroup>
     
     <!-- GRADEBOOK OPTION -->
-    <h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true && publishedSettings.gradebookExists==true}">
+    <h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
       <div class="col-md-10">
         <h:selectBooleanCheckbox id="toDefaultGradebook" disabled="#{publishedSettings.firstTargetSelected == 'Anonymous Users'}" value="#{publishedSettings.toDefaultGradebook}" onclick="toggleCategories(this);"/>
@@ -645,8 +645,11 @@
                 <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
             </t:selectOneRadio>
             <div class="respChoice indent1" style="display:none;">
-                <h:panelGroup styleClass="form-inline" layout="block">
-                    <h:outputLabel value="#{assessmentSettingsMessages.feedback_subheading_answers}" />
+                <h:panelGroup styleClass="" layout="block">
+                    <t:selectOneRadio id="correctAnswerOption" value="#{publishedSettings.correctAnswerOption}" layout="pageDirection">
+                        <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_all_questions}"/>
+                        <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_incorrect_questions_only}"/>
+                    </t:selectOneRadio>
                 </h:panelGroup>
                 <h:panelGroup styleClass="" layout="block">
                     <h:selectBooleanCheckbox value="#{publishedSettings.showStudentResponse}" id="feedbackCheckbox11"/>

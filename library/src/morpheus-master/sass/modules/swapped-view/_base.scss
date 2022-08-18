@@ -1,6 +1,9 @@
 @if $swapped-view-enabled {
 	.#{$namespace}portalWrapper{
 		&.swapped-view{
+			border-left: 7px solid var(--become-user-primary);
+			border-right: 7px solid var(--become-user-primary);
+			border-bottom: 7px solid var(--become-user-primary);
 			.#{$namespace}topHeader, .#{$namespace}headerLogo {
 				background: var(--swapped-view-primary);
 			}
@@ -10,6 +13,11 @@
 
 // Admin Become User view
 body.Mrphs-become-user-enabled {
+	.#{$namespace}portalWrapper{
+		border-left: 7px solid var(--become-user-primary);
+		border-right: 7px solid var(--become-user-primary);
+		border-bottom: 7px solid var(--become-user-primary);
+	}		
 	.#{$namespace}topHeader, .#{$namespace}headerLogo {
 		background: var(--become-user-primary);
 	}

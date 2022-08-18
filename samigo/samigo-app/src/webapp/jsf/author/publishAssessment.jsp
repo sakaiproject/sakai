@@ -49,20 +49,6 @@
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true"  styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
-  <!-- CREATE TASK -->
-  <h:panelGroup>
-    <div class="row">
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.create_task}" for="createTaskAssess"/>
-      <div class="col-md-10">
-        <t:selectOneRadio id="createTaskAssess" value="#{assessmentBean.createTask}" layout="pageDirection">
-          <f:selectItem itemValue="true" itemLabel="#{assessmentSettingsMessages.create_task_on_widget}"/>
-          <f:selectItem itemValue="false" itemLabel="#{assessmentSettingsMessages.not_create_task_on_widget}"/>
-        </t:selectOneRadio>
-      </div>
-    </div>
-  </h:panelGroup>
-  
-  
   <!-- NOTIFICATION -->
   <h:panelGroup>
     <div class="row" style="margin-top:15px; margin-bottom:15px;">
@@ -245,6 +231,33 @@
 		</h:outputFormat>
 	</h:panelGroup>
 
+	<f:verbatim><br/></f:verbatim>
+
+	<%-- Autosubmit information --%>
+	<h:panelGroup rendered="#{assessmentSettings.autoSubmit}">
+		<%-- Late submissions allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '1'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+				<f:param value="#{assessmentSettings.retractDateString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+
+		<%-- Late submissions not allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '2'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+				<f:param value="#{assessmentSettings.dueDateInClientTimezoneString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+	</h:panelGroup>
+
 	</h:panelGrid>
 
 	<h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{!author.isEditPendingAssessmentFlow}" border="0">
@@ -322,6 +335,33 @@
 			<f:param value="#{assessmentSettings.feedbackDateInClientTimezoneString}" />
 			<f:param value="#{assessmentSettings.feedbackEndDateInClientTimezoneString}" />
 		</h:outputFormat>
+	</h:panelGroup>
+
+	<f:verbatim><br/></f:verbatim>
+
+	<%-- Autosubmit information --%>
+	<h:panelGroup rendered="#{assessmentSettings.autoSubmit}">
+		<%-- Late submissions allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '1'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+				<f:param value="#{assessmentSettings.retractDateString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+
+		<%-- Late submissions not allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '2'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+				<f:param value="#{assessmentSettings.dueDateInClientTimezoneString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
 	</h:panelGroup>
 
 </h:panelGrid>

@@ -18,6 +18,7 @@ package org.sakaiproject.ignite;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.TransactionConfiguration;
+import org.apache.ignite.failure.FailureHandler;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.plugin.segmentation.SegmentationPolicy;
 import org.apache.ignite.spi.checkpoint.cache.CacheCheckpointSpi;
@@ -58,6 +60,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     public static final String IGNITE_METRICS_UPDATE_FREQ = "ignite.metrics.update.freq";
     public static final String IGNITE_METRICS_LOG_FREQ = "ignite.metrics.log.freq";
     public static final String IGNITE_TCP_MESSAGE_QUEUE_LIMIT = "ignite.tcpMessageQueueLimit";
+    public static final String IGNITE_TCP_SLOW_CLIENT_MESSAGE_QUEUE_LIMIT = "ignite.tcpSlowClientMessageQueueLimit";
     public static final String IGNITE_STOP_ON_FAILURE = "ignite.stopOnFailure";
 
     private static final IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
@@ -95,6 +98,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             name = serverConfigurationService.getServerName();
             node = serverConfigurationService.getServerId();
             int tcpMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
+            int tcpSlowClientMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_SLOW_CLIENT_MESSAGE_QUEUE_LIMIT, tcpMessageQueueLimit / 2);
             boolean stopOnFailure = serverConfigurationService.getBoolean(IGNITE_STOP_ON_FAILURE, true);
 
             Map<String, Object> attributes = new HashMap<>();
@@ -111,61 +115,63 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             igniteConfiguration.setWorkDirectory(home + File.separator + "work");
             igniteConfiguration.setConsistentId(node);
             igniteConfiguration.setIgniteInstanceName(name);
-
-            if (StringUtils.equalsIgnoreCase("client", mode)) {
-                igniteConfiguration.setClientMode(true);
-            } else {
-                igniteConfiguration.setClientMode(false);
-            }
-
-            igniteConfiguration.setCollisionSpi(new FifoQueueCollisionSpi());
-            igniteConfiguration.setCheckpointSpi(new CacheCheckpointSpi());
-
-            TransactionConfiguration transactionConfiguration = new TransactionConfiguration();
-            transactionConfiguration.setDefaultTxConcurrency(TransactionConcurrency.OPTIMISTIC);
-            transactionConfiguration.setDefaultTxIsolation(TransactionIsolation.READ_COMMITTED);
-            igniteConfiguration.setTransactionConfiguration(transactionConfiguration);
-
             igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS);
 
             igniteConfiguration.setGridLogger(new Slf4jLogger());
-
-            configureCaches();
-
-            igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
 
             // configuration for metrics update frequency
             igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
             igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
 
-            igniteConfiguration.setFailureDetectionTimeout(20000);
-            if (stopOnFailure) {
-                igniteConfiguration.setFailureHandler(new IgniteStopNodeAndExitHandler());
-            }
-
-            igniteConfiguration.setSegmentationPolicy(SegmentationPolicy.NOOP);
-
-            // local node network configuration
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
             TcpDiscoverySpi tcpDiscovery = new TcpDiscoverySpi();
             TcpDiscoveryVmIpFinder finder = new TcpDiscoveryVmIpFinder();
-
-            tcpCommunication.setMessageQueueLimit(tcpMessageQueueLimit);
-
             Set<String> discoveryAddresses = new HashSet<>();
-            String localDiscoveryAddress;
+
+            String localInterfaceAddress;
             if (StringUtils.isNotBlank(address)) {
-                tcpCommunication.setLocalAddress(address);
-                tcpDiscovery.setLocalAddress(address);
-                localDiscoveryAddress = address;
+                localInterfaceAddress = address;
             } else {
-                localDiscoveryAddress = "127.0.0.1";
+                // use loop back if no interface was configured
+                localInterfaceAddress = "127.0.0.1";
             }
 
-            if (range - 1 == 0) {
-                discoveryAddresses.add(localDiscoveryAddress + ":" + (port + range));
+            if (StringUtils.equalsIgnoreCase("client", mode)) {
+                igniteConfiguration.setClientMode(true);
             } else {
-                discoveryAddresses.add(localDiscoveryAddress + ":" + (port + range) + ".." + (port + range + range - 1));
+                igniteConfiguration.setClientMode(false);
+
+                igniteConfiguration.setCollisionSpi(new FifoQueueCollisionSpi());
+                igniteConfiguration.setCheckpointSpi(new CacheCheckpointSpi());
+
+                igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
+
+                igniteConfiguration.setFailureDetectionTimeout(20000);
+                if (stopOnFailure) {
+                    IgniteStopNodeAndExitHandler failureHandler = new IgniteStopNodeAndExitHandler();
+                    failureHandler.setIgnoredFailureTypes(Collections.emptySet());
+                    igniteConfiguration.setFailureHandler(failureHandler);
+                }
+
+                igniteConfiguration.setSystemWorkerBlockedTimeout(20000);
+                igniteConfiguration.setSegmentationPolicy(SegmentationPolicy.NOOP);
+            }
+
+            TransactionConfiguration transactionConfiguration = new TransactionConfiguration();
+            transactionConfiguration.setDefaultTxConcurrency(TransactionConcurrency.OPTIMISTIC);
+            transactionConfiguration.setDefaultTxIsolation(TransactionIsolation.READ_COMMITTED);
+            transactionConfiguration.setDefaultTxTimeout(30 * 1000);
+            igniteConfiguration.setTransactionConfiguration(transactionConfiguration);
+
+            configureCaches();
+
+            // which interface tcp communication will use
+            tcpCommunication.setLocalAddress(localInterfaceAddress);
+
+            if (range - 1 == 0) {
+                discoveryAddresses.add(localInterfaceAddress + ":" + (port + range));
+            } else {
+                discoveryAddresses.add(localInterfaceAddress + ":" + (port + range) + ".." + (port + range + range - 1));
             }
 
             tcpCommunication.setLocalPort(port);
@@ -173,6 +179,18 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
             tcpDiscovery.setLocalPort(port + range);
             tcpDiscovery.setLocalPortRange(range - 1);
+
+            // limits outbound/inbound message queue
+            tcpCommunication.setMessageQueueLimit(tcpMessageQueueLimit);
+
+            // detection of nodes with a high outbound message queue
+            if (tcpSlowClientMessageQueueLimit > tcpMessageQueueLimit) {
+                tcpSlowClientMessageQueueLimit = tcpMessageQueueLimit;
+            }
+            tcpCommunication.setSlowClientQueueLimit(tcpSlowClientMessageQueueLimit);
+
+            // which interface discovery will use
+            tcpDiscovery.setLocalAddress(localInterfaceAddress);
 
             // remote node network configuration, 1.2.3.5:49000..49009
             if (remoteAddresses != null && remoteAddresses.length > 0) {

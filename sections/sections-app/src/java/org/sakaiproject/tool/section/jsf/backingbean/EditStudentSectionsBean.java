@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -102,6 +103,10 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		// Get the TAs for all groups
 		Map<String,List<ParticipationRecord>> sectionTAs = getSectionManager().getSectionTeachingAssistantsMap(sectionSet);
 		
+		// Get the Instructors for the site
+		List<String> intructorUids = getSiteInstructors().stream().map(s -> s.getUser().getUserUid())
+				.collect(Collectors.toList());
+
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory());
@@ -138,10 +143,11 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 					
 			boolean member = isEnrolledInSection(enrolled, section);
 			boolean memberOtherSection = isEnrolledInOtherSection(enrolled, section);
-			
-			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
-					section, catName, taNames, totalEnrollments, member, memberOtherSection, showNegativeSpots);
-			
+
+			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(section, catName, taNames,
+					totalEnrollments, member, memberOtherSection, showNegativeSpots,
+					(taUids.contains(getUserUid()) || (intructorUids.contains(getUserUid()))));
+
 			if(!hideSectionInTable) {
 				sections.add(decoratedSection);
 			}

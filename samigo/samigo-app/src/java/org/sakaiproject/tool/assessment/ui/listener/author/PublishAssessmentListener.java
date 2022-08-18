@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,9 +53,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -65,9 +65,8 @@ import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
@@ -76,7 +75,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -254,9 +252,13 @@ public class PublishAssessmentListener
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       boolean sendNotification = publishRepublishNotification.getSendNotification();
       String subject = publishRepublishNotification.getNotificationSubject();
-      String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(), assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
-        assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(), 
-        assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(), assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(), assessmentSettings.getFeedbackEndDateInClientTimezoneString(), assessmentSettings.getFeedbackScoreThreshold());
+      String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
+                                                            assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
+                                                            assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
+                                                            assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(),
+                                                            assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(),
+                                                            assessmentSettings.getFeedbackEndDateInClientTimezoneString(), assessmentSettings.getFeedbackScoreThreshold(),
+                                                            assessmentSettings.getAutoSubmit(), assessmentSettings.getLateHandling(), assessmentSettings.getRetractDateString());
        
       if (sendNotification) {
         sendNotification(pub, publishedAssessmentService, subject, notificationMessage, 
@@ -291,25 +293,23 @@ public class PublishAssessmentListener
 
       // Create task
       AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-      if (assessmentBean.isCreateTask()) {
-        String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + pub.getPublishedAssessmentId();
-        Task task = new Task();
-        task.setSiteId(AgentFacade.getCurrentSiteId());
-        task.setReference(reference);
-        task.setSystem(true);
-        task.setDescription(pub.getTitle());
-        task.setDue((pub.getDueDate() == null ? null : pub.getDueDate().toInstant()));
-        SelectItem[] usersMap = assessmentSettings.getUsersInSite();
-        Set<String> users = new HashSet<>();
-        for(SelectItem item : usersMap) {
-          String userId = (String)item.getValue(); 
-          if (StringUtils.isNotBlank(userId)) {
-            users.add(userId);
-          }
+      String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + pub.getPublishedAssessmentId();
+      Task task = new Task();
+      task.setSiteId(AgentFacade.getCurrentSiteId());
+      task.setReference(reference);
+      task.setSystem(true);
+      task.setDescription(pub.getTitle());
+      task.setDue((pub.getDueDate() == null ? null : pub.getDueDate().toInstant()));
+      SelectItem[] usersMap = assessmentSettings.getUsersInSite();
+      Set<String> users = new HashSet<>();
+      for(SelectItem item : usersMap) {
+        String userId = (String)item.getValue(); 
+        if (StringUtils.isNotBlank(userId)) {
+          users.add(userId);
         }
-        taskService.createTask(task, users, Priorities.HIGH);
       }
-
+      taskService.createTask(task, users, Priorities.HIGH);
+        
     } catch (AssignmentHasIllegalPointsException gbe) {
        // Right now gradebook can only accept assessements with totalPoints > 0 
        // this  might change later
@@ -325,6 +325,12 @@ public class PublishAssessmentListener
                                                  "gradebook_exception_title_invalid");
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(gbe);
+    } catch (InvalidCategoryException gbe) {
+		log.warn("Incorrect gradebook category settings detected when attempting publish assessment: {}", gbe.toString());
+		String err = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+				"gradebook_exception_category_invalid");
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
+		throw new AbortProcessingException(gbe);
     } catch (Exception e) {
         log.warn(e.getMessage(), e);
         // Add a global message (not bound to any component) to the faces context indicating the failure
@@ -365,10 +371,10 @@ public class PublishAssessmentListener
     }
 
     //#b - check if gradebook exist, if so, if assessment title already exists in GB
-    GradebookExternalAssessmentService g = null;
+    org.sakaiproject.grading.api.GradingService g = null;
     if (integrated){
-      g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-           getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+           getBean("org.sakaiproject.grading.api.GradingService");
     }
     String toGradebook = assessment.getEvaluationModel().getToGradeBook();
     try{
@@ -446,7 +452,10 @@ public class PublishAssessmentListener
 	  EmailService.sendMail(from, toIA, subject, message, noReply, noReply, headers);
   }
   
-  public String getNotificationMessage(PublishRepublishNotificationBean publishRepublishNotification, String title, String releaseTo, String startDateString, String publishedURL, String dueDateString, Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType, String feedbackDelivery, String feedbackDateString, String feedbackEndDateString, String feedbackScoreThreshold){
+  public String getNotificationMessage(PublishRepublishNotificationBean publishRepublishNotification, String title, String releaseTo, String startDateString, String publishedURL, String dueDateString,
+										Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType, String feedbackDelivery,
+										String feedbackDateString, String feedbackEndDateString, String feedbackScoreThreshold, boolean autoSubmitEnabled, String lateHandling,
+										String retractDateString) {
 	  String siteTitle = publishRepublishNotification.getSiteTitle();
 	  if(siteTitle == null || "".equals(siteTitle)){
 		  try {
@@ -577,7 +586,25 @@ public class PublishAssessmentListener
 	  }
 	  message.append(newline);
 	  message.append(newline);
-	  
+
+	  // Autosubmit
+	  if (autoSubmitEnabled) {
+		  String label, date;
+		  if ("1".equals(lateHandling)) {
+			  label = rl.getString("header_extendedTime_retract_date");
+			  date = retractDateString;
+		  } else {
+			  label = rl.getString("header_extendedTime_due_date");
+			  date = dueDateString;
+		  }
+
+		  message.append(MessageFormat.format(rl.getString("autosubmit_info"), label, date));
+		  message.append(" ").append( MessageFormat.format(rl.getString("autosubmit_info_extended_time"), label));
+
+		  message.append(newline);
+		  message.append(newline);
+	  }
+
 	  StringBuffer siteTitleSb = new StringBuffer();
 	  siteTitleSb.append(" \"");
 	  siteTitleSb.append(siteTitle);

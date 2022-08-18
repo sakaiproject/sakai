@@ -17,6 +17,7 @@
     <name>Sakai Kernel Storage Util</name>
 
     <properties>
+        <deploy.target>shared</deploy.target>
         <kernel.basedir>${basedir}/..</kernel.basedir>
     </properties>
 

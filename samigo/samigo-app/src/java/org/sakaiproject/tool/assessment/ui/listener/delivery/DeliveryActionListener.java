@@ -30,12 +30,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -244,73 +246,74 @@ public class DeliveryActionListener
               break;
 
       case 3: // Review assessment
-              setFeedbackMode(delivery); //this determine if we should gather the itemGrading
-              Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
-              String assessmentGradingId = ContextUtil.lookupParam("assessmentGradingId");
+          setFeedbackMode(delivery); //this determine if we should gather the itemGrading
+          Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
+          String assessmentGradingId = ContextUtil.lookupParam("assessmentGradingId");
               
-              if (("true").equals(delivery.getFeedback())){
+          if (("true").equals(delivery.getFeedback())) {
                 itemGradingHash = new HashMap();
-                if (delivery.getFeedbackComponent().getShowResponse() || delivery.getFeedbackComponent().getShowStudentQuestionScore() ||
-                        delivery.getFeedbackComponent().getShowItemLevel())
+                if (delivery.getFeedbackComponent().getShowResponse()
+                    || delivery.getFeedbackComponent().getShowStudentQuestionScore()
+                    ||delivery.getFeedbackComponent().getShowItemLevel()) {
+
                 	itemGradingHash = service.getSubmitData(id, agent, scoringoption, assessmentGradingId);
+                }
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
 	      }
-              setDisplayByAssessment(delivery);
-              //setDeliveryFeedbackOnforEvaluation(delivery);
-              //setGraderComment(delivery);
-              FeedbackComponent component = new FeedbackComponent();
-              AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) publishedAssessment.getAssessmentFeedback();
-              if ( info != null) {
-            	  	component.setAssessmentFeedback(info);
-              }
-              delivery.setFeedbackComponent(component);
-              AssessmentGradingData agData = null;
-              if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
-            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
-              } else {
-            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
-              }
-              if (agData == null) {
-            	  delivery.setOutcome("reviewAssessmentError");
-            	  return;
-              }
-              log.debug("GraderComments: getComments()" + agData.getComments());
-              delivery.setGraderComment(agData.getComments());
-              delivery.setAssessmentGradingAttachmentList(agData.getAssessmentGradingAttachmentList());
-              delivery.setHasAssessmentGradingAttachment(
-            		  agData.getAssessmentGradingAttachmentList() != null && agData.getAssessmentGradingAttachmentList().size() > 0);
-              delivery.setAssessmentGradingId(agData.getAssessmentGradingId());
-              delivery.setOutcome("takeAssessment");
-              delivery.setSecureDeliveryHTMLFragment( "" );
-              delivery.setBlockDelivery( false );
-              
-              if ( secureDelivery.isSecureDeliveryAvaliable() ) {
-            	  
-            	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-            	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-              		  
-            		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-            		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, publishedAssessment, request );
-            		  delivery.setSecureDeliveryHTMLFragment( 
-            				  secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );             		 
-            		  if ( PhaseStatus.FAILURE == status )  {           			 
-            			  delivery.setOutcome( "secureDeliveryError" );
-            			  delivery.setBlockDelivery( true );
-            		  }
-            	  }                 	  
-              }
+          setDisplayByAssessment(delivery);
+          FeedbackComponent component = new FeedbackComponent();
+          AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) publishedAssessment.getAssessmentFeedback();
+          if ( info != null) {
+                component.setAssessmentFeedback(info);
+          }
+          delivery.setFeedbackComponent(component);
+          AssessmentGradingData agData = null;
+          if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
+              agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
+          } else {
+              agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
+          }
+          if (agData == null) {
+              delivery.setOutcome("reviewAssessmentError");
+              return;
+          }
 
-              generateSecureTokenForAssessment(delivery);
+          //agData.setItemGradingSet(agData.getItemGradingSet().stream().filter(gd -> !gd.getIsCorrect()).collect(Collectors.toSet()));
+          log.debug("GraderComments: getComments()" + agData.getComments());
+          delivery.setGraderComment(agData.getComments());
+          delivery.setAssessmentGradingAttachmentList(agData.getAssessmentGradingAttachmentList());
+          delivery.setHasAssessmentGradingAttachment(
+                  agData.getAssessmentGradingAttachmentList() != null && agData.getAssessmentGradingAttachmentList().size() > 0);
+          delivery.setAssessmentGradingId(agData.getAssessmentGradingId());
+          delivery.setOutcome("takeAssessment");
+          delivery.setSecureDeliveryHTMLFragment( "" );
+          delivery.setBlockDelivery( false );
 
-              // post event
-              eventRef = new StringBuffer("publishedAssessmentId=");
-              eventRef.append(delivery.getAssessmentId());
-              eventRef.append(", submissionId=");
-              eventRef.append(agData.getAssessmentGradingId());
-              event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVIEW, eventRef.toString(), true);
-              eventTrackingService.post(event);
-              break;
+          if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+              String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+              if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+                  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+                  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, publishedAssessment, request );
+                  delivery.setSecureDeliveryHTMLFragment(
+                          secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );
+                  if ( PhaseStatus.FAILURE == status )  {
+                      delivery.setOutcome( "secureDeliveryError" );
+                      delivery.setBlockDelivery( true );
+                  }
+              }
+          }
+
+          generateSecureTokenForAssessment(delivery);
+
+          // post event
+          eventRef = new StringBuffer("publishedAssessmentId=");
+          eventRef.append(delivery.getAssessmentId());
+          eventRef.append(", submissionId=");
+          eventRef.append(agData.getAssessmentGradingId());
+          event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVIEW, eventRef.toString(), true);
+          eventTrackingService.post(event);
+          break;
  
       case 4: // Grade assessment
     	  	  String gradingData = ContextUtil.lookupParam("gradingData");
@@ -837,14 +840,20 @@ public class DeliveryActionListener
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
                                                  itemGradingHash, delivery,
                                                  publishedAnswerHash);
-      partBean.setNumParts(Integer.toString(partSet.size()));
-      if (partBean.getItemContentsSize().equals("0")) {
-    	  log.debug("getPageContentsByAssessment(): no question");
-    	  partBean.setNoQuestions(true);
+
+      // If we are in review mode and only show incorrect responses is checked in the
+      // assignment settings, there may well be no parts added. If so, we want to skip
+      // the empty section but still do the max score calculations.
+      if (partBean.getItemContents().size() > 0) {
+        partBean.setNumParts(Integer.toString(partSet.size()));
+        if (partBean.getItemContentsSize().equals("0")) {
+          log.debug("getPageContentsByAssessment(): no question");
+          partBean.setNoQuestions(true);
+        }
+        partsContents.add(partBean);
       }
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
-      partsContents.add(partBean);
     }
 
     delivery.setPrevious(false);
@@ -1074,7 +1083,14 @@ public class DeliveryActionListener
       {
         unansweredQuestions++;
       }
-      itemContents.add(itemBean);
+
+      Integer correctAnswerOption = delivery.getFeedbackComponent().getCorrectAnswerOption();
+      delivery.setOnlyShowingIncorrect(correctAnswerOption == AssessmentFeedbackIfc.INCORRECT_QUESTIONS);
+      if (delivery.getActionMode() != DeliveryBean.REVIEW_ASSESSMENT) {
+        itemContents.add(itemBean);
+      } else if (correctAnswerOption == AssessmentFeedbackIfc.ALL_QUESTIONS || itemBean.getItemGradingDataArray().stream().anyMatch(gd -> gd.getIsCorrect() == null || !gd.getIsCorrect())) {
+        itemContents.add(itemBean);
+      }
     }
 
     // scoring information
@@ -2863,6 +2879,11 @@ public class DeliveryActionListener
   
   private long getSeed(SectionDataIfc sectionData, DeliveryBean delivery, long userSeed) {
 	  long seed = userSeed;
+	  // If the section has a previous seed we must use it to use the same order.
+	  String sectionRandomizationSeed = sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_SEED);
+	  if (StringUtils.isNotBlank(sectionRandomizationSeed)) {
+	      seed += Long.parseLong(sectionRandomizationSeed);
+	  }
 	  log.debug("input seed = " + seed);
 	  if (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE) != null && sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE).equals(SectionDataIfc.PER_SUBMISSION)) {
 		  Long id = delivery.getAssessmentGradingId();
@@ -2890,7 +2911,7 @@ public class DeliveryActionListener
   
   /**
    * CALCULATED_QUESTION
-   * This returns the comma delimted answer key for display such as "42.1,23.19"
+   * This returns the comma and space delimted answer key for display such as "42.1, 23.19"
    */
   private String commaDelimitedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
 	  long gradingId = determineCalcQGradingId(delivery);
@@ -2911,11 +2932,11 @@ public class DeliveryActionListener
 		  // We need the key formatted in scientificNotation
 		  answer = service.toScientificNotation(answer, decimalPlaces);
 		  
-		  keysString = keysString.concat(answer + ",");
+		  keysString = keysString.concat(answer + ", ");
 		  answerSequence++;
 	  }
 	  if (keysString.length() > 2) {
-		  keysString = keysString.substring(0, keysString.length()-1); // truncating the comma on the end
+		  keysString = keysString.substring(0, keysString.length()-2); // truncating the comma and blank on the end
 	  }
 	  return keysString;
   }

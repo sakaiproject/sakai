@@ -68,7 +68,13 @@ public interface CalendarEvent
 	* Access the location property (cover for PROP_CALENDAR_LOCATION).
 	* @return The event's location property.
 	*/
-	public String getLocation();	
+	public String getLocation();
+
+	/**
+	* Access the eventUrl property (cover for PROP_CALENDAR_URL).
+	* @return The event's eventUrl property.
+	*/
+	public String getEventUrl();
 
     /**
 	* Get the value of an "extra" event field.
@@ -100,26 +106,26 @@ public interface CalendarEvent
 	* Gets the event creator (userid), if any (cover for PROP_CREATOR).
 	* @return The event's creator property.
 	*/
-	public String getCreator();	
+	public String getCreator();
 
 	/**
 	* Returns true if current user is thhe event's owner/creator
 	* @return boolean true or false
 	*/
-	public boolean isUserOwner();	
+	public boolean isUserOwner();
 
 	/**
 	* Gets the event modifier (userid), if any (cover for PROP_MODIFIED_BY).
 	* @return The event's modified-by property.
 	*/
-	public String getModifiedBy();	
+	public String getModifiedBy();
 
 
 	/**
 	* Gets the event's site name
 	* @return The event's site name
 	*/
-	public String getSiteName();	
+	public String getSiteName();
 
 	/**
 	 * <p>

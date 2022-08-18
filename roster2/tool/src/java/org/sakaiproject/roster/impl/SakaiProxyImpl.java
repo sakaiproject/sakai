@@ -45,23 +45,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.http.client.ResponseHandler;
@@ -115,7 +114,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -555,27 +553,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                     path.append("</span>");
                 }
                 if (profileLogic.getUserNamePronunciation(user.getId()) != null) {
-                    path.append(String.format("<span data-user-id='%s' class='nameAudioPlayer' title='%s'>", userId, phoneticPronunciation));
-                    path.append("<span class='fa fa-volume-up fa-lg' aria-hidden='true'></span>");
-                    path.append("</span>");
-                    //Append the user recording if exists.
-                    path.append(" <audio ");
-                    path.append(String.format("id='audio-%s' ", user.getId()));
-                    path.append("class='hidden audioPlayer' ");
-                    path.append("controls ");
-                    path.append("controlsList='nodownload' ");
-                    path.append("src='");
-                    path.append(slash);
-                    path.append("direct");
-                    path.append(slash);
-                    path.append("profile");
-                    path.append(slash);
-                    path.append(user.getId());
-                    path.append(slash);
-                    path.append("pronunciation");
-                    path.append("?v=");
-                    path.append(RandomStringUtils.random(8, true, true));
-                    path.append("'/>");
+                    path.append("<sakai-pronunciation-player user-id=\"").append(userId).append("\" />");
                 }
                 pronunceMap.put(user.getId(), path.toString());
             }
@@ -778,6 +756,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setEmail(user.getEmail());
 		rosterMember.setDisplayName(user.getDisplayName());
 		rosterMember.setSortName(user.getSortName());
+		rosterMember.setUser(user);
 
 		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		if (sakaiPerson != null) {
@@ -880,7 +859,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         if (siteMembers != null) {
             log.debug("Cache hit on '{}'.", key);
-            return siteMembers;
+            return new ArrayList<>(siteMembers);
         } else {
             log.debug("Cache miss on '{}'.", key);
 
@@ -959,7 +938,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 // Cache the main site list
                 cache.put(siteId, siteMembers);
 
-                return (List<RosterMember>) cache.get(key);
+                return new ArrayList<>((List<RosterMember>) cache.get(key));
             }
         }
     }
@@ -1309,7 +1288,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             if (MapUtils.isEmpty(index)) {
                 final List<RosterMember> membership = getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
-                index = membership.stream().collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
+                index = Optional.ofNullable(membership).map(Collection::stream).orElseGet(Stream::empty)
+                        .collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
                 cache.put(siteId+groupId, index);
             }
 		

@@ -36,7 +36,7 @@ public class ConversationsConfiguration implements WebApplicationInitializer {
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.setServletContext(servletContext);
-        rootContext.register(WebMvcConfiguration.class);
+        rootContext.register(ConversationsWebMvcConfiguration.class);
 
         servletContext.addListener(new ToolListener());
         servletContext.addListener(new SakaiContextLoaderListener(rootContext));

@@ -43,6 +43,10 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${sakai.velocity.groupId}</groupId>
             <artifactId>sakai-velocity-tool-api</artifactId>
         </dependency>
@@ -55,18 +59,12 @@
             <artifactId>sakai-portal-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.10.5</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.10.5</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>

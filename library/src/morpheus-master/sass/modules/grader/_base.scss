@@ -52,7 +52,7 @@ sakai-grader {
       text-decoration: none;
       select {
         display: inline-block;
-        margin: 0px 0px 0px 8px;
+        margin: 0px 8px;
         &:focus { outline: 0;}
       }
       .grader-navigator a { text-decoration: none; font-weight: bold; }
@@ -144,6 +144,22 @@ sakai-grader {
     width: 400px;
     background-color: var(--sakai-title-bar-bg-color);
 
+    #grader-submitted-block {
+
+      #grader-photo {
+        flex: 1;
+        min-width: 64px;
+        max-width: 64px;
+        width: 64px;
+        height: 64px;
+        float: left;
+        background-position: 50%;
+        background-size: auto 100%;
+        border-radius: 0;
+        margin-right: 6px;
+      }
+    }
+
     .draft-submission {
         margin-left: 8px;
         color: var(--errorBanner-color);
@@ -157,9 +173,32 @@ sakai-grader {
       width: 60px;
     }
 
-    .profile-image {
+    .grader-photo {
+      flex: 1;
+      min-width: 64px;
+      max-width: 64px;
+      width: 64px;
+      height: 64px;
+      float: left;
+      background-position: 50%;
+      background-size: auto 100%;
+      border-radius: 0;
       margin-right: 6px;
-      img { width: 64px; }
+    }
+
+
+    #grader-grade-block {
+      border-bottom: 1px solid var(--sakai-border-color);
+      padding-top: 15px;
+
+      input {
+        margin-left: 10px;
+        margin-right: 10px;
+      }
+
+      span {
+        font-weight: bold;
+      }
     }
 
     .active-indicator {
@@ -169,6 +208,9 @@ sakai-grader {
       height: 18px;
       border-radius: 50%;
       margin-left: 5px;
+      &.unsaved {
+        background: var(--warnBanner-color);
+      }
     }
 
     .resubmission-checkbox {
@@ -228,7 +270,13 @@ sakai-grader {
     }
   }
 
-  .feedback-attachments-block {
+  .grader-block {
+    border-bottom: 2px solid var(--sakai-border-color);
+    padding-bottom: 10px;
+  }
+
+  #grader-feedback-attachments-block {
+    padding-bottom: 5px;
     .feedback-attachments-title {
       font-weight: bold;
       margin-bottom: 10px;
@@ -295,6 +343,34 @@ sakai-grader {
     font-weight: bold;
   }
 
+  .grader-originality-label > span:first-child {
+      margin-right: 5px;
+  }
+  
+  .grader-originality-section {
+    padding-left: 1em;
+  }
+
+  .grader-originality-separator {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  
+  .grader-originality-link {
+    text-decoration: none;
+    span {
+      margin-left: 5px;
+    }
+  }
+  
+  .grader-originality-caption {
+    background-image: linear-gradient(180deg, var(--sakai-title-bar-bg-color), #ffffff);
+    padding: 5px;
+    span:first-child {
+      margin-right: 5px;
+    }
+  }
+
   .submitted-time {
     font-style: italic;
     display: flex;
@@ -314,23 +390,9 @@ sakai-grader {
     margin-left: 7px;
   }
 
-  .grade-block {
-
-    padding-top: 15px;
-
-    span {
-      font-weight: bold;
-    }
-
-    input {
-      margin-left: 10px;
-      margin-right: 10px;
-    }
-  }
-
   .grader-label {
     margin-bottom: 5px;
-    margin-top: 20px;
+    margin-top: 10px;
   }
   .feedback-label span, .private-notes-label span {
     margin-right: 7px;
@@ -374,6 +436,23 @@ sakai-grader {
     color: var(--errorBanner-color);
   }
 
+  #grader-overrides-wrapper {
+    margin-top: 5px;
+    .grader-overrides-label {
+      font-weight: normal;
+    }
+    .grader-overrides-display-name {
+      font-weight: 600;
+    }
+    .grader-override {
+      margin-bottom: 5px;
+    }
+    #grader-overrides-block {
+      margin-top: 10px;
+      margin-left: 20px;
+    }
+  }
+
   .grader-returned {
     font-size: 24px;
     font-weight: bold;
@@ -389,6 +468,7 @@ sakai-grader {
 }
 
 .grader-panel {
+  max-width: 550px;
 
   button {
     margin-top: 8px;

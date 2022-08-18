@@ -32,6 +32,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -419,13 +420,16 @@ public class PDFAssessmentBean implements Serializable {
 				}
 				if (TypeIfc.FILL_IN_BLANK.equals(item.getItemData().getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(item.getItemData().getTypeId())
 						|| TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId())) {
+					String text = item.getItemData().getText();
 					if (item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) {
 						contentBuffer.append("<br />");
 						contentBuffer.append(deliveryMessages.getString("fin_accepted_instruction"));
 						contentBuffer.append("<br />");
+					} else if (TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId())) {
+						text = item.getCalculatedQuestionText();
 					}
 					contentBuffer.append("<br />");
-					contentBuffer.append(convertFormattedText(item.getItemData().getText()));
+					contentBuffer.append(convertFormattedText(text));
 					contentBuffer.append("<br />");
 				}
 
@@ -970,7 +974,7 @@ public class PDFAssessmentBean implements Serializable {
 
 			HTMLWorker worker = new HTMLWorker(document);
 
-			HashMap props = worker.getInterfaceProps();
+			Map<String, Object> props = worker.getInterfaceProps();
 			if (props == null) {
 				props = new HashMap();
 			}

@@ -208,10 +208,6 @@ simplePageBean.forumSummaryHeight,
 simplePageBean.forumSummaryDropDown,
 simplePageBean.addCalendar,
 simplePageBean.addForumSummary,
-simplePageBean.createTask,
-simplePageBean.questionCreateTask,
-simplePageBean.commentsCreateTask,
-simplePageBean.studentContentsCreateTask
 </value>
 </property>
    </bean>
@@ -293,7 +289,7 @@ simplePageBean.studentContentsCreateTask
 
   <bean id="org.sakaiproject.lessonbuildertool.service.GradebookIfc"
 	class="org.sakaiproject.lessonbuildertool.service.GradebookIfc">
-    <property name="gradebookExternalAssessmentService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property>
+    <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
   </bean>
 
   <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"

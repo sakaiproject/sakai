@@ -131,8 +131,8 @@ class SakaiPermissions extends SakaiElement {
           `)}
         </table>
         <div class="act">
-          <input type="button" class="active" value="${this.i18n["gen.sav"]}" aria-label="${this.i18n["gen.sav"]}" @click=${this.savePermissions}/>
-          <input type="button" value="${this.i18n["gen.can"]}" aria-label="${this.i18n["gen.can"]}" @click=${this._completePermissions}/>
+          <input type="button" class="active" value="${this.i18n["gen.sav"]}" aria-label="${this.i18n["gen.sav"]}" @click="${this.savePermissions}"/>
+          <input type="button" value="${this.i18n["gen.can"]}" aria-label="${this.i18n["gen.can"]}" @click="${this._completePermissions}"/>
           <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this.i18n["per.error.save"]}</span>
         </div>
       `;

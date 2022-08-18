@@ -472,7 +472,7 @@ function resizeFrame(){
 									<td>
 										#if($notiEventType == 0)
 											$tlang.getFormattedMessage("revise.notify.ver.dated_future.date", $notiEventItem)
-										#elseif($notiEventType == 1 || $notiEventType == 2)
+										#elseif(($notiEventType == 1 || $notiEventType == 2) && $notiEventItem != "")
 											$tlang.getFormattedMessage("revise.notify.ver.dateds_future.date", $notiEventItem)
 										#end
 									</td>

@@ -18,26 +18,33 @@ package org.sakaiproject.tasks.impl.test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Properties;
-
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
 import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.SessionFactory;
 import org.hsqldb.jdbcDriver;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskAssigned;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTask;
+import org.sakaiproject.tasks.api.repository.TaskAssignedRepository;
 import org.sakaiproject.tasks.api.repository.TaskRepository;
 import org.sakaiproject.tasks.api.repository.UserTaskRepository;
 import org.sakaiproject.tasks.impl.TaskServiceImpl;
+import org.sakaiproject.tasks.impl.repository.TaskAssignedRepositoryImpl;
 import org.sakaiproject.tasks.impl.repository.TaskRepositoryImpl;
 import org.sakaiproject.tasks.impl.repository.UserTaskRepositoryImpl;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,7 +66,7 @@ public class TaskServiceTestConfiguration {
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.taskservice")
     public AdditionalHibernateMappings hibernateMappings() {
 
-        Class[] annotatedClasses = new Class[] {Task.class, UserTask.class};
+        Class[] annotatedClasses = new Class[] {Task.class, UserTask.class, TaskAssigned.class};
         AdditionalHibernateMappings mappings = new AdditionalHibernateMappingsImpl();
         mappings.setAnnotatedClasses(annotatedClasses);
         return mappings;
@@ -107,6 +114,30 @@ public class TaskServiceTestConfiguration {
     }
 
     @Bean
+    public AuthzGroupService authzGroupService() {
+
+        return mock(AuthzGroupService.class);
+    }
+
+    @Bean
+    public EntityManager entityManager() {
+
+        return mock(EntityManager.class);
+    }
+
+    @Bean
+    public EventTrackingService eventTrackingService() {
+
+        return mock(EventTrackingService.class);
+    }
+
+    @Bean
+    public SiteService siteService() {
+
+        return mock(SiteService.class);
+    }
+
+    @Bean
     public SessionManager sessionManager() {
 
         SessionManager sessionManager = mock(SessionManager.class);
@@ -132,6 +163,12 @@ public class TaskServiceTestConfiguration {
         utr.setSessionFactory(sessionFactory);
         return utr;
     } 
-
     
+    @Bean
+    public TaskAssignedRepository taskAssignedRepository(SessionFactory sessionFactory) {
+        TaskAssignedRepositoryImpl tar = new TaskAssignedRepositoryImpl();
+        tar.setSessionFactory(sessionFactory);
+        return tar;
+    }
+
 }

@@ -63,9 +63,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -283,12 +282,14 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					String local_received=rb.getString("pvt_received");
 					String local_sent = rb.getString("pvt_sent");
 					String local_deleted= rb.getString("pvt_deleted");
+					String local_scheduler= rb.getString("pvt_scheduler");
 
 					String current_NAV= rb.getString("pvt_message_nav");
 
 					topicsbyLocalization.add(local_received);
 					topicsbyLocalization.add(local_sent);
 					topicsbyLocalization.add(local_deleted);
+					topicsbyLocalization.add(local_scheduler);
 
 					int countForFolderNum = 0;// only three folder 
 					Iterator iterator = pvtTopics.iterator(); 
@@ -385,15 +386,13 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				// retrieve all of the gradebook items here so we aren't checking repeatedly
 				Map<String, Long> gbItemNameToId = new HashMap<String, Long>();
 				try {
-				    GradebookService gradebookService = (GradebookService)ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-				    List<Assignment> gbItems = gradebookService.getAssignments(siteId);
+				    GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+				    List<Assignment> gbItems = gradingService.getAssignments(siteId);
 				    if (gbItems != null) {
 				        for (Assignment gbItem : gbItems) {
 				            gbItemNameToId.put(gbItem.getName(), gbItem.getId());
 				        }
 				    }
-				} catch (GradebookNotFoundException gnfe) {
-				    log.debug("No gradebook exists for site " + siteId + ". No gb item ids will be included.", gnfe);
 				} catch (Exception e) {
 				    log.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
 				}
@@ -630,11 +629,13 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 		String local_received=rb.getString("pvt_received");
 		String local_sent = rb.getString("pvt_sent");
 		String local_deleted= rb.getString("pvt_deleted");
+		String local_scheduler= rb.getString("pvt_scheduler");
 		
 
 		topicsbyLocalization.add(local_received);
 		topicsbyLocalization.add(local_sent);
 		topicsbyLocalization.add(local_deleted);
+		topicsbyLocalization.add(local_scheduler);
 
 		//need to add more dictionary to support more language
 		if (((String) topicsbyLocalization.get(0)).equalsIgnoreCase(navMode)||"Recibidos".equalsIgnoreCase(navMode)||"Received".equalsIgnoreCase(navMode)){
@@ -645,6 +646,9 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 		}
 		else if (((String) topicsbyLocalization.get(2)).equalsIgnoreCase(navMode)||"Borrados".equalsIgnoreCase(navMode)||"Deleted".equalsIgnoreCase(navMode)){
 			return typeManager.getDeletedPrivateMessageType(); 
+		}
+		else if (((String) topicsbyLocalization.get(3)).equalsIgnoreCase(navMode)||"Programado".equalsIgnoreCase(navMode)||"Scheduled".equalsIgnoreCase(navMode)){
+			return typeManager.getSchedulerPrivateMessageType();
 		}
 		else if (PVTMSG_MODE_DRAFT.equalsIgnoreCase(navMode)){
 			return typeManager.getDraftPrivateMessageType();

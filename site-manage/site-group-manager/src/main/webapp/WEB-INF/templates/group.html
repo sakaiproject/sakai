@@ -21,7 +21,7 @@
       <div class="form-group row">
         <div class="col-sm-8">
           <label for="groupTitle" class="form-control-label block" th:text="|* #{groups.title}|">* Group Title</label>
-          <input name="groupTitle" id="groupTitle" type="text" th:field="*{groupTitle}" size="50" maxlength="99" class="form-control" th:placeholder="#{groups.title}" required/>
+          <input name="groupTitle" id="groupTitle" type="text" th:field="*{groupTitle}" size="50" maxlength="99" class="form-control" th:placeholder="#{groups.title}" required="required"/>
         </div>
       </div>
       <div class="form-group row">
@@ -100,7 +100,7 @@
       <div class="act">
         <input th:if="${groupForm.groupId == null}" accesskey="s" disabled="disabled" id="create-group-submit-button" type="submit" class="active" th:value="#{groups.button.create}">
         <input th:if="${groupForm.groupId != null}" accesskey="s" id="save-group-submit-button" type="submit" class="active" th:value="#{groups.button.save}">
-        <a th:href="@{/}" accesskey="x" id="create-group-cancel-button" class="btn btn-default" th:text="#{groups.button.cancel}">Cancel</a>
+        <button type="button" th:data-url="@{/}" accesskey="x" id="create-group-cancel-button" th:text="#{groups.button.cancel}">Cancel</button>
       </div>
     </form>
   </div>

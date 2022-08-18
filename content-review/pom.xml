@@ -44,11 +44,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.sakaiproject.contentreview.vericite</groupId>
-				<artifactId>content-review-vericite-impl</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.sakaiproject.contentreview.turnitin.oc</groupId>
 				<artifactId>content-review-turnitin-oc-impl</artifactId>
 				<version>${project.version}</version>

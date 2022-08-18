@@ -42,15 +42,15 @@
       <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
       <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
-    <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment'}">
-      <script>
-        var rbcstoken = '<h:outputText value="#{delivery.rbcsToken}" />';
-      </script>
-    </h:panelGroup>
-
     <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{(delivery.actionString=='takeAssessmentViaUrl' ||  delivery.actionString=='previewAssessment') and delivery.isMathJaxEnabled}"/>
       </head>
 	<body>
+
+    <h:panelGroup rendered="#{delivery.onlyShowingIncorrect}">
+      <div class="sak-banner-info">
+         <h:outputText value="#{deliveryMessages.only_showing_incorrect} " />
+      </div>
+    </h:panelGroup>
 
   <h:panelGroup rendered="#{delivery.assessmentSubmitted}">
     <%@ include file="/jsf/delivery/assessmentHasBeenSubmittedContent.jsp" %>
@@ -343,7 +343,7 @@ document.links[newindex].onclick();
 
        <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
          <sakai-rubric-student
-           token='<h:outputText value="#{delivery.rbcsToken}" />'
+           site-id='<h:outputText value="#{delivery.siteId}" />'
            tool-id="sakai.samigo"
            entity-id='<h:outputText value="#{delivery.rubricAssociation}.#{question.effectiveItemId}"/>'
            evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'>
@@ -352,7 +352,7 @@ document.links[newindex].onclick();
 
        <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment' || delivery.actionString == 'takeAssessmentViaUrl' || delivery.actionString == 'previewAssessment'}">
            <sakai-rubric-student-preview-button
-                token="<h:outputText value="#{delivery.rbcsToken}" />"
+                site-id='<h:outputText value="#{delivery.siteId}" />'
                 tool-id="sakai.samigo"
                 entity-id="<h:outputText value="#{delivery.rubricAssociation}.#{question.effectiveItemId}" />"></sakai-rubric-student-preview-button>
        </h:panelGroup>

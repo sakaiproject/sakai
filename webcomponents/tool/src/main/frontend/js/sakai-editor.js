@@ -1,7 +1,7 @@
 import {SakaiElement} from "./sakai-element.js";
 import {html} from "./assets/lit-element/lit-element.js";
-import { ifDefined } from "./assets/lit-html/directives/if-defined.js";
-import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js";
+import {ifDefined} from "./assets/lit-html/directives/if-defined.js";
+import {unsafeHTML} from "./assets/lit-html/directives/unsafe-html.js";
 
 class SakaiEditor extends SakaiElement {
 
@@ -10,11 +10,11 @@ class SakaiEditor extends SakaiElement {
     return {
       elementId: { attribute: "element-id", type: String },
       debug: { type: Boolean },
-      content: String,
+      content: { attribute: "content", type: String},
       active: { type: Boolean },
       delay: { type: Boolean },
       textarea: { type: Boolean },
-      toolbar: String,
+      toolbar: { attribute: "toolbar", type: String},
       setFocus: { attribute: "set-focus", type: Boolean },
     };
   }
@@ -25,7 +25,7 @@ class SakaiEditor extends SakaiElement {
 
     if (this.debug) console.debug("Sakai Editor constructor");
     this.content = "";
-    this.elementId = `editable_${Math.floor(Math.random() * 20) + 1}`;
+    this.elementId = `editable_${Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1)}`;
   }
 
   getContent() {
@@ -34,6 +34,14 @@ class SakaiEditor extends SakaiElement {
       return this.querySelector(`#${this.elementId}`).value;
     }
     return this.editor.getData();
+  }
+
+  setContent(text) {
+    this.content = text;
+    if (this.textarea) {
+      return this.querySelector(`#${this.elementId}`).value = this.content;
+    }
+    return this.editor.setData(this.content);
   }
 
   clear() {
@@ -70,7 +78,13 @@ class SakaiEditor extends SakaiElement {
     }
 
     if (sakai?.editor?.launch) {
-      this.editor = sakai.editor.launch(this.elementId, { autosave: { delay: 10000000, messageType: "no" } });
+      this.editor = sakai.editor.launch(this.elementId, {
+        autosave: {
+          delay: 10000000,
+          messageType: "no"
+        },
+        toolbar: this.toolbar
+      });
     } else {
       this.editor = CKEDITOR.replace(this.elementId, {toolbar: SakaiEditor.toolbars.get("basic")});
     }

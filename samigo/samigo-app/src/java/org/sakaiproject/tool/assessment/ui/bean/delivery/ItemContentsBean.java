@@ -274,6 +274,22 @@ public class ItemContentsBean implements Serializable {
 
 		return text;
 	}
+	
+	/**
+	 * Get formatted print text for calculated questions
+	 * @return
+	 */
+	public String getCalculatedQuestionText() {
+		String text = "";
+		for (FinBean fbean : this.getFinArray()) {
+			if (StringUtils.isNotBlank(text)) {
+				text += "______" + fbean.getText();
+			} else {
+				text += fbean.getText();	
+			}
+		}
+		return text;
+	}
 
 	/**
 	 * This strips text of tags for the table of contents.

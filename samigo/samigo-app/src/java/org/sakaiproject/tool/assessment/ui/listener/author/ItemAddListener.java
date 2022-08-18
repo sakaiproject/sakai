@@ -44,7 +44,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -53,8 +52,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
@@ -119,8 +118,7 @@ import org.sakaiproject.util.api.FormattedText;
  * <p>Organization: Sakai Project</p>
  */
 @Slf4j
-public class ItemAddListener
-    implements ActionListener {
+public class ItemAddListener implements ActionListener {
 
   private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
   public static final int MAX_FEEDBACK_CHARS = 4000;
@@ -361,12 +359,15 @@ public class ItemAddListener
 		saveItem(itemauthorbean, assessmentBean);
 
 		// RUBRICS, save the binding between the assignment and the rubric
-		if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
-			String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, paramUtil.getRubricConfigurationParameters(null, null));
-		} else if (assessmentBean.getAssessment() instanceof PublishedAssessmentFacade) {
-			String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, paramUtil.getRubricConfigurationParameters(null, null));
+		Map<String, String> associationParams = paramUtil.getRubricConfigurationParameters(null, null);
+		if (!associationParams.isEmpty()) {
+			if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
+				String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, associationParams);
+			} else if (assessmentBean.getAssessment() instanceof PublishedAssessmentFacade) {
+				String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, associationParams);
+			}
 		}
 	}
 	catch (FinFormatException e) {
@@ -2465,12 +2466,9 @@ public class ItemAddListener
 					ItemMetaDataIfc.IMAGE_MAP_SRC, bean.getImageMapSrc()));
 		}
 		// The imageMap Image Alt Text added in Metadata
-		// As this is now a sakai-text-input webcomponent, JSF doesn't send it in the form, we need it from the request.
-		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-		String imageAltText = request.getParameter("itemForm:imageMapAltText");
-		if (StringUtils.isNotEmpty(imageAltText)) {
-		set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT, imageAltText));
+		if (StringUtils.isNotEmpty(bean.getImageMapAltText())) {
+			set.add(new ItemMetaData(item.getData(),
+					ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT, bean.getImageMapAltText()));
 		}
 		// MSMC property got left out, added in metadata
 		if (bean.getMcmsPartialCredit() != null) {

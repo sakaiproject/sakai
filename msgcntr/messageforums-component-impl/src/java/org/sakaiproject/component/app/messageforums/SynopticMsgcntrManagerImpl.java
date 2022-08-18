@@ -1309,7 +1309,7 @@ public class DecoratedForumInfo{
 		}
 	}
 	  
-	private void incrementSynopticToolInfo(Set<User> recipients, PrivateMessage rrepMsg, boolean updateCurrentUser){
+	public void incrementSynopticToolInfo(Set<User> recipients, PrivateMessage rrepMsg, boolean updateCurrentUser){
 		  
 		String siteId = ((PrivateMessageRecipient)rrepMsg.getRecipients().get(0)).getContextId();
 		String currentUser = rrepMsg.getAuthorId();

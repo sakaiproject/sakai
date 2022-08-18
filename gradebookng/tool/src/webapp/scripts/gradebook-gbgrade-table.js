@@ -433,6 +433,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
       type: 'external',
       externalId: column.externalId,
       externalAppName: column.externalAppName,
+      externalToolTitle: column.externalToolTitle,
     });
     // Mark negative scores as invalid
     if (typeof value == 'string' && value[0] == '-') {
@@ -836,7 +837,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
           if (columnModel.externallyMaintained) {
             var flag = th.getElementsByClassName('gb-external-app')[0];
-            flag.title = flag.title.replace('{0}', columnModel.externalAppName);
+            flag.title = flag.title.replace('{0}', columnModel.externalToolTitle);
           }
 
           var dropdownToggle = $th.find('.dropdown-toggle');
@@ -1143,6 +1144,16 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     GbGradeTable.ajax({
       action: 'overrideCourseGrade',
       studentId: $.data($cell[0], "studentid")
+    });
+  }).
+  on("click", ".preview-assignment-rubric", function (e) {
+    e.preventDefault();
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    GbGradeTable.ajax({
+      action: 'previewRubric',
+      studentId: $.data($cell[0], "studentid"),
+      assignmentId: $.data($cell[0], "assignmentid")
     });
   }).
   // Edit Comment
@@ -2216,10 +2227,10 @@ GbGradeTable.setupColumnSorting = function() {
 };
 
 GbGradeTable.defaultSortCompare = function(a, b) {
-    if (a == null || a == "") {
+    if (a == null || a === "") {
       return -1;
     }
-    if (b == null || b == "") {
+    if (b == null || b === "") {
       return 1;
     }
     if (parseFloat(a) > parseFloat(b)) {
@@ -2227,6 +2238,11 @@ GbGradeTable.defaultSortCompare = function(a, b) {
     }
     if (parseFloat(a) < parseFloat(b)) {
       return -1;
+    }
+    if (isNaN(a) && isNaN(b)) {
+      a = Array.isArray(a) ? a[0] : a;
+      b = Array.isArray(b) ? b[0] : b;
+      return a.localeCompare(b);
     }
     return 0;
 };
@@ -2251,8 +2267,8 @@ GbGradeTable.sort = function(colIndex, direction) {
   }
 
   clone.sort(function(row_a, row_b) {
-    var a = GbGradeTable.localizedStringToNumber(row_a[colIndex]);
-    var b = GbGradeTable.localizedStringToNumber(row_b[colIndex]);
+    var a = isNaN(parseFloat(row_a[colIndex])) ? row_a[colIndex] : GbGradeTable.localizedStringToNumber(row_a[colIndex]);
+    var b = isNaN(parseFloat(row_b[colIndex])) ? row_b[colIndex] : GbGradeTable.localizedStringToNumber(row_b[colIndex]);
 
     return sortCompareFunction(a, b);
   });
@@ -2818,10 +2834,12 @@ GbGradeTable.setupCellMetaDataSummary = function() {
           GbGradeTable.templates.metadata.process(metadata)
         );
 
-        if (metadata.assignment && metadata.assignment.externalAppName) {
-          var externalFlag = $("#"+cellKey).find('.gb-external-app-wrapper');
-          externalFlag.find('.gb-flag-external').addClass(metadata.assignment.externalAppIconCSS);
-          externalFlag.html(externalFlag.html().replace('{0}', metadata.assignment.externalAppName));
+        if (metadata.assignment && metadata.assignment.externalAppName && metadata.assignment.externalAppIconCSS) {
+          const externalFlag = $(`#${cellKey}`).find('.gb-external-app-wrapper');
+          if (externalFlag.length) {
+            externalFlag.find('.gb-flag-external').addClass(metadata.assignment.externalAppIconCSS);
+            externalFlag.html(externalFlag.html().replace('{0}', metadata.assignment.externalToolTitle));
+          }
         }
 
         $("#"+cellKey).hide().on("click", ".gb-metadata-close", function() {

@@ -116,4 +116,9 @@ public class AuthzGroupServiceTest extends DbAuthzGroupService
     public Set<String> getMaintainRoles() {
         return null;
     }
+
+    @Override
+    public String getGroupReference(String siteId, String groupId) {
+        return null;
+    }
 }

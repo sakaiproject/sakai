@@ -1,10 +1,10 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import { SakaiRubric } from "./sakai-rubric.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import "./sakai-rubric-criteria-readonly.js";
 import "./sakai-rubric-pdf.js";
-import {tr} from "./sakai-rubrics-language.js";
+import { tr } from "./sakai-rubrics-language.js";
 
-export class SakaiRubricReadonly extends RubricsElement {
+export class SakaiRubricReadonly extends SakaiRubric {
 
   constructor() {
 
@@ -18,13 +18,12 @@ export class SakaiRubricReadonly extends RubricsElement {
 
     return {
       rubric: { type: Object },
-      enablePdfExport: { type: Boolean },
-      token: { type: String }
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     };
   }
 
-  shouldUpdate(changedProperties) {
-    return changedProperties.has("rubric");
+  shouldUpdate() {
+    return this.rubric;
   }
 
   render() {
@@ -38,9 +37,9 @@ export class SakaiRubricReadonly extends RubricsElement {
           </span>
         </div>
 
-        <div class="hidden-xs"><sakai-rubric-site-title site-id="${this.rubric.metadata.ownerId}"></sakai-rubric-site-title></div>
-        <div class="hidden-xs"><sakai-rubric-creator-name creator-id="${this.rubric.metadata.creatorId}"></sakai-rubric-creator-name></div>
-        <div class="hidden-xs"><sakai-rubric-modified-date modified="${this.rubric.metadata.modified}"></sakai-rubric-modified-date></div>
+        <div class="hidden-xs rubric-site-title">${this.rubric.siteTitle}</div>
+        <div class="hidden-xs rubric-creator-name">${this.rubric.creatorDisplayName}</div>
+        <div class="hidden-xs">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
           <div class="action-container">
@@ -50,8 +49,8 @@ export class SakaiRubricReadonly extends RubricsElement {
           ${this.enablePdfExport ? html`
             <div class="action-container">
               <sakai-rubric-pdf
-                  rubricTitle="${this.rubric.title}"
-                  token="${this.token}"
+                  site-id="${this.siteId}"
+                  rubric-title="${this.rubric.title}"
                   rubricId="${this.rubric.id}"
               />
             </div>
@@ -61,36 +60,10 @@ export class SakaiRubricReadonly extends RubricsElement {
 
       <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_shared_${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
-          <sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criterions)}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
+          <sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criteria)}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
         </div>
       </div>
     `;
-  }
-
-  toggleRubric() {
-
-    const titlecontainer = this.querySelector(".rubric-title");
-
-    const collapse = $(`#collapse_shared_${this.rubric.id}`);
-    collapse.toggle();
-
-    const icon = $(`#rubric_toggle_shared_${this.rubric.id} span`);
-
-    if (collapse.is(":visible")) {
-      this.rubricExpanded = "true";
-      titlecontainer.classList.add("active");
-      icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
-    } else {
-      this.rubricExpanded = "false";
-      titlecontainer.classList.remove("active");
-      icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");
-    }
-  }
-
-  cloneRubric(e) {
-
-    e.stopPropagation();
-    this.dispatchEvent(new CustomEvent('clone-rubric', { detail: this.rubric }));
   }
 
   copyToSite(e) {

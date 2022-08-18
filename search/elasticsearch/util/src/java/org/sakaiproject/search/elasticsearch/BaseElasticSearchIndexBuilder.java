@@ -1068,7 +1068,6 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         return properties;
     }
 
-
     @Override
     public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
 

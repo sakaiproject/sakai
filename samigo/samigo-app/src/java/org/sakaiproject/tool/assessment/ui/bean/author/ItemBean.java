@@ -44,12 +44,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService; 
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
+import org.sakaiproject.tool.cover.ToolManager;
 import static org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener.MAX_FEEDBACK_CHARS;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -96,6 +98,7 @@ public class ItemBean
   private String emiAnswerOptionsPaste;
   private String answerOptionsRichCount = "0";
   private String answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE.toString();
+  private String siteId;
 
   private List<ItemTagBean> itemTags;
   
@@ -1996,4 +1999,16 @@ public class ItemBean
         return (itemType.equals("1") && partialCreditFlag.equals("true")) || (getRenderDiscountBlock() && getItemDiscount() > 0);
     }
 
+    public String getSiteId() {
+
+        if (StringUtils.isNotBlank(siteId)) {
+            return siteId;
+        } else {
+            Placement currentPlacement = ToolManager.getCurrentPlacement();
+            if (currentPlacement != null) {
+                siteId = currentPlacement.getContext();
+            }
+            return siteId;
+        }
+    }
 }

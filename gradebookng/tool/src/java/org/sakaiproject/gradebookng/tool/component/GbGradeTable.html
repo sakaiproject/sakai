@@ -143,6 +143,9 @@
                             <li><a href="javascript:void(0);" class="gb-move-left" role="menuitem"><wicket:message key="assignment.option.moveleft" /></a></li>
                             <li><a href="javascript:void(0);" class="gb-move-right" role="menuitem"><wicket:message key="assignment.option.moveright" /></a></li>
                         {/if}
+                        {if hasAssociatedRubric}
+                            <li><a href="javascript:void(0);" class="preview-assignment-rubric" role="menuitem"><wicket:message key="assignment.option.preview" /></a></li>
+                        {/if}
                         {if !externallyMaintained && settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-set-ungraded" role="menuitem"><wicket:message key="assignment.option.setungraded" /></a></li>
                         {/if}
@@ -161,7 +164,7 @@
         <script id="categoryScoreHeaderTemplate" type="text/template">
             <span class="colHeader hide" data-col-index="${col}">${col}</span>
             <div class="relative">
-                {if extraCredit}
+                {if getExtraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
                 {/if}
                 {if equalWeight}
@@ -440,7 +443,7 @@
                                         <span class="gb-flag-save-invalid"></span> <wicket:message key="grade.notifications.externalinvalid"/>
                                     </li>
                                 {elseif notification.type == 'external'}
-                                    <li class="gb-external-app-wrapper">
+                                    <li id="" class="gb-external-app-wrapper">
                                         <span class="gb-flag-external"></span> <wicket:message key="grade.notifications.isexternal"/>
                                     </li>
                                 {elseif notification.type == 'readonly'}

@@ -45,11 +45,6 @@
 		</h1>
 	</div>
 
-	#if (!$!assignments.hasNext())
-		<div class="sak-banner-info">
-			$tlang.getString("gen.thearecur1")
-		</div>
-	#else
 	#if ($allowAddAssignment)
 		#if ($!view.equals('stuvie'))
 			<div class="sak-banner-info">$tlang.getString("stulistassig.selanass1")</div>
@@ -81,28 +76,48 @@
 			</div>
 		</div>
 		#end
-		<div class="sakai-table-pagerContainer">
-			#pagerPanel("pager1")
+		<div class="sakai-table-filterContainer">
+			<div class="row">
+				<form name="filterForm" class="col-md-12 inlineForm" method="post" action="#toolForm("AssignmentAction")">
+					<input type="hidden" name="eventSubmit_doFilter" value="filterOption" />
+					<label for="filterOption">$tlang.getString("view.label")</label>
+					<span class="skip">$tlang.getString("gen.listnavselect")</span>
+					<select id="filterOption" name="filterOption" size="1" onchange="SPNR.disableControlsAndSpin(this, null);document.filterForm.submit();">
+					#foreach($filter in $!filterOptions)
+						#set($filterMessageKey = "listassig.filter." + $filter)
+						<option value="$!filter" #if($!filter.equals($!currentFilterOption)) selected="selected" #end>$!tlang.getString($!filterMessageKey)</option>
+					#end
+					</select>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			</div>
 		</div>
+		#if ($hasAssignments)
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
+			</div>
+		#end
 	</div>
+
+	#if (!$!hasAssignments)
+		<div class="sak-banner-info">
+			$tlang.getString("gen.thearecur1")
+		</div>
+	#else
 
 	<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">
 		<div class="table-responsive">
 			<input type="hidden" name="source" value="0" />
 			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr>
-					<th id="attachments" class="attach hidden-xs" scope="col"> 
-						&nbsp;
-						<span class="sr-only">$tlang.getString("gen.att")</span>
-					</th>				
 					<th id="title" scope="col">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 							$tlang.getString("gen.asstit")
 							#if ($sortedBy.equals("title"))
 								#if ($sortedAsc.equals("true"))
-									<i id="sortascendingtitle" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									<i id="sortascendingtitle" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<i id="sortdescendingtitle" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									<i id="sortdescendingtitle" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -113,9 +128,9 @@
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
 								#if ($sortedAsc.equals("true"))
-									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <i class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sortbyforasc")"></i></a>
+									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <i class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sortbyforasc")"></i></a>
 								#else
-									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <i class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sortbyfordesc")"></i></a>
+									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <i class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sortbyfordesc")"></i></a>
 								#end
 							#end
 						</th>
@@ -125,9 +140,9 @@
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals("assignment_status"))
 								#if ($sortedAsc.equals("true"))
-									<i id="sortascendingstatus" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									<i id="sortascendingstatus" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<i id="sortdescendingstatus" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									<i id="sortdescendingstatus" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -137,9 +152,9 @@
 							$tlang.getString("newassig.opedat")
 							#if ($sortedBy.equals("opendate"))
 								#if ($sortedAsc.equals("true"))
-									<i id="sortascendingopendate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									<i id="sortascendingopendate" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<i id="sortdescendingopendate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									<i id="sortdescendingopendate" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -149,9 +164,33 @@
 							$tlang.getString("gen.duedat")
 							#if ($sortedBy.equals("duedate"))
 								#if ($sortedAsc.equals("true"))
-									<i id="sortascendingduedate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									<i id="sortascendingduedate" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<i id="sortdescendingduedate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									<i id="sortdescendingduedate" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
+								#end
+							#end
+						</a>
+					</th>
+					<th id="lastModifiedUser" class="hidden-xs">
+						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=modifieduser")'; return false;"  title="$tlang.getString("gen.sorbymodusr")">
+							$tlang.getString("gen.mod.user")
+							#if ($sortedBy.equals("modifieduser"))
+								#if ($sortedAsc.equals("true"))
+									<i id="sortascendingmodifieduser" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
+								#else
+									<i id="sortdescendingmodifieduser" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
+								#end
+							#end
+						</a>
+					</th>
+					<th id="lastModifiedDate" class="hidden-xs">
+						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=modifieddate")'; return false;"  title="$tlang.getString("gen.sorbymoddat")">
+							$tlang.getString("gen.mod.date")
+							#if ($sortedBy.equals("modifieddate"))
+								#if ($sortedAsc.equals("true"))
+									<i id="sortascendingmodifieddate" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
+								#else
+									<i id="sortdescendingmodifieddate" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -166,9 +205,9 @@
 								#end
 								#if ($sortedBy.equals("timesheet"))
 									#if ($sortedAsc.equals("true"))
-										<i id="sortascendingtimesheet" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+										<i id="sortascendingtimesheet" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 									#else
-										<i id="sortdescendingtimesheet" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+										<i id="sortdescendingtimesheet" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 									#end
 								#end
 							</a>
@@ -182,9 +221,9 @@
 								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
 										#if ($sortedAsc.equals("true"))
-											<i id="sortascendingtotalsubmissions" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+											<i id="sortascendingtotalsubmissions" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 										#else
-											<i id="sortdescendingtotalsubmissions" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+											<i id="sortdescendingtotalsubmissions" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 										#end
 									</a>
 								#end
@@ -193,9 +232,9 @@
 								#if ($sortedBy.equals("num_ungraded"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;"   title="$tlang.getString("listassig.sorbynum2")">
 										#if ($sortedAsc.equals("true"))
-											<i id="sortascendingungradedsubmissions" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+											<i id="sortascendingungradedsubmissions" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 										#else
-											<i id="sortdescendingungradedsubmissions" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+											<i id="sortdescendingungradedsubmissions" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 										#end
 									</a>
 								#end
@@ -209,9 +248,9 @@
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade"))
 									#if ($sortedAsc.equals("true"))
-										<i id="sortascendingungraded" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+										<i id="sortascendingungraded" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 									#else
-										<i id="sortdescendingungraded" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+										<i id="sortdescendingungraded" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 									#end
 								#end
 							</a>
@@ -243,17 +282,9 @@
 					## no need to do permission check again, since it was done when the list was constructed
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr>
-							<td headers="attachments" class="attach hidden-xs">
-								#if (!$assignment.getAttachments().isEmpty())
-									<i class="icon-sakai--clip"></i>
-								#else
-									&nbsp;
-								#end
-							</td>						
 							<td headers="title" scope="row">
 								#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignmentReference)) && $!view.equals('lisofass1'))
 									<strong>
-										#assignmentTitleIcon($assignment)
 										## normal instructor view
 										#if ($assignment.Draft && $!allowUpdateAssignment )
 											<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
@@ -266,16 +297,12 @@
 											$formattedText.escapeHtml($!assignment.Title)
 										</a>
 
-										#if ($assignment.getContentReview())
-											<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
-										#end
-
-										#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+										#assignmentIcons($assignment)
+										#if ($rubricMap.containsKey($assignment.getId()))
 										<sakai-rubric-student-button
-											token="$!rbcs-token"
-											tool-id="sakai.assignment"
-											evaluated-item-id="$submission.Id"
-											entity-id="$assignment.Id"
+											force-preview
+											rubric-id="$rubricMap.get($assignment.getId())"
+											site-id="$assignment.getContext()"
 											instructor="true">
 										</sakai-rubric-student-button>
 										#end
@@ -319,7 +346,6 @@
 												#end
 											#end
 											## if not submitted or returned and still allowed to submit within the due time
-											#assignmentTitleIcon($assignment)
 											#if ($service.canSubmit($assignment))
 												## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
@@ -327,21 +353,24 @@
 												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
 											#end
 											$formattedText.escapeHtml($assignment.Title)</a>
-											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+											#assignmentIcons($assignment)
+											#if ($rubricMap.containsKey($assignment.getId()))
 												<sakai-rubric-student-button
-													token="$!rbcs-token"
-													tool-id="sakai.assignment"
+													site-id="$assignment.getContext()"
+													rubric-id="$rubricMap.get($assignment.getId())"
+													tool-id="sakai.assignment.grades"
 													evaluated-item-id="$submission.Id"
 													entity-id="$assignment.Id">
 												</sakai-rubric-student-button>
 											#end
 										#else
-											#assignmentTitleIcon($assignment)
 											$formattedText.escapeHtml($assignment.Title)
-											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+											#assignmentIcons($assignment)
+											#if ($rubricMap.containsKey($assignment.getId()))
 												<sakai-rubric-student-button
-													token="$!rbcs-token"
-													tool-id="sakai.assignment"
+													site-id="$assignment.getContext()"
+													rubric-id="$rubricMap.get($assignment.getId())"
+													tool-id="sakai.assignment.grades"
 													evaluated-item-id="$submission.Id"
 													entity-id="$assignment.Id">
 												</sakai-rubric-student-button>
@@ -391,34 +420,39 @@
                                                         <a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#else
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<strong>#assignmentTitleIcon($assignment)
+														<strong>
 															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+															#assignmentIcons($assignment)
 														</strong>
 													#end
 												#else
-													<strong>#assignmentTitleIcon($assignment)
+													<strong>
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+														#assignmentIcons($assignment)
 													</strong>
 												#end
 											#else
-												<strong>#assignmentTitleIcon($assignment)
+												<strong>
 													#if ($assignment.HonorPledge && $service.canSubmit($assignment))
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#else
                                                     	<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#end
+													#assignmentIcons($assignment)
 												</strong>
 											#end
 											#set($submissionId="undefined")
 											#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
 												#set($submissionId=$submission.Id)
 											#end
+										    #if ($rubricMap.containsKey($assignment.getId()))
 											<sakai-rubric-student-button
-												token="$!rbcs-token"
-												tool-id="sakai.assignment"
+												site-id="$assignment.getContext()"
+												tool-id="sakai.assignment.grades"
 												evaluated-item-id="$submissionId"
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>
+											#end
 											#if ($taggable && $allowAddAssignment)
 												<div class="itemAction">
 													#set($prevAction=false)
@@ -494,7 +528,10 @@
 									#if ($submission)
 										#set ($submissionId = $submission.Id)
 									#end
-									<span class="highlight">$!service.getSubmissionStatus($!submissionId)</span>
+									$!service.getSubmissionStatus($!submissionId, true)
+									#if ($assignment.DueDate && $submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
+										<span class="highlight">$tlang.getString("gen.late2")</span>
+									#end
 								#end
 							</td>
 							<td headers="openDate" class="hidden-xs">
@@ -505,7 +542,14 @@
 								##Instructors can still see the due date
 								<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.DueDate)</span>
 							#end
-
+							</td>
+							<td headers="lastModifiedUser" class="hidden-xs">
+							#if ($!assignment.Modifier)
+								<span>$!userDirectoryService.getUser($!assignment.Modifier).getDisplayName()</span>
+							#end
+							</td>
+							<td headers="lastModifiedDate" class="hidden-xs">
+								<span>$!service.getUsersLocalDateTimeString($!assignment.DateModified)</span>
 							</td>
 							#if ($!isTimesheet)
 								#if ($!allowGradeSubmission)
@@ -589,8 +633,6 @@
 							<!-- only show to "students" -->
 							<!-- peer assessment overview row -->
 							<tr>
-								<!-- attachments col -->
-								<td></td>
 								<!-- title col -->
 								<td class="peer-header">
 									<strong title="$formattedText.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $formattedText.escapeHtml($assignment.Title)</strong>
@@ -685,8 +727,6 @@
 								#foreach ($review in $reviews)
 									#set ($reviewCount = $reviewCount + 1)
 									<tr>
-										<!-- attachments col -->
-										<td></td>
 										<!-- title col -->
 										<td>
 											<span class="indnt2">

@@ -46,10 +46,6 @@ public class GradebookServiceHelper
     public static void updateExternalAssessment(AssessmentGradingData ag, String agentIdString) {
     }
 
-    public static boolean gradebookExists(String siteId) {
-        return false;
-    }
-
     public static void updateExternalAssessmentScore(AssessmentGradingData ag) throws Exception {
     }
 }

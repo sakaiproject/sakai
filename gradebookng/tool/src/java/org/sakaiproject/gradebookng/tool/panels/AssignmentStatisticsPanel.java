@@ -27,7 +27,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.tool.chart.AssignmentGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.stats.AssignmentStatistics;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 
 public class AssignmentStatisticsPanel extends BasePanel {
 

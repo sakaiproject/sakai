@@ -23,6 +23,7 @@ import lombok.Data;
 public class Message {
 
     private String id;
+    private String siteId;
     private String tool;
     private String type;
     private String payload;

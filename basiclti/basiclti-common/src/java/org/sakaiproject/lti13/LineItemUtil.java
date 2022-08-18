@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,13 +45,13 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
+import static org.tsugi.basiclti.BasicLTIUtil.parseIMS8601;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
@@ -144,8 +145,8 @@ public class LineItemUtil {
 
 	public static Assignment createLineItem(String context_id, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
 		// Look up the assignment so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		if (lineItem.scoreMaximum == null) {
 			lineItem.scoreMaximum = 100.0;
@@ -182,7 +183,7 @@ public class LineItemUtil {
 		try {
 			Long assignmentId = null;
 			// Attempt to add assignment to grade book
-			if (assignmentObject == null && g.isGradebookDefined(context_id)) {
+			if (assignmentObject == null) {
 				try {
 					assignmentObject = new Assignment();
 					assignmentObject.setPoints(Double.valueOf(lineItem.scoreMaximum));
@@ -196,6 +197,8 @@ public class LineItemUtil {
 					assignmentObject.setReleased(releaseToStudent); // default true
 					assignmentObject.setCounted(includeInComputation); // default true
 					assignmentObject.setUngraded(false);
+					Date endDateTime = parseIMS8601(lineItem.endDateTime);
+					assignmentObject.setDueDate(endDateTime);
 					// NOTE: addAssignment does *not* set the external values - Update *does* store them
 					assignmentId = g.addAssignment(context_id, assignmentObject);
 					assignmentObject.setId(assignmentId);
@@ -205,7 +208,7 @@ public class LineItemUtil {
 					failure = "ConflictingAssignmentNameException while adding assignment " + e.getMessage();
 					assignmentObject = null; // Just to make sure
 				} catch (Exception e) {
-					failure = "GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) "+ e.getMessage();
+					failure = "Exception (may be because GradeBook has not yet been added to the Site) "+ e.getMessage();
 					assignmentObject = null; // Just to make double sure
 				}
 			}
@@ -214,9 +217,6 @@ public class LineItemUtil {
 				if ( failure == null ) failure = "assignmentObject or Id is null.";
 				assignmentObject = null;
 			}
-		} catch (GradebookNotFoundException e) {
-			failure = "GradebookNotFoundException";
-			log.error("Gradebook not found", e);
 		} catch (Throwable e) {
 			failure = "Unexpected Throwable " + e.getMessage();
 			log.error("Unexpected Throwable", e);
@@ -232,8 +232,8 @@ public class LineItemUtil {
 	}
 
 	public static Assignment updateLineItem(Site site, Long tool_id, Long column_id, SakaiLineItem lineItem) {
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		String context_id = site.getId();
 
@@ -272,6 +272,8 @@ public class LineItemUtil {
 		assignmentObject.setReleased(releaseToStudent); // default true
 		assignmentObject.setCounted(includeInComputation); // default true
 		assignmentObject.setUngraded(false);
+		Date dueDate = org.tsugi.basiclti.BasicLTIUtil.parseIMS8601(lineItem.endDateTime);
+		if ( dueDate != null ) assignmentObject.setDueDate(dueDate);
 
 		pushAdvisor();
 		try {
@@ -291,8 +293,8 @@ public class LineItemUtil {
 	 */
 	protected static List<Assignment> getColumnsForToolDAO(String context_id, Long tool_id) {
 		List retval = new ArrayList();
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		pushAdvisor();
 		try {
@@ -311,9 +313,6 @@ public class LineItemUtil {
 
 				retval.add(gbColumn);
 			}
-		} catch (GradebookNotFoundException e) {
-			log.error("Gradebook not found context_id={}", context_id);
-			retval = null;
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
 			retval = null;
@@ -348,8 +347,8 @@ public class LineItemUtil {
 	 */
 	protected static Assignment getColumnByLabelDAO(String context_id, Long tool_id, String column_label)
 	{
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 		Assignment retval = null;
 
 		pushAdvisor();
@@ -364,9 +363,6 @@ public class LineItemUtil {
 					break;
 				}
 			}
-		} catch (GradebookNotFoundException e) {
-			log.error("Gradebook not found context_id={}", context_id);
-			retval = null;
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
 			retval = null;
@@ -388,8 +384,8 @@ public class LineItemUtil {
 		// Make sure it belongs to us
 		Assignment a = getColumnByKeyDAO(context_id, tool_id, column_id);
 		if ( a == null ) return false;
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		pushAdvisor();
 		try {
@@ -425,8 +421,8 @@ public class LineItemUtil {
 		if ( tool_id == null ) {
 			throw new RuntimeException("tool_id is required");
 		}
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		List<SakaiLineItem> retval = new ArrayList<>();
 
@@ -457,8 +453,6 @@ public class LineItemUtil {
 				}
 				retval.add(item);
 			}
-		} catch (GradebookNotFoundException e) {
-			log.error("Gradebook not found context_id={}", context_id);
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
 		} finally {
@@ -472,6 +466,10 @@ public class LineItemUtil {
 		SakaiLineItem li = new SakaiLineItem();
 		li.label = assignment.getName();
 		li.scoreMaximum = assignment.getPoints();
+		Date dueDate = assignment.getDueDate();
+		if ( dueDate != null ) {
+			li.endDateTime = org.tsugi.basiclti.BasicLTIUtil.getISO8601(dueDate);
+		}
 
 		// Parse the external_id
 		// tool_id|content_id|resourceLink|tag|

@@ -37,7 +37,8 @@
             </activation>
             <properties>
                 <sakai.velocity.groupId>org.sakaiproject.velocity</sakai.velocity.groupId>
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                <jjwt.versions>0.11.5</jjwt.versions> 
             </properties>
         </profile>
         <profile>
@@ -167,6 +168,21 @@
 		    <artifactId>nimbus-jose-jwt</artifactId>
 		    <version>8.2</version>
 	    </dependency>
+	    <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.versions}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.versions}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.versions}</version>
+        </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

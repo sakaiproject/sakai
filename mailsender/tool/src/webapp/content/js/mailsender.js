@@ -142,7 +142,7 @@ var RcptSelect = function() {
 			} else {
 				var checkbox = _safeId('input', checkboxId);
 				var checked = jQuery(checkbox).is(':checked');
-				var context = jQuery(checkbox + ' ~ div');
+				var context = jQuery(checkbox + ' ~ ul > li');
 				jQuery('input[type=checkbox]:enabled', context).attr('checked', checked);
 				if (!checked) {
 					rcptAll.attr('checked',false);

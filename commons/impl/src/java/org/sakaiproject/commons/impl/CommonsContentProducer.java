@@ -29,6 +29,7 @@ import org.sakaiproject.commons.api.CommonsEvents;
 import org.sakaiproject.commons.api.CommonsFunctions;
 import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.CommonsReferenceReckoner;
+import org.sakaiproject.commons.api.CommonsReferenceReckoner.CommonsReference;
 import org.sakaiproject.commons.api.QueryBean;
 import org.sakaiproject.commons.api.SakaiProxy;
 import org.sakaiproject.commons.api.datamodel.Comment;
@@ -84,17 +85,20 @@ public class CommonsContentProducer implements EntityContentProducer {
         }
     }
 
+    @Override
     public boolean isContentFromReader(String reference) {
         return false;
     }
 
+    @Override
     public Reader getContentReader(String reference) {
         return null;
     }
 
+    @Override
     public String getContent(String ref) {
 
-        CommonsReferenceReckoner.CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+        CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
 
         if (CommonsConstants.PostType.COMMENT == r.getType()) {
             Optional<Comment> opComment = commonsManager.getComment(r.getCommentId());
@@ -117,9 +121,10 @@ public class CommonsContentProducer implements EntityContentProducer {
         return "";
     }
 
+    @Override
     public String getTitle(String ref) {
 
-        CommonsReferenceReckoner.CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+        CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
         if (r.getType() == CommonsConstants.PostType.POST) {
             return rl.getString("search_title_post");
         } else {
@@ -127,6 +132,7 @@ public class CommonsContentProducer implements EntityContentProducer {
         }
     }
 
+    @Override
     public String getUrl(String ref) {
 
         return transactionTemplate.execute(new TransactionCallback<String>() {
@@ -134,8 +140,7 @@ public class CommonsContentProducer implements EntityContentProducer {
             @Override
             public String doInTransaction(TransactionStatus status) {
 
-                CommonsReferenceReckoner.CommonsReference r
-                    = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+                CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
 
                 try {
                     Site site = siteService.getSite(r.getContext());
@@ -152,10 +157,12 @@ public class CommonsContentProducer implements EntityContentProducer {
         });
     }
 
+    @Override
     public boolean matches(String ref) {
         return ref.startsWith(CommonsManager.REFERENCE_ROOT);
     }
 
+    @Override
     public Integer getAction(Event event) {
 
         String evt = event.getEvent();
@@ -166,20 +173,105 @@ public class CommonsContentProducer implements EntityContentProducer {
         return SearchBuilderItem.ACTION_UNKNOWN;
     }
 
+    @Override
     public boolean matches(Event event) {
 
         String evt = event.getEvent();
         return addingEvents.contains(evt) || removingEvents.contains(evt);
     }
 
+    @Override
     public String getTool() {
         return "commons";
     }
 
+    @Override
     public String getSiteId(String ref) {
         return CommonsReferenceReckoner.reckoner().reference(ref).reckon().getContext();
     }
 
+    @Override
+    public String getCreatorDisplayName(String ref) {
+
+        CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+
+        switch (r.getType()) {
+
+            case POST:
+                Optional<Post> optPost = commonsManager.getPost(r.getPostId(), false);
+                if (optPost.isPresent()) {
+                    return optPost.get().getCreatorDisplayName();
+                }
+                log.warn("Invalid commons post ref {}. Returning empty creator display name ...", ref);
+                break;
+            case COMMENT:
+                Optional<Comment> optComment = commonsManager.getComment(r.getCommentId());
+                if (optComment.isPresent()) {
+                    return optComment.get().getCreatorDisplayName();
+                }
+                log.warn("Invalid commons comment ref {}. Returning empty creator display name ...", ref);
+                break;
+            default:
+        }
+
+        return "";
+    }
+
+    @Override
+    public String getCreatorId(String ref) {
+
+        CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+
+        switch (r.getType()) {
+
+            case POST:
+                Optional<Post> optPost = commonsManager.getPost(r.getPostId(), false);
+                if (optPost.isPresent()) {
+                    return optPost.get().getCreatorId();
+                }
+                log.warn("Invalid commons post ref {}. Returning empty creator id ...", ref);
+                break;
+            case COMMENT:
+                Optional<Comment> optComment = commonsManager.getComment(r.getCommentId());
+                if (optComment.isPresent()) {
+                    return optComment.get().getCreatorId();
+                }
+                log.warn("Invalid commons comment ref {}. Returning empty creator id ...", ref);
+                break;
+            default:
+        }
+
+        return "";
+    }
+
+    @Override
+    public String getCreatorUserName(String ref) {
+
+        CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+
+        switch (r.getType()) {
+
+            case POST:
+                Optional<Post> optPost = commonsManager.getPost(r.getPostId(), false);
+                if (optPost.isPresent()) {
+                    return optPost.get().getCreatorUserName();
+                }
+                log.warn("Invalid commons post ref {}. Returning empty creator user name ...", ref);
+                break;
+            case COMMENT:
+                Optional<Comment> optComment = commonsManager.getComment(r.getCommentId());
+                if (optComment.isPresent()) {
+                    return optComment.get().getCreatorUserName();
+                }
+                log.warn("Invalid commons comment ref {}. Returning empty creator user name ...", ref);
+                break;
+            default:
+        }
+
+        return "";
+    }
+
+    @Override
     public Iterator<String> getSiteContentIterator(String siteId) {
 
         List<String> refs = new ArrayList<>();
@@ -199,13 +291,15 @@ public class CommonsContentProducer implements EntityContentProducer {
         return refs.iterator();
     }
 
+    @Override
     public boolean isForIndex(String ref) {
         return ref.startsWith(CommonsManager.REFERENCE_ROOT);
     }
 
+    @Override
     public boolean canRead(String ref) {
 
-        CommonsReferenceReckoner.CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+        CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
         String siteId = r.getContext();
         if (r.getType() == CommonsConstants.PostType.POST) {
             return sakaiProxy.isAllowedFunction(CommonsFunctions.POST_READ_ANY, siteId);
@@ -214,30 +308,36 @@ public class CommonsContentProducer implements EntityContentProducer {
         }
     }
 
+    @Override
     public Map<String, ?> getCustomProperties(String ref) {
         return null;
     }
 
+    @Override
     public String getCustomRDF(String ref) {
         return null;
     }
 
+    @Override
     public String getId(String ref) {
 
-        CommonsReferenceReckoner.CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+        CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
         return (r.getType() == CommonsConstants.PostType.POST) ? r.getPostId() : r.getCommentId();
     }
 
+    @Override
     public String getType(String ref) {
         return "commons";
     }
 
+    @Override
     public String getSubType(String ref) {
 
-        CommonsReferenceReckoner.CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
+        CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
         return (r.getType() == CommonsConstants.PostType.POST) ? "posts" : "comments";
     }
 
+    @Override
     public String getContainer(String ref) {
         return CommonsReferenceReckoner.reckoner().reference(ref).reckon().getContext();
     }

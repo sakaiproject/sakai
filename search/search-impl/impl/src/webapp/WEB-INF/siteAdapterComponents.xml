@@ -13,11 +13,4 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
-    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
-          class="org.sakaiproject.search.entitybroker.SearchEntityProvider">
-        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
-        <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-    </bean>
 </beans>

@@ -1,4 +1,5 @@
-import { html, ifDefined } from "../assets/@lion/core/index.js";
+import { html } from "../assets/lit-element/lit-element.js";
+import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 import { SakaiElement } from "../sakai-element.js";
 import "./sakai-topic-list.js";
 import "./sakai-add-topic.js";
@@ -9,6 +10,7 @@ import "./sakai-topic.js";
 import "./conversations-statistics.js";
 import "../sakai-icon.js";
 import "../sakai-permissions.js";
+import "../sakai-search.js";
 import "./options-menu.js";
 import { STATE_PERMISSIONS,
   STATE_DISPLAYING_TOPIC,
@@ -16,8 +18,6 @@ import { STATE_PERMISSIONS,
   STATE_NOTHING_SELECTED,
   STATE_ADDING_TOPIC,
   STATE_SETTINGS,
-  QUESTION,
-  SITE,
   STATE_MANAGING_TAGS } from "./sakai-conversations-constants.js";
 
 export class SakaiConversations extends SakaiElement {
@@ -27,6 +27,7 @@ export class SakaiConversations extends SakaiElement {
     return {
       siteId: { attribute: "site-id", type: String },
       topicId: { attribute: "topic-id", type: String },
+      postId: { attribute: "post-id", type: String },
       baseUrl: { attribute: "base-url", type: String },
       data: { type: Object },
       addingTopic: Boolean,
@@ -62,31 +63,21 @@ export class SakaiConversations extends SakaiElement {
 
     this._siteId = value;
 
-    this.blankTopic = {
-      id: "",
-      title: "",
-      message: "",
-      type: QUESTION,
-      visibility: SITE,
-      pinned: false,
-      tags: [],
-      groups: [],
-      url: `/api/sites/${this.siteId}/topics`,
-      aboutReference: `/site/${value}`,
-    };
-
     const url = `/api/sites/${value}/conversations`;
     this.dataPromise = fetch(url)
       .then(r => r.json())
       .then(data => {
 
         this.data = data;
+
         if (this.topicId) {
-          this.selectTopic(value);
+          this.selectTopic(this.topicId);
         }
+
+        // If this topic has some sessions stored changes, load them up into wipTopic.
         this.wipTopicKey = `${this.data.userId}-wipTopic`;
-        const wipTopic = sessionStorage.getItem(this.wipTopicKey);
-        wipTopic && (this.wipTopic = JSON.parse(wipTopic));
+        const wipTopicJson = sessionStorage.getItem(this.wipTopicKey);
+        wipTopicJson && (this.wipTopic = JSON.parse(wipTopicJson));
       });
   }
 
@@ -109,6 +100,7 @@ export class SakaiConversations extends SakaiElement {
     switch (value) {
       case STATE_ADDING_TOPIC:
         this.addingTopic = true;
+        this.showingSettings = false;
         /*
         let url = `${this.baseUrl}/addTopic`;
         history.pushState({ state: STATE_ADDING_TOPIC }, "", url);
@@ -144,11 +136,10 @@ export class SakaiConversations extends SakaiElement {
   addTopic(e) {
 
     e.preventDefault();
-    //this.addingTopic = true;
     if (this.wipTopic && !this.wipTopic.id) {
       this.topicBeingEdited = this.wipTopic;
     } else {
-      this.topicBeingEdited = this.blankTopic;
+      this.topicBeingEdited = this.data.blankTopic;
     }
     this.state = STATE_ADDING_TOPIC;
   }
@@ -186,53 +177,59 @@ export class SakaiConversations extends SakaiElement {
       this.data.topics[currentIndex].selected = true;
     } else {
       this.data.topics.forEach(t => t.selected = false);
-      this.data.topics.push(e.detail.topic);
+      this.data.topics.unshift(e.detail.topic);
     }
 
+    window.scrollTo(0, 0);
+
     this.currentTopic = e.detail.topic;
+    this.currentTopic.beingEdited = false;
     this.state = STATE_DISPLAYING_TOPIC;
   }
 
   editTopic(e) {
 
     if (e?.detail?.topic) {
-      this.topicBeingEdited = e.detail.topic;
+      if (this.wipTopic && this.wipTopic.id === e.detail.topic.id) {
+        this.wipTopic.beingEdited = true;
+        this.topicBeingEdited = this.wipTopic;
+      } else {
+        this.topicBeingEdited = e.detail.topic;
+      }
     } else {
-      this.topicBeingEdited = this.blankTopic;
+      this.topicBeingEdited = this.data.blankTopic;
     }
     this.state = STATE_ADDING_TOPIC;
   }
 
   topicUpdated(e) {
-    this.updateTopic(e.detail.topic);
-  }
 
-  updateTopic(topic) {
+    const topic = e.detail.topic;
 
     const index = this.data.topics.findIndex(t => t.id === topic.id);
     this.data.topics[index] = topic;
-    this.currentTopic = this.data.topics[index];
-    this.requestUpdate();
+
+    if (!e.detail.dontUpdateCurrent) {
+      this.currentTopic = this.data.topics[index];
+    }
   }
 
   topicSelected(e) {
 
     const topicId = e.detail.topic.id;
 
-    if (this.wipTopic?.id === topicId) {
-      this.topicBeingEdited = this.wipTopic;
-      this.wipTopic.beingEdited = true;
-      this.selectTopic(topicId, true);
-      this.currentTopic = e.detail.topic;
-      //this.state = STATE_ADDING_TOPIC;
-    } else {
-      this.selectTopic(topicId);
-      //const state = { state: STATE_DISPLAYING_TOPIC, topicId: topicId };
-    }
+    this.postId = undefined;
+
+    this.selectTopic(topicId);
+
     /*
     const url = `${this.baseUrl}/topics/${topicId}`;
-    history.pushState(state, "", url);
+    history.pushState({}, "", url);
     */
+
+    // Reset the current url to the base url, for now. Later we will want to actually push the
+    // topic url so we can use the back button
+    history.pushState({}, "", this.baseUrl);
   }
 
   selectTopic(topicId, onlySelectInList) {
@@ -275,7 +272,7 @@ export class SakaiConversations extends SakaiElement {
     this.data.tags.splice(index, 1, e.detail.tag);
     this.data.topics.forEach(topic => {
 
-      const index1 = topic.tags.find(t => t.id == e.detail.tag.id);
+      const index1 = topic.tags.findIndex(t => t.id == e.detail.tag.id);
       topic.tags.splice(index1, 1, e.detail.tag);
     });
 
@@ -365,6 +362,26 @@ export class SakaiConversations extends SakaiElement {
     this.state = STATE_MANAGING_TAGS;
   }
 
+  _dimBackground() { document.getElementById("overlay").style.display = "block"; }
+
+  _undimBackground() { document.getElementById("overlay").style.display = "none"; }
+
+  _setStateAddingTopic() { this.state = STATE_ADDING_TOPIC; }
+
+  _setStateSettings() {
+
+    this.state = STATE_SETTINGS;
+    this.showingSettings = true;
+  }
+
+  _setStatePermissions() { this.state = STATE_PERMISSIONS; }
+
+  _setStateManagingTags() { this.state = STATE_MANAGING_TAGS; }
+
+  _setStateStatistics() { this.state = STATE_STATISTICS; }
+
+  _setStateNothingSelected() { this.state = STATE_NOTHING_SELECTED; }
+
   shouldUpdate() {
     return this.i18n && this.data;
   }
@@ -378,7 +395,7 @@ export class SakaiConversations extends SakaiElement {
         </div>
         ${this.data.canCreateTopic ? html`
         <div id="conv-add-topic">
-          <a href="javascript:;" @click=${() => this.state = STATE_ADDING_TOPIC}>
+          <a href="javascript:;" @click="${this._setStateAddingTopic}">
             ${this.i18n.create_new}
           </a>
         </div>
@@ -391,19 +408,19 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <div class=${ifDefined(this.state === STATE_SETTINGS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click=${() => this.state = STATE_SETTINGS}>${this.i18n.general_settings}</a>
+        <a href="javascript:;" @click="${this._setStateSettings}"></a>
       </div>
       <div class=${ifDefined(this.state === STATE_PERMISSIONS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click=${() => this.state = STATE_PERMISSIONS}>${this.i18n.permissions}</a>
+        <a href="javascript:;" @click="${this._setStatePermissions}">${this.i18n.permissions}</a>
       </div>
       ${this.data.canEditTags ? html`
       <div class=${ifDefined(this.state === STATE_MANAGING_TAGS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click=${() => this.state = STATE_MANAGING_TAGS}>${this.i18n.manage_tags}</a>
+        <a href="javascript:;" @click="${this._setStateManagingTags}">${this.i18n.manage_tags}</a>
       </div>
       ` : ""}
       ${this.data.canViewSiteStatistics ? html`
       <div class=${ifDefined(this.state === STATE_STATISTICS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click=${() => this.state = STATE_STATISTICS}>${this.i18n.statistics}</a>
+        <a href="javascript:;" @click="${this._setStateStatistics}">${this.i18n.statistics}</a>
       </div>
       ` : ""}
     `;
@@ -415,19 +432,22 @@ export class SakaiConversations extends SakaiElement {
       <div class="conv-topbar">
 
         ${renderBackButton ? html`
-          <div id="conv-back-button-block">
-            <div>
-              <a href="javascript:;" @click=${() => this.state = STATE_NOTHING_SELECTED}>
-                <div><sakai-icon type="left"></sakai-icon></div>
-              </a>
-            </div>
+        <div id="conv-back-button-block">
+          <div>
+            <a href="javascript:;" @click="${this._setStateNothingSelected}">
+              <div><sakai-icon type="left"></sakai-icon></div>
+            </a>
           </div>
-        ` : ""}
-              
-        <div class="conv-search">
-          <input class="conv-search-field" aria-label="${this.i18n.search_field_tooltip}" value="${this.i18n.search_placeholder} (${this.i18n.disabled})" disabled></input>
         </div>
-
+        ` : ""}
+        <sakai-search id="conv-search"
+            style="width: 400px;"
+            @showing-search-results="${this._dimBackground}"
+            @hiding-search-results="${this._undimBackground}"
+            site-id="${this.siteId}"
+            tool="sakai.conversations">
+        </sakai-search>
+              
         <div class="conv-settings-and-create">
           ${this.data.canUpdatePermissions ? html`
           ${mobile ? html`
@@ -442,11 +462,13 @@ export class SakaiConversations extends SakaiElement {
                 ${this.renderSettingsMenu()}
               </div>
             </options-menu>
-          `: html`
+          ` : html`
           <div class="conv-settings-link">
-            <a href="javascript:;" @click=${() => { this.showingSettings = true; this.state = STATE_SETTINGS; }}>
-              <sakai-icon type="cog" size="small"></sakai-icon>
-              <span id="conv-settings-label">${this.i18n.settings}</span>
+            <a href="javascript:;" @click="${this._setStateSettings}">
+              <div id="conv-settings-label-wrapper">
+                <div><sakai-icon type="cog" size="small"></sakai-icon></div>
+                <div id="conv-settings-label">${this.i18n.settings}</div>
+              </div>
             </a>
           </div>
           `}
@@ -481,7 +503,7 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <sakai-conversations-tag-manager
-          tags="${JSON.stringify(this.data.tags)}"
+          .tags="${this.data.tags}"
           site-id="${this.siteId}"
           @tags-created=${this.tagsCreated}
           @tag-updated=${this.tagUpdated}
@@ -494,13 +516,15 @@ export class SakaiConversations extends SakaiElement {
   renderCurrentTopic() {
 
     return html`
-      <sakai-topic topic="${JSON.stringify(this.currentTopic)}"
+      <sakai-topic post-id="${ifDefined(this.postId)}"
+            ?can-view-anonymous=${this.data.canViewAnonymous}
+            ?is-instructor=${this.data.isInstructor}
+            ?can-view-deleted=${this.data.canViewDeleted}
+            topic="${JSON.stringify(this.currentTopic)}"
             @edit-topic=${this.editTopic}
             @topic-deleted=${this.topicDeleted}
             @topic-updated=${this.topicUpdated}
-            @topic-unread-updated=${this.topicUnreadUpdated}
-            ?is-instructor=${this.data.isInstructor}
-            ?can-view-anonymous=${this.data.canViewAnonymous}>
+            @topic-unread-updated=${this.topicUnreadUpdated}>
       </sakai-topic>
     `;
   }
@@ -521,8 +545,8 @@ export class SakaiConversations extends SakaiElement {
       <sakai-add-topic
         user-id="${this.data.userId}"
         site-id="${this.siteId}"
-        tags="${JSON.stringify(this.data.tags)}"
-        groups="${JSON.stringify(this.data.groups)}"
+        .tags="${this.data.tags}"
+        .groups="${this.data.groups}"
         @topic-saved=${this.topicSaved}
         @save-wip-topic=${this.saveWipTopic}
         @topic-add-cancelled=${this.cancelAddTopic}
@@ -531,6 +555,7 @@ export class SakaiConversations extends SakaiElement {
         ?can-pin=${this.data.canPin}
         ?can-edit-tags=${this.data.canEditTags}
         ?can-anon=${this.data.settings.allowAnonPosting}
+        ?disable-discussions=${this.data.disableDiscussions}
         topic=${ifDefined(this.topicBeingEdited ? JSON.stringify(this.topicBeingEdited) : undefined)}
       >
       </sakai-add-topic>
@@ -552,15 +577,14 @@ export class SakaiConversations extends SakaiElement {
   renderTopicList() {
 
     return html`
-    <div id="conv-topic-list-wrapper">
-          <sakai-topic-list
-              id="conv-topic-list"
-              site-id="${this.data.siteId}"
-              data="${JSON.stringify(this.data)}"
-              @topic-updated=${this.topicUpdated}
-              @topic-selected=${this.topicSelected}>
-          </sakai-topic-list>
-        </div>
+      <div id="conv-topic-list-wrapper">
+        <sakai-topic-list
+            id="conv-topic-list"
+            site-id="${this.data.siteId}"
+            .data="${this.data}"
+            @topic-selected=${this.topicSelected}>
+        </sakai-topic-list>
+      </div>
     `;
   }
 
@@ -575,14 +599,15 @@ export class SakaiConversations extends SakaiElement {
         </div>
       `
       : html`
+        <div id="overlay"></div>
         <div id="conv-desktop">
           ${this.showingSettings && this.data.canUpdatePermissions ? html`
-            <div>
+          <div>
             <div id="conv-back-button-block">
-              <div>
-                <div><sakai-icon type="left"></sakai-icon></div>
-                <div><a href="javascript:;" @click=${this.resetState}>${this.i18n.back}</a></div>
-              </div>
+              <a href="javascript:;" @click=${this.resetState}>
+                <div><sakai-icon type="left-arrow"></sakai-icon></div>
+                <div>${this.i18n.back}</div>
+              </a>
             </div>
             <div id="conv-settings">
               ${this.renderSettingsMenu()}
