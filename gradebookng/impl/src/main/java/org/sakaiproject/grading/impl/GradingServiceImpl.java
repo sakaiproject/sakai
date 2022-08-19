@@ -2760,6 +2760,15 @@ public class GradingServiceImpl implements GradingService {
     }
 
     /**
+     * Get the student's course grade's GradableObject ID.
+     *
+     * @return coursegrade's GradableObject ID.
+     */
+    public Long getCourseGradeId(Long gradebookId) {
+        return getCourseGrade(gradebookId).getId();
+    }
+
+    /**
      * Retrieves the calculated average course grade.
      */
     @Override
@@ -4775,18 +4784,24 @@ public class GradingServiceImpl implements GradingService {
         if (StringUtils.isBlank(gradebookUid) || assignmentId == null || StringUtils.isBlank(studentUid)) {
             throw new IllegalArgumentException("gradebookUid, assignmentId and studentUid must be valid.");
         }
-
+        String assignmentName = "";
         final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
         if (assignment == null) {
-            throw new AssessmentNotFoundException("There is no assignmentId " + assignmentId + " for gradebookUid " + gradebookUid);
+            CourseGrade courseGrade = getCourseGrade(getGradebook(gradebookUid).getId());
+            if(courseGrade != null && courseGrade.getId().equals(assignmentId)){   //check if this is a course grade before declaring it Not Found
+                assignmentName = courseGrade.getName();
+            } else {
+                throw new AssessmentNotFoundException("There is no assignmentId " + assignmentId + " for gradebookUid " + gradebookUid);
+            }
+        } else {
+            assignmentName = assignment.getName();
         }
-
         CommentDefinition commentDefinition = null;
         final Optional<Comment> optComment = gradingPersistenceManager.getInternalComment(studentUid, gradebookUid, assignmentId);
         if (optComment.isPresent()) {
             Comment comment = optComment.get();
             commentDefinition = new CommentDefinition();
-            commentDefinition.setAssignmentName(assignment.getName());
+            commentDefinition.setAssignmentName(assignmentName);
             commentDefinition.setCommentText(comment.getCommentText());
             commentDefinition.setDateRecorded(comment.getDateRecorded());
             commentDefinition.setGraderUid(comment.getGraderId());
@@ -4805,6 +4820,12 @@ public class GradingServiceImpl implements GradingService {
         Comment comment = null;
         if (optComment.isEmpty()) {
             comment = new Comment(studentUid, commentText, getAssignmentWithoutStats(gradebookUid, assignmentId));
+            if(getAssignmentWithoutStats(gradebookUid, assignmentId) == null){  //will happen if we are commenting on Course Grade
+                CourseGrade courseGrade = getCourseGrade(getGradebook(gradebookUid).getId());
+                if(courseGrade != null && courseGrade.getId().equals(assignmentId)){   //make sure ID is actually making reference to the course grade
+                    comment = new Comment(studentUid, commentText, courseGrade);
+                }
+            }
         } else {
             comment = optComment.get();
             comment.setCommentText(commentText);

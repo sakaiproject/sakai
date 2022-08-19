@@ -228,7 +228,8 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
 
   var $td = $(td);
   var scoreState = GbGradeTable.getCellState(row, col, instance);
-  var cellKey = GbGradeTable.cleanKey([row, col, scoreState, value.join('_')].join('_'));
+  var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
+  var cellKey = GbGradeTable.cleanKey([row, col, scoreState, student.hasCourseGradeComment, value.join('_')].join('_'));
   var wasInitialised = $.data(td, 'cell-initialised');
 
   if (wasInitialised === cellKey) {
@@ -255,6 +256,8 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
   var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
 
   $.data(td, 'studentid', student.userId);
+  $.data(td, "courseGradeId", GbGradeTable.courseGradeId);
+  $.data(td, "gradebookId", GbGradeTable.gradebookId);
   $.data(td, 'cell-initialised', cellKey);
   $.data(td, "metadata", {
     id: cellKey,
@@ -272,6 +275,34 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
       $cellDiv.removeClass("gb-just-synced", 2000);
     }, 2000);
   }
+  // collect all the notification
+  var notifications = [];
+  // comment notification
+  var commentNotification = td.getElementsByClassName("gb-course-comment-notification")[0];
+  if (commentNotification) {
+    if (student.hasCourseGradeComment==1) {
+      commentNotification.style.display = 'block';
+      notifications.push({
+        type: 'comment',
+        comment: "..."
+      });
+    } else {
+      commentNotification.style.display = 'none';
+    }
+  }
+  // make metadata, including the notifications array in it
+  $.data(td, "metadata", {
+    id: cellKey,
+    student: student,
+    courseGrade: value[0],
+    hasCourseGradeComment: student.hasCourseGradeComment,
+    courseGradeId: GbGradeTable.courseGradeId,
+    gradebookId: GbGradeTable.gradebookId,
+    notifications: notifications,
+    readonly: false
+  });
+
+  $.data(td, 'cell-initialised', cellKey);
 };
 
 GbGradeTable.cleanKey = function(key) {
@@ -643,7 +674,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   let hiddenItems = JSON.parse(sessionStorage.getItem(GB_HIDDEN_ITEMS_KEY)) || [];
   GbGradeTable.columns.filter(c => hiddenItems.includes(c.assignmentId)).forEach(c => c.hidden = true);
   GbGradeTable.settings = tableData.settings;
-
+  GbGradeTable.courseGradeId = tableData.courseGradeId;
+  GbGradeTable.gradebookId = tableData.gradebookId;
   GbGradeTable._fixedColumns.push({
     renderer: GbGradeTable.studentCellRenderer,
     headerTemplate: GbGradeTable.templates.studentHeader,
@@ -1163,7 +1195,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     GbGradeTable.editComment($.data($cell[0], "studentid"), $.data($cell[0], "assignmentid"));
   }).
-
+  // Edit Course Grade Comment
+  on("click", ".gb-dropdown-menu .gb-edit-course-grade-comments", function() {
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    GbGradeTable.editCourseGradeComment($.data($cell[0], "studentid"), $.data($cell[0], "courseGradeId"), $.data($cell[0], "gradebookId"));
+  }).
   //Excuse Grade
   on("click", ".gb-dropdown-menu .gb-excuse-grade", function(){
     var $dropdown = $(this).closest(".gb-dropdown-menu");
@@ -1450,6 +1487,20 @@ GbGradeTable.editComment = function(studentId, assignmentId) {
   });
 };
 
+GbGradeTable.editCourseGradeComment = function(studentId, courseGradeId, gradebookId) {
+  GbGradeTable.ajax({
+    action: 'editCourseGradeComment',
+    studentId: studentId,
+    courseGradeId: courseGradeId,
+    gradebookId: gradebookId
+  });
+};
+
+GbGradeTable.updateHasCourseGradeComment = function(student, courseGradeId, comment) {
+  var flag = (comment == null || comment == "") ? '0' : '1';
+  student.hasCourseGradeComment = flag;
+};
+
 GbGradeTable.editExcuse = function(studentId, assignmentId) {
     var student = GbGradeTable.modelForStudent(studentId);
     var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
@@ -1622,6 +1673,14 @@ GbGradeTable.updateComment = function(assignmentId, studentId, comment) {
 
   GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
   GbGradeTable.redrawCell(row, col);
+};
+
+GbGradeTable.updateCourseGradeComment = function(courseGradeId, studentId, comment) {
+  var student = GbGradeTable.modelForStudent(studentId);
+  var row = GbGradeTable.rowForStudent(studentId);
+  student.hasCourseGradeComment = (comment == null || comment == "") ? '0' : '1';
+  GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
+  GbGradeTable.redrawCell(row, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
 };
 
 GbGradeTable.updateExcuse = function(assignmentId, studentId, excuse) {
@@ -2875,12 +2934,22 @@ GbGradeTable.setupCellMetaDataSummary = function() {
 
           GbGradeTable.editComment(studentId, assignmentId);
         });
+
+        $("#"+cellKey).hide().on("click", ".gb-edit-course-grade-comments", function(event) {
+          event.preventDefault();
+          var studentId = metadata.student.userId;
+          var courseGradeId = metadata.courseGradeId;
+          var gradebookId = metadata.gradebookId;
+          GbGradeTable.hideMetadata();
+          GbGradeTable.editCourseGradeComment(studentId, courseGradeId, gradebookId);
+          GbGradeTable.updateHasCourseGradeComment(metadata.student,courseGradeId,gradebookId);
+        });
       }
     }
   }
 
 
-  function showMetadata(cellKey, $td, showCellNotifications, showCommentNotification) {
+  function showMetadata(cellKey, $td, showCellNotifications, showCommentNotification, showCourseCommentNotification) {
     var cellOffset = $td.offset();
     var wrapperOffset = $("#gradeTableWrapper").offset();
     var cellHeight = $td.height();
@@ -2914,7 +2983,23 @@ GbGradeTable.setupCellMetaDataSummary = function() {
             $metadata.find("blockquote").html("Unable to load comment. Please try again later.").show();
           })
       });
-
+    } else if (showCourseCommentNotification && $metadata.find(".gb-metadata-comment-notification").length > 0) {
+      $metadata.find("blockquote").hide();
+      setTimeout(function () {
+        GradebookAPI.getCourseGradeComment(
+            GbGradeTable.container.data("siteid"),
+            $.data($td[0], "courseGradeId"),
+            $.data($td[0], "studentid"),
+            $.data($td[0], "gradebookId"),
+            function (comment) {
+              // success
+              $metadata.find("blockquote").html(comment).show();
+            },
+            function () {
+              // error
+              $metadata.find("blockquote").html("Unable to load comment. Please try again later.").show();
+            })
+      });
       $metadata.find(".gb-metadata-notifications li.gb-metadata-comment-notification").show()
     } else {
       $metadata.find(".gb-metadata-notifications li.gb-metadata-comment-notification").hide();
@@ -2956,7 +3041,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
   });
 
   // on mouse click on notification, toggle metadata summary
-  $(GbGradeTable.instance.rootElement).on("click", ".gb-notification, .gb-comment-notification", function(event){
+  $(GbGradeTable.instance.rootElement).on("click", ".gb-notification, .gb-comment-notification, .gb-course-comment-notification", function(event){
     var $cell = $(event.target).closest("td");
     if ($cell[0]) {
       var cellKey = $.data($cell[0], 'cell-initialised');
@@ -2964,7 +3049,8 @@ GbGradeTable.setupCellMetaDataSummary = function() {
       initializeMetadataSummary(coords.row, coords.col);
       var showCellNotifications = $(event.target).is(".gb-notification");
       var showCommentNotification = $(event.target).is(".gb-comment-notification");
-      showMetadata(cellKey, $cell, showCellNotifications, showCommentNotification);
+      var showCourseCommentNotification = $(event.target).is(".gb-course-comment-notification");
+      showMetadata(cellKey, $cell, showCellNotifications, showCommentNotification, showCourseCommentNotification);
     }
   });
 
@@ -3518,6 +3604,16 @@ GradebookAPI.getComments = function(siteId, assignmentId, studentUuid, onSuccess
   GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };
 
+GradebookAPI.getCourseGradeComment = function(siteId, courseGradeId, studentUuid, gradebookId, onSuccess, onError) {
+  var endpointURL = "/direct/gbng/courseGradeComment";
+  var params = {
+    siteId: siteId,
+    courseGradeId: courseGradeId,
+    studentUuid: studentUuid,
+    gradebookId: gradebookId
+  };
+  GradebookAPI._GET(endpointURL, params, onSuccess, onError);
+};
 
 GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuccess, onError, onComplete) {
   GradebookAPI._POST("/direct/gbng/assignment-order", {

@@ -422,6 +422,20 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void courseGradeComment() {
+        Gradebook gradebook = createGradebook();
+        String comment = "This is your course grade.";
+
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1, comment);
+        CommentDefinition commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
+        assertEquals(comment, commentDefinition.getCommentText());
+
+        gradingService.deleteAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
+        commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
+        assertNull(commentDefinition);
+    }
+
+    @Test
     public void getAssignmentByNameOrId() {
 
         Gradebook gradebook = createGradebook();

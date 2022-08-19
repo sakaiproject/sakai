@@ -305,6 +305,8 @@
                 <span class="gb-value {if isOverridden} gb-overridden {/if}">
                     ${value}
                 </span>
+                <span class="gb-notification"></span>
+                <span class="gb-course-comment-notification"></span>
                 {if GbGradeTable.settings.isUserAbleToEditAssessments}
                     <div class="btn-group">
                         <a class="btn btn-sm btn-default dropdown-toggle"
@@ -314,6 +316,7 @@
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                            <li><a class="gb-edit-course-grade-comments" href="#" role="menuitem"><wicket:message key="comment.option.edit" /></a></li>
                             <li><a href="javascript:void(0);" class="gb-course-grade-override" role="menuitem"><wicket:message key="coursegrade.option.override"/></a></li>
                             <li><a href="javascript:void(0);" class="gb-course-grade-override-log" role="menuitem"><wicket:message key="coursegrade.option.overridelog"/></a></li>
                         </ul>
@@ -393,10 +396,16 @@
                                     <li class="gb-metadata-comment-notification">
                                         <span class="gb-flag-comment"></span> <wicket:message key="grade.notifications.hascomment"/>
                                         <blockquote><wicket:message key="grade.notifications.commentloading"/></blockquote>
-                                        {if defined('readonly') && !readonly} 
-                                            <div>
-                                                <a href="javascript:void(0);" class="gb-edit-comments"><wicket:message key="grade.notifications.editcomment"/></a>
-                                            </div>
+                                        {if defined('readonly') && !readonly}
+                                            {if defined('hasCourseGradeComment') && hasCourseGradeComment == 1}
+                                                <div>
+                                                    <a href="javascript:void(0);" class="gb-edit-course-grade-comments"><wicket:message key="grade.notifications.editcomment"/></a>
+                                                </div>
+                                            {else}
+                                                <div>
+                                                    <a href="javascript:void(0);" class="gb-edit-comments"><wicket:message key="grade.notifications.editcomment"/></a>
+                                                </div>
+                                            {/if}
                                         {/if}
                                     </li>
                                 {elseif notification.type == 'extra-credit'}

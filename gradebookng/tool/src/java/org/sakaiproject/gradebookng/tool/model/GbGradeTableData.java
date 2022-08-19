@@ -46,6 +46,8 @@ public class GbGradeTableData {
 	private boolean isUserAbleToEditAssessments;
 	private Map<String, Double> courseGradeMap;
 	private Map<String, Boolean> hasAssociatedRubricMap;
+	private Long courseGradeId;
+	private Long gradebookId;
 	private boolean isStudentNumberVisible;
 	private boolean isSectionsVisible;
 
@@ -95,7 +97,8 @@ public class GbGradeTableData {
 		courseGradeMap = gradebook.getSelectedGradeMapping().getGradeMap();
 
 		hasAssociatedRubricMap = businessService.buildHasAssociatedRubricMap(assignments);
-
+		gradebookId = gradebook.getId();
+		courseGradeId = businessService.getCourseGradeId(gradebookId);
 		isStudentNumberVisible = businessService.isStudentNumberVisible();
 
 		isSectionsVisible = businessService.isSectionsVisible();

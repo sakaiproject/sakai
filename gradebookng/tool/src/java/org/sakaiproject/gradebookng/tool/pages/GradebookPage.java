@@ -49,6 +49,7 @@ import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.actions.DeleteAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditCommentAction;
+import org.sakaiproject.gradebookng.tool.actions.EditCourseGradeCommentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditSettingsAction;
 import org.sakaiproject.gradebookng.tool.actions.ExcuseGradeAction;
 import org.sakaiproject.gradebookng.tool.actions.GradeUpdateAction;
@@ -301,6 +302,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("previewRubric", new ViewRubricPreviewAction());
 		this.gradeTable.addEventListener("overrideCourseGrade", new OverrideCourseGradeAction());
 		this.gradeTable.addEventListener("editComment", new EditCommentAction());
+		this.gradeTable.addEventListener("editCourseGradeComment", new EditCourseGradeCommentAction());
 		this.gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
 		this.gradeTable.addEventListener("setZeroScore", new SetZeroScoreAction());
 		this.gradeTable.addEventListener("viewCourseGradeLog", new ViewCourseGradeLogAction());
