@@ -2571,8 +2571,12 @@ public class MessageForumStatisticsBean {
 				defaultAssignName = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId)).getDefaultAssignName();
 			}
 			if (StringUtils.isNotBlank(defaultAssignName)) {
-				Assignment assignment = getGradebookService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
-				setDefaultSelectedAssign(assignment.getName());
+				try {
+				    Assignment assignment = getGradebookService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
+					setDefaultSelectedAssign(assignment.getName());
+				} catch (Exception ex) {
+					log.error("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
+				}
 			}
 		}
 		gradebookItemChosen = false;
