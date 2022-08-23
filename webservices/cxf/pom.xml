@@ -147,11 +147,6 @@
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
         </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>serializer</artifactId>
-            <version>2.7.2</version>
-        </dependency>
         <!-- SAK-27503 we do not want aopalliance JAR deployed in our WAR! -->
         <dependency>
             <groupId>aopalliance</groupId>
