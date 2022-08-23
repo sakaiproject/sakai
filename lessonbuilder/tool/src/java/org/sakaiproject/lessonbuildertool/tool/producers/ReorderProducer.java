@@ -24,6 +24,7 @@
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
@@ -77,6 +78,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 	public MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
 	public static final String VIEW_ID = "Reorder";
+	public static final List DISALLOWED_ITEM_TYPES_FROM_OTHER_SITES = Arrays.asList(SimplePageItem.ASSIGNMENT, SimplePageItem.ASSESSMENT, SimplePageItem.FORUM, SimplePageItem.FORUM_SUMMARY, SimplePageItem.ANNOUNCEMENTS, SimplePageItem.BLTI, SimplePageItem.RESOURCE_FOLDER);
 
 	@Setter
 	private Map<String,String> imageToMimeMap;
@@ -129,11 +131,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			if (secondPageId != null)
 			    secondPage = simplePageBean.getPage(secondPageId);
 
-			// are they hacking us? other page should be in the same site, or tests fail
 			// The tests here will handle student pages, but the UI doesn't actually present them.
-
-			if (secondPage != null && !secondPage.getSiteId().equals(page.getSiteId()))
-			    secondPage = null;
 			if (secondPage != null) {
 			    if (!simplePageToolDao.canEditPage(secondPageId))
 				secondPage = null;
@@ -151,8 +149,17 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 
 			    if (moreItems != null && moreItems.size() > 0) {
 				items.add(null); //marker
-				while(moreItems.size() > 0 && moreItems.get(0).getSequence() <= 0) {
-				    moreItems.remove(0);
+				for (int count=0; count<moreItems.size(); count++){
+					if (!currentPage.getSiteId().equals(secondPage.getSiteId()) && DISALLOWED_ITEM_TYPES_FROM_OTHER_SITES.contains(moreItems.get(count).getType())){
+						moreItems.remove(count);
+						count = count - 1;	//hold the counter back; when we remove an item, we need to look at the same index again.
+					}
+					if(moreItems.size()>0){
+						if (moreItems.get(0).getSequence() <= 0){
+							moreItems.remove(0);
+							count = count - 1;	//hold the counter back; when we remove an item, we need to look at the same index again.
+						}
+					}
 				}
 				moreItemIds = moreItems.stream().collect(Collectors.mapping(SimplePageItem::getId, Collectors.toList()));
 				items.addAll(moreItems);
@@ -161,7 +168,11 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			    items.add(null); // if no 2nd page, put marker at the end
 
 			UIOutput.make(tofill, "intro", messageLocator.getMessage("simplepage.reorder_header"));
-			UIOutput.make(tofill, "instructions", messageLocator.getMessage("simplepage.reorder_instructions"));
+			if (items.size() < 2){	//when there are no items, replace the instructions with a notice that there aren't any items.
+				UIOutput.make(tofill, "instructions", messageLocator.getMessage("simplepage.reorder_none"));
+			} else {
+				UIOutput.make(tofill, "instructions", messageLocator.getMessage("simplepage.reorder_instructions"));
+			}
 
 			UIOutput.make(tofill, "itemTable");
 

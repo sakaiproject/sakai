@@ -27,7 +27,16 @@
 				<p><span rsf:id="msg=simplepage.delete-message"></span></p>
 			</div>
 		</div>
-
+		<h2 rsf:id="site-dropdown-title"></h2>
+		<div id="sitePicker">
+			<form action="#" rsf:id="site-picker" >
+				<input type="hidden" rsf:id="csrf2"/>
+				<select rsf:id="pick-site">
+					<option rsf:id="pick-site-option:" />
+				</select>
+				<input type="submit" rsf:id="submitSite" />
+			</form>
+		</div>
         <h2 rsf:id="title"></h2>
 
 		<div rsf:id="hide-show-container">
