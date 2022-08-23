@@ -26,7 +26,6 @@
 		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
-			<version>1.0-FCS-full</version>
 		</dependency>
 		<dependency>
 			<groupId>saxpath</groupId>
