@@ -11,7 +11,7 @@ import { ifDefined } from "./assets/lit-html/directives/if-defined.js";
  * @element sakai-user-photo
  * @property {string} user-id - A Sakai user id
  * @property {string} [classes] - Extra classes to style the content
- * @property {string} [popup] By default, profile popups are off. Set this to "on" if you want them
+ * @property {string} [profile-popup] By default, profile popups are off. Set this to "on" if you want them
  * @property {boolean} [official] Set this if you want the official Sakai photo
  * @property {string} [site-id] Set this to trigger permissions checks on the photo
  * @property {string} [label] This will be used as the title and aria-label for the div
@@ -24,7 +24,7 @@ class SakaiUserPhoto extends SakaiElement {
     super();
 
     this.classes = "large-thumbnail";
-    this.popup = SakaiUserPhoto.OFF;
+    this.profilePopup = SakaiUserPhoto.OFF;
   }
 
   static get properties() {
@@ -32,7 +32,7 @@ class SakaiUserPhoto extends SakaiElement {
     return {
       userId: { attribute: "user-id", type: String },
       classes: { type: String },
-      popup: { type: String },
+      profilePopup: { attribute: "profile-popup", type: String },
       official: { type: Boolean },
       siteId: { attribute: "site-id", type: String },
       label: { type: String },
@@ -51,7 +51,7 @@ class SakaiUserPhoto extends SakaiElement {
                   + (this.siteId && `?siteId=${this.siteId}`);
     }
 
-    if (this.popup == SakaiUserPhoto.ON && this.generatedId) {
+    if (this.profilePopup == SakaiUserPhoto.ON && this.generatedId) {
       this.updateComplete.then(() => {
         profile.attachPopups($(`#${this.generatedId}`));
       });
@@ -76,7 +76,7 @@ class SakaiUserPhoto extends SakaiElement {
           class="sakai-user-photo ${this.classes}"
           aria-label="${ifDefined(this.label ? this.label : undefined)}"
           title="${ifDefined(this.label ? this.label : undefined)}"
-          style="background-image:url(${this.url}) ${this.popup === SakaiUserPhoto.OFF ? "" : ";cursor: pointer;"}">
+          style="background-image:url(${this.url}) ${this.profilePopup === SakaiUserPhoto.OFF ? "" : ";cursor: pointer;"}">
     `;
   }
 }
