@@ -82,7 +82,19 @@
     </property>
     <property name="draft">
       <column name="DRAFT" not-null="false" />
-    </property>    
+    </property>
+
+    <property name="sendOpenCloseToCalendar">
+      <column name="SEND_TO_CALENDAR" />
+    </property>
+
+    <property name="calendarBeginId">
+      <column name="CALENDAR_BEGIN_ID" />
+    </property>
+
+    <property name="calendarEndId">
+      <column name="CALENDAR_END_ID" />
+    </property>
     
     <property name="availabilityRestricted">
       <column name="AVAILABILITY_RESTRICTED" not-null="true" default="0" />

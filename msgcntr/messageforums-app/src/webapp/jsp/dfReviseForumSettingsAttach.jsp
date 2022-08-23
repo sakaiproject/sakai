@@ -62,6 +62,11 @@
 		}
 	}
 
+	window.onload = function(){
+		const sendCheckbox = document.getElementById("revise:sendOpenCloseDateToCalendar");
+		sendCheckbox?.disabled && (sendCheckbox.checked = false);	//make sure that Calendar sending is not checked when it's disabled/when the site has no calendar
+	};
+
 	function setAutoCreatePanel() {
 		$(".createOneForumPanel").slideToggle("fast");
 		$(".createForumsForGroupsPanel").slideToggle("fast", function() {
@@ -290,6 +295,17 @@
                    <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}" onchange="storeCloseDateISO(event)"/>
                    <h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedForum.closeDateISO}"></h:inputText>
                </h:panelGroup>
+				<p class="checkbox">
+					<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
+								  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
+								  style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+						<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar"
+												 disabled="#{not ForumTool.doesSiteHaveCalendar}"
+												 value="#{ForumTool.selectedForum.forum.sendOpenCloseToCalendar}"/>
+						<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
+					</h:panelGroup>
+				</p>
+
 			</h:panelGroup>
 
 			<script>
