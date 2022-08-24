@@ -322,9 +322,11 @@ function toPoint(id)
             <sakai-rubric-grading
               id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               tool-id="sakai.samigo"
+              site-id='<h:outputText value="#{totalScores.siteId}"/>'
               entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
               evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
+            >
             </sakai-rubric-grading>
           </div>
           </div>
