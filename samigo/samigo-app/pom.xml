@@ -82,6 +82,10 @@
             <artifactId>sakai-portal-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-api</artifactId>
         </dependency>

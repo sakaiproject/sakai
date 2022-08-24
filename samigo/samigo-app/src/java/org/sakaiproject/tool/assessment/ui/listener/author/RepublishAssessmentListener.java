@@ -30,6 +30,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -75,7 +77,8 @@ public class RepublishAssessmentListener implements ActionListener {
 	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
 	private TaskService taskService = ComponentManager.get(TaskService.class);;
 	private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	  
+	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
+
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
@@ -162,7 +165,8 @@ public class RepublishAssessmentListener implements ActionListener {
 			}
 			taskService.createTask(task, users, Priorities.HIGH);
 		}
-		
+		// Update scheduled assessment available notification
+		samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId);
 		author.setOutcome("author");
 	}
 	

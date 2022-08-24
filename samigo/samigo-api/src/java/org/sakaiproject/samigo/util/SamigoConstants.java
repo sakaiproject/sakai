@@ -36,6 +36,8 @@ public final class SamigoConstants {
     public static final     String      EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME = "template-assessmentTimedSubmission.xml";
     public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS                   = "sam.assessmentAutoSubmitErrors";
     public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME         = "template-assessmentAutoSubmitErrors.xml";
+    public static final     String      EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_REMINDER        = "sam.assessmentAvailableReminder";
+    public static final     String      EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_FILE_NAME       = "template-assessmentAvailableReminder.xml";
 
     /*
      * Events
@@ -101,7 +103,7 @@ public final class SamigoConstants {
      * Notification Types
      */
     public static final     String      NOTI_PREFS_TYPE_SAMIGO                              = "sakai:samigo";
-
+    public static final     String      NOTI_PREFS_TYPE_SAMIGO_OPEN                         = "sakai:samigoOpen";
 
     /*
      * Notification Defaults

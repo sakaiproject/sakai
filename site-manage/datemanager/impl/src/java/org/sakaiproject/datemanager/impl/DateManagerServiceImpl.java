@@ -63,6 +63,7 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.site.api.Site;
@@ -111,6 +112,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private SimplePageToolDao simplePageToolDao;
 	@Setter private TimeService timeService;
 	@Setter private UserTimeService userTimeService;
+	@Setter private SamigoAvailableNotificationService samigoAvailableNotificationService;
 	@Setter private FormattedText formattedText;
 
 	private static final ResourceLoader rb = new ResourceLoader("datemanager");
@@ -586,6 +588,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				assessment.setAssessmentAccessControl(control);
 				pubAssessmentServiceQueries.saveOrUpdate(assessment);
+				samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(assessment.getPublishedAssessmentId().toString());
 			}
 		}
 	}

@@ -29,7 +29,9 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -56,9 +58,11 @@ import org.sakaiproject.tool.cover.ToolManager;
 public class EditAssessmentListener
     implements ActionListener
 {
+  private SamigoAvailableNotificationService samigoAvailableNotificationService;
 
   public EditAssessmentListener()
   {
+	  samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
@@ -184,7 +188,7 @@ public class EditAssessmentListener
 		// initalize the itemtype
 		itemauthorBean.setItemType("");
 		itemauthorBean.setItemTypeString("");
-		
+	    samigoAvailableNotificationService.removeScheduledAssessmentNotification(publishedAssessmentId);	//remove the existing scheduled notification for this published assessment if it exists
 		showPrintLink(assessmentBean);
   }
   

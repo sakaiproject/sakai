@@ -43,6 +43,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -69,11 +70,13 @@ public class RestoreAssessmentsBean implements Serializable {
     private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
 
     List<DataAssessment> deletedAssessmentList;
+    private SamigoAvailableNotificationService samigoAvailableNotificationService;
 
     public void init() {
         log.debug("RestoreAssessmentsBean: init()");
         String siteId = AgentFacade.getCurrentSiteId();
         deletedAssessmentList = new ArrayList<DataAssessment>();
+        samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
         AssessmentService assessmentService = new AssessmentService();
         List<AssessmentData> draftDeletedAssessmentList = assessmentService.getDeletedAssessments(siteId);
         for(AssessmentData assessment : draftDeletedAssessmentList) {
@@ -114,6 +117,7 @@ public class RestoreAssessmentsBean implements Serializable {
                 } else {
                     publishedAssessmentService.restorePublishedAssessment(dataAssessment.getId());
                     updateGB(dataAssessment.getId());
+                    samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(dataAssessment.getId().toString());	//make a scheduled notification for this published assessment
                 }
                 log.info(dataAssessment.isDraft() ? "Restoring deleted assessment {} - {}." : "Restoring published assessment {} - {}.", dataAssessment.getId(), dataAssessment.getTitle());
             }

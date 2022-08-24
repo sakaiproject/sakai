@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>[${siteName}] "${assessmentName}" is now available to take</subject>
+		<message>"${assessmentName}" is now available as of ${openDate}.
+${dueDate}
+${timeLimit} You can submit this assessment ${numOfAttempts} times. The ${scoreType} score will be recorded.
+You will receive${feedbackType} feedback.
+Find this assessment in the "${siteName}" site at ${siteUrl}
+		</message>
+		<messagehtml>"${assessmentName}" is now available as of ${openDate}.
+${dueDate}
+${timeLimit} You can submit this assessment ${numOfAttempts} times. The ${scoreType} score will be recorded.
+You will receive${feedbackType} feedback.
+Find this assessment in the "${siteName}" site at ${siteUrl}
+		</messagehtml>
+		<version>1</version>
+		<owner>admin</owner>
+		<key>sam.assessmentAvailableReminder</key>
+		<locale></locale>
+		<localeLangTag></localeLangTag>
+	</emailTemplate>
+</emailTemplates>
