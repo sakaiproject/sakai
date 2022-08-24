@@ -248,7 +248,6 @@ public class SiteArchiver {
 			root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
 			root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
 			root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
-
 			stack.push(root);
 
 			results.append("<===== Attachments =====>\n");
