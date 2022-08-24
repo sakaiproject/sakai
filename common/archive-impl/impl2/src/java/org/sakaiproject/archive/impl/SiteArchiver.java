@@ -184,6 +184,7 @@ public class SiteArchiver {
 			root.setAttribute("server", m_serverConfigurationService.getServerId());
 			root.setAttribute("date", now.toString());
 			root.setAttribute("system", fromSystem);
+			root.setAttribute("xmlns:sakai", "https://www.sakailms.org/xmlns/archive/");
 			
 			stack.push(root);
 
