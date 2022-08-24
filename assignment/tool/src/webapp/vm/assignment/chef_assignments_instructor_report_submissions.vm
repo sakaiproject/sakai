@@ -1,4 +1,5 @@
 <!-- start: chef_assignments_instructor_report_submissions.vm  -->
+#module("/webcomponents/sakai-user-photo.js")
 <div class="portletBody sakai-asn-grade-report">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 
@@ -130,29 +131,44 @@
 						#set ($anonymousSubmissionId = $!assignmentSubmission.Id + ' ' + ($tlang.getString("grading.anonymous.title")))
 						<tr>
 							<td headers="studentname">
-							#if ($submission.MultiGroup)
-							<span class="error alertMessage">
-							#end
-							#if ($!submission.User)
-								#set($submitterName = $!submission.User.SortName)
-								#set($submitterId = $!submission.User.DisplayId)
-								#if ($submitterId)
-									#set($submitterName = $submitterName.concat(" (").concat($submitterId).concat(")"))
-								#end
-								#if ($!assignment.IsGroup)
-									#if ($!submission.Group)
-										#set($submitterName=$submitterName.concat(" [").concat($!submission.Group.Title).concat("]"))
-									#end
-								#end
-								#if( $isAnon )
-									$anonymousSubmissionId
-								#else
-									$formattedText.escapeHtml($!submitterName)
-								#end
-							#end
-							#if ($!submission.MultiGroup)
-							</span>
-							#end
+								<div class="student-name">
+									<div>
+										#if ($isAnon || $assignment.IsGroup)
+										<sakai-user-photo user-id="blank"></sakai-user-photo>
+										#else
+										<sakai-user-photo
+											user-id="$submission.User.Id"
+											label="$tlang.getFormattedMessage("grading.userphoto", $submission.User.DisplayName)"
+											profile-popup="on">
+										</sakai-user-photo>
+										#end
+									</div>
+									<div>
+										#if ($submission.MultiGroup)
+										<span class="error alertMessage">
+										#end
+										#if ($!submission.User)
+											#set($submitterName = $!submission.User.SortName)
+											#set($submitterId = $!submission.User.DisplayId)
+											#if ($submitterId)
+												#set($submitterName = $submitterName.concat(" (").concat($submitterId).concat(")"))
+											#end
+											#if ($!assignment.IsGroup)
+												#if ($!submission.Group)
+													#set($submitterName=$submitterName.concat(" [").concat($!submission.Group.Title).concat("]"))
+												#end
+											#end
+											#if( $isAnon )
+												$anonymousSubmissionId
+											#else
+												$formattedText.escapeHtml($!submitterName)
+											#end
+										#end
+										#if ($!submission.MultiGroup)
+										</span>
+										#end
+									</div>
+								</div>
 							</td>
 							<td headers="assignment">
 								$formattedText.escapeHtml($!assignment.Title)

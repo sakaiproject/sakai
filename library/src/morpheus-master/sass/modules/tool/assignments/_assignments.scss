@@ -697,4 +697,13 @@
   .private-notes-textarea {
 	  margin-bottom: 15px;
   }
+
+  .student-name {
+      display: flex;
+      align-items: center;
+
+      div:first-child {
+          margin-right: 7px;
+      }
+  }
 }
