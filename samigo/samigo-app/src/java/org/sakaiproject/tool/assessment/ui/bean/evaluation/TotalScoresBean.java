@@ -295,6 +295,10 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     publishedId = ppublishedId;
   }
 
+  public String getSiteId() {
+    return toolManager.getCurrentPlacement().getContext();
+  }
+
   /**
    * Is this anonymous grading?
    *
