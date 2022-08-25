@@ -1,6 +1,7 @@
 <html>
     <wicket:panel xmlns:wicket="http://wicket.apache.org">
-        <script type="module" src="/webcomponents/sakai-submission-messager.js"></script>
+        <script wicket:id="messagerScript"></script>
+        <script wicket:id="userPhotoScript"></script>
         <div id="gradeTableWrapper">
             <div wicket:id="gradeTable" id="gradeTable" accesskey="g" wicket:message="aria-label:gradetable.wrapper.tooltip" aria-describedby="gradeTableCaption"></div>
         </div>
@@ -331,25 +332,32 @@
             <div class="relative gb-student-cell" title="${tooltip}">
                 <div class="gb-value">
                     <div class="rowHeader">
-                        <a href="javascript:void(0);" class="gb-view-grade-summary" tabindex="-1">
-                            {if settings.isStudentOrderedByLastName}
-                                <div>
-                                    <span class="gb-last-name">${lastName}</span>,
-                                    <span class="gb-first-name">${firstName}</span>
-                                </div>
-                                <div>
-                                    (<span class="gb-eid">${eid}</span>)
-                                </div>
-                            {else}
-                                <div>
-                                    <span class="gb-first-name">${firstName}</span>
-                                    <span class="gb-last-name">${lastName}</span>
-                                </div>
-                                <div>
-                                    (<span class="gb-eid">${eid}</span>)
-                                </div>
-                            {/if}
-                        </a>
+                        <div style="display: flex; align-items: center;">
+                            <div style="margin-right: 7px;">
+                                <sakai-user-photo user-id="${userId}" profile-popup="on"></sakai-user-photo>
+                            </div>
+                            <div>
+                                <a href="javascript:void(0);" class="gb-view-grade-summary" tabindex="-1">
+                                    {if settings.isStudentOrderedByLastName}
+                                        <div>
+                                            <span class="gb-last-name">${lastName}</span>,
+                                            <span class="gb-first-name">${firstName}</span>
+                                        </div>
+                                        <div>
+                                            (<span class="gb-eid">${eid}</span>)
+                                        </div>
+                                    {else}
+                                        <div>
+                                            <span class="gb-first-name">${firstName}</span>
+                                            <span class="gb-last-name">${lastName}</span>
+                                        </div>
+                                        <div>
+                                            (<span class="gb-eid">${eid}</span>)
+                                        </div>
+                                    {/if}
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
