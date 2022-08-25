@@ -52,6 +52,7 @@
     <sakai.woodstox.version>6.2.8</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
+    <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.24</sakai.lombok.version>
@@ -1820,6 +1821,24 @@
         <version>${sakai.version}</version>
         <!-- soon to be provided -->
       </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${sakai.jsonwebtoken.jjwt.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${sakai.jsonwebtoken.jjwt.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${sakai.jsonwebtoken.jjwt.version}</version>
+            <scope>provided</scope>
+        </dependency>
       <dependency>
         <groupId>org.sakaiproject.taggable</groupId>
         <artifactId>sakai-taggable-api</artifactId>
