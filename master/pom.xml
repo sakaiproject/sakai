@@ -363,13 +363,6 @@
         <version>3.0.11</version>
         <scope>provided</scope>
       </dependency>
-      <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.7.2</version>
-        <scope>provided</scope>
-      </dependency>
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
@@ -428,13 +421,17 @@
         <groupId>org.apache.ignite</groupId>
         <artifactId>ignite-spring</artifactId>
         <version>${sakai.ignite.version}</version>
+        <scope>provided</scope>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
         </exclusions>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.ignite</groupId>
@@ -768,11 +765,23 @@
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
         <version>1.10</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-configuration2</artifactId>
         <version>2.7</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-dbcp</groupId>
@@ -820,16 +829,35 @@
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
         <version>1.9.4</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-digester</groupId>
         <artifactId>commons-digester</artifactId>
         <version>2.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
         <version>${sakai.commons-validator.version}</version>
+        <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
             <groupId>commons-net</groupId>
@@ -923,23 +951,6 @@
         <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>1.2.17</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- JCL (commons-logging) is declared here as provided, it is important to
-           know that this jar is never deployed. The contrary would be to remove this
-           declaration and find every transitive dependency and exclude jcl.
-           It also provides protection if someone included a new dependency that
-           required jcl of which there are a lot. -->
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>[1.0,1.2]</version>
-        <scope>provided</scope>
-      </dependency>
       <!-- Logging Dependencies End -->
       <dependency>
         <groupId>org.hibernate</groupId>
@@ -988,6 +999,12 @@
         <artifactId>httpclient</artifactId>
         <version>${sakai.httpclient.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
@@ -1000,6 +1017,12 @@
         <artifactId>httpasyncclient</artifactId>
         <version>4.1.4</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- httpcore5 & httpclient5 -->
       <dependency>
@@ -1208,6 +1231,16 @@
         <artifactId>castor</artifactId>
         <version>1.1.2.1</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>javax.portlet</groupId>
@@ -1226,6 +1259,12 @@
         <artifactId>pluto-container</artifactId>
         <version>${sakai.pluto.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.pluto</groupId>
@@ -1324,6 +1363,12 @@
         <artifactId>elasticsearch-rest-client</artifactId>
         <version>${sakai.elasticsearch.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.elasticsearch.plugin</groupId>
@@ -2648,6 +2693,24 @@
                   </rules>
                   <fail>true</fail>
               </configuration>
+          </execution>
+          <execution>
+            <id>enforce-banned-dependencies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>commons-logging:commons-logging</exclude>
+                    <exclude>log4j:log4j</exclude>
+                    <exclude>xalan:xalan</exclude>
+                  </excludes>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
+            </configuration>
           </execution>
         </executions>
         <dependencies>
