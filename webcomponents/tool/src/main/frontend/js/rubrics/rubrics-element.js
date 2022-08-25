@@ -77,7 +77,7 @@ export class RubricsElement extends SakaiElement {
   makeASummary(type, siteId) {
 
     if (this.querySelector(`${type}-summary`)) { //avoid adding an extra summary by accident
-      this.openRubricsTab(`rubric-${type}-summary-${this.uniqueKey}`);
+      this.openRubricsTab(`rubric-${type}-summary-${this.instanceSalt}`);
     }
     const summary = document.createElement('sakai-rubric-summary');
     summary.setAttribute('id', `${type}-summary`);
@@ -89,8 +89,8 @@ export class RubricsElement extends SakaiElement {
     }
     summary.setAttribute('evaluated-item-owner-id', this.evaluatedItemOwnerId);
     summary.setAttribute('summary-type', type);
-    const div = document.getElementById(`rubric-${type}-summary-${this.uniqueKey}`);
+    const div = document.getElementById(`rubric-${type}-summary-${this.instanceSalt}`);
     div && div.appendChild(summary);
-    this.openRubricsTab(`rubric-${type}-summary-${this.uniqueKey}`);
+    this.openRubricsTab(`rubric-${type}-summary-${this.instanceSalt}`);
   }
 }
