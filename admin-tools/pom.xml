@@ -63,6 +63,12 @@
             <groupId>org.apache.any23</groupId>
             <artifactId>apache-any23-encoding</artifactId>
             <version>2.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.opencsv</groupId>
