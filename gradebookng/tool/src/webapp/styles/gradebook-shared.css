@@ -43,3 +43,11 @@ ul.feedbackPanel li span {
 .btn-table {
   height: 34px;
 }
+
+tr.categoryRow {
+    font-weight: bold;
+}
+div.gb-title {
+    word-wrap: break-word;
+    width: 350px;
+}

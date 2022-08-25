@@ -62,6 +62,7 @@ import org.sakaiproject.gradebookng.tool.actions.ToggleCourseGradePoints;
 import org.sakaiproject.gradebookng.tool.actions.ViewAssignmentStatisticsAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeLogAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeStatisticsAction;
+import org.sakaiproject.gradebookng.tool.actions.CourseGradeBreakdownAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeLogAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
@@ -312,6 +313,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("moveAssignmentLeft", new MoveAssignmentLeftAction());
 		this.gradeTable.addEventListener("moveAssignmentRight", new MoveAssignmentRightAction());
 		this.gradeTable.addEventListener("viewCourseGradeStatistics", new ViewCourseGradeStatisticsAction());
+		this.gradeTable.addEventListener("viewCourseGradeBreakdown", new CourseGradeBreakdownAction());
 		this.gradeTable.addEventListener("excuseGrade", new ExcuseGradeAction());
 
 		this.tableArea.add(this.gradeTable);

@@ -1275,6 +1275,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       action: 'viewCourseGradeStatistics',
       siteId: GbGradeTable.container.data("siteid")
     });
+  }).
+  on("click", ".gb-dropdown-menu .gb-course-grade-breakdown", function() {
+    GbGradeTable.ajax({
+      action: 'viewCourseGradeBreakdown',
+      siteId: GbGradeTable.container.data("siteid")
+    });
   });
 
   GbGradeTable.setupToggleGradeItems();
