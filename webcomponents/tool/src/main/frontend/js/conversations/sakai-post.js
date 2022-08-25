@@ -528,6 +528,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
             <sakai-user-photo
                 user-id="${this.post.anonymous && !this.canViewAnonymous ? "blank" : this.post.creator}"
                 size-class="medium-thumbnail"
+                profile-popup="on"
             >
             </sakai-user-photo>
           </div>
@@ -708,7 +709,8 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           <div class="photo">
             <sakai-user-photo
                 user-id="${this.post.anonymous && !this.canViewAnonymous ? "blank" : this.post.creator}"
-                classes="medium-thumbnail">
+                classes="medium-thumbnail"
+                profile-popup="on">
             </sakai-user-photo>
           </div>
           ${this._renderAuthorDetails()}
