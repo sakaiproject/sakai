@@ -412,7 +412,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div class="grader ${this.graderOnLeft ? "on-left" : ""}">
         <div id="grader-submitted-block" class="grader-block">
           <div style="display: flex;">
-            <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" popup="on"></sakai-user-photo>
+            <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
             <div class="submitted-time" style="flex: 4;">
               ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
                 <span class="submitter-name">${this.renderSubmitter()}</span>
