@@ -52,6 +52,7 @@ $Id$
 
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
+<script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
 
 <div class="portletBody container-fluid">
 <h:form id="editTotalResults">
@@ -130,6 +131,7 @@ $Id$
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -174,6 +176,7 @@ $Id$
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -221,6 +224,7 @@ $Id$
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
