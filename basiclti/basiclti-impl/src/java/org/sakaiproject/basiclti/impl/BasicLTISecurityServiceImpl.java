@@ -242,33 +242,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		return false;
 	}
 
-	private void sendHTMLPage(HttpServletResponse res, String body)
-	{
-		try
-		{
-			res.setContentType("text/html; charset=UTF-8");
-			res.setCharacterEncoding("utf-8");
-			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-			res.addDateHeader("Last-Modified", System.currentTimeMillis());
-			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-			res.addHeader("Pragma", "no-cache");
-			java.io.PrintWriter out = res.getWriter();
-
-			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-			out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
-			out.println("<html>\n<head>");
-			out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
-			out.println("</head>\n<body>\n");
-			out.println(body);
-			out.println("\n</body>\n</html>");
-		}
-		catch (Exception e)
-		{
-			log.warn("Failed to send HTML page.", e);
-		}
-
-	}
-
 	private void doSplash(HttpServletRequest req, HttpServletResponse res, String splash, ResourceLoader rb)
 	{
 		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
@@ -280,7 +253,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		body += rb.getString("launch.button", "Press to continue to proceed to external tool.");
 		body += "\"></form></p>\n";
 		body += splash+"</div><p>";
-		sendHTMLPage(res, body);
+		org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, body);
 	}
 
 	// Do a redirect in HTML + JavaScript instead of with a 302 so we have some recovery options inside an iframe
@@ -302,7 +275,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		body.append("window.location='"+redirectUrl+"';\n");
 		body.append("</script>\n");
 		body.append("</div>");
-		sendHTMLPage(res, body.toString());
+		org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, body.toString());
 	}
 
 	/*
@@ -406,7 +379,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
 		if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
 			String errorMessage = "<p>" + SakaiBLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
-			sendHTMLPage(res, errorMessage);
+			org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, errorMessage);
 			return false;
 		}
 
@@ -678,7 +651,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				try
 				{
 					if (retval != null) {
-						sendHTMLPage(res, retval[0]);
+						org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, retval[0]);
 					}
 					String refstring = ref.getReference();
 					if ( retval != null && retval.length > 1 ) refstring = retval[1];

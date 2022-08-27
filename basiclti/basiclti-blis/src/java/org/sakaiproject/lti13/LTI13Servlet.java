@@ -87,14 +87,15 @@ import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
+import org.tsugi.oauth2.objects.ClientAssertion;
 import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.ags2.objects.Result;
 import org.tsugi.ags2.objects.Score;
 import org.tsugi.lti13.objects.LaunchJWT;
-import org.tsugi.lti13.objects.PlatformConfiguration;
+import org.tsugi.lti13.objects.OpenIDProviderConfiguration;
 import org.tsugi.lti13.objects.LTIPlatformConfiguration;
-import org.tsugi.lti13.objects.LTIPlatformMessage;
+import org.tsugi.lti13.objects.LTILaunchMessage;
 
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti13.util.SakaiLineItem;
@@ -323,7 +324,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
+		// /imsblis/lti13/lineitems/{signed-placement}
 		if (parts.length == 5 && "lineitem".equals(parts[3])) {
 			log.error("Attempt to modify on-demand line item request={}", uri);
 			LTI13Util.return400(response, "Attempt to modify an 'on-demand' line item");
@@ -360,6 +361,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Set score for auto-created line item
 		// /imsblis/lti13/lineitem/{signed-placement}
+		// SAK-47261 - This pattern with no lineItem does not work post SAK-47621
 		if (parts.length == 6 && "lineitem".equals(parts[3]) && "scores".equals(parts[5])) {
 			String signed_placement = parts[4];
 			String lineItem = null;
@@ -670,7 +672,7 @@ public class LTI13Servlet extends HttpServlet {
       ["RS256", "ES256"],
     "claims_supported":
       ["sub", "iss", "name", "given_name", "family_name", "nickname", "picture", "email", "locale"],
-     "https://purl.imsglobal.org/spec/lti-platform-configuration ": {
+     "https://purl.imsglobal.org/spec/lti-platform-configuration": {
         "product_family_code": "ExampleLMS",
         "messages_supported": [
             {"type": "LtiResourceLinkRequest"},
@@ -715,18 +717,18 @@ public class LTI13Servlet extends HttpServlet {
 		lpc.product_family_code = "sakailms.org";
 		lpc.version = sakaiVersion;
 
-		LTIPlatformMessage mp = new LTIPlatformMessage();
+		LTILaunchMessage mp = new LTILaunchMessage();
 		mp.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
 		lpc.messages_supported.add(mp);
 
-		mp = new LTIPlatformMessage();
+		mp = new LTILaunchMessage();
 		mp.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 		lpc.messages_supported.add(mp);
 
 		lpc.variables.add(LTICustomVars.USER_ID);
 		lpc.variables.add(LTICustomVars.PERSON_EMAIL_PRIMARY);
 
-		PlatformConfiguration pc = new PlatformConfiguration();
+		OpenIDProviderConfiguration pc = new OpenIDProviderConfiguration();
 		pc.issuer = issuerURL;
 		pc.authorization_endpoint = authOIDC;
 		pc.token_endpoint = tokenUrl;
@@ -796,9 +798,9 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String grant_type = request.getParameter(AccessToken.GRANT_TYPE);
-		String client_assertion = request.getParameter(AccessToken.CLIENT_ASSERTION);
-		String scope = request.getParameter(AccessToken.SCOPE);
+		String grant_type = request.getParameter(ClientAssertion.GRANT_TYPE);
+		String client_assertion = request.getParameter(ClientAssertion.CLIENT_ASSERTION);
+		String scope = request.getParameter(ClientAssertion.SCOPE);
 		String missing = "";
 		if (grant_type == null) {
 			missing += " " + "grant_type";
@@ -876,57 +878,57 @@ public class LTI13Servlet extends HttpServlet {
 		HashSet<String> returnScopeSet = new HashSet<String> ();
 
 		// Work through requested scopes
-		if (scope.contains(Endpoint.SCOPE_LINEITEM_READONLY)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
 			if (allowLineItems != 1) {
-				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_LINEITEM_READONLY);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(Endpoint.SCOPE_LINEITEM_READONLY);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
 		}
 
-		if (scope.contains(Endpoint.SCOPE_LINEITEM)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
 			if (allowLineItems != 1) {
-				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_LINEITEM);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(Endpoint.SCOPE_LINEITEM);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
 
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS);
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
 		}
 
-		if (scope.contains(Endpoint.SCOPE_SCORE)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
 			if (allowOutcomes != 1 || allowLineItems != 1) {
-				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_SCORE);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_SCORE);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(Endpoint.SCOPE_SCORE);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_SCORE);
 
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
 
-		if (scope.contains(Endpoint.SCOPE_RESULT_READONLY)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
 			if (allowOutcomes != 1 || allowLineItems != 1) {
-				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_RESULT_READONLY);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(Endpoint.SCOPE_RESULT_READONLY);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
 
-		if (scope.contains(LaunchLIS.SCOPE_NAMES_AND_ROLES)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
 			if (allowRoster != 1) {
-				LTI13Util.return400(response, "invalid_scope", LaunchLIS.SCOPE_NAMES_AND_ROLES);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(LaunchLIS.SCOPE_NAMES_AND_ROLES);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
 
 			sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
 		}
@@ -1143,6 +1145,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		log.debug("jsonString={}", jsonString);
 
+		// TODO: Make this be a RegistrationRequest
 		Object js = JSONValue.parse(jsonString);
 		if (js == null || !(js instanceof JSONObject)) {
 			LTI13Util.return400(response, "Badly formatted JSON");
@@ -1193,6 +1196,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		jso.put("client_id", client_id);
 
+		// TODO: Make this be a RegistrationResponse
 		Object toolConfigurationObj = jso.get("https://purl.imsglobal.org/spec/lti-tool-configuration");
 		if ( toolConfigurationObj instanceof JSONObject ) {
 			JSONObject toolConfiguration = (JSONObject) toolConfigurationObj;
@@ -1937,23 +1941,14 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// TODO: Does PUT need to return the entire line item - I think the code below
-		// actually is wrong - we just need to do a GET to get the entire line
-		// item after the PUT.  It seems wasteful to always do the GET after PUT
-		// when the tool can do it if it wants the newly updated item.  So
-		// For now I am sending nothing back for a pUT request.
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT
-
-		/*
 		// Add the link to this lineitem
 		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
 
 		log.debug("Lineitem item={}",item);
-		response.setContentType(LineItem.CONTENT_TYPE);
+		response.setContentType(SakaiLineItem.CONTENT_TYPE);
 
 		PrintWriter out = response.getWriter();
 		out.print(JacksonUtil.prettyPrint(item));
-		*/
 	}
 
 	/**

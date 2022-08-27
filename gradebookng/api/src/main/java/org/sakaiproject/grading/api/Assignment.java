@@ -117,6 +117,7 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private Long categoryId;
     private Integer categoryOrder;
     private Integer categorizedSortOrder;
+    private String lineItem;
     @Getter
     @Setter
     private boolean createTask;
