@@ -263,6 +263,12 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1220', 'sitePage.c
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1230', '!admin', 'External Tools', '0', 17, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1235', '!admin-1230', '!admin', 'sakai.basiclti.admin', 1, 'External Tools', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1230', 'sitePage.customTitle', 'true');
+
+-- Sakai Plus
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1237', '!admin', 'Plus Admin', '0', 23, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1237', '!admin-1237', '!admin', 'sakai.plus', 1, 'Plus Admin', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1237', 'sitePage.customTitle', 'true');
+
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1300', '!admin', 'Delegated Access', '0', 18, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1350', '!admin-1300', '!admin', 'sakai.delegatedaccess', 1, 'Delegated Access', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1300', 'sitePage.customTitle', 'true');
@@ -394,6 +400,9 @@ INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-810', 'displ
 -- INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-910', '!worksite-900', '!worksite', 'sakai.mailbox', 1, 'Email Archive', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-1000', '!worksite', 'Site Info', '0', 11, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-1010', '!worksite-1000', '!worksite', 'sakai.siteinfo', 1, 'Site Info', NULL );
+
+INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-950', '!worksite', 'Site Info', '0', 10, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-960', '!worksite-950', '!worksite', 'sakai.siteinfo', 1, 'Site Info', NULL );
 
 -- Create the mercury site.
 

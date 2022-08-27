@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<basic_lti_link
+     xmlns="http://www.imsglobal.org/xsd/imsbasiclti_v1p0"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <title>Simple Test</title>
+  <custom>
+    <parameter key="isbn">9780596800697</parameter>
+  </custom>
+  <launch_url>http://developers.imsglobal.org/BLTI/tool.php</launch_url>
+  <vendor>
+    <code>www.imsglobal.org</code>
+    <name>IMS Global Learning Consortium</name>
+    <description>
+      A simple validity checker. Takes key=lmsng.school.edu secret=secret.
+    </description>
+    <contact>
+      <email>cseverance@imsglobal.org</email>
+    </contact>
+    <url>http://www.imsglobal.org/</url>
+  </vendor>
+</basic_lti_link>

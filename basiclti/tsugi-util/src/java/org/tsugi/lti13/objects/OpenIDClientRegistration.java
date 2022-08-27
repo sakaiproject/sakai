@@ -3,18 +3,37 @@ package org.tsugi.lti13.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
+
+// https://www.imsglobal.org/spec/lti-dr/v1p0#client-registration-request
+// https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationRequest
 
 /*
- * This is F-ed up.   The subitted tool contifuration is different than the retrieved tool configuration.
- *
- * Request:
+
+Per https://www.imsglobal.org/spec/lti-dr/v1p0#successful-registration
+
+As per https://openid.net/specs/openid-connect-registration-1_0.html upon successful registration
+a application/json the platform must return a response containing the newly created
+client_id. It then echoes the client configuration as recorded in the platform, which
+may differ from the configuration passed in the request based on the actual platform's
+capabilities and restrictions.
+
+The registration response may include a Client Configuration Endpoint and a Registration
+Access Token to allow a tool to read or update its configuration.
+
+In the case where a Platform is combining the client registration with the tool's actual
+deployment, it may also include the deployment_id in the LTI Tool Configuration section.
+
+POST /connect/register HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Host: server.example.com
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ .
+
 {
     "application_type": "web",
     "response_types": ["id_token"],
@@ -27,15 +46,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
     "client_name#ja": "バーチャルガーデン",
     "jwks_uri": "https://client.example.org/.well-known/jwks.json",
     "logo_uri": "https://client.example.org/logo.png",
-    "client_uri": "https://client.example.org",
-    "client_uri#ja": "https://client.example.org?lang=ja",
     "policy_uri": "https://client.example.org/privacy",
     "policy_uri#ja": "https://client.example.org/privacy?lang=ja",
     "tos_uri": "https://client.example.org/tos",
     "tos_uri#ja": "https://client.example.org/tos?lang=ja",
     "token_endpoint_auth_method": "private_key_jwt",
-       "contacts": ["ve7jtb@example.org", "mary@example.org"],
-    "scope": "https://purl.imsglobal.org/spec/lti-ags/scope/score",
+    "contacts": ["ve7jtb@example.org", "mary@example.org"],
+    "scope": "https://purl.imsglobal.org/spec/lti-ags/scope/score https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly",
     "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": "client.example.org",
         "description": "Learn Botany by tending to your little (virtual) garden.",
@@ -56,7 +73,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
     }
 }
 
- * Response:
 {
     "client_id": "709sdfnjkds12",
     "registration_client_uri":
@@ -76,11 +92,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
     "scope": "https://purl.imsglobal.org/spec/lti-ags/scope/score",
     "https://purl.imsglobal.org/spec/lti-tool-configuration": {
         "domain": "client.example.org",
+		"deploymemt_id": "12094390",
         "target_link_uri": "https://client.example.org/lti",
         "custom_parameters": {
             "context_history": "$Context.id.history"
         },
-        "claims": ["iss", "sub", "name", "given_name", "family_name"],
+        "claims": ["iss", "sub"],
         "messages": [
             {
                 "type": "LtiDeepLinkingRequest",
@@ -91,8 +108,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
     }
 }
 
- */
-public class ToolConfiguration {
+*/
+
+public class OpenIDClientRegistration extends org.tsugi.jackson.objects.JacksonBase {
 
     // "client_id": "709sdfnjkds12", (returned value)
 	@JsonProperty("client_id")
@@ -108,10 +126,12 @@ public class ToolConfiguration {
 	public String application_type;
 
 	// "response_types": ["id_token"],
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
 	@JsonProperty("response_types")
 	public List<String> response_types = new ArrayList<String>();
 
 	// "grant_types": ["implict", "client_credentials"],
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
 	@JsonProperty("grant_types")
 	public List<String> grant_types = new ArrayList<String>();
 
@@ -122,6 +142,7 @@ public class ToolConfiguration {
     // "redirect_uris":
     //   ["https://client.example.org/callback",
     //    "https://client.example.org/callback2"],
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
 	@JsonProperty("redirect_uris")
 	public List<String> redirect_uris = new ArrayList<String>();
 
@@ -158,19 +179,20 @@ public class ToolConfiguration {
 	public String token_endpoint_auth_method;
 
     // "contacts": ["ve7jtb@example.org", "mary@example.org"],
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
 	@JsonProperty("contacts")
 	public List<String> contacts = new ArrayList<String>();
 
     // "scope": "https://purl.imsglobal.org/spec/lti-ags/scope/score",
-	// TODO: Should this be an array?
+	// This is a space-separated list of scopes - it is not an array
 	@JsonProperty("scope")
 	public String scope;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti-tool-configuration")
 	public LTIToolConfiguration lti_tool_configuration;
 
-   // Constructor
-    public ToolConfiguration() {
+   // Constructor for LTI requirements
+    public OpenIDClientRegistration() {
 		this.application_type = "web";
 		this.response_types.add("id_token");
 		this.grant_types.add("implict");

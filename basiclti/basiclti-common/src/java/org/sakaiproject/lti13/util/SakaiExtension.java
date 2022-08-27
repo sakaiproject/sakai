@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import org.tsugi.ags2.objects.LineItem;
-
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Generated("com.googlecode.jsonschema2pojo")
@@ -33,8 +31,9 @@ import org.tsugi.ags2.objects.LineItem;
 // ext_sakai_role: maintain
 // ext_sakai_server: http://localhost:8080
 // ext_sakai_serverid: MacBook-Pro-92.local
+// ext_sakai_eid: person@example.com
 //
-public class SakaiExtension extends LineItem {
+public class SakaiExtension extends org.tsugi.jackson.objects.JacksonBase {
 
 	@JsonProperty("sakai_launch_presentation_css_url_list")
 	public String sakai_launch_presentation_css_url_list;
@@ -52,12 +51,16 @@ public class SakaiExtension extends LineItem {
 	@JsonProperty("sakai_serverid")
 	public String sakai_serverid;
 
+	@JsonProperty("sakai_eid")
+	public String sakai_eid;
+
 	public void copyFromPost(Properties ltiProps) {
 		this.sakai_launch_presentation_css_url_list = ltiProps.getProperty("ext_sakai_launch_presentation_css_url_list");
 		this.sakai_academic_session = ltiProps.getProperty("ext_sakai_academic_session");
 		this.sakai_role = ltiProps.getProperty("ext_sakai_role");
 		this.sakai_server = ltiProps.getProperty("ext_sakai_server");
 		this.sakai_serverid = ltiProps.getProperty("ext_sakai_serverid");
+		this.sakai_eid = ltiProps.getProperty("ext_sakai_eid");
 	}
 
 }

@@ -3,16 +3,16 @@ package org.tsugi.lti13.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
+
+// This is used to populate both "messages_supported" and "messages"
+// For messages supported - we only define type
 
 /*
-     "https://purl.imsglobal.org/spec/lti-platform-configuration ": {
+     "https://purl.imsglobal.org/spec/lti-platform-configuration": {
         "product_family_code": "ExampleLMS",
         "messages_supported": [
             {"type": "LtiResourceLinkRequest"},
@@ -28,9 +28,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 				"placements": ["resourceLink", ... (TBD)]
             }
         ]
-
  */
-public class LTIPlatformMessage {
+
+public class LTILaunchMessage extends org.tsugi.jackson.objects.JacksonBase {
 	// Defined values in org.tsugi.lti13.objects.LaunchJWT.MESSAGE_TYPE_LAUNCH;
 	@JsonProperty("type")
 	public String type;
@@ -38,6 +38,7 @@ public class LTIPlatformMessage {
 	public String target_link_uri;
 	@JsonProperty("label")
 	public String label;
+
 	// Array of placements indicating where the platform support this link type to be added when the tool is made available.
 	// TODO: Define the constants that belong here
 	@JsonProperty("placements")

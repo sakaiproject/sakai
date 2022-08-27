@@ -48,6 +48,7 @@ import java.util.regex.Pattern;
 import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
@@ -181,7 +182,7 @@ public class BasicLTIUtil {
 		try {
 			base_string = OAuthSignatureMethod.getBaseString(oam);
 		} catch (Exception e) {
-            return "Unable to find base string";
+			return "Unable to find base string";
 		}
 
 		try {
@@ -742,7 +743,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * getOAuthURL - Form a GET request signed by OAuth
+		 * getOAuthURL - Form a GET request signed by OAuth
 	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
@@ -780,7 +781,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * getResponseCode - Read the HTTP Response
+		 * getResponseCode - Read the HTTP Response
 	 * @param connection
 	 */
 	public static int getResponseCode(HttpURLConnection connection)
@@ -794,7 +795,7 @@ public class BasicLTIUtil {
 
 
 	/**
-         * readHttpResponse - Read the HTTP Response
+		 * readHttpResponse - Read the HTTP Response
 	 * @param connection
 	 */
 	public static String readHttpResponse(HttpURLConnection connection)
@@ -1058,36 +1059,36 @@ public class BasicLTIUtil {
 
 	/**
 	 * Simple utility method deal with a request that has the wrong URL when behind
-     * a proxy.
+	 * a proxy.
 	 *
 	 * @param servletUrl
-     * @param extUrl
-     *   The url that the external world sees us as responding to.  This needs to be
-     *   up to but not including the last slash like and not include any path information
-     *   https://www.sakailms.org/ - although we do compensate for extra stuff at the end.
+	 * @param extUrl
+	 *   The url that the external world sees us as responding to.  This needs to be
+	 *   up to but not including the last slash like and not include any path information
+	 *   https://www.sakailms.org/ - although we do compensate for extra stuff at the end.
 	 * @return
-     *   The full path of the request with extUrl in place of whatever the request
-     *   thinks is the current URL.
+	 *   The full path of the request with extUrl in place of whatever the request
+	 *   thinks is the current URL.
 	 */
-    static public String getRealPath(String servletUrl, String extUrl)
-    {
-        Pattern pat = Pattern.compile("^https??://[^/]*");
-        // Deal with potential bad extUrl formats
-        Matcher m = pat.matcher(extUrl);
-        if (m.find()) {
-            extUrl = m.group(0);
-        }
+	static public String getRealPath(String servletUrl, String extUrl)
+	{
+		Pattern pat = Pattern.compile("^https??://[^/]*");
+		// Deal with potential bad extUrl formats
+		Matcher m = pat.matcher(extUrl);
+		if (m.find()) {
+			extUrl = m.group(0);
+		}
 
-        String retval = pat.matcher(servletUrl).replaceFirst(extUrl);
-        return retval;
-    }
+		String retval = pat.matcher(servletUrl).replaceFirst(extUrl);
+		return retval;
+	}
 
 	static public String getRealPath(HttpServletRequest request, String extUrl)
-    {
-        String URLstr = request.getRequestURL().toString();
-        String retval = getRealPath(URLstr, extUrl);
-        return retval;
-    }
+	{
+		String URLstr = request.getRequestURL().toString();
+		String retval = getRealPath(URLstr, extUrl);
+		return retval;
+	}
 
 	/**
 	 * Simple utility method to help with the migration from Properties to
@@ -1236,7 +1237,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * Return a ISO 8601 formatted date
+	 * Return a ISO 8601 formatted date
 	 */
 	public static String getISO8601() {
 		return getISO8601(null);
@@ -1434,5 +1435,49 @@ public class BasicLTIUtil {
 		}
 		return null;
 	}
+
+	public static String getBrowserSignature(HttpServletRequest request) {
+		String [] look_at = { "x-forwarded-proto", "x-forwarded-port", "host",
+			"accept-encoding", "cf-ipcountry", "user-agent", "accept", "accept-language"};
+		StringBuilder text = new StringBuilder();
+		for (String s: look_at) {
+			String value = request.getHeader(s);
+			if ( isBlank(value) ) continue;
+			text.append(":::");
+			text.append(s);
+			text.append("=");
+			text.append(value);
+		}
+		return text.toString();
+	}
+
+	public static void sendHTMLPage(HttpServletResponse res, String body)
+	{
+		try
+		{
+			res.setContentType("text/html; charset=UTF-8");
+			res.setCharacterEncoding("utf-8");
+			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+			res.addDateHeader("Last-Modified", System.currentTimeMillis());
+			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+			res.addHeader("Pragma", "no-cache");
+			java.io.PrintWriter out = res.getWriter();
+
+			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+			out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+			out.println("<html>\n<head>");
+			out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
+			out.println("</head>\n<body>\n");
+			out.println(body);
+			out.println("\n</body>\n</html>");
+		}
+		catch (Exception e)
+		{
+			log.warn("Failed to send HTML page.", e);
+		}
+
+	}
+
+	// vim: tabstop=4 noet
 
 }

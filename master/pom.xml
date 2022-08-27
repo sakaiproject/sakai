@@ -94,6 +94,8 @@
     <handlebars4.version>4.0.6</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
     <junit.version>4.13.2</junit.version>
+    <sakai.nimbus.jose.jwt.version>8.2</sakai.nimbus.jose.jwt.version>
+    <sakai.io.jsonwebtoken.version>0.10.5</sakai.io.jsonwebtoken.version>
 
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -1813,13 +1815,43 @@
         <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>basiclti-util</artifactId>
         <version>${sakai.version}</version>
-        <!-- soon to be provided -->
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>basiclti-common</artifactId>
         <version>${sakai.version}</version>
-        <!-- soon to be provided -->
+        <!-- Depends on ResourceLoader so must be in each webapp -->
+      </dependency>
+      <dependency>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+        <version>${sakai.nimbus.jose.jwt.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>${sakai.io.jsonwebtoken.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>${sakai.io.jsonwebtoken.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>${sakai.io.jsonwebtoken.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.plus</groupId>
+        <artifactId>sakai-plus-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -1914,12 +1946,6 @@
         <groupId>org.sakaiproject.entitybroker</groupId>
         <artifactId>entitybroker-utils</artifactId>
         <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-        <artifactId>gradebook-service-hibernate</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.grading</groupId>

@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
-
 public class TsugiBase extends org.tsugi.jackson.objects.JacksonBase {
 
     @JsonProperty("@context")

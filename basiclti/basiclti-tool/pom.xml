@@ -20,7 +20,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>basiclti-api</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-util</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -73,6 +76,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.apache.commons</groupId>

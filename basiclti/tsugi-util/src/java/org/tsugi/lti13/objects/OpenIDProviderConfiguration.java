@@ -3,16 +3,15 @@ package org.tsugi.lti13.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.tsugi.lti13.LTI13ConstantsUtil;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 
+// https://www.imsglobal.org/spec/lti-dr/v1p0#platform-configuration
+// https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse
 /*
 {
     "issuer": "https://server.example.com",
@@ -33,7 +32,7 @@ import org.tsugi.lti13.LTI13ConstantsUtil;
       ["RS256", "ES256"],
     "claims_supported":
       ["sub", "iss", "name", "given_name", "family_name", "nickname", "picture", "email", "locale"],
-     "https://purl.imsglobal.org/spec/lti-platform-configuration ": {
+     "https://purl.imsglobal.org/spec/lti-platform-configuration": {
         "product_family_code": "ExampleLMS",
         "messages_supported": [
             {"type": "LtiResourceLinkRequest"},
@@ -42,13 +41,18 @@ import org.tsugi.lti13.LTI13ConstantsUtil;
     }
 }
  */
-public class PlatformConfiguration {
+
+public class OpenIDProviderConfiguration extends org.tsugi.jackson.objects.JacksonBase {
 
 	// Platform's issuer value. As per IMS Security Framework and LTI Specification, the Issuer Identifier is 
 	// a case-sensitive URL, using the HTTPS scheme, that contains scheme, host, and optionally, port number,
 	// and path components, and no query or fragment components. 
 	@JsonProperty("issuer")
 	public String issuer;
+
+	// Response-only
+	@JsonProperty("client_id")
+	public String client_id;
 
 	// URL of the OAuth 2.0 Authorization Endpoint. 
 	@JsonProperty("authorization_endpoint")
@@ -104,7 +108,7 @@ public class PlatformConfiguration {
 	public LTIPlatformConfiguration lti_platform_configuration;
 
    // Constructor
-    public PlatformConfiguration() {
+    public OpenIDProviderConfiguration() {
 		this.token_endpoint_auth_methods_supported.add("private_key_jwt");
 		this.token_endpoint_auth_signing_alg_values_supported.add("RS256");
 		this.scopes_supported.add("openid");

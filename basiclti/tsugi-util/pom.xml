@@ -18,6 +18,10 @@
     <inceptionYear>2009</inceptionYear>
     <packaging>jar</packaging>
 
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
     <dependencies>
         <!-- This pom should *never* add any "org.sakaiproject" dependencies - any
             Sakai-specific code needs to be placed in the basiclti-common folder -->
@@ -38,9 +42,13 @@
             <artifactId>commons-text</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>${json.simple.version}</version>
         </dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -55,6 +63,11 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
         <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
         </dependency>
@@ -63,20 +76,16 @@
             <artifactId>jjwt-impl</artifactId>
             <scope>test</scope>
         </dependency>
-	<dependency>
-		<groupId>commons-io</groupId>
-		<artifactId>commons-io</artifactId>
-		<scope>test</scope>
-	</dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
-        </dependency>
+	    <dependency>
+		    <groupId>commons-io</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <scope>test</scope>
+	    </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
