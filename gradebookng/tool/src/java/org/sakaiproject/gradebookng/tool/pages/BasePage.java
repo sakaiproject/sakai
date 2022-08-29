@@ -70,6 +70,7 @@ public class BasePage extends WebPage {
 	Link<Void> settingsPageLink;
 	Link<Void> importExportPageLink;
 	Link<Void> permissionsPageLink;
+	Link<Void> quickEntryPageLink;
 
 	public final GbFeedbackPanel feedbackPanel;
 
@@ -162,6 +163,18 @@ public class BasePage extends WebPage {
 		};
 		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.settingsPageLink);
+
+		// quick entry page
+		this.quickEntryPageLink = new BookmarkablePageLink<Void>("quickEntryPageLink", QuickEntryPage.class) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return (businessService.isUserAbleToEditAssessments());
+			}
+		};
+		this.quickEntryPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(this.quickEntryPageLink);
 
 		add(nav);
 
