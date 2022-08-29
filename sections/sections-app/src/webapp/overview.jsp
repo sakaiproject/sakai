@@ -34,6 +34,7 @@
         styleClass="listHier sectionTable"
         columnClasses=",,leftIndent,left,left,left,left,right,right,center"
         rowClasses="groupRow"
+        renderedIfEmpty="false"
         >
         <h:column>
             <f:facet name="header">
