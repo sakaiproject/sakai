@@ -1,7 +1,8 @@
 <f:view>
     <sakai:view title="#{msgs['custom.chatroom']}">
         <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script src="/sakai-chat-tool/js/chatscript.js"></script>
+        <script src='/sakai-chat-tool/js/chatscript.js<h:outputText value="#{Portal.CDNQuery}" />'></script>
+        <script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{Portal.CDNQuery}" />'></script>
         <script>
             if ( window.frameElement) window.frameElement.className='wcwmenu';
             $(document).ready( function () {
