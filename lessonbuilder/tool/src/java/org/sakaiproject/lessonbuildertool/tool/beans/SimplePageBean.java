@@ -137,6 +137,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2144,45 +2145,49 @@ public class SimplePageBean {
 		return deleteItem(i);
 	}
 
-	public String deleteItem(SimplePageItem i) {
+	public String deleteItem(SimplePageItem item) {
+		return deleteItem(item, true);
+	}
 
-		int seq = i.getSequence();
-
-		boolean b;
+	public String deleteItem(SimplePageItem item, boolean updateSequence) {
 
 		// if access controlled, clear it before deleting item
-		if (i.isPrerequisite()) {
-		    i.setPrerequisite(false);
-		    checkControlGroup(i, false);
+		if (item.isPrerequisite()) {
+		    item.setPrerequisite(false);
+		    checkControlGroup(item, false);
 		}
 		
 		// Also delete gradebook entries
-		if(i.getGradebookId() != null) {
-			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getGradebookId());
+		if(item.getGradebookId() != null) {
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getGradebookId());
 		}
 		
-		if(i.getAltGradebook() != null) {
-			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getAltGradebook());
+		if(item.getAltGradebook() != null) {
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getAltGradebook());
 		}
 
 		// If SimplePageItem is a checklist delete all of the saved statuses
-		if(i.getType() == SimplePageItem.CHECKLIST) {
-			simplePageToolDao.deleteAllSavedStatusesForChecklist(i);
+		if(item.getType() == SimplePageItem.CHECKLIST) {
+			simplePageToolDao.deleteAllSavedStatusesForChecklist(item);
 		}
 
-		b = simplePageToolDao.deleteItem(i);
-		
-		if (b) {
+		boolean deleted = simplePageToolDao.deleteItem(item);
+
+		if (updateSequence && deleted) {
 			// minimize opening for race conditions on sequence number by forcing new fetches
 			simplePageToolDao.setRefreshMode();
+
+			int seq = item.getSequence();
 			List<SimplePageItem> list = getItemsOnPage(getCurrentPageId());
-			for (SimplePageItem item : list) {
-				if (item.getSequence() > seq) {
-					item.setSequence(item.getSequence() - 1);
-					update(item);
+			for (SimplePageItem it : list) {
+				if (it.getSequence() > seq) {
+					it.setSequence(it.getSequence() - 1);
+					update(it);
 				}
 			}
+		}
 
+		if (deleted) {
 			return "successDelete";
 		} else {
 			log.warn("deleteItem error deleting Item: {}", itemId);
@@ -5101,23 +5106,20 @@ public class SimplePageBean {
 
 	public void fixorder() {
 	    List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
-	    
-	    for(int i = 0; i < items.size(); i++) {
-		if(items.get(i).getSequence() <= 0) {
-		    items.remove(items.get(i));
-		    i--;
-		}
-	    }
+		items.sort(Comparator.comparing(SimplePageItem::getSequence));
 
-	    int i = 1;
-	    for(SimplePageItem item: items) {
-		if (item.getSequence() != i) {
-		    item.setSequence(i);
-		    update(item);
-		}
-		i++;
-	    }
+		// remove items where sequence is <= 0
+		items.stream().filter(i -> i.getSequence() <= 0).forEach(items::remove);
 
+		// the remaining items are ordered by sequence
+		int i = 1;
+		for (SimplePageItem item : items) {
+			if (item.getSequence() != i) {
+				item.setSequence(i);
+				update(item);
+			}
+			i++;
+		}
 	}
 
     // called by reorder tool to do the reordering
@@ -5184,7 +5186,7 @@ public class SimplePageBean {
 
 		// keep track of which old items are used so we can remove the ones that aren't.
 		// items in set are indices into "items"
-		Set<Integer>keep = new HashSet<>();
+		Set<SimplePageItem> keep = new HashSet<>();
 
 		// now do the reordering
 		for (int i = 0; i < split.length; i++) {
@@ -5192,7 +5194,7 @@ public class SimplePageBean {
 			    break;
 			if (split[i].startsWith("*")) {
 			    // item from second page. add copy
-			    SimplePageItem oldItem = secondItems.get(Integer.valueOf(split[i].substring(1)) - 1);
+			    SimplePageItem oldItem = secondItems.get(Integer.parseInt(split[i].substring(1)) - 1);
 			    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
 			    newItem.setPageId(getCurrentPageId());
 			    newItem.setSequence(i + 1);
@@ -5200,21 +5202,15 @@ public class SimplePageBean {
 			    simplePageToolDao.copyItem2(oldItem, newItem);
 			} else {
 			    // existing item. update its sequence and note that it's still used
-			    int old = items.get(Integer.valueOf(split[i]) - 1).getSequence();
-			    keep.add(Integer.valueOf(split[i]) - 1);
-			    items.get(Integer.valueOf(split[i]) - 1).setSequence(i + 1);
-			    if (old != i + 1) {
-				update(items.get(Integer.valueOf(split[i]) - 1));
-			    }
-
+			    SimplePageItem existingItem = items.get(Integer.parseInt(split[i]) - 1);
+			    existingItem.setSequence(i + 1);
+			    keep.add(existingItem);
+				update(existingItem);
 			}
 		}
 
-		// now kill all items on the page we didn't see in the new order
-		for (int i = 0; i < items.size(); i++) {
-		    if (!keep.contains((Integer)i))
-			deleteItem(items.get(i));
-		}
+		// delete items on the page that were not kept without changing the sequence of those items kept
+		items.stream().filter(Predicate.not(keep::contains)).forEach(i -> deleteItem(i, false));
 
 		itemsCache.remove(getCurrentPage().getPageId());
 		// removals left gaps in order. fix it.
