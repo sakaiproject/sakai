@@ -4334,7 +4334,7 @@ public class GradingServiceImpl implements GradingService {
         } else {
             asn.setUngraded(false);
         }
-        if(categoryId != null){
+        if (categoryId != null) {
             asn.setCategory(getCategory(categoryId));
         }
         gradingPersistenceManager.saveGradebookAssignment(asn);
