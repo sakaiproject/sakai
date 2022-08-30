@@ -36,7 +36,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.opensearch.version>1.3.4</sakai.opensearch.version>
+    <sakai.opensearch.version>2.2.0</sakai.opensearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
@@ -56,7 +56,7 @@
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.24</sakai.lombok.version>
-    <sakai.lucene.version>8.10.1</sakai.lucene.version>
+    <sakai.lucene.version>9.3.0</sakai.lucene.version>
     <sakai.netty.version>4.1.71.Final</sakai.netty.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
@@ -1500,7 +1500,7 @@
       </dependency>
       <dependency>
           <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-analyzers-common</artifactId>
+          <artifactId>lucene-analysis-common</artifactId>
           <version>${sakai.lucene.version}</version>
           <scope>provided</scope>
       </dependency>

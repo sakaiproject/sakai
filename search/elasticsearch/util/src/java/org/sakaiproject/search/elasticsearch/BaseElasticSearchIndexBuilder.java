@@ -602,8 +602,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 .storedFields(Arrays.asList(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID));
         return searchRequest
                 .indices(indexName)
-                .source(searchSourceBuilder)
-                .types(indexedDocumentType);
+                .source(searchSourceBuilder);
     }
 
     protected abstract SearchRequest completeFindContentQueueRequest(SearchRequest searchRequest);
@@ -655,7 +654,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     private DeleteRequest newDeleteRequest(Map<String, Object> deleteParams) {
-        return new DeleteRequest(indexName, indexedDocumentType, (String)deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID));
+        return new DeleteRequest(indexName, (String)deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID));
     }
 
     protected Map<String, Object> extractDeleteDocumentParams(SearchHit searchHit) {
@@ -774,7 +773,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     protected IndexRequest newIndexRequest(String resourceName, EntityContentProducer ecp, boolean includeContent) {
-        return new IndexRequest(indexName, indexedDocumentType, ecp.getId(resourceName));
+        return new IndexRequest(indexName).id(ecp.getId(resourceName));
     }
 
     protected abstract IndexRequest completeIndexRequest(IndexRequest indexRequest, String resourceName, EntityContentProducer ecp, boolean includeContent);
@@ -1115,7 +1114,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     protected void addSearchCoreParams(SearchRequest searchRequest) {
-        searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
+        searchRequest.searchType(SearchType.QUERY_THEN_FETCH);
     }
 
     protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds) {
@@ -1216,7 +1215,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     protected void addSearchSuggestionsCoreParams(SearchRequest searchRequest) {
-        searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
+        searchRequest.searchType(SearchType.QUERY_THEN_FETCH);
     }
 
     protected void addSearchSuggestionsQuery(SearchRequest searchRequest, String searchString, String currentSite, boolean allMySites) {

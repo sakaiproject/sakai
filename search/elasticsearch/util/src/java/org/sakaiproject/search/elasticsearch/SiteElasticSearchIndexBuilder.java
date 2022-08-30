@@ -458,8 +458,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                 .storedField(SearchService.FIELD_REFERENCE);
 
         SearchRequest searchRequest = new SearchRequest(indexName)
-                .searchType(SearchType.QUERY_THEN_FETCH)
-                .types(indexedDocumentType);
+                .searchType(SearchType.QUERY_THEN_FETCH);
 
         SearchResponse response;
         try {
