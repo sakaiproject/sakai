@@ -37,6 +37,7 @@ class SakaiUserPhoto extends SakaiElement {
       siteId: { attribute: "site-id", type: String },
       label: { type: String },
       print: { type: Boolean },
+      online: { type: Boolean },
     };
   }
 
@@ -77,6 +78,10 @@ class SakaiUserPhoto extends SakaiElement {
           aria-label="${ifDefined(this.label ? this.label : undefined)}"
           title="${ifDefined(this.label ? this.label : undefined)}"
           style="background-image:url(${this.url}) ${this.profilePopup === SakaiUserPhoto.OFF ? "" : ";cursor: pointer;"}">
+        ${this.online ? html`
+        <span></span>
+        ` : ""}
+      </div>
     `;
   }
 }
