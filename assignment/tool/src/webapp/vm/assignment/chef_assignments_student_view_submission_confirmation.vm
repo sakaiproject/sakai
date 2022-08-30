@@ -82,8 +82,8 @@
                     $tlang.getString('assignment.title')
                 </th>
                 <td>
-                    #assignmentTitleIcon($assignment)
 					$formattedText.escapeHtml($!assignment.Title)
+                    #assignmentIcons($assignment)
                 </td>
             </tr>
             ## submission id
@@ -151,12 +151,16 @@
                 </p>
             #end
         #end
-        #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+        #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
             <div>
                 <h4>
                     $tlang.getString("gen.totaltimespentconfirm")
                 </h4>
-                $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+                #if ($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT && !$!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT.equals(""))
+                    $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+                #else
+                    $tlang.getString("gen.noestimate")
+                #end
             </div>
         #end
         ## only show the following if attachment submission is allowed
@@ -191,7 +195,7 @@
                             #if ($reference)
                                 #set ($props = false)
                                 #set ($props = $reference.Properties)
-                                #if ($!props)
+                                #if ($!props && !$!props.isEmpty())
                                     <li>$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
 										#propertyDetails($props)
                                     </li>
@@ -203,11 +207,11 @@
             #end
         #end
 
-        #if (!$!linkInvoked)
+        #if (!$!linkInvoked && $isAssignmentsToolVisible)
             <p class="act">
-                <input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission"
-                       value="$tlang.getString('gen.backtolist')" class="active"
-                       onclick="SPNR.disableControlsAndSpin( this, null );"/>
+                    <input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission"
+                           value="$tlang.getString('gen.backtolist')" class="active"
+                           onclick="SPNR.disableControlsAndSpin( this, null );"/>
             </p>
         #end
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>

@@ -821,13 +821,14 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			StringBuilder alertMsg = new StringBuilder();
 			final String cleanedHtml = m_formattedText.processFormattedText(body[1], alertMsg);
 			final String cleanedText = m_formattedText.encodeUnicode(body[0]);
+			final String cleanedSubject = m_formattedText.processFormattedText(subject, alertMsg);
 
 			MailArchiveMessageEdit edit = (MailArchiveMessageEdit) addMessage();
 			MailArchiveMessageHeaderEdit archiveHeaders = edit.getMailArchiveHeaderEdit();
 			edit.setBody(cleanedText);
 			edit.setHtmlBody(cleanedHtml);
 			archiveHeaders.replaceAttachments(attachments);
-			archiveHeaders.setSubject(subject);
+			archiveHeaders.setSubject(cleanedSubject);
 			archiveHeaders.setFromAddress(fromAddress);
 			archiveHeaders.setInstantSent(dateSent);
 			archiveHeaders.setMailHeaders(mailHeaders);

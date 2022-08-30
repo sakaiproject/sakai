@@ -34,6 +34,7 @@
         styleClass="listHier sectionTable"
         columnClasses=",,leftIndent,left,left,left,left,right,right,center"
         rowClasses="groupRow"
+        renderedIfEmpty="false"
         >
         <h:column>
             <f:facet name="header">
@@ -75,7 +76,7 @@
 						<h:outputText value=" (#{section.title})" styleClass="skip"/>
                 </h:commandLink>
     
-                <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
+                <h:panelGroup rendered="#{!overviewBean.externallyManaged and section.currentUserEnrollmentPermission}">
                     <h:outputFormat
                         value=" #{msgs.overview_link_sep_char} "
                         rendered="#{overviewBean.sectionTaManagementEnabled}"/>

@@ -36,8 +36,8 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +123,7 @@ public class BulkEditItemsPanel extends BasePanel {
 			if (categories != null && categories.size() > 0 && StringUtils.isBlank(assignment.getCategoryName())) {
 				include.setEnabled(false);
 			}
-			if (assignment.isExternallyMaintained()){	//don't allow External items to be deleted.
+			if (assignment.getExternallyMaintained()){	//don't allow External items to be deleted.
 				delete.setEnabled(false);
 			}
 			item.add(release);

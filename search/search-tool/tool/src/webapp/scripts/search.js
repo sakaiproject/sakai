@@ -173,33 +173,3 @@ function getAnchorPosition( anchorName){
     return coords;
   }
 }
-function installSherlock(name,cat,updateURL,iconURL) {
-  if ((typeof window.sidebar == "object") && (typeof
-  window.sidebar.addSearchEngine == "function"))
-  {
-    window.sidebar.addSearchEngine(
-    	updateURL,
-    	iconURL,
-    	name,
-		cat); 
-  }
-	
-}
-
-function addSherlockButton(name,cat,updateURL,iconURL)
-{
-  if ((typeof window.sidebar == "object") && (typeof
-  window.sidebar.addSearchEngine == "function"))
-  {
-    var functionCall="installSherlock('"+name+"','"+cat+"','"+updateURL+"','"+iconURL+"' ); return false; ";
-    var tag="<a href=\"#\" id=\"addSherlockButton\" onclick=\""+
-    	functionCall+
-    	"\" ><img src=\"/library/image/transparent.gif\" "+
-    	"border=\"0\"   title=\"Install Browser Search Plugin\" "+
-    	" alt=\"Install Browser Search Plugin\" /></a>";
-    var sherlockButton=document.getElementById('sherlockButtonHolder');
-    if ( sherlockButton) {
-    	sherlockButton.innerHTML = tag;
-    }
-  } 
-}

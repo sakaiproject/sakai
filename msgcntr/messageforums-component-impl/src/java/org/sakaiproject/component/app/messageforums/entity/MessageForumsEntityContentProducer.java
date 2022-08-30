@@ -34,6 +34,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -106,9 +107,6 @@ public class MessageForumsEntityContentProducer implements
 		}
 	}
 	
-	
-
-	
 	public boolean canRead(String reference) {
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
 		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
@@ -117,7 +115,12 @@ public class MessageForumsEntityContentProducer implements
 		DiscussionTopic dt = discussionForumManager.getTopicById(topic.getId());
 		if(dt != null){
 			DiscussionForum df = discussionForumManager.getForumById(dt.getOpenForum().getId());
-			canRead = uIPermissionManager.isRead(dt, df);
+			String[] parts = reference.split(Entity.SEPARATOR);
+			if (parts.length >= 4) {
+				canRead = uIPermissionManager.isRead(dt, df, null, parts[3]);
+			} else {
+				canRead = uIPermissionManager.isRead(dt, df);
+			}
 		}
 		return canRead;
 	}

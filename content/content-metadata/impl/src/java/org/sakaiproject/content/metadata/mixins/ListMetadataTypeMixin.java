@@ -21,8 +21,9 @@
 
 package org.sakaiproject.content.metadata.mixins;
 
-import org.codehaus.jackson.annotate.*;
 import org.sakaiproject.content.metadata.model.MetadataType;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Colin Hebert

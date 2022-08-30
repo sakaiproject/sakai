@@ -69,7 +69,7 @@ in Sakai.
     http://purl.imsglobal.org/vocab/lis/v2/membership#Learner
 
 But Sakai's role mapping for LTI Advantage left something to be desired until it was
-fixed in SAK-44866.
+fixed in SAK-44886.
 
 LTI Advantage Role Mapping Sakai 20.3 and Later
 -----------------------------------------------

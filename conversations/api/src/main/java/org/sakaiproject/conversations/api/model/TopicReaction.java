@@ -20,8 +20,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -35,7 +33,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "CONV_TOPIC_REACTIONS",
     uniqueConstraints = { @UniqueConstraint(name = "UniqueTopicReactions", columnNames = { "TOPIC_ID", "USER_ID", "REACTION" }) },
-    indexes = { @Index(columnList = "TOPIC_ID, USER_ID"), @Index(columnList = "TOPIC_ID") })
+    indexes = { @Index(name = "conv_topic_reactions_topic_user_idx", columnList = "TOPIC_ID, USER_ID"),
+                @Index(name = "conv_topic_reactions_topic_idx",columnList = "TOPIC_ID") })
 @Getter
 @Setter
 public class TopicReaction implements PersistableEntity<Long> {
@@ -45,9 +44,8 @@ public class TopicReaction implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "TOPIC_ID", nullable = false)
-    private Topic topic;
+    @Column(name = "TOPIC_ID", length = 36, nullable = false)
+    private String topicId;
 
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;

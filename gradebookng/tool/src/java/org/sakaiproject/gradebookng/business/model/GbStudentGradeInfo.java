@@ -24,6 +24,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -44,7 +45,7 @@ public class GbStudentGradeInfo implements Serializable {
 	private String studentEid;
 	private String studentNumber;
 	@Setter
-	private GbCourseGrade courseGrade;
+	private CourseGradeTransferBean courseGrade;
 	private Map<Long, GbGradeInfo> grades;
 	private Map<Long, Double> categoryAverages;
 	private List<String> sections;

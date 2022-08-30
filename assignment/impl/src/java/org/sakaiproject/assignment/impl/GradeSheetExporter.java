@@ -200,11 +200,16 @@ public class GradeSheetExporter {
             // Assignment title
             tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.title"));
 
-            // Grade
-            tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.grade"));
+            if ("true".equals(params.get("estimate"))) {
+                // Time spent
+                tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("gen.spenttime"));
+            } else {
+                // Grade
+                tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.grade"));
 
-            // Scale
-            tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.scale"));
+                // Scale
+                tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.asn.scale"));	
+            }
 
             // Submission Date
             tableHeaderRow.createCell(headerRowCellCount++).setCellValue(rb.getString("download.spreadsheet.column.submitted"));
@@ -254,7 +259,7 @@ public class GradeSheetExporter {
 
                                             //We get float number no matter the locale it was managed with.
                                             final NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, null);
-                                            float f = nbFormat.parse(getGrade(submissionSubmitter)).floatValue();
+                                            double f = nbFormat.parse(getGrade(submissionSubmitter)).doubleValue();
 
                                             style = wb.createCellStyle();
                                             String format = "#,##0.";
@@ -301,9 +306,7 @@ public class GradeSheetExporter {
                                 } else {
                                     submissionInfo = new SubmissionInfo(submissionSubmitters[0].getTimeSpent(), submission);
                                 }
-                            }
-
-                            if (submission.getGraded() && submission.getGrade() != null) {
+                            } else if (submission.getGraded() && submission.getGrade() != null) {
                                 // graded and released
                                 String grade = assignmentService.getGradeForSubmitter(submission, submissionSubmitters[0].getSubmitter());
 
@@ -315,7 +318,7 @@ public class GradeSheetExporter {
 
                                         //We get float number no matter the locale it was managed with.
                                         NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, null);
-                                        float f = nbFormat.parse(grade).floatValue();
+                                        double f = nbFormat.parse(grade).doubleValue();
 
                                         String format = "#,##0.";
                                         for (int j = 0; j < dec; j++) {
@@ -370,7 +373,7 @@ public class GradeSheetExporter {
                             cell.setCellStyle(style);
                         } else {
                             cell = sheetRow.createCell(column++, CellType.STRING);
-                            cell.setCellValue(submissionInfo != null ? submissionInfo.grade.toString() : rb.getString("listsub.nosub"));
+                            cell.setCellValue(submissionInfo != null && submissionInfo.grade != null ? submissionInfo.grade.toString() : rb.getString("listsub.nosub"));
                         }
 
                         // Scale
@@ -462,13 +465,13 @@ public class GradeSheetExporter {
     // This small holder is so that we can hold details about a floating point number while building up the list.
     // We can't create cells when we don't know where they will go yet.
     private static class FloatCell {
-        FloatCell(String format, float value) {
+        FloatCell(String format, double value) {
             this.format = format;
             this.value = value;
         }
 
         String format;
-        float value;
+        double value;
     }
 
     /**

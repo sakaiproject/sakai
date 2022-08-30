@@ -104,5 +104,9 @@
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>${sakai.jakarta.jstl-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
     </dependencies>
 </project>

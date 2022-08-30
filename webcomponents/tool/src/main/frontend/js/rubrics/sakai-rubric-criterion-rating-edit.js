@@ -10,6 +10,8 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     return {
       rating: { type: Object },
       criterionId: { attribute: "criterion-id", type: String },
+      removable: {attribute: "removable", type: Boolean},
+      isLocked: { attribute: "is-locked", type: Boolean },
       minpoints: Number,
       maxpoints:  Number,
     };
@@ -30,7 +32,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   render() {
 
     return html`
-      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editRating}" title="${tr("edit_rating")} ${this.rating.title}" href="#"></a>
+      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editRating}" title="${tr("edit_rating")} ${this.rating.title}" aria-label="${tr("edit_rating")} ${this.rating.title}" href="#"></a>
 
       <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom">
         <div class="arrow"></div>
@@ -39,7 +41,9 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
             <button class="active btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
-            <button class="delete" title="${tr("remove_label")} ${this.rating.title}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
+            ${!this.isLocked ? html`
+              <button class="delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
+            ` : ""}
             <button class="btn btn-link btn-xs cancel" title="${tr("cancel")}" @click="${this.cancelEdit}">
               <sr-lang key="cancel" />
             </button>
@@ -51,7 +55,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
                 <label for="rating-title-${this.rating.id}"><sr-lang key="rating_title" /></label>
                 <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
               </div>
-              <div class="form-group points">
+              <div class="form-group points ${this.isLocked ? "hidden" : ""}">
                 <label for="rating-points-${this.rating.id}"><sr-lang key="points" /></label>
                 <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${ifDefined(this.minpoints)}" max="${ifDefined(this.maxpoints)}" />
               </div>
@@ -65,7 +69,8 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     `;
   }
 
-  onFocus(e){
+  onFocus(e) {
+
     e.target.closest('.criterion-row').classList.add("focused");
   }
 
@@ -83,7 +88,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
       const popover = $(`#edit_criterion_rating_${this.rating.id}`);
 
       popover[0].style.top = `${e.target.offsetTop + 20  }px`;
-      popover[0].style.left = `${e.target.offsetLeft - popover.width()/2  }px`;
+      popover[0].style.left = `${e.target.offsetLeft - popover.width() / 2  }px`;
 
       popover.show();
       const titleinput = this.querySelector('[type="text"]');
@@ -120,20 +125,23 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     e.stopPropagation();
 
     this.rating.title = document.getElementById(`rating-title-${this.rating.id}`).value;
-    this.rating.points = parseFloat(document.getElementById(`rating-points-${this.rating.id}`).value);
 
-    // Enforce a points value. Blank breaks things.
-    if (isNaN(this.rating.points)) this.rating.points = 0.0;
+    if (!this.isLocked) {
 
-    // Round user input to two digits
-    this.rating.points = this.rating.points.toFixed(2);
+      const points = parseFloat(document.getElementById(`rating-points-${this.rating.id}`).value);
+      // Check points value. Blank breaks things.
+      if (isFinite(points)) {
+        // Round user input to two digits.
+        this.rating.points = points.toFixed(2);
+      } // Else, previous saved score or default one will be used.
+    }
 
     this.rating.description = document.getElementById(`rating-description-${this.rating.id}`).value;
     this.rating.criterionId = this.criterionId;
 
     this.resetFields();
 
-    this.dispatchEvent(new CustomEvent('save-rating', {detail: this.rating}));
+    this.dispatchEvent(new CustomEvent('save-rating', { detail: { rating: this.rating, criterionId: this.criterionId }}));
     this.hideToolTip();
   }
 
@@ -151,6 +159,13 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     if (e.keyCode == 32) {
       this.editRating(e);
     }
+  }
+
+  removeButtonTitle() {
+    if (this.removable) {
+      return `${tr("remove_label")} ${this.rating.title}`;
+    }
+    return tr("remove_rating_disabled");
   }
 }
 

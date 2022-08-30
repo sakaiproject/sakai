@@ -11,23 +11,35 @@
 	#else
 		<br /><div id="resourceAlert" class="sak-banner-error hide"></div>
 	#end
+	#if (!$!alreadyUploadedFile)
 	<p class="instruction">
 		$tlang.getString("instr.upload")
 	</p>
+	#end
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesAction")"  enctype="multipart/form-data">
 		<div id="fileInputDiv" class="form-group">
-			<label for="MultipleFolderContent">$tlang.getString("label.upload")</label>
-			<input type="file" name="MultipleFolderContent" id="MultipleFolderContent" class="upload" onChange="fillDisplayName()"/>
+			#if ($!alreadyUploadedFile)
+				<p id="successfulUpload" class="success">$tlang.getFormattedMessage("instr.success.can.change", $alreadyUploadedFile.getFileName())</p>
+				<label for="MultipleFolderContent">$tlang.getString("label.changefile")</label>
+			#else
+				<label for="MultipleFolderContent">$tlang.getString("label.upload")</label>
+			#end
+			<input type="file" name="MultipleFolderContent" id="MultipleFolderContent" class="upload" onChange="handleFileChange()"/>
 		</div>
 		<div class="form-group">
-			<label for="displayName">$tlang.getString("label.display")</label> 
-			<input class="form-control" type="text" id="MultipleFolderDisplayName" name="MultipleFolderDisplayName"/>  
+			<label for="MultipleFolderDisplayName">$tlang.getString("label.display")</label>
+			<input class="form-control" type="text" id="MultipleFolderDisplayName" name="MultipleFolderDisplayName" #if($!displayName)value="$displayName"#end/>
 		</div>
 		<div class="form-group">
 			<label for="copyright" style="display: block">$tlang.getString("cright.status.all")</label>
 			<select class="copyrightStatus" name="copyright" id="copyright">
+			#if ($!copyrightStatus_selection)
+				#set ($copyrightTypeToSelect=$copyrightStatus_selection)
+			#else
+				#set ($copyrightTypeToSelect=$copyright_defaultType)
+			#end
 			#foreach ($copyright in $copyrightTypes)
-				<option value="$copyright.getType()" #if($copyright_defaultType == $copyright.getType())selected="selected"#end #if ($!copyright.getLicenseUrl())title="${copyright.getLicenseUrl()}"#end >
+				<option value="$copyright.getType()" #if($copyright.getType() == $copyrightTypeToSelect)selected="selected"#end #if ($!copyright.getLicenseUrl())title="${copyright.getLicenseUrl()}"#end >
 					$copyright.getText()
 				</option>
 			#end
@@ -35,11 +47,14 @@
 			<small>
 				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</small>
-			<div id="copyright_status" class="hide">
+			<div id="copyright_status" #if (!$!copyrightStatus_selection || $!copyrightStatus_selection != ${USE_THIS_COPYRIGHT}) class="hide" #end>
 				<label for="newcopyright">$tlang.getString("cright.info")</label>
-				<textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual">
-					$validator.escapeHtmlTextarea("$!model.copyrightInfo")
-				</textarea>
+				#if ($!copyrightInfo_selection)
+					#set ($newCopyright = $!copyrightInfo_selection)
+				#else
+					#set ($newCopyright = $!model.copyrightInfo)
+				#end
+				<textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual">$validator.escapeHtmlTextarea("$!newCopyright")</textarea>
 			</div>
 		</div>
 		<div class="form-group">
@@ -49,7 +64,9 @@
 					<label for="siteMembers-selection">$tlang.getString("multiple.file.upload.siteusers")</label>
 					<select class="form-control" multiple="multiple" size="10" id="siteMembers-selection" name="siteMembers-selection">
 					#foreach($userDropbox in $usersDropboxList)
-					<option value="$userDropbox.get(0)" class="$userDropbox.get(2)">$userDropbox.get(1)</option>
+						#if (!$selectedDropboxes.contains($userDropbox))
+							<option value="$userDropbox.get(0)" class="$userDropbox.get(2)">$userDropbox.get(1)</option>
+						#end
 					#end
 					</select>
 				</td>
@@ -62,6 +79,9 @@
 				<td valign="top" class=="form-group">
 					<label for="usersDropbox-selection">$tlang.getString("multiple.file.upload.usersselected")</label>
 					<select  class="form-control" multiple="multiple" id="usersDropbox-selection" name="usersDropbox-selection" size="10"  >
+					#foreach($selectedDropbox in $selectedDropboxes)
+						<option value="$selectedDropbox.get(0)" class="$selectedDropbox.get(2)">$selectedDropbox.get(1)</option>
+					#end
 					</select>
 				</td>
 			</tr>
@@ -71,7 +91,7 @@
 		
 		<div class="form-group">
 			<div class="">
-				<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
++				<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" #if ($!notify_dropbox) checked #end/>
 				<label for="notify_dropbox">
 					#if ($isCourseSite)				
 						$tlang.getString("notify.student")
@@ -159,10 +179,54 @@
 		}
 	}
 	
-	function fillDisplayName()
+	## last filename in the filepicker (E.g. if the user changes files in the file picker without clicking 'continue')
+	var previousFileName = '';
+
+	function handleFileChange()
 	{
-		var fileField = document.getElementById('MultipleFolderContent');
-		var nameField = document.getElementById('MultipleFolderDisplayName');
-		nameField.value = fileField.files[0].name;
+		const fileField = document.getElementById('MultipleFolderContent');
+		const nameField = document.getElementById('MultipleFolderDisplayName');
+
+		## Goal: update the display name field. But if the user provided their own display name, don't overwrite it
+
+#if ($!alreadyUploadedFile)
+		## A file was uploaded to the server, and there was a validation error; track if the file name matches the serverside file
+		let matchesPreviousFile = nameField.value.trim() == "$validator.escapeHtml("$alreadyUploadedFile.getFileName()")".trim();
+#else
+		## A file was not yet uploaded to the server
+		let matchesPreviousFile = false;
+#end
+		## Compare with the name of the last selected file in the file picker
+		matchesPreviousFile = matchesPreviousFile || nameField.value.trim() == previousFileName.trim();
+		if (nameField.value == null || nameField.value.trim() == '' || matchesPreviousFile)
+		{
+			## User hasn't changed the display name; overwrite it
+			nameField.value = fileField.files[0].name;
+		}
+		previousFileName = fileField.files[0].name;
+
+		#*
+		 * Goal: validate the filesize.
+		 * Note: the server doesn't accept files slightly under uploadMaxSize (default 20 MB), and the user's request is rejected.
+		 * I suspect that validation occurs on the entire http post, and I'm unsure how to address this, but this validation is useful for most cases.
+		 *#
+		#if ($!uploadMaxSize)
+		const maxFileSize = $!uploadMaxSize * 1024 * 1024;
+		const resourceAlert = document.getElementById('resourceAlert');
+		const submitButton = document.getElementById('saveChanges');
+		if (fileField.files[0].size > maxFileSize)
+		{
+			resourceAlert.innerText = "$tlang.getFormattedMessage('size.exceeded', $!uploadMaxSize)";
+			resourceAlert.classList.remove('hide');
+			submitButton.disabled = true;
+		}
+		else
+		{
+			resourceAlert.classList.add('hide');
+			resourceAlert.innerText = '';
+			submitButton.disabled = false;
+		}
+		#end
+
 	}
 </script>

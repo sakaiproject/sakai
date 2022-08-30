@@ -146,6 +146,11 @@
 			display:inline-block;
 		}
 	}
+
+	.assignment-item:not(:last-child) {
+		border-right: 1px solid;
+		padding-right: 3px;
+	}
 }
 
 .viewNav{

@@ -265,17 +265,24 @@ public abstract class ToolComponent implements ToolManager
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
-	public Set<Tool> findTools(Set categories, Set keywords)
+		public Set<Tool> findTools(Set<String> categories, Set<String> keywords)
 	{
-		Set<Tool> rv = new HashSet<Tool>();
+		return findTools(categories, keywords, false);
+	}
 
-		for (Iterator<Tool> i = m_tools.values().iterator(); i.hasNext();)
+	/**
+	 * {@inheritDoc}
+	 */
+	public Set<Tool> findTools(Set<String> categories, Set<String> keywords, boolean includeStealthed)
+	{
+		Set<Tool> rv = new HashSet<>();
+
+		for (Tool tool : m_tools.values())
 		{
-			Tool tool = (Tool) i.next();
 			if (matchCriteria(categories, tool.getCategories()) && matchCriteria(keywords, tool.getKeywords()))
 			{
 				// add if not hidden (requests for no (null) category include all, even hidden items)
-				if ((categories == null) || (m_toolIdsToHide == null) || (Arrays.binarySearch(m_toolIdsToHide, tool.getId()) < 0))
+				if (includeStealthed || ((categories == null) || (m_toolIdsToHide == null) || (Arrays.binarySearch(m_toolIdsToHide, tool.getId()) < 0)))
 				{
 					rv.add(tool);
 				}

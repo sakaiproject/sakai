@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.app.scheduler;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.faces.application.FacesMessage;
@@ -30,6 +31,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -71,6 +73,11 @@ public class SchedulerTool
   private static final int TRIGGER_NAME_LENGTH_LIMIT = 80;
   /** The maximum length of a job name. */
   private static final int JOB_NAME_LENGTH_LIMIT = 80;
+  
+  private static String BEFORE = "before";
+  private static String AFTER = "after";
+  private static String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm";
+  private static String DEFAULT_TIME = "0000-00-00T00:00";
 
   private SchedulerManager schedulerManager;
   private String jobName;
@@ -1459,6 +1466,24 @@ public class SchedulerTool
 
    public String processSetFilters()
    {
+       Map<String, String> req = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+       String beforeText = req.get(BEFORE);
+       String afterText = req.get(AFTER);
+       SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_PATTERN);
+       getEventPager().setBefore(null);
+       getEventPager().setAfter(null);
+       try {
+           if (StringUtils.isNotBlank(beforeText)) {
+               getEventPager().setBefore(sdf.parse(beforeText));
+           }
+           if (StringUtils.isNotBlank(afterText)) {
+               getEventPager().setAfter(sdf.parse(afterText));
+           }
+       } catch (ParseException error) {
+           FacesMessage message = new FacesMessage(rb.getFormattedMessage("parse_exception", error));
+           message.setSeverity(FacesMessage.SEVERITY_ERROR);
+           throw new ValidatorException(message);
+       }
        getEventPager().setFilterEnabled(true);
 
        return "events";
@@ -1489,6 +1514,24 @@ public class SchedulerTool
         output = StringUtils.remove(output, ";");
         output = StringUtils.remove(output, "'");
         return output;
+    }
+
+    public String getAfterFilter() {
+        if (getEventPager().getAfter() == null) {
+            return DEFAULT_TIME;
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_PATTERN);
+            return sdf.format(getEventPager().getAfter());
+        }
+    }
+
+    public String getBeforeFilter() { 	
+    	if (getEventPager().getBefore() == null) {
+            return DEFAULT_TIME;
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_PATTERN);
+            return sdf.format(getEventPager().getBefore());
+        }
     }
 
 }

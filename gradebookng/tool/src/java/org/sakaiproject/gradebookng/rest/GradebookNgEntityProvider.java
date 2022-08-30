@@ -50,9 +50,9 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.facades.Authz;
+import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -63,6 +63,8 @@ import org.sakaiproject.tool.api.SessionManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
  * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
@@ -103,10 +105,13 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	private GradebookNgBusinessService businessService;
 
 	@Setter
-	private GradebookService gradebookService;
+	private GradingService gradingService;
 
 	@Setter
 	private UserDirectoryService userDirectoryService;
+
+	@Setter
+	private FormattedText formattedText;
 
 	@Override
 	public String[] getHandledOutputFormats() {
@@ -234,7 +239,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		checkValidSite(siteId);
 		checkInstructorOrTA(siteId);
 
-		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
+		return formattedText.escapeHtml(businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid));
 	}
 
 	private Set<String> getRecipients(Map<String, Object> params) {
@@ -259,16 +264,18 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		Set<String> recipients = null;
 		try {
 			AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
-			recipients = authzGroup.getUsers();
-			// Remove the instructors
-			recipients.removeAll(authzGroup.getUsersIsAllowed(Authz.PERMISSION_GRADE_ALL));
-			recipients.removeAll(authzGroup.getUsersIsAllowed(Authz.PERMISSION_GRADE_SECTION));
+			Set<String> totalRecipients = authzGroup.getUsers();
+			Site site = siteService.getSite(siteId);
+			recipients = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
+			recipients.retainAll(totalRecipients);
 		} catch (GroupNotDefinedException gnde) {
 			throw new IllegalArgumentException("No group defined for " + groupRef);
+		} catch (IdUnusedException idune) {
+			log.warn("IdUnusedException trying to getRecipients", idune);
 		}
 
 		List<GradeDefinition> grades
-			= gradebookService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(recipients));
+			= gradingService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(recipients));
 
 		if (MESSAGE_GRADED.equals(action)) {
 			// We want to message graded students. Filter by min and max score, if needed.
@@ -322,7 +329,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			} else {
 				// Cache the users in the session. The client needs to show the users to the caller, so they can
 				// confirm, but we don't want to call this logic again for no reason.
-				List<BasicUser> basicUsers = users.stream().map(BasicUser::new).collect(Collectors.toList());
+				List<BasicUser> basicUsers = users.stream().sorted(new UserSortNameComparator()).map(BasicUser::new).collect(Collectors.toList());
 				return new ActionReturn(basicUsers);
 			}
 		} else {
@@ -465,7 +472,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
             super();
 
             this.id = u.getId();
-            this.displayName = u.getDisplayName();
+            this.displayName = u.getSortName();
         }
     }
 }

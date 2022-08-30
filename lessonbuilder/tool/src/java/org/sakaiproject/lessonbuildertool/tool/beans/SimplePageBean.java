@@ -96,12 +96,15 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -137,6 +140,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -197,6 +201,7 @@ public class SimplePageBean {
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 	public static final String FORUMS_TOOL_ID = "sakai.forums";
 	public static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
+	public static final String GRADEBOOK_CLASSIC_TOOL_ID = "sakai.gradebook.tool";
 
 	private static String PAGE = "simplepage.page";
 	private String contents = null;
@@ -293,6 +298,7 @@ public class SimplePageBean {
 	private String dropDown;
 	private String points;
 	private String mimetype;
+	
     // for BLTI, values window, inline, and null for in a new page with navigation
     // but sameWindow should also be set properly, based on the format
 	private String format;
@@ -460,6 +466,7 @@ public class SimplePageBean {
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private FormattedText formattedText;
     @Setter private UserTimeService userTimeService;
+    @Getter @Setter private TaskService taskService;
 
     private LessonEntity forumEntity = null;
     	public void setForumEntity(Object e) {
@@ -1023,7 +1030,6 @@ public class SimplePageBean {
 		this.replacefile = replacefile;
 	}
 	
-
 	public void setNewWindow(boolean newWindow) {
 		this.newWindow = newWindow;
 	}
@@ -2144,45 +2150,54 @@ public class SimplePageBean {
 		return deleteItem(i);
 	}
 
-	public String deleteItem(SimplePageItem i) {
+	public String deleteItem(SimplePageItem item) {
+		return deleteItem(item, true);
+	}
 
-		int seq = i.getSequence();
-
-		boolean b;
+	public String deleteItem(SimplePageItem item, boolean updateSequence) {
 
 		// if access controlled, clear it before deleting item
-		if (i.isPrerequisite()) {
-		    i.setPrerequisite(false);
-		    checkControlGroup(i, false);
+		if (item.isPrerequisite()) {
+		    item.setPrerequisite(false);
+		    checkControlGroup(item, false);
 		}
 		
 		// Also delete gradebook entries
-		if(i.getGradebookId() != null) {
-			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getGradebookId());
+		if(item.getGradebookId() != null) {
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getGradebookId());
 		}
 		
-		if(i.getAltGradebook() != null) {
-			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getAltGradebook());
+		if(item.getAltGradebook() != null) {
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getAltGradebook());
 		}
 
 		// If SimplePageItem is a checklist delete all of the saved statuses
-		if(i.getType() == SimplePageItem.CHECKLIST) {
-			simplePageToolDao.deleteAllSavedStatusesForChecklist(i);
+		if(item.getType() == SimplePageItem.CHECKLIST) {
+			simplePageToolDao.deleteAllSavedStatusesForChecklist(item);
 		}
 
-		b = simplePageToolDao.deleteItem(i);
-		
-		if (b) {
+
+		boolean deleted = simplePageToolDao.deleteItem(item);
+
+		// Delete task
+		String reference = "/lessonbuilder/item/" + item.getId();
+		taskService.removeTaskByReference(reference);
+
+		if (updateSequence && deleted) {
 			// minimize opening for race conditions on sequence number by forcing new fetches
 			simplePageToolDao.setRefreshMode();
+
+			int seq = item.getSequence();
 			List<SimplePageItem> list = getItemsOnPage(getCurrentPageId());
-			for (SimplePageItem item : list) {
-				if (item.getSequence() > seq) {
-					item.setSequence(item.getSequence() - 1);
-					update(item);
+			for (SimplePageItem it : list) {
+				if (it.getSequence() > seq) {
+					it.setSequence(it.getSequence() - 1);
+					update(it);
 				}
 			}
+		}
 
+		if (deleted) {
 			return "successDelete";
 		} else {
 			log.warn("deleteItem error deleting Item: {}", itemId);
@@ -4420,7 +4435,7 @@ public class SimplePageBean {
 		if (StringUtils.isBlank(pageTitle)) {
 			return "notitle";
 		}
-
+		
 		// because we're using a security advisor, need to make sure it's OK ourselves
 		if (!canEditPage()) {
 		    return "permission-failed";
@@ -4456,7 +4471,7 @@ public class SimplePageBean {
 			} else if (newPoints != null && currentPoints == null) {
 				try {
 					add = gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
-						       	pageTitle, newPoints, null, "Lesson Builder");
+						       	pageTitle, newPoints, null, LESSONBUILDER_ID);
 				} catch(ConflictingAssignmentNameException cane) {
 					add = false;
 					setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -4598,6 +4613,11 @@ public class SimplePageBean {
 		if (needRecompute)
 		    recomputeGradebookEntries(page.getPageId(), points);
 		// points, not newPoints because API wants a string
+		
+		// Create or update a task
+		String reference = "/lessonbuilder/page/" + page.getPageId();
+                // Dashboard task widget: When a page item is added create a task item for the site members.
+		createOrUpdateTask(reference, page.getSiteId(), page.getTitle(), null);
 
 		if (pageItem.getPageId() == 0) {
 			return "reload";
@@ -4741,7 +4761,7 @@ public class SimplePageBean {
 			for(int count=1; count<=pageSubpageCount; count++){
 				pageNow = addPage(pageSubpageTitle + ' ' + count, null, false, false);	//make new page
 				pageNow.setParent(getCurrentPageId());	//clean up page data
-				pageNow.setTopParent(getCurrentPage().getTopParent());
+				pageNow.setTopParent(getCurrentPage().getPageId());
 				update(pageNow);	//save revised page data
 				itemNow = simplePageToolDao.findItemsBySakaiId(Long.toString(pageNow.getPageId())).get(0);	//there should only be one item with this sakaiId, because it was just now created as part of addPage.
 				if(pageSubpageButton){	//clean up item data
@@ -4765,10 +4785,10 @@ public class SimplePageBean {
 			sequence++;
 			String overviewHtmlAppender = "";
 			if(StringUtils.equals(this.pageLayoutSelect, INTERIOR_RESOURCES)){	//special Overview text for interiorResources only
-				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview",messageLocator.getMessage("simplepage.layout.page.overview.tasks"));
+				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview",messageLocator.getMessage("simplepage.layout.page.overview.label.tasks"));
 				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.task");
 			} else {	//text items for interiorTask only
-				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview",messageLocator.getMessage("simplepage.layout.page.overview.learningoutcomes"));
+				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview",messageLocator.getMessage("simplepage.layout.page.overview.label.learningoutcomes"));
 				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.lo");
 			}
 			overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.tail");
@@ -4782,7 +4802,7 @@ public class SimplePageBean {
 			itemNow.setAttribute(CHECKLIST_ITEMS,null);
 			itemNow.setAttribute(COL_COLOR,"trans");
 			update(itemNow);	//finish writing third item, Break for the checklist
-			itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.CHECKLIST,null,messageLocator.getMessage("simplepage.layout.page.overview.checklist"));
+			itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.CHECKLIST,null,messageLocator.getMessage("simplepage.layout.page.overview.label.checklist"));
 			sequence++;
 			itemNow.setDescription(messageLocator.getMessage("simplepage.layout.page.trackprogress"));
 			itemNow.setAttribute(INDENT_LEVEL,"0");
@@ -4799,7 +4819,7 @@ public class SimplePageBean {
 				itemNow.setHtml(messageLocator.getMessage("simplepage.layout.page.dates"));
 				itemNow.setAttribute(CHECKLIST_ITEMS,null);
 				update(itemNow); 	//finish writing fifth item, Important Dates
-				itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null,messageLocator.getMessage("simplepage.layout.page.overview.resources"));
+				itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null,messageLocator.getMessage("simplepage.layout.page.overview.label.resources"));
 				sequence++;
 				itemNow.setFormat(SECTION);
 				itemNow.setAttribute(FORCE_BTN,Boolean.FALSE.toString());
@@ -4808,7 +4828,7 @@ public class SimplePageBean {
 				update(itemNow);	//finish writing last page, Resources heading
 			} else {	//parts unique to interiorTask
 				for(int count=1; count<=this.pageTaskCount; count++){
-					itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null, messageLocator.getMessage("simplepage.layout.page.overview.task") + count);
+					itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null, messageLocator.getMessage("simplepage.layout.page.overview.label.task") + count);
 					sequence++;
 					itemNow.setFormat(SECTION);
 					itemNow.setAttribute(FORCE_BTN,Boolean.FALSE.toString());
@@ -5101,23 +5121,20 @@ public class SimplePageBean {
 
 	public void fixorder() {
 	    List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
-	    
-	    for(int i = 0; i < items.size(); i++) {
-		if(items.get(i).getSequence() <= 0) {
-		    items.remove(items.get(i));
-		    i--;
-		}
-	    }
+		items.sort(Comparator.comparing(SimplePageItem::getSequence));
 
-	    int i = 1;
-	    for(SimplePageItem item: items) {
-		if (item.getSequence() != i) {
-		    item.setSequence(i);
-		    update(item);
-		}
-		i++;
-	    }
+		// remove items where sequence is <= 0
+		items.stream().filter(i -> i.getSequence() <= 0).forEach(items::remove);
 
+		// the remaining items are ordered by sequence
+		int i = 1;
+		for (SimplePageItem item : items) {
+			if (item.getSequence() != i) {
+				item.setSequence(i);
+				update(item);
+			}
+			i++;
+		}
 	}
 
     // called by reorder tool to do the reordering
@@ -5184,7 +5201,7 @@ public class SimplePageBean {
 
 		// keep track of which old items are used so we can remove the ones that aren't.
 		// items in set are indices into "items"
-		Set<Integer>keep = new HashSet<>();
+		Set<SimplePageItem> keep = new HashSet<>();
 
 		// now do the reordering
 		for (int i = 0; i < split.length; i++) {
@@ -5192,7 +5209,7 @@ public class SimplePageBean {
 			    break;
 			if (split[i].startsWith("*")) {
 			    // item from second page. add copy
-			    SimplePageItem oldItem = secondItems.get(Integer.valueOf(split[i].substring(1)) - 1);
+			    SimplePageItem oldItem = secondItems.get(Integer.parseInt(split[i].substring(1)) - 1);
 			    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
 			    newItem.setPageId(getCurrentPageId());
 			    newItem.setSequence(i + 1);
@@ -5200,21 +5217,15 @@ public class SimplePageBean {
 			    simplePageToolDao.copyItem2(oldItem, newItem);
 			} else {
 			    // existing item. update its sequence and note that it's still used
-			    int old = items.get(Integer.valueOf(split[i]) - 1).getSequence();
-			    keep.add(Integer.valueOf(split[i]) - 1);
-			    items.get(Integer.valueOf(split[i]) - 1).setSequence(i + 1);
-			    if (old != i + 1) {
-				update(items.get(Integer.valueOf(split[i]) - 1));
-			    }
-
+			    SimplePageItem existingItem = items.get(Integer.parseInt(split[i]) - 1);
+			    existingItem.setSequence(i + 1);
+			    keep.add(existingItem);
+				update(existingItem);
 			}
 		}
 
-		// now kill all items on the page we didn't see in the new order
-		for (int i = 0; i < items.size(); i++) {
-		    if (!keep.contains((Integer)i))
-			deleteItem(items.get(i));
-		}
+		// delete items on the page that were not kept without changing the sequence of those items kept
+		items.stream().filter(Predicate.not(keep::contains)).forEach(i -> deleteItem(i, false));
 
 		itemsCache.remove(getCurrentPage().getPageId());
 		// removals left gaps in order. fix it.
@@ -7326,6 +7337,9 @@ public class SimplePageBean {
 			SimplePageComment commentObject = simplePageToolDao.makeComment(itemId, currentPageId, userId, comment, idManager.createUuid(), html);
 			commentObject.setPoints(grade);
 			
+			// Complete user task
+			this.completeUserTask(itemId, userId);
+			
 			saveItem(commentObject, false);
 		}else {
 			SimplePageComment commentObject = simplePageToolDao.findCommentById(Long.valueOf(editId));
@@ -7388,7 +7402,7 @@ public class SimplePageBean {
 						} else {
 							try {
 								add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
-									pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+									pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, LESSONBUILDER_ID);
 							} catch(ConflictingAssignmentNameException cane) {
 								add = false;
 								setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -7421,6 +7435,12 @@ public class SimplePageBean {
 				comment.setGradebookId(null);
 				comment.setGradebookPoints(null);
 			}
+			
+			// Create or update a task
+			String reference = "/lessonbuilder/item/" + comment.getId();
+			String title = getPage(comment.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.comments-task-title");
+                        // Dashboard task widget: When a comment item is added create a task item for the site members.
+			createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 			
  			// for forced comments, the UI won't ever do this, but if
  			// it does, update will fail with permissions
@@ -7601,6 +7621,9 @@ public class SimplePageBean {
 			
 			newPage.setTopParent(page.getId());
 			update(newPage, false);
+			
+			// Complete user task
+			this.completeUserTask(itemId, user.getId());
 			
 			try {
 				updatePageItem(containerItem.getId());
@@ -7793,7 +7816,7 @@ public class SimplePageBean {
 			}	
 
 			try {
-				boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, "Lesson Builder");				
+				boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, LESSONBUILDER_ID);				
 				if(!add) {
 					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 				}else {
@@ -7829,6 +7852,12 @@ public class SimplePageBean {
 		setItemGroups(item, selectedGroups);
 
 		saveOrUpdate(item);
+		
+		// Create or update a task
+		String reference = "/lessonbuilder/item/" + item.getId();
+		String title = getPage(item.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.question-task-title");
+                // Dashboard task widget: When a question item is added create a task item for the site members.
+		createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 
 		if(questionType.equals("multipleChoice")) {
 			simplePageToolDao.syncQRTotals(item);
@@ -7857,6 +7886,7 @@ public class SimplePageBean {
 		Double gradebookPoints = null;
 		if (question.getGradebookPoints() != null)
 		    gradebookPoints = (double)question.getGradebookPoints();
+		boolean questionGraded = "true".equals(question.getAttribute("questionGraded"));
 
 		boolean correct;
 		if(response.isOverridden()) {
@@ -7868,8 +7898,14 @@ public class SimplePageBean {
 			if(answer != null && answer.isCorrect()) {
 				correct = true;
 			}else if(answer != null && !answer.isCorrect()){
-				correct = false;
-				gradebookPoints = 0.0;
+				boolean noCorrectAnswers = !simplePageToolDao.hasCorrectAnswer(question);
+				if (noCorrectAnswers) {
+					correct = !questionGraded; // if not graded, it is a poll and any answer is "correct", otherwise requires manual grading so default to false
+					gradebookPoints = null;
+				} else { // autograded
+					correct = false;
+					gradebookPoints = 0.0;
+				}
 			}else {
 				// The answer no longer exists, so we'll just leave everything the way it was last time it was graded.
 				correct = response.isCorrect();
@@ -7881,23 +7917,30 @@ public class SimplePageBean {
 			String theirResponse = response.getShortanswer().trim().toLowerCase();
 			
 			int totalTokens = correctAnswerTokenizer.countTokens();
-			boolean foundAnswer = false;
-			for(int i = 0; i < totalTokens; i++) {
-				String token = correctAnswerTokenizer.nextToken().replaceAll("\n", "").trim().toLowerCase();
-				
-				if(theirResponse.equals(token)) {
-					foundAnswer = true;
-					break;
-				}
-			}
-			if(totalTokens == 0 && !theirResponse.isEmpty()) {
-				foundAnswer = true;
-			}
-			if(foundAnswer) {
-				correct = true;
-			}else {
+
+			if (totalTokens > 0) {  // correct answers exist
 				correct = false;
-				gradebookPoints = 0.0;
+				for(int i = 0; i < totalTokens; i++) {
+					String token = correctAnswerTokenizer.nextToken().replaceAll("\n", "").trim().toLowerCase();
+
+					if(theirResponse.equals(token)) {
+						correct = true;
+						break;
+					}
+				}
+				if (questionGraded) {
+					if (!correct) {
+						gradebookPoints = 0.0;
+					}
+				} else {
+					gradebookPoints = null;
+				}
+			} else if (questionGraded) {  // no correct answers, manually graded
+				correct = false;
+				gradebookPoints = null;
+			} else {  // no correct answers, ungraded
+				correct = !theirResponse.isEmpty(); // any non-empty answer is considered "correct" for this question type
+				gradebookPoints = null;
 			}
 		}else {
 			log.warn("Invalid question type for question {}", question.getId());
@@ -7905,12 +7948,13 @@ public class SimplePageBean {
 		}
 		
 		response.setCorrect(correct);
-		if ("true".equals(question.getAttribute("questionGraded")))
+		if (gradebookPoints != null && questionGraded) {
 		    response.setPoints(gradebookPoints);
 		
-		if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
-			gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
-			       response.getUserId(), String.valueOf(gradebookPoints));
+			if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
+				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
+					   response.getUserId(), String.valueOf(gradebookPoints));
+			}
 		}
 
 		return correct;
@@ -7946,6 +7990,9 @@ public class SimplePageBean {
 		
 		gradeQuestionResponse(response);
 
+		// Complete user task
+		this.completeUserTask(questionId, userId);
+
 		saveItem(response);
 		
 		return "success";
@@ -7976,6 +8023,9 @@ public class SimplePageBean {
 		    questionResponse = questionResponse.trim();
 		response.setShortanswer(questionResponse);
 		gradeQuestionResponse(response);
+		
+		// Complete user task
+		this.completeUserTask(questionId, userId);
 		
 		saveItem(response);
 		
@@ -8079,7 +8129,7 @@ public class SimplePageBean {
 						add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null);
 					} else {
 						try {
-							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, "Lesson Builder");
+							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, LESSONBUILDER_ID);
 						} catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -8120,7 +8170,7 @@ public class SimplePageBean {
 					} else {
 					    try {
 							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
-								title, points, null, "Lesson Builder");
+								title, points, null, LESSONBUILDER_ID);
 					    } catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -8142,6 +8192,12 @@ public class SimplePageBean {
 				page.setAltPoints(null);
 				ungradeStudentPageComments(page);
 			}
+			
+			// Create or update a task
+			String reference = "/lessonbuilder/item/" + itemId;
+			String title = getPage(page.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.student-contents-task-title");
+			// Dashboard task widget: When a student content item is added create a task item for the site members.
+                        createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 			
 			update(page);
 			
@@ -9202,4 +9258,48 @@ public class SimplePageBean {
 		}
 		return status;
 	}
+
+	// Does the site contain GradebookNG or Gradebook Classic
+	public boolean isGradebookExists() {
+		return (this.getCurrentTool(this.GRADEBOOK_TOOL_ID) != null || this.getCurrentTool(this.GRADEBOOK_CLASSIC_TOOL_ID) != null);
+	}
+	
+	private void updateTask(String reference, String title, Date dueDate) {
+		Optional<Task> taskOpt = taskService.getTask(reference);
+		if (taskOpt.isPresent()) {
+			Task task = taskOpt.get();
+			task.setDescription(title);
+			task.setDue(dueDate == null ? null : dueDate.toInstant());
+			taskService.saveTask(task);
+		}
+	}
+	
+	private void createOrUpdateTask(String reference, String siteId, String title, Date dueDate) {
+		Optional<Task> taskOpt = taskService.getTask(reference);
+		if (!taskOpt.isPresent()) {
+			try {
+				Task task = new Task();
+				task.setSiteId(siteId);
+				task.setReference(reference);
+				task.setSystem(true);
+				task.setDescription(title);
+				task.setDue(dueDate == null ? null : dueDate.toInstant());
+				Site site = siteService.getSite(siteId);
+				Set<String> users = site.getUsersIsAllowed("section.role.student");
+				taskService.createTask(task, users, Priorities.HIGH);
+			} catch (Exception e) {
+				log.error(messageLocator.getMessage("simplepage.errorCreatingTask"), e);
+			}
+		} else {
+			Task task = taskOpt.get();
+			task.setDescription(title);
+			task.setDue(dueDate == null ? null : dueDate.toInstant());
+			taskService.saveTask(task);
+		}
+	}
+	
+	private void completeUserTask(Long itemId, String userId) {
+		taskService.completeUserTaskByReference("/lessonbuilder/item/" + itemId, Arrays.asList(userId) );
+	}
+	
 }

@@ -149,19 +149,6 @@
 	vertical-align: text-bottom;
 	width: 16px !important;
 }
-#addSherlockButton {
-    block: inline;
-	float: right;
-	background: url(/library/image/silk/zoom.png) center right no-repeat;
-}
-
-#addSherlockButton img {
-	margin: 0;
-        padding-left: 2px;
-        padding-right: 2px;
-	vertical-align: text-bottom;
-	width: 16px !important;
-}
 
 .ui-autocomplete {
 	position: absolute;

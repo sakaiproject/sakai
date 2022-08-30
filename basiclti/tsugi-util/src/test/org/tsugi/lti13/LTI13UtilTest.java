@@ -148,8 +148,9 @@ public class LTI13UtilTest {
 		check = LTI13Util.checkLTI11Transition(lj, "badkey", secret);
 		assertFalse(check);
 	}
+
 	@Test
-	public void testSerializeKeyPair() throws NoSuchAlgorithmException {
+	public void testSerialization() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         KeyPair tokenKeyPair = keyGen.genKeyPair();
@@ -172,7 +173,7 @@ public class LTI13UtilTest {
 	}
 
 	@Test
-	public void testDeSerializeKeyPair() throws NoSuchAlgorithmException {
+	public void testDeSerialization() throws NoSuchAlgorithmException {
 		String publicB64 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3YjlvUlElXQ8/xYg1mOKpQLDySbdy0lY1GgxdHnwmOQeXAma6wRHH3Aiv9gGj8Hr2Lml75jjwzMiyeML9bx3sLIRJ8j835cHQjDZDPddIiQlfeLBLuyTeQVxW//L/EIaNsRrXNLiw1kmTcJ7XYtj6PSsWIm77KBPSoSPpoNfHaO2kPQL4mHOKi62Deovk7tRn1qGnbau6AEvy8/8x5q9oN79JxL9dT2O06pgH4BN+0PSly27W+0KlAnrH82oHjJX0dJNO1Slzl0iFiXpuXGNzrNRdLTWxqwkf2wnjd3p/9MbQuOq3bsCV2N5XO1+pK5kb2U6n9vMtdBocZcGHszUXwIDAQAB";
 
 		String privateB64 = "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDdiOW9SUSVdDz/FiDWY4qlAsPJJt3LSVjUaDF0efCY5B5cCZrrBEcfcCK/2AaPwevYuaXvmOPDMyLJ4wv1vHewshEnyPzflwdCMNkM910iJCV94sEu7JN5BXFb/8v8Qho2xGtc0uLDWSZNwntdi2Po9KxYibvsoE9KhI+mg18do7aQ9AviYc4qLrYN6i+Tu1GfWoadtq7oAS/Lz/zHmr2g3v0nEv11PY7TqmAfgE37Q9KXLbtb7QqUCesfzageMlfR0k07VKXOXSIWJem5cY3Os1F0tNbGrCR/bCeN3en/0xtC46rduwJXY3lc7X6krmRvZTqf28y10GhxlwYezNRfAgMBAAECggEAAvphJD9E5cFvRHqWrGsgJQG5gg28s4vj3s8bwxYUjumaIuCaLYicMCcAwJV12R7hPcOZIHRss2YPlKkxsvb6oOxz4JYKGDNejJw9frggj2HvAxc2Q5w4i0rwcC0rH9P/qDbRvqizFa8wHaF8qRBDopEPdA098nthNX48tB9V+v7/APsyvQVvmd9pJVPSNbwB0nVvZYpYGnejdn1CPlXv9DFKdQWevWnKj3wqy6Kv4GaiT3LU3MBCBXmkxQxL6kbT0+0hWm+L4bhh+EKTQUjX6itcYHGOc52va4VZ9jSe6W+Jt7ozJ7h5s9gO9T/LZXQKcvfEdFrjNPQTLilEAZstqQKBgQDx6W50n6gjoAFLBrQTZtw6tbeZNN2ItRWQ+E0NvLHgtEz1G4+EGbOwNnHtGBkkAeHbb+mr/vy44qs5Lg/JSMqIGa03NIeZmZlQ1tyepV2byktTYa1o3EJ3xvx1FU0NcZnmJohM6bLKGLHAYyyvDCAyJXOiEOaMDI0f3Mf8UFa+4wKBgQDqb6wHXD7cbfzi0qBOSLQ2c0vLtaLqGpY1491hpga1Xh2ccJzS2J+rrrwABFtkWt5qx5/K6GG2BSdp+GfeqsPlAM0//vwHere0AKdKibvXkiDuuwDGyGATPCKNsjjIMtnaX4EtKLv3D/sBh+sMQUE4rdcH0IeKg7I+7G8ZPpIxVQKBgD2x9NOVbEI5qlrCCObx0rS+Z2aRTvZwiGGCkdQxDYRrNz1DnCRqkaMdH40CGldOi5V1Qzj0POvCEzzv/GKvR8fSFJUBtpt7ytgNFBL5xZfXzcIkJR+bHPCDNRt/JTmKgV9q8FP9PfXAuoSARoMWKpffaVAp00JgaRV5Lx+wNY9VAoGAOqTYubafmvCAlBTwOOUC/6Pzz++N41XnQW/Qzz6C6xex/JJHCI9b0cySBscQPZhljvyEwnNDDg9X/rA++3poKn762Qll7lEKZyLKtmCh9pj9V/q7hP5W2jjuw9dTUPE3geLmI2/PJUyAE6/2Ykhokk8aPUAyx7mN+yOV3xDB7UkCgYB2+4MJpP5rd7NsLS+bY49etfcE38nywz2HQQMOw2spGnwAN4nsemh29sTu+ux9HQjLkhH1suCOfWazorgs9bWVZklyFqqEzvfRU8a9QIL4lF4PwTitvpJf/TPTZpl5a7SBW4q8UhbkVwoi+1RbSg49x3qVkJiFzsd6eWJTtqq7Pw==";
@@ -205,6 +206,24 @@ public class LTI13UtilTest {
 
 		assertEquals(publicB64, newPublicB64);
 		assertEquals(privateB64, newPrivateB64);
+	}
+
+	@Test
+	public void testSerializeKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        KeyPair tokenKeyPair = keyGen.genKeyPair();
+		String publicStr = LTI13Util.getPublicEncoded(tokenKeyPair);
+		String privateStr = LTI13Util.getPrivateEncoded(tokenKeyPair);
+
+		String ser = LTI13Util.serializeKeyPair(tokenKeyPair);
+		assertNotNull(ser);
+        KeyPair deser = LTI13Util.deSerializeKeyPair(ser);
+		assertNotNull(deser);
+		String publicStrNew = LTI13Util.getPublicEncoded(deser);
+		assertEquals(publicStr, publicStrNew);
+		String privateStrNew = LTI13Util.getPrivateEncoded(deser);
+		assertEquals(privateStr, privateStrNew);
 	}
 
 	@Test

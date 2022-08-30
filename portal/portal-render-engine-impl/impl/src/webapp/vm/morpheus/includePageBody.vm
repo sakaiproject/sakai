@@ -55,7 +55,7 @@
                         #if (${tool.hasRenderResult})
 
 
-                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav" aria-label="${rloader.sit_toolnavigation}">
+                            <div class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav">
 
                                 #if (${tool.toolShowResetButton})
 
@@ -142,11 +142,11 @@
 
                                 </div>
 
-                            </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
+                            </div> ## END div.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
 
                         #else
 
-                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+                            <div class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
 
                                 #if (${tool.toolShowResetButton})
 
@@ -171,7 +171,7 @@
 
                                 #end ## END of IF (${tool.toolShowHelpButton})
 
-                            </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
+                            </div> ## END div.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
 
                         #end ## END of IF (${tool.hasRenderResult})
 
@@ -231,7 +231,7 @@
                       #else
 
                         #if (${tool.hasRenderResult})
-                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+                            <div class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
                                     
                                 #if (${tool.toolShowResetButton})
                                     <h2 class="Mrphs-toolTitleNav__title">
@@ -291,11 +291,11 @@
 
                                 </div>
                                 
-                            </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
+                            </div> ## END div.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
                             
                         #else
                         
-                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+                            <div class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
 
                                 #if (${tool.toolShowResetButton})
                                     <h2 class="Mrphs-toolTitleNav__title">
@@ -315,7 +315,7 @@
                                     </a>
                                 #end ## END of IF (${tool.toolShowHelpButton})
                                     
-                            </nav><!-- End of nav.portlet portlet-title wrapper -->
+                            </div><!-- End of div.portlet portlet-title wrapper -->
                             
                         #end ## END of IF (${tool.hasRenderResult})
                       

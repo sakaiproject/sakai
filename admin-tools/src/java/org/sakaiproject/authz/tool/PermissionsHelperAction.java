@@ -95,6 +95,9 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	/** State attribute for the description of what's being edited - users should set before starting. */
 	public static final String STATE_DESCRIPTION = "permission.description";
 
+	/** State attribute for the text content of the warning banner - if not set, banner is not displayed. */
+	public static final String STATE_WARNING = "permission.warning";
+
 	/** State attribute for the lock/ability string prefix to be presented / edited - users should set before starting. */
 	public static final String STATE_PREFIX = "permission.prefix";
 
@@ -212,6 +215,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String prefix = (String) toolSession.getAttribute(PermissionsHelper.PREFIX);
 		String targetRef = (String) toolSession.getAttribute(PermissionsHelper.TARGET_REF);
 		String description = (String) toolSession.getAttribute(PermissionsHelper.DESCRIPTION);
+		String warning = (String) toolSession.getAttribute(PermissionsHelper.WARNING);
 		Object rolesRef = toolSession.getAttribute(PermissionsHelper.ROLES_REF);
 		if (rolesRef == null) rolesRef = targetRef;
 
@@ -232,6 +236,9 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 		// ... with this description
 		state.setAttribute(STATE_DESCRIPTION, description);
+
+		// ... with this warning
+		state.setAttribute(STATE_WARNING, warning);
 
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(STATE_PREFIX, prefix);
@@ -492,6 +499,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		context.put("realm", viewEdit != null ? viewEdit : edit);
 		context.put("prefix", prefix);
 		context.put("description", description);
+		context.put("warning", (String) state.getAttribute(STATE_WARNING));
 		if (roles.size() > 0)
 		{
 			context.put("roles", roles);

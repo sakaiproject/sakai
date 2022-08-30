@@ -161,6 +161,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",
             "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",
 
+            // SAK-46714 - Remove lti13_platform / LTI13_PLATFORM data in Sakai 23
             // SAK-45491 - Key rotation interval
             "lti13_platform_public_next:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
             "lti13_platform_public_next_at:date",
@@ -291,6 +292,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI13 = "lti13";
     String LTI13_CLIENT_ID = "lti13_client_id";
     String LTI13_TOOL_KEYSET = "lti13_tool_keyset";
+
+    // SAK-46714 - Remove lti13_platform / LTI13_PLATFORM data in Sakai 23
     String LTI13_PLATFORM_PUBLIC_NEXT = "lti13_platform_public_next";
     String LTI13_PLATFORM_PUBLIC_NEXT_AT = "lti13_platform_public_next_at";
     String LTI13_PLATFORM_PRIVATE_NEXT = "lti13_platform_private_next";
@@ -298,6 +301,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI13_PLATFORM_PRIVATE = "lti13_platform_private";
     String LTI13_PLATFORM_PUBLIC_OLD = "lti13_platform_public_old";
     String LTI13_PLATFORM_PUBLIC_OLD_AT = "lti13_platform_public_old_at";
+
     String LTI13_OIDC_ENDPOINT = "lti13_oidc_endpoint";
     String LTI13_OIDC_REDIRECT = "lti13_oidc_redirect";
 
@@ -391,11 +395,20 @@ public interface LTIService extends LTISubstitutionsFilter {
     // Tool Retrieval
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId);
 
+    List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed);
+
     /**
      * Gets a list of the launchable tools in the site
      * @param siteId
      */
     List<Map<String, Object>> getToolsLaunch(String siteId);
+
+    /**
+     * Gets a list of the launchable tools in the site, optionally including stealthed LTI tools
+     * @param siteId
+     * @param includeStealthed
+     */
+    List<Map<String, Object>> getToolsLaunch(String siteId, boolean includeStealthed);
 
     /**
      * Gets a list of tools that can configure themselves in the site
@@ -436,6 +449,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId);
 
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin);
+
+    List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin, boolean includeStealthed);
 
 
     // --- Content

@@ -632,11 +632,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 			else
 			{
-				String roleswap = securityService().getUserEffectiveRole(site.getReference());
-				if (roleswap!=null) // if in a swapped mode, treat it as a normal site else do the normal unpublished c
-					unlock(SITE_VISIT, site.getReference());
-				else
-					unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
+				unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
 			}
 		}
 	}
@@ -1495,11 +1491,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 			//KNL-983 only soft delete if not user site
 			//made it verbose for logging purposes
 			if(isUserSite(site.getId())) {
-				log.debug("Site: " + site.getId() + " is user site and will be hard deleted.");
+				log.debug("Site: {} is user site and will be hard deleted.", site.getId());
 			} else if (isSpecialSite(site.getId())) {
-				log.debug("Site: " + site.getId() + " is special site and will be hard deleted.");
+				log.debug("Site: {} is special site and will be hard deleted.", site.getId());
 			} else {
-				log.debug("Site: " + site.getId() + " is not user or special site and will be soft deleted.");
+				log.debug("Site: {} is not user or special site and will be soft deleted.", site.getId());
 			
 				// if site is not already softly deleted, softly delete it
 				// if already marked for deletion, check permission to hard delete, if ok, let continue.

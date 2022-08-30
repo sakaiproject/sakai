@@ -44,6 +44,7 @@ import org.sakaiproject.commons.api.CommonsConstants;
 import org.sakaiproject.commons.api.PersistenceManager;
 import org.sakaiproject.commons.api.QueryBean;
 import org.sakaiproject.commons.api.SakaiProxy;
+import org.sakaiproject.user.api.User;
 
 /**
  * @author Adrian Fish (adrian.r.fish@gmail.com)
@@ -163,7 +164,11 @@ public class PersistenceManagerImpl implements PersistenceManager {
         if (comments.size() > 0) {
             Comment comment = comments.get(0);
             comment.setPost(comment.getPost());
-            comment.setCreatorDisplayName(sakaiProxy.getDisplayNameForTheUser(comment.getCreatorId()));
+            User user = sakaiProxy.getUser(comment.getCreatorId());
+            if (user != null ) {
+                comment.setCreatorDisplayName(user.getDisplayName());
+                comment.setCreatorUserName(user.getEid());
+            }
             return Optional.of(comment);
         } else {
             log.warn("No comment for id {}", commentId);
@@ -359,8 +364,13 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
         try {
             Post post = new Post(result);
-            post.setCreatorDisplayName(
-                    sakaiProxy.getDisplayNameForTheUser(post.getCreatorId()));
+
+            User user = sakaiProxy.getUser(post.getCreatorId());
+            if (user != null ) {
+                post.setCreatorDisplayName(user.getDisplayName());
+                post.setCreatorUserName(user.getEid());
+            }
+
             if (loadComments) {
                 List<Comment> comments = sqlService.dbRead(COMMENTS_SELECT
                         , new Object[] {post.getId()}
@@ -369,8 +379,11 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
                                 try {
                                     Comment comment = new Comment(commentResult);
-                                    comment.setCreatorDisplayName(
-                                            sakaiProxy.getDisplayNameForTheUser(comment.getCreatorId()));
+                                    User user = sakaiProxy.getUser(comment.getCreatorId());
+                                    if (user != null ) {
+                                        comment.setCreatorDisplayName(user.getDisplayName());
+                                        comment.setCreatorUserName(user.getEid());
+                                    }
                                     String toolId = sakaiProxy.getCommonsToolId(post.getSiteId());
                                     String url = sakaiProxy.getPortalUrl() + "/directtool/"
                                                             + toolId + "?state=post&postId=" + post.getId();

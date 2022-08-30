@@ -34,6 +34,7 @@
 
 package org.sakaiproject.signup.logic;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Role;
 
 /**
@@ -42,7 +43,7 @@ import org.sakaiproject.authz.api.Role;
  * informaion for Signup Tool
  * </P>
  */
-public class SignupUser implements Comparable {
+public class SignupUser {
 
 	private String eid;
 
@@ -120,38 +121,6 @@ public class SignupUser implements Comparable {
 
 	public int hashCode() {
 		return eid.hashCode();
-	}
-
-	/**
-	 * for sorting purpose. It's according to string alphabetic order. Last name
-	 * comes first
-	 */
-	public int compareTo(Object o) {
-		if (o == null)
-			return -1;
-		if (!(o instanceof SignupUser))
-			throw new ClassCastException("Not type of SignupUser");
-
-		SignupUser other = (SignupUser) o;
-
-		if (lastName == null)
-			return -1;
-
-		int value = lastName.compareTo(other.getLastName());
-		if (value != 0)
-			return value;
-
-		if (firstName == null && other.getFirstName() !=null)
-			return -1;
-		
-		if (firstName != null){
-			value = firstName.compareTo(other.getFirstName());
-			if(value !=0)
-				return value;
-		}
-
-		return eid !=null? eid.compareTo(other.getEid()): 0;
-
 	}
 
 	/**

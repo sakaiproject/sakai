@@ -4,17 +4,22 @@
 <%@ include file="security_static_include.jsp"%>
 
 
-
 <f:view>
 	<sakai:view_container title="#{msgs.title_trigger}">
-
-        <sakai:script contextBase="/jsf-resource" path="/inputDate/inputDate.js"/>
-        <sakai:script contextBase="/jsf-resource" path="/inputDate/calendar1.js"/>
-        <sakai:script contextBase="/jsf-resource" path="/inputDate/calendar2.js"/>
+	  <script>
+	  function addDefaultTime(event) {
+	    const dateValue = event.target.value;
+	    if (!dateValue) {
+	      const d = new Date();
+	      event.target.value = d.toISOString().substring(0,10) + "T00:00";
+	    }
+	  }
+	  </script>
 
 	  <h:form id="filterForm">
   	    <h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
-
+        <h:outputText id="beforeHidden" value="#{schedulerTool.beforeFilter}" style="display:none;" />
+        <h:outputText id="afterHidden" value="#{schedulerTool.afterFilter}" style="display:none;"/>
         <sakai:panel_titled>
             <h1><h:outputText value="#{msgs.filter_title}"/></h1>
 
@@ -25,13 +30,13 @@
             </h2>
             <h:outputText value="#{msgs.filter_date_instructions}" styleClass="instructions"/><br/>
             <h3>
-                <h:outputText value="#{msgs.filter_before_title}"/>
+                <label for="beforeFilter"><h:outputText value="#{msgs.filter_before_title}"/></label>
             </h3>
-            <sakai:input_date value="#{schedulerTool.eventPager.before}" showDate="true" showTime="false"/><br/>
+            <input type="datetime-local" name="before" id="beforeFilter" onfocus="addDefaultTime(event);"/>
             <h3>
-                <h:outputText value="#{msgs.filter_after_title}"/>
+                <label for="afterFilter"><h:outputText value="#{msgs.filter_after_title}"/></label>
             </h3>
-            <sakai:input_date value="#{schedulerTool.eventPager.after}" showDate="true" showTime="false"/>
+            <input type="datetime-local" name="after" id="afterFilter" onfocus="addDefaultTime(event);" />
 
             <h2>
                 <h:outputText value="#{msgs.filter_job_title}"/>
@@ -64,6 +69,11 @@
                 action="#{schedulerTool.processClearFilters}"
                 value="#{msgs.clearFilters}" />
         </sakai:button_bar>
+
+        <script>
+            document.getElementById('beforeFilter').value = document.getElementById('filterForm:beforeHidden').textContent;
+            document.getElementById('afterFilter').value = document.getElementById('filterForm:afterHidden').textContent;;
+        </script>
 
       </h:form>
     </sakai:view_container>

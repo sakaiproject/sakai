@@ -28,16 +28,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Data
 public class UserTaskAdapterBean {
 
-    public static UserTaskAdapterBean from(UserTask userTask) {
-
-        UserTaskAdapterBean bean = new UserTaskAdapterBean();
-        BeanUtils.copyProperties(userTask, bean);
-        BeanUtils.copyProperties(userTask.getTask(), bean);
-        bean.setUserTaskId(userTask.getId());
-        bean.setTaskId(userTask.getTask().getId());
-        return bean;
-    }
-
     private Long userTaskId;
     private Long taskId;
     private String userId;
@@ -47,6 +37,7 @@ public class UserTaskAdapterBean {
     private String reference;
     private Boolean system;
     private Boolean complete;
+    private String owner;
 
     @JsonSerialize(using = InstantToMillisJsonSerializer.class)
     @JsonDeserialize(using = MillisToInstantJsonDeserializer.class)
@@ -60,4 +51,19 @@ public class UserTaskAdapterBean {
     private String notes;
     private String url;
     private Boolean softDeleted;
+    private String assignationType;
+    private String[] selectedGroups;
+    private String taskAssignedTo;
+    
+    public static UserTaskAdapterBean from(UserTask userTask) {
+
+        UserTaskAdapterBean bean = new UserTaskAdapterBean();
+        BeanUtils.copyProperties(userTask, bean);
+        BeanUtils.copyProperties(userTask.getTask(), bean);
+        bean.setUserTaskId(userTask.getId());
+        bean.setTaskId(userTask.getTask().getId());
+        bean.setDue(userTask.getTask().getDue());
+        return bean;
+    }
+    
 }

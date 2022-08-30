@@ -7,13 +7,14 @@
 
         <form wicket:id="sakaiRubricGradingForm">
             <sakai-rubric-grading wicket:id="sakai-rubric-grading"></sakai-rubric-grading>
-
+            <sakai-rubric-student wicket:id="sakai-rubric-viewer"></sakai-rubric-student>
             <div>
                 <input type="submit" wicket:id="submit" wicket:message="value:button.saverubricgrading" />
                 <input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
+                <input type="submit" wicket:id="closeViewer" wicket:message="value:button.done" />
             </div>
         </form>
-        <script src="/gradebookng-tool/scripts/gradebook-saverubric.js"></script>
+        <script src="/gradebookng-tool/scripts/gradebook-savecancelrubric.js"></script>
 
     </wicket:panel>
 </body>

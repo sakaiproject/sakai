@@ -103,23 +103,29 @@ function returnToHostUrl(url) {
   }
 }
 
-function initRubricDialog(gradingId, saveText, cancelText, titleText) {
+function initRubricDialog(gradingId, doneText, cancelText, titleText) {
 
-  var modalId = "modal" + gradingId;
-  var previousScore =  $('.adjustedScore' + gradingId).val();
-  $("#" + modalId).dialog({
+  gradingId = ("" + gradingId).replace(".", "\\.");
+
+  const input = document.querySelector(`.adjustedScore${gradingId}`);
+  const previousScore = input.value;
+
+  $(`#modal${gradingId}`).dialog({
     modal: true,
     buttons: [
       {
-        text: saveText,
-        click: function () { $(this).dialog("close"); }
+        text: doneText,
+        click: function () { 
+          $(this).dialog("close");
+        }
       },
       {
         text: cancelText,
         click: function () {
 
+          this.querySelector(`sakai-rubric-grading`).cancel();
           $(this).dialog("close");
-          $('.adjustedScore' + gradingId).val(previousScore);
+          input.value = previousScore;
         }
       }
     ],
@@ -139,7 +145,10 @@ $(function () {
     // handles point changes for assignments, updating the grade field if it exists.
     var gradeField = $('.adjustedScore' + e.detail.evaluatedItemId.replace("\.", "\\."));
     if (gradeField) {
-      gradeField.val(e.detail.value);
+      let score = e.detail.value;
+      // In some locales Rubrics may set comma instead of dot as decimal separator.
+      score = score.replace(",", ".");
+      gradeField.val(score);
     }
   });
 
@@ -161,6 +170,16 @@ $(function () {
 
   saveButton = document.getElementById("editTotalResults:save");
   saveButton && saveButton.addEventListener("click", save);
+
+  const cancel = e => {
+    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(srb => srb.cancel());
+  };
+
+  let cancelButton = document.getElementById("editStudentResults:cancel");
+  cancelButton && cancelButton.addEventListener("click", cancel);
+
+  cancelButton = document.getElementById("editTotalResults:cancel");
+  cancelButton && cancelButton.addEventListener("click", cancel);
 
   if ( $("#selectIndexForm\\:selectTable").length ) {
     $("#selectIndexForm\\:selectTable").tablesorter({ 

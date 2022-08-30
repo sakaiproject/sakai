@@ -133,6 +133,35 @@
 		}
 	}
 
+	.flex-wrap {
+		display: flex;
+		padding-bottom: 3px;
+	}
+
+	.textPanelFooter {
+		font-size: 90%;
+		margin-right: 4px;
+	}
+
+	legend.textPanelFooter {
+		padding-left: 0;
+		font-weight: bold;
+	}
+
+	input[type=text] {
+		margin-right: 4px;
+		padding: 0px 6px;
+	}
+
+	::placeholder {
+		font-size: 90%;
+		color: var(--sakai-text-color-disabled);
+	}
+
+	select#defaultGrade_1 {
+		margin-right: 4px;
+	}
+
 	.table{
 		h5{
 			margin: 0 0 0.5em 0;
@@ -588,10 +617,12 @@
 
 		.progress-bar-empty {
 			background-color: transparent;
-			color: var(--sakai-text-color-1);
+			font-weight: 600;
 		}
 
-
+		.active {
+			background-color: var(--progress-bar-bg);
+		}
 	}
 
 	.student-picture {
@@ -661,5 +692,18 @@
   #checkGroupFailed.is-hidden,
   #checkGroupsErrorReport.is-hidden {
 	  display: none;
+  }
+
+  .private-notes-textarea {
+	  margin-bottom: 15px;
+  }
+
+  .student-name {
+      display: flex;
+      align-items: center;
+
+      div:first-child {
+          margin-right: 7px;
+      }
   }
 }

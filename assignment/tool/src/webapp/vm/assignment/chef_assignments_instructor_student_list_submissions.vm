@@ -1,4 +1,5 @@
 <!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
+#module("/webcomponents/sakai-user-photo.js")
 <div class="portletBody container-fluid">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
@@ -80,21 +81,36 @@
 							#end
 						<tr>
 							<td headers="studentname" class="specialLink">
-									<div class="spinnerBesideContainer">
-								#set( $userSpinnerID = "userSpinner_" + $member.Id )
-								#if (!$studentListShowSet.contains($member.Id))
-										<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
-											title="$tlang.getString("stulistsunbm.shostuass")" name="studentLink" >
-										<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" />
-								#else
-										<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
-											title="$tlang.getString("stulistsunbm.hidstuass")" name="studentLink" >
-										<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />
-								#end
-										$formattedText.escapeHtml($submitterName)
-										</a>
-										<div id="$userSpinnerID" class="allocatedSpinPlaceholder"></div>
+								<div class="student-name">
+									<div>
+										#if ($isAnon || $assignment.IsGroup)
+										<sakai-user-photo user-id="blank"></sakai-user-photo>
+										#else
+										<sakai-user-photo
+											user-id="$member.id"
+											label="$tlang.getFormattedMessage("grading.userphoto", $member.displayName)"
+											profile-popup="on">
+										</sakai-user-photo>
+										#end
 									</div>
+									<div>
+										<div class="spinnerBesideContainer">
+											#set( $userSpinnerID = "userSpinner_" + $member.Id )
+											#if (!$studentListShowSet.contains($member.Id))
+													<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
+														title="$tlang.getString("stulistsunbm.shostuass")" name="studentLink" >
+													<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" />
+											#else
+													<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
+														title="$tlang.getString("stulistsunbm.hidstuass")" name="studentLink" >
+													<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />
+											#end
+											$formattedText.escapeHtml($submitterName)
+											</a>
+											<div id="$userSpinnerID" class="allocatedSpinPlaceholder"></div>
+										</div>
+									</div>
+								</div>
 							</td>
 							<td colspan="5">
 							</td>
@@ -159,7 +175,7 @@
 											#if ($submission)
 												#set($submissionId = $submission.Id)
 											#end
-											$!service.getSubmissionStatus($!submissionId)
+											$!service.getSubmissionStatus($!submissionId, true)
 											&nbsp;
 										</td>
 										#if ($!isTimesheet)

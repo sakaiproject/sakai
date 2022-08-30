@@ -25,7 +25,7 @@ public class EpochMillisFormatter implements Formatter<Instant> {
 
     @Override
     public Instant parse(String text, Locale locale) throws ParseException {
-        return Instant.ofEpochMilli(Long.decode(text)/1000);
+        return Instant.ofEpochMilli(Long.decode(text) / 1000);
     }
 
     @Override

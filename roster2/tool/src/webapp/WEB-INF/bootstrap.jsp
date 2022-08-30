@@ -23,6 +23,7 @@
       xml:lang="${language}"
       lang="${language}">
     <head>
+        <script type="module" src="/webcomponents/sakai-user-photo.js${portalCDNQuery}"></script>
         <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css${portalCDNQuery}" media="all" />
         <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css${portalCDNQuery}" />
 
@@ -69,7 +70,7 @@
         </div> <!-- portletBody -->
 
         <script>includeLatestJQuery("roster");</script>
-        <script src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js${portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/assets/imagesloaded/imagesloaded.pkgd.min.js"></script>
         <script src="/profile2-tool/javascript/profile2-eb.js${portalCDNQuery}"></script>
         <script>includeWebjarLibrary("handlebars");</script>
         <script src="/sakai-roster2-tool/templates.js${portalCDNQuery}"></script>

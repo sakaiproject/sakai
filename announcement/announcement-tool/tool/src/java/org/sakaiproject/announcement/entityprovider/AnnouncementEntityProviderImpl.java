@@ -43,6 +43,7 @@ import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.announcement.tool.AnnouncementAction;
 import org.sakaiproject.announcement.tool.AnnouncementWrapper;
 import org.sakaiproject.announcement.tool.AnnouncementWrapperComparator;
@@ -69,7 +70,6 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.javax.Filter;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -236,7 +236,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//for each channel
 		for (String channel : channels) {
 			try {
-				announcements.addAll(announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements), announcementSortAsc, false));
+				announcements.addAll(announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements, announcementService), announcementSortAsc, false));
 			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
 				//user may not have access to view the channel but get all public messages in this channel
 				AnnouncementChannel announcementChannel = (AnnouncementChannel) announcementService.getChannelPublic(channel);
@@ -762,60 +762,6 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	        return (lastCmp != 0 ? lastCmp : createdOn.compareTo(field));
 		}
 		
-	}
-
-	protected class ViewableFilter implements Filter {
-		protected Filter m_filter = null;
-		protected int m_numberOfAnnouncements;
-		protected Time t;
-
-		private int accepted = 0;
-
-		/**
-		 * Show viewable announcements and limit the result
-		 * @param filter The other filter we check with.
-		 * @param t Min Time to be showed
-		 * @param numberOfAnnouncements Limited to latest numberOfAnnouncements
-		 */
-		public ViewableFilter(Filter filter, Time t, int numberOfAnnouncements) {
-			this.m_filter = filter;
-			this.m_numberOfAnnouncements = numberOfAnnouncements;
-			this.t = t;
-		}
-
-		/**
-		 * Does this object satisfy the criteria of the filter?
-		 * @param o The object
-		 * @return true if the object is accepted by the filter, false if not.
-		 */
-		public boolean accept(Object o) {
-			if (accepted >= m_numberOfAnnouncements){
-				return false;
-			}
-
-			if (o instanceof AnnouncementMessage) {
-				AnnouncementMessage msg = (AnnouncementMessage) o;
-
-				ResourceProperties msgProperties = msg.getProperties();
-				String releaseDate = msgProperties.getProperty(AnnouncementService.RELEASE_DATE);
-				if (releaseDate != null) {
-					long release = Long.parseLong(releaseDate);
-					long limitDate = Long.parseLong(t.toString());
-					if (release < limitDate) {
-						return false;
-					}
-				}
-
-				if (msg.getHeader().getDraft() || !announcementService.isMessageViewable(msg)) {
-					return false;
-				}
-			}
-
-			if (m_filter != null) return m_filter.accept(o);
-
-			accepted++;
-			return true;
-		}
 	}
 	
 	@Setter

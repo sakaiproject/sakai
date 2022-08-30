@@ -1,4 +1,4 @@
-import { html } from "../assets/@lion/core/index.js";
+import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
 import "../sakai-icon.js";
 import "../sakai-pager.js";
@@ -20,6 +20,7 @@ export class ConversationsStatistics extends SakaiElement {
 
     this.sort = "nameAscending";
     this.sortByNameAscending = true;
+    this.count = 0;
 
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
@@ -121,6 +122,10 @@ export class ConversationsStatistics extends SakaiElement {
     this.loadStatsPage(1);
   }
 
+  _setThisWeek() { this.interval = THIS_WEEK; }
+
+  _setAllTime() { this.interval = ALL_TIME; }
+
   shouldUpdate() {
     return this.i18n && this.stats;
   }
@@ -135,12 +140,12 @@ export class ConversationsStatistics extends SakaiElement {
           <input type="radio"
               name="timeframe"
               value="${THIS_WEEK}"
-              @click=${() => this.interval = THIS_WEEK}
+              @click="${this._setThisWeek}"
               checked>${this.i18n.this_week}
           <input type="radio"
               name="timeframe"
               value="${ALL_TIME}"
-              @click=${() => this.interval = ALL_TIME}>${this.i18n.all_time}
+              @click="${this._setAllTime}">${this.i18n.all_time}
         </div>
       </div>
         <sakai-pager count="${this.count}" current="${this.currentPage}" @page-selected=${this.pageClicked}></sakai-pager>
@@ -217,7 +222,7 @@ export class ConversationsStatistics extends SakaiElement {
                   </div>
                 </a>
               </th>
-            </tr
+            </tr>
           </thead>
           <tbody>
         ${this.stats.map(stat => html`

@@ -27,7 +27,7 @@ $(document).ready(function(){
 #javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
 <div class="portletBody">
-#if ($assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
+#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
     #navBarTimesheet("Assignment")
 #end
 ## submission times
@@ -68,7 +68,7 @@ $(document).ready(function(){
 			<h3>
 				$formattedText.escapeHtml($assignment.Title)
 				<span class="highlight">
-					 - $!service.getSubmissionStatus($submission.Id)
+					 - $!service.getSubmissionStatus($submission.Id, true)
 				</span>
 			</h3>
 			#end
@@ -140,7 +140,7 @@ $(document).ready(function(){
 		#progressBar($!service.getProgressBarStatus($!submission))
 	#end
 ##		<h4>$tlang.getString("gen.assdet")</h4>
-	#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+	#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 		#parse ("/vm/assignment/chef_assignments_student_estimate.vm")
 	#end
 		<div id="StudentAssignmentCurrent">
@@ -151,8 +151,8 @@ $(document).ready(function(){
 				</div>
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
-						#assignmentTitleIcon($assignment)
 						$formattedText.escapeHtml($assignment.Title)
+						#assignmentIcons($assignment)
 						#set ($deleted = false)
 						#set ($deleted = $assignment.Deleted)
 						#if ($deleted)
@@ -219,7 +219,7 @@ $(document).ready(function(){
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
 							#if ($!submission)
-								$!service.getSubmissionStatus($submission.Id)
+								$!service.getSubmissionStatus($submission.Id, true)
 							#else
 								$tlang.getString("gen.notsta")
 							#end
@@ -297,7 +297,7 @@ $(document).ready(function(){
 					</div>
 				#end
 			#end
-			#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+			#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<div class="row">
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryHeader">$tlang.getString("gen.estimatedselfempl")</div>
@@ -369,16 +369,17 @@ $(document).ready(function(){
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
 		<sakai-rubric-student-preview-button
-			token="$!rbcs-token"
-			tool-id="sakai.assignment"
+			site-id="$context"
+			tool-id="sakai.assignment.grades"
 			entity-id="$assignment.Id"></sakai-rubric-student-preview-button>
 
 		#if ($submission.Graded && ($submission.GradeReleased || $returned))
 		<sakai-rubric-student
-			token="$!rbcs-token"
-			tool-id="sakai.assignment"
+			site-id="$context"
+			tool-id="sakai.assignment.grades"
 			entity-id="$assignment.Id"
 			evaluated-item-id="$submission.Id"
+			enable-pdf-export="$enablePdfExport"
 		></sakai-rubric-student>
 		#end
 
@@ -544,13 +545,13 @@ $(document).ready(function(){
 									<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
 									<em>
 										$plagiarismNote
-										#if ($plagiarismFileTypes || $plagiarismFileSize)
+										#if ($plagiarismFileTypes || $plagiarismProviderInfo)
 											<ul>
 												#if ($plagiarismFileTypes)
-													<li>$plagiarismFileTypes</li>
+													$plagiarismFileTypes
 												#end
-												#if ($plagiarismFileSize)
-													$plagiarismFileSize
+												#if ($plagiarismProviderInfo)
+													$plagiarismProviderInfo
 												#end
 											</ul>
 										#end
@@ -646,13 +647,13 @@ $(document).ready(function(){
 							<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
 							<em>
 								$plagiarismNote
-								#if ($plagiarismFileTypes || $plagiarismFileSize)
+								#if ($plagiarismFileTypes || $plagiarismProviderInfo)
 									<ul>
 										#if ($plagiarismFileTypes)
-											<li>$plagiarismFileTypes</li>
+											$plagiarismFileTypes
 										#end
-										#if ($plagiarismFileSize)
-											$plagiarismFileSize
+										#if ($plagiarismProviderInfo)
+											$plagiarismProviderInfo
 										#end
 									</ul>
 								#end
@@ -673,7 +674,7 @@ $(document).ready(function(){
 					#end
 				#end
 			#end
-			#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+			#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<div id="spenttimepanel" class="highlightPanel">
 				<h3>
 					$tlang.getString("gen.spenttime")
@@ -684,7 +685,7 @@ $(document).ready(function(){
 					#else
 						<div class="col-sm-5">
 					#end
-						<label class="itemSummaryHeader itemSummaryWrap"">$tlang.getString("gen.totaltimespent")</label>
+						<label class="itemSummaryHeader itemSummaryWrap">$tlang.getString("gen.totaltimespent")</label>
 					</div>
 					<div class="col-sm-3">
 						<div class="itemSummaryValue">
@@ -734,7 +735,7 @@ $(document).ready(function(){
 							#foreach ($attachment in $attachments) 
 								#set ($props = false)
 								#set ($props = $attachment.Properties) 
-								#if ($!props)
+								#if ($!props && !$!props.isEmpty())
 									<tr>
 										<td>
 											#if ($props.getBooleanProperty($props.NamePropIsCollection))

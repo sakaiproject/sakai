@@ -33,6 +33,9 @@ import org.sakaiproject.time.api.Time;
  */
 public interface User extends Entity, Comparable
 {
+	
+	public static final String ROLEVIEW_USER_TYPE = "roleview";
+	
 	/**
 	 * @return the user who created this.
 	 */

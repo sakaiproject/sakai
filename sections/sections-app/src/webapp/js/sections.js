@@ -283,17 +283,16 @@ function initManuallyManageDialog() {
 	});
 }
 
-function update(management) {
-	if(document.optionsForm[2].checked){
-		if(management == 'external'){
+function proceedBasedOnManagement(management) {
+	if (document.optionsForm[2].checked && management == 'external') {
 			initManuallyManageDialog();
 			return false;
-		}
-	}else{
-		if(management == 'internal'){
+	} else if (management == 'internal') {
 			document.getElementById('optionsForm:updateSectionsButton').click();
 			return false;
-		}
+	} else {
+			document.getElementById('optionsForm:confirmExternallyManagedButton').click();
+			return false;
 	}
 }
 

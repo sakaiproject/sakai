@@ -27,6 +27,9 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <h1>
    <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
 </h1>
+
+<div id="timerPosition"></div>
+
 <%-- NAV BAR --%>
   <ul class="navIntraTool actionToolbar" role="menu">
   <h:panelGroup rendered="#{(delivery.feedbackComponent.showImmediate || delivery.feedbackOnDate) 

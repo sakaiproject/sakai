@@ -41,6 +41,10 @@
 			<artifactId>sakai-assignment-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.sakaiproject.samigo</groupId>
 			<artifactId>samigo-api</artifactId>
@@ -54,11 +58,6 @@
 		<dependency>
 			<groupId>org.sakaiproject.samigo</groupId>
 			<artifactId>samigo-hibernate</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
-			<artifactId>gradebook-service-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

@@ -225,10 +225,21 @@ public class AssignmentToolFsVolumeFactory implements ToolFsVolumeFactory {
         @Override
         public String getURL(SakaiFsItem fsItem) {
             String serverUrlPrefix = serverConfigurationService.getServerUrl();
+            String url = null;
             if (FsType.ASSIGNMENT.equals(fsItem.getType())) {
-                return serverUrlPrefix + ASSIGNMENT_URL_PREFIX + fsItem.getId();
+                if (serverConfigurationService.getBoolean("assignment.browse.deepLink", false)) {
+                    try {
+                        // deeplink for viewing the assignment
+                        url = assignmentService.getDeepLinkWithPermissions(siteId, fsItem.getId(), true, true, false, false);
+                    } catch (Exception e) {
+                        log.warn("Could not create deeplink for assignment {}", fsItem.getId());
+                    }
+                } else {
+                    // traditional entity link
+                    url = serverUrlPrefix + ASSIGNMENT_URL_PREFIX + fsItem.getId();
+                }
             }
-            return null;
+            return url;
         }
     }
 }

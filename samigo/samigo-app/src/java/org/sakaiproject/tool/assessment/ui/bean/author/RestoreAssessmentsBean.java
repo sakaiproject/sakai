@@ -43,7 +43,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -132,21 +131,19 @@ public class RestoreAssessmentsBean implements Serializable {
 
     private void updateGB(Long id) {
         try {
-            GradebookExternalAssessmentService g = null;
+            org.sakaiproject.grading.api.GradingService g = null;
             if (integrated) {
-                g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+                g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.grading.api.GradingService");
             }
-            if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)) {
-                PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-                PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(String.valueOf(id));
-                PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
-                if (evaluation == null) {
-                    evaluation = new PublishedEvaluationModel();
-                    evaluation.setAssessmentBase(assessment.getData());
-                }
-                if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-                    gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), assessment.getData().getCategoryId(), g);
-                }
+            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(String.valueOf(id));
+            PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
+            if (evaluation == null) {
+                evaluation = new PublishedEvaluationModel();
+                evaluation.setAssessmentBase(assessment.getData());
+            }
+            if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+                gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), assessment.getData().getCategoryId(), g);
             }
         } catch (Exception e1) {
             log.warn("RestoreAssessmentsBean - Exception thrown in updateGB():" + e1.getMessage());

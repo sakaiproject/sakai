@@ -2,8 +2,9 @@
 
 <div id="roleSwitch" class="Mrphs-roleSwitch Mrphs-toolsNav__menuitem">
     #if ($roleSwitchState)
-        <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor Mrphs-roleSwitch__exit">
-            <span class="Mrphs-toolsNav__menuitem--title">$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span>
+    	<span style="padding-right: 10px">$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
+    	<a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor Mrphs-roleSwitch__exit">
+            <input type="submit" value="$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)"/>
         </a>
     #else
         <a id="roleSwitchDropDownToggle" href="javascript:void('0')" aria-hidden="true" aria-haspopup="false" title="${rloader.rs_menuTooltip}" aria-label="${rloader.rs_menuTooltip}">

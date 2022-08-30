@@ -1344,6 +1344,12 @@ public class BaseExternalCalendarSubscriptionService implements
 					.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_LOCATION);
 		}
 
+		public String getEventUrl()
+		{
+			return m_properties
+					.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_URL);
+		}
+
 		public String getModifiedBy()
 		{
 			return m_properties.getPropertyFormatted(ResourceProperties.PROP_MODIFIED_BY);

@@ -116,7 +116,7 @@ public class ArchiveService2Impl implements ArchiveService
 		if(!StringUtils.endsWith(m_unzipPath, "/")) {
 			m_unzipPath = m_unzipPath + "/";
 		}
-		
+
 		m_filterSakaiServices = m_serverConfigurationService.getBoolean("archive.merge.filter.services", m_filterSakaiServices);
 		m_filterSakaiRoles = m_serverConfigurationService.getBoolean("archive.merge.filter.roles", m_filterSakaiRoles);
 		String[] filteredServices = m_serverConfigurationService.getStrings("archive.merge.filtered.services");

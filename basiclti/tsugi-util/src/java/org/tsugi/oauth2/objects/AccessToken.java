@@ -23,6 +23,8 @@ public class AccessToken {
 	public Long expires_in;
 	@JsonProperty("refresh_token")
 	public String refresh_token;
+	@JsonProperty("scope")
+	public String scope;
 
 	public AccessToken() {
 		this.token_type = BEARER;

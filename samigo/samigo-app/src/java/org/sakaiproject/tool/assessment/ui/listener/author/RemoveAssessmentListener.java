@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -36,14 +37,16 @@ import javax.faces.event.ActionListener;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -57,6 +60,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -76,9 +80,11 @@ public class RemoveAssessmentListener implements ActionListener
     private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
     private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
-
+    private TaskService taskService;
+    
     public RemoveAssessmentListener()
     {
+        taskService = ComponentManager.get(TaskService.class);
     }
 
     public void processAction(ActionEvent ae) throws AbortProcessingException
@@ -207,6 +213,10 @@ public class RemoveAssessmentListener implements ActionListener
                         }
                     }
 
+                    // Delete task
+                    String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + publishedAssessment.getPublishedAssessmentId();
+                    taskService.removeTaskByReference(reference);
+
                     List inactivePublishedAssessmentList = author.getInactivePublishedAssessments();
                     List inactiveList = new ArrayList();
                     for (int i=0; i<inactivePublishedAssessmentList.size();i++) {
@@ -274,11 +284,11 @@ public class RemoveAssessmentListener implements ActionListener
     }
 
     private void removeFromGradebook(String assessmentId) {
-        GradebookExternalAssessmentService g = null;
+        org.sakaiproject.grading.api.GradingService g = null;
         if (integrated)
         {
-            g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+            g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+            getBean("org.sakaiproject.grading.api.GradingService");
         }
         try {
             log.debug("before gbsHelper.removeGradebook()");

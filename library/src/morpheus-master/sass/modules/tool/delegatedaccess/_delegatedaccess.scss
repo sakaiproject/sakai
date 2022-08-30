@@ -13,4 +13,28 @@
     input[name="addAddSites"] {
         margin-top:calc(#{$standard-spacing} / 2)
     }
+
+   	.colDiv{
+		display: inline-block;
+	}
+		
+	.headerText{
+		font-weight: bold;
+	}
+		
+	.inputForm{
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background: none repeat scroll 0 0 var(--sakai-background-color-2);
+		padding: 0.3em;
+	}
+	
+	.odd{
+    	background: var(--sakai-background-color-2);
+	}
+		
+	.even{
+        background: transparent;
+	}
 }

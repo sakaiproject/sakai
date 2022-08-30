@@ -52,7 +52,7 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
         List<String> references = new ArrayList<>();
 
         SearchHits hits = response.getHits();
-        if (hits.getTotalHits() > 0) {
+        if (hits.getTotalHits().value > 0) {
             for (SearchHit hit : hits) {
                 references.add(searchIndexBuilder.getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit));
             }
@@ -92,7 +92,7 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
         if (response == null) {
             return 0;
         }
-        return (int) response.getHits().getTotalHits();
+        return (int) response.getHits().getTotalHits().value;
     }
 
     @Override

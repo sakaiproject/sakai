@@ -479,9 +479,9 @@
 								
 							<h:panelGroup layout="block" id="emailAttendeeOnly">
 								<h:selectOneRadio  value="#{EditMeetingSignupMBean.sendEmailToSelectedPeopleOnly}" layout="pageDirection" styleClass="rs" style="margin-left:20px;">
-									<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}" itemDisabled="true"/>
-									<f:selectItem id="only_signedUp_ones" itemValue="signup_only" itemLabel="#{msgs.label_email_signed_up_ones_only}" itemDisabled="true"/>
-									<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}" itemDisabled="true"/>
+									<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>
+									<f:selectItem id="only_signedUp_ones" itemValue="signup_only" itemLabel="#{msgs.label_email_signed_up_ones_only}"/>
+									<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}"/>
 								</h:selectOneRadio>
 							</h:panelGroup>
 						</h:panelGroup>

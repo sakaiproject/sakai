@@ -34,8 +34,11 @@ import java.util.Stack;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import com.sun.org.apache.xml.internal.serializer.ToStream;
+import com.sun.org.apache.xml.internal.serializer.ToXMLStream;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.xml.serializer.ToXMLStream;
+
+import org.apache.commons.lang3.StringUtils;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.context.FilterContext;
 import org.xml.sax.Attributes;
@@ -127,7 +130,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 			
 			dbf.setBlockElements(blockElements);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			SpecialXHTMLSerializer xser = new SpecialXHTMLSerializer();
+			ToXMLStream xser = new ToXMLStream();
 			xser.setOutputStream(baos);
 			xser.setIndent(false);
 			xser.setEncoding("UTF-8");
@@ -490,33 +493,6 @@ public class XHTMLFilter implements Filter, CacheFilter
 		String lname;
 
 		Attributes atts;
-	}
-
-	/**
-	 * @author andrew
-	 */
-	public class SpecialXHTMLSerializer extends ToXMLStream
-	{
-
-		private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
-
-		public void endElement(String namespaceURI, String localName,
-				String name) throws SAXException
-		{
-			if ((namespaceURI != null && !"".equals(namespaceURI) && !namespaceURI
-					.equals(XHTML_NAMESPACE))
-					|| emptyTag.containsKey(localName.toLowerCase()))
-			{
-				super.endElement(namespaceURI, localName, name);
-				return;
-			}
-
-			this.characters("");
-
-			super.endElement(namespaceURI, localName, name);
-
-		}
-
 	}
 
 }

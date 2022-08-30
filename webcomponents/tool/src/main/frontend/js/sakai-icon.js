@@ -2,7 +2,7 @@ import { html, css, LitElement } from './assets/lit-element/lit-element.js';
 import { icon, library } from "./assets/@fortawesome/fontawesome-svg-core/index.es.js";
 import { faCompressArrowsAlt, faEyeSlash, faChalkboardTeacher, faExpandArrowsAlt, faLock, faStar, faEllipsisV, faBell, faCircle, faCog, faChevronUp, faChevronDown, faList, faThumbsUp, faThumbtack, faTimes, faCheckSquare, faCheckCircle, faComment, faComments, faBook, faFile, faFileAlt,
   faGripVertical, faLightbulb, faHeart, faUsers, faUserSecret, faMinus, faPlus, faQuestion, faQuestionCircle, faFlag, faAngleRight, faAngleLeft, faHourglass, faFileWord, faSync, faSmile,
-  faTrash, faTrashRestore, faEdit, faKey, faArrowDown, faArrowLeft, faArrowRight, faArrowUp }
+  faTrash, faTrashRestore, faEdit, faKey, faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faPlay, faVolumeUp }
   from './assets/@fortawesome/free-solid-svg-icons/index.es.js';
 
 export class SakaiIcon extends LitElement {
@@ -150,8 +150,8 @@ SakaiIcon.lookups.set("key", faKey);
 SakaiIcon.lookups.set("quizzes", faCheckSquare);
 SakaiIcon.lookups.set("up", faArrowUp);
 SakaiIcon.lookups.set("down", faArrowDown);
-SakaiIcon.lookups.set("left", faArrowLeft);
-SakaiIcon.lookups.set("right", faArrowRight);
+SakaiIcon.lookups.set("left-arrow", faArrowLeft);
+SakaiIcon.lookups.set("right-arrow", faArrowRight);
 SakaiIcon.lookups.set("chevron-up", faChevronUp);
 SakaiIcon.lookups.set("chevron-down", faChevronDown);
 SakaiIcon.lookups.set("refresh", faSync);
@@ -169,6 +169,8 @@ SakaiIcon.lookups.set("question", faQuestion);
 SakaiIcon.lookups.set("questioncircle", faQuestionCircle);
 SakaiIcon.lookups.set("circle", faCircle);
 SakaiIcon.lookups.set("check_circle", faCheckCircle);
+SakaiIcon.lookups.set("volume_up", faVolumeUp);
+SakaiIcon.lookups.set("play", faPlay);
 
 if (!customElements.get("sakai-icon")) {
   customElements.define("sakai-icon", SakaiIcon);

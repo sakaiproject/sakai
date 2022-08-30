@@ -24,6 +24,10 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>userauditservice-api</artifactId>
         </dependency>
@@ -68,6 +72,12 @@
             <groupId>org.apache.myfaces.tomahawk</groupId>
             <artifactId>tomahawk21</artifactId>
             <version>1.1.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

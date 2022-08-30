@@ -71,6 +71,12 @@ public interface CalendarEventEdit
 	public void setLocation(String location);
 
 	/**
+	* Set the event url (cover for PROP_CALENDAR_URL).
+	* @param location The event's eventUrl property.
+	*/
+	public void setEventUrl(String url);
+
+	/**
 	* Set the value of an "extra" event field.
 	* @param name The "extra" field name
 	* @param value The value to set, or null to remove the field.

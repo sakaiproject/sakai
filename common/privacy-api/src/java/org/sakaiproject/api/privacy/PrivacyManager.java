@@ -91,7 +91,7 @@ public interface PrivacyManager
 	 * @param userIds
 	 * @return Set of <code>org.sakakproject.service.legacy.User.id</code> objects (UUID)
 	 */
-	Set findHidden(String contextId, Set userIds);
+	Set<String> findHidden(String contextId, Set<String> userIds);
 
 	// Batch / Privacy Management methods --------------------------------
 	

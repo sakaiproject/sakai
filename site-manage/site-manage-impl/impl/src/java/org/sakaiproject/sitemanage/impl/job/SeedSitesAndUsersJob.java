@@ -40,6 +40,10 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.conversations.api.ConversationsService;
+import org.sakaiproject.conversations.api.TopicType;
+import org.sakaiproject.conversations.api.beans.PostTransferBean;
+import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -50,9 +54,9 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -103,13 +107,17 @@ public class SeedSitesAndUsersJob implements Job {
 	@Setter
 	private SqlService sqlService;
 	@Setter
-	private GradebookService gradebookService;
+	private GradingService gradingService;
+	@Setter
+	private ConversationsService conversationsService;
 
 	private int numberOfSites = 5;
 	private int numberOfStudents = 100;
 	private int numberOfEnnrollmentsPerSite = 50;
 	private int numberOfInstructorsPerSite = 1;
 	private int numberOfGradebookItems = 20;
+	private int numberOfConversationsQuestions = 100;
+	private int numberOfConversationsPosts = 100;
 	private String emailDomain = "mailinator.com";
 	private boolean useEidAsPassword;
 
@@ -135,6 +143,8 @@ public class SeedSitesAndUsersJob implements Job {
 		numberOfEnnrollmentsPerSite = serverConfigurationService.getInt("site.seed.enrollments.per.site", 50);
 		numberOfInstructorsPerSite = serverConfigurationService.getInt("site.seed.instructors.per.site", 1);
 		numberOfGradebookItems = serverConfigurationService.getInt("site.seed.create.gradebookitems", 20);
+		numberOfConversationsQuestions = serverConfigurationService.getInt("site.seed.create.conversations.questions", numberOfConversationsQuestions);
+		numberOfConversationsPosts = serverConfigurationService.getInt("site.seed.create.conversations.posts", numberOfConversationsPosts);
 		emailDomain = serverConfigurationService.getString("site.seed.email.domain", "mailinator.com");
 		useEidAsPassword = serverConfigurationService.getBoolean("site.seed.eid.password", false);
 
@@ -210,9 +220,9 @@ public class SeedSitesAndUsersJob implements Job {
 				try {
 					ass.setName(name);
 					ass.setPoints(20D);
-					Long aid = gradebookService.addAssignment(siteId, ass);
+					Long aid = gradingService.addAssignment(siteId, ass);
 					for (Member m : site.getMembers()) {
-						gradebookService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), "10", "");
+						gradingService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), "10", "");
 					}
 					if (i % 10 == 0) {
 						log.info("Created {} gradebook items", i);
@@ -223,6 +233,33 @@ public class SeedSitesAndUsersJob implements Job {
 					log.warn("Failed to set gb item name to: {}", name);
 				}
 			}
+		}
+	}
+
+    private void addConversationsPosts() {
+
+		for (Site site : sites.values()) {
+			String siteId = site.getId();
+            for (int i = 0; i < numberOfConversationsQuestions; i++) {
+                TopicTransferBean topicBean = new TopicTransferBean();
+                topicBean.type = TopicType.QUESTION.name();
+                topicBean.siteId = siteId;
+                topicBean.title = site.getTitle() + ": Question " + (i + 1);
+                topicBean.message = "This is test topic " + (i + 1) + "for site " + siteId;
+                try {
+                    topicBean = conversationsService.saveTopic(topicBean, false);
+                    for (int j = 0; j < numberOfConversationsPosts; j++) {
+                        PostTransferBean postBean = new PostTransferBean();
+                        postBean.topic = topicBean.id;
+                        postBean.siteId = siteId;
+                        postBean.message = "Post " + (j + 1);
+                        conversationsService.savePost(postBean, false);
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to create topics and posts in conversations: {}", e.toString());
+                    e.printStackTrace();
+                }
+            }
 		}
 	}
 	
@@ -283,6 +320,7 @@ public class SeedSitesAndUsersJob implements Job {
 		site.addPage().addTool("sakai.resources");
 		site.addPage().addTool("sakai.siteinfo");
 		site.addPage().addTool("sakai.gradebookng");
+		site.addPage().addTool("sakai.conversations");
 		siteService.save(site);
 		sites.put(site.getId(), site);
 		log.info("created site: {}", site.getId());
@@ -384,6 +422,8 @@ public class SeedSitesAndUsersJob implements Job {
 			createEnrollments();
 
 			addGradebookItems();
+
+            addConversationsPosts();
 
 			seedData();
 		} catch (Exception e) {

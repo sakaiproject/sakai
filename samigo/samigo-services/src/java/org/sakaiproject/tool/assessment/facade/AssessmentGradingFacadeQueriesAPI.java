@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -278,8 +279,10 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public HashMap getSubmittedCounts(String siteId);
 
-  public void completeItemGradingData(AssessmentGradingData assessmentGradingData);	
-  
+  public void completeItemGradingData(AssessmentGradingData assessmentGradingData);
+
+  public void completeItemGradingData(AssessmentGradingData assessmentGradingData, Map<Long, Set<PublishedSectionData>> sectionSetMap);
+
   public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId);
   public Double getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId);
   public Map<Long, List<Long>> getAverageAssessmentGradingByPublishedItem(Long publishedAssessmentId);

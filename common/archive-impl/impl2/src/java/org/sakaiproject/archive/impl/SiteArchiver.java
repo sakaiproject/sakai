@@ -29,8 +29,10 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.transaction.support.TransactionTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -97,6 +99,8 @@ public class SiteArchiver {
 		m_contentHostingService = service;
 	}
 
+	@Setter private TransactionTemplate transactionTemplate;
+
 	public String archive(String siteId, String m_storagePath, String fromSystem)
 	{
 		StringBuilder results = new StringBuilder();
@@ -147,8 +151,16 @@ public class SiteArchiver {
 			stack.push(root);
 
 			try {
-				String msg = service.archive(siteId, doc, stack, storagePath, attachments);
-				results.append(msg);
+				final String serviceName = service.getClass().getCanonicalName();
+				transactionTemplate.executeWithoutResult(
+						transactionStatus -> results
+								.append("<===== Start ")
+								.append(serviceName)
+								.append(" =====>\n")
+								.append(service.archive(siteId, doc, stack, storagePath, attachments))
+								.append("<===== End ")
+								.append(serviceName)
+								.append(" =====>\n"));
 			}
 			catch (Throwable t)
 			{
@@ -172,11 +184,11 @@ public class SiteArchiver {
 			root.setAttribute("server", m_serverConfigurationService.getServerId());
 			root.setAttribute("date", now.toString());
 			root.setAttribute("system", fromSystem);
+			root.setAttribute("xmlns:sakai", "https://www.sakailms.org/xmlns/archive/");
 			
 			stack.push(root);
 
-			String msg = m_contentHostingService.archiveResources(attachments, doc, stack, storagePath);
-			results.append(msg);
+			results.append(m_contentHostingService.archiveResources(attachments, doc, stack, storagePath));
 
 			stack.pop();
 
@@ -197,8 +209,7 @@ public class SiteArchiver {
 		
 		stack.push(root);
 
-		String msg = archiveSite(theSite, doc, stack, fromSystem);
-		results.append(msg);
+		results.append(archiveSite(theSite, doc, stack, fromSystem));
 		
 		stack.pop();
 		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/site.xml");
@@ -215,8 +226,7 @@ public class SiteArchiver {
 		
 		stack.push(root);
 		
-		msg = archiveUsers(theSite, doc, stack);
-		results.append(msg);
+		results.append(archiveUsers(theSite, doc, stack));
 
 		stack.pop();
 		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/user.xml");

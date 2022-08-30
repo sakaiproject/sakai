@@ -30,7 +30,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
-import org.sakaiproject.service.gradebook.shared.GradingEventStatus;
+import org.sakaiproject.grading.api.GradingEventStatus;
 
 /**
  * Panel for the grade log window

@@ -28,7 +28,7 @@ import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.util.SettingsHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
@@ -38,10 +38,10 @@ import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradingSchemaPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsStatisticsPanel;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.exception.UnmappableCourseGradeOverrideException;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.ConflictingCategoryNameException;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.UnmappableCourseGradeOverrideException;
 
 /**
  * Settings page
@@ -128,10 +128,10 @@ public class SettingsPage extends BasePage {
 				final List<CategoryDefinition> categories = model.getGradebookInformation().getCategories();
 
 				// validate the categories
-				if (model.getGradebookInformation().getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()) {
+				if (model.getGradebookInformation().getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY) {
 
 					BigDecimal totalWeight = BigDecimal.ZERO;
-					HashSet<String> catNames = new HashSet<String>();
+					HashSet<String> catNames = new HashSet<>();
 					for (final CategoryDefinition cat : categories) {
 
 						BigDecimal catWeight = (cat.getWeight() == null) ? null : new BigDecimal(cat.getWeight());
@@ -173,25 +173,25 @@ public class SettingsPage extends BasePage {
 
 				// if categories and weighting selected AND if course grade display points was selected,
 				// give error message
-				if (model.getGradebookInformation().getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()
-						&& model.getGradebookInformation().isCourseGradeDisplayed()
-						&& model.getGradebookInformation().isCoursePointsDisplayed()) {
+				if (model.getGradebookInformation().getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY
+						&& model.getGradebookInformation().getCourseGradeDisplayed()
+						&& model.getGradebookInformation().getCoursePointsDisplayed()) {
 					error(getString("settingspage.displaycoursegrade.incompatible"));
 				}
 
 				// validate the course grade display settings
-				if (model.getGradebookInformation().isCourseGradeDisplayed()) {
+				if (model.getGradebookInformation().getCourseGradeDisplayed()) {
 					int displayOptions = 0;
 
-					if (model.getGradebookInformation().isCourseLetterGradeDisplayed()) {
+					if (model.getGradebookInformation().getCourseLetterGradeDisplayed()) {
 						displayOptions++;
 					}
 
-					if (model.getGradebookInformation().isCourseAverageDisplayed()) {
+					if (model.getGradebookInformation().getCourseAverageDisplayed()) {
 						displayOptions++;
 					}
 
-					if (model.getGradebookInformation().isCoursePointsDisplayed()) {
+					if (model.getGradebookInformation().getCoursePointsDisplayed()) {
 						displayOptions++;
 					}
 

@@ -19,7 +19,7 @@
   <properties>
     <commons-betwixt.version>0.8</commons-betwixt.version>
     <fop.version>1.0</fop.version>
-    <jfreechart.version>1.5.1</jfreechart.version>
+    <jfreechart.version>1.5.3</jfreechart.version>
     <sst.wicket.version>6.30.0</sst.wicket.version>
   </properties>
 
@@ -67,12 +67,28 @@
         <groupId>commons-betwixt</groupId>
         <artifactId>commons-betwixt</artifactId>
         <version>${commons-betwixt.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- Apache others -->
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>fop</artifactId>
         <version>${fop.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.poi</groupId>

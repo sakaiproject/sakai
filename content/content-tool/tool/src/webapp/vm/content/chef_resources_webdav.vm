@@ -93,43 +93,6 @@ ${server_url}${dav_group}$site_id
 " readonly />
 	</p>
 	
-	<script type="text/javascript">
-		function IEVersion8(){
-			if (document.documentMode){ 
-				document.getElementById('webdavLinkIE').style.display='none';
-			}
-		}
-	</script>
-	
-	<div id="webdavLinkIE">
-	<!--[if lt IE 8]>
-	
-	#if($isWinIEBrowser)
-		<p class="shorttext">
-			$clang.getString("dav.xpie")
-		</p>
-		<p class="indnt3">
-			#if("$!inMyWorkspace" == "true")
-				<a href="${server_url}${dav_user}$user_id" folder="${server_url}${dav_user}$user_id" target="_blank" class="ahref">
-					<strong>${server_url}${dav_user}$user_id</strong>
-				</a>
-			#elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")
-				<a href="${server_url}${dav_group_user}$site_id" folder="${server_url}${dav_group_user}$site_id" target="_blank" class="ahref">
-					<strong>${server_url}${dav_group_user}$site_id</strong>
-				</a>
-			#elseif("$!dropboxMode" == "true")
-				<a href="${server_url}${dav_group_user}$site_id/$user_id" folder="${server_url}${dav_group_user}$site_id/$user_id" target="_blank" class="ahref">
-					<strong>${server_url}${dav_group_user}$site_id/$user_id</strong>
-				</a>
-			#else
-				<a href="${server_url}${dav_group}$site_id" folder="${server_url}${dav_group}$site_id" target="_blank" class="ahref">
-					<strong>${server_url}${dav_group}$site_id</strong>
-				</a>
-			#end
-		</p>
-	#end
-	<![endif]-->
-	</div>
         <p><strong>$clang.getString("dav.graf12") - </strong> $clang.getString("dav.graf13")</p>
 </div>
 	<iframe src="$webdav_instructions"
@@ -140,9 +103,6 @@ ${server_url}${dav_group}$site_id
 		frameborder="0"
 		onload="setFrameHeight(this);">
 	</iframe>
-	<script type="text/javascript">
-		IEVersion8();
-	</script>	
 		
 	<div class="act">
 		<input type="button" class="active" value="$clang.getString("dav.cancel")" onclick="window.location='#toolLink("ResourcesAction" "doCancel")'" />

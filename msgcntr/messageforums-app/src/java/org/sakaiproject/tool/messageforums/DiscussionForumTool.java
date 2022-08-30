@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
@@ -118,12 +119,16 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VE
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -146,8 +151,8 @@ import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.RoleIdComparator;
 
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -226,7 +231,6 @@ public class DiscussionForumTool {
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
   private AreaManager areaManager;
   private int numPendingMessages = 0;
-  private boolean refreshPendingMsgs = true;
   
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
@@ -237,6 +241,8 @@ public class DiscussionForumTool {
   private static final String CURRENT_FORUM_ID = "currentForumId";
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
   private static final String FROMPAGE = "fromPage";
+  private static final String TOPIC_REF = Entity.SEPARATOR + "topic" + Entity.SEPARATOR;
+  private static final String SEPARATOR = "/";
 
   private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
   private static final String FORUMS_TOOL_ID = "sakai.forums";
@@ -307,6 +313,7 @@ public class DiscussionForumTool {
   private static final String AUTOCREATE_TOPICS_ROLES_DESCRIPTION = "cdfm_autocreate_topics_desc_roles";
   private static final String AUTOCREATE_TOPICS_GROUPS_DESCRIPTION = "cdfm_autocreate_topics_desc_groups";
   private static final String DUPLICATE_COPY_TITLE = "cdfm_duplicate_copy_title";
+  private static final String TASK_NOT_CREATED =  "cdfm_cant_create_task";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   /**
@@ -368,7 +375,7 @@ public class DiscussionForumTool {
   private String selectedAssign = DEFAULT_GB_ITEM; 
   private String gradePoint; 
   private String gradeComment; 
-  private boolean gradebookExist = false;
+  private boolean gradebookExist = true;
   private boolean gradebookExistChecked = false;
   private boolean displayDeniedMsg = false;
   private transient boolean selGBItemRestricted;
@@ -421,10 +428,12 @@ public class DiscussionForumTool {
   private ToolManager toolManager;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.thread_local.api.ThreadLocalManager\"]}")
   private ThreadLocalManager threadLocalManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.rubrics.logic.RubricsService\"]}")
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.rubrics.api.RubricsService\"]}")
   private RubricsService rubricsService;
   @ManagedProperty(value = "#{Components[\"org.sakaiproject.time.api.UserTimeService\"]}")
   private UserTimeService userTimeService;
+  @ManagedProperty(value = "#{Components[\"org.sakaiproject.tasks.api.TaskService\"]}")
+  private TaskService taskService;
 
   private Boolean instructor = null;
   private Boolean sectionTA = null;
@@ -489,39 +498,8 @@ public class DiscussionForumTool {
     showProfileLink = showProfileInfo && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
 
-  // Is Gradebook defined for the site?
-  protected boolean isGradebookDefined()
-  {
-	  boolean rv = false;
-	  try
-	  {
-		  Object og = ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-		  if (!(og instanceof GradebookService)) {
-			log.info("Error getting gradebook service from component manager. CM returns:" + og.getClass().getName());
-			return false;
-		  }
-			
-		  GradebookService g = (GradebookService) og;
-		  String gradebookUid = toolManager.getCurrentPlacement().getContext();
-		  if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
-		  {
-			  rv = true;
-		  }
-	  }
-	  catch (Exception e)
-	  {
-		  log.info(this + "isGradebookDefined " + e.getMessage());
-	  }
-
-	  return rv;
-
-  } // isGradebookDefined()
-
-  protected GradebookService getGradebookService() {
-	if (isGradebookDefined()) {
-		return (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-	}
-	return null;
+  protected GradingService getGradingService() {
+    return (GradingService)  ComponentManager.get("org.sakaiproject.grading.api.GradingService");
   }
 
   /**
@@ -682,16 +660,14 @@ public class DiscussionForumTool {
         assignments.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)));
 
         //Code to get the gradebook service from ComponentManager
-        GradebookService gradebookService = getGradebookService();
+        GradingService gradingService = getGradingService();
 
-        if (getGradebookExist()) {
-          for (Assignment thisAssign : gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
-            if (!thisAssign.isExternallyMaintained()) {
-              try {
-                assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
-              } catch (Exception e) {
-                log.error("DiscussionForumTool - processDfMsgGrd:" + e);
-              }
+        for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
+          if (!thisAssign.getExternallyMaintained()) {
+            try {
+              assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
+            } catch (Exception e) {
+              log.error("DiscussionForumTool - processDfMsgGrd:" + e);
             }
           }
         }
@@ -1077,8 +1053,10 @@ public class DiscussionForumTool {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO));
       return gotoMain();
     }
-    HashMap<String, Integer> beforeChangeHM = null;    
-    Long forumId = selectedForum.getForum().getId();
+    HashMap<String, Integer> beforeChangeHM = null; 
+    DiscussionForum forum = selectedForum.getForum();
+    Long forumId = forum.getId();
+    List topics = forum.getTopics();
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null);
 
     forumManager.deleteForum(selectedForum.getForum());
@@ -1086,6 +1064,18 @@ public class DiscussionForumTool {
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
+    
+    // Delete task (forum)
+    String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId;
+    taskService.removeTaskByReference(reference);
+    // Delete task (topics)
+    for (Iterator topicIter = topics.iterator(); topicIter.hasNext();) {
+        DiscussionTopic topic = (DiscussionTopic) topicIter.next();
+        Long topicId = topic.getId();
+        reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
+        taskService.removeTaskByReference(reference);
+    }
+    
 
     reset();
     return gotoMain();
@@ -1453,8 +1443,26 @@ public class DiscussionForumTool {
     if (!isNew && beforeChangeHM != null) {
       updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
-
+    
     selectedForum.getForum().setId(forum.getId());
+    
+    // Update or create task if needed
+    String gradeAssign = selectedForum.getGradeAssign();
+	gradeAssign = gradeAssign == null ? selectedForum.getForum().getDefaultAssignName() : gradeAssign;
+    if (!draft && gradeAssign != null) {
+      GradingService gradingService = getGradingService();
+      String gradebookUid = toolManager.getCurrentPlacement().getContext();
+      Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+      Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
+      Optional<Task> optTask = taskService.getTask(reference);
+      if (optTask.isPresent()) {
+        this.updateTask(optTask.get(), this.selectedForum.getForum().getTitle(), dueDate);
+      } else if (this.selectedForum.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
+        this.createTask(reference, this.selectedForum.getForum().getTitle(), dueDate);
+      }
+    }
+    
     return forum;
   }
 
@@ -1893,45 +1901,45 @@ public class DiscussionForumTool {
 
   private String saveTopicSettings(boolean draft)
   {
-  	log.debug("saveTopicSettings(" + draft + ")");
-  	setPermissionMode(PERMISSION_MODE_TOPIC);
+    log.debug("saveTopicSettings({})", draft);
+    setPermissionMode(PERMISSION_MODE_TOPIC);
     if (selectedTopic != null)
     {
       DiscussionTopic topic = selectedTopic.getTopic();
       if (selectedForum != null)
       {
-    	boolean isNew = topic.getId() == null;
-    	boolean permissionsUpdated = false;
-	if(!isNew){
-		permissionsUpdated = needToUpdateSynopticOnForumSave(topic, draft);
-    	}
-	boolean synopticUpdate = isNew ? false : permissionsUpdated;
+        boolean isNew = topic.getId() == null;
+        boolean permissionsUpdated = false;
+        if(!isNew){
+          permissionsUpdated = needToUpdateSynopticOnForumSave(topic, draft);
+        }
+        boolean synopticUpdate = isNew ? false : permissionsUpdated;
         HashMap<String, Integer> beforeChangeHM = null;
         if(!isNew && synopticUpdate){
-		beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), topic.getBaseForum().getId(), topic.getId());
+          beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), topic.getBaseForum().getId(), topic.getId());
         }
 
-    	if(topic.getShortDescription()!=null && topic.getShortDescription().length() > 255){
-    		topic.setShortDescription(topic.getShortDescription().substring(0, 255));
-    	}
+        if(topic.getShortDescription()!=null && topic.getShortDescription().length() > 255){
+          topic.setShortDescription(topic.getShortDescription().substring(0, 255));
+        }
 
-    	StringBuilder alertMsg = new StringBuilder();
-    	topic.setExtendedDescription(formattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
-    	
-    	if ("<br/>".equals(topic.getExtendedDescription()))
-    	{
-    		topic.setExtendedDescription("");
-    	}
-    	
+        StringBuilder alertMsg = new StringBuilder();
+        topic.setExtendedDescription(formattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
+
+        if ("<br/>".equals(topic.getExtendedDescription()))
+        {
+          topic.setExtendedDescription("");
+        }
+
         topic.setBaseForum(selectedForum.getForum());
         if(selectedForum.getForum().getRestrictPermissionsForGroups() && ServerConfigurationService.getBoolean("msgcntr.restricted.group.perms", false)){
-            topic.setRestrictPermissionsForGroups(true);
+          topic.setRestrictPermissionsForGroups(true);
         }
         if(topic.getCreatedBy()==null&&this.forumManager.getAnonRole()==true){
-        	topic.setCreatedBy(".anon");
+          topic.setCreatedBy(".anon");
         }
         if(topic.getModifiedBy()==null&&this.forumManager.getAnonRole()==true){
-        	topic.setModifiedBy(".anon");
+          topic.setModifiedBy(".anon");
         }
         saveTopicSelectedAssignment(topic);
         saveTopicAttach(topic);
@@ -1939,10 +1947,27 @@ public class DiscussionForumTool {
 
         topic = forumManager.saveTopic(topic, draft);
 
-    	//anytime a forum settings change, we should update synoptic info for forums
+        //anytime a forum settings change, we should update synoptic info for forums
         if (!isNew && beforeChangeHM != null) {
-            updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+          updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         }
+
+        // Update or create task if needed
+        String gradeAssign = selectedTopic.getGradeAssign();
+        if (!draft) {
+          GradingService gradingService = getGradingService();
+          String gradebookUid = toolManager.getCurrentPlacement().getContext();
+          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+          Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+          String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + topic.getBaseForum().getId() + TOPIC_REF + topic.getId();
+          Optional<Task> optTask = taskService.getTask(reference);
+          if (optTask.isPresent()) {
+            this.updateTask(optTask.get(), topic.getTitle(), dueDate);
+          } else if (this.selectedTopic.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
+            this.createTask(reference, topic.getTitle(), dueDate);
+          }
+        }
+
       }
     }
     return gotoMain();
@@ -2032,6 +2057,10 @@ public class DiscussionForumTool {
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
+    
+    // Delete task
+    String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
+    taskService.removeTaskByReference(reference);
 
     reset();
     return gotoMain();
@@ -3427,7 +3456,6 @@ public class DiscussionForumTool {
     attachments.clear();
     prepareRemoveAttach.clear();
     assignments.clear();
-    refreshPendingMsgs = true;
   }
 
   /**
@@ -4224,17 +4252,17 @@ public class DiscussionForumTool {
   }
 
   private void setUpGradeInformation(String gradebookUid, String selAssignmentName, String studentId) {
-	  GradebookService gradebookService = getGradebookService();
-	  if (gradebookService == null) return;
+	  GradingService gradingService = getGradingService();
+	  if (gradingService == null) return;
 	  
-	  Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
+	  Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
 	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
-	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
+	  String function = gradingService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
 	  if (function == null) {
 		  allowedToGradeItem = false;
 		  selGBItemRestricted = true;
-	  } else if (function.equalsIgnoreCase(GradebookService.gradePermission)) {
+	  } else if (function.equalsIgnoreCase(GradingService.gradePermission)) {
 		  allowedToGradeItem = true;
 		  selGBItemRestricted = false;
 	  } else {
@@ -4243,12 +4271,12 @@ public class DiscussionForumTool {
 	  }
 	  
 	  // get the grade entry type for the gradebook
-	  int gradeEntryType = gradebookService.getGradeEntryType(gradebookUid);
-	  if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+	  GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
+	  if (gradeEntryType == GradeType.LETTER) {
 	      gradeByLetter = true;
 	      gradeByPoints = false;
 	      gradeByPercent = false;
-	  } else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
+	  } else if (gradeEntryType == GradeType.PERCENTAGE) {
 	      gradeByLetter = false;
 	      gradeByPoints = false;
 	      gradeByPercent = true;
@@ -4264,7 +4292,7 @@ public class DiscussionForumTool {
 			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assignment.getPoints());
 		  }
 		  
-		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
+		  GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
 		      String decSeparator = formattedText.getDecimalSeparator();
@@ -4647,7 +4675,7 @@ public class DiscussionForumTool {
 		composeTitle = null;
 		attachments.clear();
 
-		getSelectedTopic();
+		selectedTopic = getSelectedTopic();
 		getThreadFromMessage();
 	} catch(Exception e) {
       log.error("Error while editing a message", e);
@@ -4764,7 +4792,7 @@ public class DiscussionForumTool {
 		  return null;
 	  }
 	  
-	  Message message = selectedMessage.getMessage();
+	  Message message = messageManager.getMessageById(selectedMessage.getMessage().getId());
 
 	  // 'delete' this message
 	  message.setDeleted(Boolean.TRUE);
@@ -4824,11 +4852,12 @@ public class DiscussionForumTool {
    */
   public boolean isDisplayPendingMsgQueue() {
     if (displayPendingMsgQueue == null) {
+      List<String> membershipList = new ArrayList<>();
       List<Topic> moderatedTopics = forumManager.getModeratedTopicsInSite();
 
       // Avoid the expensive queries below if there are no moderated topics
       if (moderatedTopics != null && !moderatedTopics.isEmpty()) {
-        List<String> membershipList = uiPermissionsManager.getCurrentUserMemberships();
+        membershipList = uiPermissionsManager.getCurrentUserMemberships();
         int numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevel(membershipList, moderatedTopics);
 
         if (numModTopicWithPerm < 1) {
@@ -4840,23 +4869,26 @@ public class DiscussionForumTool {
       else {
         displayPendingMsgQueue = false;
       }
+
+      if (displayPendingMsgQueue) {
+        refreshPendingMessages(membershipList, moderatedTopics);
+      }
     }
 
-    if (refreshPendingMsgs && displayPendingMsgQueue.booleanValue()) {
-      refreshPendingMessages();
-    }
-    return displayPendingMsgQueue.booleanValue();
+    return displayPendingMsgQueue;
   }
   
   /**
    * Retrieve pending msgs from db and make DiscussionMessageBeans
    *
+   * @param membershipList
+   * @param moderatedTopics
    */
-  private void refreshPendingMessages()
+  private void refreshPendingMessages(List<String> membershipList, List<Topic> moderatedTopics)
   {
 	  pendingMsgs = new ArrayList();
 	  numPendingMessages = 0;
-	  List messages = forumManager.getPendingMsgsInSiteByMembership(uiPermissionsManager.getCurrentUserMemberships());
+	  List<Message> messages = forumManager.getPendingMsgsInSiteByMembership(membershipList, moderatedTopics);
 	  
 	  if (messages != null && !messages.isEmpty())
 	  {
@@ -4868,11 +4900,8 @@ public class DiscussionForumTool {
 		  // Maps userIds to all the messages that are within an anonymous context
 		  Map<String, List<DiscussionMessageBean>> userIdAnonMessagesMap = new HashMap<>();
 	  
-		  Iterator msgIter = messages.iterator();
-		  while (msgIter.hasNext())
+		  for (Message msg : messages)
 		  {
-			  Message msg = (Message) msgIter.next();
-
 			  // Determine if we should display anonIds in the context of this message's topic, keep track of this in a map to minimize redundant permission checks, etc.
 			  Topic topic = msg.getTopic();
 			  Boolean useAnonId = topicUseAnonIdMap.get(topic);
@@ -4921,8 +4950,6 @@ public class DiscussionForumTool {
 		  	}
 		  }
 	  }
-	  
-	  refreshPendingMsgs = false;
   }
   
   /**
@@ -4932,11 +4959,6 @@ public class DiscussionForumTool {
    */
   public List getPendingMessages()
   {
-	  if (refreshPendingMsgs)
-	  {
-	  	refreshPendingMessages();
-	  }
-	  
 	  return pendingMsgs;
   }
   
@@ -4949,7 +4971,7 @@ public class DiscussionForumTool {
 	  approveOrDenySelectedMsgs(true);
 	  
 	  if (numPendingMessages > 0)
-		  return PENDING_MSG_QUEUE;
+		  return null;
 	  
 	  return processActionHome();
   }
@@ -4963,7 +4985,7 @@ public class DiscussionForumTool {
 	  approveOrDenySelectedMsgs(false);
 	  
 	  if (numPendingMessages > 0)
-		  return PENDING_MSG_QUEUE;
+		  return null;
 	  
 	  return processActionHome();
   }
@@ -5019,13 +5041,12 @@ public class DiscussionForumTool {
 		  setErrorMessage(getResourceBundleString(NO_MSG_SEL_FOR_APPROVAL));
 	  else
 	  {
+		  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 		  if (approved)
 			  setSuccessMessage(getResourceBundleString(MSGS_APPROVED));
 		  else
 			  setSuccessMessage(getResourceBundleString(MSGS_DENIED));
 	  }
-	  
-	  refreshPendingMsgs = true;
   }
 
   /**
@@ -5060,7 +5081,7 @@ public class DiscussionForumTool {
 	  
 	  }
 	  
-	  refreshPendingMsgs = true;
+	  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 	  
 	  return MESSAGE_VIEW;
   }
@@ -5095,7 +5116,7 @@ public class DiscussionForumTool {
 		  
 	  }
 	  
-	  refreshPendingMsgs = true;
+	  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 	  
 	  return ADD_COMMENT;
   }
@@ -5142,7 +5163,7 @@ public class DiscussionForumTool {
 	      		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 	  }
 	  
-	  refreshPendingMsgs = true;
+	  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 	  
 	  return MESSAGE_VIEW;
   }
@@ -5773,18 +5794,18 @@ public class DiscussionForumTool {
   
    private boolean validateGradeInput()
    {
-       GradebookService gradebookService = getGradebookService();
-       if (gradebookService == null) {
+       GradingService gradingService = getGradingService();
+       if (gradingService == null) {
            return false;
        }
 
        String gradebookUid = getSiteId();
-       boolean gradeValid = gradebookService.isGradeValid(gradebookUid, gradePoint);
+       boolean gradeValid = gradingService.isGradeValid(gradebookUid, gradePoint);
 
        if (!gradeValid) {
            // see if we can figure out why
            String errorMessageRef = GRADE_INVALID_GENERIC;
-           if (gradebookService.getGradeEntryType(gradebookUid) != GradebookService.GRADE_TYPE_LETTER) {
+           if (gradingService.getGradeEntryType(gradebookUid) != GradeType.LETTER) {
                if(!isNumber(gradePoint))
                {
                    errorMessageRef = GRADE_GREATER_ZERO;
@@ -5816,8 +5837,8 @@ public class DiscussionForumTool {
   
   public String processDfGradeSubmit() 
   {
-	GradebookService gradebookService = getGradebookService();
-	if (gradebookService == null) {
+	GradingService gradingService = getGradingService();
+	if (gradingService == null) {
 //		Maybe print an error message if it's possible to get into this state
 //		setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 		return null;
@@ -5881,8 +5902,8 @@ public class DiscussionForumTool {
         	studentUid = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
-        gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
+        Long gbItemId = gradingService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
+        gradingService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
 
@@ -6830,32 +6851,6 @@ public class DiscussionForumTool {
 	    	return rb.getFormattedMessage(key, args);
 	    }
 
-		public boolean getGradebookExist() 
-		{
-			if (!gradebookExistChecked)
-			{
-		 	    try 
-			    { 
-				
-				GradebookService gradebookService = getGradebookService();
-				if (gradebookService == null) return false;
-		 	    	gradebookExist = gradebookService.isGradebookDefined(toolManager.getCurrentPlacement().getContext());
-		 	    	gradebookExistChecked = true;
-		 	    	return gradebookExist;
-			    }
-		 	    catch(Exception e)
-		 	    {
-		 	    	gradebookExist = false;
-		 	    	gradebookExistChecked = true;
-		 	    	return gradebookExist;
-		 	    }
-			}
-		 	else
-		 	{
-		 		return gradebookExist;
-		 	}
-		}
-
 	public String getUserNameOrEid()
 	{
 	  try
@@ -7510,7 +7505,7 @@ public class DiscussionForumTool {
 		return "";
 	}
 
-	private String getSiteId() {
+	public String getSiteId() {
 		return toolManager.getCurrentPlacement().getContext();
 	}
 
@@ -7739,12 +7734,8 @@ public class DiscussionForumTool {
 		}
 	}
 
-//	// get/add the gradebook assignment associated with the topic
-	if (isGradebookDefined())
-	{
-		String fromAssignmentTitle = fromTopic.getDefaultAssignName();
-		newTopic.setDefaultAssignName(fromAssignmentTitle);
-	}
+  String fromAssignmentTitle = fromTopic.getDefaultAssignName();
+  newTopic.setDefaultAssignName(fromAssignmentTitle);
 	
 	// copy the release/end dates	
 	if(fromTopic.getAvailabilityRestricted()){
@@ -7851,11 +7842,8 @@ public class DiscussionForumTool {
 			}
 		}
 
-		if (isGradebookDefined())
-		{
-			String fromAssignmentTitle = oldForum.getDefaultAssignName();
-			forum.setDefaultAssignName(fromAssignmentTitle);
-		}
+    String fromAssignmentTitle = oldForum.getDefaultAssignName();
+    forum.setDefaultAssignName(fromAssignmentTitle);
 
 		if(oldForum.getAvailabilityRestricted()){
 			forum.setAvailabilityRestricted(true);
@@ -8961,12 +8949,7 @@ public class DiscussionForumTool {
 		}
 		return returnRank;
 	}
-    
-    private boolean alwaysShowFullDesc = false;
-    public boolean isAlwaysShowFullDesc(){
-    	return ServerConfigurationService.getBoolean("mc.alwaysShowFullDesc", false); 
-    }
-    
+
     public String getCurrentToolId(){
     	return toolManager.getCurrentPlacement().getId();
     }
@@ -9147,11 +9130,6 @@ public class DiscussionForumTool {
 		return list;
 	}
 
-	public String getRbcsToken() {
-		log.debug("getRbcsToken()");
-		return rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_FORUMS);
-	}
-
 	public boolean hasAssociatedRubric(){
 		return (allowedToGradeItem && (getRubricAssociationId() != null));
 	}
@@ -9210,6 +9188,28 @@ public class DiscussionForumTool {
         attachList.stream().map(DecoratedAttachment::new).forEach(decoAttachList::add);
       }
       bean.setAttachList(decoAttachList);
+    }
+	
+    private void updateTask(Task task, String title, Date dueDate) {
+      task.setDescription(title);
+      task.setDue(dueDate == null ? null : dueDate.toInstant());
+      taskService.saveTask(task);
+    }
+    
+    private void createTask(String reference, String title, Date dueDate) {
+      try {
+        Task task = new Task();
+        task.setSiteId(getSiteId());
+        task.setReference(reference);
+        task.setSystem(true);
+        task.setDescription(title);
+        task.setDue(dueDate == null ? null : dueDate.toInstant());
+        Site site = siteService.getSite(getSiteId());
+        Set<String> users = site.getUsersIsAllowed("section.role.student");
+        taskService.createTask(task, users, Priorities.HIGH);
+      } catch (Exception e) {
+        setErrorMessage(getResourceBundleString(TASK_NOT_CREATED));
+      }
     }
 
 }

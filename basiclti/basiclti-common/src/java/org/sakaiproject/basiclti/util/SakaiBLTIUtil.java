@@ -68,14 +68,13 @@ import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
 // We don't import either of these to make sure we are never confused and always fully qualify
-// import org.sakaiproject.service.gradebook.shared.Assignment;   // We call this a "column"
+// import org.sakaiproject.grading.api.Assignment;   // We call this a "column"
 // import org.sakaiproject.assignment.api.model.Assignment        // We call this an "assignment"
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.CommentDefinition;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -1024,6 +1023,10 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 			}
 
+			// SAK-47573 - Make sure the gradebook is initialised
+			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+
 			// See if there are the necessary items
 			String secret = getSecret(tool, content);
 			String key = getKey(tool, content);
@@ -1448,6 +1451,10 @@ public class SakaiBLTIUtil {
 				return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 			}
 
+			// SAK-47573 - Make sure the gradebook is initialised
+			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+
 			Properties lti13subst = new Properties();
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
@@ -1703,15 +1710,9 @@ public class SakaiBLTIUtil {
 			}
 
 			String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
-			String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
-			String platform_private = decryptSecret((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
 			String placement_secret = null;
 			if (content != null) {
 				placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-			}
-
-			if (platform_private == null) {
-				return postError("<p>" + getRB(rb, "error.no.platform.private.key", "Missing Platform Private Key.") + "</p>");
 			}
 
 		/*
@@ -1840,6 +1841,8 @@ public class SakaiBLTIUtil {
 
 			lj.tool_platform = new ToolPlatform();
 			lj.tool_platform.name = "Sakai";
+			lj.tool_platform.guid = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID, "guid-missing-42");
+
 			lj.tool_platform.version = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION);
 			lj.tool_platform.product_family_code = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE);
 			lj.tool_platform.url = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL);
@@ -1891,7 +1894,7 @@ public class SakaiBLTIUtil {
 				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 			}
 
-			if (signed_placement != null && (
+			if (context_id != null && (
 				  ( (allowOutcomes != 0 && outcomesEnabled()) ||
 					(allowLineItems != 0 && lineItemsEnabled()) )
 				  )
@@ -1900,19 +1903,23 @@ public class SakaiBLTIUtil {
 				endpoint.scope = new ArrayList<>();
 				endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
 
-				if ( allowOutcomes != 0 && outcomesEnabled() ) {
+				if ( allowOutcomes != 0 && outcomesEnabled() && content != null) {
 					SakaiLineItem defaultLineItem = LineItemUtil.getDefaultLineItem(site, content);
 					if ( defaultLineItem != null ) endpoint.lineitem = defaultLineItem.id;
 				}
 				if ( allowOutcomes != 0 && outcomesEnabled() ) {
-					endpoint.lineitems = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement;
+					// SAK-47261 - Legacy URL patterns with signed placement
+					// endpoint.lineitems = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement;
+					endpoint.lineitems = getOurServerUrl() + LTI13_PATH + "lineitems/" + context_id;
 				}
 				lj.endpoint = endpoint;
 			}
 
-			if (allowRoster != 0 && rosterEnabled() && signed_placement != null) {
+			if (allowRoster != 0 && rosterEnabled() && context_id != null) {
 				NamesAndRoles nar = new NamesAndRoles();
-				nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+				// SAK-47261 - Legacy URL patterns with signed placement
+				// nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+				nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + context_id;
 				lj.names_and_roles = nar;
 			}
 
@@ -2004,8 +2011,9 @@ public class SakaiBLTIUtil {
 			String ljs = JacksonUtil.toString(lj);
 			log.debug("ljs = {}", ljs);
 
-			Key privateKey = LTI13Util.string2PrivateKey(platform_private);
-			Key publicKey = LTI13Util.string2PublicKey(platform_public);
+			KeyPair kp = SakaiKeySetUtil.getCurrent();
+			Key privateKey = kp.getPrivate();
+			Key publicKey = kp.getPublic();
 
 			if ( privateKey == null | publicKey == null ) {
 				return postError("<p>" + getRB(rb, "error.no.pki", "Public and/or Private Key(s) not configured.") + "</p>");
@@ -2360,8 +2368,8 @@ public class SakaiBLTIUtil {
 		}
 
 		// Look up the gradebook column so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		// Make sure the user exists in the site
 		boolean userExistsInSite = false;
@@ -2410,7 +2418,7 @@ public class SakaiBLTIUtil {
 
 		SakaiLineItem lineItem = new SakaiLineItem();
 		lineItem.scoreMaximum = 100.0D;
-		org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
+		org.sakaiproject.grading.api.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
 		if (gradebookColumn == null) {
 			log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
 			return "Grade failure siteId=" + siteId;
@@ -2440,14 +2448,18 @@ public class SakaiBLTIUtil {
 				retval = retMap;
 			} else if (isDelete) {
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, null, "External Outcome");
-				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, null);
+				g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
 				retval = Boolean.TRUE;
 			} else {
 				String gradeI18n = getRoundedGrade(scoreGiven, gradebookColumn.getPoints());
 				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
-				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
+				if ( StringUtils.isBlank(comment) ) {
+					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
+				} else {
+					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
+				}
 
 				log.info("Stored Score={} title={} user_id={} score={}", siteId, title, user_id, scoreGiven);
 
@@ -2478,7 +2490,7 @@ public class SakaiBLTIUtil {
 		SakaiLineItem lineItem = new SakaiLineItem();
 		String siteId = site.getId();
 
-		org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn;
+		org.sakaiproject.grading.api.Assignment gradebookColumn;
 
 		// Are we in the default lineitem for the content object?
 		// Check if this is as assignment placement and handle it if it is
@@ -2516,8 +2528,8 @@ public class SakaiBLTIUtil {
 		log.debug("scoreGiven={} scoreMaximum={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
 		// Look up the gradebook column so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		// Fall through to send the grade to a gradebook column
 		// Now read, set, or delete the grade...
@@ -2534,8 +2546,11 @@ public class SakaiBLTIUtil {
 			if (scoreGiven == null) {
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, null, "External Outcome");
 				// Since LTI 13 uses update semantics on grade delete, we accept the comment if it is there
-				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
-
+				if ( StringUtils.isBlank(comment) ) {
+					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
+				} else {
+					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
+				}
 				log.info("Delete Score site={} title={} userId={}", siteId, title, userId);
 				return Boolean.TRUE;
 			} else {
@@ -2547,12 +2562,15 @@ public class SakaiBLTIUtil {
 					assignedGrade = (scoreGiven / scoreMaximum) * gradebookColumnPoints;
 				}
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, assignedGrade.toString(), "External Outcome");
-				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
-
+				if ( StringUtils.isBlank(comment) ) {
+					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
+				} else {
+					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
+				}
 				log.info("Stored Score={} title={} userId={} score={}", siteId, title, userId, scoreGiven);
 				return Boolean.TRUE;
 			}
-		} catch (NumberFormatException | AssessmentNotFoundException | GradebookNotFoundException e) {
+		} catch (NumberFormatException | AssessmentNotFoundException e) {
 			retval = "Grade failure " + e.getMessage() + " siteId=" + siteId;
 			log.warn("handleGradebook Grade failure in site: {}, error: {}", siteId, e);
 		} finally {
@@ -2714,41 +2732,39 @@ public class SakaiBLTIUtil {
 		return keyPrefix + next;
 	}
 
-	public static org.sakaiproject.service.gradebook.shared.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
+	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
 		// Look up the gradebook column so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		String siteId = site.getId();
 
 		if ( lineItem == null ) lineItem = new SakaiLineItem();
 		Double scoreMaximum = lineItem.scoreMaximum == null ? 100D : lineItem.scoreMaximum;
 
-		org.sakaiproject.service.gradebook.shared.Assignment returnColumn = null;
+		org.sakaiproject.grading.api.Assignment returnColumn = null;
 
 		pushAdvisor();
 
 		try {
 			List gradeboolColumns = g.getAssignments(siteId);
 			for (Iterator i = gradeboolColumns.iterator(); i.hasNext();) {
-				org.sakaiproject.service.gradebook.shared.Assignment aColumn = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+				org.sakaiproject.grading.api.Assignment aColumn = (org.sakaiproject.grading.api.Assignment) i.next();
 
 				if (title.trim().equalsIgnoreCase(aColumn.getName().trim())) {
 					returnColumn = aColumn;
 					break;
 				}
 			}
-		} catch (GradebookNotFoundException e) {
-			returnColumn = null; // Just to make double sure
 		} finally {
 			popAdvisor();
 		}
 
 		// Attempt to add column to grade book
-		if (returnColumn == null && g.isGradebookDefined(siteId)) {
+		if (returnColumn == null) {
 			pushAdvisor();
 			try {
-				returnColumn = new org.sakaiproject.service.gradebook.shared.Assignment();
+				returnColumn = new org.sakaiproject.grading.api.Assignment();
 				returnColumn.setPoints(scoreMaximum);
 				returnColumn.setExternallyMaintained(false);
 				returnColumn.setName(title);
@@ -2764,7 +2780,7 @@ public class SakaiBLTIUtil {
 				log.warn("ConflictingAssignmentNameException while adding gradebook column {}", e.getMessage());
 				returnColumn = null; // Just to make sure
 			} catch (Exception e) {
-				log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
+				log.warn("Exception (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
 				returnColumn = null; // Just to make double sure
 			} finally {
 				popAdvisor();
@@ -3304,87 +3320,6 @@ public class SakaiBLTIUtil {
 
 		Object result = ltiService.insertContent(contentProps, siteId);
 		return result;
-	}
-
-	/**
-	 * rotateToolKeys - If necessary - rotate tool keys
-	 *
-	 * This is controlled by a sakai.property
-	 *
-	 * lti.advantage.key.rotation.days=30
-	 *
-	 * For positive numbers this is the number of days before rotation happens
-	 * For negative numbers it is the number of minutes before rotation happens (for testing)
-	 * If it is zero, no rotation happens
-	 *
-	 */
-	// SAK-45491 - Support LTI 1.3 Key Rotation
-	public static void rotateToolKeys(Long toolKey, Map<String, Object> tool)
-	{
-		// Get services
-		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService =
-			(org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
-
-		String daysStr = serverConfigurationService.getString(LTI_ADVANTAGE_KEY_ROTATION_DAYS, LTI_ADVANTAGE_KEY_ROTATION_DAYS_DEFAULT);
-		int days = LTI13Util.getInt(daysStr);
-		if ( days == 0 ) return;
-
-		Instant now = Instant.now();
-		Instant nextInstant = Foorm.getInstantUTC(tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT_AT));
-
-		Map<String, Object> updates = new TreeMap<String, Object>();
-
-		// Generate next Keypair in case we update
-		KeyPair kp = LTI13Util.generateKeyPair();
-		String pub = LTI13Util.getPublicEncoded(kp);
-		String priv = LTI13Util.getPrivateEncoded(kp);
-		priv = SakaiBLTIUtil.encryptSecret(priv);
-		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT, pub);
-		updates.put(LTIService.LTI13_PLATFORM_PRIVATE_NEXT, priv);
-
-		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT_AT, Foorm.now());
-		String siteId = null; // bypass
-
-		if ( nextInstant == null ) {
-			Object retval = ltiService.updateToolDao(toolKey, updates, siteId);
-			if ( retval instanceof String) {
-				log.error("Could not update tool={} retval={}", toolKey, retval);
-			} else if ( nextInstant == null ) {
-				log.info("Created future keys for tool={}", toolKey);
-			}
-		} else {
-			long deltaDays = Duration.between(now, nextInstant).abs().toDays();
-			long deltaMinutes = Duration.between(now, nextInstant).abs().toMinutes();
-
-			// Should we rotate?
-			if ( ( days > 0 && deltaDays >= days ) || ( days < -1 && deltaMinutes >= (-1*days) ) ) {
-
-				// Only rotate next->current if next already contains valid values
-				String publicSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT));
-				String privateSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE_NEXT));
-				Key publicKeyNext = LTI13Util.string2PublicKey(publicSerializedNext);
-				// Key privateKeyNext = (privateSerializedNext == null) ? null : LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
-				Key privateKeyNext = LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
-
-				if ( publicKeyNext != null && privateKeyNext != null ) {
-					String publicSerializedCurrent = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
-
-					updates.put(LTIService.LTI13_PLATFORM_PUBLIC, publicSerializedNext);
-					updates.put(LTIService.LTI13_PLATFORM_PRIVATE, privateSerializedNext);
-					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD, publicSerializedCurrent);
-					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD_AT, Foorm.now());
-				}
-
-				// If the next key is somehow broken, at least we update the next values
-				Object retval = ltiService.updateToolDao(toolKey, updates, siteId);
-				if ( retval instanceof String) {
-					log.error("Could not update tool={} retval={}", toolKey, retval);
-				} else {
-					log.info("Rotated keys for tool={} days={} delta={}", toolKey, days, deltaDays);
-				}
-			}
-		}
 	}
 
 	public static Long getLong(Object key) {

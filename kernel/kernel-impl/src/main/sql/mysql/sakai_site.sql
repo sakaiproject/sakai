@@ -370,6 +370,8 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!user-610', '!user-600', '!user', 'sakai.pre
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-700', '!user', 'Account', '0', 9, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-710', '!user-700', '!user', 'sakai.singleuser', 1, 'Account', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!user', '!user-710', 'include-password', 'true' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!user-800', '!user', 'Dashboard', '0', 10, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!user-810', '!user-800', '!user', 'sakai.dashboard', 1, 'Dashboard', NULL );
 -- sakai.rwiki currently stealthed
 -- INSERT INTO SAKAI_SITE_PAGE VALUES('!user-800', '!user', 'Wiki', '0', 10, '0' );
 -- INSERT INTO SAKAI_SITE_TOOL VALUES('!user-810', '!user-800', '!user', 'sakai.rwiki', 1, 'Wiki', NULL );
@@ -395,10 +397,10 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-510', '!worksite-500', '!worksite'
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-510', 'category', 'false' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-600', '!worksite', 'Assignments', '0', 6, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-610', '!worksite-600', '!worksite', 'sakai.assignment.grades', 1, 'Assignments', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-700', '!worksite', 'Drop Box', '0', 7, '0' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-700', '!worksite', 'Drop Box', '0', 8, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-710', '!worksite-700', '!worksite', 'sakai.dropbox', 1, 'Drop Box', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-710', 'resources_mode', 'dropbox' );
-INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-800', '!worksite', 'Chat', '0', 8, '0' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-800', '!worksite', 'Chat', '0', 9, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-810', '!worksite-800', '!worksite', 'sakai.chat', 1, 'Chat', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-810', 'display-date', 'true' );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-810', 'filter-param', '3' );
@@ -406,8 +408,11 @@ INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-810', 'displ
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-810', 'sound-alert', 'true' );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-810', 'filter-type', 'SelectMessagesByTime' );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-810', 'display-user', 'true' );
-INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-900', '!worksite', 'Email Archive', '0', 9, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-910', '!worksite-900', '!worksite', 'sakai.mailbox', 1, 'Email Archive', NULL );
+-- Don't add by default in case server does not want email set up at all
+-- INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-900', '!worksite', 'Email Archive', '0', 10, '0' );
+-- INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-910', '!worksite-900', '!worksite', 'sakai.mailbox', 1, 'Email Archive', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-1000', '!worksite', 'Site Info', '0', 11, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-1010', '!worksite-1000', '!worksite', 'sakai.siteinfo', 1, 'Site Info', NULL );
 
 -- Create the mercury site.
 

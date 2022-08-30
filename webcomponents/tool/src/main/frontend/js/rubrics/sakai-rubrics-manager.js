@@ -12,12 +12,18 @@ class SakaiRubricsManager extends RubricsElement {
 
     this.siteRubricsExpanded = "true";
     this.sharedRubricsExpanded = "false";
+    this.enablePdfExport = false;
 
     SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result );
   }
 
   static get properties() {
-    return { token: String, i18nLoaded: Boolean };
+
+    return {
+      siteId: { attribute: "site-id", type: String },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+      i18nLoaded: { attribute: false, type: Boolean },
+    };
   }
 
   shouldUpdate() {
@@ -57,7 +63,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-list id="sakai-rubrics" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" token="Bearer ${this.token}"></sakai-rubrics-list>
+        <sakai-rubrics-list id="sakai-rubrics" site-id="${this.siteId}" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-list>
       </div>
       
       <hr>
@@ -81,7 +87,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-shared-list token="Bearer ${this.token}" id="sakai-rubrics-shared-list" @copy-share-site="${this.copyShareSite}" ></sakai-rubrics-shared-list>
+        <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-shared-list>
       </div>
       <br>
       </div>
@@ -128,22 +134,11 @@ class SakaiRubricsManager extends RubricsElement {
 
   filterRubrics() {
 
-    const searchInput = document.getElementById('rubrics-search-bar');
-    const searchInputValue = searchInput.value.toLowerCase();
+    const search = document.getElementById('rubrics-search-bar').value.toLowerCase();
 
     this.querySelectorAll('sakai-rubrics-list, sakai-rubrics-shared-list').forEach(rubricList => {
-      rubricList.querySelectorAll('.rubric-item').forEach(rubricItem => {
-        rubricItem.classList.remove('hidden');
-        const rubricTitle = rubricItem.querySelector('.rubric-name').textContent;
-        const rubricAuthor = rubricItem.querySelector('sakai-rubric-creator-name').textContent;
-        const rubricSite = rubricItem.querySelector('sakai-rubric-site-title').textContent;
-        if (!rubricAuthor.toLowerCase().includes(searchInputValue) &&
-            !rubricTitle.toLowerCase().includes(searchInputValue) &&
-            !rubricSite.toLowerCase().includes(searchInputValue)
-        ) {
-          rubricItem.classList.add('hidden');
-        }
-      });
+
+      rubricList.search(search);
     });
   }
 
@@ -156,13 +151,13 @@ class SakaiRubricsManager extends RubricsElement {
     }
 
     // If the user clicks on an arrow, it provides all the classes including the icons, we must cleanup the class list.
-    if (sortInput.includes('name')){
+    if (sortInput.includes('name')) {
       sortInput = sortInput.includes('shared') ? 'shared-name' : 'site-name';
-    } else if (sortInput.includes('title')){
+    } else if (sortInput.includes('title')) {
       sortInput = sortInput.includes('shared') ? 'shared-title' : 'site-title';
-    } else if (sortInput.includes('creator')){
+    } else if (sortInput.includes('creator')) {
       sortInput = sortInput.includes('shared') ? 'shared-creator' : 'site-creator';
-    } else if (sortInput.includes('modified')){
+    } else if (sortInput.includes('modified')) {
       sortInput = sortInput.includes('shared') ? 'shared-modified' : 'site-modified';
     } else {
       return;

@@ -53,9 +53,9 @@ public class MainController {
         String siteId = toolManager.getCurrentPlacement().getContext();
         model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
 
+        model.addAttribute("userId", session.getUserId());
         if (siteService.isUserSite(siteId)) {
-            model.addAttribute("userId", session.getUserId());
-	        return "home_dashboard";
+            return "home_dashboard";
         } else {
             model.addAttribute("siteId", siteId);
             model.addAttribute("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));

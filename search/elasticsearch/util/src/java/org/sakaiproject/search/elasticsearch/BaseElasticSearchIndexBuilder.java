@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.search.elasticsearch;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -23,6 +22,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,14 +73,14 @@ import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.set.Sets;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentType;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -597,10 +597,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
                 .query(matchAllQuery())
-                .postFilter(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED)).filter(termsQuery(SearchService.FIELD_INDEXED, false)))
+                .postFilter(boolQuery().should(termQuery(SearchService.FIELD_INDEXED, false)).should(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED))))
                 .size(contentIndexBatchSize)
                 .storedFields(Arrays.asList(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID));
         return searchRequest
+                .indices(indexName)
                 .source(searchSourceBuilder)
                 .types(indexedDocumentType);
     }
@@ -778,7 +779,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     protected abstract IndexRequest completeIndexRequest(IndexRequest indexRequest, String resourceName, EntityContentProducer ecp, boolean includeContent);
 
-    protected  XContentBuilder buildIndexRequestContentSource(String resourceName, EntityContentProducer ecp, boolean includeContent)
+    protected XContentBuilder buildIndexRequestContentSource(String resourceName, EntityContentProducer ecp, boolean includeContent)
             throws NoContentException, IOException {
         XContentBuilder requestBuilder = newIndexRequestContentSourceBuilder(resourceName, ecp, includeContent);
         requestBuilder = addFields(requestBuilder, resourceName, ecp, includeContent);
@@ -812,7 +813,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             String content = ecp.getContent(resourceName);
             // some of the ecp impls produce content with nothing but whitespace, its waste of time to index those
             if (StringUtils.isNotBlank(content)) {
-                return contentSourceBuilder
+                contentSourceBuilder
                         // cannot rely on ecp for providing something reliable to maintain index state
                         // indexed indicates if the document was indexed
                         .field(SearchService.FIELD_INDEXED, true)
@@ -820,6 +821,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             } else {
                 return noContentForIndexRequest(contentSourceBuilder, resourceName, ecp, includeContent);
             }
+        } else {
+            contentSourceBuilder.field(SearchService.FIELD_INDEXED, false);
         }
         return contentSourceBuilder;
     }
@@ -872,10 +875,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     public int getPendingDocuments() {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(boolQuery()
-                .must(matchAllQuery())
-                .filter(boolQuery()
-                        .mustNot(existsQuery(SearchService.FIELD_INDEXED))
-                        .filter(termsQuery(SearchService.FIELD_INDEXED, false))));
+                .should(termQuery(SearchService.FIELD_INDEXED, false))
+                .should(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED))));
         CountRequest countRequest = new CountRequest(indexName).source(searchSourceBuilder);
         try {
             CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
@@ -1066,7 +1067,6 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         return properties;
     }
-
 
     @Override
     public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {

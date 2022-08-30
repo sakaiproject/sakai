@@ -801,21 +801,8 @@ function includeWebjarLibrary(library) {
 			jsReferences.push('/dist/js/fontawesome-iconpicker.min.js');
 			cssReferences.push('/dist/css/fontawesome-iconpicker.min.css');
 			break;
-		case 'flatpickr':
-			libraryVersion = "4.6.9";
-			jsReferences.push('/dist/flatpickr.min.js');
-			jsReferences.push('/dist/plugins/confirmDate/confirmDate.js');
-			cssReferences.push('/dist/flatpickr.min.css');
-			cssReferences.push('/dist/plugins/confirmDate/confirmDate.css');
-			if (window.portal) {
-				let lang = window.portal.locale.split("-")[0];
-				if (lang !== "en") {
-					jsReferences.push(`/dist/l10n/${lang}.js'`);
-				}
-			}
-			break;
 		case 'fullcalendar':
-			libraryVersion = "5.9.0";
+			libraryVersion = "5.10.2";
 			jsReferences.push('/main.min.js');
 			jsReferences.push('/locales-all.min.js');
 			cssReferences.push('/main.min.css');

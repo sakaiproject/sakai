@@ -30,6 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -81,8 +82,10 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 
 
 /**
@@ -106,6 +109,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     private SecurityService securityService;
     private FormattedText formattedText;
     private ThreadLocalManager threadLocalManager;
+    private SessionManager sessionManager;
 
     public static String PREFIX = "site";
 
@@ -122,6 +126,8 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     public static final String PROP_SITE_PROVIDER_PAGESIZE_MAXIMUM = "site.entity.pagesize.maximum";
 
     private static final String PERMISSION_QUERY_PROPERTY_NAME = "permission";
+
+    private static final String INSTRUCTOR_ROLE_ID = "Instructor";
 
     /**
      * The default page size for lists of entities. May be overridden with
@@ -309,7 +315,12 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         // check if the user can access site
         isAllowedAccessSite(site);
 
-        List<EntityGroup> groups = site.getGroups().stream().map(EntityGroup::new).collect(Collectors.toList());
+        List<EntityGroup> groups =
+                securityService.isSuperUser() || StringUtils.equalsIgnoreCase(site.getUserRole(sessionManager.getCurrentSessionUserId()).getId(), INSTRUCTOR_ROLE_ID)  ?
+                site.getGroups().stream().map(EntityGroup::new).collect(Collectors.toList())
+                :
+                site.getGroupsWithMember(sessionManager.getCurrentSessionUserId()).stream()
+                .map(EntityGroup::new).sorted((group, other) -> new AlphaNumericComparator().compare(group.getTitle(), other.getTitle())).collect(Collectors.toList());
         return new ActionReturn(groups);
     }
 

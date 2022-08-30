@@ -39,30 +39,30 @@
         <div class="step screensteps-section screensteps-depth-2" id="accessing-and-taking-assessments">
     <h3 class="step-title screensteps-heading">Accessing and Taking Assessments</h3>
       <div class="screensteps-table">
-  <table style="width: 100%;">
+  <table style="width:100%;">
 <thead><tr>
-<th style="width: 50.0000%;">Event</th>
-<th style="width: 50.0000%;">What the event means</th>
+<th style="width:50.0000%;">Event</th>
+<th style="width:50.0000%;">What the event means</th>
 </tr></thead>
 <tbody>
 <tr>
-<td style="width: 50%;vertical-align: top;">sam.assessment.take<br>
+<td style="width:50%;vertical-align:top;">sam.assessment.take<br>
 </td>
-<td style="width: 50%;vertical-align: top;">The user accesses the assessment and selects the <strong>Begin Assessment</strong> button.<br>
+<td style="width:50%;vertical-align:top;">The user accesses the assessment and selects the <strong>Begin Assessment</strong> button.<br>
 </td>
 </tr>
 <tr>
-<td style="vertical-align: top;">sam.assessment.take.via_url</td>
-<td style="vertical-align: top;">The user accesses the assessment via a link, e.g., the <em>Published Assessment URL</em> or a link on a <em>Lessons</em> page, and selects the <strong>Begin Assessment</strong> button.</td>
+<td style="vertical-align:top;">sam.assessment.take.via_url</td>
+<td style="vertical-align:top;">The user accesses the assessment via a link, e.g., the <em>Published Assessment URL</em> or a link on a <em>Lessons</em> page, and selects the <strong>Begin Assessment</strong> button.</td>
 </tr>
 <tr>
 <td><strong>SAMIGO_TIMED_ASSESSMENT:QUEUE:NEWTIMER:SUCCESS<br></strong></td>
 <td>A timer thread starts running on the server at the start of a timed assessment.</td>
 </tr>
 <tr>
-<td style="vertical-align: top;">sam.assessment.resume<br>
+<td style="vertical-align:top;">sam.assessment.resume<br>
 </td>
-<td style="vertical-align: top;">The user exits the assessment, returns to it, and selects the <strong>Continue Assessment</strong> button.<br><br><strong><em>NOTE:</em></strong><em> This event will NOT display for assessments accessed VIA URL - the ONLY button on that screen is <strong>Begin Assessment</strong>.  All attempts to access an assessment via a URL will be logged as if they were new takes.</em><br>
+<td style="vertical-align:top;">The user exits the assessment, returns to it, and selects the <strong>Continue Assessment</strong> button.<br><br><strong><em>NOTE:</em></strong><em> This event will NOT display for assessments accessed VIA URL - the ONLY button on that screen is <strong>Begin Assessment</strong>.  All attempts to access an assessment via a URL will be logged as if they were new takes.</em><br>
 </td>
 </tr>
 <tr>
@@ -80,52 +80,52 @@
         <div class="step screensteps-section screensteps-depth-2" id="submitting-assessments">
     <h3 class="step-title screensteps-heading">Submitting Assessments</h3>
       <div class="screensteps-table">
-  <table style="width: 100%;">
+  <table style="width:100%;">
 <thead><tr>
-<th style="width: 50.0000%;">Event</th>
-<th style="width: 50.0000%;">What the event means</th>
+<th style="width:50.0000%;">Event</th>
+<th style="width:50.0000%;">What the event means</th>
 </tr></thead>
 <tbody>
 <tr>
-<td style="vertical-align: top;">sam.submit.from_toc<br>
+<td style="vertical-align:top;">sam.submit.from_toc<br>
 </td>
-<td style="vertical-align: top;">The user is on the <strong>Table of Contents</strong> screen and selects the <strong>Submit for Grading</strong> button. So now, the user would be on the <em>Assessment Submission Warning</em> page. They still have the <strong>Submit for Grading</strong> and <strong>Previous</strong> buttons available to them. They did not officially submit yet.<br>
+<td style="vertical-align:top;">The user is on the <strong>Table of Contents</strong> screen and selects the <strong>Submit for Grading</strong> button. So now, the user would be on the <em>Assessment Submission Warning</em> page. They still have the <strong>Submit for Grading</strong> and <strong>Previous</strong> buttons available to them. They did not officially submit yet.<br>
 </td>
 </tr>
 <tr>
-<td style="vertical-align: top;">sam.submit.from_last_page<br>
+<td style="vertical-align:top;">sam.submit.from_last_page<br>
 </td>
 <td>The user is on last page of the assessment and selects the <strong>Submit for Grading</strong> button. So now, the user would be on the <em>Assessment Submission Warning</em> page. They still have the <strong>Submit for Grading</strong> and <strong>Previous</strong> buttons available to them. They did not officially submit yet.<br>
 </td>
 </tr>
 <tr>
-<td style="vertical-align: top;">sam.assessment.submit.click_sub<br>
+<td style="vertical-align:top;">sam.assessment.submit.click_sub<br>
 </td>
 <td>The user selects the <strong>Submit for Grading</strong> button on the <em>Assessment Submission Warning</em> page.<br><br><em>Not sure if this is the correct meaning, or if this belongs with the event below instead?</em><br>
 </td>
 </tr>
 <tr>
-<td style="vertical-align: top;">sam.assessment.submit<br>
+<td style="vertical-align:top;">sam.assessment.submit<br>
 </td>
-<td style="vertical-align: top;">This is also logged with a manual submission.<br><br><em>Not sure what it means? </em><br>
-</td>
-</tr>
-<tr>
-<td style="vertical-align: top;">sam.assessment.submit.checked<br><br>
-</td>
-<td style="vertical-align: top;">The user is on the<em> </em>page with the submission confirmation number.<br><br><em>Not sure this is the correct meaning?</em><br>
+<td style="vertical-align:top;">This is also logged with a manual submission.<br><br><em>Not sure what it means? </em><br>
 </td>
 </tr>
 <tr>
-<td style="vertical-align: top;">
+<td style="vertical-align:top;">sam.assessment.submit.checked<br><br>
+</td>
+<td style="vertical-align:top;">The user is on the<em> </em>page with the submission confirmation number.<br><br><em>Not sure this is the correct meaning?</em><br>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top;">
 <strong>SAMIGO_TIMED_ASSESSMENT:QUEUE:REMOVE</strong><br>
 </td>
-<td style="vertical-align: top;">A timer thread is removed from the queue when a timed assessment is submitted by any method (manual or automatic).</td>
+<td style="vertical-align:top;">A timer thread is removed from the queue when a timed assessment is submitted by any method (manual or automatic).</td>
 </tr>
 <tr>
-<td style="vertical-align: top;">sam.assessment.thread_submit<br>
+<td style="vertical-align:top;">sam.assessment.thread_submit<br>
 </td>
-<td style="vertical-align: top;">A timed assessment is submitted by the expiration of the timer.</td>
+<td style="vertical-align:top;">A timed assessment is submitted by the expiration of the timer.</td>
 </tr>
 <tr>
 <td>sam.assessmentTimedSubmitted<br>
@@ -134,20 +134,20 @@
 </td>
 </tr>
 <tr>
-<td style="vertical-align: top;"><strong>SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE<br></strong></td>
-<td style="vertical-align: top;">This also indicates the expiration of the timer thread submitting the assessment.<br>
+<td style="vertical-align:top;"><strong>SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE<br></strong></td>
+<td style="vertical-align:top;">This also indicates the expiration of the timer thread submitting the assessment.<br>
 </td>
 </tr>
 <tr>
-<td style="vertical-align: top;">gradebook.updateItemScore<br>
+<td style="vertical-align:top;">gradebook.updateItemScore<br>
 </td>
-<td style="vertical-align: top;">If the assessment settings included the option to send the score to the Gradebook, the score is being updated in the <em>Gradebook</em> tool.<br>
+<td style="vertical-align:top;">If the assessment settings included the option to send the score to the Gradebook, the score is being updated in the <em>Gradebook</em> tool.<br>
 </td>
 </tr>
 <tr>
-<td style="vertical-align: top;">transportMessage: headers[ From: "Server Name" &lt;server email&gt; To: "User" &lt;user email&gt; Subject: Notification for assessment submission<br>
+<td style="vertical-align:top;">transportMessage: headers[ From: "Server Name" &lt;server email&gt; To: "User" &lt;user email&gt; Subject: Notification for assessment submission<br>
 </td>
-<td style="vertical-align: top;">An email notification for submission is sent to a user.  The email subject varies slightly depending on how it was submitted (timer, auto, user submit).<br>
+<td style="vertical-align:top;">An email notification for submission is sent to a user.  The email subject varies slightly depending on how it was submitted (timer, auto, user submit).<br>
 </td>
 </tr>
 </tbody>
@@ -159,15 +159,15 @@
         <div class="step screensteps-section screensteps-depth-2" id="reviewing-feedback">
     <h3 class="step-title screensteps-heading">Reviewing Feedback</h3>
       <div class="screensteps-table">
-  <table style="width: 100%;">
+  <table style="width:100%;">
 <thead><tr>
-<th style="width: 50.0000%;">Event</th>
-<th style="width: 50.0000%;">What the event means</th>
+<th style="width:50.0000%;">Event</th>
+<th style="width:50.0000%;">What the event means</th>
 </tr></thead>
 <tbody><tr>
-<td style="vertical-align: top;">sam.assessment.review<br>
+<td style="vertical-align:top;">sam.assessment.review<br>
 </td>
-<td style="vertical-align: top;">The user selects a <strong>Feedback</strong> link to access assessment feedback.</td>
+<td style="vertical-align:top;">The user selects a <strong>Feedback</strong> link to access assessment feedback.</td>
 </tr></tbody>
 </table>
 </div>

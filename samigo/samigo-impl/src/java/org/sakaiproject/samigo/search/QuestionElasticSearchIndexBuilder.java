@@ -53,16 +53,15 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.util.set.Sets;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.xcontent.XContentBuilder;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
@@ -723,10 +722,11 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     protected SearchRequest addFindContentQueueRequestParams(SearchRequest searchRequest) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
                 .query(matchAllQuery())
-                .postFilter(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED)).filter(termsQuery(SearchService.FIELD_INDEXED, false)))
+                .postFilter(boolQuery().should(termQuery(SearchService.FIELD_INDEXED, false)).should(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED))))
                 .size(contentIndexBatchSize)
                 .storedFields(Arrays.asList("questionId", "subtype"));
         return searchRequest
+                .indices(indexName)
                 .source(searchSourceBuilder)
                 .types(indexedDocumentType);
     }

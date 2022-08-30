@@ -74,7 +74,7 @@ public class GradingServiceTest {
 
         results = gradingService.extractVariables(sampleItemText2);
         Assert.assertNotNull(results);
-        Assert.assertEquals(3, results.size());
+        Assert.assertEquals(6, results.size());
         Assert.assertEquals("var1", results.get(0));
         Assert.assertEquals("var2", results.get(1));
         Assert.assertEquals("var3", results.get(2));
@@ -89,7 +89,7 @@ public class GradingServiceTest {
 
         results = gradingService.extractVariables(sampleItemText1WithCalc);
         Assert.assertNotNull(results);
-        Assert.assertEquals(3, results.size());
+        Assert.assertEquals(6, results.size());
         Assert.assertEquals("A", results.get(0));
         Assert.assertEquals("B", results.get(1));
         Assert.assertEquals("C", results.get(2));
@@ -104,12 +104,12 @@ public class GradingServiceTest {
 
         results = gradingService.extractVariables(sampleItemText3);
         Assert.assertNotNull(results);
-        Assert.assertEquals(5, results.size());
+        Assert.assertEquals(12, results.size());
         Assert.assertEquals("var0", results.get(0));
         Assert.assertEquals("var1", results.get(1));
         Assert.assertEquals("var2", results.get(2));
         Assert.assertEquals("var3", results.get(3));
-        Assert.assertEquals("var4", results.get(4));
+        Assert.assertEquals("var4", results.get(8));
         results = gradingService.extractFormulas(sampleItemText3);
         Assert.assertNotNull(results);
         Assert.assertEquals(2, results.size());
@@ -132,7 +132,7 @@ public class GradingServiceTest {
         text = "{A}+{B}={{D}} Hint: [[{A}-{B}]]";
         results = gradingService.extractVariables(text);
         Assert.assertNotNull(results);
-        Assert.assertEquals(2, results.size());
+        Assert.assertEquals(4, results.size());
         Assert.assertEquals("A", results.get(0));
         Assert.assertEquals("B", results.get(1));
         results = gradingService.extractFormulas(text);
@@ -143,7 +143,7 @@ public class GradingServiceTest {
         text = "{aaa11}+{bbb}={{dAnSw_3r}} Hint: [[{aaa11}-{bbb}]]";
         results = gradingService.extractVariables(text);
         Assert.assertNotNull(results);
-        Assert.assertEquals(2, results.size());
+        Assert.assertEquals(4, results.size());
         Assert.assertEquals("aaa11", results.get(0));
         Assert.assertEquals("bbb", results.get(1));
         results = gradingService.extractFormulas(text);
@@ -154,7 +154,7 @@ public class GradingServiceTest {
         text = "{A} + {B} = {{D}} Hint: [[ {A} + {B} ]]";
         results = gradingService.extractVariables(text);
         Assert.assertNotNull(results);
-        Assert.assertEquals(2, results.size());
+        Assert.assertEquals(4, results.size());
         Assert.assertEquals("A", results.get(0));
         Assert.assertEquals("B", results.get(1));
         results = gradingService.extractFormulas(text);
@@ -165,7 +165,7 @@ public class GradingServiceTest {
         text = "{A}*{B}={{D}} Hint: [[{A}*{B}]]";
         results = gradingService.extractVariables(text);
         Assert.assertNotNull(results);
-        Assert.assertEquals(2, results.size());
+        Assert.assertEquals(4, results.size());
         Assert.assertEquals("A", results.get(0));
         Assert.assertEquals("B", results.get(1));
         results = gradingService.extractFormulas(text);
@@ -176,7 +176,7 @@ public class GradingServiceTest {
         text = "{A}-{B}={{D}} Hint: [[{A}-{B}]]";
         results = gradingService.extractVariables(text);
         Assert.assertNotNull(results);
-        Assert.assertEquals(2, results.size());
+        Assert.assertEquals(4, results.size());
         Assert.assertEquals("A", results.get(0));
         Assert.assertEquals("B", results.get(1));
         results = gradingService.extractFormulas(text);
@@ -187,7 +187,7 @@ public class GradingServiceTest {
         text = "{A}/{B}={{D}} Hint: [[{A}/{B}]]";
         results = gradingService.extractVariables(text);
         Assert.assertNotNull(results);
-        Assert.assertEquals(2, results.size());
+        Assert.assertEquals(4, results.size());
         Assert.assertEquals("A", results.get(0));
         Assert.assertEquals("B", results.get(1));
         results = gradingService.extractFormulas(text);
@@ -199,7 +199,7 @@ public class GradingServiceTest {
         text = "{A}={{D}} Hint: [[{A}]]";
         results = gradingService.extractVariables(text);
         Assert.assertNotNull(results);
-        Assert.assertEquals(1, results.size());
+        Assert.assertEquals(2, results.size());
         Assert.assertEquals("A", results.get(0));
         results = gradingService.extractFormulas(text);
         Assert.assertNotNull(results);
@@ -210,7 +210,7 @@ public class GradingServiceTest {
         text = "{A}+{B}+{C}={{D}} Hint: [[{A}+{B}+{C}]]";
         results = gradingService.extractVariables(text);
         Assert.assertNotNull(results);
-        Assert.assertEquals(3, results.size());
+        Assert.assertEquals(6, results.size());
         Assert.assertEquals("A", results.get(0));
         Assert.assertEquals("B", results.get(1));
         Assert.assertEquals("C", results.get(2));

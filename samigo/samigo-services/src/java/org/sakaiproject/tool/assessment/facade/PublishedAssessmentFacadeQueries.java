@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
@@ -45,9 +46,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -218,7 +218,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			return null;
 		}
 		PublishedFeedback publishedFeedback = new PublishedFeedback(a
-				.getFeedbackDelivery(), a.getFeedbackComponentOption(),a.getFeedbackAuthoring(), a
+				.getFeedbackDelivery(), a.getFeedbackComponentOption(), a.getCorrectAnswerOption(), a.getFeedbackAuthoring(), a
 				.getEditComponents(), a.getShowQuestionText(), a
 				.getShowStudentResponse(), a.getShowCorrectResponse(), a
 				.getShowStudentScore(), a.getShowStudentQuestionScore(), a
@@ -347,6 +347,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 					sectionMetaData.getEntry());
 			h.add(publishedSectionMetaData);
 		}
+		// Persist the random seed in the section to use it and preserve the order.
+		h.add(new PublishedSectionMetaData(publishedSection, SectionDataIfc.RANDOMIZATION_SEED, String.valueOf(UUID.randomUUID().hashCode())));
 		return h;
 	}
 
@@ -654,7 +656,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	/**
-	 * This was created for GradebookExternalAssessmentService.
+	 * This was created for org.sakaiproject.grading.api.GradingService.
 	 * We just want a quick answer whether Samigo is responsible for an id.
 	 */
 	public boolean isPublishedAssessmentIdValid(Long publishedAssessmentId) {
@@ -759,20 +761,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			boolean integrated = IntegrationContextFactory.getInstance()
 					.isIntegrated();
-			GradebookExternalAssessmentService g = null;
+			org.sakaiproject.grading.api.GradingService g = null;
 			if (integrated) {
-				g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean(
-						"org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+				g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+						"org.sakaiproject.grading.api.GradingService");
 			}
 
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory
 					.getInstance().getGradebookServiceHelper();
 
-			if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)
-					&& toGradebook != null
-					&& toGradebook
-							.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK
-									.toString())) {
+			if (toGradebook != null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 				try {
 					gbsHelper.addToGradebook(publishedAssessment, publishedAssessment.getCategoryId(), g);
 				} catch (Exception e) {
@@ -1074,7 +1072,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 			try {
 				saveOrUpdate(assessment);
-				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 				rubricsService.softDeleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 			} catch (Exception e) {
 				log.warn(e.getMessage());
@@ -1328,7 +1326,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		if (groupIds.size() > 0) {
 			query = "select distinct new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
+				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.correctAnswerOption, f.feedbackAuthoring, c.lateHandling, "
 				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
@@ -1342,7 +1340,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		else {
 			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
+				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.correctAnswerOption, f.feedbackAuthoring, c.lateHandling, "
 				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
@@ -1386,7 +1384,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
 					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p
 							.getRetractDate(), p.getFeedbackDate(), p
-							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getFeedbackAuthoring(), p
+							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getCorrectAnswerOption(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
 							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit(), p.getFeedbackEndDate(), p.getFeedbackScoreThreshold());
 			pubList.add(f);
@@ -1580,6 +1578,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
                 data.setSectionSet(getSectionSetForAssessment(data));
                 PublishedAssessmentFacade assessment = new PublishedAssessmentFacade(data);
                 assessment.setFeedbackComponentOption(data.getAssessmentFeedback().getFeedbackComponentOption());
+                assessment.setCorrectAnswerOption(data.getAssessmentFeedback().getCorrectAnswerOption());
                 return assessment;
             default:
                 log.warn("More than 1 assessment found with the same ALIAS = {}, this should be unique.", entry);
@@ -1623,7 +1622,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 		final String query = "select new PublishedFeedback("
 				+ " p.assessment.publishedAssessmentId,"
-				+ " p.feedbackDelivery,p.feedbackComponentOption,  p.feedbackAuthoring, p.editComponents, p.showQuestionText,"
+				+ " p.feedbackDelivery,p.feedbackComponentOption,  p.correctAnswerOption, p.feedbackAuthoring, p.editComponents, p.showQuestionText,"
 				+ " p.showStudentResponse, p.showCorrectResponse,"
 				+ " p.showStudentScore," + " p.showStudentQuestionScore,"
 				+ " p.showQuestionLevelFeedback, p.showSelectionLevelFeedback,"
@@ -2097,7 +2096,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> session.createQuery(
 					"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 							+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-							+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
+							+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.correctAnswerOption, f.feedbackAuthoring, c.lateHandling, "
 							+ " c.unlimitedSubmissions, c.submissionsAllowed, c.feedbackEndDate, c.feedbackScoreThreshold) "
 							+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 							+ " PublishedFeedback as f"
@@ -2789,7 +2788,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
     	assessment.setLastModifiedDate(new Date());
     	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
 
-    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
     	rubricsService.restoreRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedAssessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 
     	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();

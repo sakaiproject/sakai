@@ -50,8 +50,8 @@
         <div class="navPanel">
             <div class="highlight gradingHeader">
                 <h3>
-                    #assignmentTitleIcon($!assignment)
                     $formattedText.escapeHtml($!assignment.Title)
+                    #assignmentIcons($!assignment)
                     <span class="highlight"> -
                         #if ($withGrade)
                             #if (!$!submission.Graded)
@@ -292,12 +292,16 @@
                 </div>
             #end
             ## Submitted time spent
-            #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+            #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
                 <h3>
                     $tlang.getString("gen.totaltimespent")
                 </h3>
                 <p>
-                    $!submitterTimeSpent
+                    #if ($!submitterTimeSpent && !$!submitterTimeSpent.equals(""))
+                        $!submitterTimeSpent
+                    #else
+                        $tlang.getString("gen.noestimate")
+                    #end
                 </p>
             #end
             ## Submitted Attachment
@@ -346,10 +350,11 @@
         </div>
         <div role="tabpanel" class="tab-pane" id="rubric">
             <sakai-rubric-grading
-                token="$!rbcs-token"
-                tool-id="sakai.assignment"
+                site-id="$!assignment.Context"
+                tool-id="sakai.assignment.grades"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
+                enable-pdf-export="$enablePdfExport"
                 #if ($groupRef)
                 evaluated-item-owner-id="$groupRef"
                 group
@@ -476,13 +481,14 @@
                                     <div class="row-override">
                                         <label>$formattedText.escapeHtml($!submitterName)</label>
                                         <div class="shorttext">
-                                            <span>$tlang.getString("gen.grade.override")</span> <input type="text"
+                                            <span>$tlang.getString("gen.grade.override")</span>
+                                            <input type="text"
                                                 name="$group_name_grade"
                                                 size="5"
                                                 maxlength="11"
                                                 value="$!group_value_grade"
                                                 id="grade"
-                                                onkeypress="return ASN.handleEnterKeyPress(event);"/>
+                                                onkeypress="return ASN.handleEnterKeyPress(event);" />
                                             <span>($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
                                         </div>
                                     </div>
@@ -692,6 +698,21 @@
                 #end
             #end
 
+            <h4>
+                $tlang.getString("note.label")
+            </h4>
+            <p class="help-block">
+                $tlang.getString("note.instruction")
+            </p>
+            <div class="textarea-holder private-notes-textarea">
+                <textarea name="$name_private_notes" id="$name_private_notes" aria-label="$tlang.getString("note.label")" rows="30" wrap="virtual" cols="80">
+                    #if($!value_private_notes)
+                        $formattedText.escapeHtmlFormattedTextarea($!value_private_notes)
+                    #end
+                </textarea>
+                #chef_setupformattedtextarea($name_private_notes)
+            </div>
+
             <div class="form-group" id="allowExtensionForm" style="$extensionStyle">
                 <input type="checkbox" id="allowExtensionToggle" name="allowExtensionToggle"
                     #if($extensionCloseTime && $submissionType != 4)
@@ -781,8 +802,7 @@
                            title="$tlang.getString("gen.retustudtit")"/>
 					<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')"
                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'previewgrade', '$formattedText.escapeUrl( $submissionReference )', null ); return false;"/>
-					<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')"
-                           onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgrade', null, null ); return false;"/>
+					<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="ASN.cancelGradeSubmission();" />
                     #if ($!prevSubmissionId)
                         <input type="hidden" name="prevSubmissionId" id="prevSubmissionId" value="$!prevSubmissionId"/>
                     #end
@@ -847,8 +867,8 @@
                 </fieldset>
             </div>
         </div>
+        <input type="hidden" id="grade-is-released" name="grade-is-released" value="$submission.getGradeReleased()" />
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
-        <input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
     </form>
 </div>
 <!-- end: check_assignments_instructor_grading_submission.vm  -->

@@ -91,7 +91,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	 */
 	public List getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
-    	List<CourseSectionImpl> sectionList = new ArrayList<CourseSectionImpl>();
+    	List<CourseSectionImpl> sectionList = new ArrayList<>();
     	Collection<Group> sections;
     	try {
     		sections = siteService.getSite(siteContext).getGroups();

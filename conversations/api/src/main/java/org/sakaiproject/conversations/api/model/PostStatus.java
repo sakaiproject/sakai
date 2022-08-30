@@ -32,10 +32,10 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "CONV_POST_STATUS",
-    indexes = { @Index(columnList = "USER_ID"),
-                @Index(columnList = "POST_ID"),
-                @Index(columnList = "POST_ID, USER_ID"),
-                @Index(columnList = "TOPIC_ID, USER_ID") },
+    indexes = { @Index(name = "conv_post_status_user_idx", columnList = "USER_ID"),
+                @Index(name = "conv_post_status_post_idx", columnList = "POST_ID"),
+                @Index(name = "conv_post_status_post_user_idx", columnList = "POST_ID, USER_ID"),
+                @Index(name = "conv_post_status_topic_user_idx", columnList = "TOPIC_ID, USER_ID") },
     uniqueConstraints = { @UniqueConstraint(name = "UniquePostStatus", columnNames = { "POST_ID", "USER_ID" }) })
 @Getter
 @Setter
@@ -46,10 +46,10 @@ public class PostStatus implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "TOPIC_ID", nullable = false)
+    @Column(name = "TOPIC_ID", length = 36, nullable = false)
     private String topicId;
 
-    @Column(name = "POST_ID", nullable = false)
+    @Column(name = "POST_ID", length = 36, nullable = false)
     private String postId;
 
     @Column(name = "USER_ID", length = 99, nullable = false)

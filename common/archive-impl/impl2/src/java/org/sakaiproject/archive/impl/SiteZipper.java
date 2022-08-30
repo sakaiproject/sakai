@@ -74,7 +74,7 @@ public class SiteZipper {
 
 			if(entry.isDirectory()) {
 				//create dir
-				if(!dest.mkdir()) {
+				if(!dest.mkdirs()) {
 					throw new IOException("Failed to create directory "+ dest);
 				}
 				if (unzippedArchivePath == null) {

@@ -171,3 +171,13 @@
 .namePronunciation .nameAudioPlayer, .namePronunciation .audioPlayer {
     display: none;
 }
+
+.roster-member-card img {
+    width: 76px;
+    height: 76px;
+}
+
+#roster-members-table sakai-user-photo img {
+    width: 44px;
+    height: 44px;
+}

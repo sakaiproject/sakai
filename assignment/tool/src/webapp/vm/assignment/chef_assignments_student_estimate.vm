@@ -4,7 +4,7 @@
     window.i18nWlogTab['ts.add.err.userId']=" $tlang.getString('ts.add.err.userId')";
     window.i18nWlogTab['ts.add.err.assignmentId']=" $tlang.getString('ts.add.err.assignmentId')";
     window.i18nWlogTab['ts.add.err.startTime']=" $tlang.getString('ts.add.err.startTime')";
-    window.i18nWlogTab['ts.add.err.regComment']=" $tlang.getString('ts.add.err.comment')";
+    window.i18nWlogTab['ts.add.err.comment']=" $tlang.getString('ts.add.err.comment')";
     window.i18nWlogTab['ts.add.err.duration']=" $tlang.getString('ts.add.err.duration')";
     window.i18nWlogTab['ts.add.err.permission']=" $tlang.getString('ts.add.err.permission')";
     window.i18nWlogTab['ts.rem.err.userId']=" $tlang.getString('ts.rem.err.userId')";
@@ -42,7 +42,7 @@
             </tr>
 
         #foreach ($submitter in $submission.Submitters)
-            #foreach ($timeSheetSubmit in $submitter.TimeSheetEntries)
+            #foreach ($timeSheetSubmit in $timeSheetEntries)
             <tr>
                 <td>
                     $!service.getUsersLocalDateTimeString($timeSheetSubmit.startTime)
@@ -140,7 +140,7 @@
                             </div>
                         </form>
 
-                        #if ($assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
+                        #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
                             <div class="modal-footer">
                                 <button name="btnTimesheetAdd" id="btnTimesheetAdd" class="btn btn-primary" onclick="ASN.addTimeSheet(this);">$!tlang.getString("ts.modal.btn.save")</button>
                             </div>

@@ -5,7 +5,9 @@
 		$tlang.getString("create.folder")
 	</h3>
 	#if ($itemAlertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
+		<div id="resourceAlert" class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
+	#else
+		<div id="resourceAlert" class="sak-banner-error hide"></div>
 	#end
 	<ol class="breadcrumb">
 		<li><span>
@@ -39,7 +41,7 @@
 							<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
 						</div>
 						<div class="col-md-6 col-sm-4 col-xs-12">
-							<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
+							<input type="text" name="content${DOT}$i" id="content${DOT}$i" oninput="validateFolderNames();"/>
 						##  onkeypress="return handleEnterKey(this, event)"
 						</div>
 						<div class="col-sm-4 col-xs-12">
@@ -61,10 +63,10 @@
 			#end
 		</div>
 		<p class="act">
-			<a href="#" id="addFolderInput" onclick="addFileInput();return false">$tlang.getString("label.addFolder")</a>
+			<a href="#" id="addFolderInput" onclick="addFileInput(); document.getElementById('saveChanges').disabled=true; return false">$tlang.getString("label.addFolder")</a>
 		</p>
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotif03','saveChanges','addFolderForm');document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCreateFolders")&flow=save';submitform('addFolderForm');" value="$tlang.getString("label.finfldr")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotif03','saveChanges','addFolderForm');document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCreateFolders")&flow=save';submitform('addFolderForm');" value="$tlang.getString("label.finfldr")" accesskey="s" disabled />
 			<input type="button" name="cancel" onclick="document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addFolderForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		<p class="sak-banner-info"  id="submitnotif03" style="visibility:hidden">$tlang.getString("processmessage.folders")</p>
@@ -72,3 +74,24 @@
 	</form>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
+
+<script type="text/javascript">
+	function validateFolderNames()
+	{
+		const textInputs = document.querySelectorAll("#fileInputDiv input[type=text]");
+		let allFolderNamesPresent = true;
+		for (let i = 0; i < textInputs.length; i++)
+		{
+			if (textInputs[i].id.indexOf('content${DOT}')===0)
+			{
+				if (!textInputs[i].value)
+				{
+					allFolderNamesPresent = false;
+					break;
+				}
+			}
+		}
+
+		document.getElementById('saveChanges').disabled=!allFolderNamesPresent;
+	}
+</script>

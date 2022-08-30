@@ -127,7 +127,7 @@ function toPoint(id)
 
   <h:panelGroup layout="block" styleClass="page-header">
     <h1>
-      <h:outputText value="#{studentScores.studentName}" rendered="#{totalScores.anonymous eq 'false'}"/>
+      <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
       <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
     </h1>
   </h:panelGroup>
@@ -193,24 +193,29 @@ function toPoint(id)
 
       <t:dataList value="#{part.itemContents}" var="question" itemStyleClass="page-header question-box" styleClass="question-wrapper" layout="unorderedList">
         <h:outputText value="<a name=\"#{part.number}_#{question.number}\"></a>" escape="false" />
-        <h:panelGroup layout="block" styleClass="input-group col-sm-6">
-            <p class="input-group-addon">
-              <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
-              <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
-            </p>
-            <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);"
-                         validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">
-              <f:validateDoubleRange/>
-            </h:inputText>
-            <p class="input-group-addon">
-            <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
-            <h:outputText value="#{deliveryMessages.pt}"/>
-            </p>
-            <h:message for="adjustedScore" style="color:red"/>
-            <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{deliveryMessages.extra_credit_preview}" />
-        </h:panelGroup>
-
-        <br/>
+          <h:panelGroup layout="block" styleClass="row #{delivery.actionString}">
+            <h:panelGroup layout="block" styleClass="col-sm-6">
+              <h:panelGroup layout="block" styleClass="row">
+                <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
+                  <p class="input-group-addon">
+                    <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
+                    <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
+                  </p>
+                  <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">
+                    <f:validateDoubleRange/>
+                  </h:inputText>
+                </h:panelGroup>
+                <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
+                  <p class="input-group-addon">
+                    <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
+                    <h:outputText value="#{deliveryMessages.pt}" />
+                    <h:message for="adjustedScore" styleClass="sak-banner-error" />
+                    <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{deliveryMessages.extra_credit_preview}" />
+                  </p>
+                </h:panelGroup>
+              </h:panelGroup>
+            </h:panelGroup>
+          </h:panelGroup>
 
       <h:panelGroup rendered="#{question.hasAssociatedRubric}">
         <ul class="nav nav-tabs">
@@ -316,11 +321,12 @@ function toPoint(id)
           <div class="tab-pane" id="<h:outputText value="rubric#{question.itemData.itemId}" />">
             <sakai-rubric-grading
               id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              token='<h:outputText value="#{submissionStatus.rbcsToken}"/>'
               tool-id="sakai.samigo"
+              site-id='<h:outputText value="#{totalScores.siteId}"/>'
               entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
               evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
+            >
             </sakai-rubric-grading>
           </div>
           </div>
@@ -359,7 +365,7 @@ function toPoint(id)
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{commonMessages.cancel_action}" action="totalScores" immediate="true">
+   <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
