@@ -150,7 +150,7 @@ public class SearchQuestionBean   implements Serializable {
 
         try {
 
-            SearchResponse sr = searchService.searchResponse("", null, 0, 0, "questions",additionalSearchInformation);
+            SearchResponse sr = searchService.searchResponse("", null, null, 0, 0, "questions",additionalSearchInformation);
             log.debug("This is the search response: " + sr.toString());
             Terms dedup = sr.getAggregations().get("dedup");
 
@@ -219,7 +219,7 @@ public class SearchQuestionBean   implements Serializable {
         this.setTextToSearch(textToSearch);
 
         try {
-            SearchResponse sr = searchService.searchResponse(textToSearch, null, 0, 0, "questions", additionalSearchInformation);
+            SearchResponse sr = searchService.searchResponse(textToSearch, null, null, 0, 0, "questions", additionalSearchInformation);
             log.debug("This is the search repsonse: " + sr.toString());
             Terms dedup = sr.getAggregations().get("dedup");
             // For each entry
@@ -349,7 +349,7 @@ public class SearchQuestionBean   implements Serializable {
 
             try {
 
-                SearchResponse sr = searchService.searchResponse("", null, 0, 1, "questions", additionalSearchInformation);
+                SearchResponse sr = searchService.searchResponse("", null, null, 0, 1, "questions", additionalSearchInformation);
                 if (sr.getHits().getTotalHits().value < 1) {
                     questionsIOwn.put(questionId, Boolean.FALSE);
                     return false;
@@ -376,7 +376,7 @@ public class SearchQuestionBean   implements Serializable {
         additionalSearchInformation.put("hash",hash);
         try {
 
-            SearchResponse sr = searchService.searchResponse("", null, 0, 1000, "questions", additionalSearchInformation);
+            SearchResponse sr = searchService.searchResponse("", null, null, 0, 1000, "questions", additionalSearchInformation);
 
             for (SearchHit hit : sr.getHits()) {
                 origins.add(origin(hit));
