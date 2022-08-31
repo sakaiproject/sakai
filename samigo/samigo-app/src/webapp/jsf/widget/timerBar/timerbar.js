@@ -238,7 +238,12 @@
       var readerAnnounce = true;
 
       function readTime() {
-          document.getElementById("timerReader").innerText = getRemainingTimeString(remain).concat(" ", srRemaining);
+          const alertEl = document.getElementById("timerReader");
+          //Clear alert, so it's read later
+          alertEl.innerText = "";
+          setTimeout(() => {
+              alertEl.innerText = getRemainingTimeString(remain).concat(" ", srRemaining);
+          }, 250);
       }
 
       function getColorString(progValue) {
