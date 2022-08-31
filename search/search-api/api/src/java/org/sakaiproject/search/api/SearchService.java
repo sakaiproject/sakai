@@ -153,7 +153,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchList search(String searchTerms, List<String> contexts, int searchStart,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int searchStart,
 			int searchEnd) throws InvalidSearchQueryException;
 
 	/**
@@ -171,7 +171,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	public SearchList search(String searchTerms, List<String> contexts, int start,
+	public SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 			int end, String filterName, String sorterName) throws InvalidSearchQueryException;
 
 	/**
@@ -187,7 +187,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
      */
-	SearchList search(String searchTerms, List<String> contexts, int start,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 			int end, String indexBuilderName) throws InvalidSearchQueryException;
 
 	/**
@@ -204,7 +204,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchList search(String searchTerms, List<String> contexts, int start,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
 
 
@@ -223,7 +223,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchResponse searchResponse(String searchTerms, List<String> contexts, int start,
+	SearchResponse searchResponse(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
 
 

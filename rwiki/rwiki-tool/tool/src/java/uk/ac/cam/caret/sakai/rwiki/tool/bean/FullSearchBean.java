@@ -197,7 +197,7 @@ public class FullSearchBean
 			int searchStart = requestPage * pagesize;
 			int searchEnd = searchStart + pagesize;
 			try {
-				searchResults = searchService.search(search.concat(SEARCH_SUFFIX), l, searchStart,
+				searchResults = searchService.search(search.concat(SEARCH_SUFFIX), l, null, searchStart,
 						searchEnd);
 				long end = System.currentTimeMillis();
 				timeTaken = end - start;

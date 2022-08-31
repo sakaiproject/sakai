@@ -799,16 +799,16 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
 
     @Override
-    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
-       return search(searchTerms,references, siteIds, start, end, new HashMap<>());
+    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
+       return search(searchTerms,references, siteIds, toolIds, start, end, new HashMap<>());
     }
 
     /**
      * This is a new search that accepts additionalSearchInformation. We need it for our complex question searches.
      * We have duplicated the methods that need this parameter, like prepareSearchRequest
      */
-    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
-        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, start, end, additionalSearchInformation);
+    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInformation) {
+        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, toolIds, start, end, additionalSearchInformation);
         log.debug("Search request from index builder [{}]: {}", getName(), searchRequest.toString());
         ValidateQueryRequest validateQueryRequest = new ValidateQueryRequest(indexName);
         validateQueryRequest.query(searchRequest.source().query());
@@ -839,14 +839,14 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     @Override
-    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
-        return prepareSearchRequest(searchTerms,references, siteIds, start, end, new HashMap<>());
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
+        return prepareSearchRequest(searchTerms,references, siteIds, toolIds, start, end, new HashMap<>());
     }
 
-    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInformation) {
         SearchRequest searchRequest = newSearchRequestAndQueryBuilders(searchTerms, references, siteIds);
         addSearchCoreParams(searchRequest);
-        addSearchQuery(searchRequest, searchTerms, references, siteIds, additionalSearchInformation);
+        addSearchQuery(searchRequest, searchTerms, references, siteIds, toolIds, additionalSearchInformation);
         addSearchResultFields(searchRequest);
         addSearchPagination(searchRequest, start, end);
         addSearchFacetting(searchRequest);
@@ -866,11 +866,11 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     @Override
-    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds) {
-        addSearchQuery(searchRequest, searchTerms, references, siteIds, new HashMap<>());
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds) {
+        addSearchQuery(searchRequest, searchTerms, references, siteIds, toolIds, new HashMap<>());
     }
 
-    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, Map<String,String> additionalSearchInformation ) {
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, Map<String,String> additionalSearchInformation ) {
         addSearchTerms(searchRequest, searchTerms, additionalSearchInformation);
         addSearchReferences(searchRequest, references);
         addSearchSiteIds(searchRequest, siteIds);
