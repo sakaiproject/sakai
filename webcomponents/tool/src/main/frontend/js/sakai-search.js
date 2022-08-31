@@ -2,6 +2,7 @@ import { SakaiElement } from "./sakai-element.js";
 import "./sakai-pager.js";
 import { html } from "./assets/lit-element/lit-element.js";
 import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js";
+import { getUserId } from "./sakai-portal-utils.js";
 
 class SakaiSearch extends SakaiElement {
 
@@ -15,19 +16,13 @@ class SakaiSearch extends SakaiElement {
       "announcement": "icon-sakai--sakai-announcements",
       "assignments": "icon-sakai--sakai-assignment-grades",
       "chat": "icon-sakai--sakai-chat",
-      "conversations": "icon-sakai--sakai-conversations",
+      "sakai.conversations": "icon-sakai--sakai-conversations",
       "forums": "icon-sakai--sakai-forums",
       "lessons": "icon-sakai--sakai-lessonbuildertool",
       "commons": "icon-sakai--sakai-commons",
       "content": "icon-sakai--sakai-resources",
       "wiki": "icon-sakai--sakai-rwiki",
     };
-
-    if (!this.tool) {
-      this.searchTerms = sessionStorage.getItem("searchterms") || "";
-      this.results = JSON.parse(sessionStorage.getItem("searchresults") || "[]");
-    }
-    this.currentPageIndex = parseInt(sessionStorage.getItem("currentpageindex") || "0");
 
     this.loadTranslations("search").then(t => {
 
@@ -36,7 +31,7 @@ class SakaiSearch extends SakaiElement {
         "announcement": this.i18n.toolname_announcement,
         "assignments": this.i18n.toolname_assignment,
         "chat": this.i18n.toolname_chat,
-        "conversations": this.i18n.toolname_conversations,
+        "sakai.conversations": this.i18n.toolname_conversations,
         "forums": this.i18n.toolname_forum,
         "lessons": this.i18n.toolname_lesson,
         "commons": this.i18n.toolname_commons,
@@ -55,28 +50,25 @@ class SakaiSearch extends SakaiElement {
       results: { attribute: false, type: Array },
       pages: { attribute: false, type: Number },
       i18n: { attribute: false, type: Object },
+      portal: { type: Boolean},
     };
   }
 
-  set pageSize(newValue) {
-
-    this._pageSize = newValue;
-    this.initSetsOfResults(this.results);
-  }
-
-  get pageSize() { return this._pageSize; }
-
-  handleKeydownOnResult(e) {
+  _handleKeydownOnResult(e) {
 
     if (e.code === "Escape") {
       e.preventDefault();
-      this.closeResults();
+      this._closeResults();
     }
   }
 
-  closeResults() {
+  _getSessionStorageKey(type) {
+    return `${type}-${getUserId()}-${this.siteId ? `-${this.siteId}` : ""}${this.tool ? `-${this.tool}` : ""}`;
+  }
 
-    this.results = [];
+  _closeResults() {
+
+    this.results = undefined;
     this.dispatchEvent(new CustomEvent("hiding-search-results"));
     const input = this.querySelector("input");
     input.focus();
@@ -93,30 +85,30 @@ class SakaiSearch extends SakaiElement {
       <div class="sakai-search-input" role="search">
         <input type="text"
             autocomplete="off"
-            style="font-family: FontAwesome, sans-serif"
             id="sakai-search-input"
             role="searchbox"
-            tabindex="0"
             @keydown=${this.search}
-            @click=${this.handleSearchClick}
-            .value="&#xf002; ${this.searchTerms}"
-            aria-label="${this.i18n.search_placeholder}" />
+            placeholder="${this.tool ? this.i18n.search_this_tool_placeholder : this.i18n.search_sakai_placeholder}"
+            aria-label="${this.tool ? this.i18n.search_this_tool_placeholder : this.i18n.search_sakai_placeholder}" />
+        <sakai-icon type="search" size="small"></sakai-icon>
       </div>
-      ${this.noResults ? html`
+      ${this.results ? html`
         <div class="sakai-search-results" tabindex="1">
-          <div class="search-result-container"><div class="search-result">No results</div></div>
-        </div>
-      ` : ""}
-      ${this.results.length > 0 ? html`
-        <div class="sakai-search-results">
-          <div style="float: right;">
-            <button class="btn-transparent" @click=${this.closeResults}>
-              <sakai-icon type="close"></sakai-icon>
-            </button>
+          <div class="search-results-header">
+            <div class="sakai-search-results-title">${this.i18n.search_results}</div>
+            <div>
+              <button class="btn-transparent"
+                  aria-label="${this.i18n.close_results_tooltip}"
+                  title="${this.i18n.close_results_tooltip}"
+                  @click=${this._closeResults}>
+                <sakai-icon type="close"></sakai-icon>
+              </button>
+            </div>
           </div>
+        ${this.results?.length > 0 ? html`
           ${this.currentPageOfResults.map(r => html`
           <div class="search-result-container">
-            <a href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
+            <a href="${r.url}" @click=${this.toggleField} @keydown=${this._handleKeydownOnResult}>
               ${!this.tool ? html`
               <div>
                 <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
@@ -126,9 +118,7 @@ class SakaiSearch extends SakaiElement {
               </div>
               ` : ""}
               <div class="search-result-title-block">
-                ${!this.tool ? html`
                 <span class="search-result-title-label">${this.i18n.search_result_title}</span>
-                ` : ""}
                 <span class="search-result-title">${r.title}</span>
               </div>
               <div class="search-result">${unsafeHTML(r.searchResult)}</div>
@@ -136,49 +126,30 @@ class SakaiSearch extends SakaiElement {
           </div>
           `)}
           <sakai-pager count="${this.pages}" current"1" @page-selected=${this.pageSelected}></sakai-pager>
+        ` : html`
+          <div class="search-result-container no-results">
+            <div>${this.i18n.no_results}</div>
+          </div>
+        `}
         </div>
       ` : ""}
     `;
   }
 
   clear() {
-
-    if (!this.tool) {
-      sessionStorage.removeItem("searchterms");
-      sessionStorage.removeItem("searchresults");
-    }
-    this.results = [];
-    this.searchTerms = "";
-    this.requestUpdate();
-    this.noResults = false;
-  }
-
-  handleSearchClick(e) {
-
-    if (e.target.selectionStart <= 2) {
-      e.preventDefault();
-      e.target.setSelectionRange(2, 2);
-      return false;
-    }
+    this.results = undefined;
   }
 
   search(e) {
 
     const keycode = e.keyCode ? e.keyCode : e.which;
 
-    if ((keycode === 8 || keycode === 37) && e.target.selectionStart <= 2) {
-      e.preventDefault();
-      return false;
-    }
-
-    this.closeResults();
+    this._closeResults();
 
     if (keycode == "13" && e.target.value.length > 4) {
-      const terms = e.target.value.substring(2);
-      if (!this.tool) {
-        sessionStorage.setItem("searchterms", terms);
-      }
-      fetch(`/api/search?terms=${terms}${this.siteId ? `&site=${this.siteId}` : ""}`, {cache: "no-cache", credentials: "same-origin"})
+      const terms = encodeURIComponent(e.target.value);
+      fetch(`/api/search?terms=${terms}${this.siteId ? `&site=${this.siteId}` : ""}${this.tool ? `&tool=${this.tool}` : ""}`
+        , {cache: "no-cache", credentials: "same-origin"})
         .then(r => {
 
           if (r.ok) {
@@ -192,14 +163,11 @@ class SakaiSearch extends SakaiElement {
           this.results = data;
 
           if (this.results.length > 0) {
-            this.querySelector("input").classList.add("flat-bottom");
+            this.querySelector(".sakai-search-input").classList.add("flat-bottom");
           }
-          this.noResults = this.results.length === 0;
           this.results.forEach(r => { if (r.title.length === 0) r.title = r.tool; });
           this.initSetsOfResults(this.results);
           this.updateComplete.then(() => {
-
-            this.querySelector(".sakai-search-results").style.width = "400px";
 
             const firstResult = document.querySelector(".search-result-container a");
             firstResult && firstResult.focus();
@@ -227,9 +195,6 @@ class SakaiSearch extends SakaiElement {
               });
             });
           });
-          if (!this.tool) {
-            sessionStorage.setItem("searchresults", JSON.stringify(this.results));
-          }
           this.requestUpdate();
         })
         .catch(error => console.error(error));
@@ -261,7 +226,7 @@ class SakaiSearch extends SakaiElement {
 
     this.currentPageIndex = 0;
 
-    this.currentPageOfResults = this.setsOfResults[this.currentPageIndex];
+    this.currentPageOfResults = this.setsOfResults.length > 0 && this.setsOfResults[this.currentPageIndex];
 
     this.requestUpdate();
   }
@@ -271,7 +236,6 @@ class SakaiSearch extends SakaiElement {
     this.currentPageIndex = e.detail.page;
     this.currentPageOfResults = this.setsOfResults[this.currentPageIndex];
     this.requestUpdate();
-    sessionStorage.setItem("currentpageindex", this.currentPageIndex);
   }
 }
 
