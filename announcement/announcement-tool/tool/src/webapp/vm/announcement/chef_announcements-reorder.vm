@@ -115,8 +115,8 @@
 						</span>
 						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
 							#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
-                                $ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
-                            #end
+								$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
+							#end
 						</span>
 						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
 							#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
