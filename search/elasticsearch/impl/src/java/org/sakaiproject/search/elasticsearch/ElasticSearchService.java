@@ -408,46 +408,46 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
-        return search(searchTerms, siteIds, start, end);
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
+        return search(searchTerms, siteIds, toolIds, start, end);
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, null, siteIds, searchStart, searchEnd, null, null, new ArrayList<>());
+                search(searchTerms, null, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>());
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>());
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>());
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchResponse searchResponse(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    public SearchResponse searchResponse(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
         return result.getLeft();
     }
 
-    SearchResponse search(String searchTerms, List<String> siteIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
-        return search(searchTerms, indexBuilderName, siteIds, start, end, null, null, references).getLeft();
+    SearchResponse search(String searchTerms, List<String> siteIds, List<String> toolIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
+        return search(searchTerms, indexBuilderName, siteIds, toolIds, start, end, null, null, references).getLeft();
     }
 
-    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
+    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
         if (references == null) {
             references = new ArrayList();
         }
@@ -456,11 +456,11 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
-        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, start, end);
+        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, toolIds, start, end);
         return new ImmutablePair<>(response, indexBuilder);
     }
 
-    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName, List<String> references, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         if (references == null) {
             references = new ArrayList();
         }
@@ -469,7 +469,7 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
-        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, start, end, additionalSearchInformation);
+        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, toolIds, start, end, additionalSearchInformation);
         return new ImmutablePair<>(response, indexBuilder);
     }
 
@@ -558,7 +558,7 @@ import lombok.extern.slf4j.Slf4j;
             sessionManager.setCurrentSession(s);
             try {
 
-                SearchList sl = search(searchTerms, ctx, searchStart, searchEnd);
+                SearchList sl = search(searchTerms, ctx, null, searchStart, searchEnd);
                 sb.append("<results "); //$NON-NLS-1$
                 sb.append(" fullsize=\"").append(sl.getFullSize()) //$NON-NLS-1$
                         .append("\" "); //$NON-NLS-1$
@@ -987,12 +987,12 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         @Override
-        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
-            return search(searchTerms,references,siteIds,start,end, new HashMap<String,String>());
+        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
+            return search(searchTerms,references,siteIds,toolIds,start,end, new HashMap<String,String>());
         }
 
         @Override
-        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInfromation) {
+        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInfromation) {
             return new SearchResponse(
                     new InternalSearchResponse(new SearchHits(new SearchHit[0], new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0.0f), InternalAggregations.EMPTY, new Suggest(Collections.emptyList()), null, false, false, 1),
                     "no-op",

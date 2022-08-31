@@ -388,7 +388,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         long hitCount = maxHits + 1;
 
         while (hitCount >= maxHits) {
-            SearchResponse response = search(null, null, Collections.singletonList(siteId), 0, maxHits);
+            SearchResponse response = search(null, null, Collections.singletonList(siteId), null, 0, maxHits);
             SearchHits hits = response.getHits();
             hitCount = hits.getTotalHits().value;
             getLog().info("Deleting {} docs from site {}", hitCount, siteId);
@@ -479,13 +479,12 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         return indexRequest.routing(ecp.getSiteId(resourceName));
     }
 
-
     @Override
     protected void addSearchSiteIds(SearchRequest searchRequest, List<String> siteIds) {
 
-        BoolQueryBuilder queryBuilder = (BoolQueryBuilder) searchRequest.source().query();
         // if we have sites filter results to include only the sites included
         if (siteIds != null && !siteIds.isEmpty()) {
+            BoolQueryBuilder queryBuilder = (BoolQueryBuilder) searchRequest.source().query();
             // searchRequest.routing(siteIds.toArray(new String[]{}));
 
             // creating config whether or not to use filter, there are performance and caching differences that

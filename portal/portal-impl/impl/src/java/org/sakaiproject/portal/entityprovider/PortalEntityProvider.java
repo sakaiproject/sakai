@@ -239,7 +239,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 				workspaceIds.forEach(id -> log.debug("workspace id: {}", id));
 			}
 
-			SearchList results = searchService.search(query, workspaceIds, 0, 100);
+			SearchList results = searchService.search(query, workspaceIds, null, 0, 100);
 
 			Set<BasicConnection> hits = results.stream().filter(r -> "profile".equals(r.getTool()))
 				.map(r ->

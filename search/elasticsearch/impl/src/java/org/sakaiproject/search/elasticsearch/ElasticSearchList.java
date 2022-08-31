@@ -59,7 +59,7 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
 
             SearchResponse highlightedResponse;
             try {
-                highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<>(), 0, references.size(), references, searchIndexBuilder.getName());
+                highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<>(), new ArrayList(), 0, references.size(), references, searchIndexBuilder.getName());
             } catch (Exception e) {
                 log.error("problem running hightlighted and facetted search: {}", e);
                 return;

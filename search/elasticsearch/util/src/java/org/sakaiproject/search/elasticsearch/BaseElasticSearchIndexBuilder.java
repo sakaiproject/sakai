@@ -1069,9 +1069,9 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     @Override
-    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
+    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
 
-        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, start, end);
+        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, toolIds, start, end);
 
         getLog().debug("Search request from index builder [{}]: {}", getName(), searchRequest);
         try {
@@ -1091,16 +1091,16 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     @Override
-    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
+    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInformation) {
         // additional information will be used in specific indexes,
         // so this method can be overridden in the index to make use of that field.
-        return search(searchTerms, references, siteIds, start, end);
+        return search(searchTerms, references, siteIds, toolIds, start, end);
     }
 
-    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
         SearchRequest searchRequest = newSearchRequestAndQueryBuilders();
         addSearchCoreParams(searchRequest);
-        addSearchQuery(searchRequest, searchTerms, references, siteIds);
+        addSearchQuery(searchRequest, searchTerms, references, siteIds, toolIds);
         addSearchResultFields(searchRequest);
         addSearchPagination(searchRequest, start, end);
         addSearchFacetting(searchRequest);
@@ -1118,10 +1118,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
     }
 
-    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds) {
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds) {
         addSearchTerms(searchRequest, searchTerms);
         addSearchReferences(searchRequest, references);
         addSearchSiteIds(searchRequest, siteIds);
+        addSearchToolIds(searchRequest, toolIds);
     }
 
     protected void addSearchTerms(SearchRequest searchRequest, String searchTerms) {
@@ -1129,16 +1130,16 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         if (searchTerms == null) {
             query.must(matchAllQuery());
-        } else if (searchTerms.contains(":")) {
-            String[] termWithType = searchTerms.split(":");
-            String termType = termWithType[0];
-            String termValue = termWithType[1];
-            // little fragile but seems like most providers follow this convention, there isn't a nice way to get the type
-            // without a handle to a reference.
-            query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
-            query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
         } else {
-            query.must(simpleQueryStringQuery(searchTerms));
+            Arrays.stream(searchTerms.split(" ")).forEach(term -> {
+
+                if (term.contains(":")) {
+                    String[] fieldTerm = term.split(":");
+                    query.must(termQuery(fieldTerm[0], fieldTerm[1]));
+                } else {
+                    query.must(simpleQueryStringQuery(term));
+                }
+            });
         }
     }
 
@@ -1148,6 +1149,15 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[0])));
         }
     }
+
+    protected void addSearchToolIds(SearchRequest searchRequest, List<String> toolIds) {
+
+        if (toolIds != null && !toolIds.isEmpty()) {
+            BoolQueryBuilder queryBuilder = (BoolQueryBuilder) searchRequest.source().query();
+            queryBuilder.must(termsQuery(SearchService.FIELD_TOOL, toolIds));
+        }
+    }
+
 
     protected abstract void addSearchSiteIds(SearchRequest searchRequest, List<String> siteIds);
 
