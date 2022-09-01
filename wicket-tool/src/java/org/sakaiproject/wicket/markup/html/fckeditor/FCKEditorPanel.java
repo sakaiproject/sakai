@@ -17,7 +17,6 @@ package org.sakaiproject.wicket.markup.html.fckeditor;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -26,15 +25,16 @@ import org.apache.wicket.util.collections.MiniMap;
 import org.apache.wicket.util.template.PackageTextTemplate;
 import org.apache.wicket.util.template.TextTemplate;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * A wicket component which renders an FCKeditor textarea
  * 
  * @author Adrian Fish
  */
+@Slf4j
 public class FCKEditorPanel extends Panel
 {
-	private transient Logger logger = Logger.getLogger(FCKEditorPanel.class);
-
 	private boolean stripContainingParagraphTags = false;
 
 	public static final String BASIC = "Basic";
@@ -51,7 +51,7 @@ public class FCKEditorPanel extends Panel
 	 * @param height The height of the rendered text area
 	 * @param toolbarSet The set of toolbars you want rendering, either basic of default
 	 * @param collectionId The Sakai collection id for the FCKeditor to use
-	 * @param strip Set to true if you want the component to strip off the surrounding paragraph tags that FCKeditor produces
+	 * @param stripContainingParagraphTags Set to true if you want the component to strip off the surrounding paragraph tags that FCKeditor produces
 	 */
 	public FCKEditorPanel(String id,IModel model,String width,String height,String toolbarSet, String collectionId,boolean stripContainingParagraphTags)
 	{
@@ -77,19 +77,13 @@ public class FCKEditorPanel extends Panel
 			@Override
 			protected void onModelChanged()
 			{
-				if(logger.isDebugEnabled())
-				{
-					logger.debug("onModelChanged()");
-				}
+				log.debug("onModelChanged()");
 
 				if(stripContainingParagraphTags)
 				{
 					String value = getModelValue();
 
-					if(logger.isDebugEnabled())
-					{
-						logger.debug("Value Before:" + value);
-					}
+					log.debug("Value Before: {}", value);
 
 					if(value.length() >= (ESCAPED_OPENING_P.length() + ESCAPED_CLOSING_P.length()))
 					{
@@ -104,10 +98,7 @@ public class FCKEditorPanel extends Panel
 						}
 					}
 
-					if(logger.isDebugEnabled())
-					{
-						logger.debug("Value After:" + value);
-					}
+					log.debug("Value After: {}", value);
 
 					getModel().setObject(value);
 

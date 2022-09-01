@@ -1,6 +1,8 @@
 package org.adl.sequencer;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Vector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -111,7 +113,18 @@ public class ActivityNode extends DefaultMutableTreeNode implements TreeNode {
 	@SuppressWarnings("unchecked")
 	public void sortChildrenRecursively() {
 		if (children != null) {
-			Collections.sort(children, new SeqActivityComparator());
+			children.sort((o1, o2) -> {
+				DefaultMutableTreeNode n1 = (DefaultMutableTreeNode) o1;
+				DefaultMutableTreeNode n2 = (DefaultMutableTreeNode) o2;
+
+				SeqActivity a1 = (SeqActivity) n1.getUserObject();
+				SeqActivity a2 = (SeqActivity) n2.getUserObject();
+
+				int c1 = a1.getCount();
+				int c2 = a2.getCount();
+
+				return c1 - c2;
+			});
 
 			for (int i = 0; i < children.size(); i++) {
 				ActivityNode child = (ActivityNode) children.get(i);

@@ -35,6 +35,7 @@ import java.util.Random;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 
 import org.adl.sequencer.ADLAuxiliaryResource;
 import org.adl.sequencer.ADLDuration;
@@ -3506,13 +3507,13 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			if (rootNode != null) {
 				@SuppressWarnings("unchecked")
-				Enumeration<ActivityNode> breadthFirst = rootNode.breadthFirstEnumeration();
+				Enumeration<TreeNode> breadthFirst = rootNode.breadthFirstEnumeration();
 
-				List<ActivityNode> bfList = Collections.list(breadthFirst);
+				List<TreeNode> bfList = Collections.list(breadthFirst);
 
 				// Traverse the breadth-first search backwards
 				for (int i = bfList.size() - 1; i > 0; i--) {
-					tempNode = bfList.get(i);
+					tempNode = (ActivityNode) bfList.get(i);
 
 					if (tempNode.getDepth() == -1) {
 						if (tempNode.isSelectable()) {
