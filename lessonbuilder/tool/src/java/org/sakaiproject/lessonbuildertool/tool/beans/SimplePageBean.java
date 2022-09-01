@@ -4985,7 +4985,7 @@ public class SimplePageBean {
 		}
 
 		// delete items on the page that were not kept without changing the sequence of those items kept
-		items.stream().filter(Predicate.not(keep::contains)).forEach(i -> deleteItem(i, false));
+		items.stream().filter(i -> !keep.contains(i)).forEach(i -> deleteItem(i, false));
 
 		itemsCache.remove(getCurrentPage().getPageId());
 		// removals left gaps in order. fix it.
