@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -125,9 +126,9 @@ public class SeqActivityProvider implements ITreeProvider<SeqActivityNode>
             TreeModel treeModel = sequencingService.getTreeModel( sessionBean );
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
 
-            for( Enumeration<DefaultMutableTreeNode> e = root.breadthFirstEnumeration(); e.hasMoreElements(); )
+            for(Enumeration<TreeNode> e = root.breadthFirstEnumeration(); e.hasMoreElements(); )
             {
-                DefaultMutableTreeNode node = e.nextElement();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.nextElement();
                 SeqActivity activity = (SeqActivity) node.getUserObject();
 
                 String actID = activity == null ? null : activity.getID();
