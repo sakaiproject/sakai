@@ -95,7 +95,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Table(name = "ASN_ASSIGNMENT", indexes = {
         @Index(name = "IDX_ASN_ASSIGNMENT_CONTEXT", columnList = "CONTEXT")
 })
