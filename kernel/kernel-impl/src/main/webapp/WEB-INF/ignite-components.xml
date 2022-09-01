@@ -169,7 +169,7 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.taggable.impl.LinkImpl"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.Assignment"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
@@ -181,10 +181,10 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.Assignment.groups"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission.submitters"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">

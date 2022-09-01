@@ -66,7 +66,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Table(name = "ASN_SUBMISSION")
 @Data
 @NoArgsConstructor
@@ -86,7 +86,7 @@ public class AssignmentSubmission {
     @JsonBackReference
     private Assignment assignment;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "submission", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
     @JsonManagedReference
