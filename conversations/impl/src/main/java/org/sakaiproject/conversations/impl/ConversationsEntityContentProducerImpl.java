@@ -105,7 +105,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
 
         log.debug("matches({})", reference);
 
-        return reference.startsWith(ConversationsService.REFERENCE_ROOT);
+        return reference != null && reference.startsWith(ConversationsService.REFERENCE_ROOT);
     }
 
     public boolean matches(Event event) {
