@@ -226,7 +226,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         },
         disallowedContent: 'table[cellspacing,cellpadding,border,summary]',
 
-        contentsCss: [(webJars+'bootstrap/3.3.7/css/bootstrap.min.css')],
+        contentsCss: [(webJars+'bootstrap/5.2.0/css/bootstrap.min.css')],
 
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder plugin.

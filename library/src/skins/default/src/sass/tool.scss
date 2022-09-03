@@ -89,7 +89,6 @@ $success: #7952b3;
 
 // Utilities
 @import "bootstrap/scss/utilities/api";
-
 @import "base/jquery-ui-defaults";
 @import "base/extendables";
 @import "base/defaults";
@@ -150,13 +149,13 @@ $jumbotron-heading-font-size: $h4-font-size;
 // Temporary Styles for Morpheus to Trinity conversion
 //
 
-.navIntraTool {
-  display: flex;
-  flex-wrap: wrap;
-  padding-left: 0;
-  list-style: none;
+// .navIntraTool {
+//   display: flex;
+//   flex-wrap: wrap;
+//   padding-left: 0;
+//   list-style: none;
 
-  li {
-    margin-right: 1em;
-  }
-}
+//   li {
+//     margin-right: 1em;
+//   }
+// }

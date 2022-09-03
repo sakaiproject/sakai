@@ -61,7 +61,7 @@ a{
 		text-decoration: none;
 	}
 	&[href]:not(.btn) {  // This means a[href]
-		color: var(--link-color);
+		color: none;
 		&:focus{
 			outline: $sakai-focus-outline;
 			outline-color: var(--focus-outline-color);
@@ -83,7 +83,7 @@ a{
 		&.btn-primary{
 			@include sakai_primary_button();
 		}
-		text-decoration:underline;
+		text-decoration:none;
 	}
 	&.url{
 		@media #{$phone}{
