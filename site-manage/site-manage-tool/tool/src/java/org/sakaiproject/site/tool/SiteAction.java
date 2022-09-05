@@ -4941,7 +4941,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// read the search form field into the state object
-		String search = StringUtils.trimToNull(formattedText.escapeHtml(data.getParameters().getString(FORM_SEARCH)));
+		String search = StringUtils.trimToNull(data.getParameters().getString(FORM_SEARCH));
 
 		// If there is no search term provided, remove any previous search term from state
 		if (StringUtils.isBlank(search)) {
@@ -11079,7 +11079,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			for(Object object : participants){
 				Participant participant = (Participant)object;
 				//if search term is in the display name or in display Id, add into the list
-				if (StringUtils.containsIgnoreCase(participant.getDisplayName(), search) || StringUtils.containsIgnoreCase(participant.getDisplayId(),search)) {
+				if (StringUtils.containsIgnoreCase(StringUtils.stripAccents(participant.getDisplayName()), StringUtils.stripAccents(search)) || StringUtils.containsIgnoreCase(participant.getDisplayId(),search)) {
 					members.add(participant);
 				}
 			}
