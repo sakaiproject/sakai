@@ -1,13 +1,32 @@
 .sakai-search-input {
-  border-left: $top-header-separators-thickness solid var(--topNav-border-color);
+  border: 1px var(--topNav-border-color) solid;
+  background-color: var(--sakai-background-color);
+  position: relative;
+  height: 37px;
+  border-radius: 4px;
+  &.flat-bottom {
+    border-radius: 4px 4px 0 0;
+  }
   
   input {
-    display: inline-block;
-    height: $top-header-icon-size;
+    background-color: var(--sakai-background-color);
+    color: var(--sakai-text-color);
+    position: absolute;
+    left: 0px;
+    height: 100%;
     width: 100%;
-    &.flat-bottom {
-      border-radius: 4px 4px 0 0;
+    border: 0;
+    padding: 10px 10px 10px 34px;
+    &::placeholder {
+      color: var(--sakai-text-color);
     }
+  }
+
+  sakai-icon {
+    position: absolute;
+    left: 10px;
+    top: 9px;
+    color: var(--sakai-text-color);
   }
 
   a {
@@ -28,13 +47,39 @@
 
 .sakai-search-results {
   position: absolute;
-  background-color: #FFFFFF;
+  background-color: var(--sakai-background-color-1);
   color: var(--sakai-text-color-1);
   border: 1px solid var(--sakai-border-color);
   border-radius: 0 0 4px 4px;
   padding: 5px;
   z-index: 99;
+  max-height: calc(100vh - 37px);
+  width: calc(100% - 80px);
+  left: 40px;
+  margin: 0 8px 0 5px;
+  overflow-y: scroll;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+
+  .search-results-header {
+    display: flex;
+    border-bottom: 1px solid var(--sakai-border-color);
+    margin-bottom: 7px;
+
+    div:first-child {
+      margin-right: auto;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    div:last-child {
+      margin-left: auto;
+    }
+  }
+
+  .search-results-title {
+    font-size: 16px;
+    font-weight: bold;
+  }
 
   a {
     color: var(--sakai-text-color-1);
@@ -42,9 +87,16 @@
   }
 
   .search-result-container {
+    padding: 7px;
     padding-bottom: 12px;
     border-bottom: 2px solid var(--sakai-border-color);
     text-align: left;
+
+    &.no-results {
+      display: flex;
+      font-weight: bold;
+      justify-content: center;
+    }
 
     a {
       display: inline-block;
@@ -54,12 +106,13 @@
 
     .search-result-title-block {
         margin-bottom: 7px;
+        margin-top: 7px;
     }
 
     .search-result-title-label {
       font-weight: bold;
       margin-right: 10px;
-      color: #176EA3;
+      color: var(--sakai-text-color);
       font-size: 16px;
     }
 
@@ -81,10 +134,8 @@
 
     .search-result {
       font-size: 14px;
-      color: #262626;
-      @media #{$phone} {
-        width: 400px;
-      }
+      color: var(--sakai-text-color);
+
     }
 
     .search-result-toolname {
@@ -96,3 +147,35 @@
     margin-right: 50px;
   }
 }
+
+#mastLogin sakai-search {
+  width: 200px;
+  background-color: var(--sakai-background-color);
+
+  .sakai-search-input {
+    height: 33px;
+    border-radius: 0px;
+    &.flat-bottom {
+      border-radius: 0px;
+    }
+  }
+
+  input {
+    color: var(--topNav-text-color);
+    &::placeholder {
+      color: var(--topNav-text-color);
+    }
+  }
+
+  .sakai-search-results {
+    @media #{$phone} {
+      width: 100%;
+      left: 0px;
+    }
+  }
+
+  sakai-icon {
+    top: 3px;
+  }
+}
+

@@ -106,11 +106,11 @@
     height: 65px;
     display: grid;
     grid-template-columns: 1fr min-content;
+    grid-gap: 20px;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--sakai-border-color);
   }
-
 
   .conv-settings-and-create {
     display: flex;
@@ -266,10 +266,6 @@
       flex-wrap: wrap;
     }
 
-    .conv-topbar {
-      display: flex;
-    }
-
     .conv-instructors-answer {
       display: none;
     }
@@ -289,7 +285,7 @@
     .tag-editor input[type=text] {
       width: 100px;
     }
-  }
+  } // END @media (max-width: 800px)
 
   .options-menu {
     background-color: var(--sakai-background-color-2);
@@ -327,6 +323,10 @@
     color: var(--errorBanner-color);
     font-size: 15px;
   }
+
+  .2-col {
+      grid-template-columns: 1fr min-content;
+   }
 }
 
 @import "_sakai-topic-list.scss";

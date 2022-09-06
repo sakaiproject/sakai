@@ -7,7 +7,7 @@
         #if (${userIsLoggedIn})
 
             #if (${usePortalSearch})
-            <sakai-search page-size="${portalSearchPageSize}"></sakai-search>
+            <sakai-search page-size="${portalSearchPageSize}" portal></sakai-search>
             #end
 
             #if ($viewAsStudentLink)
