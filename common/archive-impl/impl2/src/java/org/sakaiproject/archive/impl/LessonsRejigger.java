@@ -106,9 +106,10 @@ public class LessonsRejigger {
                     LinkedList<Item> items = groupEvents();
                     bufferedItems.clear();
 
-                    // Multimedia items linking to Sakai resources can be rewritten as rich text
-                    // TEXT items.
+                    // Update item types where needed
                     for (Item item : items) {
+
+                        // Multimedia items linking to Sakai resources can be rewritten as rich text TEXT items.
                         if (item.type.equals(ItemType.MULTIMEDIA) &&
                             item.events.get(0).atts.getValue("sakaiid").toLowerCase(Locale.ROOT).matches("^/.*\\." + IMAGE_EXTENSIONS + "$")) {
 
@@ -134,6 +135,26 @@ public class LessonsRejigger {
 				log.warn("Exception converting Lessons item to rich text (NYU code) for path {}: {}", path, e.getMessage());
 			    }
                         }
+
+                        // Change section breaks with titles into text headings
+                        if (item.type.equals(ItemType.BREAK) &&
+                            !item.events.get(0).atts.getValue("name").isEmpty()) {
+
+			    try {
+				    BufferedSAXEvent elt = item.events.get(0);
+				    AttributesImpl updatedAttributes = new AttributesImpl(elt.atts);
+
+				    String name = updatedAttributes.getValue("name");
+				    String name_html = String.format("<h2 class=\"section-heading\">%s</h2>", name);
+				    updatedAttributes.addAttribute("", "html", "html", "CDATA", name_html);
+				    updatedAttributes.setValue(updatedAttributes.getIndex("type"), "5"); // text
+
+				    elt.atts = updatedAttributes;
+				    item.type = ItemType.TEXT;
+			    } catch (Exception e) {
+				log.warn("Exception converting Lessons Item to section heading (UCT code) for path {}: {}", path, e.getMessage());
+			    }
+			}
                     }
 
                     // <break><break> => <break>
