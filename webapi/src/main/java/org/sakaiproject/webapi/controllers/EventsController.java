@@ -22,6 +22,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,7 @@ public class EventsController extends AbstractSakaiApiController {
 
         final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
 
         int pingSeconds = serverConfigurationService.getInt("sse.ping.interval.seconds", 59);
         Flux<ServerSentEvent<String>> ping = Flux.interval(Duration.ofSeconds(pingSeconds))

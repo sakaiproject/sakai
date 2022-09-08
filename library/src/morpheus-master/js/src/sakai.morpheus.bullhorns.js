@@ -1,64 +1,35 @@
-(function ($) {
-
-  //Fail if dependencies aren't available
-  if (typeof qtip !== 'object' && typeof portal !== 'object') {
-    return;
-  }
+if (portal.loggedIn && portal.bullhorns && portal.bullhorns.enabled) {
 
   portal.bullhorn = $('#Mrphs-bullhorn');
 
-  portal.wrapNoAlertsString = function (noAlertsString) {
-    return '<div id="portal-bullhorn-no-alerts">' + noAlertsString + '</div>';
-  };
+  portal.bullhorns.wrapNoAlertsString = nas => `<div id="portal-bullhorn-no-alerts">${nas}</div>`;
 
-  portal.clearBullhornAlert = function (id, noAlerts) {
+  portal.bullhorns.clearBullhornAlert = function (id, noAlerts) {
 
     $.get('/direct/portal/clearBullhornAlert', { id: id })
       .done(function () {
 
-        var alertDiv = $('#portal-bullhorn-alert-' + id);
+        const index = portal.bullhorns.alerts.findIndex(a => a.id === id);
+        portal.bullhorns.alerts.splice(index, 1);
 
-        // Get the ancestor bunch and, if this is the last child, remove it.
-        var bunch = alertDiv.closest(".portal-bullhorn-bunch");
-        var removeBunch = bunch.find(".portal-bullhorn-alert").length === 1;
-        var empty = $('.portal-bullhorn-alert').length === 1;
-        alertDiv.remove();
-        if (empty) {
-            $('#portal-bullhorn-alerts').html(portal.wrapNoAlertsString(noAlerts));
-        }
-
-        if (removeBunch) {
-          bunch.remove();
-        }
-
-        var count = $('.portal-bullhorn-alert').length;
-        portal.setBullhornCounter(count);
+        portal.bullhorns.updateBullhornQtipContent();
+        portal.bullhorns.updateBullhornCounter();
       });
   };
 
-  portal.clearAllBullhornAlerts = function (noAlerts) {
+  portal.bullhorns.clearAllBullhornAlerts = function (noAlerts) {
 
     $.ajax({url: '/direct/portal/clearAllBullhornAlerts', cache: false})
       .done(function () {
 
-        $('#portal-bullhorn-alerts').html(portal.wrapNoAlertsString(noAlerts));
-        portal.setBullhornCounter(0);
+        $('#portal-bullhorn-alerts').html(portal.bullhorns.wrapNoAlertsString(noAlerts));
+        portal.bullhorns.alerts = [];
+        portal.bullhorns.updateBullhornQtipContent();
+        portal.bullhorns.updateBullhornCounter();
       });
   };
 
-  portal.acceptFriendRequest = function (requestorId, friendId, alertId, noAlertsMessage) {
-
-    confirmFriendRequest(friendId,requestorId);
-    this.clearBullhornAlert(alertId, noAlertsMessage);
-  };
-
-  portal.ignoreFriendRequest = function (ignorerId, friendId, alertId, noAlertsMessage) {
-
-    ignoreFriendRequest(friendId, ignorerId);
-    this.clearBullhornAlert(alertId, noAlertsMessage);
-  };
-
-  var createBunches = function (allAlerts, prefix) {
+  portal.bullhorns.createBunches = function (allAlerts, prefix) {
 
     const alerts = allAlerts.filter(a => a.event.startsWith(prefix));
 
@@ -85,7 +56,7 @@
     return map;
   };
 
-  var getBunchedHeader = function (bunch, faClass, i18n) {
+  portal.bullhorns.getBunchedHeader = function (bunch, faClass, i18n) {
 
     const startDate = bunch.latest;
     const tool = bunch.type;
@@ -115,7 +86,7 @@
       `;
   };
 
-  const getAlertMarkup = function(alert, message, faClass, i18n, social) {
+  portal.bullhorns.getAlertMarkup = function(alert, message, faClass, i18n, social) {
 
     const header = `<div id="portal-bullhorn-alert-${alert.id}" class="portal-bullhorn-alert">`;
 
@@ -123,7 +94,7 @@
           <div class="portal-bullhorn-time">${alert.formattedEventDate}</div>
         </div>
         <div class="portal-bullhorn-clear">
-          <a href="javascript:;" onclick="portal.clearBullhornAlert('${alert.id}','${i18n.noAlerts}');" title="${i18n.clear}">
+          <a href="javascript:;" onclick="portal.bullhorns.clearBullhornAlert('${alert.id}','${i18n.noAlerts}');" title="${i18n.clear}">
             <i class="fa fa-times" aria-hidden="true"></i>
           </a>
         </div>
@@ -155,7 +126,7 @@
     }
   };
 
-  var getBunchMarkup = function (bunch, i18n) {
+  portal.bullhorns.getBunchMarkup = function (bunch, i18n) {
 
     var faClass = "fa-bullhorn";
     var messageTemplate = i18n.announcement;
@@ -173,7 +144,7 @@
       social = true;
     }
 
-    markup = getBunchedHeader(bunch, faClass, i18n);
+    markup = portal.bullhorns.getBunchedHeader(bunch, faClass, i18n);
 
     bunch.alerts.forEach(alert => {
 
@@ -201,7 +172,7 @@
         var message = messageTemplate.replace('{0}', alert.title).replace('{1}', alert.siteTitle);
       }
 
-      markup += getAlertMarkup(alert, message, faClass, i18n, social);
+      markup += portal.bullhorns.getAlertMarkup(alert, message, faClass, i18n, social);
     });
 
     markup += "</div></div></div>";
@@ -209,111 +180,103 @@
     return markup;
   };
 
-  $(function () {
+  portal.bullhorn.qtip({
+    suppress: false,
+    position: { adjust: { scroll: false }, my: 'top right', at: 'bottom left', target: portal.socialBullhorn },
+    show: { event: 'click', delay: 0, solo: portal.socialBullhorn },
+    style: { classes: 'portal-bullhorns' },
+    hide: { event: 'click unfocus' },
+    events: {
+      visible: function (event, api) {
 
-    portal.bullhorn.qtip({
-      suppress: false,
-      position: { adjust: { scroll: false }, my: 'top right', at: 'bottom left', target: portal.socialBullhorn },
-      show: { event: 'click', delay: 0, solo: portal.socialBullhorn },
-      style: { classes: 'portal-bullhorns' },
-      hide: { event: 'click unfocus' },
-      events: {
-        visible: function (event, api) {
-
-          const firstBunch = document.querySelector("#bullhorn-alerts button");
-          firstBunch && firstBunch.focus();
-        }
+        const firstBunch = document.querySelector("#bullhorn-alerts button");
+        firstBunch && firstBunch.focus();
       }
-    });
+    }
   });
 
-  var updateBullhornQtipContent = function(alertCount) {
-          if (alertCount <= 0) {
-             portal.bullhorn.qtip('option', 'content.text', portal.wrapNoAlertsString(portal.bullhorns.i18n.noAlerts));
-          } else {
-            let markup = '<div id="portal-bullhorn-alerts" class="accordion">';
+  portal.bullhorns.updateBullhornQtipContent = function () {
 
-            let allBunches = [];
-            createBunches(portal.bullhorns.alerts, "annc").forEach(alerts => allBunches.push({ type: "announcements", alerts: alerts }));
-            createBunches(portal.bullhorns.alerts, "asn").forEach(alerts => allBunches.push({ type: "assignments", alerts: alerts }));
-            createBunches(portal.bullhorns.alerts, "commons").forEach(alerts => allBunches.push({ type: "commons", alerts: alerts }));
-            createBunches(portal.bullhorns.alerts, "lessonbuilder").forEach(alerts => allBunches.push({ type: "lessonbuilder", alerts: alerts }));
-            createBunches(portal.bullhorns.alerts, "profile").forEach(alerts => allBunches.push({ type: "profile", alerts: alerts }));
+    if (portal.bullhorns.alerts.length <= 0) {
+       portal.bullhorn.qtip('option', 'content.text', portal.bullhorns.wrapNoAlertsString(portal.bullhorns.i18n.noAlerts));
+    } else {
 
-            allBunches.forEach(b => {
-              b.alerts.sort((first, second) => first.eventDate.epochSecond - second.eventDate.epochSecond);
-              b.latest = b.alerts[0].eventDate.epochSecond;
-              b.bunchDate = b.alerts[0].formattedEventDate;
-            });
+      let markup = '<div id="portal-bullhorn-alerts" class="accordion">';
 
-            allBunches.sort((a,b) => { return b.latest - a.latest; });
+      portal.bullhorns.alerts.forEach(a => a.epochSeconds = a.eventDate.epochSecond || a.eventDate);
 
-            allBunches.forEach(b => { markup += getBunchMarkup(b, portal.bullhorns.i18n) });
+      let allBunches = [];
+      portal.bullhorns.createBunches(portal.bullhorns.alerts, "annc").forEach(alerts => allBunches.push({ type: "announcements", alerts: alerts }));
+      portal.bullhorns.createBunches(portal.bullhorns.alerts, "asn").forEach(alerts => allBunches.push({ type: "assignments", alerts: alerts }));
+      portal.bullhorns.createBunches(portal.bullhorns.alerts, "commons").forEach(alerts => allBunches.push({ type: "commons", alerts: alerts }));
+      portal.bullhorns.createBunches(portal.bullhorns.alerts, "lessonbuilder").forEach(alerts => allBunches.push({ type: "lessonbuilder", alerts: alerts }));
+      portal.bullhorns.createBunches(portal.bullhorns.alerts, "profile").forEach(alerts => allBunches.push({ type: "profile", alerts: alerts }));
 
-            markup += `
-                <div id="portal-bullhorn-clear-all">
-                  <a href="javascript:;" onclick="portal.clearAllBullhornAlerts('${portal.bullhorns.i18n.noAlerts}');">${portal.bullhorns.i18n.clearAll}</a>
-                </div>
-              </div>
-            `;
+      allBunches.forEach(b => {
+        b.alerts.sort((first, second) => first.epochSeconds - second.epochSeconds);
+        b.latest = b.alerts[0].epochSeconds;
+        b.bunchDate = b.alerts[0].formattedEventDate;
+      });
 
-            portal.bullhorn.qtip('option', 'content.text', markup);
-          }
+      allBunches.sort((a,b) => { return b.latest - a.latest; });
+
+      allBunches.forEach(b => { markup += portal.bullhorns.getBunchMarkup(b, portal.bullhorns.i18n) });
+
+      markup += `
+          <div id="portal-bullhorn-clear-all">
+            <a href="javascript:;" onclick="portal.bullhorns.clearAllBullhornAlerts('${portal.bullhorns.i18n.noAlerts}');">${portal.bullhorns.i18n.clearAll}</a>
+          </div>
+        </div>
+      `;
+
+      portal.bullhorn.qtip('option', 'content.text', markup);
+    }
   }
 
-  portal.setBullhornCounter = function (count) {
+  portal.bullhorns.setBullhornCounter = function (count) {
 
-    var horn = $('#Mrphs-bullhorn');
-    var colour = 'red';
+    const horn = $('#Mrphs-bullhorn');
     horn.find('#bullhorn-counter').remove();
-    horn.append('<span id="bullhorn-counter" class="bullhorn-counter-red">' + count + '</span>');
+    horn.append(`<span id="bullhorn-counter" class="bullhorn-counter-red">${count}</span>`);
   };
 
-  const updateBullhornCounter = function (count) {
+  portal.bullhorns.updateBullhornCounter = function () {
 
-      if (count > 0) {
-        portal.setBullhornCounter(count);
-      } else {
-        portal.bullhorn.find('#bullhorn-counter').remove();
-      }
+    const count = portal.bullhorns.alerts.length;
+
+    if (count > 0) {
+      portal.bullhorns.setBullhornCounter(count);
+    } else {
+      portal.bullhorn.find('#bullhorn-counter').remove();
+    }
   };
-
-  if (portal.loggedIn && portal.bullhorns && portal.bullhorns.enabled && portal.bullhorns.alertCount) {
-    updateBullhornCounter(portal.bullhorns.alertCount);
-  }
 
   const bullhornEl = document.getElementById('Mrphs-bullhorn');
-  bullhornEl && (bullhornEl.onclick = function (e) {
 
-    portal.bullhorns.alerts = [];
+  portal.bullhorns.alerts = [];
 
-    // Dont fetch more than once per minute
-    if (portal.bullhorns.lastFetch && (Date.now() - portal.bullhorns.lastFetch) < 60000) {
-      return false;
-    }
+  fetch("/direct/portal/bullhornAlerts.json", {
+      credentials: "include",
+      cache: "no-cache",
+      headers: { "Content-Type": "application/json" },
+    })
+    .then(r => r.json())
+    .then(data => {
 
-    portal.bullhorns.lastFetch = Date.now();
+      portal.bullhorns.alerts = data.alerts || [];
+      portal.bullhorns.updateBullhornCounter();
+      portal.bullhorns.i18n = data.i18n;
+      portal.bullhorns.message = data.message;
+      portal.bullhorns.updateBullhornQtipContent();
+    });
 
-    fetch("/direct/portal/bullhornAlerts.json", {
-        credentials: "include",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-      })
-      .then(r => r.json())
-      .then(data => {
+  portal.registerForMessagesPromise.then(() => {
 
-        portal.bullhorns.alerts = data.alerts || [];
-        updateBullhornCounter(portal.bullhorns.alerts.length);
-        portal.bullhorns.i18n = data.i18n;
-        portal.bullhorns.message = data.message;
-        updateBullhornQtipContent(portal.bullhorns.alerts.length);
-      });
+    portal.registerForMessages("notifications", message => {
 
-    if (portal.sse && portal.sse.enabled) {
-      portal.registerForMessages("notifications", message => {
-        portal.bullhorns.alerts.push(message);
-        updateBullhornCounter(portal.bullhorns.alerts.length);
-      });
-    }
+      portal.bullhorns.alerts.push(message);
+      portal.bullhorns.updateBullhornQtipContent();
+      portal.bullhorns.updateBullhornCounter();
+    });
   });
-}) ($PBJQ);
+}
