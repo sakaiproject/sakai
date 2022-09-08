@@ -323,7 +323,7 @@
 							<f:facet name="header">
 								<h:outputText value="#{msgs.pvt_attsize}" />
 							</f:facet>
-							<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
+							<h:outputText value="#{PrivateMessagesTool.getAttachmentReadableSize(eachAttach.attachment.attachmentSize)}"/>
 						</h:column>
 					  <h:column >
 							<f:facet name="header">

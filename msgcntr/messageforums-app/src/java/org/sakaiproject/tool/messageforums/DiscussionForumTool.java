@@ -61,6 +61,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -9191,6 +9192,10 @@ public class DiscussionForumTool {
         attachList.stream().map(DecoratedAttachment::new).forEach(decoAttachList::add);
       }
       bean.setAttachList(decoAttachList);
+    }
+
+    public String getAttachmentReadableSize(final String attachmentSize) {
+      return FileUtils.byteCountToDisplaySize(Long.parseLong(attachmentSize));
     }
 
 }
