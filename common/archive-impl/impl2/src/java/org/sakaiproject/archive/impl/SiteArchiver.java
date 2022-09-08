@@ -270,7 +270,6 @@ public class SiteArchiver {
 		root.setAttribute("date", now.toString());
 		root.setAttribute("system", fromSystem);
 		root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
-
 		stack.push(root);
 
 		results.append("<===== Site =====>\n");
@@ -290,7 +289,6 @@ public class SiteArchiver {
 		root.setAttribute("date", now.toString());
 		root.setAttribute("system", fromSystem);
 		root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
-
 		stack.push(root);
 
 		results.append("<===== Users =====>\n");
