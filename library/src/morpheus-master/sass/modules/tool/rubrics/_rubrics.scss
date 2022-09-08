@@ -83,6 +83,17 @@
         }
     }
 
+    #rubrics-search-bar {
+        padding: 6px 32px 6px 12px;
+    }
+
+    #rubrics-search-clear-button {
+        position: absolute;
+        top: 50%;
+        margin-top: 3px;
+        right: 28px;
+    }
+
     .btn.add-rubric {
         color: $rubrics-link-color;
     }

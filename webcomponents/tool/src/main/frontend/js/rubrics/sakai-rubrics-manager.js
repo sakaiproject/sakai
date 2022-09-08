@@ -38,9 +38,12 @@ class SakaiRubricsManager extends RubricsElement {
       <div class="sak-banner-info"><sr-lang key="locked_message">locked_message</sr></div>
 
       <div class="row">
-        <div class="col-md-4 form-group">
+        <div class="col-md-5 form-group">
           <label for="rubrics-search-bar"><sr-lang key="search_rubrics">Search Rubrics by title or author</sr-lang></label>
           <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup="${this.filterRubrics}">
+          <a id="rubrics-search-clear-button" tabindex="0" @click="${this.clearRubricsSearch}" href="javascript:void(0)" title="Clear rubric search">
+          <i class="fa fa-times-circle" aria-hidden="true"></i>
+      </a>
         </div>
       </div>
 
@@ -115,6 +118,13 @@ class SakaiRubricsManager extends RubricsElement {
     } else {
       this.siteRubricsExpanded = "false";
       icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");
+    }
+  }
+
+  clearRubricsSearch() {
+    if ($("#rubrics-search-bar").val().length > 0) {
+      $("#rubrics-search-bar").val("");
+      this.filterRubrics();
     }
   }
 
