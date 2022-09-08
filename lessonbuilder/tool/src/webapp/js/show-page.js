@@ -1860,7 +1860,7 @@ $(document).ready(function() {
 				} else {
 					$("#page-releasedate2").prop('checked', true);
 					$("#releaseDate2ISO8601").val(sbpgreleasedate);
-					$("#release_date2").val(moment(sbpgreleasedate).format('MM/DD/YYYY h:mm a'));
+					$("#release_date2").val(moment(sbpgreleasedate).format('L LT'));
 				}
 
 				let pagenext = row.find(".page-next").text();
