@@ -2431,7 +2431,7 @@ public class DiscussionForumTool {
     if (membershipItems == null) {
       return Collections.emptyList();
     }
-    Collection<Group> output = new ArrayList<Group>();
+    Collection<Group> output = new ArrayList<>();
     ArrayList<SiteGroupBean> availableGroups = (ArrayList<SiteGroupBean>) getSiteGroups();
     List<String> availableGroupNames = availableGroups.stream().map(ag -> ag.getGroup().getTitle()).collect(Collectors.toList());
     for(DBMembershipItem now: membershipItems) {
