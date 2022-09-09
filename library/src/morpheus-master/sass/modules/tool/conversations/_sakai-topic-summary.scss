@@ -144,6 +144,11 @@
     .question-icon {
       color: #D97008;
     }
+
+    .tag {
+      background: var(--sakai-background-color-1);
+      color: var(--sakai-text-color-inverse);
+    }
   }
 
   @media (max-width: 1200px) {
@@ -155,4 +160,16 @@
     }
   }
 
+
+}
+
+:root.sakaiUserTheme-dark {
+  .#{$namespace}sakai-conversations {
+
+    .selected {
+      .tag {
+        background: var(--sakai-background-color-1);
+      }
+    }
+  }
 }
