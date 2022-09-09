@@ -569,7 +569,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         long start = topic.getDueDate().toEpochMilli();
         calEdit.setRange(timeService.newTimeRange(timeService.newTime(start), timeService.newTime(start), true, false));
         calEdit.setDisplayName(resourceLoader.getString("topic_due") + " " + topic.getTitle());
-        calEdit.setDescription(topic.getMessage());
+        calEdit.setDescriptionFormatted(topic.getMessage());
         calEdit.setType(CalendarEventType.DEADLINE.getType());
         calEdit.setEventUrl(getTopicPortalUrl(topic.getId()).orElse(""));
         return calEdit;
