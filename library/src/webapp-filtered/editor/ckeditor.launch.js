@@ -544,10 +544,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 {id} .cke_resizer [
                     border-right-color:{ckeResizer}
                 ] 
-                {id} .cke_wysiwyg_frame,
-                {id} .cke_wysiwyg_div [
-                    background:{defaultBackground}
-                ] 
                 {id} textarea.cke_source [
                     background-color: {lightBackground};
                     color: {defaultTextColor};
