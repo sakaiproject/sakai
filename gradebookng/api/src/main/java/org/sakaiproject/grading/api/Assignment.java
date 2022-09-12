@@ -53,6 +53,12 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private String name;
 
     /**
+     * @return Returns the gradable reference of the assignment. This might be null, but, if not, it
+     * represents thing being graded, an assignemnt in the Assignments tool perhaps.
+     */
+    private String reference;
+
+    /**
      *
      * @return Returns the ID of the assignment in the gradebook
      */

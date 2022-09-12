@@ -30,10 +30,13 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
@@ -62,6 +65,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -205,35 +209,40 @@ public class RepublishAssessmentListener implements ActionListener {
 	}
 
 	private void updateGB(PublishedAssessmentFacade assessment) {
-		// a. if Gradebook does not exists, do nothing
-		// b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
-		// a new record. At the end, populate the scores by calling updateExternalAssessmentScores
+
+    // a. if Gradebook does not exists, do nothing
+    // b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
+    // a new record. At the end, populate the scores by calling updateExternalAssessmentScores
 		org.sakaiproject.grading.api.GradingService g = null;
-		if (integrated) {
+    if (integrated) {
 			g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
-					"org.sakaiproject.grading.api.GradingService");
+        "org.sakaiproject.grading.api.GradingService");
 		}
 
     PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
     //Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
     if (evaluation == null) {
       evaluation = new PublishedEvaluationModel();
-      evaluation.setAssessmentBase(assessment.getData());
-    }
+			evaluation.setAssessmentBase(assessment.getData());
+		}
     
     Integer scoringType = evaluation.getScoringType();
     if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-
       String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessment.getTitle().trim());
 
-      try {
-        try {
-          log.debug("before gbsHelper.updateGradebook()");
-          gbsHelper.updateGradebook((PublishedAssessmentData) assessment.getData(), g);
-        } catch (Exception ex) {
-          log.warn("Gradebook item does not exist for assessment {}, creating a new gradebook item", assessment.getAssessmentId());
-          gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), null, g);
-        }
+      boolean gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
+
+			try {
+        PublishedAssessmentData data = (PublishedAssessmentData) assessment.getData();
+				Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p").id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
+        data.setReference(ref);
+				if (gbItemExists) {
+					gbsHelper.updateGradebook(data, g);
+				} else {
+					log.warn("Gradebook item does not exist for assessment {}, creating a new gradebook item", assessment.getAssessmentId());
+					gbsHelper.addToGradebook(data, null, g);
+				}
         
         // any score to copy over? get all the assessmentGradingData and copy over
         GradingService gradingService = new GradingService();
@@ -274,8 +283,8 @@ public class RepublishAssessmentListener implements ActionListener {
     else{ //remove
       try{
         gbsHelper.removeExternalAssessment(
-            GradebookFacade.getGradebookUId(),
-            assessment.getPublishedAssessmentId().toString(), g);
+          GradebookFacade.getGradebookUId(),
+          assessment.getPublishedAssessmentId().toString(), g);
       }
       catch(Exception e){
         log.info("*** oh well, looks like there is nothing to remove:"+e.getMessage());

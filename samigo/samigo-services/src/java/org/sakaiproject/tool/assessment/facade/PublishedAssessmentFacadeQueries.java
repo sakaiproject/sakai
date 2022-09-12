@@ -48,6 +48,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -754,6 +755,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				}
 			}
 		}
+
+		PublishedAssessmentFacade publishedAssessmentFacade = new PublishedAssessmentFacade(publishedAssessment);
+
 		// add to gradebook
 		if (publishedAssessment.getEvaluationModel() != null) {
 			String toGradebook = publishedAssessment.getEvaluationModel()
@@ -772,6 +776,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			if (toGradebook != null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 				try {
+                    Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+                    String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p")
+                                    .id(publishedAssessmentFacade.getPublishedAssessmentId().toString()).reckon().getReference();
+                    publishedAssessment.setReference(ref);
 					gbsHelper.addToGradebook(publishedAssessment, publishedAssessment.getCategoryId(), g);
 				} catch (Exception e) {
 					log.error("Removing published assessment: " + e);
@@ -783,7 +791,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 		// write authorization
 		createAuthorization(publishedAssessment);
-		return new PublishedAssessmentFacade(publishedAssessment);
+		return publishedAssessmentFacade;
 	}
 
 	// This method is specific for publish an assessment for preview assessment,
