@@ -2634,7 +2634,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.5.3.0</version>
+          <version>4.7.1.1</version>
          <configuration>
             <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -2645,7 +2645,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>4.5.3</version>
+               <version>4.7.2</version>
              </dependency>
           </dependencies>
         </plugin>
