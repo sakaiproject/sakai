@@ -3560,7 +3560,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // Items sorted by name
             gradebookAssignmentsLabel = gradebookAssignmentsLabel.entrySet().stream()
-                    .sorted(Entry.comparingByValue())
+                    .sorted(Entry.comparingByValue(Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER)))
                     .collect(Collectors.toMap(Entry::getKey, Entry::getValue,
                             (e1, e2) -> e1, LinkedHashMap::new));
 
