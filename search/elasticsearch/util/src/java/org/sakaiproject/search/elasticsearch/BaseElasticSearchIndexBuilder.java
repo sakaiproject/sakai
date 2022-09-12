@@ -1342,6 +1342,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      */
     @Override
     public EntityContentProducer newEntityContentProducer(String ref) {
+        if (ref == null) return null;
+
         final Optional<EntityContentProducer> producer = matchEntityContentProducer(p -> p.matches(ref));
         if ( producer.isPresent() ) {
             getLog().debug("Matched content producer " + producer.get() + " for reference " + ref + " in index builder "
