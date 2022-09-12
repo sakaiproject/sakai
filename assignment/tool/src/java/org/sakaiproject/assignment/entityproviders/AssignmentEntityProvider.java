@@ -1554,7 +1554,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(a.getContext(), gradebookAssignmentProp);
                     if (isExternalAssignmentDefined) {
                         // since the gradebook item is externally defined, the item is named after the external object's title
-                        gAssignment = gradingService.getAssignment(a.getContext(), a.getTitle());
+                        gAssignment = gradingService.getExternalAssignment(a.getContext(), gradebookAssignmentProp);
                         if (gAssignment != null) {
                             this.gradebookItemId = gAssignment.getId();
                             this.gradebookItemName = gAssignment.getName();
