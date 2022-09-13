@@ -157,13 +157,13 @@
 			<label for="$name_title" class="col-sm-12 form-control-label block">
 				$tlang.getString("gen.title")
 			</label>
-			<div class="col-sm-6">
-				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" size="30" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
+			<div class="col-sm-8">
+				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
 			</div>
 		</div>
 
 		<div class="longtext form-group row form-required">
-			<label for="new_assignment_instructions" class="block control-label col-sm-12">
+			<label for="new_assignment_instructions" class="block form-control-label col-sm-12">
 				$tlang.getString("gen.assinf")
 			</label>
 			<div class="col-sm-12">
@@ -288,8 +288,10 @@
 			<label for="opendate" class="col-sm-2 form-control-label">
 				$tlang.getString("newassig.opedat")
 			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="opendate" name="opendate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+			    <div class="d-flex align-items-center justify-content-evenly">
+				    <input type="text" id="opendate" name="opendate" class="form-control datepicker" value="">
+				</div>	
 				<p class="text-muted small">
 					$tlang.getString("gen.stucantdo")
 				</p>
@@ -317,8 +319,10 @@
 			<label for="duedate" class="col-sm-2 form-control-label">
 				$tlang.getString("gen.duedat")
 			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="duedate" name="duedate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+				<div class="d-flex align-items-center justify-content-evenly">
+                    <input type="text" id="duedate" name="duedate" class="form-control datepicker" value="">
+				</div>	
 			</div>
 
 			<script>
@@ -343,8 +347,10 @@
 				$tlang.getString("gen.acesubunt")
 			</label>
 			#if ($value_EnableCloseDate)
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="closedate" name="closedate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+			    <div class="d-flex align-items-center justify-content-evenly">
+				    <input type="text" id="closedate" name="closedate" class="form-control datepicker" value="">
+				</div>
 				<p class="text-muted small">
 					$tlang.getString("gen.noasscan")
 				</p>
@@ -701,11 +707,11 @@ function showExternalIframe(title, doreload) {
 			#set($resubmitStyle="display:none")
 		#end
 
-		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<label class="col-sm-2 control-label" for="allowResToggle">
+		<div id="allowResubmissionContainer" class="form-group" #if ($value_SubmissionType == 4) style = "display:none"#end>
+			<label class="form-control-label" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
-			<div class="col-sm-10">
+			<div class="d-inline-block ml-25">
 				<div id="tempAllowRes">
 					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
 				</div>
@@ -715,7 +721,7 @@ function showExternalIframe(title, doreload) {
             </p>
 		</div>
 
-		<div class="form-group row" id="allowResubmitNumber" style="$!resubmitStyle">
+		<div class="form-group" id="allowResubmitNumber" style="$!resubmitStyle">
 			<label for="allowResubmitNumber" class="col-sm-offset-1 col-sm-2 control-label">
 				$tlang.getString("allow.resubmit.number")
 			</label>
@@ -1171,7 +1177,7 @@ function showExternalIframe(title, doreload) {
 
 	<div class="col-sm-6 row">
 		<table class="table table-striped" id="extraNodeLinkList">
-			<h5>$tlang.getString("supplement")</h5>
+			<h6>$tlang.getString("supplement")</h6>
 			<tr>
 				<td class="col-sm-2">
 					$tlang.getString("modelAnswer")
@@ -1433,7 +1439,7 @@ function showExternalIframe(title, doreload) {
 				</div>
 			</div>
 			## attachments for allpurpose item
-			<label for="allPurposeAttach" class="block">
+			<label for="allPurposeAttach" class="form-control-label block">
 					$tlang.getString("gen.att")
 			</label>
 			#set ($size = 0)
@@ -1482,15 +1488,15 @@ function showExternalIframe(title, doreload) {
 			<div class="form-group row">
 
 				<div class="col-sm-3">
-					<label for="allPurposeHide1">
+					<label for="allPurposeHide1" class="form-control-label">
 						<input name="allPurposeHide" id="allPurposeHide1" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
 						$tlang.getString("allPurpose.show")
 					</label>
 				</div>
 
 				<div class="col-sm-9">
-					<div class="form-group row">
-						<label for="allPurposeShowFrom" class="col-sm-2">
+					<div class="form-group d-flex align-items-center justify-content-evenly">
+						<label for="allPurposeShowFrom" class="col-sm-2 form-control-label">
 							<input name="allPurposeShowFrom" id="allPurposeShowFrom" value="true" type="checkbox" #if ($value_allPurposeShowFrom) checked="checked" #end />
 							$tlang.getString("allPurpose.show.from")
 						</label>
@@ -1514,8 +1520,8 @@ function showExternalIframe(title, doreload) {
 							</script>
 						</div>
 					</div>
-					<div class="form-group row">
-						<label for="allPurposeShowTo" class="col-sm-2">
+					<div class="form-group d-flex align-items-center justify-content-evenly">
+						<label for="allPurposeShowTo" class="col-sm-2 form-control-label">
 							<input name="allPurposeShowTo" id="allPurposeShowTo" value="true" type="checkbox" #if ($!value_allPurposeShowTo) checked="checked" #end />
 							$tlang.getString("allPurpose.show.util")
 						</label>
@@ -1542,7 +1548,7 @@ function showExternalIframe(title, doreload) {
 				</div>
 			</div>
 			## Hide This Item Checkbox
-			<label for="allPurposeHide2">
+			<label for="allPurposeHide2" class="form-control-label">
 				<input name="allPurposeHide" id="allPurposeHide2" value="true" #if($!value_allPurposeHide)checked="checked"#end type="radio" />
 				$tlang.getString("allPurpose.show.hide")
 			</label>
@@ -1569,13 +1575,13 @@ function showExternalIframe(title, doreload) {
 						<tr>
 							<td class="groupCell">
 								<a href="javascript:void(0)" id="collapse_$roleCount" class="toggleRoleLink" style="display:none;" title="$collapseString">
-									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><span class="members"><i class="icon-sakai--sakai-membership"></i></span>
+									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><span class="members"><i class="si si-sakai-membership"></i></span>
 								</a>
 								<a href="javascript:void(0)" id="expand_$roleCount" class="toggleRoleLink" style="display:inline" title="$expandString">
-									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><span class="members"><i class="icon-sakai--sakai-membership"></i></span>
+									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><span class="members"><i class="si si-sakai-membership"></i></span>
 								</a>
 								<input id="$showInputString" name="showInputString_$roleCount" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
-								<label for="showInputString_$roleCount">
+								<label for="showInputString_$roleCount" class="form-control-label">
 									$role
 								</label>
 								(<span class="highlight countDisplay"></span> <span class="highlight">$tlang.getString("allPurpose.user.selection.count")</span>)
@@ -1585,7 +1591,7 @@ function showExternalIframe(title, doreload) {
 										#set($showInputString = "allPurpose_")
 										#set($showInputString = $showInputString.concat($user.getId()))
 										<li>
-											<label for="$showInputString" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #else #set ($allSelected=false) #end>
+											<label for="$showInputString" class="form-control-label" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #else #set ($allSelected=false) #end>
 												<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" checked="checked" #set($userCount=$userCount + 1) #end type="checkbox" value="$user.Id"/>
 												$formattedText.escapeHtml($user.getDisplayName())
 											</label>
