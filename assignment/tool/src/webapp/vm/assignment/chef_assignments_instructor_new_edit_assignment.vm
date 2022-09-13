@@ -157,13 +157,13 @@
 			<label for="$name_title" class="col-sm-12 form-control-label block">
 				$tlang.getString("gen.title")
 			</label>
-			<div class="col-sm-6">
-				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" size="30" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
+			<div class="col-sm-8">
+				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
 			</div>
 		</div>
 
 		<div class="longtext form-group row form-required">
-			<label for="new_assignment_instructions" class="block control-label col-sm-12">
+			<label for="new_assignment_instructions" class="block form-control-label col-sm-12">
 				$tlang.getString("gen.assinf")
 			</label>
 			<div class="col-sm-12">
@@ -288,8 +288,10 @@
 			<label for="opendate" class="col-sm-2 form-control-label">
 				$tlang.getString("newassig.opedat")
 			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="opendate" name="opendate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+			    <div class="d-flex align-items-center justify-content-evenly">
+				    <input type="text" id="opendate" name="opendate" class="form-control datepicker" value="">
+				</div>	
 				<p class="text-muted small">
 					$tlang.getString("gen.stucantdo")
 				</p>
@@ -317,8 +319,10 @@
 			<label for="duedate" class="col-sm-2 form-control-label">
 				$tlang.getString("gen.duedat")
 			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="duedate" name="duedate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+				<div class="d-flex align-items-center justify-content-evenly">
+                    <input type="text" id="duedate" name="duedate" class="form-control datepicker" value="">
+				</div>	
 			</div>
 
 			<script>
@@ -343,8 +347,10 @@
 				$tlang.getString("gen.acesubunt")
 			</label>
 			#if ($value_EnableCloseDate)
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="closedate" name="closedate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+			    <div class="d-flex align-items-center justify-content-evenly">
+				    <input type="text" id="closedate" name="closedate" class="form-control datepicker" value="">
+				</div>
 				<p class="text-muted small">
 					$tlang.getString("gen.noasscan")
 				</p>
@@ -701,11 +707,11 @@ function showExternalIframe(title, doreload) {
 			#set($resubmitStyle="display:none")
 		#end
 
-		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<label class="col-sm-2 control-label" for="allowResToggle">
+		<div id="allowResubmissionContainer" class="form-group" #if ($value_SubmissionType == 4) style = "display:none"#end>
+			<label class="form-control-label" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
-			<div class="col-sm-10">
+			<div class="d-inline-block ml-25">
 				<div id="tempAllowRes">
 					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
 				</div>
@@ -715,7 +721,7 @@ function showExternalIframe(title, doreload) {
             </p>
 		</div>
 
-		<div class="form-group row" id="allowResubmitNumber" style="$!resubmitStyle">
+		<div class="form-group" id="allowResubmitNumber" style="$!resubmitStyle">
 			<label for="allowResubmitNumber" class="col-sm-offset-1 col-sm-2 control-label">
 				$tlang.getString("allow.resubmit.number")
 			</label>
@@ -1171,7 +1177,7 @@ function showExternalIframe(title, doreload) {
 
 	<div class="col-sm-6 row">
 		<table class="table table-striped" id="extraNodeLinkList">
-			<h5>$tlang.getString("supplement")</h5>
+			<h6>$tlang.getString("supplement")</h6>
 			<tr>
 				<td class="col-sm-2">
 					$tlang.getString("modelAnswer")
