@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>23-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>Sakai PWA</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>pwa</artifactId>
+  <packaging>war</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+  </dependency>
+  <dependency>
+      <groupId>org.javastack</groupId>
+      <artifactId>headers-servlet-filter</artifactId>
+      <version>1.0.0</version>
+  </dependency>
+
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>src/main/webapp</warSourceDirectory>
+          <packagingExcludes>
+            node_modules/**,
+            package.json,
+            package-lock.json,
+            .jshintrc
+          </packagingExcludes>
+          <webResources>
+            <resource>
+              <directory>src/main/frontend/build</directory>
+              <!--excludes>
+                <exclude>src/**</exclude>
+                <exclude>node_modules/**</exclude>
+                <exclude>package*.json</exclude>
+              </excludes-->
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+      <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>1.12.0</version>
+          <configuration>
+            <installDirectory>target</installDirectory>
+            <workingDirectory>src/main/frontend</workingDirectory>
+          </configuration>
+          <executions>
+            <execution>
+              <id>install node and npm</id>
+              <goals>
+                <goal>install-node-and-npm</goal>
+              </goals>
+              <configuration>
+                <nodeVersion>v16.15.0</nodeVersion>
+                <npmVersion>8.5.5</npmVersion>
+              </configuration>
+            </execution>
+            <execution>
+              <id>npm install</id>
+              <goals>
+                <goal>npm</goal>
+              </goals>
+              <configuration>
+                <arguments>install</arguments>
+              </configuration>
+            </execution>
+            <execution>
+              <id>npm build</id>
+              <goals>
+                <goal>npm</goal>
+              </goals>
+              <configuration>
+                <arguments>
+                  run build
+                </arguments>
+              </configuration>
+            </execution>
+          </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -1,0 +1,8 @@
+.public-post-container {
+    margin-top: 20px;
+}
+
+.public-post-title {
+    color: red;
+    font-weight: bold;
+}

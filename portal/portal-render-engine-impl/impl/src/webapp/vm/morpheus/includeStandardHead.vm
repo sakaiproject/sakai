@@ -5,6 +5,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="manifest" href="/pwa/manifest.json">
 
         <script>
             var portal = {
@@ -75,6 +76,7 @@
         <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
         <script src="/library/js/BreakpointManager.js$!{portalCDNQuery}"></script>
+        <script src="/library/js/start-pwa-serviceworker.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}popper.js/2.9.3/umd/popper.min.js$!{portalCDNQuery}"></script>

@@ -1,0 +1,11 @@
+.home-btn-container{
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+}
+
+.create-btn-container {
+    padding-top: 50px;
+    width: 20%;
+    margin: 0 auto;
+}

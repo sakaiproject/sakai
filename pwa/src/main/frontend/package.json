@@ -1,0 +1,47 @@
+{
+  "name": "sakai-pwa",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "/pwa/",
+  "dependencies": {
+    "@ionic/react": "^6.1.12",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "firebase": "^9.8.4",
+    "idb": "^7.0.2",
+    "object-hash": "^3.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "serve": "^13.0.2",
+    "socket.io-client": "^4.5.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build2": "react-scripts build && mv build/static/js/main*.js build/static/js/main.min.js && mv build/static/css/main*.css build/static/js/main.min.css",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

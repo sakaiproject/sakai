@@ -1,0 +1,69 @@
+.alertMessageContainer{
+    margin: auto;
+    width: 50%;
+    text-align: center;
+    color: cadetblue;
+}
+
+.nav-bar {
+    display: flex;
+    position: relative;
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+.megaphone-icon {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    height: 23px;
+    width: 23px;
+    cursor: pointer;
+}
+
+.logout-icon {
+    position: absolute;
+    right: 100px;
+    top: 15px;
+    height: 23px;
+    width: 23px;
+    cursor: pointer;
+}
+
+.notifications-icon {
+    position: absolute;
+    right: 60px;
+    top: 15px;
+    height: 23px;
+    width: 23px;
+    cursor: pointer;
+}
+
+.notification-badge {
+    position: absolute;
+    right: 60px;
+    top:10px
+}
+
+.notification-list {
+    width: 200px;
+    position: absolute;
+    right: 10px;
+    top: 40px;
+    background-color: white;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgba(190, 178, 178, 0.724);
+    border-radius: 10px;
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+}
+
+.clear-btn {
+    justify-self: center;
+    margin: 10px;
+    height: 30px;
+}
