@@ -36,7 +36,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.elasticsearch.version>7.17.1</sakai.elasticsearch.version>
+    <sakai.opensearch.version>1.3.4</sakai.opensearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
@@ -56,7 +56,7 @@
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.24</sakai.lombok.version>
-    <sakai.lucene.version>8.11.1</sakai.lucene.version>
+    <sakai.lucene.version>8.10.1</sakai.lucene.version>
     <sakai.netty.version>4.1.71.Final</sakai.netty.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
@@ -1351,47 +1351,41 @@
         <version>${sakai.openpdf.version}</version>
         <scope>provided</scope>
       </dependency>
-      <!-- elasticsearch -->
+      <!-- opensearch -->
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-core</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-core</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-cli</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-cli</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-secure-sm</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-secure-sm</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-x-content</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-x-content</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-geo</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-lz4</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-geo</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1401,15 +1395,15 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch.client</groupId>
+        <artifactId>opensearch-rest-high-level-client</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch.client</groupId>
+        <artifactId>opensearch-rest-client</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
@@ -1419,39 +1413,39 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>transport-netty4-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.codelibs.elasticsearch.module</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>analysis-common</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>parent-join-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>aggs-matrix-stats-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>rank-eval-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>lang-mustache-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- netty -->
@@ -1594,7 +1588,7 @@
         <version>5.10.0</version>
         <scope>provided</scope>
       </dependency>
-      <!-- elasticsearch 3rd party libs -->
+      <!-- opensearch 3rd party libs -->
       <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
