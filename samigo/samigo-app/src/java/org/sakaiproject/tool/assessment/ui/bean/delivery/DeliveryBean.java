@@ -2639,7 +2639,7 @@ public class DeliveryBean implements Serializable {
     }
     public String getMathJaxHeader(){
       Document headMJ = new Document("");
-      headMJ.appendElement("script").attr("src", "/library/js/mathjax-config.js");
+      headMJ.appendElement("script").attr("src", "/library/js/mathjax-config.js"+PortalUtils.getCDNQuery());
       headMJ.appendElement("script").attr("type", "text/javascript").attr("src", MATHJAX_SRC_PATH);
       return headMJ.toString();
     }

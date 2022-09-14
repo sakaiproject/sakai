@@ -1377,7 +1377,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				Element config = new Element("script");
 				Element srcPath = new Element("script");
 
-				config.attr("src", "/library/js/mathjax-config.js");
+				config.attr("src", "/library/js/mathjax-config.js"+PortalUtils.getCDNQuery());
 				srcPath.attr("type", "text/javascript").attr("src", MATHJAX_SRC_PATH);
 				headJs.append(config.toString()).append(srcPath.toString());
 			}
