@@ -2979,7 +2979,7 @@ $(document).ready(function() {
 		var href = this.href;
 		if ( this.href === null ) return;
 		if ( this.href.indexOf('/access/basiclti') < 0 ) return
-		if ( '_blank' != this.target ) return
+		if ( '_blank' !== this.target ) return
 		if ( this.onclick != null ) return;
 		console.log('Patching an LTI Launch in new window!', this.href);
 		this.onclick = function () { window.open(this.href,'_blank');return false; };
