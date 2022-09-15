@@ -2,6 +2,12 @@
 TODO LIST
 =========
 
+Write Test Plan
+
+Document properties
+
+Build conversion scripts for 23.x
+
 Make sure columns are created and grades are flowing:
     - Assignments - LTI - Graded in LTI (i.e. StickyGrader)
     - Assignments - Local - Associate with existing gradebook item
