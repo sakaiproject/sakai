@@ -12,10 +12,10 @@ import org.apache.catalina.LifecycleListener;
  * Delegates all real work to the {@link Launcher}.
  */
 @Slf4j
-public class TomcatListener implements LifecycleListener {
+public class SakaiStartListener implements LifecycleListener {
     protected final Launcher launcher;
 
-    public TomcatListener() {
+    public SakaiStartListener() {
         launcher = new Launcher();
     }
 

@@ -10,7 +10,7 @@ import java.nio.file.Path;
  * "modern" mode. It is used to kick off the configuration and component loading process and ensure that the shared
  * application context is ready for webapps to load.
  * <p>
- * The {@link TomcatListener} is the main consumer of this class, and there is some conventional overlap and Tomcat
+ * The {@link SakaiStartListener} is the main consumer of this class, and there is some conventional overlap and Tomcat
  * naming exposed, despite very little in the way of actual Tomcat dependency. It is conceivable that another container
  * could serve.
  * <p>

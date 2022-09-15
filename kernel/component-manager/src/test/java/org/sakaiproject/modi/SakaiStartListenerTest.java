@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 
-public class TomcatListenerTest {
+public class SakaiStartListenerTest {
     @Before
     public void setup() {
         GlobalApplicationContext.destroyContext();
@@ -19,7 +19,7 @@ public class TomcatListenerTest {
 
     @Test
     public void givenNoGlobalContext_whenListenerReceivesStart_thenTheContextIsActivated() {
-        TomcatListener listener = new TomcatListener();
+        SakaiStartListener listener = new SakaiStartListener();
 
         LifecycleEvent start = new LifecycleEvent(mock(Lifecycle.class), Lifecycle.START_EVENT, null);
         listener.lifecycleEvent(start);
@@ -30,7 +30,7 @@ public class TomcatListenerTest {
 
     @Test
     public void givenANormalLaunch_whenListenerReceivesStop_thenTheContextIsClosed() {
-        TomcatListener listener = new TomcatListener();
+        SakaiStartListener listener = new SakaiStartListener();
         LifecycleEvent start = new LifecycleEvent(mock(Lifecycle.class), Lifecycle.START_EVENT, null);
         listener.lifecycleEvent(start);
 
