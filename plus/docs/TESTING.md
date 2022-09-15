@@ -27,7 +27,10 @@ SakaiPlus keeps the name synchronized at each launch.
 From the Plus site, look at Site Info and verify that the roster has both the instructor and
 student (i.e. before the student has even launched SakaiPlus).
 
-In the Plus Site, add Lessons, Gradebook, Samigo, Forums, Assignments and Sakai Plus.
+In the Plus Site, add Lessons, Gradebook, Samigo, Forums, and Assignments.  There is a "sakai.plus"
+tool that yon need to add to the site using the Admin because it is not in the Site Info list
+of tools.  In time - I might make a plus template that has this tool pre-installed to bypass
+this step.
 
 Note that the Plus tool can be added to any site - but it will only show information for
 a Plus site (i.e. if you add it to the Main Site you will never see any data).
