@@ -379,7 +379,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		if ( "/canvas-config.json".equals(request.getPathInfo()) ) {
-			if ( ServerConfigurationService.getBoolean("canvas.config.enabled", true))  {
+			if ( ServerConfigurationService.getBoolean(PlusService.PLUS_CANVAS_ENABLED, PlusService.PLUS_CANVAS_ENABLED_DEFAULT))  {
 				handleCanvasConfig(request, response);
 				return;
 			} else {
@@ -418,7 +418,8 @@ public class ProviderServlet extends HttpServlet {
 
 		// Check if we are in the install-phase of a DeepLink process (i.e. payloadStr is defined)
 		if ( LaunchJWT.MESSAGE_TYPE_DEEP_LINK.equals(launchJWT.message_type) && isNotEmpty(payloadStr)) {
-			if ( ! ServerConfigurationService.getBoolean("deeplink.provider", true))  {
+			if ( ! ServerConfigurationService.getBoolean(PlusService.PLUS_DEEPLINK_ENABLED, PlusService.PLUS_DEEPLINK_ENABLED_DEFAULT)) {
+
 				log.warn("DeepLink is Disabled IP={}", ipAddress);
 				response.sendError(HttpServletResponse.SC_FORBIDDEN,
 						"DeepLink is Disabled");
@@ -488,7 +489,7 @@ public class ProviderServlet extends HttpServlet {
 		// We have payload - if this is deep link time, we set things up and display the tool
 		// selections
 		if ( LaunchJWT.MESSAGE_TYPE_DEEP_LINK.equals(launchJWT.message_type) ) {
-			if ( ! ServerConfigurationService.getBoolean("deeplink.provider", true))  {
+			if ( ! ServerConfigurationService.getBoolean(PlusService.PLUS_DEEPLINK_ENABLED, PlusService.PLUS_DEEPLINK_ENABLED_DEFAULT)) {
 				log.warn("DeepLink is Disabled IP={}", ipAddress);
 				response.sendError(HttpServletResponse.SC_FORBIDDEN,
 						"DeepLink is Disabled");
@@ -885,11 +886,11 @@ public class ProviderServlet extends HttpServlet {
 
 		String title = tenant.getTitle();
 		if ( isEmpty(title) ) {
-			title = ServerConfigurationService.getString("plus.default.title", rb.getString("plus.default.title"));
+			title = ServerConfigurationService.getString(PlusService.PLUS_SERVER_TITLE, rb.getString(PlusService.PLUS_SERVER_TITLE));
 		}
 		String description = tenant.getDescription();
 		if ( isEmpty(description) ) {
-			description = ServerConfigurationService.getString("plus.default.description", rb.getString("plus.default.description"));
+			description = ServerConfigurationService.getString(PlusService.PLUS_SERVER_DESCRIPTION, rb.getString(PlusService.PLUS_SERVER_DESCRIPTION));
 		}
 
 		// Lets full up the registration request
@@ -898,9 +899,9 @@ public class ProviderServlet extends HttpServlet {
 		reg.initiate_login_uri = plusService.getOidcLogin(tenant);
 		reg.redirect_uris.add(plusService.getOidcLaunch());
 		reg.jwks_uri = plusService.getOidcKeySet();
-		reg.policy_uri = ServerConfigurationService.getString("plus.default.policy.uri", null);
-		reg.tos_uri = ServerConfigurationService.getString("plus.default.tos.uri", null);
-		reg.logo_uri = ServerConfigurationService.getString("plus.default.logo.uri", null);
+		reg.policy_uri = ServerConfigurationService.getString(PlusService.PLUS_SERVER_POLICY_URI, null);
+		reg.tos_uri = ServerConfigurationService.getString(PlusService.PLUS_SERVER_TOS_URI, null);
+		reg.logo_uri = ServerConfigurationService.getString(PlusService.PLUS_SERVER_LOGO_URI, null);
 		reg.scope = LTI13ConstantsUtil.SCOPE_LINEITEM + " " +
 					LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY + " " +
 					LTI13ConstantsUtil.SCOPE_SCORE + " " +
@@ -1319,10 +1320,11 @@ public class ProviderServlet extends HttpServlet {
 		// If site does not exist, create the site
 		pushAdvisor();
 		try {
-			String sakai_type = "project";
+			String sakai_type = PlusService.PLUS_NEW_SITE_TYPE_DEFAULT;
 
 			// BLTI-154. If an autocreation site template has been specced in sakai.properties, use it.
-			String autoSiteTemplateId = ServerConfigurationService.getString("plus.provider.autositetemplate", null);
+			String autoSiteTemplateId =
+				ServerConfigurationService.getString(PlusService.PLUS_NEW_SITE_TEMPLATE, PlusService.PLUS_NEW_SITE_TEMPLATE_DEFAULT);
 
 			boolean templateSiteExists = SiteService.siteExists(autoSiteTemplateId);
 
@@ -1332,7 +1334,7 @@ public class ProviderServlet extends HttpServlet {
 
 			if(autoSiteTemplateId == null || !templateSiteExists) {
 				//BLTI-151 If the new site type has been specified in sakai.properties, use it.
-				sakai_type = ServerConfigurationService.getString("plus.provider.newsitetype", null);
+				sakai_type = ServerConfigurationService.getString(PlusService.PLUS_NEW_SITE_TYPE, PlusService.PLUS_NEW_SITE_TYPE_DEFAULT);
 				if(StringUtils.isBlank(sakai_type)) {
 					// It wasn't specced in the props. Test for the ims course context type.
 					final String context_type = (String) payload.get(BasicLTIConstants.CONTEXT_TYPE);
@@ -1460,7 +1462,7 @@ public class ProviderServlet extends HttpServlet {
 		// TODO: Should we make it so we can turn off the sakai.site
 		String title = null;
 		if ( tool_id.equals(SAKAI_SITE_LAUNCH) ) {
-			title = ServerConfigurationService.getString("plus.site.title", rb.getString("plus.site.title"));
+			title = ServerConfigurationService.getString(PlusService.SAKAI_SITE_TITLE, rb.getString(PlusService.SAKAI_SITE_TITLE));
 		}  else {
 
 			if ( ! allowedToolsList.contains(tool_id) ) {
@@ -1520,7 +1522,8 @@ public class ProviderServlet extends HttpServlet {
 	public List<String> getAllowedTools(Tenant tenant)
 	{
 		String allowedToolsConfig = tenant.getAllowedTools();
-		if ( isEmpty(allowedToolsConfig) ) allowedToolsConfig = ServerConfigurationService.getString("plus.allowedtools", "");
+		if ( isEmpty(allowedToolsConfig) ) allowedToolsConfig =
+			ServerConfigurationService.getString(PlusService.PLUS_TOOLS_ALLOWED, PlusService.PLUS_TOOLS_ALLOWED_DEFAULT);
 		String[] allowedTools = allowedToolsConfig.split(":");
 		return Arrays.asList(allowedTools);
 	}
@@ -1528,7 +1531,8 @@ public class ProviderServlet extends HttpServlet {
 	public List<String> getNewWindowTools(Tenant tenant)
 	{
 		String newWindowToolsConfig = tenant.getNewWindowTools();
-		if ( isEmpty(newWindowToolsConfig) ) newWindowToolsConfig = ServerConfigurationService.getString("plus.newwindowtools", "");
+		if ( isEmpty(newWindowToolsConfig) ) newWindowToolsConfig =
+			ServerConfigurationService.getString(PlusService.PLUS_TOOLS_NEW_WINDOW, PlusService.PLUS_TOOLS_NEW_WINDOW_DEFAULT);
 		String[] newWindowTools = newWindowToolsConfig.split(":");
 		return Arrays.asList(newWindowTools);
 	}
@@ -1564,8 +1568,8 @@ public class ProviderServlet extends HttpServlet {
 		request.setAttribute("id_token",id_token);
 		request.setAttribute("payload", payloadJWT);
 		request.setAttribute("details_text",rb.getString("plus.deeplink.details"));
-		request.setAttribute("site_title",ServerConfigurationService.getString("plus.site.title", rb.getString("plus.site.title")));
-		request.setAttribute("site_description",ServerConfigurationService.getString("plus.site.description", rb.getString("plus.site.description")));
+		request.setAttribute("site_title",ServerConfigurationService.getString(PlusService.SAKAI_SITE_TITLE, rb.getString(PlusService.SAKAI_SITE_TITLE)));
+		request.setAttribute("site_description",ServerConfigurationService.getString(PlusService.SAKAI_SITE_DESCRIPTION, rb.getString(PlusService.SAKAI_SITE_DESCRIPTION)));
 
 		// If there is only one tool in the allowedTools list, lets just install it :)
 		if ( allowedToolsList.size() == 1 ) {
@@ -1612,7 +1616,7 @@ public class ProviderServlet extends HttpServlet {
 			serverUrl = SakaiBLTIUtil.getOurServerUrl();
 			URL netUrl = new URL(serverUrl);
 			host = netUrl.getHost();
-			domain = ServerConfigurationService.getString("canvas.config.domain", host);
+			domain = ServerConfigurationService.getString(PlusService.PLUS_CANVAS_DOMAIN, host);
 		} catch (MalformedURLException e) {
 			doError(request, response, "canvas.error.missing.domain", e.getMessage(), e.getCause());
 			return;
@@ -1620,11 +1624,11 @@ public class ProviderServlet extends HttpServlet {
 
 		String title = tenant.getTitle();
 		if ( isEmpty(title) ) {
-			title = ServerConfigurationService.getString("plus.default.title", rb.getString("plus.default.title"));
+			title = ServerConfigurationService.getString(PlusService.PLUS_CANVAS_TITLE, rb.getString(PlusService.PLUS_CANVAS_TITLE));
 		}
 		String description = tenant.getDescription();
 		if ( isEmpty(description) ) {
-			description = ServerConfigurationService.getString("plus.default.description", rb.getString("plus.default.description"));
+			description = ServerConfigurationService.getString(PlusService.PLUS_CANVAS_DESCRIPTION, rb.getString(PlusService.PLUS_CANVAS_DESCRIPTION));
 		}
 		canvas.put("title", title);
 		canvas.put("description", description);

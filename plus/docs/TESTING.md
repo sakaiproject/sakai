@@ -102,3 +102,8 @@ As a note, SakaiPlus handles numeric scores.  Letter scores and pass/fail scores
 will not be transported to the Main site.
 
 
+TODO
+----
+
+Document a test plan for the Deep Link / Content Item use cases with Plus
+

@@ -11,36 +11,32 @@ each to evolve to best meet their respective use cases.
 Some Properties To Make It Work
 ===============================
 
+    # Needed for launches to work inside iframes
     sakai.cookieSameSite=none
-    deeplink.provider=true
-    plus.provider.enabled=true
-    plus.provider.verbose=true
-    plus.allowedtools=sakai.resources:sakai.site
-    plus.provider.autositetemplate=!worksite
-    plus.roster.synchronization=true
+
     lti.role.mapping.Instructor=maintain
     lti.role.mapping.Student=access
-    canvas.config.enabled=true
-    canvas.config.title=Plus Title
-    canvas.config.description=Plus Description
-    canvas.config.launch=launch
+
+    # Not enabled by default
+    plus.provider.enabled=true
+    plus.tools.allowed=sakai.resources:sakai.site
 
 Overall Strategy
 ----------------
 
 There are three basic use cases that SakaiPlus is designed to support - these can be used in combination
-depending on the capability of the LMS.  
+depending on the capability of the LMS.
 
-* A simple left navigation launch to "SakaiPlus" to make a Sakai site, enroll all the students in the site,
-and launch students into the site. This is either a `LtiResourceLinkRequest` to the `sakai.site` endpoint
-or an (emerging spec) `LtiContextLaunchRequest` to the `sakai.site` endpoint.
+* A simple left navigation launch from the enterprise LMS to "SakaiPlus" to make a Sakai site, enroll all
+the students in the site, and launch students into the site. This is either a `LtiResourceLinkRequest` to
+the `sakai.site` endpoint or an (emerging spec) `LtiContextLaunchRequest` to the `sakai.site` endpoint.
 
 * A `LtiDeepLinkingRequest` sent to the `sakai.deeplink` endpoint - this will check the `plus.allowedtools` list and
 go through a deep linking flow to choose and install an individual Sakai tool.  You can install a
 link to `sakai.site` through deep linking if `sakai.site` is included in the `plus.allowedtools` property
 
 * You can install a single Sakai tool by just hard-coding the `target_uri` to include the Sakai tool is
-like `sakai.resources` and sending that end point a `LtiResourceLinkRequest`.
+like `sakai.resources` and sending that end point an `LtiResourceLinkRequest`.
 
 It might be necessary to install SakaiPlus more than once so that it shows up in all the right placements
 in a particular LMS.
@@ -238,7 +234,7 @@ Sakai
 
 For 21 and later versions of Sakai you can use IMS Dynamic Configuration.  Create a Tenant with a title,
 issuer, and registration unlock code.   Then go to the Plus -> Tenant detail page and find the IMS
-Dynamic Registration url 
+Dynamic Registration url.
 
 The issuer for a Sakai system is the base URL of the system without a trailing slash:
 
@@ -272,7 +268,7 @@ the process.  Make sure to enable:
 
 before saving the external tool.
 
-The values for 
+The values for
 
 * The tool URL can receive an LTI launch
 * The tool can receive a Content-Item or Deep-Link launch

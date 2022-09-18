@@ -2,9 +2,7 @@
 TODO LIST
 =========
 
-Write Test Plan
-
-Document properties
+Rationalise verbose and log.debug
 
 Build conversion scripts for 23.x
 
@@ -72,3 +70,6 @@ Expire old ContextLog entries
 
 Make Plus tool useful for instructors
 
+Write Test Plan
+
+Document properties

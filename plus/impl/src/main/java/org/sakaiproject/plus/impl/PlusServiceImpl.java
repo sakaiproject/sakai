@@ -133,8 +133,7 @@ public class PlusServiceImpl implements PlusService {
 	 */
 	public boolean enabled()
 	{
-		String enabled = serverConfigurationService.getString(PlusService.PLUS_PROVIDER_ENABLED, PlusService.PLUS_PROVIDER_ENABLED_DEFAULT);
-		return !("false".equals(enabled));
+		return serverConfigurationService.getBoolean(PlusService.PLUS_PROVIDER_ENABLED, PlusService.PLUS_PROVIDER_ENABLED_DEFAULT);
 	}
 
 	/*
@@ -179,8 +178,7 @@ public class PlusServiceImpl implements PlusService {
 	public boolean verbose()
 	{
 		if ( log.isDebugEnabled() ) return true;
-		String verbose = serverConfigurationService.getString(PlusService.PLUS_PROVIDER_VERBOSE, PlusService.PLUS_PROVIDER_VERBOSE_DEFAULT);
-		return "true".equals(verbose);
+		return (serverConfigurationService.getBoolean(PlusService.PLUS_DEBUG_VERBOSE, PlusService.PLUS_DEBUG_VERBOSE_DEFAULT));
 	}
 
 	/*
