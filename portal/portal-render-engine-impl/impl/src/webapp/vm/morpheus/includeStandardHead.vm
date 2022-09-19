@@ -78,6 +78,7 @@
         <script src="${pageWebjarsPath}dompurify/2.3.6/dist/purify.min.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-profile.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-pronunciation-player.js$!{portalCDNQuery}"></script>
+        <script src="/library/js/trimpath-template-latest.js$!{portalCDNQuery}"></script>
         <script>
             moment.locale(window.portal.locale);
         </script>
