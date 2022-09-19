@@ -564,7 +564,11 @@ public class ProviderServlet extends HttpServlet {
 			plusService.invokeProcessors(payload, PlusService.ProcessingState.afterValidation);
 
 			User user = userFinderOrCreator.findOrCreateUser(payload, false, isEmailTrustedConsumer);
-			if ( plusService.verbose() ) log.info("user={}", user);
+			if ( plusService.verbose() ) {
+				log.info("user={}", user);
+			} else {
+				log.debug("user={}", user);
+			}
 
 			plusService.connectSubjectAndUser(launch.getSubject(), user);
 
@@ -598,7 +602,11 @@ public class ProviderServlet extends HttpServlet {
 			}
 
 			Site site = findOrCreateSite(payload);
-			if ( plusService.verbose() ) log.info("site={}", site);
+			if ( plusService.verbose() ) {
+				log.info("site={}", site);
+			} else {
+				log.debug("site={}", site);
+			}
 
 			plusService.connectContextAndSite(launch.getContext(), site);
 
@@ -1308,7 +1316,11 @@ public class ProviderServlet extends HttpServlet {
 		// Get the site if it exists
 		try {
 			site = SiteService.getSite(siteId);
-			if ( plusService.verbose() ) log.info("Loaded existing site={}", site.getId());
+			if ( plusService.verbose() ) {
+				log.info("Loaded existing site={}", site.getId());
+			} else {
+				log.debug("Loaded existing site={}", site.getId());
+			}
 			updateSiteDetailsIfChanged(site, context_title, context_label);
 			return site;
 		} catch (Exception e) {
@@ -1676,11 +1688,12 @@ public class ProviderServlet extends HttpServlet {
 
 				public void run() {
 
-					long then = 0L;
+					long then = (new Date()).getTime();
 
 					if (plusService.verbose() || log.isDebugEnabled()) {
 						log.info("Starting memberships sync. guid={}", contextGuid);
-						then = (new Date()).getTime();
+					} else {
+						log.debug("Starting memberships sync. guid={}", contextGuid);
 					}
 
 					try {
@@ -1689,9 +1702,11 @@ public class ProviderServlet extends HttpServlet {
 						e.printStackTrace();
 					}
 
+					long now = (new Date()).getTime();
 					if (plusService.verbose() || log.isDebugEnabled()) {
-						long now = (new Date()).getTime();
-						log.info("Memberships sync finished guid={}. It took {} seconds.", contextGuid, ((now - then)/1000)); //TODO: Debug
+						log.info("Memberships sync finished guid={}. It took {} seconds.", contextGuid, ((now - then)/1000));
+					} else {
+						log.debug("Memberships sync finished guid={}. It took {} seconds.", contextGuid, ((now - then)/1000));
 					}
 				}
 			}, "org.sakaiproject.plus.ProviderServlet.MembershipsSync")).start();

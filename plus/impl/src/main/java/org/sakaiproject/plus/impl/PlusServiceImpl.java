@@ -588,7 +588,11 @@ public class PlusServiceImpl implements PlusService {
 			contextLogRepository.save(cLog);
 			return;
 		}
-		if ( verbose(tenant) ) log.debug("Debug Log:\n{}", dbs.toString());
+		if ( verbose(tenant) ) {
+			log.info("Debug Log:\n{}", dbs.toString());
+		} else {
+			log.debug("Debug Log:\n{}", dbs.toString());
+		}
 
 		cLog.setAction("syncSiteMemberships context="+context.getId()+" tenant="+context.getTenant()+" contextMemberships="+contextMemberships+" access_token="+nrpsAccessToken.access_token);
 
@@ -610,7 +614,11 @@ public class PlusServiceImpl implements PlusService {
 		InputStream is = null;
 		 try {
 			HttpResponse<InputStream> response = HttpClientUtil.sendGetStream(contextMemberships, null, headers, dbs);
-			if ( verbose(tenant) ) log.debug("Debug Log:\n{}", dbs.toString());
+			if ( verbose(tenant) ) {
+				log.info("Debug Log:\n{}", dbs.toString());
+			} else {
+				log.debug("Debug Log:\n{}", dbs.toString());
+			}
 			is = response.body();
 		} catch (Exception e) {
 			log.error("Error retrieving NRPS (Names and Roles) data from {}", contextMemberships);
@@ -652,7 +660,11 @@ public class PlusServiceImpl implements PlusService {
 				if ( nextToken == JsonToken.END_ARRAY ) break;
 				Member member = mapper.readValue(jsonParser, Member.class);
 
-				if ( verbose(tenant) ) log.info("processing member={}",member.email);
+				if ( verbose(tenant) ) {
+					log.info("processing member={}",member.email);
+				} else {
+					log.debug("processing member={}",member.email);
+				}
 
 				count = count + 1;
 
@@ -883,7 +895,11 @@ public class PlusServiceImpl implements PlusService {
 			dbs.append("response body\n");
 			dbs.append(StringUtils.truncate(body, 1000));
 
-			if ( verbose(tenant) ) log.debug("Debug Log:\n{}", dbs.toString());
+			if ( verbose(tenant) ) {
+				log.info("Debug Log:\n{}", dbs.toString());
+			} else {
+				log.debug("Debug Log:\n{}", dbs.toString());
+			}
 		} catch (Exception e) {
 			dbli.setStatus("Error creating lineItem at "+lineItemsUrl+" "+e.getMessage());
 			dbli.setDebugLog(dbs.toString());
@@ -907,7 +923,7 @@ public class PlusServiceImpl implements PlusService {
 				if ( isNotEmpty(lineItemId) ) {
 					dbli.setStatus("created lineitem id="+lineItemId);
 					dbli.setSuccess(Boolean.TRUE);
-					if ( verbose(tenant) ) dbli.setDebugLog(dbs.toString());
+					dbli.setDebugLog(dbs.toString());
 					lineItemRepository.save(dbli);
 					log.debug("Returning lineItemId={}", lineItemId);
 					return lineItemId; // Caller saves this as appropriate
@@ -1091,7 +1107,11 @@ public class PlusServiceImpl implements PlusService {
 			dbs.append("response body\n");
 			dbs.append(StringUtils.truncate(body, 1000));
 
-			if ( verbose(tenant) ) log.debug("Debug Log:\n{}", dbs.toString());
+			if ( verbose(tenant) ) {
+			   log.info("Debug Log:\n{}", dbs.toString());
+			} else {
+			   log.debug("Debug Log:\n{}", dbs.toString());
+			}
 		} catch (Exception e) {
 			dbli.setStatus("Error creating lineItem at "+lineItemsUrl+" "+e.getMessage());
 			dbli.setDebugLog(dbs.toString());
@@ -1115,7 +1135,7 @@ public class PlusServiceImpl implements PlusService {
 				if ( isNotEmpty(lineItemId) ) {
 					dbli.setStatus("created lineitem id="+lineItemId);
 					dbli.setSuccess(Boolean.TRUE);
-					if ( verbose(tenant) ) dbli.setDebugLog(dbs.toString());
+					dbli.setDebugLog(dbs.toString());
 					lineItemRepository.save(dbli);
 					return lineItemId;
 				}
@@ -1316,7 +1336,11 @@ public class PlusServiceImpl implements PlusService {
 			contextLogRepository.save(cLog);
 			return;
 		}
-		if ( verbose(tenant) ) log.debug("Debug Log:\n{}", dbs.toString());
+		if ( verbose(tenant) ) {
+			log.info("Debug Log:\n{}", dbs.toString());
+		} else {
+			log.debug("Debug Log:\n{}", dbs.toString());
+		}
 
 		// Lets send a score
 		// https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
@@ -1336,9 +1360,11 @@ public class PlusServiceImpl implements PlusService {
 			log.debug("GRADEEVENT RESPONSE BODY={}", body);
 			dbs.append("response body\n");
 			dbs.append(StringUtils.truncate(body, 1000));
+			dbsc.setDebugLog(dbs.toString());
 			if ( verbose(tenant) ) {
-				log.debug("Debug Log:\n{}", dbs.toString());  // Only if verbose is on
-				dbsc.setDebugLog(dbs.toString());
+				log.info("Debug Log:\n{}", dbs.toString());
+			} else {
+				log.debug("Debug Log:\n{}", dbs.toString());
 			}
 			dbsc.setSuccess(Boolean.TRUE);
 			scoreRepository.save(dbsc);

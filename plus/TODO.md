@@ -2,7 +2,9 @@
 TODO LIST
 =========
 
-Rationalise verbose and log.debug
+Plus tool button to retrieve membership
+
+Plus tool to resend scores
 
 Build conversion scripts for 23.x
 
@@ -73,3 +75,6 @@ Make Plus tool useful for instructors
 Write Test Plan
 
 Document properties
+
+Rationalise verbose and log.debug
+
