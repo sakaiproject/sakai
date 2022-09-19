@@ -139,7 +139,14 @@ public class SyllabusRejigger {
                 }
             }
 
-            Xml.writeDocument(doc, path);
+            Xml.writeDocument(doc, path + ".rewritten");
+
+            // Keep the original copy for reference
+            new File(path).renameTo(new File(path + ".pre_rewrite"));
+
+            // Overwrite the original path
+            new File(path + ".rewritten").renameTo(new File(path));
+
             return true;
         } catch (Exception e) {
             log.error("Error rewriting syllabus", e);
