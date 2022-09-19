@@ -94,6 +94,7 @@
                 <module>presence</module>
                 <module>profile2</module>
                 <module>providers</module>
+                <module>pwa</module>
                 <module>reset-pass</module>
                 <module>roster2</module>
                 <module>rsf</module>
