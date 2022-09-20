@@ -1,5 +1,6 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
 #set( $H = '-' )
+#set( $T = 'T' )
 #rubricsRequirements
 <!-- Initialize the Bootstrap-multiselect plugin: -->
 <script>
@@ -259,28 +260,16 @@
 				$tlang.getString("gen.visible.date")
 			</label>
 			<div class="col-sm-6 form-inline">
-				<input type="text" id="visibledate" name="visibledate" class="form-control datepicker" value="">
+				<sakai-date-picker
+					label="$tlang.getString("gen.visible.date")"
+					hidden-prefix="new_assignment_visible"
+					iso-date="$value_VisibleYear$H$value_VisibleMonth$H$value_VisibleDay$T$value_VisibleHour:$value_VisibleMin"
+					add-hidden-fields>
+				</sakai-date-picker>
 				<p class="text-muted small visibleDatePanel" #if(!$!new_assignment_visibletoggle)style="display:none;"#end>
 					$tlang.getString("gen.stuwonsee")
 				</p>
 			</div>
-
-			<script>
-				localDatePicker({
-					input:'#visibledate',
-					useTime:1,
-					val:"$value_VisibleYear$H$value_VisibleMonth$H$value_VisibleDay $value_VisibleHour:$value_VisibleMin",
-					parseFormat: 'YYYY-MM-DD HH:mm',
-					ashidden:{
-						month:"new_assignment_visiblemonth",
-						day:"new_assignment_visibleday",
-						year:"new_assignment_visibleyear",
-						hour:"new_assignment_visiblehour",
-						minute:"new_assignment_visiblemin"
-					}
-				});
-			</script>
-
 		</div>
 		#end
 
@@ -289,30 +278,19 @@
 				$tlang.getString("newassig.opedat")
 			</label>
 			<div class="col-sm-3 form-inline">
-			    <div class="d-flex align-items-center justify-content-evenly">
-				    <input type="text" id="opendate" name="opendate" class="form-control datepicker" value="">
+			    <div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="opendate"
+						label="$tlang.getString("gen.opedat")"
+						hidden-prefix="new_assignment_open"
+						iso-date="$value_OpenYear$H$value_OpenMonth$H$value_OpenDay$T$value_OpenHour:$value_OpenMin"
+						add-hidden-fields>
+					</sakai-date-picker>
 				</div>	
 				<p class="text-muted small">
 					$tlang.getString("gen.stucantdo")
 				</p>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#opendate',
-			      	useTime:1,
-			      	val:"$value_OpenYear$H$value_OpenMonth$H$value_OpenDay $value_OpenHour:$value_OpenMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_openmonth",
-			      		day:"new_assignment_openday",
-			      		year:"new_assignment_openyear",
-			      		hour:"new_assignment_openhour",
-			      		minute:"new_assignment_openmin"
-			      	}
-			      });
-			</script>
-
 		</div>
 
 		<div class="form-group row form-required">
@@ -320,26 +298,16 @@
 				$tlang.getString("gen.duedat")
 			</label>
 			<div class="col-sm-3 form-inline">
-				<div class="d-flex align-items-center justify-content-evenly">
-                    <input type="text" id="duedate" name="duedate" class="form-control datepicker" value="">
+				<div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="duedate"
+						label="$tlang.getString("gen.duedat")"
+						hidden-prefix="new_assignment_due"
+						iso-date="$value_DueYear$H$value_DueMonth$H$value_DueDay$T$value_DueHour:$value_DueMin"
+						add-hidden-fields>
+					</sakai-date-picker>
 				</div>	
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#duedate',
-			      	useTime:1,
-			      	val:"$value_DueYear$H$value_DueMonth$H$value_DueDay $value_DueHour:$value_DueMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_duemonth",
-			      		day:"new_assignment_dueday",
-			      		year:"new_assignment_dueyear",
-			      		hour:"new_assignment_duehour",
-			      		minute:"new_assignment_duemin"
-			      	}
-			      });
-			</script>
  		</div>
 
 		<div class="form-group row form-required">
@@ -348,30 +316,19 @@
 			</label>
 			#if ($value_EnableCloseDate)
 			<div class="col-sm-3 form-inline">
-			    <div class="d-flex align-items-center justify-content-evenly">
-				    <input type="text" id="closedate" name="closedate" class="form-control datepicker" value="">
+			    <div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="closedate"
+						label="$tlang.getString("gen.acesubunt")"
+						hidden-prefix="new_assignment_close"
+						iso-date="$value_CloseYear$H$value_CloseMonth$H$value_CloseDay$T$value_CloseHour:$value_CloseMin"
+						add-hidden-fields>
+					</sakai-date-picker>
 				</div>
 				<p class="text-muted small">
 					$tlang.getString("gen.noasscan")
 				</p>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#closedate',
-			      	useTime:1,
-			      	val:"$value_CloseYear$H$value_CloseMonth$H$value_CloseDay $value_CloseHour:$value_CloseMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_closemonth",
-			      		day:"new_assignment_closeday",
-			      		year:"new_assignment_closeyear",
-			      		hour:"new_assignment_closehour",
-			      		minute:"new_assignment_closemin"
-			      	}
-			      });
-			</script>
-
  			#else
 				<select name="$name_CloseMonth" id="$name_CloseMonth" title="$tlang.getString("dateselectionwidget.month")" disabled="disabled">
 					#foreach ($i in [1..12])
@@ -743,24 +700,13 @@ function showExternalIframe(title, doreload) {
 				$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
 			</label>
 			<div class="col-sm-6 form-inline">
-				<input type="text" id="resubmit" name="resubmit" class="datepicker" value="">
+				<sakai-date-picker
+					label="$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")"
+					hidden-prefix="new_assignment_close"
+					iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
+					add-hidden-fields>
+				</sakai-date-picker>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#resubmit',
-			      	useTime:1,
-			      	val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"allow_resubmit_closeMonth",
-			      		day:"allow_resubmit_closeDay",
-			      		year:"allow_resubmit_closeYear",
-			      		hour:"allow_resubmit_closeHour",
-			      		minute:"allow_resubmit_closeMin"
-			      	}
-			      });
-			</script>
 		</div>
 
 		<div class="col-sm-offset-1 row" id="resubmitNotification" style="$!resubmitStyle">
@@ -1501,23 +1447,11 @@ function showExternalIframe(title, doreload) {
 							$tlang.getString("allPurpose.show.from")
 						</label>
 						<div class="col-sm-10">
-							<input type="text" id="allPurposeRelease" name="allPurposeRelease" class="datepicker" value="">
-
-							<script type="text/javascript">
-										localDatePicker({
-										input:'#allPurposeRelease',
-										useTime:1,
-										val:"$value_allPurposeReleaseYear$H$value_allPurposeReleaseMonth$H$value_allPurposeReleaseDay $value_allPurposeReleaseHour:$value_allPurposeReleaseMin",
-										parseFormat: 'YYYY-MM-DD HH:mm',
-										ashidden:{
-											month:"allPurpose_releaseMonth",
-											day:"allPurpose_releaseDay",
-											year:"allPurpose_releaseYear",
-											hour:"allPurpose_releaseHour",
-											minute:"allPurpose_releaseMin"
-										}
-									});
-							</script>
+							<sakai-date-picker
+								hidden-prefix="allPurpose_release"
+								iso-date="$value_allPurposeReleaseYear$H$value_allPurposeReleaseMonth$H$value_allPurposeReleaseDay$T$value_allPurposeReleaseHour:$value_allPurposeReleaseMin"
+								add-hidden-fields>
+							</sakai-date-picker>
 						</div>
 					</div>
 					<div class="form-group d-flex align-items-center justify-content-evenly">
@@ -1526,23 +1460,11 @@ function showExternalIframe(title, doreload) {
 							$tlang.getString("allPurpose.show.util")
 						</label>
 						<div class="col-sm-10">
-							<input type="text" id="allPurposeRetract" name="allPurposeRetract" class="datepicker" value="">
-
-							<script type="text/javascript">
-									localDatePicker({
-									input:'#allPurposeRetract',
-									useTime:1,
-									val:"$value_allPurposeRetractYear$H$value_allPurposeRetractMonth$H$value_allPurposeRetractDay $value_allPurposeRetractHour:$value_allPurposeRetractMin",
-									parseFormat: 'YYYY-MM-DD HH:mm',
-									ashidden:{
-										month:"allPurpose_retractMonth",
-										day:"allPurpose_retractDay",
-										year:"allPurpose_retractYear",
-										hour:"allPurpose_retractHour",
-										minute:"allPurpose_retractMin"
-									}
-								});
-							</script>
+							<sakai-date-picker
+								hidden-prefix="allPurpose_retract"
+								iso-date="$value_allPurposeRetractYear$H$value_allPurposeRetractMonth$H$value_allPurposeRetractDay$T$value_allPurposeRetractHour:$value_allPurposeRetractMin"
+								add-hidden-fields>
+							</sakai-date-picker>
 						</div>
 					</div>
 				</div>
