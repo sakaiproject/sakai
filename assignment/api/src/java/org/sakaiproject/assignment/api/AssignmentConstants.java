@@ -351,17 +351,17 @@ public final class AssignmentConstants {
     public static final String GRADE_SUBMISSION_FEEDBACK_ATTACHMENT = "grade_submission_feedback_attachment";
 
     // submission level of resubmit due time
-    public static final String ALLOW_RESUBMIT_CLOSEYEAR = "allow_resubmit_closeYear";
-    public static final String ALLOW_RESUBMIT_CLOSEMONTH = "allow_resubmit_closeMonth";
-    public static final String ALLOW_RESUBMIT_CLOSEDAY = "allow_resubmit_closeDay";
-    public static final String ALLOW_RESUBMIT_CLOSEHOUR = "allow_resubmit_closeHour";
-    public static final String ALLOW_RESUBMIT_CLOSEMIN = "allow_resubmit_closeMin";
+    public static final String ALLOW_RESUBMIT_CLOSEYEAR = "allow_resubmit_closeyear";
+    public static final String ALLOW_RESUBMIT_CLOSEMONTH = "allow_resubmit_closemonth";
+    public static final String ALLOW_RESUBMIT_CLOSEDAY = "allow_resubmit_closeday";
+    public static final String ALLOW_RESUBMIT_CLOSEHOUR = "allow_resubmit_closehour";
+    public static final String ALLOW_RESUBMIT_CLOSEMIN = "allow_resubmit_closemin";
     public static final String ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS = "allow_resubmit_close_epoch_millis";
-    public static final String ALLOW_EXTENSION_CLOSEMONTH = "allow_extension_closeMonth";
-    public static final String ALLOW_EXTENSION_CLOSEDAY = "allow_extension_closeDay";
-    public static final String ALLOW_EXTENSION_CLOSEYEAR = "allow_extension_closeYear";
-    public static final String ALLOW_EXTENSION_CLOSEHOUR = "allow_extension_closeHour";
-    public static final String ALLOW_EXTENSION_CLOSEMIN = "allow_extension_closeMin";
+    public static final String ALLOW_EXTENSION_CLOSEMONTH = "allow_extension_closemonth";
+    public static final String ALLOW_EXTENSION_CLOSEDAY = "allow_extension_closeday";
+    public static final String ALLOW_EXTENSION_CLOSEYEAR = "allow_extension_closeyear";
+    public static final String ALLOW_EXTENSION_CLOSEHOUR = "allow_extension_closehour";
+    public static final String ALLOW_EXTENSION_CLOSEMIN = "allow_extension_closemin";
     public static final String ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS = "allow_extension_close_epoch_millis";
     public static final String GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS = "grade_submission_dont_clear_current_attachments";
 
