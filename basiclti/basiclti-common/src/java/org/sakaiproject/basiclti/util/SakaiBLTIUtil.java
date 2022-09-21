@@ -74,8 +74,10 @@ import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 // import org.sakaiproject.assignment.api.model.Assignment        // We call this an "assignment"
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -1026,8 +1028,7 @@ public class SakaiBLTIUtil {
 			}
 
 			// SAK-47573 - Make sure the gradebook is initialised
-            GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-			Gradebook gb = (Gradebook) g.getGradebook(context);
+			ensureGradebook(context);
 
 			// See if there are the necessary items
 			String secret = getSecret(tool, content);
@@ -1454,8 +1455,7 @@ public class SakaiBLTIUtil {
 			}
 
 			// SAK-47573 - Make sure the gradebook is initialised
-            GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-			Gradebook gb = (Gradebook) g.getGradebook(context);
+			ensureGradebook(context);
 
 			Properties lti13subst = new Properties();
 			addGlobalData(site, ltiProps, lti13subst, rb);
@@ -2365,6 +2365,8 @@ public class SakaiBLTIUtil {
 			return new Boolean(matched);
 		}
 
+		ensureGradebook(siteId);
+
 		// Look up the gradebook column so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -2520,6 +2522,8 @@ public class SakaiBLTIUtil {
 		if ( scoreObj.scoreMaximum == null ) scoreObj.scoreMaximum = lineItem.scoreMaximum != null ? lineItem.scoreMaximum : 100D;
 		Double scoreMaximum = scoreObj.scoreMaximum;
 		log.debug("scoreGiven={} scoreMaximum={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
+
+		ensureGradebook(siteId);
 
 		// Look up the gradebook column so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
@@ -2722,10 +2726,12 @@ public class SakaiBLTIUtil {
 
 	public static org.sakaiproject.service.gradebook.shared.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
 		// Look up the gradebook column so we can find the max points
+		String siteId = site.getId();
+
+		ensureGradebook(siteId);
+
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
-
-		String siteId = site.getId();
 
 		if ( lineItem == null ) lineItem = new SakaiLineItem();
 		Double scoreMaximum = lineItem.scoreMaximum == null ? 100D : lineItem.scoreMaximum;
@@ -3415,5 +3421,21 @@ public class SakaiBLTIUtil {
 			key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
 		}
 		return key;
+	}
+
+	public static void ensureGradebook(String context) {
+
+		GradebookFrameworkService gfs = (GradebookFrameworkService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookFrameworkService");
+		if (gfs != null) {
+			if (!gfs.isGradebookDefined(context)) {
+				try {
+					gfs.addGradebook(context, context);
+				} catch (GradebookExistsException e) {
+					log.warn("A gradebook with id {} exists even though isGradebookDefined returned false", context);
+				}
+			}
+		} else {
+			log.error("Failed to get org.sakaiproject.service.gradebook.GradebookFrameworkService from the component manager");
+		}
 	}
 }

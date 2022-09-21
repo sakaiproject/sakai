@@ -1991,6 +1991,10 @@ public class LTI13Servlet extends HttpServlet {
 		*/
 		response.setContentType(Result.CONTENT_TYPE_CONTAINER);
 
+		String context_id = site.getId();
+
+		SakaiBLTIUtil.ensureGradebook(context_id);
+
 		// Look up the assignment so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -2003,8 +2007,6 @@ public class LTI13Servlet extends HttpServlet {
 				"basiclti.outcomes.usereid", gb_user_id);
 		sess.setUserId(gb_user_id);
 		sess.setUserEid(gb_user_eid);
-
-		String context_id = site.getId();
 
 		SakaiBLTIUtil.pushAdvisor();
 		try {
