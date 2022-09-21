@@ -1,0 +1,43 @@
+#sakai-darkThemeSwitcher {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 0 auto;     // push to far right
+    padding: $standard-space;
+    background: var(--sakai-background-color-1);
+    font-size: $default-font-size-small;
+    line-height: 22px;
+    
+    &:focus {
+        outline:none;
+        box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
+    }
+    
+    span {
+        padding: 0 $standard-spacing;
+        pointer-events: none;
+    }
+}
+
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="false"] :first-child,
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="true"] :last-child {
+    display: inline-block;
+    border-radius: $button-radius; 
+    background: var(--sakai-primary-color-1);
+    color: var(--sakai-text-color-inverted);
+}
+
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="false"] :last-child,
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="true"] :first-child {
+    color: var(--sakai-text-color-1);
+}
+
+.sakaiThemeSwitch {
+    margin-bottom: 0;
+    font-weight: normal;
+    color: var(--sakai-text-color-1);
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}

@@ -323,6 +323,11 @@
     color: var(--errorBanner-color);
     font-size: 15px;
   }
+
+  // Commeneted in trinity for now
+  // .2-col {
+  //     grid-template-columns: 1fr min-content;
+  //  }
 }
 
 @import "_sakai-topic-list.scss";
