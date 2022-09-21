@@ -1,0 +1,92 @@
+html {
+    --sakai-dashboard-container-padding: 40px;
+    --sakai-dashboard-welcome-font-size: 32px;
+    --sakai-motd-font-size: 16px;
+    --sakai-motd-font-weight: bold;
+    --sakai-motd-margin-top: 10px;
+    --sakai-motd-padding: 12px;
+    --sakai-motd-message-font-size: 12px;
+}
+
+#course-dashboard-container {
+    padding: var(--sakai-dashboard-container-padding);
+    background-color: var(--sakai-tool-bg-color);
+}
+
+  #course-dashboard-programme {
+    font-style: italic;
+    font-weight: bold;
+  }
+    #course-dashboard-widgets {
+      flex: 1;
+    }
+    #course-dashboard-header-and-edit-block {
+      display: flex;
+    }
+      #course-dashboard-header-block {
+        flex: 2;
+      }
+      #course-dashboard-edit-block {
+        flex: 1;
+        text-align:right;
+      }
+      #course-dashboard-edit-block div {
+        display: inline-block;
+      }
+    sakai-editor div {
+      padding: 0 0 20px 0;
+    }
+
+    #course-dashboard-title-and-edit-block {
+      display: flex;
+      margin-bottom: 20px;
+    }
+      #course-dashboard-title-and-edit-block h2 {
+        margin-top: 0px;
+      }
+
+    #course-dashboard-l1-overview-and-widgets-block {
+      display: flex;
+    }
+      #course-dashboard-l1-overview-block {
+        flex: 2;
+        margin-right: 16px;
+      }
+      #course-dashboard-l1-widgets {
+        flex: 1;
+      }
+
+    #course-dashboard-l2-header-and-overview-block {
+      display: flex;
+      margin-bottom: 20px;
+    }
+      #course-dashboard-l2-header-block {
+        flex: 1;
+      }
+      #course-dashboard-l2-course-overview {
+        flex: 3;
+        margin-bottom: 10px;
+      }
+      #course-dashboard-l2-widgets {
+        flex: 3;
+      }
+
+    #course-dashboard-l3-overview-and-widgets-block {
+      display: flex;
+    }
+      #course-dashboard-l3-overview-block {
+        flex: 2;
+        margin-right: 16px;
+      }
+      #course-dashboard-l3-widgets {
+        flex: 2;
+      }
+
+    .course-dashboard-container sakai-editor {
+      display: block;
+      margin-top: 29px;
+    }
+
+    #course-dashboard-l2-header-and-overview-block sakai-editor {
+      margin-top: 0px;
+    }

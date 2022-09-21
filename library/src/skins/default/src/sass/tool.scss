@@ -38,6 +38,11 @@ $body-bg: #fff;
 $border-radius: .4rem;
 $success: #7952b3;
 
+// Tool defaults
+$text-color: #333;
+$input-border-focus: #66afe9;
+$input-border: var(--sakai-border-color);
+
 @import "defaults";
 @import "themes/base";
 
@@ -89,7 +94,6 @@ $success: #7952b3;
 
 // Utilities
 @import "bootstrap/scss/utilities/api";
-
 @import "base/jquery-ui-defaults";
 @import "base/extendables";
 @import "base/defaults";
@@ -146,17 +150,27 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/simplerss/simplerss";
 @import "modules/tool/emailtemplates/emailtemplates";
 
+@import "modules/tool/dashboard/base";
+@import "modules/tool/editor/base";
+@import "modules/tool/widget-panel/base";
+@import "modules/tool/icon/base";
+@import "modules/tool/multiselect/base";
+@import "modules/tool/pager/base";
+@import "modules/tool/sakai-options-menu/sakai-options-menu";
+@import "modules/tool/theme-switcher/base";
+
+
 //
 // Temporary Styles for Morpheus to Trinity conversion
 //
 
-.navIntraTool {
-  display: flex;
-  flex-wrap: wrap;
-  padding-left: 0;
-  list-style: none;
+// .navIntraTool {
+//   display: flex;
+//   flex-wrap: wrap;
+//   padding-left: 0;
+//   list-style: none;
 
-  li {
-    margin-right: 1em;
-  }
-}
+//   li {
+//     margin-right: 1em;
+//   }
+// }
