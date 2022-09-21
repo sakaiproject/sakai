@@ -965,7 +965,11 @@ public class MessageForumStatisticsBean {
 			userAuthoredInfo.setForumDate(msg.getCreated());
 			userAuthoredInfo.setForumSubject(msg.getTitle());
 			userAuthoredInfo.setMessage(msg.getBody());
-			userAuthoredInfo.setWordCount(new StringTokenizer(msg.getBody()).countTokens());
+			if (msg.getBody() != null) {
+				userAuthoredInfo.setWordCount(new StringTokenizer(msg.getBody()).countTokens());
+			} else {
+				userAuthoredInfo.setWordCount(0);
+			}
 			userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
 			userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
 			userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
@@ -1045,7 +1049,11 @@ public class MessageForumStatisticsBean {
 				userAuthoredInfo.setForumDate(mesWithAttach.getCreated());
 				userAuthoredInfo.setForumSubject(mesWithAttach.getTitle());
 				userAuthoredInfo.setMessage(mesWithAttach.getBody());
-				userAuthoredInfo.setWordCount(new StringTokenizer(mesWithAttach.getBody()).countTokens());
+				if (mesWithAttach.getBody() != null) {
+					userAuthoredInfo.setWordCount(new StringTokenizer(mesWithAttach.getBody()).countTokens());
+				} else {
+					userAuthoredInfo.setWordCount(0);
+				}
 				userAuthoredInfo.setMsgId(selectedMsgId);
 				userAuthoredInfo.setTopicId(Long.toString(t.getId()));
 				userAuthoredInfo.setForumId(Long.toString(d.getId()));
