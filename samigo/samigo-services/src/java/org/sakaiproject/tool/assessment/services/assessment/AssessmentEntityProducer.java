@@ -250,7 +250,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			}
 		}
 
-        exportQuestionPools(siteId, archivePath, attachments);
+        results.append(exportQuestionPools(siteId, archivePath, attachments));
 
         stack.pop();
 		return results.toString();
@@ -501,12 +501,19 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		}
 	}
 
-	private void exportQuestionPools(String siteId, String archivePath, List<Reference> attachments) {
+	private String exportQuestionPools(String siteId, String archivePath, List<Reference> attachments) {
 		String xmlPath = archivePath + File.separator + "samigo_question_pools.xml";
 		QuestionPoolServiceAPI questionPoolService = (QuestionPoolServiceAPI)ComponentManager.get("org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI");
 
+		int pools_exported = 0;
+
 		try {
 			Site site = SiteService.getSite(siteId);
+
+			if (site.getToolForCommonId("sakai.samigo") == null) {
+				return "T&Q not used in this site: skipping Question Pool archive\n";
+			}
+
 			String maintainRole = site.getMaintainRole();
 			List<String> instructorIds = new ArrayList<>();
 			for (Member member : site.getMembers()) {
@@ -560,6 +567,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					    }
 					}
 					questionPools.appendChild(questionPool);
+					pools_exported++;
 				}
 			}
 
@@ -589,6 +597,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		} catch (ParserConfigurationException | IdUnusedException e) {
 			e.printStackTrace();
 		}
+
+		return String.format("archived %d question pools\n", pools_exported);
 	}
 
     private void loadResourceIds(Connection db, String query, Long assessmentId, List<String> result)
