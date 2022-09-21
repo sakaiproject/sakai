@@ -225,7 +225,7 @@ public class BasePage extends WebPage {
 		response.render(
 				new PriorityHeaderItem(
 						JavaScriptHeaderItem
-								.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js%s", version))));
+								.forUrl(String.format("/library/webjars/bootstrap/5.2.0/js/bootstrap.min.js%s", version))));
 		// Some global gradebookng styles
 		response.render(CssHeaderItem
 				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css%s", version)));

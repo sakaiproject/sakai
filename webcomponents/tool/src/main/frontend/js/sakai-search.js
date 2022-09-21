@@ -2,7 +2,6 @@ import { SakaiElement } from "./sakai-element.js";
 import "./sakai-pager.js";
 import { html } from "./assets/lit-element/lit-element.js";
 import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js";
-import { getUserId } from "./sakai-portal-utils.js";
 
 class SakaiSearch extends SakaiElement {
 
@@ -17,13 +16,19 @@ class SakaiSearch extends SakaiElement {
       "announcement": "icon-sakai--sakai-announcements",
       "assignments": "icon-sakai--sakai-assignment-grades",
       "chat": "icon-sakai--sakai-chat",
-      "sakai.conversations": "icon-sakai--sakai-conversations",
+      "conversations": "icon-sakai--sakai-conversations",
       "forums": "icon-sakai--sakai-forums",
       "lessons": "icon-sakai--sakai-lessonbuildertool",
       "commons": "icon-sakai--sakai-commons",
       "content": "icon-sakai--sakai-resources",
       "wiki": "icon-sakai--sakai-rwiki",
     };
+
+    if (!this.tool) {
+      this.searchTerms = sessionStorage.getItem("searchterms") || "";
+      this.results = JSON.parse(sessionStorage.getItem("searchresults") || "[]");
+    }
+    this.currentPageIndex = parseInt(sessionStorage.getItem("currentpageindex") || "0");
 
     this.loadTranslations("search").then(t => {
 
@@ -32,7 +37,7 @@ class SakaiSearch extends SakaiElement {
         "announcement": this.i18n.toolname_announcement,
         "assignments": this.i18n.toolname_assignment,
         "chat": this.i18n.toolname_chat,
-        "sakai.conversations": this.i18n.toolname_conversations,
+        "conversations": this.i18n.toolname_conversations,
         "forums": this.i18n.toolname_forum,
         "lessons": this.i18n.toolname_lesson,
         "commons": this.i18n.toolname_commons,
@@ -51,25 +56,28 @@ class SakaiSearch extends SakaiElement {
       results: { attribute: false, type: Array },
       pages: { attribute: false, type: Number },
       i18n: { attribute: false, type: Object },
-      portal: { type: Boolean},
     };
   }
 
-  _handleKeydownOnResult(e) {
+  set pageSize(newValue) {
+
+    this._pageSize = newValue;
+    this.initSetsOfResults(this.results);
+  }
+
+  get pageSize() { return this._pageSize; }
+
+  handleKeydownOnResult(e) {
 
     if (e.code === "Escape") {
       e.preventDefault();
-      this._closeResults();
+      this.closeResults();
     }
   }
 
-  _getSessionStorageKey(type) {
-    return `${type}-${getUserId()}-${this.siteId ? `-${this.siteId}` : ""}${this.tool ? `-${this.tool}` : ""}`;
-  }
+  closeResults() {
 
-  _closeResults() {
-
-    this.results = undefined;
+    this.results = [];
     this.dispatchEvent(new CustomEvent("hiding-search-results"));
     const input = this.querySelector("input");
     input.focus();
@@ -134,7 +142,24 @@ class SakaiSearch extends SakaiElement {
   }
 
   clear() {
-    this.results = undefined;
+
+    if (!this.tool) {
+      sessionStorage.removeItem("searchterms");
+      sessionStorage.removeItem("searchresults");
+    }
+    this.results = [];
+    this.searchTerms = "";
+    this.requestUpdate();
+    this.noResults = false;
+  }
+
+  handleSearchClick(e) {
+
+    if (e.target.selectionStart <= 2) {
+      e.preventDefault();
+      e.target.setSelectionRange(2, 2);
+      return false;
+    }
   }
 
   search(e) {
@@ -166,8 +191,9 @@ class SakaiSearch extends SakaiElement {
           this.results = data;
 
           if (this.results.length > 0) {
-            this.querySelector(".sakai-search-input").classList.add("flat-bottom");
+            this.querySelector("input").classList.add("flat-bottom");
           }
+          this.noResults = this.results.length === 0;
           this.results.forEach(r => { if (r.title.length === 0) r.title = r.tool; });
           this.initSetsOfResults(this.results);
           this.updateComplete.then(() => {
@@ -198,6 +224,9 @@ class SakaiSearch extends SakaiElement {
               });
             });
           });
+          if (!this.tool) {
+            sessionStorage.setItem("searchresults", JSON.stringify(this.results));
+          }
           this.requestUpdate();
         })
         .catch(error => console.error(error));
@@ -234,7 +263,7 @@ class SakaiSearch extends SakaiElement {
 
     this.currentPageIndex = 0;
 
-    this.currentPageOfResults = this.setsOfResults.length > 0 && this.setsOfResults[this.currentPageIndex];
+    this.currentPageOfResults = this.setsOfResults[this.currentPageIndex];
 
     this.requestUpdate();
   }
@@ -244,6 +273,7 @@ class SakaiSearch extends SakaiElement {
     this.currentPageIndex = e.detail.page;
     this.currentPageOfResults = this.setsOfResults[this.currentPageIndex];
     this.requestUpdate();
+    sessionStorage.setItem("currentpageindex", this.currentPageIndex);
   }
 }
 
