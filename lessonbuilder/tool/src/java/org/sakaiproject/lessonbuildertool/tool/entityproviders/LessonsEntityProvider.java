@@ -285,6 +285,8 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 
 			}catch(EntityNotFoundException e) { //if there is no lessonbuilder tool in that site, just skip it		
 			}catch(SecurityException e) { //if current user can not access to the lessonbuilder tool on that site, just skip it				
+			}catch(NullPointerException e) { //if there is no lessonbuilder tool in that site, just skip it
+				log.warn("the lessonbuilder tool is not configured for the site " + s.getTitle() + ".");
 			}
 		}
 		
