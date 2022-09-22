@@ -27,11 +27,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
@@ -155,6 +157,27 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 	public String getSiteRole() {
 		return getCourseBean().authz.getRoleDescription(getUserUid(), getSiteContext());
+	}
+	protected boolean canManageAnySection() {
+		if (getCourseBean().authz.getRoleDescription(getUserUid(), getSiteContext())
+				.equals(JsfUtil.getLocalizedMessage("admin_role")))
+			return true;
+
+		if (getSiteInstructors().stream().map(s -> s.getUser().getUserUid()).collect(Collectors.toList())
+				.contains(getUserUid()))
+			return true;
+
+		return false;
+	}
+	protected boolean canManageSection(String sectionUid) {
+		if (canManageAnySection())
+			return true;
+
+		if (getSectionTeachingAssistantsMap().get(sectionUid).stream()
+				.anyMatch(s -> s.getUser().getUserUid().equals(getUserUid())))
+			return true;
+
+		return false;
 	}
 
 }
