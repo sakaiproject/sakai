@@ -85,6 +85,6 @@ jobs:
         run: |
           export QUERIES=$(grep ProtocolLoggingProxy tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
-      - name: Sleep four hours to allow testing
+      - name: Sleep fifteen minutes to allow testing
         if: ${{ always() }}
-        run: sleep 4h
+        run: sleep 15m
