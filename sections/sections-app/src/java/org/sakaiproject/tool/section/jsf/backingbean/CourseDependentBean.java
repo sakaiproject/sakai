@@ -33,7 +33,6 @@ import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
