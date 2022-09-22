@@ -876,9 +876,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	{
 		try
 		{
+			String gradebookUid = getContext();
+
+			SakaiBLTIUtil.ensureGradebook(gradebookUid);
+
 			GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 
-			String gradebookUid = getContext();
 			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
 
 			// add assignment to gradebook
@@ -910,10 +913,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		List<String> retval = new ArrayList<String>();
 		try
 		{
+			String gradebookUid = getContext();
+			SakaiBLTIUtil.ensureGradebook(gradebookUid);
 			GradebookService g = (GradebookService)  ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-			String gradebookUid = getContext();
 			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
 			List gradebookAssignments = g.getAssignments(gradebookUid);
 

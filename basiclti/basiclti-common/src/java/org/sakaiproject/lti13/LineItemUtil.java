@@ -143,6 +143,9 @@ public class LineItemUtil {
 	}
 
 	public static Assignment createLineItem(String context_id, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
+
+		SakaiBLTIUtil.ensureGradebook(context_id);
+
 		// Look up the assignment so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -182,7 +185,7 @@ public class LineItemUtil {
 		try {
 			Long assignmentId = null;
 			// Attempt to add assignment to grade book
-			if (assignmentObject == null && g.isGradebookDefined(context_id)) {
+			if (assignmentObject == null) {
 				try {
 					assignmentObject = new Assignment();
 					assignmentObject.setPoints(Double.valueOf(lineItem.scoreMaximum));
@@ -214,9 +217,6 @@ public class LineItemUtil {
 				if ( failure == null ) failure = "assignmentObject or Id is null.";
 				assignmentObject = null;
 			}
-		} catch (GradebookNotFoundException e) {
-			failure = "GradebookNotFoundException";
-			log.error("Gradebook not found", e);
 		} catch (Throwable e) {
 			failure = "Unexpected Throwable " + e.getMessage();
 			log.error("Unexpected Throwable", e);
@@ -232,10 +232,13 @@ public class LineItemUtil {
 	}
 
 	public static Assignment updateLineItem(Site site, Long tool_id, Long column_id, SakaiLineItem lineItem) {
+		String context_id = site.getId();
+
+		SakaiBLTIUtil.ensureGradebook(context_id);
+
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-		String context_id = site.getId();
 
 		if ( column_id == null ) {
 			throw new RuntimeException("column_id is required");
@@ -290,6 +293,7 @@ public class LineItemUtil {
 	 * @return A list of Assignment objects (perhaps empty) or null on failure
 	 */
 	protected static List<Assignment> getColumnsForToolDAO(String context_id, Long tool_id) {
+		SakaiBLTIUtil.ensureGradebook(context_id);
 		List retval = new ArrayList();
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -348,6 +352,7 @@ public class LineItemUtil {
 	 */
 	protected static Assignment getColumnByLabelDAO(String context_id, Long tool_id, String column_label)
 	{
+		SakaiBLTIUtil.ensureGradebook(context_id);
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 		Assignment retval = null;
@@ -388,6 +393,7 @@ public class LineItemUtil {
 		// Make sure it belongs to us
 		Assignment a = getColumnByKeyDAO(context_id, tool_id, column_id);
 		if ( a == null ) return false;
+		SakaiBLTIUtil.ensureGradebook(context_id);
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
@@ -425,6 +431,7 @@ public class LineItemUtil {
 		if ( tool_id == null ) {
 			throw new RuntimeException("tool_id is required");
 		}
+		SakaiBLTIUtil.ensureGradebook(context_id);
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
