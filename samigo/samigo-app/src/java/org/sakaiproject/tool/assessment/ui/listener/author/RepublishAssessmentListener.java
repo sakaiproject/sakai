@@ -191,21 +191,14 @@ public class RepublishAssessmentListener implements ActionListener {
 			if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 
 				String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessment.getTitle().trim());
-				boolean gbItemExists = false;
 				try {
-					gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
-				} catch (Exception e1) {
-					log.info("assessment does not exist: {}", assessmentName);
-				}
-				
-				try {
-					if (!gbItemExists) {
-						log.debug("before gbsHelper.addToGradebook()");
-						gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), null, g);
-					} else {
+				    try {
 						log.debug("before gbsHelper.updateGradebook()");
 						gbsHelper.updateGradebook((PublishedAssessmentData) assessment.getData(), g);
-					}
+                    } catch (Exception ex) {
+                        log.warn("Gradebook item does not exist for assessment {}, creating a new gradebook item", assessment.getAssessmentId());
+                        gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), null, g);
+                    }
 					
 					// any score to copy over? get all the assessmentGradingData and copy over
 					GradingService gradingService = new GradingService();
