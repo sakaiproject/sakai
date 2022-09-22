@@ -37,7 +37,7 @@ class SidebarCollapseButton {
     this.title = this.collapsed ? this._i18n.titleCollapsed : this._i18n.titleExpanded;
   }
 
-  async #setCollapsed(collapsed) {
+  #setCollapsed(collapsed) {
 
     collapsed = collapsed ? "true" : "false";
     const putReq = await fetch(`/direct/userPrefs/updateKey/admin/sakai:portal:sitenav?toolsCollapsed=${collapsed}`, { method: "PUT" });
