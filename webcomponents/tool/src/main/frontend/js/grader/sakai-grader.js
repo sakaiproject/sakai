@@ -797,7 +797,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     const editor = sakai.editor.launch(id, {
       autosave: { delay: 10000000, messageType: "no" },
-      toolbarSet: "Basic",
       startupFocus: true,
     });
 
