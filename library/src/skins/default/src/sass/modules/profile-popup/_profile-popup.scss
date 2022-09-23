@@ -1,0 +1,51 @@
+.profile-popup {
+    background-color: var(--sakai-background-color-1);
+
+    a, a:hover {
+        text-decoration: none;
+    }
+
+    .profile-popup-table {
+        border-spacing: 7px;
+        border-collapse: separate;
+        margin: 5px;
+
+        .profile-popup-icon-cell {
+            padding-right: 3px;
+            .profile-popup-icon {
+                font-size: 16px;
+                width: 16px;
+            }
+            .profile-popup-label {
+                margin-left: 8px;
+            }
+        }
+    }
+
+    button {
+        width: 100%;
+        margin: 0px;
+        @include sakai_primary_button();
+        border-radius: 0px !important;
+    }
+
+    .profile-popup-incoming-block {
+        button {
+            width: 50%;
+        }
+        .profile-popup-ignore-button {
+          @include sakai_secondary_button();
+        }
+    }
+}
+
+
+.qtip.profile-popup-qtip {
+    border: 0px var(--sakai-border-color) solid !important;
+    background-color: var(--sakai-background-color-1) !important;
+    max-width: 310px;
+    padding: 0px !important;
+    .qtip-content {
+        padding: 0px !important;
+    }
+}

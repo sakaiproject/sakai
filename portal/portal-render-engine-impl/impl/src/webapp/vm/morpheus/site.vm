@@ -87,7 +87,6 @@
 
     *#
         #parse("/vm/morpheus/includeBodyScripts.vm")
-        <script src="/library/js/sakai.scripts.min.js$!{portalCDNQuery}"></script>
 
     </body>
 </html>

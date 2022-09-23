@@ -936,4 +936,3 @@ function copyToClipboardNoScroll(parent_element, textToCopy) {
   input.remove();
 }
 
-
