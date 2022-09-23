@@ -1,8 +1,9 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
+import { rubricsApiMixin } from "./sakai-rubrics-api-mixin.js";
 
-class SakaiRubricAssociation extends RubricsElement {
+class SakaiRubricAssociation extends rubricsApiMixin(RubricsElement) {
 
   constructor() {
 
@@ -14,6 +15,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
     this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
     this.i18nPromise.then(r => this.i18n = r);
+    this.maxPoints = [];
   }
 
   set siteId(value) {
@@ -52,6 +54,7 @@ class SakaiRubricAssociation extends RubricsElement {
       fineTunePoints: { attribute: "fine-tune-points", type: String },
       hideStudentPreview: { attribute: "hide-student-preview", type: String },
       rubrics: { type: Array },
+      maxPoints: { type: Array },
       readOnly: { attribute: "read-only", type: Boolean },
     };
   }
@@ -82,8 +85,22 @@ class SakaiRubricAssociation extends RubricsElement {
 
   render() {
 
+    const optionItems = [];
+    const rubrics = Array.from(this.rubrics);
+    const maxPoints = Array.from(this.maxPoints);
+    for (let i = 0; i < this.rubrics.length; i++) {
+      const r = rubrics.pop();
+      const m = maxPoints.pop();
+      if (! m) {
+        optionItems.push(html`<option value="${r.id}" ?selected=${r.id === this.selectedRubric}>${r.title}</option>`);
+      } else {
+        optionItems.push(html`<option value="${r.id}" ?selected=${r.id === this.selectedRubric}>${r.title} (${m} <sr-lang key="points">Points</sr-lang>)</option>`);
+      }
+    }
+
     return html`
       <h4><sr-lang key="grading_rubric">Grading Rubric</sr-lang></h4>
+      <div class="sak-banner-warn"><small><sr-lang key="rubric_points_warning">A rubric's point value should match the maximum point value of the activity or question to grade.</sr-lang></small></div>
       <div class="sakai-rubric-association form">
         ${this.readOnly ? "" : html`
           <div class="radio">
@@ -108,9 +125,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
           <div class="rubrics-selections">
             <select @change="${this.rubricSelected}" name="rbcs-rubricslist" aria-label="${tr("rubric_selector_label")}" class="form-control" ?disabled=${!this.isAssociated || this.readOnly}>
-            ${this.rubrics.map((r) => html`
-              <option value="${r.id}" ?selected=${r.id == this.selectedRubric}>${r.title}</option>
-            `)}
+            ${optionItems}
             </select>
 
             <button @click="${this.showRubric}" class="btn btn-link" ?disabled=${!this.isAssociated}>
@@ -196,6 +211,30 @@ class SakaiRubricAssociation extends RubricsElement {
     .catch (error => console.error(error));
   }
 
+  async calcMaxPoints(rubric, i) {
+    let result;
+
+    try {
+      result = await this.apiGetRubric(rubric.id);
+      let maxPoints = 0;
+      result.criteria.filter((c) => !this.isCriterionGroup(c)).forEach((c) => {
+        const pointrange = this.getHighLow(c.ratings);
+
+        if (rubric.weighted && pointrange.high > 0) {
+          maxPoints += (pointrange.high * (c.weight / 100));
+        }
+        else {
+          maxPoints += pointrange.high;
+        }
+      });
+
+      this.maxPoints[i] = (maxPoints - Math.floor(maxPoints)) === 0 ? maxPoints.toFixed(0) : maxPoints.toFixed(2);
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   handleRubrics(data) {
 
     this.rubrics = data.slice().filter( (rubric) => rubric.draft === false);
@@ -204,6 +243,10 @@ class SakaiRubricAssociation extends RubricsElement {
       //this.selectedConfigOptions = this.association.parameters ? this.association.parameters : {};
       if (!this.isAssociated) {
         this.selectedRubric = this.rubrics[0].id;
+      }
+      const rubrics = Array.from(this.rubrics);
+      for (let i = 0; i < this.rubrics.length; i++) {
+        this.calcMaxPoints(rubrics.pop(), i);
       }
     }
   }
