@@ -49,6 +49,7 @@ $input-border: var(--sakai-border-color);
 @import "themes/light";
 @import "themes/dark";
 
+
 // Configuration
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
@@ -96,6 +97,7 @@ $input-border: var(--sakai-border-color);
 @import "bootstrap/scss/utilities/api";
 @import "base/jquery-ui-defaults";
 @import "base/extendables";
+@import "base/menu";
 @import "base/defaults";
 @import "base/responsive";
 @import "base/icons";
@@ -190,3 +192,5 @@ label {
 table {
 	margin-left: 12px;
 }
+
+
