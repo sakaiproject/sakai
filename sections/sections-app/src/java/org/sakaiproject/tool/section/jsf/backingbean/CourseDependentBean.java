@@ -158,8 +158,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().authz.getRoleDescription(getUserUid(), getSiteContext());
 	}
 	protected boolean canManageAnySection() {
-		if (getCourseBean().authz.getRoleDescription(getUserUid(), getSiteContext())
-				.equals(JsfUtil.getLocalizedMessage("admin_role")))
+		if (getCourseBean().authz.isSuperUser())
 			return true;
 
 		if (getSiteInstructors().stream().map(s -> s.getUser().getUserUid()).collect(Collectors.toList())
