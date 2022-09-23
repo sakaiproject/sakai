@@ -1,0 +1,34 @@
+@mixin sitesNavStyling() {
+	padding: $standard-space-2x;
+	border-top: $sites-nav-menu-item-border-top;
+	border-right: $sites-nav-menu-item-border-right;
+	border-bottom: $sites-nav-menu-item-border-bottom;
+	border-left: $sites-nav-menu-item-border-left;
+	border-color: var(--sites-nav-menu-item-border-color);
+	background: var(--sites-nav-menu-item-background);
+	text-align: center;
+	text-decoration: none;
+	color: var(--sites-nav-menu-item-color);
+	border-radius: $sites-nav-menu-item-border-radius;
+
+	&:hover, &:focus {
+		z-index: 1; // to avoid missing borders from overlap when hovering
+		border-top: $sites-nav-menu-item-hover-border-top;
+		border-right: $sites-nav-menu-item-hover-border-right;
+		border-bottom: $sites-nav-menu-item-hover-border-bottom;
+		border-left: $sites-nav-menu-item-hover-border-left;
+		border-color: var(--sites-nav-menu-item-hover-border-color);
+		background: var(--sites-nav-menu-item-hover-background);
+		color: var(--sites-nav-menu-item-hover-color);
+	}
+
+	&:focus {
+		outline-offset: -#{$focus-outline-width}; // to match the width of the default link focus to fit in the link container
+		outline: none; // This is a rounded element, use a box-shadow to emulate outline styles on :focus and the shadow will inherit the shape of the element
+		box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
+	}
+
+	&:active {
+		outline: 0 none; // hiding on click
+	}
+}
