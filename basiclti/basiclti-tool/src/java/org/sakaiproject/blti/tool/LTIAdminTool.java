@@ -2582,6 +2582,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Check if we are supposed to let the tool configure itself
 		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
 		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_PL_LAUNCH));
+		// SAK-47867 - If both are set, prefer DeepLink / Content Item
+		if ( allowLinkSelection > 0 ) allowLaunch = 0L;
 
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("doAction", BUTTON + "doContentPut");
