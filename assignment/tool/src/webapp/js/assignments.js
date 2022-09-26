@@ -982,9 +982,11 @@ ASN.disableTimesheetSetupSection = function()
     ASN.toggleAutoAnnounceEstimate(false);
 }
 
-$(document).noConflict().ready(() => {
+//$(document).noConflict().ready(() => {
+$(document).ready(() => {
 
-  $("#infoImg").popover({html : true});
+  const infoLink = document.getElementById("infoImg");
+  infoLink && (new bootstrap.Popover(document.getElementById("infoImg")));
 
   const saveRubric = e => {
     [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
