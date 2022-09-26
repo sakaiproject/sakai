@@ -62,7 +62,7 @@ class SakaiLTIIframe extends SakaiElement {
 
         let frame_id = false;
         let allow_resize = false;
-        Array.prototype.forEach.call(document.getElementsByTagName('iframe'), element => {
+        Array.from(document.getElementsByTagName('iframe')).forEach(element => {
           if (element.contentWindow === event.source) {
             frame_id = element.getAttributeNode("id").nodeValue;
             allow_resize = element.getAttributeNode("data-allow-resize").nodeValue;
