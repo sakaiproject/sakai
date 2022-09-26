@@ -5,8 +5,6 @@
 <script type="module" src="/webcomponents/sakai-lti-popup.js"></script>
 <p>
 <sakai-lti-popup
-  pre-launch-text="$tlang.getString("new.page.launch")"
-  post-launch-text="$tlang.getString("new.page.launched")"
   launch-url="$!source"
 />
 </p>
@@ -15,7 +13,6 @@
 <p>
 <sakai-lti-iframe
   allow-resize="yes"
-  new-window-text="$tlang.getString("new.page.relaunch")"
   launch-url="$!source"
 />
 </p>

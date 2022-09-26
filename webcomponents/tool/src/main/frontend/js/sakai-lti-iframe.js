@@ -6,14 +6,12 @@ class SakaiLTIIframe extends SakaiElement {
     super();
     const randomId = Math.floor(Math.random() * 1000000);
     this.randomId = randomId;
-    this.loadTranslations("lti").then(t => this.i18n = t );
-    // TODO: Ask Adrian how to make this work
-    // Take defaults from web components i18n
-    if ( typeof this.i18n != 'undefined' ) {
-      this.newWindowText = this.i18n.new_window_text;
-    }
+    this.newWindowText = null;
+    this.loadTranslations("lti").then(t => {
+      this.i18n = t
+      if ( this.newWindowText == null ) this.newWindowText = this.i18n.new_window_text;
+    } );
 
-    // TODO: Rewrite without jQuery when we have a good test case example
     setTimeout( (elem) => {
       console.log('elem', elem);
       if ( typeof elem == 'undefined' ) return;

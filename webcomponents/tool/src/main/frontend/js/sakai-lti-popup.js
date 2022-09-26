@@ -6,13 +6,13 @@ class SakaiLTIPopup extends SakaiElement {
     super();
     const randomId = Math.floor(Math.random() * 1000000);
     this.randomId = randomId;
-    this.loadTranslations("lti").then(t => this.i18n = t );
-    // TODO: Ask Adrian how to make this work
-    // Take defaults from web components i18n
-    if ( typeof this.i18n != 'undefined' ) {
-      this.preLaunchText = this.i18n.pre_launch_text;
-      this.postLaunchText = this.i18n.post_launch_text;
-    }
+    this.preLaunchText = null;
+    this.postLaunchText = null;
+    this.loadTranslations("lti").then(t => {
+      this.i18n = t;
+      if ( this.preLaunchText == null ) this.preLaunchText = this.i18n.pre_launch_text;
+      if ( this.postLaunchText == null ) this.postLaunchText = this.i18n.post_launch_text;
+    } );
   }
 
   static get properties() {
