@@ -21,8 +21,8 @@ class SakaiLTIIframe extends SakaiElement {
 
       console.log('Actually checking...');
 
-      const myframe = $("#sakai-lti-iframe-" + elem.randomId);
-      const mybutton = $("#sakai-lti-button-" + elem.randomId);
+      const myframe = document.getElementById(`sakai-lti-iframe-${elem.randomId}`);
+      const mybutton = document.getElementById(`sakai-lti-button-${elem.randomId}`);
       let loaded = false;
 
       try {
