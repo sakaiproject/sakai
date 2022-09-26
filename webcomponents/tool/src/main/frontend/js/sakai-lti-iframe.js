@@ -28,7 +28,7 @@ class SakaiLTIIframe extends SakaiElement {
       try {
         const iframeLoc = String(myframe.contentWindow.location);
         console.debug('iframeLoc', iframeLoc);
-        const windowLoc = String(window.location);
+        const windowLoc = window.location.href;
         window.console && console.debug("iframe.location=", windowLoc);
         let ipos = -1;
         let slashcount = 0;
