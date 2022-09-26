@@ -982,7 +982,7 @@ ASN.disableTimesheetSetupSection = function()
     ASN.toggleAutoAnnounceEstimate(false);
 }
 
-$(document).ready(() => {
+$(document).noConflict().ready(() => {
 
   $("#infoImg").popover({html : true});
 

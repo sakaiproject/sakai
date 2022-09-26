@@ -61,7 +61,7 @@ a{
 		text-decoration: none;
 	}
 	&[href]:not(.btn) {  // This means a[href]
-		color: none;
+		color: var(--link-color);
 		&:focus{
 			outline: $sakai-focus-outline;
 			outline-color: var(--focus-outline-color);
@@ -83,7 +83,7 @@ a{
 		&.btn-primary{
 			@include sakai_primary_button();
 		}
-		text-decoration:none;
+		text-decoration: none;  // Temp fix
 	}
 	&.url{
 		@media #{$phone}{
@@ -246,6 +246,7 @@ legend {
 	margin-bottom: 0;
 	padding: 0.5em;
 	border: 0 none;
+	float: none;
 }
 
 .formButtonDisabled, .formButtonDisabled:hover, .formButtonDisabled:active {
@@ -296,4 +297,8 @@ span.marker {
         border-radius: 6px;
         right: -2px;
     }
+}
+
+.Mrphs-pageColumns--single .Mrphs-container {
+    margin: 0 16px;
 }

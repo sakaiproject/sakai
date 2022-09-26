@@ -21,7 +21,7 @@
 			</div>
 		</div>
 		<form name="listDeletedAssignmentsForm" action="#toolForm("$action")" method="post">
-			<div class="table-responsive">
+			<div class="table">
 				<input type="hidden" name="source" value="0" />
 				<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 					<tr>

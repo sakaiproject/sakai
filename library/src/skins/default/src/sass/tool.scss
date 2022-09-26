@@ -49,6 +49,7 @@ $input-border: var(--sakai-border-color);
 @import "themes/light";
 @import "themes/dark";
 
+
 // Configuration
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
@@ -157,6 +158,7 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/multiselect/base";
 @import "modules/tool/pager/base";
 @import "modules/tool/sakai-options-menu/sakai-options-menu";
+@import "modules/tool/reorderer/base";
 @import "modules/tool/theme-switcher/base";
 
 
@@ -174,3 +176,22 @@ $jumbotron-heading-font-size: $h4-font-size;
 //     margin-right: 1em;
 //   }
 // }
+
+
+
+
+// tool custom styles
+label {
+    margin: 2px;
+}
+
+
+.form-group {
+	margin-bottom: 15px;
+}
+
+table {
+	margin-left: 12px;
+}
+
+
