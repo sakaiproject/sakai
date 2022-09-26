@@ -32,6 +32,13 @@ class SakaiLTIPopup extends SakaiElement {
     };
   }
 
+  launchPopup() {
+    window.open(this.launchUrl, '_blank');
+    document.getElementById('sakai-lti-popup-' + this.randomId).style.display = 'none';
+    document.getElementById('sakai-lti-popup-hidden-' + this.randomId).style.display = 'block';
+    return false;
+  }
+
   shouldUpdate() {
     return this.preLaunchText && this.postLaunchText && this.launchUrl;
   }
@@ -39,16 +46,7 @@ class SakaiLTIPopup extends SakaiElement {
   render() {
     return html`
 <div>
-<button id="sakai-lti-popup-${this.randomId}" 
-    class="btn btn-primary" role="button"
-    onclick="
-        window.open('${this.launchUrl}','_blank');
-        console.log('this', this);
-        this.disabled = 'true';
-        this.style.display = 'none'
-        document.getElementById('sakai-lti-popup-hidden-${this.randomId}').style.display = 'block';
-        return false;"
->
+<button id="sakai-lti-popup-${this.randomId}" class="btn btn-primary" @click="${this.launchPopup}" >
 ${this.preLaunchText}
 </button>
 <button id="sakai-lti-popup-hidden-${this.randomId}"

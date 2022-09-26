@@ -8,18 +8,18 @@ class SakaiLTIIframe extends SakaiElement {
     this.randomId = randomId;
     this.newWindowText = null;
     this.loadTranslations("lti").then(t => {
-      this.i18n = t
+      this.i18n = t;
       if ( this.newWindowText == null ) this.newWindowText = this.i18n.new_window_text;
     } );
 
     setTimeout( (elem) => {
-      console.log('elem', elem);
+      console.debug('elem', elem);
       if ( typeof elem == 'undefined' ) return;
-      console.log("timeout check", elem.randomId, elem.launchUrl);
+      console.debug("timeout check", elem.randomId, elem.launchUrl);
       // Only check off-server launches
       if ( elem.launchUrl.indexOf('http://') != 0 && elem.launchUrl.indexOf('https://') != 0 ) return;
 
-      console.log('Actually checking...');
+      console.debug('Actually checking...');
 
       const myframe = document.getElementById(`sakai-lti-iframe-${elem.randomId}`);
       const mybutton = document.getElementById(`sakai-lti-button-${elem.randomId}`);
@@ -105,11 +105,16 @@ class SakaiLTIIframe extends SakaiElement {
     return this.newWindowText && this.launchUrl;
   }
 
+  launchPopup() {
+    window.open(this.launchUrl, '_blank');
+    return false;
+  }
+
   render() {
     return html`
           <div class="sakai-iframe-launch-button" id="sakai-lti-button-${this.randomId}" style="display:none;">
               <p>
-              <a href="${this.launchUrl}" onclick="window.open(this.href,'_blank');return false;" class="btn btn-primary" role="button" target="_blank">${this.newWindowText}</a>
+              <button @click="${this.launchPopup}" class="btn btn-primary">${this.newWindowText}</button>
               </p>
           </div>
           <div class="sakai-iframe-launch">
