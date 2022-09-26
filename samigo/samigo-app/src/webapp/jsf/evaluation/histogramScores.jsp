@@ -578,7 +578,7 @@ $Id$
                 </h:column>
                 <h:column>
                   <h:panelGroup>
-                    <div class="table-responsive question-thirteen-holder">
+                    <div class="table question-thirteen-holder">
                       <t:dataList layout="unorderedList" styleClass="question-with-progress" value="#{bar.itemBars}"
                         var="itemBar">
                       </t:dataList>

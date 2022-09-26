@@ -19,7 +19,7 @@
 **********************************************************************************/
 --%>
 -->
-<div class="table-responsive">
+<div class="table">
   <h:dataTable styleClass="table table-striped" id="TreeTable" value="#{questionpool.qpools}" var="pool">
     <h:column id="col1">
 

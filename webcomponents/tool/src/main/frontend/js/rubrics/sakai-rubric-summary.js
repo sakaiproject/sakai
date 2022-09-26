@@ -70,7 +70,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
                 </div>
                   <div id="collapse${c.id}" class="panel-collapse collapse">
                     <div class="panel-body">
-                      <div class="table-responsive">
+                      <div class="table">
                         <table class="rubrics-summary-table table table-bordered table-condensed">
                           <tr>
                             ${c.ratings.map(r => html`
@@ -130,7 +130,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
           <sr-lang key="no_evaluations_warning">WARN</sr-lang>
       </div>
       ` : html`
-      <div class="table-responsive">
+      <div class="table">
         <table id="student-summary" class="rubrics-summary-table table table-bordered table-condensed">
           <thead>
             <tr>

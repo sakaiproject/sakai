@@ -130,7 +130,7 @@ function resizeFrame(){
 
 			<div class="form-group row">
 				<div class="col-md-12">
-					<label for="body" class="block">
+					<label for="body" class="from-control-label">
 						<span class="reqStar">* </span>
 						$tlang.getString("revise.announcement.body")
 					</label>
@@ -435,7 +435,7 @@ function resizeFrame(){
 		
 		#if ($notiHistory)
 			<div class="specialLink act act-outer"><a href="#" class="indnt2 specialLink" id="notiHistoryToggle">$tlang.getString("revise.notify.ver_link")</a></div>
-			<div class="table-responsive">
+			<div class="table">
 			<table class="table table-hover table-striped table-bordered" id="notiHistory" style="display:none" summary="$tlang.getString("revise.notify.ver_summary")">
 				<thead>
 					<tr><th scope="col">$tlang.getString("revise.notify.ver_daterevisedtitle")</th><th scope="col">$tlang.getString("revise.notify.ver_typetitle")</th><th scope="col">$tlang.getString("revise.notify.ver_datereleasedtitle")</th></tr>

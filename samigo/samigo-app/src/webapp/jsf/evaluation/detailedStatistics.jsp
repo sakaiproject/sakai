@@ -66,7 +66,7 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
  
 <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
-<div class="table-responsive">
+<div class="table">
 
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->

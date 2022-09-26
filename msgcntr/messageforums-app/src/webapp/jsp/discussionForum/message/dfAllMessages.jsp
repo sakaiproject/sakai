@@ -242,7 +242,7 @@
 						<div>
 							<h:outputText escape="false" value="#{ForumTool.selectedTopic.topic.extendedDescription}" />
 						</div>
-						<div class="table-responsive">
+						<div class="table">
 						<h:dataTable styleClass="table table-hover table-striped table-bordered" value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
 					  <h:column>
 						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
