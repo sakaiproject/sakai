@@ -480,6 +480,19 @@
 						<artifactId>minify-maven-plugin</artifactId>
 						<version>1.7.6</version>
 						<executions>
+                            <execution>
+                                <id>default-minify</id>
+                                <configuration>
+                                    <charset>UTF-8</charset>
+                                    <webappSourceDir>${basedir}/src/webapp</webappSourceDir>
+                                    <jsSourceDir>bundled-js</jsSourceDir>
+                                    <jsIncludes>*.js</jsIncludes>
+                                    <jsTargetDir>js</jsTargetDir>
+                                    <jsFinalFile>sakai.scripts.js</jsFinalFile>
+                                    <jsEngine>CLOSURE</jsEngine>
+                                </configuration>
+                                <goals><goal>minify</goal></goals>
+                            </execution>
 							<execution>
 								<id>elfinder-minify</id>
 								<configuration>
@@ -717,7 +730,8 @@
 				<configuration>
 					<warSourceExcludes>
 						editor/elfinder/sakai/js/src/**,
-						js/portal/src/**
+						js/portal/src/**,
+                        bundled-js/**
 					</warSourceExcludes>
 					<webResources>
 						<resource>

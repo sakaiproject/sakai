@@ -227,7 +227,6 @@
     <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
 *#
-<script src="${pageScriptPath}trimpath-template-latest.js$!{portalCDNQuery}"></script>
 <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
 <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
 <script>

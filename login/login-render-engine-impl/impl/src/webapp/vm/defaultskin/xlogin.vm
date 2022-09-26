@@ -5,7 +5,7 @@
         <title>${loginRequired} - ${uiService}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">        
         <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
-        <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+        <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
     #if (${sakaiThemesEnabled})
         <script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
     #end
@@ -98,7 +98,6 @@
         <script>
             ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
         </script>
-        <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+        <script src="/library/js/sakai.scripts.min.js$!{portalCDNQuery}"></script>
     </body>
 </html>
