@@ -1519,7 +1519,8 @@ public class SakaiBLTIUtil {
 
 			Map<String, String> extra = new HashMap<>();
 			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
-			extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother oening in new window in protocol mismatch
+			extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
+			extra.put(BasicLTIUtil.EXTRA_JAVASCRIPT, "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending prelaunch request');\n");
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
 					consumerkey, secret, extra);
 
@@ -1630,6 +1631,7 @@ public class SakaiBLTIUtil {
 
 			Map<String, String> extra = new HashMap<>();
 			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
+			extra.put(BasicLTIUtil.EXTRA_JAVASCRIPT, "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending prelaunch request');\n");
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
 
 			if (ltiProps == null) {
