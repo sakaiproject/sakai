@@ -450,7 +450,7 @@ $Id$
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<div class="table-responsive">
+<div class="table">
   <h:dataTable id="questionScoreTable" value="#{questionScores.agents}" var="description" styleClass="table table-bordered table-striped" columnClasses="textTable">
 
     <!-- NAME/SUBMISSION ID -->

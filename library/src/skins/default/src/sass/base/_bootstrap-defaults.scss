@@ -145,8 +145,8 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
 //** Border color for table and cell borders.
 // $table-border-color:            #ddd
 
-// SAK-32144 override the nowrap behavior of table-responsive
-.table-responsive {
+// SAK-32144 override the nowrap behavior of table
+.table {
   @media #{$phone} {
     > .table {
       // Ensure the Sakai table content does wrap

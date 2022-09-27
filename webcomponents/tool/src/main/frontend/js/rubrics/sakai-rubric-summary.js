@@ -62,15 +62,15 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
         ` : html`
           ${this.criteria.map((c) => html`
             <div class="panel-group">
-              <div class="panel panel-default">
-                <div class="panel-heading">
+              <div class="card">
+                <div class="card text-center bg-light">
                   <h4 class="panel-title">
                     <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse${c.id}">${c.title}</a>
                   </h4>
                 </div>
                   <div id="collapse${c.id}" class="panel-collapse collapse">
-                    <div class="panel-body">
-                      <div class="table-responsive">
+                    <div class="card-body">
+                      <div class="table">
                         <table class="rubrics-summary-table table table-bordered table-condensed">
                           <tr>
                             ${c.ratings.map(r => html`
@@ -130,7 +130,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
           <sr-lang key="no_evaluations_warning">WARN</sr-lang>
       </div>
       ` : html`
-      <div class="table-responsive">
+      <div class="table">
         <table id="student-summary" class="rubrics-summary-table table table-bordered table-condensed">
           <thead>
             <tr>

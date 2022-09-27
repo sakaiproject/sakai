@@ -4,8 +4,8 @@
 <body>
 <wicket:panel>
 
-	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="settingsCategoriesHeader">
+	<div class="card">
+		<div class="card text-center bg-light" role="tab" id="settingsCategoriesHeader">
 			<h3 class="panel-title">
 				<a role="button" data-toggle="collapse" href="#settingsCategories" aria-expanded="false" aria-controls="settingsCategories">
 					<wicket:message key="settingspage.categories.heading">Categories & Weighting</wicket:message>
@@ -13,7 +13,7 @@
 			</h3>
 		</div>
 		<div wicket:id="settingsCategoriesPanel" id="settingsCategories" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsCategoriesHeader">
-			<div class="panel-body">
+			<div class="card-body">
 			
 				<div wicket:id="categoryType">
 					<div class="radio"><label><input wicket:id="none" type="radio"/><span><wicket:message key="settingspage.categories.none" /></span></label></div>

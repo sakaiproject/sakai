@@ -61,7 +61,7 @@
    </div>
  </div>
 
- <div class="table-responsive">
+ <div class="table">
  <h:dataTable styleClass="table table-striped" value="#{eventLog.eventLogDataList}" var="log">
   <!-- Assessment Title... -->
     <h:column>

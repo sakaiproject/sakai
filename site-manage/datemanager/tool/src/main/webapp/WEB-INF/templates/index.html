@@ -50,72 +50,72 @@
 				<span th:text="#{success.message}">The dates were updated successfully.</span>
 			</div>
 
-			<div th:if="${assignments != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${assignments != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-assignments" class="collapsed" aria-expanded="false"><span th:text="${assignmentsToolTitle}">Assignments</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>
 				</div>
 				<div th:replace="tool_fragment :: tool_fragment(items=${assignments}, toolId='assignments', collapseId='collapse-assignments')"></div>
 			</div>
-			<div th:if="${assessments != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${assessments != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-assessments" class="collapsed" aria-expanded="false"><span th:text="${assessmentsToolTitle}">Tests & Quizzes</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>
 				</div>
 				<div th:replace="tool_fragment :: tool_fragment(items=${assessments}, toolId='assessments', collapseId='collapse-assessments')"></div>
 			</div>
-			<div th:if="${signupMeetings != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${signupMeetings != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-signup" class="collapsed" aria-expanded="false"><span th:text="${signupMeetingsToolTitle}">Sign up</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>
 				</div>
 				<div th:replace="tool_fragment :: tool_fragment(items=${signupMeetings}, toolId='signupMeetings', collapseId='collapse-signup')"></div>
 			</div>
-			<div th:if="${gradebookItems != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${gradebookItems != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-gradebook" class="collapsed" aria-expanded="false"><span th:text="${gradebookItemsToolTitle}">Gradebook</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>
 				</div>
 				<div th:replace="tool_fragment :: tool_fragment(items=${gradebookItems}, toolId='gradebookItems', collapseId='collapse-gradebook')"></div>
 			</div>
-			<div th:if="${resources != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${resources != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-resources" class="collapsed" aria-expanded="false"><span th:text="${resourcesToolTitle}">Resources</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>
 				</div>
 				<div th:replace="tool_fragment :: tool_fragment(items=${resources}, toolId='resources', collapseId='collapse-resources')"></div>
 			</div>
-			<div th:if="${calendarEvents != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${calendarEvents != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-calendar" class="collapsed" aria-expanded="false"><span th:text="${calendarEventsToolTitle}">Calendar</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>
 				</div>
 				<div th:replace="tool_fragment :: tool_fragment(items=${calendarEvents}, toolId='calendarEvents', collapseId='collapse-calendar')"></div>
 			</div>
-			<div th:if="${forums != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${forums != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-forums" class="collapsed" aria-expanded="false"><span th:text="${forumsToolTitle}">Forums</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>
 				</div>
 				<div th:replace="tool_fragment :: tool_fragment(items=${forums}, toolId='forums', collapseId='collapse-forums')"></div>
 			</div>
-			<div th:if="${announcements != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${announcements != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-announcements" class="collapsed" aria-expanded="false"><span th:text="${announcementsToolTitle}">Announcements</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>
 				</div>
 				<div th:replace="tool_fragment :: tool_fragment(items=${announcements}, toolId='announcements', collapseId='collapse-announcements')"></div>
 			</div>
-			<div th:if="${lessons != null}" class="panel panel-default">
-				<div class="panel-heading">
+			<div th:if="${lessons != null}" class="card">
+				<div class="card text-center bg-light">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#accordion" href="#collapse-lessons" class="collapsed" aria-expanded="false"><span th:text="${lessonsToolTitle}">Lessons</span><span class="allocatedSpinPlaceholder"></span></a>
 					</h4>

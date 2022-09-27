@@ -36,7 +36,7 @@
                         <h:outputText value="&nbsp;" escape="false" />
                     </h:panelGrid>					
 				</sakai:doc_section>
-				<div class="table-responsive">
+				<div class="table">
 				<h:panelGrid columns="1">
 					
 					<h:dataTable 

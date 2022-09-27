@@ -50,8 +50,8 @@
 		</div>
 
 		<form action="#toolForm("$action")" method="post" name="currentSitesForm" id="currentSitesForm">
-			<div class="table-responsive">
-				<table class="table table-responsive table-bordered table-striped table-hover" summary="$tlang.getString('joinable.list.summary')" id="currentSites">
+			<div class="table">
+				<table class="table table table-bordered table-striped table-hover" summary="$tlang.getString('joinable.list.summary')" id="currentSites">
 					<thead>
 						<tr>
 							#if ($checkboxCount > 0)

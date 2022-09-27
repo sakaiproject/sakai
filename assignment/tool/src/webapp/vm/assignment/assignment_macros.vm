@@ -47,10 +47,10 @@
 ## Macro for the paginator
 #macro( paginator $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
     <nav class="assignment-pager panel panel-default">
-        <div class="panel-heading" id="pagingHeader">
+        <div class="card text-center bg-light" id="pagingHeader">
             $tlang.getString( "gen.viewing" ) $topMsgPos - $btmMsgPos $tlang.getString( "gen.of" ) $allMsgNumber $tlang.getString( "gen.items" )
         </div>
-        <div class="panel-body">
+        <div class="card-body">
         #if( $pagesize != 0 )
             <form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
                     <span class="skip">$tlang.getString( "gen.first" )</span>
