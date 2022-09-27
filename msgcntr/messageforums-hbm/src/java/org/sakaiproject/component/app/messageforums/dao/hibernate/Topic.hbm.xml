@@ -65,6 +65,18 @@
       	<column name="POST_FIRST" not-null="true" />
     </property>
 
+    <property name="sendOpenCloseToCalendar">
+        <column name="SEND_TO_CALENDAR" />
+    </property>
+
+    <property name="calendarBeginId">
+        <column name="CALENDAR_BEGIN_ID" />
+    </property>
+
+    <property name="calendarEndId">
+        <column name="CALENDAR_END_ID" />
+    </property>
+
     <property name="postAnonymous">
         <column name="POST_ANONYMOUS" not-null="true" />
     </property>
