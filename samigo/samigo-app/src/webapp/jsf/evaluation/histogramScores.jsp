@@ -247,7 +247,7 @@ $Id$
         </table>
         </h:panelGroup>
         <h:panelGroup layout="block" styleClass="panel panel-default">
-          <div class="panel-heading" style="padding-top: 1px;padding-bottom: 1px;">
+          <div class="card text-center bg-light" style="padding-top: 1px;padding-bottom: 1px;">
             <strong>
               <h2>
                 <h:outputText value="#{evaluationMessages.fsd}" />
@@ -325,7 +325,7 @@ $Id$
               <h3 class="part-title">
                 <h:outputText value="#{item.title}" escape="false" />
               </h3>
-              <div class="panel panel-default" />
+              <div class="card" />
               <div class="question-text panel-heading">
                 <strong>
                   <h:outputText value="#{item.questionText}" escape="false" /></strong>

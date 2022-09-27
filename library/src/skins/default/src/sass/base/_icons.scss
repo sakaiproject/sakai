@@ -19,10 +19,8 @@ $fa-font-path: "./fonts";
  */
 
 @mixin sakai-icons($customIcons) {
-  // add an alias for the sakai icon class
-  $iconBaseClass: si;
 
-  
+  $iconBaseClass: si;  
   
 
   $defaultIcons: (
@@ -148,3 +146,4 @@ $customIcons: () !default;
 
 // call the mixin to actually create css for icons
 @include sakai-icons($customIcons);
+
