@@ -97,9 +97,6 @@ public class SakaiIFrame extends GenericPortlet {
 	/** The custom height from user input * */
 	protected final static String CUSTOM_HEIGHT = "customNumberField";
 
-	protected final String POPUP = "popup";
-	protected final String MAXIMIZE = "sakai:maximize";
-
 	private static final String FORM_PAGE_TITLE = "title-of-page";
 
 	private static final String FORM_TOOL_TITLE = "title-of-tool";
@@ -157,7 +154,6 @@ public class SakaiIFrame extends GenericPortlet {
 
 			// Grab that underlying request to get a GET parameter
 			ServletRequest req = (ServletRequest) ThreadLocalManager.get(CURRENT_HTTP_REQUEST);
-			String popupDone = req.getParameter("sakai.popup");
 
 			PrintWriter out = response.getWriter();
 			Placement placement = ToolManager.getCurrentPlacement();
@@ -166,10 +162,15 @@ public class SakaiIFrame extends GenericPortlet {
 			if ( source == null ) source = "";
 			String height = placement.getPlacementConfig().getProperty(HEIGHT);
 			if ( height == null ) height = "1200px";
-			boolean maximize = "true".equals(placement.getPlacementConfig().getProperty(MAXIMIZE));
 
-			boolean popup = false; // Comes from content item
-			boolean oldPopup = "true".equals(placement.getPlacementConfig().getProperty(POPUP));
+			// SAK-47878 - Cleanup legacy popup value if we can since we don't want to use the portal for popup
+			String popup = placement.getPlacementConfig().getProperty("popup");
+			if ( "true".equals(popup) ) {
+				placement.getPlacementConfig().setProperty("popup", "false");
+				placement.save();
+			}
+
+			boolean newpage = false;
 
 			// Retrieve the corresponding content item and tool to check the launch
 			Map<String, Object> content = null;
@@ -204,17 +205,14 @@ public class SakaiIFrame extends GenericPortlet {
 					height = content.get(LTIService.LTI_FRAMEHEIGHT) + "px";
 				}
 
-				Object popupValue = content.get("newpage");
-				popup = getLongNull(popupValue) == 1;
-				if ( oldPopup != popup ) {
-					placement.getPlacementConfig().setProperty(POPUP, popup ? "true" : "false");
-					placement.save();
-				}
+				Object newpageValue = content.get("newpage");
+				newpage = getLongNull(newpageValue) == 1;
+
 				String launch = (String) content.get("launch");
 				// Force http:// to pop-up if we are https://
 				String serverUrl = ServerConfigurationService.getServerUrl();
 				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
-					if ( launch != null && launch.startsWith("http://") ) popup = true;
+					if ( launch != null && launch.startsWith("http://") ) newpage = true;
 				}
 			} catch (Exception e) {
 				out.println(rb.getString("get.info.notconfig"));
@@ -231,9 +229,7 @@ public class SakaiIFrame extends GenericPortlet {
 				context.put("height",height);
 				context.put("browser-feature-allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow")));
 				sendAlert(request,context);
-				context.put("popupdone", Boolean.valueOf(popupDone != null));
-				context.put("popup", Boolean.valueOf(popup));
-				context.put("maximize", Boolean.valueOf(maximize));
+				context.put("newpage", Boolean.valueOf(newpage));
 
 				vHelper.doTemplate(vengine, "/vm/main.vm", context, out);
 			} else {
