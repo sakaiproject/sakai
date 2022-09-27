@@ -562,8 +562,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							attachments.add(EntityManager.newReference(resource.getReference()));
 						}
 					    } catch (Exception e) {
-						log.error(String.format("Caught an exception while exporting question pool %s (id=%s; title=%s) for instructor %s: %s", pool, pool.getQuestionPoolId(), pool.getTitle(), instructorId, e.getMessage()));
-						e.printStackTrace();
+						String poolError = String.format("Caught an exception while exporting question pool (id=%s; title=%s) for instructor %s: %s", pool.getQuestionPoolId(), pool.getTitle(), instructorId, e.getMessage());
+						log.error(poolError, e);
+						throw new RuntimeException(poolError);
 					    }
 					}
 					questionPools.appendChild(questionPool);
