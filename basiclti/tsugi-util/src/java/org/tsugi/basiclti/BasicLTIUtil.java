@@ -126,6 +126,7 @@ public class BasicLTIUtil {
 	public static final String EXTRA_ERROR_TIMEOUT = "error_timeout";
 	public static final String EXTRA_HTTP_POPUP = "http_popup";
 	public static final String EXTRA_HTTP_POPUP_FALSE = "false";
+	public static final String EXTRA_JAVASCRIPT = "extra_javascript";
 
 	/** To turn on really verbose debugging */
 	private static boolean verbosePrint = false;
@@ -681,6 +682,13 @@ public class BasicLTIUtil {
 			text.append("if ( ! open_in_new_window ) {\n");
 			text.append("   setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
 			text.append("}\n");
+			text.append("</script> \n");
+		}
+
+		String extraJavaScript = extra.get(EXTRA_JAVASCRIPT);
+		if ( extraJavaScript != null ) {
+			text.append("<script> \n");
+			text.append(extraJavaScript);
 			text.append("</script> \n");
 		}
 
