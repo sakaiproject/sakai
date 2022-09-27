@@ -21,12 +21,20 @@
         <p><b th:text="#{plus.tool.lms.oidkeyset}">LMS KeySet URL:</b> <a th:href="${tenant.oidcKeySet}" target="_blank"><span th:text="${tenant.oidcKeySet}">oidcKeySet</span></a></p>
         <p><b th:text="#{plus.tool.lms.oidtoken}">LMS Token URL:</b> <span th:text="${tenant.oidcToken}">oidcToken</span></p>
         <p><b th:text="#{plus.tool.lms.oidaudience}">LMS Token Audience:</b> <span th:text="${tenant.oidcAudience}">oidcAudience</span></p>
+        <div th:if="*{imsURL==null or #strings.length(imsURL)==0}">
+            <p th:text="#{plus.tool.error.missing.unlock}">Missing unlock code</a>
+        </div>
         <div th:if="*{imsURL!=null and #strings.length(imsURL)>0}">
         <p><b th:text="#{plus.tool.imsurl}">IMS Dynamic Provisioning URL:</b>
         <a href="#" onclick="$('#imsURL').toggle();return false;">Hide/Show</a> <br/>
             <span id="imsURL" style="display:none;" th:text="${imsURL}">imsURL</span> </p>
         </div>
-        <p><b th:text="#{plus.tool.plusurls}">Sakai Plus URLs for the LMS:</b>
+        <div th:if="*{canvasURL!=null and #strings.length(canvasURL)>0}">
+            <p><b th:text="#{plus.tool.canvasurl}">Canvas Configuration URL:</b>
+            <a href="#" onclick="$('#canvasURL').toggle();return false;">Hide/Show</a> <br/>
+            <a th:href="${canvasURL}" target="_blank"  id="canvasURL" style="display: none;" th:text="${canvasURL}">canvasURL</a></p>
+        </div>
+        <p><b th:text="#{plus.tool.plusurls}">Manual Configuration URLs:</b>
         <a href="#" onclick="$('#manual').toggle();return false;">Hide/Show</a> <br/>
             <ul id="manual" style="display:none;">
                 <li><b th:text="#{plus.tool.plus.keyset}">Keyset:</b> <br/> <a th:href="${oidcKeySet}" target="_blank" th:text="${oidcKeySet}">oidcKeySet</a></li>
@@ -34,11 +42,6 @@
                 <li><b th:text="#{plus.tool.plus.launch}">Launch:</b> <br/> <span th:text="${oidcLaunch}">oidcLaunch</span></li>
             </ul>
         </p>
-        <div th:if="*{canvasURL!=null and #strings.length(canvasURL)>0}">
-            <p><b th:text="#{plus.tool.canvasurl}">Canvas Configuration URL:</b>
-            <a href="#" onclick="$('#canvasURL').toggle();return false;">Hide/Show</a> <br/>
-            <a th:href="${canvasURL}" target="_blank"  id="canvasURL" style="display: none;" th:text="${canvasURL}">canvasURL</a></p>
-        </div>
         <hr/>
         <p><b th:text="#{plus.tool.job.status}">Last operation status:</b> <span th:text="${tenant.status}">status</span></p>
         <div th:if="*{tenant.debugLog!=null and #strings.length(tenant.debugLog)>0}">
