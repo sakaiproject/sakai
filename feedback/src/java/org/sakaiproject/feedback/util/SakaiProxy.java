@@ -101,7 +101,7 @@ public class SakaiProxy {
         try {
             return userDirectoryService.getUser(userId);
         } catch (UserNotDefinedException unde) {
-            log.error("No user with id: " + userId + ". Returning null ...");
+            log.debug("No user with id: " + userId + ". Returning null ...");
             return null;
         }
     }
