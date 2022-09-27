@@ -47,7 +47,7 @@
       </div>
       <div id="joinableOptionsDiv" class="form-group row" th:if="${!joinableSetList.isEmpty()}">
         <div class="col-sm-8">
-          <div class="well">
+          <div class="card text-dark bg-light mb-3 p-3">
             <div class="checkbox">
               <label for="groupAllowPreviewMembership" class="form-control-label block">
                 <input id="groupAllowPreviewMembership" class="form-control" type="checkbox" th:field="*{groupAllowPreviewMembership}" th:checked="${groupForm.groupAllowPreviewMembership}"/>

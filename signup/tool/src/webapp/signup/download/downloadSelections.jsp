@@ -216,7 +216,7 @@
 					<h:outputText value="#{DownloadEventBean.meetingUnavailableMessages}" />
 				</h:panelGrid>
 					
-				<h:panelGroup rendered="#{DownloadEventBean.meetingsAvailable}" layout="block" styleClass="table-responsive">
+				<h:panelGroup rendered="#{DownloadEventBean.meetingsAvailable}" layout="block" styleClass="table">
 				 	<t:dataTable 
 				 		id="eventlist"
 				 		value="#{DownloadEventBean.signupMeetings}"

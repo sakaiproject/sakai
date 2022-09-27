@@ -96,7 +96,7 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
 
 <h:form id="submittedForm">
 
-<div class="table-responsive">
+<div class="table">
 	<h:outputText id="renderTimeoutMessage" styleClass="sak-banner-error" value="#{deliveryMessages.timeOutSubmission}" rendered="#{delivery.timeOutSubmission=='true'}"/>
   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 

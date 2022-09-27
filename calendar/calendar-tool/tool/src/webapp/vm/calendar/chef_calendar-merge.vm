@@ -8,7 +8,7 @@
 		$tlang.getString('merge.select')
 	</p>
 	<form name="Options" action="#toolForm("$action")" method="post" style="margin-top:.5em">
-		<div class="table-responsive">
+		<div class="table">
 			<table class="table table-bordered table-hover table-striped" summary="$tlang.getString('merge.list.summary')">
 				<tr> 
 					<th scope="col" id="schedule">$tlang.getString('gen.site')</th>

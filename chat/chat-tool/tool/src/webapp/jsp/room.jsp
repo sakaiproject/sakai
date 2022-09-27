@@ -17,7 +17,7 @@
             <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
             <%@ include file="chatMenu.jsp" %>
             <div class="panel panel-chat panel-default">
-                <div class="panel-heading">
+                <div class="card text-center bg-light">
                     <sakai:instruction_message value="#{ChatTool.datesMessage}" rendered="#{ChatTool.datesMessage ne null}" />
                     <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>
                     <h:panelGroup styleClass="chat-block">

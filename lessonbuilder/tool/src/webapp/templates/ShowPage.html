@@ -272,11 +272,11 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-4">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
+                        <div class="card">
+                            <div class="card text-center bg-light">
                                 <h4><span rsf:id="msg=simplepage.content.items"></span></h4>
                             </div>
-                            <div class="panel-body">
+                            <div class="card-body">
                                 <ul>
                                     <li>
                                         <a role="button" href="#" rsf:id="add-text" class="add-text-link add-before-param"><span
@@ -309,11 +309,11 @@
                         </div>
                     </div>
                     <div class="col-sm-4">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
+                        <div class="card">
+                            <div class="card text-center bg-light">
                                 <h4><span rsf:id="msg=simplepage.linked.content.items"></span></h4>
                             </div>
-                            <div class="panel-body">
+                            <div class="card-body">
                                 <ul>
                                     <li rsf:id="assignment-li">
                                         <a role="button" href="#" rsf:id="add-assignment" class="add-before-param"><span
@@ -356,11 +356,11 @@
                         </div>
                     </div>
                     <div class="col-sm-4">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
+                        <div class="card">
+                            <div class="card text-center bg-light">
                                 <h4><span rsf:id="msg=simplepage.advanced.content.items"></span></h4>
                             </div>
-                            <div class="panel-body">
+                            <div class="card-body">
                                 <ul>
                                     <li rsf:id="checklist-li">
                                         <a role="button" class="add-checklist-link add-before-param" href="#"
@@ -413,10 +413,10 @@
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="panel panel-default addbreak">
-                            <div class="panel-heading" rsf:id="add-break1">
+                            <div class="card text-center bg-light" rsf:id="add-break1">
                                 <h4><span rsf:id="msg=simplepage.layout.elements"></span></h4>
                             </div>
-                            <div class="panel-body">
+                            <div class="card-body">
                                 <ul>
                                     <li rsf:id="add-break2" class="addbreak">
                                         <a role="button" href="#" rsf:id="add-break3" class="add-break-section"><span
@@ -1220,7 +1220,7 @@
                   <div class="panel-heading edit-header">
                       <span rsf:id="msg=simplepage.display"></span>
                   </div>
-                  <div class="panel-body">
+                  <div class="card-body">
                       <p id="pathdiv">
                           <label rsf:id="msg=simplepage.path" for="path">Path</label>
                           <span id="path" class="instruction"></span>
@@ -1288,7 +1288,7 @@
                           <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.format.heading" data-toggle="collapse" data-target="#formatstuffbody" ></button>
                       </div>
                       <div id="formatstuffbody" class="panel-collapse collapse">
-                          <div class="panel-body">
+                          <div class="card-body">
                               <span rsf:id="format-select"/>
                               <input rsf:id="format-window" type="radio" name="format" value="window" id="format-window" class="format"/>
                               <label for="format-window"><span rsf:id="msg=simplepage.format.window"></span></label><br />
@@ -1312,7 +1312,7 @@
                               class="collapsed accordionBtn"></button>
                   </div>
                   <div id="stylingstuffbody" class="panel-collapse collapse">
-                      <div class="panel-body">
+                      <div class="card-body">
                           <div class="pageItem">
                               <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
                               <label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
@@ -1349,7 +1349,7 @@
                                   class="collapsed accordionBtn"></button>
                       </div>
                       <div id="prereqstuffbody" class="panel-collapse collapse">
-                          <div class="panel-body">
+                          <div class="card-body">
                               <p class="checkbox">
                                   <input type="checkbox" name="item-prerequisites" id="item-prerequisites" rsf:id="item-prerequisites" />
                                   <label for="item-prerequisites"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1384,7 +1384,7 @@
                           </button>
                       </div>
                       <div id="visibilitybody" class="panel-collapse collapse in">
-                          <div class="panel-body">
+                          <div class="card-body">
                               <div class="pageItem">
                                   <input type="checkbox" id="page-releasedate2" rsf:id="page-releasedate2" />
                                   <label for="releaseDate2:1:date-field"><span rsf:id="msg=simplepage.page.releasedate2"></span></label>
@@ -1477,15 +1477,15 @@
                           </p>
 			    </div>
                 <div id="collapse-bars-parent" class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" >
+                    <div class="card">
+                        <div class="card text-center bg-light" >
                             <h4 class="panel-title">
                                 <span class="fa fa-upload"> </span>
                                 <a id="new-file-section-collapse" data-toggle="collapse" href="#new-file-section" rsf:id="msg=simplepage.new_file" data-parent="#collapse-bars-parent" />
                             </h4>
                         </div>
                         <div id="new-file-section" class="panel-collapse collapse in">
-                            <div class="panel-body"  >
+                            <div class="card-body"  >
                                 <p class="required">
                                     <textarea id="mm-names" rsf:id="mm-names"style="display:none"></textarea>
                                     <label rsf:id="msg=simplepage.upload_label" for="mm-file" class="mm-file">File</label>
@@ -1503,15 +1503,15 @@
                             </div>
                         </div>
                     </div>
-                    <div id="new-url-panel" class="panel panel-default">
-                        <div class="panel-heading" >
+                    <div id="new-url-panel" class="card">
+                        <div class="card text-center bg-light" >
                             <h4 class="panel-title">
                                 <span class="fa fa-external-link"> </span>
                                 <a id="new-url-section-collapse" data-toggle="collapse" href="#new-url-section" rsf:id="msg=simplepage.new_url" data-parent="#collapse-bars-parent" />
                             </h4>
                         </div>
                         <div id="new-url-section" class="panel-collapse collapse">
-                            <div class="panel-body"  >
+                            <div class="card-body"  >
                                 <p class="required mm-url-section">
                                     <label id="addLink_label" rsf:id="msg=simplepage.addLink_label_add_or" for="mm-url">URL</label>
                                     <input type="text" name="mm-url" rsf:id="mm-url" id="mm-url" class="edit-multimedia-input multimedia-url-box" />
@@ -1521,15 +1521,15 @@
                             </div>
                         </div>
                     </div>
-                    <div id="existing-resource-panel" class="panel panel-default">
-                        <div class="panel-heading" >
+                    <div id="existing-resource-panel" class="card">
+                        <div class="card text-center bg-light" >
                             <h4 class="panel-title">
                                 <span class="fa fa-folder-open"> </span>
                                 <a id="existing-resource-section-collapse" data-toggle="collapse" href="#existing-resource-section" rsf:id="msg=simplepage.existing_file" data-parent="#collapse-bars-parent" />
                             </h4>
                         </div>
                         <div id="existing-resource-section" class="panel-collapse collapse">
-                            <div class="panel-body"  >
+                            <div class="card-body"  >
                                 <label id="select-resource-label" rsf:id="msg=simplepage.choose_existing_caption" for="mm-choose" >resource</label>
                                 <p class="required mm-resources-section" style="">
                                     <a role="button" class="btn btn-default" href="#" id="mm-choose" rsf:id="mm-choose">...or choose existing file</a>
@@ -1586,11 +1586,11 @@
                 <form action="#" rsf:id="edit-multimedia-form" class="controlsPanel">
                   <input type="hidden" rsf:id="csrf10" />
                     <div class="panel-group" id="accordion2">
-                    <div class="panel panel-default">
+                    <div class="card">
                         <div class="panel-heading edit-header">
                             <span rsf:id="msg=simplepage.display"></span>
                         </div>
-                        <div class="panel-body">
+                        <div class="card-body">
                             <p class="shorttext required mm-path">
                                 <label rsf:id="msg=simplepage.path" for="path">Path</label>
                                 <span id="mm-path" class="instruction"></span><br />
@@ -1629,7 +1629,7 @@
                                 data-toggle="collapse" data-target="#mm-prereqbody"></button>
                             </div>
                             <div class="panel-collapse collapse" id="mm-prereqbody">
-                            <div class="panel-body">
+                            <div class="card-body">
                                 <p rsf:id="multi-prerequisite-section" class="checkbox">
                                     <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
                                     <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1644,7 +1644,7 @@
                                 data-toggle="collapse" data-target="#mm-visibility"></button>
                             </div>
                             <div class="panel-collapse collapse in" id="mm-visibility">
-                            <div class="panel-body">
+                            <div class="card-body">
                                 <p id="editgroups-mm" class="edit-group">
                                     <a role="button" href="javascript:void(0);"><span rsf:id="msg=simplepage.edit-group"></span></a>
                                 </p>

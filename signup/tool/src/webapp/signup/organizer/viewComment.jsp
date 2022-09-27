@@ -29,7 +29,7 @@
 				<div class="page-header">
 			 		<sakai:view_title value="#{msgs.event_view_comment_page_title}"/>
 				</div>
-				<div class="table-responsive">
+				<div class="table">
 				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
 				
 					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>

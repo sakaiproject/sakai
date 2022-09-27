@@ -1,5 +1,5 @@
 <div th:fragment="tool_fragment" th:id="${collapseId}" class="panel-collapse collapse">
-	<div class="panel-body">
+	<div class="card-body">
 		<p th:if="${items == null or items.isEmpty()}" th:text="#{items.empty}">There are no items to modify in this tool.</p>
 		<table th:unless="${items == null or items.isEmpty()}" class="table table-condensed table-striped table-bordered table-datemanager">
 			<thead>

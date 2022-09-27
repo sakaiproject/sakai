@@ -103,7 +103,7 @@
 		<form id="sitesForm" name="sitesForm" action="#toolForm("SiteAction")" method="post">
 			<input type="hidden" name="sakai_action" id="sakai_action" value="" />
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			<div class="table-responsive">
+			<div class="table">
 				<table class="table table-striped table-hover table-bordered" summary="$tlang.getString('list.summary')" id="siteList">
 					<thead>
 						<tr>
