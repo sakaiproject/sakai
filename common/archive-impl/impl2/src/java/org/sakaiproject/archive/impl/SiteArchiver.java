@@ -222,7 +222,7 @@ public class SiteArchiver {
 			catch (Throwable t)
 			{
 				String failure = String.format("Failure archiving site %s from service %s [%s]: %s", siteId, service.getLabel(), serviceName, t.getMessage());
-				log.warn(failure, t);
+				log.error(failure, t);
 				throw new RuntimeException(failure);
 			}
 
@@ -248,6 +248,7 @@ public class SiteArchiver {
 			root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
 			root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
 			root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
+
 			stack.push(root);
 
 			results.append("<===== Attachments =====>\n");
@@ -329,6 +330,24 @@ public class SiteArchiver {
 		if (new File(syllabusExportPath).exists()) {
 		    new SyllabusRejigger().rewriteSyllabus(syllabusExportPath);
 		}
+
+		// Write an archive.xml file with status about the export
+		doc = Xml.createDocument();
+		stack = new Stack();
+		root = doc.createElement("archive");
+		doc.appendChild(root);
+		root.setAttribute("site", siteId);
+		root.setAttribute("date", now.toString());
+		root.setAttribute("system", fromSystem);
+		root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
+
+		stack.push(root);
+		archiveArchive(theSite, doc, stack, results.toString());
+		stack.pop();
+
+		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/archive.xml");
+
+		log.info("Completed archive of site {}", siteId);
 
 		return results.toString();
 	}	// archive
@@ -486,11 +505,13 @@ public class SiteArchiver {
 
 	/**
 	* Archive the archive results
+	* @param site the site.
 	* @param doc The document to contain the xml.
-	* @param stack The stack of elements
+	* @param stack The stack of elements, the top of which will be the containing
+	* element of the "site" element.
 	* @param result The results of the archive operation
 	*/
-	protected String archiveArchive(Document doc, Stack stack, String results)
+	protected String archiveArchive(Site site, Document doc, Stack stack, String results)
 	{
 		Element element = doc.createElement("log");
 		((Element)stack.peek()).appendChild(element);
@@ -502,6 +523,6 @@ public class SiteArchiver {
 
 		stack.pop();
 
-		return "archived the archive operation log\n";
-	}	// archiveArchive
+		return "archived the archive operation log for: " + site.getId() + "\n";
+	}	// archiveUsers
 }
