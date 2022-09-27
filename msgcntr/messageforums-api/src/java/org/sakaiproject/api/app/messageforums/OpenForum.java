@@ -53,4 +53,16 @@ public interface OpenForum extends BaseForum {
     
     public void setAvailability(Boolean restricted);
 
+    public String getCalendarEndId();
+
+    public void setCalendarEndId(String calendarEndId);
+
+    public String getCalendarBeginId();
+
+    public void setCalendarBeginId(String calendarBeginId);
+
+    public Boolean getSendOpenCloseToCalendar();
+
+    public void setSendOpenCloseToCalendar(Boolean sendOpenCloseToCalendar);
+
 }

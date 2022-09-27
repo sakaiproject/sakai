@@ -38,6 +38,11 @@
 			$(".calWidget").fadeToggle('slow');
 		}
 
+		window.onload = function(){
+			const sendCheckbox = document.getElementById("revise:sendOpenCloseDateToCalendar");
+			sendCheckbox?.disabled && (sendCheckbox.checked = false);	//make sure that Calendar sending is not checked when it's disabled/when the site has no calendar
+		};
+
 		function openDateCal() {
 			NewCal('revise:openDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
 		}
@@ -274,6 +279,16 @@
 				<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
 				<h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
 			</h:panelGroup>
+			<p class="checkbox">
+				<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
+							  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
+							  style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+					<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar"
+											 disabled="#{not ForumTool.doesSiteHaveCalendar}"
+											 value="#{ForumTool.selectedTopic.topic.sendOpenCloseToCalendar}"/>
+					<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
+				</h:panelGroup>
+			</p>
 		</div>
 
 		<script>
