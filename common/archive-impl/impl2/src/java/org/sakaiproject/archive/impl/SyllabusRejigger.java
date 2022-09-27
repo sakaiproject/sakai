@@ -68,10 +68,7 @@ public class SyllabusRejigger {
 
                 String title = mergeMe.getAttribute("title");
 
-                if (content.length() > 0) {
-                    content.append("\n<hr>\n");
-                    content.append(String.format("<h2>%s</h2>\n\n", StringEscapeUtils.escapeHtml4(title)));
-                }
+                content.append(String.format("<h2>%s</h2>\n\n", StringEscapeUtils.escapeHtml4(title)));
 
                 NodeList children = mergeMe.getChildNodes();
                 List<String> attachmentPaths = new ArrayList<>();
@@ -93,8 +90,7 @@ public class SyllabusRejigger {
                     } else if ("attachment".equals(child.getTagName())) {
                         // Load attachment
                         if (child.getAttribute("relative-url") != null) {
-                            attachmentPaths.add(String.format("https://vula.uct.ac.za/access%s",
-                                                              child.getAttribute("relative-url")));
+                            attachmentPaths.add(String.format("%s", child.getAttribute("relative-url").replace("/content","")));
                         }
                     }
                 }
@@ -138,6 +134,9 @@ public class SyllabusRejigger {
                                                       "UTF-8"));
                 }
             }
+
+            // Page title
+            primary.setAttribute("title", "Course Outline");
 
             Xml.writeDocument(doc, path + ".rewritten");
 
