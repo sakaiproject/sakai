@@ -478,20 +478,20 @@
 					
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
-                            <button type="button" class="btn resources-dropdown btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="$clang.getString('gen.actions')">
+                            <button type="button" class="btn btn-primary dropdown-toggle"  data-bs-toggle="dropdown" aria-expanded="false" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$formattedText.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu row" role="menu">
+                            <ul class="dropdown-menu" role="menu">
 	                            <li class="dropdown-button">
-	                                <a href="" class="close-button"></a>
+	                                <a href="" class="dropdown-item close-button"></a>
 	                            </li>
                                 #if($item.addActions && !$item.addActions.isEmpty())
                                     <li role="presentation" class="dropdown-header">$clang.getString('gen.add')</li>
                                     <li class="divider"></li>
                                     #foreach($action in $item.addActions)
-                                        <li><a href="#" role="menuitem" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+                                        <li><a href="#" role="menuitem" class="dropdown-item" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
                                     #end
                                 #end
                                 #if($item.addActions && !$item.addActions.isEmpty() && $item.otherActions && !$item.otherActions.isEmpty())
@@ -502,7 +502,7 @@
                                     <li class="divider"></li>
                                     #foreach($action in $item.otherActions)
                                     <li>
-                                        <a href="#" role="menuitem" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+                                        <a href="#" role="menuitem" class="dropdown-item" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
                                             $labeler.getLabel($action)
                                         </a>
                                     </li>
