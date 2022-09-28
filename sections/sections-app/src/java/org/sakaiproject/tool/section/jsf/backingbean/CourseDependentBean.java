@@ -157,25 +157,13 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	public String getSiteRole() {
 		return getCourseBean().authz.getRoleDescription(getUserUid(), getSiteContext());
 	}
+
 	protected boolean canManageAnySection() {
-		if (getCourseBean().authz.isSuperUser())
-			return true;
-
-		if (getSiteInstructors().stream().map(s -> s.getUser().getUserUid()).collect(Collectors.toList())
-				.contains(getUserUid()))
-			return true;
-
-		return false;
+		return ((getCourseBean().authz.isSuperUser()) || (getSiteInstructors().stream()
+				.map(s -> s.getUser().getUserUid()).collect(Collectors.toList()).contains(getUserUid())));
 	}
 	protected boolean canManageSection(String sectionUid) {
-		if (canManageAnySection())
-			return true;
-
-		if (getSectionTeachingAssistantsMap().get(sectionUid).stream()
-				.anyMatch(s -> s.getUser().getUserUid().equals(getUserUid())))
-			return true;
-
-		return false;
+		return ((canManageAnySection()) || (getSectionTeachingAssistantsMap().get(sectionUid).stream()
+				.anyMatch(s -> s.getUser().getUserUid().equals(getUserUid()))));
 	}
-
 }

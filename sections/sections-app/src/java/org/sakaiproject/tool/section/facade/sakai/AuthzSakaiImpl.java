@@ -43,10 +43,11 @@ public class AuthzSakaiImpl implements Authz {
 
 	private AuthzGroupService authzGroupService;
 
+	protected SecurityService securityService;
+
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
 	}
-	protected SecurityService securityService;
 
 	public void setSecurityService(SecurityService securityService) {
 		this.securityService = securityService;
@@ -123,11 +124,9 @@ public class AuthzSakaiImpl implements Authz {
 		String siteRef = SiteService.siteReference(siteContext);
 		String role = authzGroupService.getUserRole(userUid, siteRef);
 		if(log.isDebugEnabled()) log.debug("User " + userUid + " has role " + role + " in site " + siteContext);
-		if(role == null) {
+		if ((role == null) && (isSuperUser())) {
 			// Is this a superuser?
-			if(isSuperUser()) {
-				return JsfUtil.getLocalizedMessage("admin_role");
-			}
+			return JsfUtil.getLocalizedMessage("admin_role");
 		}
 		return role;
 	}
