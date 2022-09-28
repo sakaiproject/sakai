@@ -139,7 +139,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 
 	  // This will fetch the byte array
 	  try {
-		  media = cr.getContent();
+		  media = cr!=null?cr.getContent():null;
 	  } catch (ServerOverloadException e) {
 		  log.warn("ServerOverload trying to fetch getContent", e);
 	  }
