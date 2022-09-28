@@ -132,6 +132,4 @@ public class Score implements PersistableEntity<String> {
 		activityProgress = ap;
 	}
 
-	// vim: tabstop=4 noet
-
 }

@@ -1488,7 +1488,5 @@ Authentication: Bearer 89042.hfkh84390xaw3m
  *
 */
 
-// vim: tabstop=4 noet
-
 }
 

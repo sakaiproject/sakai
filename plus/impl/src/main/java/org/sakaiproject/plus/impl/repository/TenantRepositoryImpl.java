@@ -65,6 +65,4 @@ public class TenantRepositoryImpl extends SpringCrudRepositoryImpl<Tenant, Strin
 		*/
 	}
 
-	// vim: tabstop=4 noet
-
 }

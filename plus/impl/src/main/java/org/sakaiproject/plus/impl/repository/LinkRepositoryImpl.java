@@ -51,6 +51,4 @@ public class LinkRepositoryImpl extends SpringCrudRepositoryImpl<Link, String>  
 				.uniqueResult();
 		return result;
 	}
-
-	// vim: tabstop=4 noet
 }

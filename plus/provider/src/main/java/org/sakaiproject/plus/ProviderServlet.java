@@ -1742,7 +1742,5 @@ public class ProviderServlet extends HttpServlet {
 		return r.toString();
 	}
 
-// vim: tabstop=4 noet
-
 }
 

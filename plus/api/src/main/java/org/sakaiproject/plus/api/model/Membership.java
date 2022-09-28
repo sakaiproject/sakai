@@ -70,6 +70,4 @@ public class Membership extends BaseLTI implements PersistableEntity<Long> {
 
 	@Column(name = "ROLE_OVERRIDE", nullable = true)
 	private Integer roleOverride;
-
-	// vim: tabstop=4 noet
 }

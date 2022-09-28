@@ -202,6 +202,4 @@ public interface PlusService {
 	void invokeProcessors(Map payload,
 		ProcessingState processingState, User user,
 		Site site, String toolPlacementId) throws LTIException;
-
-	// vim: tabstop=4 noet
 }

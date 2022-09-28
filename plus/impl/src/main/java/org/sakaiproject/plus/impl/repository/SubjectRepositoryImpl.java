@@ -129,6 +129,4 @@ public class SubjectRepositoryImpl extends SpringCrudRepositoryImpl<Subject, Str
 		return first;
 	}
 
-	// vim: tabstop=4 noet
-
 }

@@ -84,6 +84,4 @@ public class ContextRepositoryImpl extends SpringCrudRepositoryImpl<Context, Str
 		return result;
 	}
 
-	// vim: tabstop=4 noet
-
 }

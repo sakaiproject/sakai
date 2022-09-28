@@ -106,6 +106,4 @@ public class ContextLog implements PersistableEntity<Long> {
 	private String debugLog;
 
 	public int getPositiveHashCode() { return java.lang.Math.abs(this.hashCode()); }
-
-	// vim: tabstop=4 noet
 }

@@ -79,6 +79,4 @@ public class MembershipRepositoryImpl extends SpringCrudRepositoryImpl<Membershi
 		return save(newEntity);
 	}
 
-	// vim: tabstop=4 noet
-
 }

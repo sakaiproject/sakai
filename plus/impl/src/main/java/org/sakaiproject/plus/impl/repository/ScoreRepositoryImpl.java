@@ -70,6 +70,4 @@ public class ScoreRepositoryImpl extends SpringCrudRepositoryImpl<Score, String>
 				.executeUpdate();
 		return count;
 	}
-
-	// vim: tabstop=4 noet
 }

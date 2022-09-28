@@ -78,6 +78,4 @@ public class Link extends BaseLTI implements PersistableEntity<String> {
 
 	@Column(name = "DESCRIPTION", length = LENGTH_MEDIUMTEXT, nullable = true)
 	private String description;
-
-	// vim: tabstop=4 noet
 }

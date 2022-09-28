@@ -85,8 +85,6 @@ public class LineItem extends BaseLTI implements PersistableEntity<Long> {
 
 	@Column(name = "ENDDATETIME")
 	private Instant endDateTime;
-
-	// vim: tabstop=4 noet
 }
 
 /*

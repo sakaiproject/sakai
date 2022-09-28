@@ -77,6 +77,4 @@ public class Subject extends BaseLTI implements PersistableEntity<String> {
 
 	@Column(name = "LOCALE", length = LENGTH_TITLE, nullable = true)
 	private String locale;
-
-	// vim: tabstop=4 noet
 }
