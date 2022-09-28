@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -195,6 +196,12 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 		renderContextMap.put("maxFavoritesShown", tabsToDisplay);
 
+		List<Map> pinned
+			= l.stream().filter(map -> map.containsKey("favorite") && (Boolean) map.get("favorite"))
+				.collect(Collectors.toList());
+
+		renderContextMap.put("pinned", pinned);
+
 		// Bump it up by one to make room for the user's workspace
 		tabsToDisplay++;
 
@@ -232,7 +239,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		boolean displayActive = serverConfigurationService.getBoolean("portal.always.display.active_sites",false);
 		//If we don't always want to display it anyway, check to see if we need to display it
 		if (!displayActive) {
-				displayActive=Boolean.valueOf(moreSites.size() > 0);
+			displayActive=Boolean.valueOf(moreSites.size() > 0);
 		}
 
 		renderContextMap.put("tabsMoreSitesShow", displayActive);

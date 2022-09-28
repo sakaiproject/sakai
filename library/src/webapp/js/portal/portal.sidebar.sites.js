@@ -67,34 +67,23 @@ class SitesSidebar {
           payload.favoriteSiteIds.splice(payload.favoriteSiteIds.indexOf(siteId), 1);
         }
 
-        /*
-        const updateReq = await fetch(`/portal/favorites/update`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-            },
-            body: JSON.stringify(payload)
-        });
+        const data = new URLSearchParams();
+        data.append("userFavorites", JSON.stringify(payload));
 
-        if (updateReq.ok) {
-            console.log("OK")
-        } else {
-            console.error(`Could not set pinned value ${await updateReq.text()}`);
-        }
-        */
+        const url = "/portal/favorites/update";
+        fetch(url, {
+          credentials: "include",
+          headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+          method: "POST",
+          body: data,
+        })
+        .then(r => {
 
-        //Fetch did not work for some reason :(
-        $PBJQ.ajax({
-            url: '/portal/favorites/update',
-            method: 'POST',
-            dataType: 'json',
-            data: {
-            userFavorites: JSON.stringify(payload),
-          },
-          error: function (res) {
-            console.error(`Error setting pinned status for site ${siteId}: ${res.responseText}`)
+          if (!r.ok) {
+            throw new Error(`Network error while updating pinned sites at url ${url}`);
           }
-        });
+        })
+        .catch (error => console.error(error));
       } else {
         //Nothing to do
       }

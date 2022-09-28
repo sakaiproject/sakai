@@ -41,7 +41,7 @@
             ## Header
             #parse("/vm/morpheus/snippets/header-snippet.vm")
 
-            ##parse("/vm/morpheus/moresites.vm")
+            #parse("/vm/morpheus/moresites.vm")
 
             ## Sites sidebar
             #parse("/vm/morpheus/includeSiteNav.vm")
