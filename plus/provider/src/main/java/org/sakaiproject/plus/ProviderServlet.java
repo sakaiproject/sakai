@@ -145,6 +145,8 @@ import org.sakaiproject.plus.api.repository.ContextRepository;
 
 import org.sakaiproject.plus.api.Launch;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 @SuppressWarnings("deprecation")
 @Slf4j
@@ -165,21 +167,19 @@ public class ProviderServlet extends HttpServlet {
 	public final long delayNRPSInstructor = 300;
 	public final long delayNRPSLearner = 30*60;  // 30 minutes
 
-	// All loaded from the component manager
-	private ServerConfigurationService serverConfigurationService = null;
-	private SiteMembershipUpdater siteMembershipUpdater = null;
-	private SiteMembershipsSynchroniser siteMembershipsSynchroniser  = null;
-	private SiteEmailPreferenceSetter siteEmailPreferenceSetter = null;
-	private UserFinderOrCreator userFinderOrCreator = null;
-	private UserLocaleSetter userLocaleSetter = null;
-	private UserPictureSetter userPictureSetter = null;
-	private LTIService ltiService = null;
-	private PlusService plusService = null;
+	@Autowired private ServerConfigurationService serverConfigurationService;
+	@Autowired private SiteMembershipUpdater siteMembershipUpdater;
+	@Autowired private SiteMembershipsSynchroniser siteMembershipsSynchroniser;
+	@Autowired private SiteEmailPreferenceSetter siteEmailPreferenceSetter;
+	@Autowired private UserFinderOrCreator userFinderOrCreator;
+	@Autowired private UserLocaleSetter userLocaleSetter;
+	@Autowired private UserPictureSetter userPictureSetter;
+	@Autowired private LTIService ltiService;
+	@Autowired private PlusService plusService;
+	@Autowired private TenantRepository tenantRepository;
+	@Autowired private ContextRepository contextRepository;
 
 	private List<BLTIProcessor> bltiProcessors = new ArrayList();
-
-	private TenantRepository tenantRepository;
-	private ContextRepository contextRepository;
 
 	private String randomUUID = UUID.randomUUID().toString();
 
@@ -252,62 +252,7 @@ public class ProviderServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 
 		super.init(config);
-
-		// TODO: Earle won't like doing this in init() - need to be more Springy
-		serverConfigurationService = (ServerConfigurationService) ComponentManager.getInstance().get("org.sakaiproject.component.api.ServerConfigurationService");
-		if (serverConfigurationService  == null) {
-			throw new ServletException("Failed to set serverConfigurationService.");
-		}
-
-		siteEmailPreferenceSetter = (SiteEmailPreferenceSetter) ComponentManager.getInstance().get("org.sakaiproject.lti.api.SiteEmailPreferenceSetter");
-		if (siteEmailPreferenceSetter  == null) {
-			throw new ServletException("Failed to set siteEmailPreferenceSetter.");
-		}
-
-		siteMembershipUpdater = (SiteMembershipUpdater) ComponentManager.getInstance().get("org.sakaiproject.lti.api.SiteMembershipUpdater");
-		if (siteMembershipUpdater == null) {
-			throw new ServletException("Failed to set siteMembershipUpdater.");
-		}
-
-		siteMembershipsSynchroniser = (SiteMembershipsSynchroniser) ComponentManager.getInstance().get("org.sakaiproject.lti.api.SiteMembershipsSynchroniser");
-		if (siteMembershipsSynchroniser == null) {
-			throw new ServletException("Failed to set siteMembershipsSynchroniser.");
-		}
-
-		userFinderOrCreator = (UserFinderOrCreator) ComponentManager.getInstance().get("org.sakaiproject.lti.api.UserFinderOrCreator");
-		if (userFinderOrCreator  == null) {
-			throw new ServletException("Failed to set userFinderOrCreator.");
-		}
-
-		userPictureSetter = (UserPictureSetter) ComponentManager.getInstance().get("org.sakaiproject.lti.api.UserPictureSetter");
-		if (userPictureSetter == null) {
-			throw new ServletException("Failed to set userPictureSettter.");
-		}
-
-		userLocaleSetter = (UserLocaleSetter) ComponentManager.getInstance().get("org.sakaiproject.lti.api.UserLocaleSetter");
-		if (userLocaleSetter == null) {
-			throw new ServletException("Failed to set userLocaleSettter.");
-		}
-
-		ltiService = (LTIService) ComponentManager.getInstance().get("org.sakaiproject.lti.api.LTIService");
-		if (ltiService  == null) {
-			throw new ServletException("Failed to set ltiService.");
-		}
-
-		plusService = (PlusService) ComponentManager.getInstance().get("org.sakaiproject.plus.api.PlusService");
-		if (plusService  == null) {
-			throw new ServletException("Failed to set plusService.");
-		}
-
-		tenantRepository = (TenantRepository) ComponentManager.getInstance().get("org.sakaiproject.plus.api.repository.TenantRepository");
-		if (tenantRepository  == null) {
-			throw new ServletException("Failed to set tenantRepository.");
-		}
-
-		contextRepository = (ContextRepository) ComponentManager.getInstance().get("org.sakaiproject.plus.api.repository.ContextRepository");
-		if (contextRepository  == null) {
-			throw new ServletException("Failed to set contextRepository.");
-		}
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
 		ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
 
