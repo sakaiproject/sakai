@@ -224,7 +224,7 @@ public class PlusServiceImpl implements PlusService {
 
 		if ( deploymentId == null ) {
 			missing = missing + "deploymentId null ";
-		} else if (! deploymentId.equals(tenant.getDeploymentId()) ) {
+		} else if (! tenant.validateDeploymentId(deploymentId) ) {
 			missing = missing + "deploymentId mismatch " + deploymentId + "/" + tenant.getDeploymentId();
 		}
 
@@ -254,6 +254,7 @@ public class PlusServiceImpl implements PlusService {
 				context = new Context();
 				context.setContext(contextId);
 				context.setTenant(tenant);
+				context.setDeploymentId(launchJWT.deployment_id);
 				context.setTitle(launchJWT.context.title);
 				context.setLabel(launchJWT.context.label);
 				if ( launchJWT.endpoint != null && launchJWT.endpoint.lineitems != null ) context.setLineItems(launchJWT.endpoint.lineitems);
@@ -262,6 +263,14 @@ public class PlusServiceImpl implements PlusService {
 				}
 				changed = true;
 			} else {
+				if ( StringUtils.compare(context.getDeploymentId(), launchJWT.deployment_id) != 0 ) {
+					context.setDeploymentId(launchJWT.deployment_id);
+					changed = true;
+				}
+				if ( StringUtils.compare(context.getLabel(), launchJWT.context.label) != 0 ) {
+					context.setLabel(launchJWT.context.label);
+					changed = true;
+				}
 				if ( StringUtils.compare(context.getTitle(), launchJWT.context.title) != 0 ) {
 					context.setTitle(launchJWT.context.title);
 					changed = true;
@@ -547,7 +556,7 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 		String clientId = tenant.getClientId();
-		String deploymentId = tenant.getDeploymentId();
+		String deploymentId = context.getDeploymentId();
 		String oidcTokenUrl = tenant.getOidcToken();
 		String oidcAudience = tenant.getOidcAudience();
 		if ( isEmpty(oidcAudience) ) oidcAudience = oidcTokenUrl;
@@ -559,12 +568,12 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 		if (isEmpty(deploymentId)) {
-			log.info("Tenant {} does not have deploymentId.  Memberships will NOT be synchronized.", tenantGuid);
+			log.info("Context {} does not have deploymentId.  Memberships will NOT be synchronized.", contextGuid);
 			return;
 		}
 
 		if (isEmpty(oidcTokenUrl)) {
-			log.info("Tenant {} does not have an OIDC Token URL.  Memberships will NOT be synchronized.", contextGuid);
+			log.info("Tenant {} does not have an OIDC Token URL.  Memberships will NOT be synchronized.", tenantGuid);
 			return;
 		}
 
@@ -811,9 +820,9 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 		String clientId = tenant.getClientId();
-		String deploymentId = tenant.getDeploymentId();
 		String oidcTokenUrl = tenant.getOidcToken();
 		String oidcAudience = tenant.getOidcAudience();
+		String deploymentId = context.getDeploymentId();
 		if ( isEmpty(oidcAudience) ) oidcAudience = oidcTokenUrl;
 		boolean trustEmail = ! Boolean.FALSE.equals(tenant.getTrustEmail());
 
@@ -1012,7 +1021,7 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 		String clientId = tenant.getClientId();
-		String deploymentId = tenant.getDeploymentId();
+		String deploymentId = context.getDeploymentId();
 		String oidcTokenUrl = tenant.getOidcToken();
 		String oidcAudience = tenant.getOidcAudience();
 		if ( isEmpty(oidcAudience) ) oidcAudience = oidcTokenUrl;
@@ -1024,12 +1033,12 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 		if (isEmpty(deploymentId)) {
-			log.info("Tenant {} does not have deploymentId.  Scores will NOT be synchronized.", tenantGuid);
+			log.info("Context {} does not have deploymentId.  Scores will NOT be synchronized.", contextGuid);
 			return null;
 		}
 
 		if (isEmpty(oidcTokenUrl)) {
-			log.info("Tenant {} does not have an OIDC Token URL.  Scores will NOT be synchronized.", contextGuid);
+			log.info("Tenant {} does not have an OIDC Token URL.  Scores will NOT be synchronized.", tenantGuid);
 			return null;
 		}
 
@@ -1269,12 +1278,22 @@ public class PlusServiceImpl implements PlusService {
 
 		Tenant tenant = subject.getTenant();
 		if ( tenant == null ) {
-			log.error("Cannot find tenant for subect {}", subject.getId());
+			log.error("Cannot find tenant for subject {}", subject.getId());
+			return;
+		}
+
+		Optional<Context> optContext = contextRepository.findById(siteId);
+		Context context = null;
+		if ( optContext.isPresent() ) {
+			context = optContext.get();
+		}
+		if ( context == null ) {
+			log.error("Cannot find context for site {}", siteId);
 			return;
 		}
 
 		String clientId = tenant.getClientId();
-		String deploymentId = tenant.getDeploymentId();
+		String deploymentId = context.getDeploymentId();
 		String oidcTokenUrl = tenant.getOidcToken();
 		String oidcAudience = tenant.getOidcAudience();
 		if ( isEmpty(oidcAudience) ) oidcAudience = oidcTokenUrl;
@@ -1307,12 +1326,6 @@ public class PlusServiceImpl implements PlusService {
 		dbsc.setSuccess(Boolean.FALSE);
 		dbsc.setStatus(null);
 		dbsc.setDebugLog(null);
-
-		Optional<Context> optContext = contextRepository.findById(siteId);
-		Context context = null;
-		if ( optContext.isPresent() ) {
-			context = optContext.get();
-		}
 
 		// Prepare for Per-Context log
 		ContextLog cLog = new ContextLog();

@@ -134,12 +134,29 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		tenant.setTitle("Yada");
 		tenant.setIssuer("https://www.example.com");
 		tenant.setClientId("42");
-		tenant.setDeploymentId("1");
 		tenant.setOidcAuth("https://www.example.com/auth");
 		tenant.setOidcKeySet("https://www.example.com/keyset");
 		assertTrue(tenant.isDraft());
 		tenant.setOidcToken("https://www.example.com/token");
 		assertFalse(tenant.isDraft());
+
+		// Lets mess with deployment id validation logic
+		// Null should allow anything
+		assertTrue(tenant.validateDeploymentId("42"));
+		tenant.setDeploymentId("*");
+		assertTrue(tenant.validateDeploymentId("hello"));
+		assertTrue(tenant.validateDeploymentId("world"));
+		tenant.setDeploymentId("1");
+		assertTrue(tenant.validateDeploymentId("1"));
+		assertFalse(tenant.validateDeploymentId("42"));
+		tenant.setDeploymentId("hello:world:42:zap");
+		assertFalse(tenant.validateDeploymentId("1"));
+		assertTrue(tenant.validateDeploymentId("hello"));
+		assertTrue(tenant.validateDeploymentId("world"));
+		assertTrue(tenant.validateDeploymentId("42"));
+		assertTrue(tenant.validateDeploymentId("zap"));
+		tenant.setDeploymentId("1");
+
 		// Map<String, String> settings = tenant.getSettings();
 		// settings.put("secret", "42");
 		tenantRepository.save(tenant);
@@ -195,6 +212,7 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		context.setContext("SI364");
 		context.setTenant(tenant);
 		context.setSakaiSiteId("site-123");
+		context.setDeploymentId("42");
 		contextRepository.save(context);
 
 		Context newContext = contextRepository.findBySakaiSiteId("site-123-wrong");

@@ -65,6 +65,12 @@ public class Context extends BaseLTI implements PersistableEntity<String> {
 	@JoinColumn(name = "TENNANT_GUID", nullable = false)
 	private Tenant tenant;
 
+	// For many-deployment systems like Canvas, we can have as many as one
+	// deployment_id *per context* - If present - this is preferred for use
+	// in out-going token requests
+	@Column(name = "DEPLOYMENT_ID", length = LENGTH_EXTERNAL_ID, nullable = true)
+	private String deploymentId;
+
 	@Column(name = "SAKAI_SITE_ID", length = LENGTH_SAKAI_ID, nullable = true)
 	private String sakaiSiteId;
 
@@ -103,5 +109,4 @@ public class Context extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "NRPS_JOB_COUNT", nullable = true)
 	private Long nrpsCount;
 
-	// vim: tabstop=4 noet
 }

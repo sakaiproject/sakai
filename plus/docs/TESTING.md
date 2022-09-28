@@ -21,7 +21,10 @@ in Canvas/D2L/Blackboard, etc.
 Don't log into the student yet - they should just be in the roster in the main site.
 
 As instructor, add the Gradebook and Lessons to the Main Site. Place the "SakaiPlus Launch" in Lessons
-in the Main Site and tell it to open in a new window.
+in the Main Site and tell it to open in a new window.   Later you should test that if you
+lauch sakai.site from SakaiPlus in an iframe - it will escape to a new window.  Launches
+to specific tools should stay in the iframe - the entire site launch should force
+itself out of the iframe.
 
 Launch the Sakai Plus Link from the Main Site. You should now have two tabs - one on the
 Main Site and one on the Plus Site - they will have the same name and you can't change that.

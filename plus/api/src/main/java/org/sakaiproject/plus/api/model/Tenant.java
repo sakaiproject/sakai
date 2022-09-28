@@ -41,6 +41,8 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.apache.commons.lang3.StringUtils;
+
 @Entity
 @Table(name = "PLUS_TENANT",
   indexes = { @Index(columnList = "ISSUER, CLIENT_ID") },
@@ -70,6 +72,11 @@ public class Tenant extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "CLIENT_ID", length = LENGTH_EXTERNAL_ID, nullable = true)
 	private String clientId;
 
+	// This *may* be the *required* deployment_id as part of a security contract,
+	// But for Canvas, we can get many deployment_ids per clientId / issuer combination
+	// This deployment_id is used for authorization, the deployment_id for access
+	// token callbacks is stored in each context - thanks to Peter F. for this
+	// observation.
 	@Column(name = "DEPLOYMENT_ID", length = LENGTH_EXTERNAL_ID, nullable = true)
 	private String deploymentId;
 
@@ -128,15 +135,37 @@ public class Tenant extends BaseLTI implements PersistableEntity<String> {
 
 	public boolean isDraft()
 	{
-		if ( issuer == null || clientId == null || deploymentId == null ||
+		if ( issuer == null || clientId == null ||
 				oidcAuth == null || oidcKeySet == null || oidcToken == null ) return true;
 
 		if ( issuer.length() < 1 || clientId.length() < 1 ||
-				deploymentId.length() < 1 || oidcAuth.length() < 1 ||
+				oidcAuth.length() < 1 ||
 				oidcKeySet.length() < 1 || oidcToken.length() < 1 ) return true;
 		return false;
 	}
 
-	// vim: tabstop=4 noet
+	/*
+	 * Validate an incoming deployment_id against the tenant deployment_id
+	 *
+	 * For Canvas, they makes *lots* of deployment_id values for each clientId
+	 * so the tenant deployment_id matching to incoming deployment_id values is
+	 * not straighforward.  So we have a heuristic match here.
+	 *
+	 * The *actual* deployment_id for use on AccessToken calls is kept
+	 * in the Context object rather than the Tenant object.  The tenant deployment_id is
+	 * for authorization and the Context deployment_id is for callbacks.
+	 *
+	 */
+	public boolean validateDeploymentId(String launchDeploymentId)
+	{
+		if ( deploymentId == null ) return true;
+		if ( StringUtils.isEmpty(deploymentId) ) return true;
+		if ( deploymentId.equals("*") ) return true;
+		if ( deploymentId.equals(launchDeploymentId) ) return true;
+
+		// Allow for did1,did2,did3 as the deployment_id in case we need that later...
+		if ( deploymentId.contains(launchDeploymentId) ) return true;
+		return false;
+	}
 
 }

@@ -425,10 +425,13 @@ public class ProviderServlet extends HttpServlet {
 			return;
 		}
 
+		// For Canvas, it makes *lots* of deployment_id values for each clientId
+		// so we just leave deployment_id blank for canvas and accept any deployment_id.
+		// We track each deployent_id on the Context for AccessToken calls
 		String missing = "";
 		if (! issuer.equals(tenant.getIssuer()) ) missing = missing + "issuer mismatch " + issuer + "/" + tenant.getIssuer();
 		if (! clientId.equals(tenant.getClientId()) ) missing = missing + "clientId mismatch " + clientId + "/" + tenant.getClientId();
-		if (! deploymentId.equals(tenant.getDeploymentId()) ) missing = missing + "deploymentId mismatch " + deploymentId + "/" + tenant.getDeploymentId();
+		if (! tenant.validateDeploymentId(deploymentId) ) missing = missing + "deploymentId mismatch " + deploymentId + "/" + tenant.getDeploymentId();
 
 		if ( ! missing.equals("") ) {
 			doError(request, response, "plus.plusservice.tenant.check", missing, null);

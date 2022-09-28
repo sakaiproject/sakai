@@ -2,6 +2,8 @@
 TODO LIST
 =========
 
+Escape from iframe on launch.
+
 Plus tool button to retrieve membership
 
 Plus tool to resend scores
@@ -77,4 +79,7 @@ Write Test Plan
 Document properties
 
 Rationalise verbose and log.debug
+
+Add `deployment_id` to Context and use it if available - Thanks to Peter Fr.
+Implement wildcard or comma separated values for `deployment_id` as option,
 

@@ -258,6 +258,11 @@ step and press "Submit".
 Come back to Sakai Plus and update the Tenant to include both values and
 your integration should start working.
 
+For Canvas, sometimes it generates *lots* of Deployment Id values, so you
+can make authorization of SakaiPlus based only on Client Id by leaving
+the Deployment Id blank/empty in the Tenant.  SakaiPlus will track
+Deployment Id on a per-context basis for AccessToken calls to the the LMSs.
+
 Sakai
 -----
 
