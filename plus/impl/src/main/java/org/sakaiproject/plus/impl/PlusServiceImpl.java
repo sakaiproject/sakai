@@ -1242,8 +1242,8 @@ public class PlusServiceImpl implements PlusService {
 		Subject subject = subjectRepository.findBySakaiUserIdAndSakaiSiteId(studentId, siteId);
 		log.debug("subject={}", subject);
 		if ( subject == null ) {
-			// TODO: demote this to a lower error level because it is really just a local Sakai user.
-			log.error("Can't retrieve subject for {}", studentId);
+			// This is debug because it is really just a local Sakai user w/o an email address
+			log.debug("Can't retrieve subject for {}", studentId);
 			return;
 		}
 
@@ -1257,8 +1257,8 @@ public class PlusServiceImpl implements PlusService {
 
 		String lineItem = gradebookAssignment.getLineItem();
 		if ( isEmpty(lineItem) ) {
-			// TODO: demote this to a lower error level because it is really just a local  gradebook column
-			log.error("No lineItem for gradebookAssignment {}", gradebookAssignment.getId());
+			// This is info because it is really just a local gradebook column
+			log.info("No lineItem for gradebookAssignment {}", gradebookAssignment.getId());
 			return;
 		}
 
@@ -1285,6 +1285,7 @@ public class PlusServiceImpl implements PlusService {
 		score.comment = comment;
 		score.userId = subject.getSubject();
 		score.timestamp = BasicLTIUtil.getISO8601();
+
 		// TODO: Think more about this - Canvas requires this but we don't know what various values mean in Canvas
 		// TODO: Review the Blackboard state diagram
 		score.activityProgress = Score.ACTIVITY_COMPLETED;

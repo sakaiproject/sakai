@@ -286,7 +286,7 @@ public class ProviderServlet extends HttpServlet {
 
 	@SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		log.info("doPost {}", request.getPathInfo()); // TODO: debug
+		log.debug("doPost {}", request.getPathInfo());
 
 		String ipAddress = request.getRemoteAddr();
 		if (log.isDebugEnabled()) {
@@ -519,8 +519,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		// Now we are in the oidc_launch process so we proceed with all the validation
-		log.info("==== oidc_launch ===="); // TODO: Debug
-
+		log.debug("==== oidc_launch ====");
 
 		/*
 		 * If this is true, multiple issuer/clientid/deploymentid/subject users will map to a single
@@ -635,7 +634,6 @@ public class ProviderServlet extends HttpServlet {
 			} else {
 				String toolPlacementId = addOrCreateTool(payload, user, site);
 
-				// TODO: Think through null considerations for non resoucre link launches
 				plusService.connectLinkAndPlacement(launch.getLink(), toolPlacementId);
 
 				// Continue wth tool oriented URL
@@ -646,7 +644,6 @@ public class ProviderServlet extends HttpServlet {
 				url.append("?panel=Main");
 			}
 
-			log.debug("url={}", url.toString()); // TODO: Delete
 			if (log.isDebugEnabled()) {
 				log.debug("url={}", url.toString());
 			}
@@ -691,7 +688,6 @@ public class ProviderServlet extends HttpServlet {
 
 		// Legacy lookup is our tenant_guid from the URL since most LMS's don't send the optional stuff
 		// TODO: Future lookup allows for, iss, client_id, and deployment_id to uniquely define a tenant
-
 		Optional<Tenant> optTenant = tenantRepository.findById(tenant_guid);
 		Tenant tenant = null;
 		if ( optTenant.isPresent() ) {
@@ -738,7 +734,7 @@ public class ProviderServlet extends HttpServlet {
 	// http://localhost:8080/plus/sakai/dynamic/123456?reg_token=..&openid_configuration=https:..
 	// See also tsugi/settings/key/auto_common.php
 	protected void handleDynamicRegistration(HttpServletRequest request, HttpServletResponse response, String tenant_guid) throws ServletException, IOException {
-		log.info("==== dynamic ===="); // TODO: debug
+		log.debug("==== dynamic ====");
 
 		String openid_configuration = request.getParameter("openid_configuration");
 		String registration_token = request.getParameter("registration_token");
@@ -1068,7 +1064,7 @@ public class ProviderServlet extends HttpServlet {
 	}
 
 	protected void handleRepost(HttpServletRequest request, HttpServletResponse response, boolean forceNewWindow) throws ServletException, IOException {
-		log.info("==== oidc_repost ===="); // TODO: Debug
+		log.debug("==== oidc_repost ====");
 
 		StringBuilder r = new StringBuilder();
 		r.append("<form id=\"popform\" method=\"post\" action=\"");
