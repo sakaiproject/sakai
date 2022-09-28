@@ -512,11 +512,12 @@ public class ProviderServlet extends HttpServlet {
 		payload.put("tool_id", tool_id);
 
 		// Since this is not deeplink, we might need to escape the iframe for various reasons
+		// Sometimes for a browser like Safari - we can't set a cookie so we need to launch in
+		// a new window even if it is not the ideal or requested UX
 		String repost = request.getParameter("repost");
 		if ( isEmpty(repost) ) {
 			List<String> newWindowTools = getNewWindowTools(tenant);
-			// boolean forceNewWindow = SAKAI_SITE_LAUNCH.equals(tool_id) || newWindowTools.contains(tool_id);
-			boolean forceNewWindow = newWindowTools.contains(tool_id);
+			boolean forceNewWindow = SAKAI_SITE_LAUNCH.equals(tool_id) || newWindowTools.contains(tool_id);
 			handleRepost(request, response, forceNewWindow);
 			return;
 		}
@@ -1070,6 +1071,8 @@ public class ProviderServlet extends HttpServlet {
 		log.debug("==== oidc_repost ====");
 
 		StringBuilder r = new StringBuilder();
+		r.append("<!DOCTYPE html>\n");
+		r.append("<!-- SakaiPlus handleRepost() frame/cookie check... -->\n");
 		r.append("<form id=\"popform\" method=\"post\" action=\"");
 		r.append(SakaiBLTIUtil.getOurServletPath(request));
 		r.append("\">\n");
@@ -1099,29 +1102,36 @@ public class ProviderServlet extends HttpServlet {
 		r.append("}\n");
 
 		if ( forceNewWindow ) {
-			r.append("document.getElementById('repost_submit').style.display = 'block';\n");
-			r.append("document.getElementById('popform').target = '_blank';\n");
+			r.append("var forceNewWindow = true;\n");
 		} else {
-			// If we are the top window, automatically submit
-			r.append("if ( window == window.parent ) {\n");
-			r.append("  document.getElementById('popform').submit();\n");
-			r.append("} else {\n");
-			// Check if we are https and cannot set a cookie w/ SameSite None (i.e Safari)
-			r.append("  var cookie = 'sakaiplus_test_cookie=1; path=/';\n");
-			r.append("    if (window.location.protocol === 'https:' ) {\n");
-			r.append("    cookie = cookie + '; SameSite=None; secure';\n");
-			r.append("  }\n");
-			r.append("  document.cookie = cookie;\n");
-			r.append("  var res = document.cookie.indexOf('sakaiplus_test_cookie') !== -1;\n");
-			r.append("  if (res) {\n");
-			r.append("    // document.cookie = 'sakaiplus_test_cookie=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';\n");
-			r.append("    document.getElementById('popform').submit();\n");
-			r.append("  } else {\n");
-			r.append("    document.getElementById('repost_submit').style.display = 'block';\n");
-			r.append("    document.getElementById('popform').target = '_blank';\n");
-			r.append("  }\n");
-			r.append("}\n");
+			r.append("var forceNewWindow = false;\n");
 		}
+		r.append("console.log('forceNewWindow', forceNewWindow);\n");
+
+		// Check if we are https and cannot set a cookie w/ SameSite None (i.e Safari)
+		// Also check if we already have a JESSSIONID
+		r.append("  var cookie = 'sakaiplus_test_cookie=1; path=/';\n");
+		r.append("  if (window.location.protocol === 'https:' ) {\n");
+		r.append("    cookie = cookie + '; SameSite=None; secure';\n");
+		r.append("  }\n");
+		r.append("  document.cookie = cookie;\n");
+		r.append("  var goodcookie = document.cookie.indexOf('sakaiplus_test_cookie') != 1 ||");
+		r.append("    document.cookie.indexOf('JSESSIONID') != 1;\n");
+		r.append("  console.log('goodcookie', goodcookie, document.cookie);\n");
+		r.append("  if (!goodcookie) {\n");
+		r.append("   console.log('Forcing new window, in order to set login cookie');\n");
+		r.append("   forceNewWindow = true;\n");
+		r.append("  }");
+
+		// If we are not the top window and want to be the top window, pause for a user action
+		r.append("if ( window != window.parent && forceNewWindow ) {\n");
+		r.append("  document.getElementById('repost_submit').style.display = 'block';\n");
+		r.append("  document.getElementById('popform').target = '_blank';\n");
+		r.append("} else {\n");
+
+		// We are either already in the top window, or don't want to be
+		r.append("  document.getElementById('popform').submit();\n");
+		r.append("}\n");
 
 		r.append("</script>\n");
 		BasicLTIUtil.sendHTMLPage(response, r.toString());
