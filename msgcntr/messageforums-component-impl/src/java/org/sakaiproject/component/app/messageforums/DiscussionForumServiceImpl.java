@@ -132,6 +132,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String DRAFT = "draft";
 	private static final String LOCKED = "locked";
 	private static final String MODERATED = "moderated";
+	private static final String POST_ANONYMOUS = "anonymous";
 	private static final String POST_FIRST = "post_first";
 	private static final String SORT_INDEX = "sort_index";
 	private static final String PROPERTIES = "properties";
@@ -245,6 +246,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					discussionForumElement.setAttribute(DRAFT, discussionForum.getDraft().toString());
 					discussionForumElement.setAttribute(LOCKED, discussionForum.getLocked().toString());
 					discussionForumElement.setAttribute(MODERATED, discussionForum.getModerated().toString());
+					discussionForumElement.setAttribute(POST_FIRST, discussionForum.getPostFirst().toString());
 					discussionForumElement.setAttribute(SORT_INDEX, discussionForum.getSortIndex().toString());
 					discussionForumElement.setAttribute(DISCUSSION_FORUM_DESC,
 							getEncodedString(discussionForum.getExtendedDescription()));
@@ -279,6 +281,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				discussionTopicElement.setAttribute(DRAFT, discussionTopic.getDraft().toString());
 				discussionTopicElement.setAttribute(LOCKED, discussionTopic.getLocked().toString());
 				discussionTopicElement.setAttribute(MODERATED, discussionTopic.getModerated().toString());
+				discussionTopicElement.setAttribute(POST_ANONYMOUS, discussionTopic.getPostAnonymous().toString());
+				discussionTopicElement.setAttribute(POST_FIRST, discussionTopic.getPostFirst().toString());
 				if (discussionTopic.getSortIndex() != null) {
 					discussionTopicElement.setAttribute(SORT_INDEX, discussionTopic.getSortIndex().toString());
 				} else {
