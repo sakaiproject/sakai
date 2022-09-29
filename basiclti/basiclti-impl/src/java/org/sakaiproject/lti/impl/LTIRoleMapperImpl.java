@@ -95,9 +95,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 
 				if (BasicLTIUtil.equalsIgnoreCase(roleId, ltiRole)) {
 					newRole = roleId;
-					if (log.isDebugEnabled()) {
-						log.debug("Matched incoming role to role in site: {}", roleId);
-					}
+					log.debug("Matched incoming role to role in site: {}", roleId);
 					break;
 				}
 			}
