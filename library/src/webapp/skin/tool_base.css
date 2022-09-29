@@ -377,7 +377,7 @@ ul.alertMessage{
 /*highlight certain texts*/
 /*see: assignment due date in list*/
 .highlight{
-	color: var(--sakai-hightlight-color);
+	color: var(--sakai-highlight-color);
 	font-weight:bold;
 }
 

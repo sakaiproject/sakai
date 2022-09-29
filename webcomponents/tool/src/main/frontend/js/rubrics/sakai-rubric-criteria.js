@@ -24,6 +24,7 @@ export class SakaiRubricCriteria extends RubricsElement {
       maxPoints: { attribute: "max-points", type: String },
       minPoints: { attribute: "min-points", type: String },
       isLocked: { attribute: "is-locked", type: Boolean },
+      isDraft: { attribute: "is-draft", type: Boolean },
     };
   }
 
@@ -217,11 +218,16 @@ export class SakaiRubricCriteria extends RubricsElement {
               <span>${tr('min_max_points', [this.minPoints, this.maxPoints])}</span>
             </div>
           </div>
-          <div class="sak-banner-success hidden save-success has-success fade">
-            <sr-lang key="saved_successfully">%</sr-lang>
-          </div>
-          <div class="sak-banner-error ${this.validWeight ? "hidden" : ""}">
-            <sr-lang key="total_weight_wrong">%</sr-lang>
+          <div class="banner-container">
+            <div class="sak-banner-success hidden save-success has-success fade">
+              <sr-lang key="saved_successfully">%</sr-lang>
+            </div>
+            <div class="sak-banner-warn ${!this.validWeight && this.isDraft ? "" : "hidden"}">
+            <sr-lang key="draft_save_invalid_weights">%</sr-lang>
+            </div>
+            <div class="sak-banner-error ${!this.validWeight && !this.isDraft ? "" : "hidden"}">
+              <sr-lang key="total_weight_wrong">%</sr-lang>
+            </div>
           </div>
         </div>`
         : ""
@@ -229,7 +235,7 @@ export class SakaiRubricCriteria extends RubricsElement {
       ${!this.isLocked ? html`
         <div class="action-butons">
           ${this.weighted ? html`
-            <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight}">
+            <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
               <span class="add fa fa-save"></span>
               <sr-lang key="save_weights">Save Weights</sr-lang>
             </button>`
@@ -244,8 +250,14 @@ export class SakaiRubricCriteria extends RubricsElement {
             <sr-lang key="add_criterion_group">Add Criterion Group</sr-lang>
           </button>
         </div>
+        ${this.isDraft ? html`
+        <div class="sak-banner-warn margin-bottom">
+          <sr-lang key="draft_info">%</sr-lang>
+        </div>`
+          : ""
+        }
       ` : html`
-        <div class="sak-banner-warn margin-cero">
+        <div class="sak-banner-warn margin-bottom">
           <sr-lang key="locked_warning">%</sr-lang>
         </div>`
       }

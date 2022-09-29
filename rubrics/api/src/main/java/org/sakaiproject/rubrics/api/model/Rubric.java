@@ -72,6 +72,9 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
 
     private Boolean weighted = Boolean.FALSE;
 
+    @Column(nullable = false)
+    private Boolean draft = Boolean.FALSE;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "rubric_id")
     @OrderColumn(name = "order_index")
@@ -121,6 +124,7 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
         clonedRubric.setWeighted(this.weighted);
         clonedRubric.setLocked(false);
         clonedRubric.setShared(false);
+        clonedRubric.setDraft(this.draft);
         clonedRubric.setCriteria(this.getCriteria().stream().map(c -> c.clone())
             .collect(Collectors.toList()));
         return clonedRubric;
