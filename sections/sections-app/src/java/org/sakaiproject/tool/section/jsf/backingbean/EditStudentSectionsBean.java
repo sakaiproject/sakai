@@ -103,10 +103,6 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		// Get the TAs for all groups
 		Map<String,List<ParticipationRecord>> sectionTAs = getSectionManager().getSectionTeachingAssistantsMap(sectionSet);
 		
-		// Get the Instructors for the site
-		List<String> intructorUids = getSiteInstructors().stream().map(s -> s.getUser().getUserUid())
-				.collect(Collectors.toList());
-
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory());
@@ -146,7 +142,7 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 
 			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(section, catName, taNames,
 					totalEnrollments, member, memberOtherSection, showNegativeSpots,
-					(taUids.contains(getUserUid()) || (intructorUids.contains(getUserUid()))));
+					(taUids.contains(getUserUid()) || (canManageAnySection())));
 
 			if(!hideSectionInTable) {
 				sections.add(decoratedSection);

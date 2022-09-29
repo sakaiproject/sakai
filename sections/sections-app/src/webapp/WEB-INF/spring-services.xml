@@ -9,6 +9,7 @@
     <bean id="org.sakaiproject.section.api.facade.manager.Authz"
         class="org.sakaiproject.tool.section.facade.sakai.AuthzSakaiImpl">
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     </bean>
 
     <bean id="org.sakaiproject.section.api.facade.manager.Context"
