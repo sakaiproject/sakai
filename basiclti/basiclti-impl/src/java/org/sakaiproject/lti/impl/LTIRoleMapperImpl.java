@@ -41,10 +41,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 	/**
 	 *  Injected from Spring, see components.xml
 	 */
-	private SiteService siteService = null;
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
+	@Setter private SiteService siteService;
 
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
