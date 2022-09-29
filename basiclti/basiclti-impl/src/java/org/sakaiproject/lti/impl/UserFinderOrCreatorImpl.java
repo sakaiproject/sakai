@@ -117,9 +117,7 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 		try {
 			user = userDirectoryService.getUserByEid(eid);
 		} catch (Exception e) {
-			if (log.isDebugEnabled()) {
-				log.debug(e.getLocalizedMessage(), e);
-			}
+			log.warn("Could not find user: {}: {}", eid, e.toString());
 			user = null;
 		}
 
