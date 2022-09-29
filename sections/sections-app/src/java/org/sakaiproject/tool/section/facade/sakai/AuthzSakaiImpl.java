@@ -23,7 +23,7 @@ package org.sakaiproject.tool.section.facade.sakai;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.site.cover.SiteService;
@@ -43,8 +43,14 @@ public class AuthzSakaiImpl implements Authz {
 
 	private AuthzGroupService authzGroupService;
 
+	protected SecurityService securityService;
+
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
 	}
 
 	/**
@@ -53,7 +59,7 @@ public class AuthzSakaiImpl implements Authz {
 	public boolean isSectionManagementAllowed(String userUid, String siteContext) {
 		User sakaiUser = UserDirectoryService.getCurrentUser();
 		String siteRef = SiteService.siteReference(siteContext);
-		boolean canUpdateSite = SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef);
+		boolean canUpdateSite = securityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef);
 		
 		return canUpdateSite;
 	}
@@ -80,8 +86,8 @@ public class AuthzSakaiImpl implements Authz {
 	public boolean isSectionEnrollmentMangementAllowed(String userUid, String siteContext) {
 		User sakaiUser = UserDirectoryService.getCurrentUser();
 		String siteRef = SiteService.siteReference(siteContext);
-		boolean canUpdateSite = SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef);
-		boolean canUpdateGroups = SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, siteRef);
+		boolean canUpdateSite = securityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef);
+		boolean canUpdateGroups = securityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, siteRef);
 		
 		return canUpdateSite || canUpdateGroups;
 	}
@@ -93,7 +99,7 @@ public class AuthzSakaiImpl implements Authz {
 	public boolean isViewOwnSectionsAllowed(String userUid, String siteContext) {
 		User sakaiUser = UserDirectoryService.getCurrentUser();
 		String siteRef = SiteService.siteReference(siteContext);
-		boolean isStudent = SecurityService.unlock(sakaiUser, SectionAwareness.STUDENT_MARKER, siteRef);
+		boolean isStudent = securityService.unlock(sakaiUser, SectionAwareness.STUDENT_MARKER, siteRef);
 		
 		return isStudent;
 	}
@@ -105,9 +111,9 @@ public class AuthzSakaiImpl implements Authz {
 	public boolean isViewAllSectionsAllowed(String userUid, String siteContext) {
 		User sakaiUser = UserDirectoryService.getCurrentUser();
 		String siteRef = SiteService.siteReference(siteContext);
-		 return SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef) ||
-                SecurityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, siteRef) ||
-		 		SecurityService.unlock(sakaiUser, SectionAwareness.TA_MARKER, siteRef);
+		 return securityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_SITE, siteRef) ||
+				securityService.unlock(sakaiUser, SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, siteRef) ||
+				securityService.unlock(sakaiUser, SectionAwareness.TA_MARKER, siteRef);
 	}
 
 	public boolean isSectionAssignable(String userUid, String siteContext) {
@@ -118,13 +124,14 @@ public class AuthzSakaiImpl implements Authz {
 		String siteRef = SiteService.siteReference(siteContext);
 		String role = authzGroupService.getUserRole(userUid, siteRef);
 		if(log.isDebugEnabled()) log.debug("User " + userUid + " has role " + role + " in site " + siteContext);
-		if(role == null) {
+		if ((role == null) && (isSuperUser())) {
 			// Is this a superuser?
-			if(SecurityService.isSuperUser()) {
-				return JsfUtil.getLocalizedMessage("admin_role");
-			}
+			return JsfUtil.getLocalizedMessage("admin_role");
 		}
 		return role;
+	}
+	public boolean isSuperUser() {
+		return securityService.isSuperUser();
 	}
 
 }
