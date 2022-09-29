@@ -33,6 +33,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import lombok.Setter;
+
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */

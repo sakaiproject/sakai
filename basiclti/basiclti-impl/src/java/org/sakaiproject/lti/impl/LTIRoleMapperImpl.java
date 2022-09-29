@@ -33,6 +33,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
+import lombok.Setter;
+
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */

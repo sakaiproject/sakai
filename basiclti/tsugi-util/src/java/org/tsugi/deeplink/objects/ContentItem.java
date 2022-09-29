@@ -28,14 +28,14 @@ import org.tsugi.ags2.objects.LineItem;
 public class ContentItem extends JacksonBase {
 
 	@JsonProperty("type")
-    public String type;
-    public static final String TYPE_LTIRESOURCELINK = "ltiResourceLink";
+	public String type;
+	public static final String TYPE_LTIRESOURCELINK = "ltiResourceLink";
 
-    @JsonProperty("title")
-    public String title;
+	@JsonProperty("title")
+	public String title;
 
-    @JsonProperty("url")
-    public String url;
+	@JsonProperty("url")
+	public String url;
 
 	@JsonProperty("text")
 	public String text;
@@ -126,5 +126,5 @@ public class ContentItem extends JacksonBase {
 }
 },
 
- */
+*/
 

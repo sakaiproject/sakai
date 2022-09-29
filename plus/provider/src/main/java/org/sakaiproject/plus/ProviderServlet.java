@@ -1444,10 +1444,6 @@ public class ProviderServlet extends HttpServlet {
 	}
 
 
-	public void destroy() {
-
-	}
-
 	// https://www.imsglobal.org/spec/lti-dl/v2p0
 	private void handleDeepLinkInstall(HttpServletRequest request, HttpServletResponse response, String tool_id, SakaiLaunchJWT launchJWT, String payloadStr)
 		throws ServletException, IOException
