@@ -118,9 +118,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 					newRole=serverConfigurationService.getString("lti.role.mapping.Student", null);
 				}
 
-				if (log.isDebugEnabled()) {
-					log.debug("Determined newRole as: {}", newRole);
-				}
+				log.debug("Determined newRole as: {}", newRole);
 			}
 
 			if (newRole == null) {
