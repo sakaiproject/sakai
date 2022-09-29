@@ -174,6 +174,5 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 		return eid;
 	}
 
-	// vim: tabstop=4 noet
 
 }
