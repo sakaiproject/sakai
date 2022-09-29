@@ -70,7 +70,6 @@ import org.tsugi.jackson.JacksonUtil;
 
 import org.tsugi.http.HttpClientUtil;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.lti.api.BLTIProcessor;
@@ -173,6 +172,7 @@ public class ProviderServlet extends HttpServlet {
 	@Autowired private SiteService siteService;
 	@Autowired private SessionManager sessionManager;
 	@Autowired private ToolManager toolManager;
+	@Autowired private FormattedText formattedText;
 
 	private List<BLTIProcessor> bltiProcessors = new ArrayList();
 
@@ -1284,7 +1284,7 @@ public class ProviderServlet extends HttpServlet {
 		final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
 
 		// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
-		String context_title = ComponentManager.get(FormattedText.class).stripHtmlFromText(context_title_orig, true, true);
+		String context_title = formattedText.stripHtmlFromText(context_title_orig, true, true);
 		SiteTitleValidationStatus status = siteService.validateSiteTitle(context_title_orig, context_title);
 
 		if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
