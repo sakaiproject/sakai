@@ -202,8 +202,6 @@ public class LTI13AccessTokenUtil {
 
 			return accessToken;
 		} catch (Exception e) {
-			// TODO: Earle - is the PrintStackTrace redundant here?
-			e.printStackTrace();
 			log.error("Error retrieving token from {}", url, e);
 
 			if ( dbs != null ) {
