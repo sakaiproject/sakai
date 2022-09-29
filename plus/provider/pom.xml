@@ -29,7 +29,6 @@
 		<dependency>
 			<groupId>org.sakaiproject.basiclti</groupId>
 			<artifactId>basiclti-common</artifactId>
-			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
@@ -56,7 +55,6 @@
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
