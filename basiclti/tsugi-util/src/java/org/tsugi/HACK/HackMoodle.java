@@ -12,30 +12,30 @@ public class HackMoodle {
 	 *
 	 * {
 	 *   "https://purl.imsglobal.org/spec/lti-platform-configuration": {
-     *      "product_family_code": "ExampleLMS",
-     *      "messages_supported": [
-     *        {"type": "LtiResourceLinkRequest"},
-     *        {"type": "LtiDeepLinkingRequest"}],
-     *      "variables": ["CourseSection.timeFrame.end", "CourseSection.timeFrame.begin", "Context.id.history", "ResourceLink.id.history"]
+	 *	  "product_family_code": "ExampleLMS",
+	 *	  "messages_supported": [
+	 *		{"type": "LtiResourceLinkRequest"},
+	 *		{"type": "LtiDeepLinkingRequest"}],
+	 *	  "variables": ["CourseSection.timeFrame.end", "CourseSection.timeFrame.begin", "Context.id.history", "ResourceLink.id.history"]
 	 *  }
 	 *
 	 * In Moodle (at least in 3.10) these come back as an array of strings.
 	 *
 	 * {
-	 *    "https://purl.imsglobal.org/spec/lti-platform-configuration": {
-     *      "product_family_code": "moodle",
-     *      "version": "3.10.9+ (Build: 20220129)",
-     *      "messages_supported": [
-     *          "LtiResourceLinkRequest",
-     *          "LtiDeepLinkingRequest"
-     *      ],
-     *    "variables": ["CourseSection.timeFrame.end", "CourseSection.timeFrame.begin", "Context.id.history", "ResourceLink.id.history"]
+	 *	"https://purl.imsglobal.org/spec/lti-platform-configuration": {
+	 *	  "product_family_code": "moodle",
+	 *	  "version": "3.10.9+ (Build: 20220129)",
+	 *	  "messages_supported": [
+	 *		  "LtiResourceLinkRequest",
+	 *		  "LtiDeepLinkingRequest"
+	 *	  ],
+	 *	"variables": ["CourseSection.timeFrame.end", "CourseSection.timeFrame.begin", "Context.id.history", "ResourceLink.id.history"]
 	 *  }
 	 *
 	 *  Usage:
 	 *
-     *  body = org.tsugi.HACK.HackMoodle.hackOpenIdConfiguration(body);
-     *  openIDConfig = mapper.readValue(body, OpenIDProviderConfiguration.class);
+	 *  body = org.tsugi.HACK.HackMoodle.hackOpenIdConfiguration(body);
+	 *  openIDConfig = mapper.readValue(body, OpenIDProviderConfiguration.class);
 	 */
 
 	public static String hackOpenIdConfiguration(String body)
@@ -68,5 +68,5 @@ public class HackMoodle {
 
 		return jso.toJSONString();
 	}
-			
+
 }
