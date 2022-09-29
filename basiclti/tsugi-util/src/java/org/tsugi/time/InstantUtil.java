@@ -61,5 +61,4 @@ public class InstantUtil {
 		return null;
 	}
 
-	// vim: tabstop=4 noet
 }
