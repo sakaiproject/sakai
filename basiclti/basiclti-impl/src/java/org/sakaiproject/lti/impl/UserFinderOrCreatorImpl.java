@@ -60,7 +60,6 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 		String subject_guid = (String) payload.get("subject_guid");
 		if (emailtrusted && StringUtils.isEmpty(email)) {
 			log.warn("trusting email as eid, no email provided subject_guid={}", subject_guid);
-System.out.println("trusting email as eid, no email provided subject_guid="+subject_guid);
 			eid = subject_guid;
 		}
 
