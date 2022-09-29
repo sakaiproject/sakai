@@ -1478,6 +1478,5 @@ public class BasicLTIUtil {
 
 	}
 
-	// vim: tabstop=4 noet
 
 }
