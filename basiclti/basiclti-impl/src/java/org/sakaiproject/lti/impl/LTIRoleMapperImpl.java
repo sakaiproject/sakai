@@ -43,10 +43,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 	 */
 	@Setter private SiteService siteService;
 
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
+	@Setter private ServerConfigurationService serverConfigurationService;
 
 	public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer) throws LTIException {
 
