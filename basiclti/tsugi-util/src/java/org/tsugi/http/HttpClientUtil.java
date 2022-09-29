@@ -38,9 +38,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
-// A Java-11 HTTP utility based on
-// https://mkyong.com/java/how-to-send-http-request-getpost-in-java/
-// https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpResponse.BodyHandlers.html
+/*
+ *
+ * A Java-11 HTTP utility based on
+ *
+ * https://mkyong.com/java/how-to-send-http-request-getpost-in-java/
+ * https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpResponse.BodyHandlers.html
+ */
 
 @SuppressWarnings("deprecation")
 @Slf4j

@@ -158,8 +158,13 @@ public class LTI13AccessTokenUtil {
 			keyPair, clientId, deploymentId, tokenAudience, dbs);
 	}
 
-	// https://www.imsglobal.org/spec/security/v1p0/#using-json-web-tokens-with-oauth-2-0-client-credentials-grant
-	// https://canvas.instructure.com/doc/api/file.oauth_endpoints.html#post-login-oauth2-token
+	/*
+	 * Retrieve an access token
+	 *
+	 * Documentation:
+	 * https://www.imsglobal.org/spec/security/v1p0/#using-json-web-tokens-with-oauth-2-0-client-credentials-grant
+	 * https://canvas.instructure.com/doc/api/file.oauth_endpoints.html#post-login-oauth2-token
+	 */
 	protected static AccessToken retrieveToken(String url, Map assertion, StringBuffer dbs)
 	{
 		try {
