@@ -111,9 +111,6 @@ import org.sakaiproject.util.api.FormattedText;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.OpenIDProviderConfiguration;
 import org.tsugi.lti13.objects.OpenIDClientRegistration;
@@ -161,8 +158,6 @@ public class ProviderServlet extends HttpServlet {
 
 	private static final String DEFAULT_PRIVACY_URL = "https://www.sakailms.com/plus-privacylaunch";
 
-	private static final String CACHE_NAME = ProviderServlet.class.getName() + "_cache";
-
 	// Wait five or 30 minutes between successive calls to NRPS.
 	public final long delayNRPSInstructor = 300;
 	public final long delayNRPSLearner = 30*60;  // 30 minutes
@@ -184,26 +179,6 @@ public class ProviderServlet extends HttpServlet {
 	private String randomUUID = UUID.randomUUID().toString();
 
 	private KeyPair localKeyPair = LTI13Util.generateKeyPair();
-
-	private static Cache getCache()
-	{
-		CacheManager cacheManager = (CacheManager) ComponentManager.get("org.sakaiproject.ignite.SakaiCacheManager");
-		return cacheManager.getCache(CACHE_NAME);
-	}
-
-	public static String getCacheKey(String key)
-	{
-		Cache cache = getCache();
-		Cache.ValueWrapper value = cache.get(key);
-		if ( value == null ) return null;
-		return (String) value.get();
-	}
-
-	public static void putCacheKey(String key, String value)
-	{
-		Cache cache = getCache();
-		cache.put(key, value);
-	}
 
 	/**
 	 * Setup a security advisor.
