@@ -100,7 +100,7 @@ public class BaseLTI implements Serializable {
 
 	@PrePersist
 	@PreUpdate
-	public void fixMyDates() {
+	public void updateDates() {
 		if ( createdAt == null ) createdAt = Instant.now();
 		modifiedAt = Instant.now();
 	}
