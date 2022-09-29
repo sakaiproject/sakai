@@ -103,9 +103,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 			//if we haven't mapped a role, check against the standard roles and fallback
 			if (BasicLTIUtil.isBlank(newRole)) {
 
-				if (log.isDebugEnabled()) {
-					log.debug("No match, falling back to determine role");
-				}
+				log.debug("No match, falling back to determine role");
 
 				String maintainRole = site.getMaintainRole();
 
