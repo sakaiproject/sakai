@@ -92,6 +92,5 @@ public class DeepLinkResponseObjectTest {
 		assertTrue(out.contains("targetName"));
 		assertTrue(out.contains("window"));
 		assertTrue(out.contains("_blank"));
-// System.out.println("out\n"+out);
 	}
 }
