@@ -78,7 +78,7 @@
 <% }} %>
 </div>
 <%= PortalUtils.includeLatestJQuery("sakai.deeplink") %>
-<script type="text/javascript" src="<%= request.getContextPath() %>/static/waterfall-light.js"></script>
+<script type="text/javascript" src="/library/js/waterfall-light.js"></script>
 <script>
 $(function(){
     $('#box').waterfall({refresh: 0})
