@@ -39,10 +39,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 @Slf4j
 public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 
-	private UserDirectoryService userDirectoryService = null;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
+	@Setter private UserDirectoryService userDirectoryService;
 
 	public User findOrCreateUser(Map payload, boolean trustedConsumer, boolean emailtrusted) throws LTIException {
 
