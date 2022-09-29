@@ -89,9 +89,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 
 			//BLTI-151 see if we can directly map the incoming role to the list of site roles
 			String newRole = null;
-			if (log.isDebugEnabled()) {
-				log.debug("Incoming ltiRole: {}", ltiRole);
-			}
+			log.debug("Incoming ltiRole: {}", ltiRole);
 			for (Role r : roles) {
 				String roleId = r.getId();
 
