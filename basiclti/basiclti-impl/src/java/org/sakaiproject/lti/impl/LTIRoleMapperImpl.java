@@ -81,9 +81,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 			ltiRole = userRole(payload);
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug("ltiRole={}", ltiRole);
-		}
+		log.debug("ltiRole={}", ltiRole);
 
 		try {
 			site = siteService.getSite(site.getId());
