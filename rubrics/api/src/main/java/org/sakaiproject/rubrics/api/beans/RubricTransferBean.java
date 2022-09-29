@@ -36,6 +36,7 @@ public class RubricTransferBean {
     public String creatorDisplayName;
     public Boolean shared;
     public Boolean locked;
+    public Boolean draft;
 
     public static RubricTransferBean of(Rubric rubric) {
 
@@ -50,6 +51,7 @@ public class RubricTransferBean {
         bean.creatorId = rubric.getCreatorId();
         bean.shared = rubric.getShared();
         bean.locked = rubric.getLocked();
+        bean.draft = rubric.getDraft();
         return bean;
     }
 
@@ -65,6 +67,7 @@ public class RubricTransferBean {
         rubric.setOwnerId(ownerId);
         rubric.setCreatorId(creatorId);
         rubric.setShared(shared);
+        rubric.setDraft(draft);
         return rubric;
     }
 }

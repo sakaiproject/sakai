@@ -44,8 +44,10 @@ export class SakaiRubric extends RubricsElement {
     const oldValue = this._rubric;
     this._rubric = newValue;
     if (!this._rubric.criteria) this._rubric.criteria = [];
-    this.handleWeightLink();
-    this.handleShareLink();
+    this.handleRefreshTotalWeight();
+    this.handleDraftBtn();
+    this.handleWeightBtn();
+    this.handleShareBtn();
     this.requestUpdate("rubric", oldValue);
     this.updateComplete.then(() => newValue.expanded && this.toggleRubric());
   }
@@ -72,12 +74,54 @@ export class SakaiRubric extends RubricsElement {
     return html`
       <div class="rubric-title" @click="${this.toggleRubric}">
         <div>
-          <a href="#" class="rubric-name" id="rubric_toggle_${this.rubric.id}" aria-expanded="${this.rubricExpanded}" role="tab" title="${tr("toggle_details")} ${this.rubric.title}" >
+          <a href="#"
+            class="rubric-name"
+            id="rubric_toggle_${this.rubric.id}"
+            aria-expanded="${this.rubricExpanded}"
+            role="tab"
+            title="${tr("toggle_details")} ${this.rubric.title}"
+          >
             <span class="fa fa-chevron-right"></span>
             ${this.rubric.title}
           </a>
-          ${this.rubric.locked ? html`<span tabindex="0" role="tooltip" title="${this.rubric.title} ${tr("is_locked")}" aria-label="${this.rubric.title} ${tr("is_locked")}" class="locked fa fa-lock icon-spacer"></span>` : ""}
-          <sakai-rubric-edit @show-tooltip="${this.showToolTip}" @update-rubric-title="${this.updateRubricTitle}" rubric="${JSON.stringify(this.rubric)}" class="icon-spacer"></sakai-rubric-edit>
+          ${this.rubric.locked ? html`
+            ${this.rubric.weighted ? html`
+              <span
+                tabindex="0"
+                role="tooltip"
+                title="${tr("weighted_status")}"
+                aria-label="${tr("weighted_status")}"
+                class="fa fa-percent icon-spacer">
+              </span>`
+              : ""
+            }
+            <span
+              tabindex="0"
+              role="tooltip"
+              title="${this.rubric.title} ${tr("is_locked")}"
+              aria-label="${this.rubric.title} ${tr("is_locked")}"
+              class="locked fa fa-lock icon-spacer">
+            </span>`
+            : ""
+          }
+          <sakai-rubric-edit
+            @show-tooltip="${this.showToolTip}"
+            @update-rubric-title="${this.updateRubricTitle}"
+            rubric="${JSON.stringify(this.rubric)}"
+            class="icon-spacer">
+          </sakai-rubric-edit>
+          ${this.rubric.draft ? html`
+            <span
+              tabindex="0"
+              role="tooltip"
+              title="${tr("draft_info")}"
+              aria-label="${tr("draft_info")}"
+              class="highlight bold icon-spacer"
+            >
+              ${tr("draft_label")}
+            </span>`
+            : ""
+          }
         </div>
 
         <div class="hidden-xs rubric-site-title">${this.rubric.siteTitle}</div>
@@ -87,42 +131,67 @@ export class SakaiRubric extends RubricsElement {
         <div class="actions">
           ${!this.rubric.locked ? html`
             <div class="action-container">
-              <a role="button"
-                  class="linkStyle weighted fa ${this.weightedIcon}"
-                  href="javascript:;"
-                  title="${this.weightLabel}"
-                  aria-label="${this.weightLabel}"
-                  tabindex="0"
-                  @keyup="${this.openEditWithKeyboard}"
-                  @click="${this.weightedChange}">
-              </a>
+              <button
+                class="btn-transparent ${(this.rubric.draft && this.rubric.weighted && !this.validWeight) ? "disabled" : "link-color"} draft"
+                title="${this.draftLabel}"
+                aria-label="${this.draftLabel}"
+                @keyup="${this.openEditWithKeyboard}"
+                @click="${this.draftChange}"
+              >
+                <span class="fa ${this.draftIcon}"/>
+              </button>
+            </div>
+            <div class="action-container">
+              <button
+                class="btn-transparent link-color weighted"
+                title="${this.weightLabel}"
+                aria-label="${this.weightLabel}"
+                @keyup="${this.openEditWithKeyboard}"
+                @click="${this.weightedChange}"
+              >
+                <span class="fa ${this.weightedIcon}"/>
+              </button>
             </div>`
-          : ""
+            : ""
           }
           <div class="action-container">
-            <a role="button"
-                title="${tr(this.shareTitleKey, [this.rubric.title])}"
-                aria-label="${tr(this.shareTitleKey, [this.rubric.title])}"
-                tabindex="0" class="linkStyle share fa ${this.shareIcon}"
-                @keyup="${this.openEditWithKeyboard}"
-                @click="${this.sharingChange}" href="javascript:;">
-            </a>
+            <button
+              class="btn-transparent link-color share"
+              title="${tr(this.shareTitleKey, [this.rubric.title])}"
+              aria-label="${tr(this.shareTitleKey, [this.rubric.title])}"
+              @keyup="${this.openEditWithKeyboard}"
+              @click="${this.sharingChange}"
+            >
+              <span class="fa ${this.shareIcon}"/>
+            </button>
           </div>
           <div class="action-container">
-            <a role="button" title="${tr("copy")} ${this.rubric.title}" aria-label="${tr("copy")} ${this.rubric.title}" tabindex="0" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneRubric}" href="#"></a>
+            <button
+              class="btn-transparent link-color clone"
+              title="${tr("copy")} ${this.rubric.title}"
+              aria-label="${tr("copy")} ${this.rubric.title}"
+              @keyup="${this.openEditWithKeyboard}"
+              @click="${this.cloneRubric}"
+            >
+              <span class="fa fa-copy"/>
+            </button>
           </div>
           ${!this.rubric.locked ? html`
             <div class="action-container">
-              <sakai-item-delete rubric="${JSON.stringify(this.rubric)}" site-id="${this.siteId}" class="sakai-rubric"></sakai-item-delete>
+              <sakai-item-delete
+                rubric="${JSON.stringify(this.rubric)}"
+                site-id="${this.siteId}"
+                class="sakai-rubric">
+              </sakai-item-delete>
             </div>`
             : ""
           }
           ${this.enablePdfExport ? html`
             <div class="action-container">
               <sakai-rubric-pdf
-                  site-id="${this.siteId}"
-                  rubric-title="${this.rubric.title}"
-                  rubric-id="${this.rubric.id}"
+                site-id="${this.siteId}"
+                rubric-title="${this.rubric.title}"
+                rubric-id="${this.rubric.id}"
               />
             </div>`
             : ""
@@ -145,6 +214,7 @@ export class SakaiRubric extends RubricsElement {
             max-points="${this.maxPoints}"
             min-points="${this.minPoints}"
             ?is-locked="${this.rubric.locked}"
+            ?is-draft="${this.rubric.draft}"
           />
         </div>
       </div>
@@ -263,6 +333,7 @@ export class SakaiRubric extends RubricsElement {
     this.maxPoints = this.getMaxPoints(this.rubric.criteria);
     this.minPoints = this.getMinPoints(this.rubric.criteria);
     this.requestUpdate();
+    this.handleDraftBtn();
   }
 
   handleRefreshTotalWeight(e) {
@@ -277,6 +348,30 @@ export class SakaiRubric extends RubricsElement {
     this.validWeight = this.totalWeight == 100;
     this.maxPoints = this.getMaxPoints(this.rubric.criteria);
     this.minPoints = this.getMinPoints(this.rubric.criteria);
+  }
+
+  draftChange(e) {
+
+    e.stopPropagation();
+    e.preventDefault();
+    // Draft mode can't be turned off if the total weight doesn't match 100%,
+    // this way (+css) also prevents the rubric to be toggled when pressing the disabled button.
+    if (this.rubric.draft && this.rubric.weighted && !this.validWeight) {
+      return;
+    }
+    this.rubric.draft = !this.rubric.draft;
+
+    this.updateRubricOptions.body = JSON.stringify([{ "op": "replace", "path": "/draft", "value": this.rubric.draft }]);
+    const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}`;
+    fetch(url, this.updateRubricOptions)
+    .then(r => {
+
+      if (r.ok) {
+        this.handleSaveWeights();
+        this.handleDraftBtn();
+        this.requestUpdate();
+      }
+    });
   }
 
   weightedChange(e) {
@@ -302,7 +397,7 @@ export class SakaiRubric extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        this.handleWeightLink();
+        this.handleWeightBtn();
         this.requestUpdate();
       }
     });
@@ -321,7 +416,7 @@ export class SakaiRubric extends RubricsElement {
 
       if (r.ok) {
         this.dispatchEvent(new SharingChangeEvent());
-        this.handleShareLink();
+        this.handleShareBtn();
       } else {
         throw new Error("Network error while updating rubric");
       }
@@ -329,7 +424,29 @@ export class SakaiRubric extends RubricsElement {
     .catch (error => console.error(error));
   }
 
-  handleWeightLink() {
+  handleDraftBtn() {
+    if (this.rubric.draft) {
+      this.draftIcon = "fa-eye-slash highlight";
+      if (this.rubric.weighted) {
+        if (!this.validWeight) {
+          this.draftLabel = tr("draft_invalid_weight_publish") + tr("total_weight_wrong");
+        } else {
+          this.draftLabel = tr("draft_turn_off") + tr("draft_save_weights");
+        }
+      } else {
+        this.draftLabel = tr("draft_turn_off");
+      }
+    } else {
+      this.draftIcon = "fa-eye";
+      if (this.rubric.weighted) {
+        this.draftLabel = tr("draft_turn_on") + tr("draft_save_weights");
+      } else {
+        this.draftLabel = tr("draft_turn_on");
+      }
+    }
+  }
+
+  handleWeightBtn() {
 
     if (this.rubric.weighted) {
       this.weightedIcon = "fa-percent";
@@ -342,14 +459,14 @@ export class SakaiRubric extends RubricsElement {
     this.dispatchEvent(new SharingChangeEvent());
   }
 
-  handleShareLink() {
+  handleShareBtn() {
 
     if (this.rubric.shared) {
       this.shareTitleKey = "revoke";
-      this.shareIcon = "fa-globe text-primary";
+      this.shareIcon = "fa-users";
     } else {
       this.shareTitleKey = "share";
-      this.shareIcon = "fa-eye-slash text-muted";
+      this.shareIcon = "fa-user";
     }
     this.shareValues = this.rubric.title;
   }
@@ -377,6 +494,10 @@ export class SakaiRubric extends RubricsElement {
 
     if (spaceBarKeyCode && e.target.classList.contains('clone')) {
       this.cloneRubric(e);
+    }
+
+    if (spaceBarKeyCode && e.target.classList.contains('draft')) {
+      this.draftChange(e);
     }
   }
 
