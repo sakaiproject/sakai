@@ -54,10 +54,6 @@ import java.security.interfaces.RSAPublicKey;
 
 import java.time.Instant;
 
-import net.oauth.*;
-import net.oauth.server.OAuthServlet;
-import net.oauth.signature.OAuthSignatureMethod;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -74,8 +70,9 @@ import org.tsugi.jackson.JacksonUtil;
 
 import org.tsugi.http.HttpClientUtil;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.lti.api.BLTIProcessor;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.LTIService;
@@ -89,22 +86,20 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.basiclti.util.SakaiKeySetUtil;
 import org.sakaiproject.basiclti.util.SakaiLTIProviderUtil;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
 import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -173,6 +168,11 @@ public class ProviderServlet extends HttpServlet {
 	@Autowired private PlusService plusService;
 	@Autowired private TenantRepository tenantRepository;
 	@Autowired private ContextRepository contextRepository;
+	@Autowired private SecurityService securityService;
+	@Autowired private UsageSessionService usageSessionService;
+	@Autowired private SiteService siteService;
+	@Autowired private SessionManager sessionManager;
+	@Autowired private ToolManager toolManager;
 
 	private List<BLTIProcessor> bltiProcessors = new ArrayList();
 
@@ -185,7 +185,7 @@ public class ProviderServlet extends HttpServlet {
 	 */
 	public void pushAdvisor() {
 		// setup a security advisor
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
+		securityService.pushAdvisor(new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
 				return SecurityAdvice.ALLOWED;
@@ -197,7 +197,7 @@ public class ProviderServlet extends HttpServlet {
 	 * Remove our security advisor.
 	 */
 	public void popAdvisor() {
-		SecurityService.popAdvisor();
+		securityService.popAdvisor();
 	}
 
 	// TODO: Make this a *lot* prettier and add forward to knowledge base feature :)
@@ -533,14 +533,14 @@ public class ProviderServlet extends HttpServlet {
 			plusService.invokeProcessors(payload, PlusService.ProcessingState.afterUserCreation, user);
 
 			// Check if we are loop-backing on the same server, and already logged in as same user
-			Session sess = SessionManager.getCurrentSession();
+			Session sess = sessionManager.getCurrentSession();
 			String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 			String ext_sakai_server = (String) payload.get("ext_sakai_server");
 
 			loginUser(ipAddress, user);
 
 			// Re-grab the session
-			sess = SessionManager.getCurrentSession();
+			sess = sessionManager.getCurrentSession();
 
 			plusService.invokeProcessors(payload, PlusService.ProcessingState.afterLogin, user);
 
@@ -896,7 +896,7 @@ public class ProviderServlet extends HttpServlet {
 			LTILaunchMessage lm = new LTILaunchMessage();
 			lm.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
 			lm.label = rb.getString("plus.deeplink.sakai.plus");
-            Tool theTool = ToolManager.getTool(tool_id);
+            Tool theTool = toolManager.getTool(tool_id);
 			if ( theTool != null) lm.label = theTool.getTitle();
 			lm.target_link_uri = plusService.getPlusServletPath() + "/" + tool_id;
 			ltitc.messages.add(lm);
@@ -1196,7 +1196,7 @@ public class ProviderServlet extends HttpServlet {
 			throw new LTIException( "plus.launch.id_token.load.fail", tenant_guid, e);
 		}
 
-		final Session sess = SessionManager.getCurrentSession();
+		final Session sess = sessionManager.getCurrentSession();
 
 		if (sess == null) {
 			throw new LTIException( "launch.no.session", context_id, null);
@@ -1211,7 +1211,7 @@ public class ProviderServlet extends HttpServlet {
 		String toolPlacementId = null;
 		String tool_id = (String) payload.get("tool_id");
 		try {
-			site = SiteService.getSite(site.getId());
+			site = siteService.getSite(site.getId());
 			ToolConfiguration toolConfig = site.getToolForCommonId(tool_id);
 			if(toolConfig != null) {
 				toolPlacementId = toolConfig.getId();
@@ -1235,14 +1235,14 @@ public class ProviderServlet extends HttpServlet {
 				sitePageEdit.setTitle(tool_id);
 
 				toolConfig = sitePageEdit.addTool();
-				toolConfig.setTool(tool_id, ToolManager.getTool(tool_id));
+				toolConfig.setTool(tool_id, toolManager.getTool(tool_id));
 				toolConfig.setTitle(tool_id);
 
 				Properties propsedit = toolConfig.getPlacementConfig();
 				propsedit.setProperty(BASICLTI_RESOURCE_LINK,  (String) payload.get(BasicLTIConstants.RESOURCE_LINK_ID));
 				pushAdvisor();
 				try {
-					SiteService.save(site);
+					siteService.save(site);
 					log.info("Tool added, tool_id={}, siteId={}", tool_id, site.getId());
 				} catch (Exception e) {
 					throw new LTIException( "launch.site.save", "tool_id="+tool_id + ", siteId="+site.getId(), e);
@@ -1262,7 +1262,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		// Check user has access to this tool in this site
-		if(!ToolManager.isVisible(site, toolConfig)) {
+		if(!toolManager.isVisible(site, toolConfig)) {
 			log.warn("Not allowed to access tool user_id={} site={} tool={}", user.getId(), site.getId(), tool_id);
 			throw new LTIException( "launch.site.tool.denied", "user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id, null);
 
@@ -1285,7 +1285,7 @@ public class ProviderServlet extends HttpServlet {
 
 		// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
 		String context_title = ComponentManager.get(FormattedText.class).stripHtmlFromText(context_title_orig, true, true);
-		SiteTitleValidationStatus status = SiteService.validateSiteTitle(context_title_orig, context_title);
+		SiteTitleValidationStatus status = siteService.validateSiteTitle(context_title_orig, context_title);
 
 		if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
 			log.warn("Provided context_title is empty after HTML stripping: {}", context_title_orig);
@@ -1299,7 +1299,7 @@ public class ProviderServlet extends HttpServlet {
 
 		// Get the site if it exists
 		try {
-			site = SiteService.getSite(siteId);
+			site = siteService.getSite(siteId);
 			if ( plusService.verbose() ) {
 				log.info("Loaded existing site={}", site.getId());
 			} else {
@@ -1322,7 +1322,7 @@ public class ProviderServlet extends HttpServlet {
 			String autoSiteTemplateId =
 				serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_TEMPLATE, PlusService.PLUS_NEW_SITE_TEMPLATE_DEFAULT);
 
-			boolean templateSiteExists = SiteService.siteExists(autoSiteTemplateId);
+			boolean templateSiteExists = siteService.siteExists(autoSiteTemplateId);
 
 			if(!templateSiteExists) {
 				log.warn("A template site id was specced ({}) but no site with this id exists. A default lti site will be created instead.", autoSiteTemplateId);
@@ -1340,11 +1340,11 @@ public class ProviderServlet extends HttpServlet {
 						sakai_type = BasicLTIConstants.NEW_SITE_TYPE;
 					}
 				}
-				site = SiteService.addSite(siteId, sakai_type);
+				site = siteService.addSite(siteId, sakai_type);
 				site.setType(sakai_type);
 			} else {
-				Site autoSiteTemplate = SiteService.getSite(autoSiteTemplateId);
-				site = SiteService.addSite(siteId, autoSiteTemplate);
+				Site autoSiteTemplate = siteService.getSite(autoSiteTemplateId);
+				site = siteService.addSite(siteId, autoSiteTemplate);
 			}
 
 			if (BasicLTIUtil.isNotBlank(context_title)) {
@@ -1360,7 +1360,7 @@ public class ProviderServlet extends HttpServlet {
 			site.getPropertiesEdit().addProperty(PlusService.PLUS_PROPERTY, "true");
 
 			try {
-				SiteService.save(site);
+				siteService.save(site);
 				log.info("Created  site={} label={} type={} title={}", siteId, context_label, sakai_type, context_title);
 			} catch (Exception e) {
 				throw new LTIException("launch.site.save", "siteId=" + siteId, e);
@@ -1374,7 +1374,7 @@ public class ProviderServlet extends HttpServlet {
 
 		// Now lets retrieve that new site!
 		try {
-			return SiteService.getSite(site.getId());
+			return siteService.getSite(site.getId());
 		} catch (IdUnusedException e) {
 			throw new LTIException( "launch.site.invalid", "siteId="+siteId, e);
 
@@ -1403,7 +1403,7 @@ public class ProviderServlet extends HttpServlet {
 
 		if(changed) {
 			try {
-				SiteService.save(site);
+				siteService.save(site);
 				log.info("Updated  site={} title={} label={}", site.getId(), context_title, context_label);
 			} catch (Exception e) {
 				log.warn("Failed to update site title and/or label");
@@ -1412,8 +1412,8 @@ public class ProviderServlet extends HttpServlet {
 	}
 
 	private void loginUser(String ipAddress, User user) {
-		Session sess = SessionManager.getCurrentSession();
-		UsageSessionService.login(user.getId(), user.getEid(), ipAddress, null, UsageSessionService.EVENT_LOGIN_WS);
+		Session sess = sessionManager.getCurrentSession();
+		usageSessionService.login(user.getId(), user.getEid(), ipAddress, null, UsageSessionService.EVENT_LOGIN_WS);
 		sess.setUserId(user.getId());
 		sess.setUserEid(user.getEid());
 	}
@@ -1461,7 +1461,7 @@ public class ProviderServlet extends HttpServlet {
 				doError(request, response, "launch.tool.notallowed", tool_id, null);
 				return;
 			}
-			final Tool toolCheck = ToolManager.getTool(tool_id);
+			final Tool toolCheck = toolManager.getTool(tool_id);
 			if ( toolCheck == null) {
 				doError(request, response, "launch.tool.notfound", tool_id, null);
 				return;
@@ -1538,7 +1538,7 @@ public class ProviderServlet extends HttpServlet {
 
 		ArrayList<Tool> tools = new ArrayList<Tool>();
 		for (String toolId : allowedToolsList) {
-			Tool theTool = ToolManager.getTool(toolId);
+			Tool theTool = toolManager.getTool(toolId);
 			if ( theTool == null ) continue;
 			tools.add(theTool);
 		}

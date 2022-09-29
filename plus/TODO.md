@@ -2,6 +2,8 @@
 TODO LIST
 =========
 
+Move waterfall-lite to library and use standard spinner
+
 Plus tool button to retrieve membership
 
 Plus tool to resend scores
