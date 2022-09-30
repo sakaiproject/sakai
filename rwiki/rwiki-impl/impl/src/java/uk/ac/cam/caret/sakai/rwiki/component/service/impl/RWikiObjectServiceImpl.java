@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.persistence.RollbackException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -483,7 +484,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					notiPriority));
 			}
 		}
-		catch (HibernateOptimisticLockingFailureException e)
+		catch (RollbackException e)
 		{
 			throw new VersionException("Version has changed since: " + version, //$NON-NLS-1$
 					e);
