@@ -25,23 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import org.hibernate.SessionFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.*;
-
-import lombok.extern.slf4j.Slf4j;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -49,29 +39,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
-
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 
 import org.sakaiproject.lti13.util.SakaiLaunchJWT;
-import org.tsugi.lti13.objects.ResourceLink;
-// import org.tsugi.lti13.objects.Context; - Need to qualify
-import org.tsugi.lti13.objects.ToolPlatform;
-import org.tsugi.lti13.objects.LaunchLIS;
-import org.tsugi.lti13.objects.BasicOutcome;
-import org.tsugi.lti13.objects.Endpoint;
 
 import org.tsugi.lti13.LTI13JwtUtil;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.sakaiproject.plus.api.model.Tenant;
 import org.sakaiproject.plus.api.model.Subject;
@@ -91,7 +70,6 @@ import org.sakaiproject.plus.api.repository.LineItemRepository;
 import org.sakaiproject.plus.api.repository.ScoreRepository;
 import org.sakaiproject.plus.api.repository.MembershipRepository;
 
-@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {PlusTestConfiguration.class})
 public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTests {
@@ -357,13 +335,6 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		gradeBookColumn = new Long(42);
 		score = scoreRepository.findBySubjectAndColumn(subject, gradeBookColumn);
 		assertNotNull(score);
-		if ( score == null ) {
-			score = new Score();
-			// Set the logical keys
-			score.setGradeBookColumnId(gradeBookColumn);
-			score.setSubject(subject);
-			fail("score should already exist in the database");
-		}
 		score.setActivityProgress(org.tsugi.ags2.objects.Score.ACTIVITY_INITIALIZED);
 
 		newGuid = score.getId();

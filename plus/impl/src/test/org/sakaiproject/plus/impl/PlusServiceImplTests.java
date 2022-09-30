@@ -16,21 +16,9 @@
 
 package org.sakaiproject.plus.impl;
 
-import java.time.Instant;
-
-import org.sakaiproject.plus.api.Launch;
-import org.sakaiproject.plus.api.PlusService;
-
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
-
-import org.hibernate.SessionFactory;
-
-import static org.mockito.Mockito.*;
-
-import lombok.extern.slf4j.Slf4j;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -39,7 +27,6 @@ import org.junit.runner.RunWith;
 
 import org.apache.commons.lang3.StringUtils;
 
-@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {PlusTestConfiguration.class})
 public class PlusServiceImplTests extends AbstractTransactionalJUnit4SpringContextTests {

@@ -25,9 +25,7 @@ import org.sakaiproject.plus.api.model.Score;
 
 import lombok.Setter;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Setter
 @Getter
 public class Launch {

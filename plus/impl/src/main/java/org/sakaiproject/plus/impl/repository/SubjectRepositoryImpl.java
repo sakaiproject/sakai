@@ -41,14 +41,14 @@ public class SubjectRepositoryImpl extends SpringCrudRepositoryImpl<Subject, Str
 
     @Autowired private ContextRepository contextRepository;
 
-	@Transactional(readOnly = true)
-	public Subject findBySubjectAndTenant(String subject, Tenant tenant) {
+    @Transactional(readOnly = true)
+    @Override
+    public Subject findBySubjectAndTenant(String subject, Tenant tenant) {
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<Subject> cr = cb.createQuery(Subject.class);
 		Root<Subject> root = cr.from(Subject.class);
 
-		Predicate cond = null;
-		cond = cb.and(
+		Predicate cond = cb.and(
 				cb.equal(root.get("subject"), subject),
 				cb.equal(root.get("tenant"), tenant)
 		);
@@ -61,14 +61,14 @@ public class SubjectRepositoryImpl extends SpringCrudRepositoryImpl<Subject, Str
 		return result;
 	}
 
-	@Transactional(readOnly = true)
-	public Subject findByEmailAndTenant(String email, Tenant tenant) {
+    @Transactional(readOnly = true)
+    @Override
+    public Subject findByEmailAndTenant(String email, Tenant tenant) {
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<Subject> cr = cb.createQuery(Subject.class);
 		Root<Subject> root = cr.from(Subject.class);
 
-		Predicate cond = null;
-		cond = cb.and(
+		Predicate cond = cb.and(
 				cb.equal(root.get("email"), email),
 				cb.equal(root.get("tenant"), tenant)
 		);
@@ -82,8 +82,9 @@ public class SubjectRepositoryImpl extends SpringCrudRepositoryImpl<Subject, Str
 	}
 
 	// This uses the one-to-one betwee sakai sites and contexts to work back to the tenant
-	// so we get the correct subject for this particular sakaiUserId
-	@Transactional(readOnly = true)
+    // so we get the correct subject for this particular sakaiUserId
+    @Transactional(readOnly = true)
+    @Override
 	public Subject findBySakaiUserIdAndSakaiSiteId(String sakaiUserId, String siteId) {
 
 		Context context = contextRepository.findBySakaiSiteId(siteId);
@@ -94,8 +95,7 @@ public class SubjectRepositoryImpl extends SpringCrudRepositoryImpl<Subject, Str
 		CriteriaQuery<Subject> cr = cb.createQuery(Subject.class);
 		Root<Subject> root = cr.from(Subject.class);
 
-		Predicate cond = null;
-		cond = cb.and(
+		Predicate cond = cb.and(
 				cb.equal(root.get("sakaiUserId"), sakaiUserId),
 				cb.equal(root.get("tenant"), tenant)
 		);

@@ -17,7 +17,6 @@
 package org.sakaiproject.plus.api.repository;
 
 import java.util.List;
-import java.util.Date;
 
 import org.sakaiproject.plus.api.model.Context;
 import org.sakaiproject.plus.api.model.ContextLog;

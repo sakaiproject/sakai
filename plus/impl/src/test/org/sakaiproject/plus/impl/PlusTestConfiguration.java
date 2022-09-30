@@ -44,7 +44,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
-import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
 import org.sakaiproject.lti.api.UserFinderOrCreator;
 import org.sakaiproject.lti.api.UserLocaleSetter;
 import org.sakaiproject.lti.api.UserPictureSetter;

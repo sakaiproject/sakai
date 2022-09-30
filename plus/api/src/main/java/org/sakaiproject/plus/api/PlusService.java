@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.sakaiproject.lti.api.LTIException;
 
-import org.sakaiproject.plus.api.Launch;
 import org.sakaiproject.plus.api.model.Tenant;
 import org.sakaiproject.plus.api.model.Subject;
 import org.sakaiproject.plus.api.model.Context;

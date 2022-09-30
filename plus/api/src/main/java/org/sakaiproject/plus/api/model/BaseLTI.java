@@ -16,9 +16,6 @@
 
 package org.sakaiproject.plus.api.model;
 
-import java.util.Map;
-import java.util.HashMap;
-
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -104,6 +101,5 @@ public class BaseLTI implements Serializable {
 		if ( createdAt == null ) createdAt = Instant.now();
 		modifiedAt = Instant.now();
 	}
-
 
 }

@@ -38,13 +38,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContextLogRepositoryImpl extends SpringCrudRepositoryImpl<ContextLog, Long>  implements ContextLogRepository {
 
     @Transactional(readOnly = true)
+    @Override
     public List<ContextLog> getLogEntries(Context context, Boolean success, int limit)
 	{
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<ContextLog> cr = cb.createQuery(ContextLog.class);
         Root<ContextLog> root = cr.from(ContextLog.class);
 
-        Predicate cond = null;
+        Predicate cond;
 		if ( success == null ) {
 			cond = cb.equal(root.get("context"), context);
 		} else {
@@ -71,6 +72,7 @@ public class ContextLogRepositoryImpl extends SpringCrudRepositoryImpl<ContextLo
     // https://stackoverflow.com/questions/9449003/compare-date-entities-in-jpa-criteria-api
     // https://stackoverflow.com/questions/4902653/java-util-date-seven-days-ago
     @Transactional
+    @Override
     public int deleteOlderThanDays(int days){
 
         Instant previousDate = Instant.now().minus(days, ChronoUnit.DAYS);

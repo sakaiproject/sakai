@@ -23,9 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.InputStream;
 
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.http.HttpResponse;  // Thanks Java 11
@@ -43,19 +41,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.SignatureAlgorithm;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
 
 import java.time.Instant;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.simple.JSONValue;
@@ -83,8 +76,6 @@ import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.basiclti.util.SakaiKeySetUtil;
-import org.sakaiproject.basiclti.util.SakaiLTIProviderUtil;
-import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -119,17 +110,11 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import org.apache.http.client.utils.URIBuilder;
 
-import org.tsugi.deeplink.objects.DeepLinkResponse;
 import org.tsugi.deeplink.objects.LtiResourceLink;
 
 import org.sakaiproject.plus.api.PlusService;
 
 import org.sakaiproject.plus.api.model.Tenant;
-import org.sakaiproject.plus.api.model.Subject;
-import org.sakaiproject.plus.api.model.Context;
-import org.sakaiproject.plus.api.model.Link;
-import org.sakaiproject.plus.api.model.LineItem;
-import org.sakaiproject.plus.api.model.Score;
 
 import org.sakaiproject.plus.api.repository.TenantRepository;
 import org.sakaiproject.plus.api.repository.ContextRepository;
@@ -163,10 +148,8 @@ public class ProviderServlet extends HttpServlet {
 	@Autowired private UserFinderOrCreator userFinderOrCreator;
 	@Autowired private UserLocaleSetter userLocaleSetter;
 	@Autowired private UserPictureSetter userPictureSetter;
-	@Autowired private LTIService ltiService;
 	@Autowired private PlusService plusService;
 	@Autowired private TenantRepository tenantRepository;
-	@Autowired private ContextRepository contextRepository;
 	@Autowired private SecurityService securityService;
 	@Autowired private UsageSessionService usageSessionService;
 	@Autowired private SiteService siteService;
@@ -644,26 +627,11 @@ public class ProviderServlet extends HttpServlet {
 	protected void handleOIDCLogin(HttpServletRequest request, HttpServletResponse response, String tenant_guid) throws ServletException, IOException {
 		log.debug("==== oidc_login ====");
 
-		// REQUIRED. The issuer identifier identifying the learning platform.
-		String iss = request.getParameter("iss");
-
 		// REQUIRED. Hint to the Authorization Server about the login identifier the End-User might use to log in. The permitted values will be defined in the host specification.
 		String login_hint = request.getParameter("login_hint");
 
-		// REQUIRED. The actual end-point that should be executed at the end of the OpenID Connect authentication flow.
-		String target_link_uri = request.getParameter("target_link_uri");
-
 		// OPTIONAL. The actual LTI message that is being launched.
 		String lti_message_hint = request.getParameter("lti_message_hint");
-
-		// OPTIONAL. If included, MUST contain the same deployment id that would be passed in the deployment_id claim for the subsequent LTI message launch.
-		String deployment_id = request.getParameter("lti_deployment_id");
-
-		// OPTIONAL. Specifies the client id for the authorization server that should be used to authorize the subsequent LTI message request. This allows for a platform to support multiple registrations from a single issuer, without relying on the initiate_login_uri as a key.
-		String client_id = request.getParameter("client_id");
-
-		// OPTIONAL. May be "_parent" coming soon.
-		String lti_storage_target = request.getParameter("lti_storage_target");
 
 		// Legacy lookup is our tenant_guid from the URL since most LMS's don't send the optional stuff
 		// TODO: Future lookup allows for, iss, client_id, and deployment_id to uniquely define a tenant
@@ -1052,7 +1020,7 @@ public class ProviderServlet extends HttpServlet {
 		r.append(SakaiBLTIUtil.getOurServletPath(request));
 		r.append("\">\n");
 		r.append("<input type=\"hidden\" name=\"repost\" value=\"42\">\n");
-		for (Enumeration e = request.getParameterNames(); e.hasMoreElements(); ) {
+		for (Enumeration<String> e = request.getParameterNames(); e.hasMoreElements(); ) {
 			String key = (String)e.nextElement();
 			String value = request.getParameter(key);
 			r.append("<input type=\"hidden\" name=\"");
@@ -1117,11 +1085,6 @@ public class ProviderServlet extends HttpServlet {
 		  //check parameters
 		  String id_token = (String) payload.get("id_token");
 		  String tenant_guid = (String) payload.get("tenant_guid");
-		  // String lti_message_type = (String) payload.get(BasicLTIConstants.LTI_MESSAGE_TYPE);
-		  // String lti_version = (String) payload.get(BasicLTIConstants.LTI_VERSION);
-		  // String oauth_consumer_key = (String) payload.get("oauth_consumer_key");
-		  String resource_link_id = (String) payload.get(BasicLTIConstants.RESOURCE_LINK_ID);
-		  String user_id = (String) payload.get(BasicLTIConstants.USER_ID);
 		  String context_id = (String) payload.get(BasicLTIConstants.CONTEXT_ID);
 
 		// Begin Validation
@@ -1273,7 +1236,6 @@ public class ProviderServlet extends HttpServlet {
 	protected Site findOrCreateSite(Map payload) throws LTIException {
 
 		String context_guid = (String) payload.get("context_guid");
-		String tenant_guid = (String) payload.get("tenant_guid");
 		String siteId = context_guid;
 
 		if (log.isDebugEnabled()) {

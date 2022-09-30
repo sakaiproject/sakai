@@ -17,31 +17,20 @@ package org.sakaiproject.plus.impl;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.grading.api.AssessmentNotFoundException;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.plus.api.PlusService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PlusEventObserver implements Observer {
 
     @Autowired private EventTrackingService eventTrackingService;
-    @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private PlusService plusService;
 
     public void init() {

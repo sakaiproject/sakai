@@ -16,8 +16,6 @@
 
 package org.sakaiproject.plus.api.repository;
 
-import java.util.List;
-
 import org.sakaiproject.plus.api.model.Tenant;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 

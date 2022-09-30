@@ -16,8 +16,6 @@
 
 package org.sakaiproject.plus.impl.repository;
 
-import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -33,13 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class LinkRepositoryImpl extends SpringCrudRepositoryImpl<Link, String>  implements LinkRepository {
 
 	@Transactional(readOnly = true)
+        @Override
 	public Link findByLinkAndContext(String link, Context context) {
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<Link> cr = cb.createQuery(Link.class);
 		Root<Link> root = cr.from(Link.class);
 
-		Predicate cond = null;
-		cond = cb.and(
+		Predicate cond = cb.and(
 				cb.equal(root.get("link"), link),
 				cb.equal(root.get("context"), context)
 		);

@@ -16,14 +16,9 @@
 
 package org.sakaiproject.plus.impl.repository;
 
-import java.util.List;
-
-import org.sakaiproject.plus.api.model.Context;
 import org.sakaiproject.plus.api.model.LineItem;
 import org.sakaiproject.plus.api.repository.LineItemRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
-
-import org.springframework.transaction.annotation.Transactional;
 
 public class LineItemRepositoryImpl extends SpringCrudRepositoryImpl<LineItem, Long>  implements LineItemRepository {
 

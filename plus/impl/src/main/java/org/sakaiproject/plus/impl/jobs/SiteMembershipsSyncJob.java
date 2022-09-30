@@ -15,8 +15,6 @@
  */
 package org.sakaiproject.plus.impl.jobs;
 
-import java.util.List;
-import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,14 +27,13 @@ import org.sakaiproject.plus.api.PlusService;
 @Slf4j
 public class SiteMembershipsSyncJob implements StatefulJob {
 	
-    private PlusService plusService = null;
     public void setPlusService(PlusService plusService) {
-        this.plusService = plusService;
     }
 
+    @Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		
-        log.info("SiteMembershipsSyncJob.execute");
+            log.info("SiteMembershipsSyncJob.execute");
 
 	}
 }

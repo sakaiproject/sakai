@@ -16,8 +16,6 @@
 
 package org.sakaiproject.plus.impl.repository;
 
-import java.util.List;
-
 import org.sakaiproject.plus.api.model.Tenant;
 import org.sakaiproject.plus.api.repository.TenantRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
@@ -27,8 +25,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Predicate;
 
-import org.springframework.transaction.annotation.Transactional;
-
 public class TenantRepositoryImpl extends SpringCrudRepositoryImpl<Tenant, String>  implements TenantRepository {
 
 	public Tenant findByIssuerClientIdAndDeploymentId(String issuer, String clientId, String deploymentId)
@@ -37,8 +33,7 @@ public class TenantRepositoryImpl extends SpringCrudRepositoryImpl<Tenant, Strin
 		CriteriaQuery<Tenant> cr = cb.createQuery(Tenant.class);
 		Root<Tenant> root = cr.from(Tenant.class);
 
-		Predicate cond = null;
-		cond = cb.and(
+		Predicate cond = cb.and(
 				cb.equal(root.get("issuer"), issuer),
 				cb.equal(root.get("clientId"), clientId),
 				cb.equal(root.get("deploymentId"), deploymentId)

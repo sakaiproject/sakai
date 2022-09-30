@@ -16,7 +16,6 @@
 
 package org.sakaiproject.plus.impl.repository;
 
-import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -35,14 +34,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class MembershipRepositoryImpl extends SpringCrudRepositoryImpl<Membership, Long>  implements MembershipRepository {
 
 	@Transactional(readOnly = true)
+        @Override
 	public Membership findBySubjectAndContext(Subject subject, Context context) {
 
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<Membership> cr = cb.createQuery(Membership.class);
 		Root<Membership> root = cr.from(Membership.class);
 
-		Predicate cond = null;
-		cond = cb.and(
+		Predicate cond = cb.and(
 				cb.equal(root.get("subject"), subject),
 				cb.equal(root.get("context"), context)
 		);

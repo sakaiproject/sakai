@@ -68,7 +68,7 @@
     </bean>
 
     <bean id="org.sakaiproject.plus.api.PlusService"
-        class="org.sakaiproject.plus.impl.service.PlusServiceImpl">
+        class="org.sakaiproject.plus.impl.PlusServiceImpl">
         <!-- all the properties are autowired - Yay -->
     </bean>
 

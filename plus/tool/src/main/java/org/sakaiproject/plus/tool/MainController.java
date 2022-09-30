@@ -21,7 +21,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -81,9 +80,6 @@ public class MainController {
 	private LTIService ltiService;
 
 	@Autowired
-	private ServerConfigurationService serverConfigurationService;
-
-	@Autowired
 	private SiteService siteService;
 
 	@Autowired
@@ -110,7 +106,7 @@ public class MainController {
 		loadModel(model, request);
 		Iterable<Tenant> tenants = tenantRepository.findAll();
 		model.addAttribute("tenants", tenants);
-		model.addAttribute("enabled",  Boolean.valueOf(plusService.enabled()));
+		model.addAttribute("enabled",  plusService.enabled());
 		return "index";
 	}
 

@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContextRepositoryImpl extends SpringCrudRepositoryImpl<Context, String>  implements ContextRepository {
 
 	@Transactional(readOnly = true)
+    @Override
 	public List<Context> findByTenant(Tenant tenant) {
 
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
@@ -49,13 +50,13 @@ public class ContextRepositoryImpl extends SpringCrudRepositoryImpl<Context, Str
 	}
 
 	@Transactional(readOnly = true)
+	@Override
 	public Context findByContextAndTenant(String context, Tenant tenant) {
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<Context> cr = cb.createQuery(Context.class);
 		Root<Context> root = cr.from(Context.class);
 
-		Predicate cond = null;
-		cond = cb.and(
+		Predicate cond = cb.and(
 				cb.equal(root.get("context"), context),
 				cb.equal(root.get("tenant"), tenant)
 		);
@@ -69,6 +70,7 @@ public class ContextRepositoryImpl extends SpringCrudRepositoryImpl<Context, Str
 	}
 
 	@Transactional(readOnly = true)
+	@Override
 	public Context findBySakaiSiteId(String sakaiSiteId) {
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<Context> cr = cb.createQuery(Context.class);

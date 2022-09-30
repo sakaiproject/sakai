@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  */
 
-package org.sakaiproject.plus.impl.service;
+package org.sakaiproject.plus.impl;
 
 import java.lang.StringBuffer;
 
@@ -32,7 +32,6 @@ import java.time.Instant;
 
 import java.net.http.HttpResponse;  // Thanks Java 11
 
-import java.security.Key;
 import java.security.KeyPair;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,8 +41,10 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.api.Site;
@@ -80,8 +81,6 @@ import org.tsugi.basiclti.BasicLTIUtil;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 import org.sakaiproject.lti.api.UserFinderOrCreator;
-import org.sakaiproject.lti.api.UserLocaleSetter;
-import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 
@@ -121,8 +120,6 @@ public class PlusServiceImpl implements PlusService {
 	@Autowired private SiteMembershipUpdater siteMembershipUpdater;
 	@Autowired private SiteEmailPreferenceSetter siteEmailPreferenceSetter;
 	@Autowired private UserFinderOrCreator userFinderOrCreator;
-	@Autowired private UserLocaleSetter userLocaleSetter;
-	@Autowired private UserPictureSetter userPictureSetter;
 	@Autowired private ServerConfigurationService serverConfigurationService;
 
 	// TODO: Test this when we have some sample processors - mostly worry about classloader issues
@@ -131,6 +128,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Indicate if plus is enabled on this system
 	 */
+	@Override
 	public boolean enabled()
 	{
 		return serverConfigurationService.getBoolean(PlusService.PLUS_PROVIDER_ENABLED, PlusService.PLUS_PROVIDER_ENABLED_DEFAULT);
@@ -139,6 +137,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Indicate if plus is enabled on a Site
 	 */
+	@Override
 	public boolean enabled(Site site)
 	{
 		String plus_property = site.getProperties().getProperty(PlusService.PLUS_PROPERTY);
@@ -148,27 +147,33 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Return various URLs for Sakai Plus
 	 */
+	@Override
 	public String getPlusServletPath() {
 		return SakaiBLTIUtil.getOurServerUrl() + "/plus/sakai";
 	}
 
+	@Override
 	public String getOidcKeySet() {
 		return SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
 	}
 
+	@Override
 	public String getOidcLaunch() {
 		return getPlusServletPath() + "/oidc_launch";
 	}
 
+	@Override
 	public String getOidcLogin(Tenant tenant) {
 		return getPlusServletPath() + "/oidc_login/" + tenant.getId();
 	}
 
+	@Override
 	public String getIMSDynamicRegistration(Tenant tenant) {
 		if ( StringUtils.isEmpty(tenant.getOidcRegistrationLock()) ) return null;
 		return getPlusServletPath() + "/dynamic/" + tenant.getId() + "?unlock_token=" + tenant.getOidcRegistrationLock();
 	}
 
+	@Override
 	public String getCanvasConfig(Tenant tenant) {
 		return getPlusServletPath() + "/canvas-config.json?guid=" + tenant.getId();
 	}
@@ -176,6 +181,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Indicate if verbose debugging is enabled
 	 */
+	@Override
 	public boolean verbose()
 	{
 		if ( log.isDebugEnabled() ) return true;
@@ -185,6 +191,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Indicate if verbose debugging is enabled
 	 */
+	@Override
 	public boolean verbose(Tenant tenant)
 	{
 		if ( tenant != null && tenant.getVerbose() ) return true;
@@ -295,7 +302,7 @@ public class PlusServiceImpl implements PlusService {
 			launch.context = context;
 		}
 
-		Membership membership = null;
+		Membership membership;
 		if ( subject != null && context != null ) {
 			membership = new Membership();
 			membership.setSubject(subject);
@@ -365,11 +372,12 @@ public class PlusServiceImpl implements PlusService {
 		return subject;
 	}
 
+	@Override
 	public Map<String,String> getPayloadFromLaunchJWT(Tenant tenant, LaunchJWT launchJWT)
 	{
 		// Store this all in payload for future use and to share some of the
 		// processing code between LTI 1.1 and Advantage
-		Map<String, String> payload = new TreeMap<String,String>();
+		Map<String, String> payload = new TreeMap<>();
 		payload.put("issuer", launchJWT.issuer);
 		payload.put("client_id", launchJWT.audience); // Note name change
 		payload.put("deployment_id", launchJWT.deployment_id);
@@ -459,6 +467,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Make sure the Context knows about the chosen site
 	 */
+	@Override
 	public void connectContextAndSite(Context context, Site site)
 			throws LTIException
 	{
@@ -482,6 +491,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Make sure the Link knows about the chosen placement
 	 */
+	@Override
 	public void connectLinkAndPlacement(Link link, String placementId)
 			throws LTIException
 	{
@@ -505,6 +515,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Retrieve Context Memberships from calling LMS and update the site in Sakai
 	 */
+	@Override
 	public void syncSiteMemberships(String contextGuid, Site site) throws LTIException {
 
 		log.debug("synchSiteMemberships");
@@ -607,7 +618,7 @@ public class PlusServiceImpl implements PlusService {
 		cLog.setAction("syncSiteMemberships context="+context.getId()+" tenant="+context.getTenant()+" contextMemberships="+contextMemberships+" access_token="+nrpsAccessToken.access_token);
 
 		String MEDIA_TYPE_MEMBERSHIPS = "application/vnd.ims.lti-nrps.v2.membershipcontainer+json";
-		Map<String, String> headers = new TreeMap<String, String>();
+		Map<String, String> headers = new TreeMap<>();
 		headers.put("Authorization", "Bearer "+nrpsAccessToken.access_token);
 		headers.put("Accept", LTI13ConstantsUtil.MEDIA_TYPE_MEMBERSHIPS);
 		headers.put("Content-Type", LTI13ConstantsUtil.MEDIA_TYPE_MEMBERSHIPS); // TODO: Remove when certification is fixed
@@ -615,13 +626,13 @@ public class PlusServiceImpl implements PlusService {
 		// Get ready
 		context.setNrpsStart(Instant.now());
 		context.setNrpsFinish(null);
-		context.setNrpsCount(new Long(0));
+		context.setNrpsCount(Long.valueOf(0));
 		context.setNrpsStatus("Started");
 		contextRepository.save(context);
 
 		dbs = new StringBuffer();
 		dbs.append("Loading Context Memberships...\n");
-		InputStream is = null;
+		InputStream is;
 		 try {
 			HttpResponse<InputStream> response = HttpClientUtil.sendGetStream(contextMemberships, null, headers, dbs);
 			if ( verbose(tenant) ) {
@@ -649,7 +660,7 @@ public class PlusServiceImpl implements PlusService {
 		cLog.setSuccess(Boolean.TRUE);
 		dbs = new StringBuffer();
 
-		Long count = new Long(0);
+		Long count = Long.valueOf(0);
 		// Create a JsonParser instance
 		try {
 			JsonParser jsonParser = mapper.getFactory().createParser(is);
@@ -731,8 +742,7 @@ public class PlusServiceImpl implements PlusService {
 				invokeProcessors(payload, ProcessingState.afterSiteMembership, user, site);
 				cLog.setStatus("Completed syncSiteMemberships count="+count+" at="+Instant.now());
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException | LTIException e) {
 			log.error("Error processing contextMemberships stream context={}", contextGuid, e);
 			cLog.setSuccess(Boolean.FALSE);
 			cLog.setStatus("Exception processing Names and Roles data="+e.getMessage());
@@ -779,6 +789,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Create a lineItem for a gradebook Column
 	 */
+	@Override
 	public String createLineItem(Site site, Long assignmentId,
 		final org.sakaiproject.grading.api.Assignment assignmentDefinition)
 	{
@@ -892,7 +903,7 @@ public class PlusServiceImpl implements PlusService {
 		dbs.append("Sending LineItem\n");
 
 		// lineItem
-		Map<String, String> headers = new TreeMap<String, String>();
+		Map<String, String> headers = new TreeMap<>();
 		headers.put("Authorization", "Bearer "+lineItemsAccessToken.access_token);
 		headers.put("Content-Type", LineItem.MIME_TYPE);
 
@@ -975,6 +986,7 @@ public class PlusServiceImpl implements PlusService {
 	/*
 	 * Update a lineItem associated with a gradebook Column
 	 */
+	@Override
 	public String updateLineItem(Site site,
 		final org.sakaiproject.grading.api.Assignment assignmentDefinition)
 	{
@@ -1106,7 +1118,7 @@ public class PlusServiceImpl implements PlusService {
 		dbs.append("Sending LineItem\n");
 
 		// lineItem
-		Map<String, String> headers = new TreeMap<String, String>();
+		Map<String, String> headers = new TreeMap<>();
 		headers.put("Authorization", "Bearer "+lineItemsAccessToken.access_token);
 		headers.put("Content-Type", LineItem.MIME_TYPE);
 
@@ -1158,7 +1170,7 @@ public class PlusServiceImpl implements PlusService {
 				cLog.setDebugLog(dbli.getDebugLog());
 				contextLogRepository.save(cLog);
 			}
-		} catch ( Exception e ) {
+		} catch ( JsonProcessingException e ) {
 			// If the PUT gave us no valid data it is no big deal
 			if ( method.equals("PUT") ) {
 				dbli.setStatus("No lineItem response to PUT at "+lineItemsUrl+" "+e.getMessage());
@@ -1196,6 +1208,7 @@ public class PlusServiceImpl implements PlusService {
 	// https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
 	// https://www.imsglobal.org/spec/lti-ags/v2p0#comment-0
 	@Transactional
+	@Override
 	public void processGradeEvent(Event event)
 	{
 		// /gradebookng/7/12/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/42/OK/instructor[m, 2]
@@ -1214,7 +1227,7 @@ public class PlusServiceImpl implements PlusService {
 
 		// From the UI business logic
 		// /gradebookng/7/12/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/42/OK/instructor[m, 2]
-		//       1      2 3   4                                    5
+		//	   1	  2 3   4									5
 		if ( "gradebookng".equals(source) ) {
 			log.debug("processGradeEvent UI {}", event.getResource());
 			itemId = parts[3];
@@ -1223,7 +1236,7 @@ public class PlusServiceImpl implements PlusService {
 			siteId = event.getContext();
 		// From a web service
 		// /gradebook/a77ed1b6-ceea-4339-ad60-8bbe7219f3b5/Trophy/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/99.0/student[m, 2]
-		//       1      2                                     3   4                                    5
+		//	   1	  2									 3   4									5
 		} else if ( "gradebook".equals(source) ) {
 			log.debug("processGradeEvent WS {}", event.getResource());
 			siteId = parts[2];
@@ -1243,8 +1256,8 @@ public class PlusServiceImpl implements PlusService {
 		// may have previously received from the tool and stored for that user and line item.
 		Double scoreGiven;
 		try {
-			scoreGiven = new Double(scoreStr);
-		} catch (Exception e) {
+			scoreGiven = Double.valueOf(scoreStr);
+		} catch (NumberFormatException e) {
 			scoreGiven = null;
 		}
 
@@ -1256,7 +1269,7 @@ public class PlusServiceImpl implements PlusService {
 			return;
 		}
 
-		org.sakaiproject.grading.api.Assignment gradebookAssignment = null;
+		org.sakaiproject.grading.api.Assignment gradebookAssignment;
 		try {
 			gradebookAssignment = gradingService.getAssignmentByNameOrId(siteId, itemId);
 		} catch (AssessmentNotFoundException anfe) {
@@ -1400,22 +1413,24 @@ public class PlusServiceImpl implements PlusService {
 			cLog.setType(ContextLog.LOG_TYPE.Score_SEND);
 			cLog.setDebugLog(dbsc.getDebugLog());
 			contextLogRepository.save(cLog);
-			return;
 		}
 
 	}
 
+	@Override
 	public void invokeProcessors(Map payload, ProcessingState processingState, User user) throws LTIException
 	{
 		invokeProcessors(payload, processingState, user, null, null);
 	}
 
+	@Override
 	public void invokeProcessors(Map payload,
 				ProcessingState processingState) throws LTIException
 	{
 		invokeProcessors(payload, processingState, null, null, null);
 	}
 
+	@Override
 	public void invokeProcessors(Map payload,
 				ProcessingState processingState, User user,
 				Site site) throws LTIException
@@ -1423,6 +1438,7 @@ public class PlusServiceImpl implements PlusService {
 		invokeProcessors(payload, processingState, user, site, null);
 	}
 
+	@Override
 	public void invokeProcessors(Map payload,
 				ProcessingState processingState, User user,
 				Site site, String toolPlacementId) throws LTIException

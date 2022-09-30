@@ -16,8 +16,6 @@
 
 package org.sakaiproject.plus.provider;
 
-import lombok.extern.slf4j.Slf4j;
-
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -25,7 +23,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.JSONArray;
 
-@Slf4j
 public class ProviderTests {
 
 	@Test
