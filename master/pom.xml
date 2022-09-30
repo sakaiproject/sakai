@@ -1853,24 +1853,6 @@
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>${sakai.jsonwebtoken.jjwt.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>${sakai.jsonwebtoken.jjwt.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>${sakai.jsonwebtoken.jjwt.version}</version>
-            <scope>provided</scope>
-        </dependency>
       <dependency>
         <groupId>org.sakaiproject.taggable</groupId>
         <artifactId>sakai-taggable-api</artifactId>

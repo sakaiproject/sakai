@@ -65,7 +65,6 @@ import org.tsugi.http.HttpClientUtil;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.lti.api.BLTIProcessor;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
@@ -157,8 +156,6 @@ public class ProviderServlet extends HttpServlet {
 	@Autowired private ToolManager toolManager;
 	@Autowired private FormattedText formattedText;
 
-	private List<BLTIProcessor> bltiProcessors = new ArrayList();
-
 	private String randomUUID = UUID.randomUUID().toString();
 
 	private KeyPair localKeyPair = LTI13Util.generateKeyPair();
@@ -213,25 +210,6 @@ public class ProviderServlet extends HttpServlet {
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
 		ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
-
-		// load all instance of BLTIProcessor in component mgr by type detection
-		Collection processors = ac.getParent().getBeansOfType(BLTIProcessor.class).values();
-		bltiProcessors = new ArrayList(processors);
-		if ( ! bltiProcessors.isEmpty() ) {
-			log.error("Make sure to test BLTIProcessors carefully as they have been moved to the PlusService");
-		}
-
-		// sort in using getOrder() method
-		// sort them so the execution order is determined consistenly - by getOrder()
-		Collections.sort(bltiProcessors, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((Comparable) ((BLTIProcessor) (o1)).getOrder())
-						.compareTo(((BLTIProcessor) (o2)).getOrder());
-			}
-		});
-
-		// TODO: Test this when we have some sample processors - mostly worry about classloader issues
-		plusService.setBltiProcessors(bltiProcessors);
 
 		// Warm up the keyset
 		KeyPair kp = SakaiKeySetUtil.getCurrent();
@@ -498,11 +476,7 @@ public class ProviderServlet extends HttpServlet {
 		boolean isEmailTrustedConsumer = ! Boolean.FALSE.equals(tenant.getTrustEmail());
 
 		try {
-			plusService.invokeProcessors(payload, PlusService.ProcessingState.beforeValidation);
-
 			Launch launch = validate(payload, launchJWT, tenant);
-
-			plusService.invokeProcessors(payload, PlusService.ProcessingState.afterValidation);
 
 			User user = userFinderOrCreator.findOrCreateUser(payload, false, isEmailTrustedConsumer);
 			if ( plusService.verbose() ) {
@@ -513,8 +487,6 @@ public class ProviderServlet extends HttpServlet {
 
 			plusService.connectSubjectAndUser(launch.getSubject(), user);
 
-			plusService.invokeProcessors(payload, PlusService.ProcessingState.afterUserCreation, user);
-
 			// Check if we are loop-backing on the same server, and already logged in as same user
 			Session sess = sessionManager.getCurrentSession();
 			String serverUrl = SakaiBLTIUtil.getOurServerUrl();
@@ -524,8 +496,6 @@ public class ProviderServlet extends HttpServlet {
 
 			// Re-grab the session
 			sess = sessionManager.getCurrentSession();
-
-			plusService.invokeProcessors(payload, PlusService.ProcessingState.afterLogin, user);
 
 			// This needs to happen after login, when we have a session for the user.
 			userLocaleSetter.setupUserLocale(payload, user, false, isEmailTrustedConsumer);
@@ -551,13 +521,9 @@ public class ProviderServlet extends HttpServlet {
 
 			plusService.connectContextAndSite(launch.getContext(), site);
 
-			plusService.invokeProcessors(payload, PlusService.ProcessingState.afterSiteCreation, user, site);
-
 			siteEmailPreferenceSetter.setupUserEmailPreferenceForSite(payload, user, site, false);
 
 			site = siteMembershipUpdater.addOrUpdateSiteMembership(payload, false, user, site);
-
-			plusService.invokeProcessors(payload, PlusService.ProcessingState.afterSiteMembership, user, site);
 
 			long delay = delayNRPSLearner;
 			String roles = payload.get("roles");
@@ -579,8 +545,6 @@ public class ProviderServlet extends HttpServlet {
 					log.info("Waiting {} seconds between NRPS calls context={} delta={}", delay, contextGuid, delta);
 				}
 			}
-
-			plusService.invokeProcessors(payload, PlusService.ProcessingState.beforeLaunch, user, site);
 
 			// Construct a URL to site or tool
 			StringBuilder url = new StringBuilder();

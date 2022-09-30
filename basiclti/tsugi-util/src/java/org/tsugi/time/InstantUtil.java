@@ -5,9 +5,12 @@ import java.time.Instant;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeParseException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.httpclient.util.DateParseException;
 
+@Slf4j
 public class InstantUtil {
 
 	public static Instant parseGMTFormats(String dateString)
@@ -32,7 +35,7 @@ public class InstantUtil {
 			d = format.parse(dateString);
 			if ( d != null && d.toInstant() != null ) return d.toInstant();
 		} catch (Exception e) {
-			// Ignore
+			log.debug("Date parse error: {}", dateString);
 		}
 
 		// https://hc.apache.org/httpclient-legacy/apidocs/org/apache/commons/httpclient/util/DateUtil.html
@@ -55,8 +58,8 @@ public class InstantUtil {
 			d = DateUtil.parseDate(dateString);
 			if ( d != null && d.toInstant() != null ) return d.toInstant();
 		} catch(DateParseException e) {
-            // Ignore
-        }
+			log.debug("Date parse error: {}", dateString);
+		}
 
 		return null;
 	}
