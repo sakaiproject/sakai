@@ -18,8 +18,6 @@ package org.sakaiproject.plus.impl;
 
 import java.lang.StringBuffer;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Date;
 
 import java.util.Map;
@@ -566,7 +564,6 @@ public class PlusServiceImpl implements PlusService {
 		String oidcTokenUrl = tenant.getOidcToken();
 		String oidcAudience = tenant.getOidcAudience();
 		if ( isEmpty(oidcAudience) ) oidcAudience = oidcTokenUrl;
-		boolean trustEmail = ! Boolean.FALSE.equals(tenant.getTrustEmail());
 
 		if (isEmpty(clientId)) {
 			log.info("Tenant {} does not have clientId.  Memberships will NOT be synchronized.", tenantGuid);
@@ -612,7 +609,6 @@ public class PlusServiceImpl implements PlusService {
 
 		cLog.setAction("syncSiteMemberships context="+context.getId()+" tenant="+context.getTenant()+" contextMemberships="+contextMemberships+" access_token="+nrpsAccessToken.access_token);
 
-		String MEDIA_TYPE_MEMBERSHIPS = "application/vnd.ims.lti-nrps.v2.membershipcontainer+json";
 		Map<String, String> headers = new TreeMap<>();
 		headers.put("Authorization", "Bearer "+nrpsAccessToken.access_token);
 		headers.put("Accept", LTI13ConstantsUtil.MEDIA_TYPE_MEMBERSHIPS);
@@ -827,7 +823,6 @@ public class PlusServiceImpl implements PlusService {
 		String oidcAudience = tenant.getOidcAudience();
 		String deploymentId = context.getDeploymentId();
 		if ( isEmpty(oidcAudience) ) oidcAudience = oidcTokenUrl;
-		boolean trustEmail = ! Boolean.FALSE.equals(tenant.getTrustEmail());
 
 		if (isEmpty(clientId)) {
 			log.info("Tenant {} does not have clientId.  Scores will NOT be synchronized.", tenantGuid);
@@ -1029,7 +1024,6 @@ public class PlusServiceImpl implements PlusService {
 		String oidcTokenUrl = tenant.getOidcToken();
 		String oidcAudience = tenant.getOidcAudience();
 		if ( isEmpty(oidcAudience) ) oidcAudience = oidcTokenUrl;
-		boolean trustEmail = ! Boolean.FALSE.equals(tenant.getTrustEmail());
 
 		if (isEmpty(clientId)) {
 			log.info("Tenant {} does not have clientId.  Scores will NOT be synchronized.", tenantGuid);
@@ -1316,7 +1310,7 @@ public class PlusServiceImpl implements PlusService {
 		score.gradingProgress = Score.GRADING_FULLYGRADED;
 
 		// Delete any old "in-flight" score update, only keep the latest
-		Integer count = scoreRepository.deleteBySubjectAndColumn(subject, gradebookColumnId);
+		scoreRepository.deleteBySubjectAndColumn(subject, gradebookColumnId);
 
 		// Track this in our local database including success / failure of the LMS interaction
 		org.sakaiproject.plus.api.model.Score dbsc = new org.sakaiproject.plus.api.model.Score();

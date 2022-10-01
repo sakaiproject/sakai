@@ -26,8 +26,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import org.hibernate.SessionFactory;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +75,6 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 	@Autowired private SecurityService securityService;
 	@Autowired private SessionManager sessionManager;
 	@Autowired private UserDirectoryService userDirectoryService;
-	@Autowired private SessionFactory sessionFactory;
 	@Autowired private TenantRepository tenantRepository;
 	@Autowired private SubjectRepository subjectRepository;
 	@Autowired private ContextRepository contextRepository;
@@ -250,7 +247,7 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		newContext = contextRepository.findByContextAndTenant("SI364", tenant);
 
 		LineItem lineItem = new LineItem();
-		lineItem.setId(new Long(42));
+		lineItem.setId(42l);
 		lineItem.setResourceId("YADA");
 		lineItem.setContext(context);
 		lineItem.setUpdatedAt(Instant.now());
@@ -267,7 +264,7 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 
 		Score score = new Score();
 		// Set the logical keys
-		score.setGradeBookColumnId(new Long(42));
+		score.setGradeBookColumnId(42l);
 		score.setSubject(subject);
 		score.setComment("Yada");
 
@@ -319,7 +316,7 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		assertEquals(gp, Score.GRADING_PROGRESS.PendingManual);
 
 		// Load up the score and check
-		Long gradeBookColumn = new Long(42);
+		Long gradeBookColumn = 42l;
 		Score loadScore = scoreRepository.findBySubjectAndColumn(subject, gradeBookColumn);
 		assertNotNull(loadScore);
 		assertEquals(score.getId(), loadScore.getId());
@@ -327,12 +324,12 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		assertEquals(score.getComment(), loadScore.getComment());
 
 		// Load something that is not there
-		gradeBookColumn = new Long(43);
+		gradeBookColumn = 43l;
 		loadScore = scoreRepository.findBySubjectAndColumn(subject, gradeBookColumn);
 		assertNull(loadScore);
 
 		// Make a fresh Score with duplicate logical keys and re-save
-		gradeBookColumn = new Long(42);
+		gradeBookColumn = 42l;
 		score = scoreRepository.findBySubjectAndColumn(subject, gradeBookColumn);
 		assertNotNull(score);
 		score.setActivityProgress(org.tsugi.ags2.objects.Score.ACTIVITY_INITIALIZED);
@@ -360,7 +357,7 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		assertNull(score);
 
 		// Lets do a delete of non-existant score
-		gradeBookColumn = new Long(1000);
+		gradeBookColumn = 1000l;
 		count = scoreRepository.deleteBySubjectAndColumn(subject, gradeBookColumn);
 		assertEquals(count, new Integer(0));
 

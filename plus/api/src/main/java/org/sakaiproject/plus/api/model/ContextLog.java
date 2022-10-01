@@ -85,7 +85,7 @@ public class ContextLog implements PersistableEntity<Long> {
 	private String status;
 
 	@Column(name = "COUNT", nullable = true)
-	private Long count = new Long(0);
+	private Long count = 0l;
 
 	@Column(name = "ACTION", length=2000, nullable = true)
 	private String action;

@@ -17,7 +17,6 @@
 package org.sakaiproject.plus.api;
 
 import java.util.Map;
-import java.util.List;
 
 import org.sakaiproject.lti.api.LTIException;
 

@@ -126,14 +126,12 @@ public class MainController {
 	@PostMapping("/tenant")
 	public String submitForm(@ModelAttribute("tenant") Tenant tenant) {
 
-		Tenant editTenant = null;
 		String oldTenantId = tenant.getId();
 		if ( oldTenantId != null ) {
 			Optional<Tenant> optTenant = tenantRepository.findById(oldTenantId);
-			if ( optTenant.isPresent() ) {
-				editTenant = optTenant.get();
-			}
+			if ( ! optTenant.isPresent() ) return "notfound";
 
+			Tenant editTenant = optTenant.get();
 			editTenant.setTitle(tenant.getTitle());
 			editTenant.setDescription(tenant.getDescription());
 			editTenant.setIssuer(tenant.getIssuer());
@@ -165,10 +163,8 @@ public class MainController {
 		if ( ! isAdmin() ) return "notallow";
 
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantId);
-		Tenant tenant = null;
-		if ( optTenant.isPresent() ) {
-			tenant = optTenant.get();
-		}
+		if ( ! optTenant.isPresent() ) return "notfound";
+		Tenant tenant = optTenant.get();
 
 		loadModel(model, request);
 		model.addAttribute("tenant", tenant);
@@ -191,10 +187,8 @@ public class MainController {
 		if ( ! isAdmin() ) return "notallow";
 
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantId);
-		Tenant tenant = null;
-		if ( optTenant.isPresent() ) {
-			tenant = optTenant.get();
-		}
+		if ( ! optTenant.isPresent() ) return "notfound";
+		Tenant tenant = optTenant.get();
 
 		loadModel(model, request);
 		model.addAttribute("tenant", tenant);
@@ -208,10 +202,8 @@ public class MainController {
 		if ( ! isAdmin() ) return "notallow";
 
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantId);
-		Tenant tenant = null;
-		if ( optTenant.isPresent() ) {
-			tenant = optTenant.get();
-		}
+		if ( ! optTenant.isPresent() ) return "notfound";
+		Tenant tenant = optTenant.get();
 
 		loadModel(model, request);
 		model.addAttribute("tenant", tenant);
@@ -224,10 +216,8 @@ public class MainController {
 		if ( ! isAdmin() ) return "notallow";
 
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantId);
-		Tenant tenant = null;
-		if ( optTenant.isPresent() ) {
-			tenant = optTenant.get();
-		}
+		if ( ! optTenant.isPresent() ) return "notfound";
+
 		log.info("Deleteing Plus Tenant id={}", tenantId);
 
 		tenantRepository.deleteById(tenantId);
@@ -241,10 +231,8 @@ public class MainController {
 		loadModel(model, request);
 
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantId);
-		Tenant tenant = null;
-		if ( optTenant.isPresent() ) {
-			tenant = optTenant.get();
-		}
+		if ( ! optTenant.isPresent() ) return "notfound";
+		Tenant tenant = optTenant.get();
 
 		model.addAttribute("tenant", tenant);
 
@@ -265,10 +253,8 @@ public class MainController {
 	public String contextDetail(Model model, String contextId, HttpServletRequest request) {
 
 		Optional<Context> optContext = contextRepository.findById(contextId);
-		Context context = null;
-		if ( optContext.isPresent() ) {
-			context = optContext.get();
-		}
+		if ( ! optContext.isPresent() ) return "notfound";
+		Context context = optContext.get();
 
 		loadModel(model, request);
 		model.addAttribute("tenantId", context.getTenant().getId());
@@ -302,26 +288,24 @@ public class MainController {
 	 */
 	private Session getSakaiSession() {
 
-		Session session;
 		try {
-			session = sessionManager.getCurrentSession();
+		    Session session = sessionManager.getCurrentSession();
 			if (StringUtils.isBlank(session.getUserId())) {
 				log.error("Sakai user session is invalid");
 				throw new MissingSessionException();
 			}
+			return session;
 		} catch (IllegalStateException e) {
 			log.error("Could not retrieve the sakai session");
 			throw new MissingSessionException(e.getCause());
 		}
-
-		return session;
 	}
 
 	/**
 	 * Check if this is an admin placement
 	 */
 	private boolean isAdmin() {
-		Session session = getSakaiSession();
+		getSakaiSession();
 		Placement placement = toolManager.getCurrentPlacement();
 		return ltiService.isAdmin(placement.getContext());
 	}
@@ -332,7 +316,7 @@ public class MainController {
 	private boolean isInstructor(String contextId) {
 
 		// Just to make sure.
-		Session session = getSakaiSession();
+		getSakaiSession();
 
 		return siteService.allowUpdateSite(contextId);
 	}
