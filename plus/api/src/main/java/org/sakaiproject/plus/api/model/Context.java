@@ -33,16 +33,16 @@ import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "PLUS_CONTEXT",
   indexes = { @Index(columnList = "CONTEXT, TENNANT_GUID, SAKAI_SITE_ID") },
   uniqueConstraints = { @UniqueConstraint(columnNames = { "CONTEXT", "TENNANT_GUID" }) }
 )
-@Getter
-@Setter
+@Data
 public class Context extends BaseLTI implements PersistableEntity<String> {
 
 	@Id
@@ -57,6 +57,8 @@ public class Context extends BaseLTI implements PersistableEntity<String> {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "TENNANT_GUID", nullable = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Tenant tenant;
 
 	// For many-deployment systems like Canvas, we can have as many as one

@@ -31,16 +31,16 @@ import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "PLUS_LINK",
   indexes = { @Index(columnList = "LINK, CONTEXT_GUID, SAKAI_TOOL_ID") },
   uniqueConstraints = { @UniqueConstraint(columnNames = { "LINK", "CONTEXT_GUID" }) }
 )
-@Getter
-@Setter
+@Data
 public class Link extends BaseLTI implements PersistableEntity<String> {
 
 	@Id
@@ -57,6 +57,8 @@ public class Link extends BaseLTI implements PersistableEntity<String> {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CONTEXT_GUID", nullable = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Context context;
 
 	// We don't have a LineItem here because Plus ignores Basic Outcomes.

@@ -32,8 +32,9 @@ import javax.persistence.CascadeType;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "PLUS_LINEITEM",
@@ -42,8 +43,7 @@ import lombok.Setter;
 )
 
 // https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service-scope-and-allowed-http-methods
-@Getter
-@Setter
+@Data
 public class LineItem extends BaseLTI implements PersistableEntity<Long> {
 
 	// This is in effect a 1-to-1 with GB_GRADABLE_OBJECT_T.ID
@@ -53,11 +53,15 @@ public class LineItem extends BaseLTI implements PersistableEntity<Long> {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CONTEXT_GUID", nullable = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Context context;
 
 	// Can optionally belong to a link
 	@OneToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "LINK_GUID", nullable = true)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Link link;
 
 	// The AGS resourceId - recommended

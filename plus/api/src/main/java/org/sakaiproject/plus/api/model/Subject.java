@@ -30,8 +30,9 @@ import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /*
  *  The logical key for this table is is either (tenant, email) or (tenant, subject)
@@ -42,8 +43,7 @@ import lombok.Setter;
 @Table(name = "PLUS_SUBJECT",
   indexes = @Index(columnList = "SUBJECT, TENNANT_GUID, SAKAI_USER_ID, EMAIL")
 )
-@Getter
-@Setter
+@Data
 public class Subject extends BaseLTI implements PersistableEntity<String> {
 
 	@Id
@@ -56,10 +56,14 @@ public class Subject extends BaseLTI implements PersistableEntity<String> {
 	private String sakaiUserId;
 
 	@Column(name = "SUBJECT", length = LENGTH_URI, nullable = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private String subject;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "TENNANT_GUID", nullable = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Tenant tenant;
 
 	@Column(name = "DISPLAYNAME", length = LENGTH_TITLE, nullable = true)

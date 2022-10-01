@@ -29,31 +29,35 @@ import javax.persistence.Table;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "PLUS_MEMBERSHIP",
   indexes = { @Index(columnList = "SUBJECT_GUID, CONTEXT_GUID") },
   uniqueConstraints = { @UniqueConstraint(columnNames = { "SUBJECT_GUID", "CONTEXT_GUID" }) }
 )
-@Getter
-@Setter
+@Data
 public class Membership extends BaseLTI implements PersistableEntity<Long> {
 
 	public static final Integer ROLE_LEARNER = 0;
 	public static final Integer ROLE_INSTRUCTOR = 1000;
 
-    @Id @GeneratedValue
-    @Column(name = "MEMBERSHIP_ID")
-    private Long id;
+	@Id @GeneratedValue
+	@Column(name = "MEMBERSHIP_ID")
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "SUBJECT_GUID", nullable = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Subject subject;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CONTEXT_GUID", nullable = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Context context;
 
 	@Column(name = "ROLE", nullable = true)

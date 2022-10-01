@@ -38,8 +38,9 @@ import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 // https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
 @Entity
@@ -48,8 +49,7 @@ import lombok.Setter;
   // The "logical key" (i.e. when to update versus insert new is subject / column) 
   uniqueConstraints = { @UniqueConstraint(columnNames = { "SUBJECT_GUID", "SAKAI_GRADABLE_OBJECT_ID" }) }
 )
-@Getter
-@Setter
+@Data
 public class Score implements PersistableEntity<String> {
 
 	// These enums *names* must match the values in the spec as they are matched with strings at times
@@ -75,6 +75,8 @@ public class Score implements PersistableEntity<String> {
 
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "SUBJECT_GUID", nullable = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Subject subject;
 
 	@Column(name = "ACTIVITY_PROGRESS", nullable = true)
