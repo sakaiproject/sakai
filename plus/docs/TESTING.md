@@ -82,6 +82,15 @@ Launch the Plus tool as the student - it should not show any logging data. After
 test, you can hide the tool from students - it is not intended (so far) to give students
 any UI - in the future we might add a student view of this tool.
 
+One feature of SakaiPlus is site title synchronization.  One each launch, the site title
+is passed from the main site to the plus site.   You can test by changing the main site
+title then launching the plus site and watching the title change.  If you change the plus
+site title and re-launch from the main stie the plus site title should be overwritten.
+It can be a little weird for there to be two titles in the top bar - but yu can keep track
+of which is which by the tools in each site or the content in the site - perhaps something
+on the overview page.  This loop-back pattern is not really intended for production
+use or deployment - it is really just for testing.
+
 Now we need to generate grades in the Plus site and keep checking to see they make it to
 the Main site.  Here are some scenarios:
 
@@ -113,5 +122,15 @@ TODO
 
 Document a test plan for the Deep Link / Content Item use cases with Plus
 
-Test with zero, one and two allowedTools
+Test with zero, one and two allowedTools - it treats these use cases quite differently.
+If there is > 1 tool, you see a set of cards (like Tsugi) to allow you to choose which
+Sakai tool to install.  With 1 tool, it just auto-chooses that tool and installs it with
+no list of cards.  If there are zero tools (not a very usefu use case) it falls back to
+installing `sakai.site`.
+
+You need to launch tools in an iframe and then in a new window.  It is easy to do this in
+Lessons.   Neither shoudl show any of the site list or tool list navigation (see screenshots
+in JIRA)
+
+
 
