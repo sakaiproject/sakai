@@ -22,8 +22,13 @@
 
     <li class="site-list-item py-1 $!{currentSiteClass}">
         <div class="site-list-item-head d-flex align-items-stretch pe-2">
-            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 d-flex flex-grow-1 $!{isCollapsedClass}" data-bs-toggle="collapse" data-bs-target="#site-${index}-pages" aria-expanded="${isExpanded}" aria-controls="site-${index}-pages">
-                <i class="btn-site-carret" aria-hidden="true"></i><span>${site.title}</span>
+            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 d-flex flex-grow-1 $!{isCollapsedClass}"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#site-${index}-pages"
+                    aria-expanded="${isExpanded}"
+                    aria-controls="site-${index}-pages">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                <span>${site.title}</span>
             </button>
             #if ($loggedIn)
                 <button data-pin-site="${site.id}" data-pinned="$!{site.isPinned}" title="${pinTitle}" class="site-opt-pin btn btn-site-opt bi $!{pinIconClass}"></button>

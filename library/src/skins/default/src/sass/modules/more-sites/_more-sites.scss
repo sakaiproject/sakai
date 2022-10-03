@@ -4,6 +4,17 @@ body.active-more-sites {
 
 #select-site-modal {
   @include transition(left 0.4s linear 0s);
+  .modal-content {
+    background: var(--sakai-modal-content-bg);
+    .modal-header {
+      background: var(--sakai-modal-header-bg);
+      color: var(--sakai-modal-header-color);
+      .btn-close {
+        //color: var(--sakai-modal-close-btn-color);
+        background-color: var(--sakai-modal-close-btn-bg);
+      }
+    }
+  }
   &:after {
     bottom: 100%;
     right: calc(#{$standard-spacing} / 2);
@@ -38,6 +49,15 @@ body.active-more-sites {
 }
 
 #selectSite {
+
+  .nav-tabs .nav-link[aria-selected='true'] {
+    background-color: var(--sakai-background-color-1);
+    color: var(--sakai-text-color-1);
+  }
+
+  .nav-tabs .nav-link[aria-selected='false'] {
+    color: var(--sakai-text-color-1);
+  }
 
   .favorites-term-header {
     color: var(--all-sites-title-text-color);

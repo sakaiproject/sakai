@@ -1,7 +1,7 @@
 #if (${userIsLoggedIn})
 <aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-accountPanel" aria-labelledby="sakai-accountPanelLabel">
   <div class="offcanvas-header">
-    <h2 class="offcanvas-title visually-hidden" id="sakai-accountPanelLabel">Account Menu</h2>
+    <h2 class="offcanvas-title" id="sakai-accountPanelLabel">Account Menu</h2>
     <span>&nbsp;</span>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this account menu"></button>
   </div>

@@ -13,6 +13,17 @@ class SitesSidebar {
     pinButtonElements.forEach((buttonEl) => new PinButton(buttonEl, { i18n: this._i18n?.pinButtons}));
 
     document.addEventListener("site-pin-change", this.#handlePinChange)
+
+    element.querySelectorAll(".site-list-item-collapse").forEach(btn => {
+
+      const chevron = element.querySelector(`[data-bs-target='#${btn.id}'] > i`);
+      btn.addEventListener("show.bs.collapse", e => {
+        chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
+      });
+      btn.addEventListener("hide.bs.collapse", e => {
+        chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
+      });
+    });
   }
 
   setView(mobile) {

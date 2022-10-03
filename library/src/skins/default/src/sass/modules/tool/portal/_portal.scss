@@ -72,6 +72,33 @@
   overflow-x: auto;
   overflow-y: auto;
 }
+
+.offcanvas {
+  background-color: var(--sakai-background-color-2);
+  .offcanvas-header {
+    background-color: var(--sakai-offcanvas-header-bg);
+    color: var(--sakai-offcanvas-header-color);
+    .btn-close {
+      background-color: var(--sakai-offcanvas-close-btn-bg);
+    }
+  }
+}
+.accordion-item {
+  background-color: var(--sakai-background-color-3);
+  color: var(--sakai-text-color);
+  .accordion-button {
+    color: var(--sakai-text-color-1);
+
+    background-color: var(--sakai-background-color-3);
+    &:not(.collapsed) {
+      background-color: var(--sakai-background-color-3);
+    }
+  }
+}
+.accordion-collapse {
+  background-color: var(--sakai-background-color-1);
+}
+
 .portal-footer {
   grid-area: footer;
 }
@@ -234,14 +261,16 @@
     overflow-y: scroll;
   }
 
+  /*
   a.btn-nav{
     color: var(--button-color);
     &:hover,
     &:focus {
       outline: none;
+      color: var(--site-nav-btn-current-hover-color);
     }
   }
-
+  */
 
   .btn-site-opt {
     &:hover,
@@ -255,6 +284,16 @@
   }
 
   .btn-nav {
+    color: var(--button-color);
+    &:hover,
+    &:focus {
+      outline: none;
+      color: var(--site-nav-btn-current-hover-color);
+    }
+
+    span {
+      margin-left: 5px;
+    }
     border-radius: 0;
   }
 
