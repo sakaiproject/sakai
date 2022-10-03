@@ -6,386 +6,150 @@ let modalFocusableItems, panelLastButton;
 
 var dhtml_view_sites = function () {
 
-  // first time through set up the DOM
-  $PBJQ('#selectSiteModal').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
-  $PBJQ('.more-tab').position();
-  var paneHeight = $PBJQ(window).height() * 0.8;
+  const modal = document.getElementById("select-site-modal");
+  const otherSitesPanel = document.getElementById("otherSitesCategorWrap");
+  const organizeFavSitesPanel = document.getElementById("organizeFavorites");
 
-  // then recast the function to the post initialized state which will run from then on
-  dhtml_view_sites = function () {
+  modal.show();
 
-    const modal = $PBJQ('#selectSiteModal');
-    const otherSitesPanel = $PBJQ('#otherSitesCategorWrap');
-    const organizeFavSitesPanel = $PBJQ('#organizeFavorites');
+  if (!modalFocusableItems || !panelLastButton) {
+    // Find focusable items in the modal, including otherSitesPanel elements
+    // + #autoFavoritesEnabled switch from organizeFavSitesPanel.
+    //modalFocusableItems = modal.find('button, a');
+    modalFocusableItems = modal.querySelectorAll("button, a");
+    // The last button inside otherSitesPanel, should be .toolMenus expand arrow.
+    panelLastButton = modal.querySelector("button.toolMenus:last");
+  }
 
-    modal.show();
+  // Lock the focus into the modal links
+  modal.addEventListener("keydown", e => {
 
-    if (typeof modalFocusableItems == 'undefined' || typeof panelLastButton == 'undefined') {
-      // Find focusable items in the modal, including otherSitesPanel elements
-      // + #autoFavoritesEnabled switch from organizeFavSitesPanel.
-      modalFocusableItems = modal.find('button, a');
-      // The last button inside otherSitesPanel, should be .toolMenus expand arrow.
-      panelLastButton = modal.find('button.toolMenus:last');
+    let cancel = false;
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+      return;
     }
-
-    // Lock the focus into the modal links
-    modal.on('keydown', function (e) {
-      let cancel = false;
-      if (e.ctrlKey || e.metaKey || e.altKey) {
-        return;
-      }
-      switch (e.which) {
-        case 27: // ESC
-          closeDrawer();
-          cancel = true;
-          break;
-        case 9: // TAB
-          const siteToolsList = $PBJQ('ul#otherSiteTools');
-          const hasFocus = siteToolsList.has(e.target);
-          // If a siteToolsList item is focused.
-          if (hasFocus.length > 0) {
-            const listExpandArrow = siteToolsList.prev();
-            if (listExpandArrow[0] === panelLastButton[panelLastButton.length - 1]) {
-              modalFocusableItems[0].focus();
-            }
-            if (e.shiftKey) {
-              listExpandArrow.focus();
-            } else {
-              modalFocusableItems.each(function (i, item) {
-                if (listExpandArrow[0] === item) {
-                  modalFocusableItems[i + 1].focus();
-                }
-              });
-            }
-            // Close siteToolsList when losing focus.
-            $PBJQ('.toolMenus').removeClass('toolMenusActive').attr('aria-expanded', 'false');
-            $PBJQ('#otherSiteTools').remove();
-            cancel = true;
-          }
+    switch (e.which) {
+      case 27: // ESC
+        closeDrawer();
+        cancel = true;
+        break;
+      case 9: // TAB
+        const siteToolsList = document.getElementById("otherSiteTools");
+        // If a siteToolsList item is focused.
+        if (siteToolsList.contains(e.target)) {
+          const listExpandArrow = siteToolsList.previousSibling;
+          listExpandArrow.isEqualNode(panelLastButton) && modalFocusableItems[0].focus();
           if (e.shiftKey) {
-            if (e.target === modalFocusableItems[0]) {
-              if (organizeFavSitesPanel.css('display') === 'block') {
-                modalFocusableItems[modalFocusableItems.length - 1].focus();
-              } else {
-                panelLastButton[panelLastButton.length - 1].focus();
-              }
-              cancel = true;
+            listExpandArrow.focus();
+          } else {
+            modalFocusableItems.forEach((item, i) => {
+              listExpandArrow.isEqualNode(item) && modalFocusableItems[i + 1].focus();
+            });
+          }
+          // Close siteToolsList when losing focus.
+          document.querySelectorAll(".toolMenus").forEach(el => {
+            el.classList.remove("toolMenusActive");
+            el.setAttribute("aria-expanded", "false");
+          });
+          document.getElementById("otherSiteTools").remove();
+          cancel = true;
+        }
+        if (e.shiftKey) {
+          if (e.target.isEqualNode(modalFocusableItems[0])) {
+            if (organizeFavSitesPanel.style.display === "block") {
+              modalFocusableItems[modalFocusableItems.length - 1].focus();
+            } else {
+              panelLastButton[panelLastButton.length - 1].focus();
             }
-          } else if (e.target === modalFocusableItems[modalFocusableItems.length - 1] || e.target === panelLastButton[panelLastButton.length - 1]) {
-            modalFocusableItems[0].focus();
             cancel = true;
           }
-          break;
-      }
-      if (cancel) {
-        e.preventDefault();
-      }
-    });
-
-    if (modal.hasClass('outscreen')) {
-      $PBJQ('body').toggleClass('active-more-sites');
-      $PBJQ('#viewAllSites').attr('aria-expanded', 'true');
-
-      // Align with the bottom of the main header in desktop mode
-      var allSitesButton = $PBJQ('.view-all-sites-btn:visible');
-
-      var topPadding = allSitesButton.height() + 5;
-
-      if (allSitesButton.length > 0) {
-        // Raise the button to keep it visible over the modal overlay
-        allSitesButton.css('z-index', 1005);
-
-        var topPosition = allSitesButton.offset().top - $PBJQ(window).scrollTop() + topPadding;
-        var rightPosition = $PBJQ('body').outerWidth() - (allSitesButton.offset().left + allSitesButton.outerWidth());
-        if ($PBJQ('html').attr('dir') !== "rtl") {
-          modal.css('top', topPosition).css('right', rightPosition);
-        } else {
-          modal.css('top', topPosition).css('left', $PBJQ('body').outerWidth() - rightPosition);
+        } else if (e.target.isEqualNode(modalFocusableItems[modalFocusableItems.length - 1])
+              || e.target.isEqualNode(panelLastButton[panelLastButton.length - 1])) {
+          modalFocusableItems[0].focus();
+          cancel = true;
         }
-      }
-
-      modal.toggleClass('outscreen');
-
-      // Adjust for our offset from the top of the screen
-      paneHeight -= topPosition;
-
-      // and adjust to show the bottom of the modal frame
-      paneHeight -= parseInt(modal.css('padding-bottom'), 20);
-
-      // Focus element based on the selected tab/panel
-      if (otherSitesPanel.css('display') === 'block') {
-        // Avoid auto zoom to focus text field on touch devices
-        if (MorpheusViewportHelper.isNonPhone()) {
-          $PBJQ('#txtSearch').focus();
-        }
-      }
-      if (organizeFavSitesPanel.css('display') === 'block') {
-        $PBJQ('#allSites').focus();
-      }
-
-      createDHTMLMask(dhtml_view_sites);
-
-      $PBJQ('.selectedTab').bind('click', function (e) {
-        dhtml_view_sites();
-        return false;
-      });
-
-      $PBJQ('.tab-pane:first').focus();
-
-      $PBJQ(document).trigger('view-sites-shown');
+        break;
     }
-    else {
-      // hide the dropdown
-      $PBJQ('body').toggleClass('active-more-sites');
-      $PBJQ('#viewAllSites').attr('aria-expanded', 'false');
-      $PBJQ('#selectSiteModal').toggleClass('outscreen'); //hide the box
-
-      // Restore the button's zIndex so it doesn't hover over other overlays
-      var allSitesButton = $PBJQ('.view-all-sites-btn');
-      allSitesButton.css('z-index', 'auto');
-
-      $PBJQ('#selectSite').attr('tabindex', '-1');
-      removeDHTMLMask()
-      $PBJQ('#otherSiteTools').remove();
-      $PBJQ('.selectedTab').unbind('click');
+    if (cancel) {
+      e.preventDefault();
     }
-
-  }
-
-
-  if ($PBJQ(window).width() < 800) {
-    paneHeight = paneHeight * 0.85;
-  }
-  $PBJQ('.tab-pane').css('height', paneHeight);
-
-  // finally run the inner function, first time through
-  dhtml_view_sites();
+  });
 }
 
-function closeDrawer() {
-
-  $PBJQ('#selectSiteModal').toggleClass('outscreen');  //hide the box
-  removeDHTMLMask();
-  $PBJQ('#selectSite').attr('tabindex', '-1');
-  $PBJQ('#otherSiteTools').remove();
-  $PBJQ('.selectedTab').unbind('click');
-  $PBJQ('.moreSitesLink').unbind('keydown');
-
-  // For desktop screen size
-  if ($PBJQ('.view-all-sites-btn a:visible').length) {
-    $PBJQ('.view-all-sites-btn a').focus();
-  }
-  else {
-    $PBJQ('.js-toggle-sites-nav').focus();
-  }
-
-}
-
-function createDHTMLMask(callback) {
-  $PBJQ('body').append('<div id="portalMask">&nbsp;</div>');
-
-  $PBJQ('#portalMask')
-    .css('height', browserSafeDocHeight())
-    .css({
-      'width': '100%',
-      'z-index': 1000,
-      'top': 0,
-      'left': 0
-    })
-    .attr('tabindex', -1)
-    .bind("click", function (event) {
-      closeDrawer();
-      return false;
-    });
-
-  $PBJQ('#portalMask').bgiframe();
-}
-
-function removeDHTMLMask() {
-  $PBJQ('#portalMask').remove();
-}
-
-/** Shows a drawer site tool dropdown **/
-function showToolMenu(jqObj) {
-  var classId = jqObj.attr('id').replace('-toolMenus', '');
-  // We need to escape special chars, like exclamations, or else $PBJQ selectors don't work.
-  var id = classId.replace(/!/g, '\\!').replace(/~/g, '\\~');
-  $PBJQ('.toolMenus').removeClass('toolMenusActive').attr('aria-expanded', 'false');
-
-  if ($PBJQ('.' + id).length) {
-    $PBJQ('#otherSiteTools').remove();
-  } else {
-    var subsubmenu_elt = $PBJQ('<ul id="otherSiteTools" role="list" />').addClass(classId);
-    var siteURL = '/direct/site/' + classId + '/pages.json';
-    scroll(0, 0);
-    var maxToolsInt = parseInt($PBJQ('#maxToolsInt').text());
-    var maxToolsText = $PBJQ('#maxToolsText').text();
-
-    var li_template = $PBJQ('<li class="otherSiteTool" role="listitem">' +
-      '<span>' +
-      '<a tabindex="-1"><span class="Mrphs-toolsNav__menuitem--icon"> </span></a>' +
-      '</span>' +
-      '</li>');
-
-    var goToSite = li_template.clone();
-
-    goToSite.addClass('gotosite');
-
-    goToSite.find('a')
-      .attr('href', portal.portalPath + '/site/' + classId)
-      .attr('title', maxToolsText)
-      .append(maxToolsText);
-
-    goToSite.find('a span').addClass('icon-sakai--see-all-tools')
-
-    $PBJQ.getJSON(siteURL, function (data) {
-      $PBJQ.each(data, function (i, item) {
-
-        if (!item.tools[0]) {
-          // This item has a page with no tool.  Skip over it.
-          return true;
-        }
-
-        if (i < maxToolsInt) {
-          var li = li_template.clone();
-          // Set the item URL and text
-          li.find('a')
-            .attr('href', item.tools[0].url)
-            .attr('title', item.title)
-            .append(item.title);
-
-          // And its icon
-          li.find('a span')
-            .addClass('icon-sakai--' + item.tools[0].toolId.replace(/\./gi, '-'))
-            .addClass('otherSiteToolIcon');
-
-          if (item.toolpopup) {
-            // For popups, we add an extra URL parameter and an onclick event
-            li.find('a')
-              .attr('href', item.tools[0].url + '?sakai.popup=yes')
-              .attr('onclick', 'window.open(' + item.toolpopupurl + '); return false');
-          }
-
-          subsubmenu_elt.append(li);
-        }
-      });
-
-      // If we couldn't show all the tools, offer a "go to site" link
-      if (data.length > maxToolsInt) {
-        subsubmenu_elt.append(goToSite.clone());
-      }
-
-      $PBJQ('#otherSiteTools').remove();
-      jqObj.closest('li').append(subsubmenu_elt);
-      // Move focus to first option and setup menu tools for arrow navigation
-      jqObj.closest('li').find('ul li a').first().focus();
-      addArrowNavAndDisableTabNav($PBJQ('ul#otherSiteTools'));
-
-      jqObj.parent().find('.toolMenus').addClass("toolMenusActive").attr('aria-expanded', 'true');
-    }); // end json call
-  }
-}
-
-$PBJQ(document).ready(function () {
-
-  if ($PBJQ('#eid').length === 1) {
-    $PBJQ('#eid').focus()
-  }
+//$PBJQ(document).ready(function () {
 
   // Open all Sites with mobile view
-  $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", dhtml_view_sites);
-
-  // Open all Sites with Desktop view
-  $PBJQ("#show-all-sites, .view-all-sites-btn").on("click", dhtml_view_sites);
+  //document.getElementById("sakai-view-all-sites")?.addEventListener("click", dhtml_view_sites);
 
   // prepend site title to tool title
   // here as reminder to work on an actual breadcrumb integrated with neo style tool updates
-  //var siteTitle = ($PBJQ('.nav-selected span:first').text())
-  var siteTitle = portal.siteTitle;
+  let siteTitle = portal.siteTitle;
 
-  if (siteTitle) {
-    if (portal.shortDescription) {
-      siteTitle = siteTitle + " (" + portal.shortDescription + ")"
-    }
-
-    $PBJQ('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
+  if (siteTitle && portal.shortDescription) {
+    siteTitle = `${siteTitle} (${portal.shortDescription})`;
+    document.querySelectorAll(".portletTitle h2").forEach(el => {
+      el.insertAdjacentHTML("beforebegin", `<span class=\"siteTitle\">${siteTitle}:</span>`);
+    });
   }
 
-  $PBJQ('#txtSearch').keyup(function (event) {
+  const searchInput = document.getElementById("search-all-sites");
+  searchInput && searchInput.addEventListener("keyup", event => {
+
     if (event.keyCode == 27) {
       resetSearch();
     }
 
-    if ($PBJQ('#txtSearch').val().length > 0) {
-      var queryString = $PBJQ('#txtSearch').val().toLowerCase();
+    if (searchInput.value.length > 0) {
+      const queryString = searchInput.value.toLowerCase();
 
-      $PBJQ('.fav-sites-term, .fav-sites-entry').hide();
+      document.querySelectorAll(".fav-sites-term, .fav-sites-entry")
+        .forEach(el => el.style.display = "none");
 
-      var matched_sites = $PBJQ('.fav-sites-entry').filter(function (idx, entry) {
-        return ($PBJQ('.fav-title a span.fullTitle', entry).text().toLowerCase().indexOf(queryString) >= 0);
+      const matchedSites = Array.from(document.querySelectorAll(".fav-sites-entry")).filter(el => {
+        return entry.querySelector(".fav-title a span.fullTitle").textContent.toLowerCase().indexOf(queryString) >= 0;
       });
 
-      matched_sites.show();
-      matched_sites.closest('.fav-sites-term').show();
-    }
+      matchedSites.forEach(el => {
 
-    if ($PBJQ('#txtSearch').val().length == 0) {
+        el.style.display = "initial";
+        const term = el.closest(".fav-sites-term");
+        term && (term.style.display = "initial");
+      });
+    } else {
       resetSearch();
     }
 
     // Should be <=1 if there is a header line
-    if ($PBJQ('#otherSiteList li:visible').length < 1 && $PBJQ('.otherSitesCategorList li:visible').length < 1) {
-      $PBJQ('.norecords').remove();
-      $PBJQ('#noSearchResults').fadeIn('slow');
+    if (document.querySelectorAll("#otherSiteList li:visible").length < 1
+          && document.querySelectorAll(".otherSitesCategorList li:visible").length < 1) {
+      document.getElementById("no-search-results").style.display = "initial";
     }
   });
 
   function resetSearch() {
-    $PBJQ('#txtSearch').val('');
-    $PBJQ('.fav-sites-term, .fav-sites-entry').show();
-    $PBJQ('#noSearchResults').hide();
-    $PBJQ('#txtSearch').focus();
+
+    const searchInput = document.getElementById("search-all-sites");
+    searchInput && (searchInput.value = "");
+    searchInput?.focus();
+    document.querySelectorAll(".fav-sites-term, .fav-sites-entry").forEach(el => el.style.display = "initial");
+    const noResults = document.getElementById("no-search-results");
+    noResults && (noResults.style.display = "none");
   }
-
-  //toggle presence panel
-  $PBJQ("#presenceToggle").click(function (e) {
-    e.preventDefault();
-    $PBJQ('#presenceArea').toggle();
-  });
-
-  //explicitly close presence panel
-  $PBJQ('.trayPopupClose').click(function (e) {
-    e.preventDefault();
-    $PBJQ(this).closest('.trayPopup').hide();
-  });
-
-  //bind directurl checkboxes
-  if ($PBJQ('a.tool-directurl').length) $PBJQ('a.tool-directurl').cluetip({
-    local: true,
-    arrows: true,
-    cluetipClass: 'jtip',
-    sticky: true,
-    cursor: 'pointer',
-    activation: 'click',
-    closePosition: 'title',
-    closeText: '<img src="/library/image/silk/cross.png" alt="close">'
-  });
-
-});
+//});
 
 
-$PBJQ(document).ready(function ($) {
+//$PBJQ(document).ready(function ($) {
   // The list of favorites currently stored
   var autoFavoritesEnabled = true;
 
   // Keep a copy of the favoritesList as it was before any changes were made.
   // If the user makes a set of changes that ultimately revert us back to where we
   // started, we don't need to show the indicator to reload the page.
-  var initialFavoritesList = undefined;
+  let initialFavoritesList = undefined;
 
-  var favoritesList = [];
+  const favoritesList = [];
 
-  var maxFavoriteEntries = $PBJQ('#max-favorite-entries').text().trim();
+  const maxFavoriteEntries = document.getElementById("max-favorite-entries").textContent.trim();
 
   // True if we've finished fetching and displaying the initial list
   //
@@ -393,10 +157,10 @@ $PBJQ(document).ready(function ($) {
   // the user gets in too quickly
   var favoritesLoaded = false;
 
-  var container = $PBJQ('#selectSite');
-  var favoritesPane = $PBJQ('#otherSitesCategorWrap');
-  var organizePane = $PBJQ('#organizeFavorites');
-  var topNavPane = $PBJQ('#topnav');
+  var container = document.getElementById("selectSite");
+  var favoritesPane = document.getElementById('otherSitesCategorWrap');
+  var organizePane = document.getElementById('organizeFavorites');
+  var topNavPane = document.getElementById('topnav');
 
   // Keep a copy of the order of the sites across the top bar in case a user
   // unpins and then repins a site to the top bar without refreshing: the order
@@ -675,7 +439,7 @@ $PBJQ(document).ready(function ($) {
     }
 
     var notification = $PBJQ('<div class="moresites-refresh-notification" />')
-      .html($PBJQ('#refreshNotificationText').html());
+      .html(document.getElementById('refreshNotificationText').html());
 
     $PBJQ("#loginLinks").prepend(notification);
 
@@ -787,7 +551,7 @@ $PBJQ(document).ready(function ($) {
     }
   };
 
-  $PBJQ(favoritesPane).on('click', '.site-favorite-btn', function () {
+  $PBJQ(favoritesPane).addEventListener('click', '.site-favorite-btn', function () {
     var self = this;
 
     var siteId = $PBJQ(self).attr('data-site-id');
@@ -823,7 +587,7 @@ $PBJQ(document).ready(function ($) {
     });
   });
 
-  $PBJQ(favoritesPane).on('click', '.favorites-select-all-none', function () {
+  $PBJQ(favoritesPane).addEventListener('click', '.favorites-select-all-none', function () {
     var state = $PBJQ(this).data('favorite-state');
     var buttons = $PBJQ(this).closest('.fav-sites-term').find('.fav-sites-entry:not(.my-workspace) .site-favorite-btn');
 
@@ -848,7 +612,7 @@ $PBJQ(document).ready(function ($) {
     });
   });
 
-  $PBJQ(container).on('click', '.tab-btn', function () {
+  $PBJQ(container).addEventListener('click', '.tab-btn', function () {
     $PBJQ('.tab-btn', container).removeClass('active').attr('aria-selected', 'false').attr('tabindex', '-1');
     $PBJQ(this).addClass('active').attr('aria-selected', 'true').attr('tabindex', '0');
 
@@ -856,11 +620,11 @@ $PBJQ(document).ready(function ($) {
 
     $PBJQ('.tab-box').hide();
     $PBJQ(container).trigger('tab-shown', panel);
-    $PBJQ('#' + panel).show();
+    document.getElementById('' + panel).show();
   });
 
   // Arrow and spacebar nav for tabs
-  $PBJQ(container).on('keydown', '.tab-btn', function (e) {
+  $PBJQ(container).addEventListener('keydown', '.tab-btn', function (e) {
     if (e.keyCode == 32) {
       $PBJQ(this).click();
       e.preventDefault();
@@ -883,24 +647,24 @@ $PBJQ(document).ready(function ($) {
     }
   });
 
-  $PBJQ(document).on('view-sites-shown', function () {
+  $PBJQ(document).addEventListener('view-sites-shown', function () {
     loadFromServer();
   });
 
-  $PBJQ(container).on('tab-shown', function (e, panelId) {
+  $PBJQ(container).addEventListener('tab-shown', function (e, panelId) {
     if (panelId === 'organizeFavorites') {
       // Build our organize favorites screen based on the current set of
       // favorites
-      var list = $PBJQ('#organizeFavoritesList');
+      var list = document.getElementById('organizeFavoritesList');
       list.empty();
 
-      $PBJQ('#noFavoritesToShow').hide();
-      $PBJQ('#favoritesToShow').hide();
+      document.getElementById('noFavoritesToShow').hide();
+      document.getElementById('favoritesToShow').hide();
 
       // Collapse any visible tool menus
-      $PBJQ('#otherSiteTools').remove();
+      document.getElementById('otherSiteTools').remove();
 
-      $PBJQ('#organizeFavoritesPurgatoryList').empty();
+      document.getElementById('organizeFavoritesPurgatoryList').empty();
 
       $PBJQ.each(favoritesList, function (idx, siteid) {
         if (!itemsBySiteId[siteid]) {
@@ -934,9 +698,9 @@ $PBJQ(document).ready(function ($) {
 
       if (list.find('li').length == 0) {
         // No favorites are present
-        $PBJQ('#noFavoritesToShow').show();
+        document.getElementById('noFavoritesToShow').show();
       } else {
-        $PBJQ('#favoritesToShow').show();
+        document.getElementById('favoritesToShow').show();
       }
 
       var highlightMaxItems = function () {
@@ -951,7 +715,7 @@ $PBJQ(document).ready(function ($) {
           }
 
           if (idx == maxFavoriteEntries) {
-            $PBJQ(li).before($PBJQ('<li class="favorites-max-marker"><i class="fa fa-warning warning-icon"></i> ' + $PBJQ('#maxFavoritesLimitReachedText').text() + '</li>'));
+            $PBJQ(li).before($PBJQ('<li class="favorites-max-marker"><i class="fa fa-warning warning-icon"></i> ' + document.getElementById('maxFavoritesLimitReachedText').text() + '</li>'));
           }
         });
       };
@@ -977,73 +741,72 @@ $PBJQ(document).ready(function ($) {
 
       list.disableSelection();
 
-      $PBJQ('#autoFavoritesEnabled').attr('aria-checked', autoFavoritesEnabled);
-      $PBJQ('#organizeFavorites .onoffswitch').show();
+      document.getElementById('autoFavoritesEnabled').attr('aria-checked', autoFavoritesEnabled);
+      document.getElementById('organizeFavorites .onoffswitch').show();
     }
   });
 
-  $PBJQ(favoritesPane).on('click', '.toolMenus', function (e) {
-    e.preventDefault();
-    showToolMenu($PBJQ(this));
-    return false;
-  });
+  modal.querySelectorAll(".site-favorite-btn").forEach(btn => {
 
-  $PBJQ(organizePane).on('click', '.site-favorite-btn', function () {
-    var self = this;
+    btn.addEventListener("click", function (e) {
 
-    if ($PBJQ(self).closest('.my-workspace').length > 0) {
-      // No unfavoriting your workspace!
-      return;
-    }
+      const self = this;
 
-    var li = $PBJQ(self).parent();
-
-    var buttonState;
-
-    if ($PBJQ(self).closest('#organizeFavoritesList').length == 0) {
-      // The clicked item was currently in "purgatory", having been unfavorited
-      // in the process of organizing favorites.  This click will promote it
-      // back to a favorite
-      var siteId = $PBJQ(self).attr('data-site-id');
-      returnElementToOriginalPositionIfPossible(siteId)
-
-      var newIndex = favoritesList.indexOf(siteId);
-
-      if (newIndex == 0) {
-        $PBJQ('#organizeFavoritesList').prepend(li);
-      } else if (newIndex > 0) {
-        // Put it into the right position (note: nth-child starts indexing at 1)
-        $PBJQ('#organizeFavoritesList li:nth-child(' + newIndex + ')').after(li);
-      } else {
-        // Just tack it on the end
-        $PBJQ('#organizeFavoritesList').append(li);
+      if (self.closest('.my-workspace')) {
+        // No unfavoriting your workspace!
+        return;
       }
 
-      buttonState = 'favorite';
-    } else {
-      // This item has just been unfavorited.  To purgatory!
-      $PBJQ('#organizeFavoritesPurgatoryList').append(li);
-      buttonState = 'nonfavorite';
-    }
+      var li = self.parent();
 
+      var buttonState;
 
-    // Set the favorite state for both the entry under "Organize" and the
-    // original entry under "Sites"
-    setButton(self, buttonState);
-    setButton(itemsBySiteId[$PBJQ(self).attr('data-site-id')].find('.site-favorite-btn'),
-      buttonState);
+      if (!self.closest('#organizeFavoritesList')) {
+        // The clicked item was currently in "purgatory", having been unfavorited
+        // in the process of organizing favorites.  This click will promote it
+        // back to a favorite
+        var siteId = self.dataset.siteId;
+        //returnElementToOriginalPositionIfPossible(siteId)
 
-    setAllOrNoneStarStates();
-    renderFavoriteCount();
+        var newIndex = favoritesList.indexOf(siteId);
 
-    syncWithServer(function () {
-      // If anything goes wrong while saving, refresh from the server.
-      loadFromServer();
-    });
+        if (newIndex == 0) {
+          document.getElementById('organizeFavoritesList').prepend(li);
+        } else if (newIndex > 0) {
+          // Put it into the right position (note: nth-child starts indexing at 1)
+          document.getElementById(`organizeFavoritesList li:nth-child(${newIndex})`).after(li);
+        } else {
+          // Just tack it on the end
+          document.getElementById('organizeFavoritesList').append(li);
+        }
 
+        buttonState = 'favorite';
+      } else {
+        // This item has just been unfavorited.  To purgatory!
+        document.getElementById('organizeFavoritesPurgatoryList').append(li);
+        buttonState = 'nonfavorite';
+      }
+
+      // Set the favorite state for both the entry under "Organize" and the
+      // original entry under "Sites"
+      setButton(self, buttonState);
+      setButton(itemsBySiteId[self.dataset.siteId].find('.site-favorite-btn'), buttonState);
+
+      //setAllOrNoneStarStates();
+      //renderFavoriteCount();
+
+      /*
+      syncWithServer(function () {
+        // If anything goes wrong while saving, refresh from the server.
+        loadFromServer();
+      });
+      */
   });
 
-  $PBJQ("#autoFavoritesEnabled").click(function () {
+  const autoFavoritesCheckbox = document.getElementById('autoFavoritesEnabled');
+
+  autoFavoritesCheckbox.addEventListener("click", () => {
+
     $PBJQ(this).attr('aria-checked', function (index, clicked) {
       var pressed = (clicked === 'true');
       return String(!pressed);
@@ -1051,7 +814,8 @@ $PBJQ(document).ready(function ($) {
     $PBJQ(this).trigger('change');
   });
 
-  $PBJQ('#autoFavoritesEnabled').on('change', function () {
+  autoFavoritesCheckbox.addEventListener('change', function () {
+
     autoFavoritesEnabled = $PBJQ(this).attr('aria-checked') === 'true';
 
     $PBJQ('.favorites-help-text').hide();
@@ -1064,11 +828,10 @@ $PBJQ(document).ready(function ($) {
 
     syncWithServer();
     return true;
-  })
-
-  $PBJQ('.otherSitesMenuClose').on('click', function () {
-    // Close the pane
-    closeDrawer();
   });
 
-});
+  document.querySelectorAll(".otherSitesMenuClose").forEach(el => {
+    el.addEventListener('click', () => closeDrawer());
+  });
+
+//});
