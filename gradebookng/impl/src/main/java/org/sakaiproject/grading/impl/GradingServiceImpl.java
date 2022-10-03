@@ -4289,7 +4289,13 @@ public class GradingServiceImpl implements GradingService {
     }
 
     @Override
-    public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, String externalData, final String title,
+    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl, String externalData, String title, Double points, Date dueDate, Boolean ungraded)
+            throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException {
+        updateExternalAssessment(gradebookUid, externalId, externalUrl, externalData, title, null, points, dueDate, ungraded);
+    }
+
+    @Override
+    public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, String externalData, final String title, Long categoryId,
                                          final Double points, final Date dueDate, final Boolean ungraded)
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException {
         final Optional<GradebookAssignment> optAsn = getDbExternalAssignment(gradebookUid, externalId);
@@ -4327,6 +4333,9 @@ public class GradingServiceImpl implements GradingService {
             asn.setUngraded(ungraded.booleanValue());
         } else {
             asn.setUngraded(false);
+        }
+        if (categoryId != null) {
+            asn.setCategory(getCategory(categoryId));
         }
         gradingPersistenceManager.saveGradebookAssignment(asn);
 
