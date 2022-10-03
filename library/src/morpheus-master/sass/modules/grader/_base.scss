@@ -7,6 +7,7 @@ sakai-grader {
     justify-content: space-between;
     border-bottom: 1px solid var(--sakai-border-color);
     padding: 5px;
+    position: relative;
 
     .left-block {
       flex: 0 0 auto;
