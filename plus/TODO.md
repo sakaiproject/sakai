@@ -2,6 +2,8 @@
 TODO LIST
 =========
 
+Figure out how to update loginAt and loginCount efficiently
+
 Plus tool button to retrieve membership
 
 Plus tool to resend scores
