@@ -8,7 +8,7 @@ Add an LTI 1.1 and and LTI Advantage tool that can return grades to your Sakai. 
 be Trophy or LMSTest, or really any LTI tool.   We will want to test both LTI 1.1 and LTI Advantage
 from the "Plus Site" and track grade flow back to the "Main Site".
 
-Follow the instructions in [../README.md] to set up a Sakai talking to Sakai.
+Follow the instructions in [Installing in Sakai](INSTALL-SAKAI.md) to set up a Sakai talking to Sakai.
 
 Create an instructor account and student account.  Make sure both accounts have email addresses.
 This allows Sakai to keep you logged into both sites at the same time.  Don't use SakaiPlus
