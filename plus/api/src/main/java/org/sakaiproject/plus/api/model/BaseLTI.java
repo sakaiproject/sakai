@@ -79,13 +79,13 @@ public class BaseLTI implements Serializable {
 	private Instant deletedAt;
 
 	@Column(name = "LOGIN_COUNT")
-	private Integer login_count;
+	private Integer loginCount;
 
 	@Column(name = "LOGIN_IP", length=64)
-	private String login_ip;
+	private String loginIp;
 
 	@Column(name = "LOGIN_USER", length = LENGTH_SAKAI_ID)
-	private String login_user;
+	private String loginUser;
 
 	@Column(name = "LOGIN_AT")
 	private Instant loginAt;
