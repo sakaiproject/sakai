@@ -35,7 +35,7 @@ import javax.crypto.spec.SecretKeySpec;
  * decrypt them. If just hex encodes the data which balloons it a little.
  * <p>
  * It doesn't pull in any external dependenies (commons-codec or http://www.jasypt.org/)
- * as Basic LTI tries to keep them to a minimum. 
+ * as LTI tries to keep them to a minimum. 
  * 
  * @author buckett
  *

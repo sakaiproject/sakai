@@ -122,7 +122,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.oauth.OAuth;
 
 /**
- * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
+ * Some Sakai Utility code for IMS LTI This is mostly code to support the
  * Sakai conventions for making and launching BLTI resources within Sakai.
  */
 @SuppressWarnings("deprecation")
@@ -132,20 +132,20 @@ public class SakaiBLTIUtil {
 	public static final boolean verbosePrint = false;
 
 	// Property: If false(default), allows comment to be returned in an LTI 1.1 POX read outcome
-	public static final String LTI_STRICT = "basiclti.strict";
+	public static final String LTI_STRICT = "lti.strict";
 
-	public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
+	public static final String BASICLTI_OUTCOMES_ENABLED = "lti.outcomes.enabled";
 	public static final String BASICLTI_OUTCOMES_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_SETTINGS_ENABLED = "basiclti.settings.enabled";
+	public static final String BASICLTI_SETTINGS_ENABLED = "lti.settings.enabled";
 	public static final String BASICLTI_SETTINGS_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_ROSTER_ENABLED = "basiclti.roster.enabled";
+	public static final String BASICLTI_ROSTER_ENABLED = "lti.roster.enabled";
 	public static final String BASICLTI_ROSTER_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_LINEITEMS_ENABLED = "basiclti.lineitems.enabled";
+	public static final String BASICLTI_LINEITEMS_ENABLED = "lti.lineitems.enabled";
 	public static final String BASICLTI_LINEITEMS_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
-	public static final String INCOMING_ROSTER_ENABLED = "basiclti.incoming.roster.enabled";
-	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
-	public static final String BASICLTI_LAUNCH_SESSION_TIMEOUT = "basiclti.launch.session.timeout";
+	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "lti.consumer.userimage.enabled";
+	public static final String INCOMING_ROSTER_ENABLED = "lti.incoming.roster.enabled";
+	public static final String BASICLTI_ENCRYPTION_KEY = "lti.encryption.key";
+	public static final String BASICLTI_LAUNCH_SESSION_TIMEOUT = "lti.launch.session.timeout";
 	public static final String LTI13_DEPLOYMENT_ID = "lti13.deployment_id";
 	public static final String LTI13_DEPLOYMENT_ID_DEFAULT = "1"; // To match Moodle
 	public static final String LTI_CUSTOM_SUBSTITION_PREFIX =  "lti.custom.substitution.";
@@ -170,7 +170,7 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_PORTLET_PLACEMENTSECRET = LTIService.LTI_PLACEMENTSECRET;
 	public static final String BASICLTI_PORTLET_OLDPLACEMENTSECRET = LTIService.LTI_OLDPLACEMENTSECRET;
 
-	public static final String BASICLTI_LTI11_LAUNCH_TYPE = "basiclti.lti11.launchtype";
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE = "lti.lti11.launchtype";
 	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LEGACY = "legacy";
 	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LTI112 = "lti112";
 	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT = BASICLTI_LTI11_LAUNCH_TYPE_LEGACY;
@@ -512,7 +512,7 @@ public class SakaiBLTIUtil {
 		}
 
 		// Fix up the return Url
-		String returnUrl = ServerConfigurationService.getString("basiclti.consumer_return_url", null);
+		String returnUrl = ServerConfigurationService.getString("lti.consumer_return_url", null);
 		if (returnUrl == null) {
 			returnUrl = getOurServerUrl() + LTI1_ANON_PATH + "return-url";
 			Session s = SessionManager.getCurrentSession();
@@ -785,12 +785,12 @@ public class SakaiBLTIUtil {
 					setProperty(props, "ext_outcome_data_values_accepted", "text");  // SAK-25696
 
 					// New Basic Outcomes URL
-					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url", null);
+					String outcome_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lis_basic_outcome_url", null);
 					if (outcome_url == null) {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(props, "ext_ims_lis_basic_outcome_url", outcome_url);
-					outcome_url = ServerConfigurationService.getString("basiclti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
+					outcome_url = ServerConfigurationService.getString("lti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 					if (outcome_url == null) {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
@@ -800,7 +800,7 @@ public class SakaiBLTIUtil {
 				if (settingsEnabled() && BASICLTI_PORTLET_ON.equals(allowSettings) ) {
 					setProperty(props, "ext_ims_lti_tool_setting_id", result_sourcedid);
 
-					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url", null);
+					String service_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lti_tool_setting_url", null);
 					if (service_url == null) {
 						service_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
@@ -810,7 +810,7 @@ public class SakaiBLTIUtil {
 				if (rosterEnabled() && BASICLTI_PORTLET_ON.equals(allowRoster) ) {
 					setProperty(props, "ext_ims_lis_memberships_id", result_sourcedid);
 
-					String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url", null);
+					String roster_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lis_memberships_url", null);
 					if (roster_url == null) {
 						roster_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
@@ -870,31 +870,31 @@ public class SakaiBLTIUtil {
 
 		// Get the organizational information
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_GUID,
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultName));
+				ServerConfigurationService.getString("lti.consumer_instance_guid", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID,
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid", defaultName));
+				ServerConfigurationService.getString("lti.consumer_instance_guid", defaultName));
 
 		setProperty(custom,  LTICustomVars.TOOLPLATFORMINSTANCE_NAME,
-				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
+				ServerConfigurationService.getString("lti.consumer_instance_name", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME,
-				ServerConfigurationService.getString("basiclti.consumer_instance_name", defaultName));
+				ServerConfigurationService.getString("lti.consumer_instance_name", defaultName));
 
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_DESCRIPTION,
-				ServerConfigurationService.getString("basiclti.consumer_instance_description", defaultName));
+				ServerConfigurationService.getString("lti.consumer_instance_description", defaultName));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION,
-				ServerConfigurationService.getString("basiclti.consumer_instance_description", defaultName));
+				ServerConfigurationService.getString("lti.consumer_instance_description", defaultName));
 
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_URL,
-				ServerConfigurationService.getString("basiclti.consumer_instance_url",
+				ServerConfigurationService.getString("lti.consumer_instance_url",
 						ServerConfigurationService.getString("serverUrl", null)));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL,
-				ServerConfigurationService.getString("basiclti.consumer_instance_url",
+				ServerConfigurationService.getString("lti.consumer_instance_url",
 						ServerConfigurationService.getString("serverUrl", null)));
 
 		setProperty(custom, LTICustomVars.TOOLPLATFORMINSTANCE_CONTACTEMAIL,
-				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+				ServerConfigurationService.getString("lti.consumer_instance_contact_email", null));
 		setProperty(props, BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL,
-				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email", null));
+				ServerConfigurationService.getString("lti.consumer_instance_contact_email", null));
 
 	}
 
@@ -933,14 +933,14 @@ public class SakaiBLTIUtil {
 		addConsumerData(props, custom);
 
 		// Send along the CSS URL
-		String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url", null);
+		String tool_css = ServerConfigurationService.getString("lti.consumer.launch_presentation_css_url", null);
 		if (tool_css == null) {
 			tool_css = getOurServerUrl() + CSSUtils.getCssToolBase();
 		}
 		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);
 
 		// Send along the CSS URL list
-		String tool_css_all = ServerConfigurationService.getString("basiclti.consumer.ext_sakai_launch_presentation_css_url_all", null);
+		String tool_css_all = ServerConfigurationService.getString("lti.consumer.ext_sakai_launch_presentation_css_url_all", null);
 		if (site != null && tool_css_all == null) {
 			tool_css_all = getOurServerUrl() + CSSUtils.getCssToolBase() + ',' + getOurServerUrl() + CSSUtils.getCssToolSkinCDN(CSSUtils.getSkinFromSite(site));
 		}
@@ -1153,12 +1153,12 @@ public class SakaiBLTIUtil {
 				if (allowoutcomes == 1) {
 					setProperty(ltiProps, "ext_outcome_data_values_accepted", "text");  // SAK-25696
 					// New Basic Outcomes URL
-					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url", null);
+					String outcome_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lis_basic_outcome_url", null);
 					if (outcome_url == null) {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
 					setProperty(ltiProps, "ext_ims_lis_basic_outcome_url", outcome_url);
-					outcome_url = ServerConfigurationService.getString("basiclti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
+					outcome_url = ServerConfigurationService.getString("lti.consumer." + BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 					if (outcome_url == null) {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
@@ -1173,7 +1173,7 @@ public class SakaiBLTIUtil {
 				if (allowsettings == 1) {
 					setProperty(ltiProps, "ext_ims_lti_tool_setting_id", result_sourcedid);
 
-					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url", null);
+					String service_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lti_tool_setting_url", null);
 					if (service_url == null) {
 						service_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
@@ -1183,7 +1183,7 @@ public class SakaiBLTIUtil {
 				if (allowroster == 1) {
 					setProperty(ltiProps, "ext_ims_lis_memberships_id", result_sourcedid);
 
-					String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url", null);
+					String roster_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lis_memberships_url", null);
 					if (roster_url == null) {
 						roster_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
@@ -1576,7 +1576,7 @@ public class SakaiBLTIUtil {
 			// Look up the LMS-wide secret and key - default key is guid
 			String key = getToolConsumerInfo(launch_url, BASICLTI_PORTLET_KEY);
 			if (key == null) {
-				key = ServerConfigurationService.getString("basiclti.consumer_instance_guid",
+				key = ServerConfigurationService.getString("lti.consumer_instance_guid",
 						ServerConfigurationService.getString("serverName", null));
 			}
 			String secret = getToolConsumerInfo(launch_url, LTIService.LTI_SECRET);
@@ -1609,7 +1609,7 @@ public class SakaiBLTIUtil {
 				setProperty(ltiProps, skey, value);
 			}
 
-			String oauth_callback = ServerConfigurationService.getString("basiclti.oauth_callback", null);
+			String oauth_callback = ServerConfigurationService.getString("lti.oauth_callback", null);
 			// Too bad there is not a better default callback url for OAuth
 			// Actually since we are using signing-only, there is really not much point
 			// In OAuth 6.2.3, this is after the user is authorized
@@ -2210,7 +2210,7 @@ public class SakaiBLTIUtil {
 
 		// Look through a series of secrets from the properties based on the launchUrl
 		private static String getToolConsumerInfo(String launchUrl, String data) {
-			String default_secret = ServerConfigurationService.getString("basiclti.consumer_instance_" + data, null);
+			String default_secret = ServerConfigurationService.getString("lti.consumer_instance_" + data, null);
 			log.debug("launchUrl = {}", launchUrl);
 			URL url;
 			try {
@@ -2228,7 +2228,7 @@ public class SakaiBLTIUtil {
 				return default_secret;
 			}
 			// Look for the property starting with the full name
-			String org_info = ServerConfigurationService.getString("basiclti.consumer_instance_" + data + "." + hostName, null);
+			String org_info = ServerConfigurationService.getString("lti.consumer_instance_" + data + "." + hostName, null);
 			if (org_info != null) {
 				return org_info;
 			}
@@ -2240,7 +2240,7 @@ public class SakaiBLTIUtil {
 					continue;
 				}
 				String hostPart = hostName.substring(i + 1);
-				String propName = "basiclti.consumer_instance_" + data + "." + hostPart;
+				String propName = "lti.consumer_instance_" + data + "." + hostPart;
 				org_info = ServerConfigurationService.getString(propName, null);
 				if (org_info != null) {
 					return org_info;
@@ -2429,9 +2429,9 @@ public class SakaiBLTIUtil {
 		try {
 			// Indicate "who" is setting this grade - needs to be a real user account
 			String gb_user_id = ServerConfigurationService.getString(
-					"basiclti.outcomes.userid", "admin");
+					"lti.outcomes.userid", "admin");
 			String gb_user_eid = ServerConfigurationService.getString(
-					"basiclti.outcomes.usereid", gb_user_id);
+					"lti.outcomes.usereid", gb_user_id);
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (isRead) {
@@ -2540,9 +2540,9 @@ public class SakaiBLTIUtil {
 		try {
 			// Indicate "who" is setting this grade - needs to be a real user account
 			String gb_user_id = ServerConfigurationService.getString(
-					"basiclti.outcomes.userid", "admin");
+					"lti.outcomes.userid", "admin");
 			String gb_user_eid = ServerConfigurationService.getString(
-					"basiclti.outcomes.usereid", gb_user_id);
+					"lti.outcomes.usereid", gb_user_id);
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (scoreGiven == null) {

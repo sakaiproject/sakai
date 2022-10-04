@@ -9,7 +9,7 @@
         <relativePath>../master/pom.xml</relativePath>
     </parent>
     
-    <name>BasicLTI base pom (basiclti)</name>
+    <name>Sakai LTI base pom (basiclti)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti</artifactId>
     <packaging>pom</packaging>

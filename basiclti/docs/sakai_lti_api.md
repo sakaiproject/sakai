@@ -45,12 +45,12 @@ PHP.
 Configuration
 =============
 
-In order to enable the Basic LTI Tool Provider, you must add the
+In order to enable the LTI Tool Provider, you must add the
 following values to the **sakai.properties** for your server:
 
-    basiclti.outcomes.enabled=true
-    basiclti.roster.enabled=true
-    basiclti.settings.enabled=true
+    lti.outcomes.enabled=true
+    lti.roster.enabled=true
+    lti.settings.enabled=true
 
 Note: After the LTI 2.1.1 / Sakai 2.9.3 release these four parameters
 default to "true". See <https://jira.sakaiproject.org/browse/BLTI-263>
@@ -61,8 +61,8 @@ grade. Since these grades are being set via web services, we can define
 that account that is to be treated as the "grade setting" account using
 the following properties:
 
-    basiclti.outcomes.userid=basiclti
-    basiclti.outcomes.usereid=basiclti
+    lti.outcomes.userid=lti
+    lti.outcomes.usereid=lti
 
 You must create the User in the administrator interface before accepting
 web service requests to set outcomes. If this points to a non-existent
@@ -83,15 +83,15 @@ The out-of-the-box distribution should not include properties to enable
 outcomes so unless you have added the properties, you should see a 403
 (Forbidden) message as shown below:
 
-![](sakai_basiclti_api/media/image1.png)
+![](sakai_lti_api/media/image1.png)
 
 You should also see a warning message in the **catalina.out** file:
 
 2010-08-04 13:12:41,656 WARN http-8080-Processor21
-org.sakaiproject.blti.SimpleOutcomesServlet - Basic LTI Outcomes are
+org.sakaiproject.blti.SimpleOutcomesServlet - LTI Outcomes are
 Disabled IP=0:0:0:0:0:0:0:1%0
 
-These two indicate that the Basic LTI Outcomes is properly disabled in
+These two indicate that the LTI Outcomes is properly disabled in
 the out of the box configuration. Out of the box, there are two ways
 that the servlet is protected and two properties that need to be
 changed. First, the **RemoteHostFilter** is configured to only accept
@@ -104,19 +104,19 @@ Configuration Within Sakai
 Once you have enabled the extensions in **sakai.properties**, you must
 enable them in the tool placement configuration as well:
 
-![](sakai_basiclti_api/media/image2.png)
+![](sakai_lti_api/media/image2.png)
 
 Once you have the settings enabled, the **tool.php** code will detect
 the additional launch parameters and allow you to exercise the APIs:
 
-![](sakai_basiclti_api/media/image3.png)
+![](sakai_lti_api/media/image3.png)
 
 There is a test harness for each API that allows you to exercise the
 API. Each screen has a form to specify parameters, makes the calls and
 dumps out request and response data to help you debug your tools and
 implementations.
 
-![](sakai_basiclti_api/media/image4.png)
+![](sakai_lti_api/media/image4.png)
 
 You can also look at the source code of the test harness to help develop
 your own External Tools to call this API.

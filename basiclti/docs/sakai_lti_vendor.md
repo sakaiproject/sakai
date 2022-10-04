@@ -1,5 +1,5 @@
-Pre-Installing the IMS BasicLTI Test Tool in Sakai
-==================================================
+Pre-Installing the LTI Test Tool in Sakai
+=========================================
 
 May 26, 2011
 
@@ -10,8 +10,7 @@ Note:
 vendors who want to write documentation as to how to pre-install their
 tool in a Sakai installation.*
 
-*This document is Copyright 2011, Charles Severance - Creative Commons
-CC0*
+*This document is Copyright 2011, Charles Severance - Creative Commons CC0*
 
 *CC0 is effectively a 'Public Domain' - You are granted permission to
 use this document in any way you see fit, including removing the above
@@ -29,17 +28,17 @@ vendor.*
 *basiclti/basiclti-docs/resources/docs/sakai\_basiclti\_portlet.doc*
 
 *Which give you a more in-depth description of the options available
-when pre-configuring Basic LTI tools in Sakai.*
+when pre-configuring LTI tools in Sakai.*
 
 Introduction
 ============
 
-Thank you for your interest in the IMS Basic LTI test tool. This
-document will describe how to install the IMS Basic LTI test tool in
+Thank you for your interest in the IMS LTI test tool. This
+document will describe how to install the IMS LTI test tool in
 your Sakai instance.
 
 At this point you should have been provided a URL, key, and secret for
-the IMS Basic LTI Test Tool.
+the IMS LTI Test Tool.
 
 **URL:** https://www.tsugi.org/lti-test/tool.php
 
@@ -53,7 +52,7 @@ Making Your Own Copy of the Tool Registration File
 ==================================================
 
 The Sakai tool registration process reads an XML document to create as
-many pre-configured Basic LTI tools as you like. The default BasicLTI
+many pre-configured LTI tools as you like. The default LTI
 tool registration is in the source tree at the following location:
 
 basiclti/basiclti-portlet/src/webapp/WEB-INF/sakai/IMSBLTIPortlet.xml
@@ -76,7 +75,7 @@ The portlets folder should be in the same directory as your
 **sakai.properties** file resides.
 
 **Note:** You only have to copy this file into **sakai.home** once
-regardless of the number of pre-configured Basic LTI tools that you want
+regardless of the number of pre-configured LTI tools that you want
 to install. If you look in **sakai.home** and find this file is already
 there, all that is necessary is to add a new tool registration XML to
 the existing file.
@@ -85,20 +84,20 @@ Once the copy of the **IMSBLTIPortlet.xml** file is properly placed in
 the **sakai.home** folder, it *overrides* the copy in the **imsblti**
 webapp. So you need to maintain the existing **sakai.basiclti** tool
 registration in the new copy of the file unless you explicitly intend to
-not provide a generic Basic LTI tool for your users.
+not provide a generic LTI tool for your users.
 
 The Tool Registration File
 ==========================
 
 The default **IMSBLTIPortlet.xml** file contains the registration for
-the Basic LTI Tool and looks as follows.
+the LTI Tool and looks as follows.
 
     <?xml version="1.0"?>
     <registration>
         <tool
                         id="sakai.basiclti"
-                        title="Basic LTI"
-                        description="IMS Basic Learning Tools Interoperability.">
+                        title="LTI"
+                        description="Learning Tools Interoperability.">
 
                 <configuration name="sakai:portlet-pre-render" value="true" />
 
@@ -168,7 +167,7 @@ the Basic LTI Tool and looks as follows.
     </registration>
 
 We add multiple tool registrations to this file by adding multiple
-&lt;tool&gt; sections. The Basic LTI tool capabilities are controlled by
+&lt;tool&gt; sections. The LTI tool capabilities are controlled by
 properties. The basic idea is that you can set a property that is
 equivalent to setting the property in the configuration screen of the
 tool. And if you also set the corresponding "final" property to "true" –
@@ -176,18 +175,18 @@ then the instructor will neither see, nor be able to change that
 property. So the administrator can set and completely lock down the
 properties – or lock-down most of the properties.
 
-Adding the IMS Basic LTI Test Tool to your System
+Adding the IMS LTI Test Tool to your System
 =================================================
 
 Once you have made a copy of the **IMSBLTIPortlet.xml** file, we simply
-need to add the new tool registration for the IMS Basic LTI Test Tool.
+need to add the new tool registration for the IMS LTI Test Tool.
 The following is an example of the additional tool registration to be
 inserted as indicated above.
 
     <tool
             id="sakai.imstestlti"
             title="Awesomeness"
-            description="IMS Basic LTI Test.">
+            description="IMS LTI Test.">
 
                 <configuration name="sakai:portlet-pre-render" value="true" />
 
@@ -277,13 +276,13 @@ tool registration with Sakai toolId=sakai.imstestlti
 
 If your Sakai restarts and you do not see the tool in **Site Info**, you
 should check the Tomcat log for errors. Search for the string 'imsblti'
-in the logs as that is the name of the servlet that contains the Basic
+in the logs as that is the name of the servlet that contains the
 LTI tool.
 
 If the installation was successful, you should see the new tool as
 available for use in the **Site Info** tool as shown below:
 
-![](sakai_basiclti_vendor/media/image1.png)
+![](sakai_lti_vendor/media/image1.png)
 
 You can see that the new 'Awesomeness' tool appears and can be selected
 as if it is any other tool.
@@ -292,7 +291,7 @@ Since we left a few parameters as not final, the instructor can go into
 the configuration screen and change the parameters we decided to allow
 them to change but none of the other parameters appear:
 
-![](sakai_basiclti_vendor/media/image2.png)
+![](sakai_lti_vendor/media/image2.png)
 
 If we adjust the tool registration above, setting all of the parameters
 to be final, the instructor will not be able to change any configuration

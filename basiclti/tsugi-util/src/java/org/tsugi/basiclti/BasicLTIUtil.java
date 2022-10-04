@@ -136,7 +136,7 @@ public class BasicLTIUtil {
 
 	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
-	// Returns true if this is a Basic LTI message with minimum values to meet the protocol
+	// Returns true if this is a LTI message with minimum values to meet the protocol
 	public static boolean isRequest(HttpServletRequest request) {
 
 		String message_type = request.getParameter(LTI_MESSAGE_TYPE);

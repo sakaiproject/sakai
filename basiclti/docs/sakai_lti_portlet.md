@@ -49,13 +49,13 @@ Basic Mash-Up
 The External Tool portlet can be added to the site multiple times from
 Site Info or the site creation workflow:
 
-![](sakai_basiclti_portlet/media/image1.png)
+![](sakai_lti_portlet/media/image1.png)
 
 Once the tool is placed in the site, it must be configured. Pressing the
 "pencil" icon in the title bar configures JSR-168 portlets. The
 configuration screen of the LTI tool is as follows:
 
-![](sakai_basiclti_portlet/media/image2.png)
+![](sakai_lti_portlet/media/image2.png)
 
 The External tool provider will give the instructor a launch url, key
 and secret. In addition to providing these fields, the instructor can
@@ -71,12 +71,12 @@ The next set of configuration fields deal with the release of student
 names and E-Mail addresses and allows the instructor to set any needed
 custom parameters.
 
-![](sakai_basiclti_portlet/media/image3.png)
+![](sakai_lti_portlet/media/image3.png)
 
 The custom parameters are fields are defined by the tool and may be
 required by the external tool.
 
-![](sakai_basiclti_portlet/media/image4.png)
+![](sakai_lti_portlet/media/image4.png)
 
 Once the tool configuration is completed, the tool is immediately
 launched.
@@ -112,11 +112,11 @@ These site-wide passwords are set based on a site-wide identifier chosen
 by the LMS admin and used across tool vendors. This is set in
 **sakai.properties** as follows:
 
-    basiclti.consumer_instance_guid=newclasses.nyu.edu
-    basiclti.consumer_instance_name=NYU Classes
-    basiclti.consumer_instance_description=Longer text
-    basiclti.consumer_instance_contact_email=classes-support@nyu.edu
-    basiclti.consumer_instance_url=http://newclasses.nyu.edu
+    lti.consumer_instance_guid=newclasses.nyu.edu
+    lti.consumer_instance_name=NYU Classes
+    lti.consumer_instance_description=Longer text
+    lti.consumer_instance_contact_email=classes-support@nyu.edu
+    lti.consumer_instance_url=http://newclasses.nyu.edu
 
 You can set LMS\_wide key/password combinations using the following
 properties. The LMS-wide properties use the hostname in the launch URL
@@ -125,13 +125,13 @@ precedence over the resource-level key and secret. If the
 **consumer\_instance\_guid** is specified, it is the default for a
 launch domain if the key is not specified.
 
-    basiclti.consumer_instance_secret.mhhe.com=98765
+    lti.consumer_instance_secret.mhhe.com=98765
 
-	basiclti.consumer_instance_key.math.pearson.com=nyu.edu
-	basiclti.consumer_instance_secret.math.pearson.com=d1c2e3
+	lti.consumer_instance_key.math.pearson.com=nyu.edu
+	lti.consumer_instance_secret.math.pearson.com=d1c2e3
 
-	basiclti.consumer_instance_key.tsugi.org=12345
-	basiclti.consumer_instance_secret.tsugi.org=secret
+	lti.consumer_instance_key.tsugi.org=12345
+	lti.consumer_instance_secret.tsugi.org=secret
 
 
 Where **math.pearson.com**, **mhhe.edu,** and **www.tsugi.org** are
@@ -180,7 +180,7 @@ and the user is presented a button to continue. This is most useful to
 debug problems with an external tool. You can view the source of the
 iframe or simply look at the parameters on the screen.
 
-![](sakai_basiclti_portlet/media/image5.png)
+![](sakai_lti_portlet/media/image5.png)
 
 When you press the button, the launch continues to the external tool.
 While it might seem strange to see the launch data, the OAuth approach
@@ -415,17 +415,17 @@ the configuration screen.
 When this tool registration is added, it appears in the tool list as any
 other tool:
 
-![](sakai_basiclti_portlet/media/image6.png)
+![](sakai_lti_portlet/media/image6.png)
 
 Once the tool is selected, since the launch is pre-configured – the user
 (Instructor or student) simply sees the tool output:
 
-![](sakai_basiclti_portlet/media/image7.png)
+![](sakai_lti_portlet/media/image7.png)
 
 If the instructor goes into the configuration screen, those properties
 marked "final" are not shown and cannot be edited.
 
-![](sakai_basiclti_portlet/media/image8.png)
+![](sakai_lti_portlet/media/image8.png)
 
 This provides a lot of flexibility in allowing the instructor to set
 **some** of the fields as determined by the LMS administrator.
@@ -487,9 +487,9 @@ then sent to the browser and looks as follows:
     <input type="hidden" size="40" name="ext_sakai_serverid" value="charles-severances-macbook.local"/>
     <input type="hidden" size="40" name="oauth_signature_method" value="HMAC-SHA1"/>
     <input type="hidden" size="40" name="oauth_callback" value="about:blank"/>
-    <input type="submit" size="40" name="basiclti_submit" value="Launch Endpoint with LTI Data"/>
+    <input type="submit" size="40" name="lti_submit" value="Launch Endpoint with LTI Data"/>
     <input type="hidden" size="40" name="oauth_timestamp" value="1248267304"/>
-    <input type="hidden" size="40" name="lti_version" value="basiclti-1.0"/>
+    <input type="hidden" size="40" name="lti_version" value="lti-1.0"/>
     <input type="hidden" size="40" name="oauth_version" value="1.0"/>
     <input type="hidden" size="40" name="launch_presentaion_locale" value="en_US"/>
     <input type="hidden" size="40" name="oauth_consumer_key" value="12345"/>
@@ -498,7 +498,7 @@ then sent to the browser and looks as follows:
         document.getElementById("ltiLaunchFormSubmitArea").style.display = "none";
         nei = document.createElement('input');
         nei.setAttribute('type', 'hidden');
-        nei.setAttribute('name', 'basiclti_submit');
+        nei.setAttribute('name', 'lti_submit');
         nei.setAttribute('value', 'Launch Endpoint with LTI Data');
         document.getElementById("ltiLaunchForm").appendChild(nei);
         document.ltiLaunchForm.submit();

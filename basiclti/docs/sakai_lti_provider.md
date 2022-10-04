@@ -40,12 +40,12 @@ Configuration
 In order to enable the LTI Tool Provider, you must enable it in
 **sakai.properties** for your server:
 
-    basiclti.provider.enabled=true
+    lti.provider.enabled=true
 
 You also need to list the Sakai tool ids that you will allow to be
 served out as IMS Provided tools using the following property:
 
-basiclti.provider.allowedtools=sakai.announcements:sakai.singleuser:sakai.assignment.grades:sakai.dropbox:sakai.forums:sakai.gradebook.tool:sakai.podcasts:sakai.poll:sakai.resources:sakai.schedule:sakai.samigo:sakai.rwiki
+    lti.provider.allowedtools=sakai.announcements:sakai.singleuser:sakai.assignment.grades:sakai.dropbox:sakai.forums:sakai.gradebook.tool:sakai.podcasts:sakai.poll:sakai.resources:sakai.schedule:sakai.samigo:sakai.rwiki
 
 The Tool Provider will refuse to provide any tool that is not on this
 list. If this item is not included, no tools will be provided.
@@ -60,7 +60,7 @@ The following line adds a secret of "secret" for a key of
 "lmsng.school.edu". You can have as many secrets as you like using this
 pattern.
 
-basiclti.provider.lmsng.school.edu.secret=secret
+    lti.provider.lmsng.school.edu.secret=secret
 
 Please do not use such a simple secret – a good secret should be at
 least as long and random as a typical GUID.
@@ -68,7 +68,7 @@ least as long and random as a typical GUID.
 In order to allow clean passthrough of site and user credentials, add
 the key to the list of trusted consumers using the following property:
 
-basiclti.provider.highly.trusted.consumers=lmsng.school.edu:another.school.edu
+    lti.provider.highly.trusted.consumers=lmsng.school.edu:another.school.edu
 
 If a request comes through from a consumer on this list, then the user
 and site credentials will be used as-is, ie they will not be namespaced.
@@ -105,7 +105,7 @@ Consumer" from the Sakai Provider when you launch.
 You should see the Sakai Wiki tool. Notice the name "Jane Q. Public"
 which was provisioned from the LTI PHP Tool Consumer.
 
-![](sakai_basiclti_provider/media/image1.png)
+![](sakai_lti_provider/media/image1.png)
 
 You should also see log messages indicating the creation of the user,
 site, and tool as follows:
@@ -133,7 +133,7 @@ http://localhost:8080/imsblti/provider/sakai.singleuser
 
 You should see a 403 (Forbidden) message as shown below:
 
-![](sakai_basiclti_provider/media/image2.png)
+![](sakai_lti_provider/media/image2.png)
 
 You should also see a warning message in the **catalina.out** file:
 
@@ -157,12 +157,12 @@ Sakai Enterprise ID (i.e. EID). Similarly, the Provider prepends the
 **oauth\_consumer\_key** to the LTI **context\_id** value to produce the
 site's id as shown below in the Administrator **Sites** tool.
 
-![](sakai_basiclti_provider/media/image3.png)
+![](sakai_lti_provider/media/image3.png)
 
 Similarly, if you look in the Sakai Administrator's **Users** tool, you
 can see the name-spaced user accounts:
 
-![](sakai_basiclti_provider/media/image4.png)
+![](sakai_lti_provider/media/image4.png)
 
 And if you look in the **Realms** tool, you can see that the name-spaced
 user account has been properly joined to the name spaced site with the

@@ -769,7 +769,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				for(int i=0; i < nodeList.getLength(); i++)
 				{
 					BasicLTIArchiveBean basicLTI = new BasicLTIArchiveBean(nodeList.item(i));
-					log.info("BASIC LTI: {}", basicLTI);
+					log.info("LTI: {}", basicLTI);
 					results.append(", merging basicLTI tool " + basicLTI.getPageTitle());
 
 					SitePage sitePage = site.addPage();
@@ -846,7 +846,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			}
 			catch (IdUnusedException iue) {
 				log.info("SITE ID {} DOES NOT EXIST.", siteId);
-				results.append("Basic LTI Site does not exist\n");
+				results.append("LTI Site does not exist\n");
 			}
 			// Something we did not expect
 			catch (Exception e) {

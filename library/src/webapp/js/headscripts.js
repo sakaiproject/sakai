@@ -290,7 +290,7 @@ function setMainFrameHeightNow(id, maxHeight)
 	}
 
 	//SAK-21209 check we can access the document, 
-	//ie this could be a Basic LTI request and therefore we are not allowed
+	//ie this could be a LTI request and therefore we are not allowed
 	try {
 		var frame = parent.document.getElementById(id);
 	} catch (e) {
