@@ -188,7 +188,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			// Check to see if our launch will be successful
 			String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
 			if ( retval.length > 1 ) {
-				String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
+				String iframeUrl = "/access/lti/site/"+context+"/"+placement.getId();
 				String frameHeight =  getCorrectProperty(request, "frameheight", null);
 				log.debug("fh={}", frameHeight);
 				String newPage =  getCorrectProperty(request, "newpage", null);
@@ -214,13 +214,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				log.debug("Setting sakai:maximized-url={}", iframeUrl);
 
 				if ( BASICLTI_PORTLET_ON.equals(newPage) || forcePopup ) {
-					String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
+					String windowOpen = "window.open('"+iframeUrl+"','LTI');"; 			
 					String siteName = ServerConfigurationService.getString(SITE_NAME, SAKAI);
 					title = title!=null ? title : rb.getString("tool.name", "your tool");
 					String newPageLaunchText = rb.getFormattedMessage("new.page.launch", new Object[]{ComponentManager.get(FormattedText.class).escapeHtml(title, false), ComponentManager.get(FormattedText.class).escapeHtml(siteName, false)});
 					text.append(newPageLaunchText);
 					text.append("</p>\n");
-					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"BasicLTI\" value=\"Launch " + title + "\"/>");
+					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"LTI\" value=\"Launch " + title + "\"/>");
 				} else {
 					if ( BASICLTI_PORTLET_ON.equals(maximize) ) {
 						text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");

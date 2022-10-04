@@ -9,7 +9,7 @@ Introduction
 ============
 
 The Sakai External Tool (IMS Learning Tools Interoperability) portlet
-implements the IMS Basic Learning Tools Interoperability standard. LTI
+implements the IMS Learning Tools Interoperability standard. LTI
 allows the launching and sharing of information with an externally
 hosted tool using standard protocols, signed securely using the OAuth
 (www.oauth.net) security mechanism.
@@ -53,7 +53,7 @@ Site Info or the site creation workflow:
 
 Once the tool is placed in the site, it must be configured. Pressing the
 "pencil" icon in the title bar configures JSR-168 portlets. The
-configuration screen of the Basic LTI tool is as follows:
+configuration screen of the LTI tool is as follows:
 
 ![](sakai_basiclti_portlet/media/image2.png)
 
@@ -204,8 +204,8 @@ External Tool as follows:
     <registration>
         <tool
                         id="sakai.basiclti"
-                        title="Basic LTI"
-                        description="IMS Basic Learning Tools Interoperability.">
+                        title="LTI"
+                        description="IMS Learning Tools Interoperability.">
 
                 <configuration name="sakai:portlet-pre-render" value="true" />
 
@@ -291,7 +291,7 @@ is a simple example additional registration:
 <tool
                         id="sakai.imstestlti"
                         title="Awesomeness"
-                        description="IMS Basic LTI Test.">
+                        description="IMS LTI Test.">
 
                 <configuration name="sakai:portlet-pre-render" value="true" />
 
@@ -431,7 +431,7 @@ This provides a lot of flexibility in allowing the instructor to set
 **some** of the fields as determined by the LMS administrator.
 
 The additional tool registrations can be placed in the
-**IMSBLTIPortlet.xml** file in the BasicLTI source tree or they can be
+**IMSBLTIPortlet.xml** file in the LTI source tree or they can be
 placed in the **sakai.home** directory within your tomcat as follows:
 
 \${sakai.home}/portlets/imsblti/IMSBLTIPortlet.xml
@@ -467,7 +467,7 @@ test tool settings before making a new permanent tool registration.
 Architecture and Hacking
 ========================
 
-The Basic LTI approach is quite simple – to launch the tool, the LMS
+The LTI approach is quite simple – to launch the tool, the LMS
 creates a form with the LMS data, uses OAuth to sign the form data and
 posting URL, and the OAuth parameters are added to the form. The form is
 then sent to the browser and looks as follows:
@@ -487,7 +487,7 @@ then sent to the browser and looks as follows:
     <input type="hidden" size="40" name="ext_sakai_serverid" value="charles-severances-macbook.local"/>
     <input type="hidden" size="40" name="oauth_signature_method" value="HMAC-SHA1"/>
     <input type="hidden" size="40" name="oauth_callback" value="about:blank"/>
-    <input type="submit" size="40" name="basiclti_submit" value="Launch Endpoint with BasicLTI Data"/>
+    <input type="submit" size="40" name="basiclti_submit" value="Launch Endpoint with LTI Data"/>
     <input type="hidden" size="40" name="oauth_timestamp" value="1248267304"/>
     <input type="hidden" size="40" name="lti_version" value="basiclti-1.0"/>
     <input type="hidden" size="40" name="oauth_version" value="1.0"/>
@@ -499,7 +499,7 @@ then sent to the browser and looks as follows:
         nei = document.createElement('input');
         nei.setAttribute('type', 'hidden');
         nei.setAttribute('name', 'basiclti_submit');
-        nei.setAttribute('value', 'Launch Endpoint with BasicLTI Data');
+        nei.setAttribute('value', 'Launch Endpoint with LTI Data');
         document.getElementById("ltiLaunchForm").appendChild(nei);
         document.ltiLaunchForm.submit();
      </script>
@@ -512,13 +512,13 @@ press the button to proceed to the external tool.
 
 Since External Tool is a portlet, we do not have the
 "frame-within-frame" problem that Linktool would have since LinkTool is
-a traditional Sakai tool. But since Basic LTI demands an iframe for an
+a traditional Sakai tool. But since LTI demands an iframe for an
 external tool the External Tool portlet generates an iframe for the
 external tool content and places the following URL into the iframe:
 
-/access/basiclti/site/63ed6677-6ac4-4-466f7f51fc68/dcb61c3e-508-3238ecd330cc
+/access/lti/site/63ed6677-6ac4-4-466f7f51fc68/dcb61c3e-508-3238ecd330cc
 
-The URL is served through /access and a **basiclti** Entity Producer.
+The URL is served through /access and a **lti** Entity Producer.
 This means that the URL can effectively be used anywhere. It needs to be
 in its own window or in an iFrame because it will generate and
 auto-submit the form data as shown above – but this allows clever reuse
@@ -535,13 +535,13 @@ simply launch to the proper URL. Another possible feature would be to
 add a checkbox to "hide the tool from students" and show the instructor
 the access URL as part of the configuration dialog.
 
-Comparing Basic LTI With Sakai LinkTool
-=======================================
+Comparing LTI With Sakai LinkTool
+=================================
 
 Within the Sakai community, one of my goals is to convince developers to
 stop using the LinkTool since the LinkTool only works with Sakai.
 Developers who have built external tools that support the LinkTool
-protocol should be able to add Basic Tool Interoperability.
+protocol should be able to add Tool Interoperability.
 
 Since IMS LTI 1.1 uses OAuth, it does not require any web-services
 call-back to Sakai for key validation (i.e. you do not need to call
@@ -564,7 +564,7 @@ sign-on (see sample code from IMS).
 It is possible for an external tool that uses IMS LTI 1.1 for launch,
 provisioning, and trust to use the run-time web services developed for
 use with LinkTool tools. If the property **ext\_sakai\_session** is set
-to "true" in the tool placement, the Sakai BasicLTI tool includes a
+to "true" in the tool placement, the Sakai LTI tool includes a
 signed session key and server information in the **ext\_sakai\_session**
 and **ext\_sakai\_server** variables. These values are created in the
 exact same manner as the LinkTool so they can be used with these web

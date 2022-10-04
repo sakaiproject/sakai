@@ -594,7 +594,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                         toolPopup = "true".equals(toolProps.getProperty("popup"));
                     } else if ("sakai.basiclti".equals(tc.getToolId())) {
                         toolPopup = "on".equals(toolProps.getProperty("imsti.newpage"));
-                        source = "/access/basiclti/site/" + tc.getContext() + "/" + tc.getId();
+                        source = "/access/lti/site/" + tc.getContext() + "/" + tc.getId();
                     }
                 }
             }

@@ -2523,7 +2523,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// In this flow we are only asking for one CI/DL Response
 		Placement placement = toolManager.getCurrentPlacement();
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-				+ "/sakai.basiclti.admin.helper.helper"
+				+ "/sakai.lti.admin.helper.helper"
 				+ "?eventSubmit_doSingleContentItemResponse=Save"
 				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)
@@ -2782,13 +2782,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// will go to afterwards, passing along the flow parameter
 		if (!doContent) {
 			String returnUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-					+ "/sakai.basiclti.admin.helper.helper"
+					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=PostContentConfig"
 					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix);
 
 			String configUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-					+ "/sakai.basiclti.admin.helper.helper"
+					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=ContentConfig"
 					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "&returnUrl=" + URLEncoder.encode(returnUrl)
@@ -2801,7 +2801,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// If this is a CI/DL producer, we proceed with launching the external tool
 		// to start the CI/DL flow
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-				+ "/sakai.basiclti.admin.helper.helper"
+				+ "/sakai.lti.admin.helper.helper"
 				+ "?eventSubmit_doMultipleContentItemResponse=Save"
 				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)

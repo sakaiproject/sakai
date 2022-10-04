@@ -647,10 +647,10 @@ public class BasicLTIUtil {
 			text.append("<pre id=\"ltiLaunchDebug_");
 			text.append(submit_uuid);
 			text.append("\" style=\"display: none\">\n");
-			text.append("<b>BasicLTI Endpoint</b>\n");
+			text.append("<b>LTI Endpoint</b>\n");
 			text.append(endpoint);
 			text.append("\n\n");
-			text.append("<b>BasicLTI Parameters:</b>\n");
+			text.append("<b>LTI Parameters:</b>\n");
 			for (Entry<String, String> entry : newMap.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();

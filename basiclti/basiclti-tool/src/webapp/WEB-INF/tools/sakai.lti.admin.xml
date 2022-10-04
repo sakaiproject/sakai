@@ -17,7 +17,7 @@
 	</tool>
 
 	<tool
-			id="sakai.basiclti.admin.helper"
+			id="sakai.lti.admin.helper"
 			title="External Tool Helper"
 			description="This tool manages external tools launchable via IMS LTI.">
 

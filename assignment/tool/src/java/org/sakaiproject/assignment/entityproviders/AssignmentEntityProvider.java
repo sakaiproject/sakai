@@ -707,7 +707,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Integer contentKey = assignment.getContentId();
         if ( contentKey != null ) {
             // Fall back launch for SimpleAssignments without any user-submission
-            simpleAssignment.ltiGradableLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey;
+            simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
             Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
             String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
@@ -716,7 +716,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 String ltiSubmissionLaunch = null;
                 for ( SimpleSubmitter submitter: submission.submitters ) {
                     if ( submitter.id != null ) {
-                        ltiSubmissionLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
+                        ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
 
                         // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
                         // Delegate the complex understanding of the launch to SakaiBLTIUtil
