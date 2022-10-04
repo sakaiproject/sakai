@@ -24,7 +24,7 @@
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
 <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" href="../css/Simplepagetool.css" type="text/css"/>
 </head>
 <body>
