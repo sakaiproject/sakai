@@ -1059,7 +1059,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      */
     protected String getAlternateName(String name)
     {
-        if ( name == null || "".equals(name) ) return null;
+        if ( StringUtils.isBlank(name) ) return null;
         if ( name.startsWith("lti.") ) return name.replaceFirst("^lti.", "basiclti.");
         if ( name.startsWith("basiclti.") ) return name.replaceFirst("^basiclti.", "lti.");
         return null;

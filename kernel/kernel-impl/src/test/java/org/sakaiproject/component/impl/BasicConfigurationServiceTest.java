@@ -117,7 +117,13 @@ public class BasicConfigurationServiceTest {
 
     @Test
     public void testDereferenceAlias() throws Exception {
-        // https://sakaiproject.atlassian.net/browse/SAK-47924
+        Assert.assertEquals("lti.key", basicConfigurationService.getAlternateName("basiclti.key") );
+        Assert.assertEquals("basiclti.key", basicConfigurationService.getAlternateName("lti.key") );
+        Assert.assertNull(basicConfigurationService.getAlternateName("yada.key") );
+        Assert.assertNull(basicConfigurationService.getAlternateName("") );
+        Assert.assertNull(basicConfigurationService.getAlternateName(" ") );
+        Assert.assertNull(basicConfigurationService.getAlternateName(null) );
+
         ConfigData cd = basicConfigurationService.getConfigData();
         Assert.assertEquals("12345", basicConfigurationService.getConfig("lti.key", "default") );
         Assert.assertEquals("12345", basicConfigurationService.getConfig("basiclti.key", "default") );
