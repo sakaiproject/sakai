@@ -138,7 +138,7 @@ public class SiteArchiver {
 		try {
 			FileUtils.deleteDirectory(dir);
 		} catch (IOException e) {
-			// We tried!
+			log.warn("Could not clear existing archive: {}: {}", dir, e.toString());
 		}
 
 		dir.mkdirs();
