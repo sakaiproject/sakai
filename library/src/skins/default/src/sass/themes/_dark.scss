@@ -185,6 +185,9 @@
     --footer-PoweredBy-bg: var(--sakai-color-gray--darker-1);
     --sakai-highlight-color: var(--sakai-color-red--lighter-6);
 
+    //New sidebar colors
+    --site-nav-btn-current-hover-color: var(--sakai-passive-color-3);
+
     // Dashboard
     --sakai-calendar-button-background-color: var(--sakai-background-color);
     --sakai-calendar-button-color: var(--button-text-color);
@@ -197,4 +200,12 @@
     // Jumbotron
     --jumbotron-bg: var(--sakai-color-blue--darker-5);
     --jumbotron-color: var(--sakai-text-color-1);
+
+    --sakai-modal-header-bg: var(--sakai-background-color-3);
+    --sakai-modal-header-color: var(--sakai-text-color-1);
+    --sakai-modal-close-btn-bg: var(--sakai-text-color-1);
+
+    --sakai-offcanvas-header-bg: var(--sakai-background-color-3);
+    --sakai-offcanvas-header-color: var(--sakai-text-color-1);
+    --sakai-offcanvas-close-btn-bg: var(--sakai-background-color-1);
 }
