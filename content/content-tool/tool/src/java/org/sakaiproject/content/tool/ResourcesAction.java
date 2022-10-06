@@ -4370,7 +4370,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String allowed_to_see_other_sites = (String) state.getAttribute(STATE_SHOW_ALL_SITES);
 			String show_other_sites = (String) state.getAttribute(STATE_SHOW_OTHER_SITES);
 			context.put("show_other_sites", show_other_sites);
-			if(Boolean.TRUE.toString().equals(allowed_to_see_other_sites) && canReviseAny())
+			if(Boolean.TRUE.toString().equals(allowed_to_see_other_sites) && canDeleteResource())
 			{
 				context.put("allowed_to_see_other_sites", Boolean.TRUE.toString());
 				show_all_sites = Boolean.TRUE.toString().equals(show_other_sites);
