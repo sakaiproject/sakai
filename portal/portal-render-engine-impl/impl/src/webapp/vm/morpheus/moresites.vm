@@ -55,12 +55,8 @@
 
             #end ## END of IF (${tabsSites.worksiteToolUrl})
 
-            #if (${tabsSites.prefsToolUrl})
-              <li role="menuitem"><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
-            #end ## END of IF (${tabsSites.prefsToolUrl})
           </ul>
           <div id="selectSite">
-              <!-- View all sites, add new site, preferences -->
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item" id="tab-othersites" role="presentation">
                 <button class="nav-link active"
