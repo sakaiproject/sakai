@@ -1,0 +1,16 @@
+/* Dark Theme */
+
+:root.sakaiUserTheme-dark {
+
+  .table {
+    color: var(--sakai-text-color-1);
+  }
+
+  .table-striped > tbody > tr:nth-of-type(odd) > * {
+    color: var(--sakai-text-color-1);
+  }
+
+  .table-hover > tbody > tr:hover > * {
+    color: var(--sakai-text-color-1);
+  }
+}

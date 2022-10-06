@@ -96,11 +96,14 @@ $input-border: var(--sakai-border-color);
 
 // Utilities
 @import "bootstrap/scss/utilities/api";
+
 @import "base/jquery-ui-defaults";
 @import "base/extendables";
 @import "base/defaults";
 @import "base/responsive";
 @import "base/icons";
+
+@import "themes/dark_bootstrap";
 
 //Todo assing new values, where those are used
 $page-header-border-color: lighten(#000, 46.7%) !default; // #eee
