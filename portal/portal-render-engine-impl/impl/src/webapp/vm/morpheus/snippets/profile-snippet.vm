@@ -14,8 +14,8 @@
       <ul class="nav flex-column">
         #foreach ( $site in $tabsSites.tabsSites )
           #if (${site.isMyWorkspace})
-        <li class="nav-item"><a href="${tabsSites.prefsToolUrl}" class="nav-link">Manage Preferences</a></li>
-        <li class="nav-item"><a href="${tabsSites.mrphs_profileToolUrl}" class="nav-link">View Profile</a></li>
+        <li class="nav-item"><a href="${prefsToolUrl}" class="nav-link">Manage Preferences</a></li>
+        <li class="nav-item"><a href="${profileToolUrl}" class="nav-link">View Profile</a></li>
           #end
         #end
         <li class="nav-item py-2 d-none"><button type="button" class="btn btn-primary">Log Out</button></li>

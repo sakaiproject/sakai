@@ -1118,6 +1118,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String [] mathJaxFormat = ServerConfigurationService.getStrings("mathjax.config.format");
 		rcontext.put("mathJaxFormat", mathJaxFormat);
 
+		try {
+			Site userSite = SiteService.getSite(SiteService.getUserSiteId(currentUser.getId()));
+			String preferencesToolId = ServerConfigurationService.getString("portal.preferencestool","sakai.preferences");
+			ToolConfiguration toolConfig = userSite.getToolForCommonId(preferencesToolId);
+			if (toolConfig != null) {
+				rcontext.put("prefsToolUrl", "/portal/directtool/" + toolConfig.getId());
+			}
+
+			String profileToolId = ServerConfigurationService.getString("portal.profiletool","sakai.profile2");
+			toolConfig = userSite.getToolForCommonId(profileToolId);
+			if (toolConfig != null) {
+				rcontext.put("profileToolUrl", "/portal/directtool/" + toolConfig.getId());
+			}
+		} catch (Exception e) {
+			log.error("Failed to set profile urls on render context: {}", e.toString());
+		}
+
 		return rcontext;
 	}
 
