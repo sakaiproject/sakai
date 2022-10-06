@@ -16,6 +16,7 @@
         border: $rubrics-title-border-size solid $rubrics-title-border-color;
         border-width: $rubrics-title-border-size 0px;
         font-weight: bold;
+        position: relative;
         @include display-flex;
         @include justify-content(space-between);
 
