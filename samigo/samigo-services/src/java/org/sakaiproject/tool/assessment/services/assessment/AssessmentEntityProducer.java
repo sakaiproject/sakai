@@ -506,6 +506,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		QuestionPoolServiceAPI questionPoolService = (QuestionPoolServiceAPI)ComponentManager.get("org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI");
 
 		int pools_exported = 0;
+		int archive_warnings = 0;
+
+		StringBuilder warnings = new StringBuilder();
 
 		try {
 			Site site = SiteService.getSite(siteId);
@@ -553,16 +556,25 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							try {
 								resource = ContentHostingService.getResource(resourceId);
 							} catch (PermissionException e) {
-								log.warn("Permission error fetching attachment: " + resourceId);
+								log.warn("Permission error fetching attachment: {}", resourceId);
 							} catch (TypeException e) {
-								log.warn("TypeException error fetching attachment: " + resourceId);
+								log.warn("TypeException error fetching attachment: {}", resourceId);
 							} catch (IdUnusedException e) {
-								log.warn("IdUnusedException error fetching attachment: " + resourceId);
+								log.warn("IdUnusedException error fetching attachment: {}", resourceId);
 							}
-							attachments.add(EntityManager.newReference(resource.getReference()));
+							if (resource != null) {
+								attachments.add(EntityManager.newReference(resource.getReference()));
+							} else {
+								log.warn("Unable to archive attachment for item {} in question pool (id={}; title={}) for instructor {}",
+									item.getItemId(), pool.getQuestionPoolId(), pool.getTitle(), instructorId);
+								warnings.append(String.format("WARNING: Attachment not found for item %d in question pool %d (%s) owned by userid %s: %s\n",
+									item.getItemId(), pool.getQuestionPoolId(), pool.getTitle(), instructorId, resourceId));
+								archive_warnings++;
+							}
 						}
 					    } catch (Exception e) {
-						String poolError = String.format("Caught an exception while exporting question pool (id=%s; title=%s) for instructor %s: %s", pool.getQuestionPoolId(), pool.getTitle(), instructorId, e.getMessage());
+						String poolError = String.format("Caught an exception while exporting question pool (id=%s; title=%s) for instructor %s: %s",
+							pool.getQuestionPoolId(), pool.getTitle(), instructorId, e.getMessage());
 						log.error(poolError, e);
 						throw new RuntimeException(poolError);
 					    }
@@ -599,7 +611,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			e.printStackTrace();
 		}
 
-		return String.format("archived %d question pools\n", pools_exported);
+		return String.format("archived %d question pool(s) with %d warning(s)\n%s", pools_exported, archive_warnings, warnings.toString());
 	}
 
     private void loadResourceIds(Connection db, String query, Long assessmentId, List<String> result)
