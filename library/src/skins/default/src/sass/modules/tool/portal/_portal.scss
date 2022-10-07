@@ -88,6 +88,23 @@
   overflow-y: auto;
 }
 
+#sakai-accountPanel {
+  #sakai-profile-image-block > button {
+    border: 1px transparent;
+    #sakai-profile-image-change {
+        display: none;
+    }
+    &:hover, &:focus {
+      #sakai-profile-image-change {
+          display: block;
+      }
+    }
+    &:focus {
+      outline: 1px solid;
+    }
+  }
+}
+
 .offcanvas {
   background-color: var(--sakai-background-color-2);
   .offcanvas-header {
@@ -224,6 +241,17 @@
     --bs-btn-disabled-color: var(--button-disabled-color);
     --bs-btn-disabled-bg: var(--button-disabled-bg);
     --bs-btn-disabled-border-color: var(--button-disabled-border-color);
+}
+
+.modal-content {
+  background: var(--sakai-modal-content-bg);
+  .modal-header {
+    background: var(--sakai-modal-header-bg);
+    color: var(--sakai-modal-header-color);
+    .btn-close {
+      background-color: var(--sakai-modal-close-btn-bg);
+    }
+  }
 }
 
 .portal-nav-sidebar{

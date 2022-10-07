@@ -13,4 +13,10 @@
   .table-hover > tbody > tr:hover > * {
     color: var(--sakai-text-color-1);
   }
+
+  .modal-footer {
+    .btn {
+      color: white;
+    }
+  }
 }
