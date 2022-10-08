@@ -741,13 +741,19 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			db = SqlService.borrowConnection();
 
 			if (draft) {
-				// Pools used in draft assessments
+				// Pools used in draft assessments (random draw)
 				loadResourceIds(db,
 					"select DISTINCT ENTRY FROM SAM_SECTIONMETADATA_T SM inner join SAM_SECTION_T SS on SM.SECTIONID = SS.SECTIONID " +
 					" where LABEL='POOLID_FOR_RANDOM_DRAW' and ASSESSMENTID = ?",
 					"ENTRY", assessmentId, result);
+
+				// Pools used in draft assessments (question level)
+				loadResourceIds(db,
+					"select distinct QUESTIONPOOLID from SAM_QUESTIONPOOLITEM_T QPI inner join SAM_ITEM_T I on QPI.ITEMID = I.ITEMID " +
+					" inner join SAM_SECTION_T S ON I.SECTIONID = S.SECTIONID where ASSESSMENTID = ?",
+					"QUESTIONPOOLID", assessmentId, result);
 			} else {
-				// Pools used in published assessments
+				// Pools used in published assessments (random draw)
 				loadResourceIds(db,
 					"select DISTINCT ENTRY FROM SAM_PUBLISHEDSECTIONMETADATA_T SM inner join SAM_PUBLISHEDSECTION_T SS on SM.SECTIONID = SS.SECTIONID " +
 					" where LABEL='POOLID_FOR_RANDOM_DRAW' and ASSESSMENTID = ?",
