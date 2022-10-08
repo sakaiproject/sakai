@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -146,9 +147,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return transversalMap;
 	}
 
-	public String archive(String siteId, Document doc, Stack stack,
+	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
 
-                          String archivePath, List attachments) {
         StringBuilder results = new StringBuilder();
         results.append("archiving ").append(getLabel()).append("\n");
 
@@ -164,9 +164,15 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         ((Element) stack.peek()).appendChild(element);
         stack.push(element);
         AssessmentService assessmentService = new AssessmentService();
+
+        // Question pools
+        Set<String> poolIds = new TreeSet<String>();
+
+        // Draft assessments
         List<AssessmentData> assessmentList
                 = (List<AssessmentData>) assessmentService.getAllActiveAssessmentsbyAgent(siteId);
         for (AssessmentData data : assessmentList) {
+
             Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
             String id = data.getAssessmentId().toString();
             assessmentXml.setAttribute("id", id);
@@ -189,6 +195,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
             }
             element.appendChild(assessmentXml);
 
+	    // Question pool IDs for random draw (if used)
+	    poolIds.addAll(fetchAssessmentPoolIds(data.getAssessmentId(), true));
+
+	    // Attachments
             for (String resourceId : fetchAllAttachmentResourceIds(data.getAssessmentId())) {
                 ContentResource resource = null;
                 try {
@@ -202,58 +212,65 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                 }
                 attachments.add(EntityManager.newReference(resource.getReference()));
             }
-        }
 
-		// Published assessments
-		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(siteId);
-		for (PublishedAssessmentData data : publishedAssessmentList) {
-			Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
-			String publishedAssessmentId = data.getPublishedAssessmentId().toString();
-			assessmentXml.setAttribute("id", String.format("pub%s", publishedAssessmentId));
-			assessmentXml.setAttribute("published", "true");
-			assessmentXml.setAttribute("baseId", data.getAssessmentBaseId().toString());
-			FileWriter writer = null;
-			try {
-				File assessmentFile = new File(qtiPath + File.separator + ARCHIVED_ELEMENT + String.format("pub%s", publishedAssessmentId) + ".xml");
-				writer = new FileWriter(assessmentFile);
-				writer.write(qtiService.getExportedPublishedAssessmentAsString(publishedAssessmentId, QTI_VERSION));
-			} catch (IOException e) {
-				results.append(e.getMessage() + "\n");
-				log.error(e.getMessage(), e);
-			} finally {
-				if (writer != null) {
-					try {
-						writer.close();
-					} catch (Throwable t) {
-						log.error(t.getMessage(), t);
-					}
-				}
-			}
-			element.appendChild(assessmentXml);
+        } // draft
 
-			for (String resourceId : fetchAllAttachmentResourceIds(data.getPublishedAssessmentId())) {
-				ContentResource resource = null;
+	// Published assessments
+	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+	List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(siteId);
+	for (PublishedAssessmentData data : publishedAssessmentList) {
+
+		Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
+		String publishedAssessmentId = data.getPublishedAssessmentId().toString();
+		assessmentXml.setAttribute("id", String.format("pub%s", publishedAssessmentId));
+		assessmentXml.setAttribute("published", "true");
+		assessmentXml.setAttribute("baseId", data.getAssessmentBaseId().toString());
+		FileWriter writer = null;
+		try {
+			File assessmentFile = new File(qtiPath + File.separator + ARCHIVED_ELEMENT + String.format("pub%s", publishedAssessmentId) + ".xml");
+			writer = new FileWriter(assessmentFile);
+			writer.write(qtiService.getExportedPublishedAssessmentAsString(publishedAssessmentId, QTI_VERSION));
+		} catch (IOException e) {
+			results.append(e.getMessage() + "\n");
+			log.error(e.getMessage(), e);
+		} finally {
+			if (writer != null) {
 				try {
-					resource = ContentHostingService.getResource(resourceId);
-				} catch (PermissionException e) {
-					log.warn("Permission error fetching attachment: {}", resourceId);
-					continue;
-				} catch (TypeException e) {
-					log.warn("TypeException error fetching attachment: {}", resourceId);
-					continue;
-				} catch (IdUnusedException e) {
-					log.warn("IdUnusedException error fetching attachment: {}", resourceId);
-					continue;
+					writer.close();
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
 				}
-				attachments.add(EntityManager.newReference(resource.getReference()));
 			}
 		}
+		element.appendChild(assessmentXml);
 
-        results.append(exportQuestionPools(siteId, archivePath, attachments));
+		// Question pool IDs for random draw (if used)
+		poolIds.addAll(fetchAssessmentPoolIds(data.getPublishedAssessmentId(), false));
+
+		// Attachments
+		for (String resourceId : fetchAllAttachmentResourceIds(data.getPublishedAssessmentId())) {
+			ContentResource resource = null;
+			try {
+				resource = ContentHostingService.getResource(resourceId);
+			} catch (PermissionException e) {
+				log.warn("Permission error fetching attachment: {}", resourceId);
+				continue;
+			} catch (TypeException e) {
+				log.warn("TypeException error fetching attachment: {}", resourceId);
+				continue;
+			} catch (IdUnusedException e) {
+				log.warn("IdUnusedException error fetching attachment: {}", resourceId);
+				continue;
+			}
+			attachments.add(EntityManager.newReference(resource.getReference()));
+		}
+
+	} // published
+
+        results.append(exportQuestionPools(siteId, archivePath, poolIds, attachments));
 
         stack.pop();
-		return results.toString();
+	return results.toString();
 	}
 
 	public Entity getEntity(Reference ref) {
@@ -501,7 +518,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		}
 	}
 
-	private String exportQuestionPools(String siteId, String archivePath, List<Reference> attachments) {
+	private String exportQuestionPools(String siteId, String archivePath, Set<String> questionPoolIds, List<Reference> attachments) {
+
 		String xmlPath = archivePath + File.separator + "samigo_question_pools.xml";
 		QuestionPoolServiceAPI questionPoolService = (QuestionPoolServiceAPI)ComponentManager.get("org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI");
 
@@ -517,72 +535,95 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				return "T&Q not used in this site: skipping Question Pool archive\n";
 			}
 
-			String maintainRole = site.getMaintainRole();
-			List<String> instructorIds = new ArrayList<>();
-			for (Member member : site.getMembers()) {
-				if (maintainRole.equals(member.getRole().getId())) {
-					if (!"admin".equals(member.getUserId())) {
-						instructorIds.add(member.getUserId());
-					}
-				}
-			}
-
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.newDocument();
 			Element questionPools = doc.createElement("QuestionPools");
 
-			for (String instructorId : instructorIds) {
-				for (Object poolObj : questionPoolService.getAllPools(instructorId)) {
-					Element questionPool = doc.createElement("QuestionPool");
-					QuestionPoolDataIfc pool = (QuestionPoolDataIfc)poolObj;
-					questionPool.setAttribute("title", pool.getTitle());
-					questionPool.setAttribute("id", String.valueOf(pool.getQuestionPoolId()));
-					questionPool.setAttribute("ownerId", instructorId);
-					if (pool.getParentPoolId() != null && pool.getParentPoolId() != 0L) {
-						questionPool.setAttribute("parentId", String.valueOf(pool.getParentPoolId()));
-					}
-					questionPool.setAttribute("sourcebank_ref", String.format("%d::%s", pool.getQuestionPoolId(), pool.getTitle()));
-					for (Object itemObj : pool.getQuestionPoolItems()) {
-					    try {
-						QuestionPoolItemData item = (QuestionPoolItemData)itemObj;
-						NodeList nodes = qtiService.getExportedItem(String.valueOf(item.getItemId()), QTI_VERSION).getChildNodes();
-						for (int i=0; i<nodes.getLength(); ++i) {
-							Element node = (Element) nodes.item(i);
-							questionPool.appendChild(doc.adoptNode(node));
+			List targetPools = new ArrayList<>();
+
+			boolean export_instructor_pools = false;
+			boolean export_assessment_pools = true;
+
+			// All pools owned by instructors in the site
+			if (export_instructor_pools) {
+				log.info("Exporting question pools owned by any maintainer in site {}", siteId);
+				String maintainRole = site.getMaintainRole();
+				List<String> instructorIds = new ArrayList<>();
+				for (Member member : site.getMembers()) {
+					if (maintainRole.equals(member.getRole().getId())) {
+						if (!"admin".equals(member.getUserId())) {
+							instructorIds.add(member.getUserId());
 						}
-						for (String resourceId : fetchItemAttachmentResourceIds(item.getItemId())) {
-							ContentResource resource = null;
-							try {
-								resource = ContentHostingService.getResource(resourceId);
-							} catch (PermissionException e) {
-								log.warn("Permission error fetching attachment: {}", resourceId);
-							} catch (TypeException e) {
-								log.warn("TypeException error fetching attachment: {}", resourceId);
-							} catch (IdUnusedException e) {
-								log.warn("IdUnusedException error fetching attachment: {}", resourceId);
-							}
-							if (resource != null) {
-								attachments.add(EntityManager.newReference(resource.getReference()));
-							} else {
-								log.warn("Unable to archive attachment for item {} in question pool (id={}; title={}) for instructor {}",
-									item.getItemId(), pool.getQuestionPoolId(), pool.getTitle(), instructorId);
-								warnings.append(String.format("WARNING: Attachment not found for item %d in question pool %d (%s) owned by userid %s: %s\n",
-									item.getItemId(), pool.getQuestionPoolId(), pool.getTitle(), instructorId, resourceId));
-								archive_warnings++;
-							}
-						}
-					    } catch (Exception e) {
-						String poolError = String.format("Caught an exception while exporting question pool (id=%s; title=%s) for instructor %s: %s",
-							pool.getQuestionPoolId(), pool.getTitle(), instructorId, e.getMessage());
-						log.error(poolError, e);
-						throw new RuntimeException(poolError);
-					    }
 					}
-					questionPools.appendChild(questionPool);
-					pools_exported++;
+				}
+
+				for (String instructorId : instructorIds) {
+					targetPools.addAll(questionPoolService.getAllPools(instructorId));
 				}
 			}
+
+			// Pools used in assessments in the site
+			if (export_assessment_pools) {
+				log.info("Exporting question pools used in site {}", siteId);
+				for (String poolId : questionPoolIds) {
+					targetPools.add(questionPoolService.getPool(new Long(poolId), null));
+				}
+			}
+
+			for (Object poolObj : targetPools) {
+
+				Element questionPool = doc.createElement("QuestionPool");
+				QuestionPoolDataIfc pool = (QuestionPoolDataIfc)poolObj;
+				questionPool.setAttribute("title", pool.getTitle());
+				questionPool.setAttribute("id", String.valueOf(pool.getQuestionPoolId()));
+				questionPool.setAttribute("ownerId", pool.getOwnerId());
+
+				if (pool.getParentPoolId() != null && pool.getParentPoolId() != 0L) {
+					questionPool.setAttribute("parentId", String.valueOf(pool.getParentPoolId()));
+				}
+				questionPool.setAttribute("sourcebank_ref", String.format("%d::%s", pool.getQuestionPoolId(), pool.getTitle()));
+				for (Object itemObj : pool.getQuestionPoolItems()) {
+				    try {
+					QuestionPoolItemData item = (QuestionPoolItemData)itemObj;
+					NodeList nodes = qtiService.getExportedItem(String.valueOf(item.getItemId()), QTI_VERSION).getChildNodes();
+					for (int i=0; i<nodes.getLength(); ++i) {
+						Element node = (Element) nodes.item(i);
+						questionPool.appendChild(doc.adoptNode(node));
+					}
+					for (String resourceId : fetchItemAttachmentResourceIds(item.getItemId())) {
+						ContentResource resource = null;
+						try {
+							resource = ContentHostingService.getResource(resourceId);
+						} catch (PermissionException e) {
+							log.warn("Permission error fetching attachment: {}", resourceId);
+						} catch (TypeException e) {
+							log.warn("TypeException error fetching attachment: {}", resourceId);
+						} catch (IdUnusedException e) {
+							log.warn("IdUnusedException error fetching attachment: {}", resourceId);
+						}
+						if (resource != null) {
+							attachments.add(EntityManager.newReference(resource.getReference()));
+						} else {
+							log.warn("Unable to archive attachment for item {} in question pool (id={}; title={}) for owner {}",
+								item.getItemId(), pool.getQuestionPoolId(), pool.getTitle(), pool.getOwnerId());
+							warnings.append(String.format("WARNING: Attachment not found for item %d in question pool %d (%s) owned by %s: %s\n",
+								item.getItemId(), pool.getQuestionPoolId(), pool.getTitle(), pool.getOwnerId(), resourceId));
+							archive_warnings++;
+						}
+					}
+				    } catch (Exception e) {
+					String poolError = String.format("Caught an exception while exporting question pool (id=%s; title=%s) for owner %s: %s",
+						pool.getQuestionPoolId(), pool.getTitle(), pool.getOwnerId(), e.getMessage());
+					log.error(poolError, e);
+					throw new RuntimeException(poolError);
+				    }
+				}
+
+				questionPools.appendChild(questionPool);
+				pools_exported++;
+
+			} // for
 
 			doc.appendChild(questionPools);
 
@@ -614,13 +655,13 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return String.format("archived %d question pool(s) with %d warning(s)\n%s", pools_exported, archive_warnings, warnings.toString());
 	}
 
-    private void loadResourceIds(Connection db, String query, Long assessmentId, List<String> result)
+    private void loadResourceIds(Connection db, String query, String field, Long assessmentId, List<String> result)
         throws SQLException {
         try (PreparedStatement ps = db.prepareStatement(query)) {
             ps.setLong(1, assessmentId);
             try (ResultSet rs = ps.executeQuery()) {
                 while(rs.next()) {
-                    result.add(rs.getString("resourceid"));
+                    result.add(rs.getString(field));
                 }
             }
         }
@@ -633,11 +674,13 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         try {
             db = SqlService.borrowConnection();
 
-            loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where assessmentid = ?", assessmentId, result);
+            loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where assessmentid = ?",
+			   "resourceid",  assessmentId, result);
 
             loadResourceIds(db,
                             "select resourceid from SAM_ATTACHMENT_T where sectionid in " +
                             " (select sectionid from SAM_SECTION_T where assessmentid = ?)",
+			    "resourceid",
                             assessmentId,
                             result);
 
@@ -645,6 +688,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                             "select resourceid from SAM_ATTACHMENT_T where itemid in " +
                             " (select itemid from SAM_ITEM_T where sectionid in " +
                             "  (select sectionid from SAM_SECTION_T where assessmentid = ?))",
+			    "resourceid",
                             assessmentId,
                             result);
 
@@ -653,6 +697,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                             " (select itemtextid from SAM_ITEMTEXT_T where itemid in " +
                             "  (select itemid from SAM_ITEM_T where sectionid in" +
                             "   (select sectionid from SAM_SECTION_T where assessmentid = ?)))",
+			    "resourceid",
                             assessmentId,
                             result);
         } catch (SQLException e) {
@@ -672,13 +717,43 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		try {
 			db = SqlService.borrowConnection();
 
-			loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where itemid = ?", itemId, result);
+			loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where itemid = ?",
+				"resourceid", itemId, result);
 
-			loadResourceIds(db,
-					"select resourceid from SAM_ATTACHMENT_T where itemtextid in " +
-							" (select itemtextid from SAM_ITEMTEXT_T where itemid = ?)",
-					itemId,
-					result);
+			loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where itemtextid in " +
+				" (select itemtextid from SAM_ITEMTEXT_T where itemid = ?)",
+				"resourceid", itemId, result);
+		} catch (SQLException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		} finally {
+			SqlService.returnConnection(db);
+		}
+
+		return result;
+	}
+
+	private List<String> fetchAssessmentPoolIds(Long assessmentId, boolean draft) {
+		List<String> result = new ArrayList<>();
+
+		Connection db = null;
+		try {
+			db = SqlService.borrowConnection();
+
+			if (draft) {
+				// Pools used in draft assessments
+				loadResourceIds(db,
+					"select DISTINCT ENTRY FROM SAM_SECTIONMETADATA_T SM inner join SAM_SECTION_T SS on SM.SECTIONID = SS.SECTIONID " +
+					" where LABEL='POOLID_FOR_RANDOM_DRAW' and ASSESSMENTID = ?",
+					"ENTRY", assessmentId, result);
+			} else {
+				// Pools used in published assessments
+				loadResourceIds(db,
+					"select DISTINCT ENTRY FROM SAM_PUBLISHEDSECTIONMETADATA_T SM inner join SAM_PUBLISHEDSECTION_T SS on SM.SECTIONID = SS.SECTIONID " +
+					" where LABEL='POOLID_FOR_RANDOM_DRAW' and ASSESSMENTID = ?",
+					"ENTRY", assessmentId, result);
+			}
+
 		} catch (SQLException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
