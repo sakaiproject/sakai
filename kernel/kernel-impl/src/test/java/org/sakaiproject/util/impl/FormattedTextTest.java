@@ -1228,7 +1228,7 @@ public class FormattedTextTest {
 
     @Test
     public void testLocalIframeSrc() {
-        String url = serverConfigurationService.getServerUrl() + "/access/basiclti/site/0f68e843-1f0c-473d-b469-852a49ea0f05/content:62";
+        String url = serverConfigurationService.getServerUrl() + "/access/lti/site/0f68e843-1f0c-473d-b469-852a49ea0f05/content:62";
         String contentItemIframe = "<iframe allowfullscreen=\"true\" class=\"lti-iframe\" height=\"402\" mozallowfullscreen=\"true\" src=\""
                 + url + "\" title=\"Test LTI Content Item Iframe\" webkitallowfullscreen=\"true\" width=\"608\"></iframe>";
         StringBuilder errorMessages = new StringBuilder();

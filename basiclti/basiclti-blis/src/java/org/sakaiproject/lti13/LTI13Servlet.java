@@ -2197,9 +2197,9 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Indicate "who" is reading this grade - needs to be a real user account
 		String gb_user_id = ServerConfigurationService.getString(
-				"basiclti.outcomes.userid", "admin");
+				"lti.outcomes.userid", "admin");
 		String gb_user_eid = ServerConfigurationService.getString(
-				"basiclti.outcomes.usereid", gb_user_id);
+				"lti.outcomes.usereid", gb_user_id);
 		sess.setUserId(gb_user_id);
 		sess.setUserEid(gb_user_eid);
 

@@ -4478,7 +4478,7 @@ public class SiteAction extends PagedResourceActionII {
 		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), "sakai.basiclti.admin.helper");
+		startHelper(data.getRequest(), "sakai.lti.admin.helper");
 	}
 	
 	public void doUserAuditEventLog(RunData data) {

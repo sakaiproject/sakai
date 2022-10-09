@@ -238,7 +238,7 @@ public class ToolUtils
 			source = pro.getProperty("source");
 		} else if ( "sakai.basiclti".equals(pageTool.getToolId()) 
 				&& "on".equals(pro.getProperty("imsti.newpage")) ) {
-			source = "/access/basiclti/site/"+pageTool.getContext()+"/"+pageTool.getId();
+			source = "/access/lti/site/"+pageTool.getContext()+"/"+pageTool.getId();
 		}
 		return source;
 	}

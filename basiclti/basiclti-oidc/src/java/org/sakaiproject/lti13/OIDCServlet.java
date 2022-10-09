@@ -66,13 +66,13 @@ public class OIDCServlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		// /imsoidc/lti13/oidc_auth?state=42&login_hint=/access/basiclti/site/92e..e8e67/content:6
+		// /imsoidc/lti13/oidc_auth?state=42&login_hint=/access/lti/site/92e..e8e67/content:6
 		if (parts.length == 4 && "oidc_auth".equals(parts[3])) {
 			handleOIDCAuthorization(request, response);
 			return;
 		}
 
-		// /imsoidc/lti13/lti112?tool_state=42&platform_state=/access/basiclti/site/92e..e8e67/content:6
+		// /imsoidc/lti13/lti112?tool_state=42&platform_state=/access/lti/site/92e..e8e67/content:6
 		if (parts.length == 4 && "lti112".equals(parts[3])) {
 			handleLTI112Authorization(request, response);
 			return;
