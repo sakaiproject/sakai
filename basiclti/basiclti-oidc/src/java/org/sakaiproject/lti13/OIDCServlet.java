@@ -119,7 +119,9 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if (!login_hint.startsWith(LTIService.LAUNCH_PREFIX)
+		// /access/lti/site/477ded8b-2d67-4897-9e00-0afc4eb8ae20/content:7
+		// /access/basiclti/site/477ded8b-2d67-4897-9e00-0afc4eb8ae20/content:7
+		if (!(login_hint.startsWith(LTIService.LAUNCH_PREFIX) || login_hint.startsWith(LTIService.LAUNCH_PREFIX_LEGACY))
 				|| login_hint.contains("\"") || login_hint.contains("'")
 				|| login_hint.contains("<") || login_hint.contains(">")
 				|| login_hint.contains(" ") || login_hint.contains(";")) {
@@ -158,7 +160,7 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if (!platform_state.startsWith(LTIService.LAUNCH_PREFIX)
+		if (!(platform_state.startsWith(LTIService.LAUNCH_PREFIX) || platform_state.startsWith(LTIService.LAUNCH_PREFIX_LEGACY))
 				|| platform_state.contains("\"") || platform_state.contains("'")
 				|| platform_state.contains("<") || platform_state.contains(">")
 				|| platform_state.contains(" ") || platform_state.contains(";")) {
