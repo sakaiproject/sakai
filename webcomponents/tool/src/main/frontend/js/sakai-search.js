@@ -1,17 +1,13 @@
-import { SakaiElement } from "./sakai-element.js";
-import "./sakai-pager.js";
-import { html } from "./assets/lit-element/lit-element.js";
-import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js";
+import { SakaiElement } from "./sakai-element.js?version=13aafe66";
+import "./sakai-pager.js?version=13aafe66";
+import { html } from "./assets/lit-element/lit-element.js?version=13aafe66";
+import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js?version=13aafe66";
 
 class SakaiSearch extends SakaiElement {
-
   constructor() {
-
     super();
-
     this.pageSize = 10;
     this.searchMinLengthValue = 3;
-
     this.iconMapping = {
       "announcement": "icon-sakai--sakai-announcements",
       "assignments": "icon-sakai--sakai-assignment-grades",
@@ -21,17 +17,16 @@ class SakaiSearch extends SakaiElement {
       "lessons": "icon-sakai--sakai-lessonbuildertool",
       "commons": "icon-sakai--sakai-commons",
       "content": "icon-sakai--sakai-resources",
-      "wiki": "icon-sakai--sakai-rwiki",
+      "wiki": "icon-sakai--sakai-rwiki"
     };
 
     if (!this.tool) {
       this.searchTerms = sessionStorage.getItem("searchterms") || "";
       this.results = JSON.parse(sessionStorage.getItem("searchresults") || "[]");
     }
+
     this.currentPageIndex = parseInt(sessionStorage.getItem("currentpageindex") || "0");
-
     this.loadTranslations("search").then(t => {
-
       this.i18n = t;
       this.toolNameMapping = {
         "announcement": this.i18n.toolname_announcement,
@@ -42,33 +37,49 @@ class SakaiSearch extends SakaiElement {
         "lessons": this.i18n.toolname_lesson,
         "commons": this.i18n.toolname_commons,
         "content": this.i18n.toolname_resources,
-        "wiki": this.i18n.toolname_wiki,
+        "wiki": this.i18n.toolname_wiki
       };
     });
   }
 
   static get properties() {
-
     return {
-      siteId: { attribute: "site-id", type: String },
-      tool: { type: String },
-      pageSize: { attribute: "page-size", type: Number },
-      results: { attribute: false, type: Array },
-      pages: { attribute: false, type: Number },
-      i18n: { attribute: false, type: Object },
+      siteId: {
+        attribute: "site-id",
+        type: String
+      },
+      tool: {
+        type: String
+      },
+      pageSize: {
+        attribute: "page-size",
+        type: Number
+      },
+      results: {
+        attribute: false,
+        type: Array
+      },
+      pages: {
+        attribute: false,
+        type: Number
+      },
+      i18n: {
+        attribute: false,
+        type: Object
+      }
     };
   }
 
   set pageSize(newValue) {
-
     this._pageSize = newValue;
     this.initSetsOfResults(this.results);
   }
 
-  get pageSize() { return this._pageSize; }
+  get pageSize() {
+    return this._pageSize;
+  }
 
   handleKeydownOnResult(e) {
-
     if (e.code === "Escape") {
       e.preventDefault();
       this.closeResults();
@@ -76,7 +87,6 @@ class SakaiSearch extends SakaiElement {
   }
 
   closeResults() {
-
     this.results = [];
     this.dispatchEvent(new CustomEvent("hiding-search-results"));
     const input = this.querySelector("input");
@@ -89,22 +99,19 @@ class SakaiSearch extends SakaiElement {
   }
 
   render() {
-
     return html`
-    <form class="input-group position-relative" onsubmit="return false">
+    <form class="input-group position-relative" @submit=${this.search}>
       <input type="search"
         class="sakaiSearch form-control"
         autocomplete="off"
         id="sakai-search-input"
-        pattern=".{${this.searchMinLengthValue},}" 
+        pattern=".{${this.searchMinLengthValue},}"
         title="${this.i18n.search_min_length.replace("{}", this.searchMinLengthValue)}"
         placeholder="${this.i18n.search_placeholder}"
-        @keydown=${this.search}
-        @click=${this.handleSearchClick}
         value=${this.searchTerms}
-        aria-label="${this.i18n.search_placeholder}" 
+        aria-label="${this.i18n.search_placeholder}"
       />
-      <button class="btn btn-primary" type="submit" id="sakai-search-button"  @click=${this.handleButtonClick}>
+      <button class="btn btn-primary" type="submit" id="sakai-search-button">
         Search Sakai
       </button>
     </form>
@@ -142,11 +149,11 @@ class SakaiSearch extends SakaiElement {
   }
 
   clear() {
-
     if (!this.tool) {
       sessionStorage.removeItem("searchterms");
       sessionStorage.removeItem("searchresults");
     }
+
     this.results = [];
     this.searchTerms = "";
     this.requestUpdate();
@@ -154,7 +161,6 @@ class SakaiSearch extends SakaiElement {
   }
 
   handleSearchClick(e) {
-
     if (e.target.selectionStart <= 2) {
       e.preventDefault();
       e.target.setSelectionRange(2, 2);
@@ -163,85 +169,94 @@ class SakaiSearch extends SakaiElement {
   }
 
   search(e) {
-    const keycode = e.keyCode ? e.keyCode : e.which;
+    e.preventDefault();
 
-    if ((keycode === 8 || keycode === 37) && e.target.selectionStart === 0) {
-      e.preventDefault();
-      return false;
-    }
+    const terms = e.target.querySelector("#sakai-search-input").value;
 
     this.closeResults();
 
-    if (keycode == "13" && e.target.value.length > this.searchMinLengthValue - 1) {
-      const terms = e.target.value.substring(0, e.target.selectionStart);
+    if (terms.length > this.searchMinLengthValue - 1) {
+
       if (!this.tool) {
         sessionStorage.setItem("searchterms", terms);
       }
-      fetch(`/api/search?terms=${terms}${this.siteId ? `&site=${this.siteId}` : ""}`, { cache: "no-cache", credentials: "same-origin" })
-        .then(r => {
 
-          if (r.ok) {
-            return r.json();
+      fetch(`/api/search?terms=${terms}${this.siteId ? `&site=${this.siteId}` : ""}`, {
+        cache: "no-cache",
+        credentials: "same-origin"
+      }).then(r => {
+        if (r.ok) {
+          return r.json();
+        }
+
+        throw new Error("Failed to get search results.");
+      }).then(data => {
+        this.dispatchEvent(new CustomEvent("showing-search-results"));
+        this.results = data;
+
+        if (this.results.length > 0) {
+          this.querySelector("input").classList.add("flat-bottom");
+        }
+
+        this.noResults = this.results.length === 0;
+        this.results.forEach(r => {
+          if (r.title.length === 0) r.title = r.tool;
+        });
+        this.initSetsOfResults(this.results);
+        this.updateComplete.then(() => {
+          if (!this.noResults) {
+            const resultItem = this.querySelector("a.list-group-item");
+            resultItem.focus();
+            resultItem.classList.add("active", "text-white");
           }
-          throw new Error("Failed to get search results.");
-        }).then(data => {
+          document.querySelectorAll(".searchResults").forEach(el => {
+            el.addEventListener("keydown", ke => {
+              ke.stopPropagation();
 
-          this.dispatchEvent(new CustomEvent("showing-search-results"));
+              switch (ke.code) {
+                case "ArrowDown":
+                  if (el.nextElementSibling.classList.contains("searchResults")) {
+                    el.nextElementSibling.querySelector("a").focus();
+                    el.nextElementSibling.querySelector("a").classList.add("active", "text-white");
+                    el.querySelector("a").classList.remove("active", "text-white");
+                    ke.preventDefault();
+                  }
 
-          this.results = data;
+                  break;
 
-          if (this.results.length > 0) {
-            this.querySelector("input").classList.add("flat-bottom");
-          }
-          this.noResults = this.results.length === 0;
-          this.results.forEach(r => { if (r.title.length === 0) r.title = r.tool; });
-          this.initSetsOfResults(this.results);
-          this.updateComplete.then(() => {
-            this.querySelector("a").focus();
-            this.querySelector("a").classList.add("active");
-            document.querySelectorAll(".searchResults").forEach(el => {
-              el.addEventListener("keydown", ke => {
-                ke.stopPropagation();
-                switch (ke.code) {
-                  case "ArrowDown":
-                    if (el.nextElementSibling.classList.contains("searchResults")) {
-                      el.nextElementSibling.querySelector("a").focus();
-                      el.nextElementSibling.querySelector("a").classList.add("active");
-                      el.querySelector("a").classList.remove("active");
-                      ke.preventDefault();
-                    }
-                    break;
-                  case "ArrowUp":
-                    if (el.previousElementSibling.classList.contains("searchResults")) {
-                      el.previousElementSibling.querySelector("a").focus();
-                      el.previousElementSibling.querySelector("a").classList.add("active");
-                      el.querySelector("a").classList.remove("active");
-                      ke.preventDefault();
-                    }
-                    break;
-                  default:
-                }
-              });
+                case "ArrowUp":
+                  if (el.previousElementSibling.classList.contains("searchResults")) {
+                    el.previousElementSibling.querySelector("a").focus();
+                    el.previousElementSibling.querySelector("a").classList.add("active", "text-white");
+                    el.querySelector("a").classList.remove("active", "text-white");
+                    ke.preventDefault();
+                  }
+
+                  break;
+
+                default:
+              }
             });
           });
-          if (!this.tool) {
-            sessionStorage.setItem("searchresults", JSON.stringify(this.results));
-          }
-          this.requestUpdate();
-        })
-        .catch(error => console.error(error));
-    } else {
-      this.clear();
+        });
+
+        if (!this.tool) {
+          sessionStorage.setItem("searchresults", JSON.stringify(this.results));
+        }
+
+        this.requestUpdate();
+      }).catch(error => console.error(error));
     }
   }
 
   handleButtonClick() {
     const searchButton = this.querySelector("input");
-    searchButton.dispatchEvent(new KeyboardEvent("keydown", {keyCode: 13}));
+    searchButton.dispatchEvent(new KeyboardEvent("keydown", {
+      keyCode: 13
+    }));
   }
 
   initSetsOfResults(results) {
-
     this.setsOfResults = [];
 
     if (results) {
@@ -249,32 +264,33 @@ class SakaiSearch extends SakaiElement {
         this.setsOfResults.push(results);
       } else {
         let i = 0;
+
         while (i < results.length) {
-          if ((i + this.pageSize) < results.length) {
+          if (i + this.pageSize < results.length) {
             this.setsOfResults.push(results.slice(i, i + this.pageSize));
           } else {
             this.setsOfResults.push(results.slice(i));
           }
+
           i = i + this.pageSize;
         }
       }
+
       this.pages = Math.ceil(results.length / this.pageSize);
     }
 
     this.currentPageIndex = 0;
-
     this.currentPageOfResults = this.setsOfResults[this.currentPageIndex];
-
     this.requestUpdate();
   }
 
   pageSelected(e) {
-
     this.currentPageIndex = e.detail.page;
     this.currentPageOfResults = this.setsOfResults[this.currentPageIndex];
     this.requestUpdate();
     sessionStorage.setItem("currentpageindex", this.currentPageIndex);
   }
+
 }
 
 const tagName = "sakai-search";
