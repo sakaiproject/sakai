@@ -1637,17 +1637,27 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         //   - if assignment is restricted to groups only those in the group
         //   - minimally user needs read permission
         for (Assignment assignment : assignmentRepository.findAssignmentsBySite(context)) {
-            if (assignment.getDraft()) {
-                if (isDraftAssignmentVisible(assignment)) {
-                    // only those who can see a draft assignment
+        	String currentUserId = sessionManager.getCurrentSessionUserId();
+        	boolean canViewAssigment = false;
+        	try {
+                checkAssignmentAccessibleForUser(assignment, currentUserId);
+                canViewAssigment = true;
+            } catch (PermissionException e) {
+            	canViewAssigment = false;
+            }
+            if(canViewAssigment) {
+                if (assignment.getDraft()) {
+                    if (isDraftAssignmentVisible(assignment)) {
+                        // only those who can see a draft assignment
+                        assignments.add(assignment);
+                    }
+                } else if (assignment.getTypeOfAccess() == GROUP) {
+                    if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
+                        assignments.add(assignment);
+                    }
+                } else if (allowGetAssignment(context)) {
                     assignments.add(assignment);
                 }
-            } else if (assignment.getTypeOfAccess() == GROUP) {
-                if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
-                    assignments.add(assignment);
-                }
-            } else if (allowGetAssignment(context)) {
-                assignments.add(assignment);
             }
         }
 
