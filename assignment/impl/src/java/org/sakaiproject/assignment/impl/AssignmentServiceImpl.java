@@ -1608,20 +1608,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public Collection<AssignmentSubmission> getGradeableSubmissions(Assignment assignment) {
-
-        // Obtain the user ids for every group that the current user should see
-        Set<String> currentUserGroups = getGroupsAllowGradeAssignment(assignmentReference(assignment.getId())).stream()
-                .flatMap(group -> group.getMembers().stream()).map(Member::getUserId).collect(Collectors.toSet());
-
-        // Take the submissions of the previous users
-        return currentUserGroups.isEmpty() ? assignment.getSubmissions() : assignment.getSubmissions().stream()
-                .filter(submission -> !submission.getSubmitters().stream()
-                .map(AssignmentSubmissionSubmitter::getSubmitter).filter(currentUserGroups::contains)
-                .collect(Collectors.toList()).isEmpty()).collect(Collectors.toSet());
-    }
-
-    @Override
     public AssignmentConstants.Status getAssignmentCannonicalStatus(String assignmentId) throws IdUnusedException, PermissionException {
         Assignment assignment = getAssignment(assignmentId);
         ZonedDateTime currentTime = ZonedDateTime.now();
