@@ -15,10 +15,11 @@
 
 <f:view>
 	<sakai:view title="#{msgs.pvt_pvtcompose}">
-		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />		<script>includeLatestJQuery("msgcntr");</script>
+		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
+		<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
+		<script>includeLatestJQuery("msgcntr");</script>
 		<script src="/messageforums-tool/js/datetimepicker.js"></script>
 		<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-		<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script>includeWebjarLibrary('select2');</script>

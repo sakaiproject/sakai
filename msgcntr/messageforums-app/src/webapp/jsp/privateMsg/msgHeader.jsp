@@ -3,7 +3,6 @@
 <script src="/messageforums-tool/js/sak-10625.js"></script>
 <script src="/messageforums-tool/js/bulkops.js"></script>
 <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 
   <script>
     $(document).ready(function() {

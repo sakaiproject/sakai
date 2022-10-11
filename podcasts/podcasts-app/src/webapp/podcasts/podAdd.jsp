@@ -13,7 +13,6 @@
   <sakai:view>
       <script type="text/javascript">includeLatestJQuery("podAdd");</script>
       <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	  <script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 
       <script type="text/javascript">
         $(document).ready(function() {
