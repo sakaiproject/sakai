@@ -315,6 +315,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         int assignmentsArchived = 0;
         for (Assignment assignment : getAssignmentsForContext(siteId)) {
             String xml = assignmentRepository.toXML(assignment);
+            log.debug(xml);
 
             try {
                 InputSource in = new InputSource(new StringReader(xml));
@@ -324,7 +325,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 element.appendChild(assignmentNode);
                 assignmentsArchived++;
             } catch (Exception e) {
-                log.warn("could not append assignment {} to archive, {}", assignment.getId(), e.getMessage());
+                String error = String.format("could not append assignment %s to archive: %s", assignment.getId(), e.getMessage());
+                log.error(error, e);
+                throw new RuntimeException(error);
             }
         }
 
