@@ -1,6 +1,6 @@
 ## TODO: This file contains some placeholder text and content that needs to be revisited later
 ## to populate the contents and to internationalize. Work-in-progress.
-<ul class="sakai-systemIndicators nav flex-nowrap align-items-center">
+<ul id="sakai-system-indicators" class="nav flex-nowrap align-items-center">
 #*
 For opening help sidebar
   <li class="d-none d-md-inline">
@@ -18,6 +18,15 @@ For opening help sidebar
   #elseif ($pageColumn1Tools && !$pageColumn1Tools.isEmpty())
       #set ($helpLink = $pageColumn1Tools.get(0).toolHelpActionUrl)
   #end
+  <li class="d-none d-md-inline">
+    <button class="btn only-icon-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#select-site-modal"
+        aria-label="$rloader.sit_allsites"
+        title="$rloader.sit_allsites">
+      <i class="bi-grid-3x3"></i>
+    </button>
+  </li>
   #if ($helpLink)
     <li class="d-none d-md-inline">
       <a class="sak-sysInd-help nav-link text-white" href="${helpLink}" target="_blank">

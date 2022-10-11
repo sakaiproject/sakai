@@ -57,6 +57,16 @@
   grid-area: sidebar;
 }
 
+#sakai-system-indicators {
+
+  button {
+    color: #fff;
+    i {
+      font-size: 22px;
+    }
+  }
+}
+
 .portal-main-content {
   grid-area: main;
 }
