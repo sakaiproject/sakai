@@ -135,7 +135,6 @@ public class PortalUtils
              "           window.console && console.log('Adding jQuery migrate');\n" +
              "   }\n" +
              "   if ( typeof jQuery.fn.popover == 'undefined') {\n" +
-            //  "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "bootstrap/5.2.0/js/bootstrap.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding Bootstrap');\n" +
              "   }\n" +
              "   if (typeof jQuery.ui == 'undefined') {\n" +
