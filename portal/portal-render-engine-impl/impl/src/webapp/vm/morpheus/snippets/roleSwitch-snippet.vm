@@ -7,9 +7,6 @@
             <input type="submit" value="$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)"/>
         </a>
     #else
-        <a id="roleSwitchDropDownToggle" href="javascript:void('0')" aria-hidden="true" aria-haspopup="false" title="${rloader.rs_menuTooltip}" aria-label="${rloader.rs_menuTooltip}">
-            <i class="fa fa-user-secret" aria-hidden="true"></i>
-        </a>
         <div id="roleSwitchDropDown">
             <i class="fa fa-user-secret" aria-hidden="true"></i>
             #if ($roleswapdropdown)
