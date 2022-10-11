@@ -61,9 +61,14 @@
 
   button {
     color: #fff;
+    margin: 0px 3px;
     i {
       font-size: 22px;
     }
+  }
+
+  #portal-notifications-button {
+    position: relative;
   }
 }
 
@@ -137,7 +142,7 @@
 }
 .portal-notifications-indicator {
   position: absolute;
-  top: 0;
+  top: 10;
   right: 20%;
 }
 // make offcanvas header match Sakai's header:
