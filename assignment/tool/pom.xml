@@ -94,7 +94,6 @@
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
@@ -104,7 +103,6 @@
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ant</groupId>

@@ -414,6 +414,19 @@ public class LTI13Util {
 		}
 	}
 
+	/**
+	 * Get the scores URL from a lineItem Url
+	 *
+	 * Moodle gives us lineItem URLs with query parameters.
+	 */
+	public static String getScoreUrlForLineItem(String lineItemUrl)
+	{
+		if ( lineItemUrl == null ) return lineItemUrl;
+		int pos = lineItemUrl.indexOf("?");
+		if ( pos < 0 ) return lineItemUrl + "/scores";
+		return lineItemUrl.substring(0,pos) + "/scores?" + lineItemUrl.substring(pos+1);
+	}
+
 	/*
 		HTTP/1.1 400 OK
 		Content-Type: application/json;charset=UTF-8

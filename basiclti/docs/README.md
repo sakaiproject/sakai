@@ -7,6 +7,7 @@ Documentation:
 
 * [Importing Common Cartridges](IMPORTCC.md)
 * [Using Content Item or Deep Linking to Import Content](IMPORTLOR.md)
+* [Custom Substitution Variables in Sakai](CUSTOM.md)
 * [LTI 1.1 to LTI Advantage Migration in Sakai](MIGRATION.md)
 * [Sakai to LTI Role Mapping](LTIROLES.md)
 * [Using the IMS Reference Implementation with Sakai](IMS_RI.md)

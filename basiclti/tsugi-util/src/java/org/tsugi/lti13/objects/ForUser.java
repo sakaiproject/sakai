@@ -3,14 +3,11 @@ package org.tsugi.lti13.objects;
 import java.util.List;
 import java.util.ArrayList;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 
 /*
  * user_id (Required): id of the graded user, as identified by sub claim for launches done by that user.
@@ -28,7 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * roles: Roles in the context as defined in LTI 1.3 Core specifications.
  */
 
-public class ForUser {
+public class ForUser extends org.tsugi.jackson.objects.JacksonBase {
 	// Required
 	@JsonProperty("user_id")
 	public String user_id;

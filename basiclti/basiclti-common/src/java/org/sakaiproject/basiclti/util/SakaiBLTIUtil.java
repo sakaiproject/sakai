@@ -1903,7 +1903,7 @@ public class SakaiBLTIUtil {
 				) {
 				Endpoint endpoint = new Endpoint();
 				endpoint.scope = new ArrayList<>();
-				endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
+				endpoint.scope.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
 
 				if ( allowOutcomes != 0 && outcomesEnabled() && content != null) {
 					SakaiLineItem defaultLineItem = LineItemUtil.getDefaultLineItem(site, content);
@@ -2048,9 +2048,18 @@ public class SakaiBLTIUtil {
 				}
 			}
 
-			Integer form_id = jws.hashCode();
+			String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
+			String html = getJwsHTMLForm(launch_url, "id_token", jws, ljs, state, launch_error, dodebug);
+
+			String[] retval = {html, launch_url};
+			return retval;
+		}
+
+		public static String getJwsHTMLForm(String launch_url, String form_field, String jwt, String jsonStr, String state, String launch_error, boolean dodebug) {
+
+			Integer form_id = jwt.hashCode();
 			String html = "<form action=\"" + launch_url + "\" id=\"jwt-launch-"+ form_id + "\" method=\"POST\">\n"
-					+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n";
+					+ "    <input type=\"hidden\" name=\""+form_field+"\" value=\"" + BasicLTIUtil.htmlspecialchars(jwt) + "\" />\n";
 
 			if ( state != null ) {
 				html += "    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n";
@@ -2063,26 +2072,24 @@ public class SakaiBLTIUtil {
 
 
 			if ( ! dodebug ) {
-				String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
 				html += "<script>\n";
 				html += "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending prelaunch request');\n";
 				html += "setTimeout(function() { document.getElementById(\"jwt-launch-" + form_id + "\").submit(); }, 200 );\n";
 				html += "setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
 				html += "</script>\n";
 			} else {
-				html += "<p>\n--- Unencoded JWT:<br/>"
-						+ BasicLTIUtil.htmlspecialchars(ljs)
-						+ "</p>\n<p>\n--- State:<br/>"
+				html += "<p>\n--- Unencoded JWT:<br/><pre>\n"
+						+ BasicLTIUtil.htmlspecialchars(jsonStr)
+						+ "</pre>\n</p>\n<p>\n--- State:<br/>"
 						+ BasicLTIUtil.htmlspecialchars(state)
 						+ "</p>\n<p>\n--- Encoded JWT:<br/>"
-						+ BasicLTIUtil.htmlspecialchars(jws)
+						+ BasicLTIUtil.htmlspecialchars(jwt)
 						+ "</p>\n";
 				html += "<script>\n";
 				html += "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending debug prelaunch request');\n";
 				html += "</script>\n";
 			}
-			String[] retval = {html, launch_url};
-			return retval;
+			return html;
 		}
 
 		public static String getSourceDID(User user, Placement placement, Properties config) {
@@ -2449,7 +2456,6 @@ public class SakaiBLTIUtil {
 				}
 				retval = retMap;
 			} else if (isDelete) {
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, null, "External Outcome");
 				g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
 				retval = Boolean.TRUE;
