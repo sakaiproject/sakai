@@ -121,7 +121,6 @@ public class PortalUtils
                  getWebjarsPath() + "jquery-migrate/1.4.1/jquery-migrate.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                //  getWebjarsPath() + "bootstrap/5.2.0/js/bootstrap.min.js" + getCDNQuery() +
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
                  getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.js" + getCDNQuery() + 
