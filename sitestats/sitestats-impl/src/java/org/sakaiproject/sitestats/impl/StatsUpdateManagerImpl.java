@@ -762,8 +762,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					SitePresence spExisting = getHibernateTemplate().execute(session -> {
 						return doGetSitePresence(session, siteId, userId, date);
 					});
-					Date spExistingLastVisitStartTime = (spExisting != null) ? spExisting.getLastVisitStartTime():dateTime;
-					sp.setLastVisitStartTime(spExistingLastVisitStartTime != null ? spExistingLastVisitStartTime:dateTime);
+					Date spExistingLastVisitStartTime = (spExisting != null) ? spExisting.getLastVisitStartTime() : dateTime;
+					sp.setLastVisitStartTime(spExistingLastVisitStartTime != null ? spExistingLastVisitStartTime : dateTime);
 					spc = new SitePresenceConsolidation(sp, dateTime);
 				}
 				if(spc.sitePresence.getLastVisitStartTime() != null) {
