@@ -1,9 +1,8 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-revise.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $ 
-<script type="text/javascript" src="/library/js/spinner.js$!{portalCdnQuery}"></script>
-<script type="text/javascript">includeLatestJQuery('announcements');</script>
+<script src="/library/js/spinner.js$!{portalCdnQuery}"></script>
+<script>includeLatestJQuery('announcements');</script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
-<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script type="text/javascript">
+<script>
   focus_path = ["subject"];
   
 function resizeFrame(){
@@ -18,7 +17,7 @@ function resizeFrame(){
     }
 }
 </script>
-<script type="text/javascript">
+<script>
 	$(document).ready(function() {
 		$('#notiHistoryToggle').click(function(e){
 			e.preventDefault();
@@ -332,7 +331,7 @@ function resizeFrame(){
             
 
             #set( $H = '-' )
-            <script type="text/javascript">
+            <script>
                 localDatePicker({
                     input:'#opendate',
                     useTime:1,
@@ -500,7 +499,7 @@ function resizeFrame(){
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
-<script type="text/JavaScript">
+<script>
 	<!--
 		function toggleSelectAll(caller, elementName)
 		{

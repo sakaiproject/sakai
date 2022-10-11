@@ -25,7 +25,7 @@
         ${sakai_html_head_js}
     #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
 
-    <body class="Mrphs-portalBody overflow-hidden $!{loggedInClass}">
+    <body class="Mrphs-portalBody overflow-hidden $!{loggedInClass}" data-bs-no-jquery="true">
 
         #parse("/vm/morpheus/snippets/noscript-snippet.vm")
 

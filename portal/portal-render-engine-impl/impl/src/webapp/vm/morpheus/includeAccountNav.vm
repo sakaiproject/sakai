@@ -1,6 +1,6 @@
 ## TODO: This file contains some placeholder text and content that needs to be revisited later
 ## to populate the contents and to internationalize. Work-in-progress.
-<ul class="sakai-systemIndicators nav flex-nowrap align-items-center">
+<ul id="sakai-system-indicators" class="nav flex-nowrap align-items-center">
 #*
 For opening help sidebar
   <li class="d-none d-md-inline">
@@ -28,14 +28,27 @@ For opening help sidebar
       </a>
     </li>
   #end
+  <li class="d-none d-md-inline">
+    <button class="btn only-icon-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#select-site-modal"
+        aria-label="$rloader.sit_allsites"
+        aria-controls="select-site-modal"
+        title="$rloader.sit_allsites">
+      <i class="bi-grid-3x3"></i>
+    </button>
+  </li>
 
   #if (${usePortalSearch})
     <li class="d-none d-md-inline">
-      <a class="sak-sysInd-search nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-searchPanel" role="button" aria-controls="sakai-searchPanel">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16" role="img" aria-label="Search Sakai" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Search">
-          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-        </svg>
-      </a>
+      <button class="btn only-icon-btn"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-searchPanel"
+          aria-controls="sakai-searchPanel"
+          aria-label="$rloader.sit_search_for_content"
+          title="$rloader.sit_search_for_content">
+        <i class="bi-search"></i>
+      </button>
     </li>
   #end
 
@@ -52,14 +65,18 @@ For opening help sidebar
 
   #if (${useBullhornAlerts})
     <li class="d-none d-md-inline">
-      <a id="sak-notifications-link" class="sak-sysInd-notifications nav-link text-white position-relative" data-bs-toggle="offcanvas" href="#sakai-notificationsPanel" role="button" aria-controls="sakai-notificationsPanel">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16" role="img" aria-label="View notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications">
-          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
-        </svg>
+      <button id="portal-notifications-button"
+          class="btn only-icon-btn"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-notificationsPanel"
+          aria-controls="sakai-notificationsPanel"
+          aria-label="$rloader.sit_notifications"
+          title="$rloader.sit_notifications">
+        <i class="bi-bell"></i>
         <span id="portal-notifications-indicator" class="portal-notifications-indicator p-1 bg-danger rounded-circle" style="display: none">
           <span class="visually-hidden">There are new notifications available</span>
         </span>
-      </a>
+      </button>
     </li>
     <li>
       <a class="sak-sysInd-account nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-accountPanel" role="button" aria-controls="sakai-accountPanel" title="Account">
