@@ -40,27 +40,9 @@
     <script>includeWebjarLibrary('bootstrap-multiselect');</script>
     <script src="/samigo-app/js/info.js"></script>
     <script src="/samigo-app/js/naturalSort.js"></script>
+    <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
     <script>
         $(document).ready(function() {
-            jQuery.extend(jQuery.fn.dataTableExt.oSort, {
-                "span-asc": function (a, b) {
-                    return naturalSort($(a).find(".spanValue").text().toLowerCase(), $(b).find(".spanValue").text().toLowerCase(), false);
-                },
-                "span-desc": function (a, b) {
-                    return naturalSort($(a).find(".spanValue").text().toLowerCase(), $(b).find(".spanValue").text().toLowerCase(), false) * -1;
-                },
-                "numeric-asc": function (a, b) {
-                    var numA = parseInt($(a).text()) || 0;
-                    var numB = parseInt($(b).text()) || 0;
-                    return ((numB < numA) ? 1 : ((numB > numA) ? -1 : 0));
-                },
-                "numeric-desc": function (a, b) {
-                    var numA = parseInt($(a).text()) || 0;
-                    var numB = parseInt($(b).text()) || 0;
-                    return ((numA < numB) ? 1 : ((numA > numB) ? -1 : 0));
-                }
-            });
-
             var notEmptyTableTd = $("#authorIndexForm\\:coreAssessments td:not(:empty)").length;
             var assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
 
@@ -552,13 +534,15 @@
                         </h:panelGroup>
                     </f:facet>
 
-                    <h:outputText value="#{assessment.startDate}" >
-                        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-                    </h:outputText>
+                    <f:verbatim><div></f:verbatim>
+                        <h:outputText value="#{assessment.startDate}" >
+                            <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                        </h:outputText>
 
-                    <h:outputText value="#{assessment.startDate}" styleClass="hidden spanValue">
-                        <f:convertDateTime pattern="yyyyMMddHHmmss" />
-                    </h:outputText>
+                        <h:outputText value="#{assessment.startDate}" styleClass="hidden spanValue">
+                            <f:convertDateTime pattern="yyyyMMddHHmmss" />
+                        </h:outputText>
+                    <f:verbatim></div></f:verbatim>
                 </t:column>
 
                 <%/* Due Date */%>
@@ -571,16 +555,18 @@
                         </h:panelGroup>
                     </f:facet>
 
-                    <h:outputText value="#{assessment.dueDate}">
-                        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-                    </h:outputText>
-                    <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
-                        <h:outputText value=" #{selectIndexMessages.late} " styleClass="text-danger" rendered="#{assessment.pastDue}" />
-                    </h:panelGroup>
+                    <f:verbatim><div></f:verbatim>
+                        <h:outputText value="#{assessment.dueDate}">
+                            <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                        </h:outputText>
+                        <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
+                            <h:outputText value=" #{selectIndexMessages.late} " styleClass="text-danger" rendered="#{assessment.pastDue}" />
+                        </h:panelGroup>
 
-                    <h:outputText value="#{assessment.dueDate}" styleClass="hidden spanValue">
-                        <f:convertDateTime pattern="yyyyMMddHHmmss" />
-                    </h:outputText>
+                        <h:outputText value="#{assessment.dueDate}" styleClass="hidden spanValue">
+                            <f:convertDateTime pattern="yyyyMMddHHmmss" />
+                        </h:outputText>
+                    <f:verbatim></div></f:verbatim>
                 </t:column>
 
                 <%/* Last Modified */%>
@@ -606,13 +592,15 @@
                         </h:panelGroup>
                     </f:facet>
 
-                    <h:outputText value="#{assessment.lastModifiedDate}">
-                        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-                    </h:outputText>
+                    <f:verbatim><div></f:verbatim>
+                        <h:outputText value="#{assessment.lastModifiedDate}">
+                            <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                        </h:outputText>
 
-                    <h:outputText value="#{assessment.lastModifiedDate}" styleClass="hidden spanValue">
-                        <f:convertDateTime pattern="yyyyMMddHHmmss" />
-                    </h:outputText>
+                        <h:outputText value="#{assessment.lastModifiedDate}" styleClass="hidden spanValue">
+                            <f:convertDateTime pattern="yyyyMMddHHmmss" />
+                        </h:outputText>
+                    <f:verbatim></div></f:verbatim>
                 </t:column>
 
                 <%/* Remove */%>
