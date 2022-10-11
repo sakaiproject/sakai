@@ -221,12 +221,7 @@ public class BasePage extends WebPage {
 				new PriorityHeaderItem(
 						JavaScriptHeaderItem
 								.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js%s", version))));
-		// And pair this instance of jQuery with a Bootstrap version we've tested with
-		response.render(
-				new PriorityHeaderItem(
-						JavaScriptHeaderItem
-								.forUrl(String.format("/library/webjars/bootstrap/5.2.0/js/bootstrap.min.js%s", version))));
-		// Some global gradebookng styles
+
 		response.render(CssHeaderItem
 				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css%s", version)));
 

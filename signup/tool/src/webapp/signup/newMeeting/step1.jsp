@@ -15,6 +15,7 @@
 
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
         <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      	<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>  
         <script src="/sakai-signup-tool/js/signupScript.js"></script>
         <script src="/sakai-signup-tool/js/newMeetingStep1.js"></script>
 
