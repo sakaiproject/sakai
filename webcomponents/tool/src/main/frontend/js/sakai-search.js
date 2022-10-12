@@ -65,9 +65,7 @@ class SakaiSearch extends SakaiElement {
     this.initSetsOfResults(this.results);
   }
 
-  get pageSize() {
-    return this._pageSize;
-  }
+  get pageSize() { return this._pageSize; }
 
   handleKeydownOnResult(e) {
 
