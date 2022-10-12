@@ -4,17 +4,6 @@ body.active-more-sites {
 
 #select-site-modal {
   @include transition(left 0.4s linear 0s);
-  .modal-content {
-    background: var(--sakai-modal-content-bg);
-    .modal-header {
-      background: var(--sakai-modal-header-bg);
-      color: var(--sakai-modal-header-color);
-      .btn-close {
-        //color: var(--sakai-modal-close-btn-color);
-        background-color: var(--sakai-modal-close-btn-bg);
-      }
-    }
-  }
   &:after {
     bottom: 100%;
     right: calc(#{$standard-spacing} / 2);

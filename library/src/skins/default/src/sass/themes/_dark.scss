@@ -208,4 +208,8 @@
     --sakai-offcanvas-header-bg: var(--sakai-background-color-3);
     --sakai-offcanvas-header-color: var(--sakai-text-color-1);
     --sakai-offcanvas-close-btn-bg: var(--sakai-background-color-1);
+
+    .w_content .btn {
+      color: white;
+    }
 }

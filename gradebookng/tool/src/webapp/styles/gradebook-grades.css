@@ -240,6 +240,9 @@
 div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
 }
+div.wicket-modal div.w_content {
+  background: var(--sakai-modal-content-bg);
+}
 div.wicket-modal h3.w_captionText {
   padding: 20px;
   font-size: 1.5em;
@@ -317,6 +320,8 @@ div.wicket-modal a.w_close {
 }
 div.wicket-modal div.w_caption {
   cursor: move;
+  background: var(--sakai-modal-header-bg);
+  color: var(--sakai-modal-header-color);
 }
 div.wicket-modal div.w_right > div {
   box-shadow: var(--elevation-4dp);
