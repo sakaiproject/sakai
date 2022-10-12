@@ -759,11 +759,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					sp.setSiteId(siteId);
 					sp.setUserId(userId);
 					sp.setDate(date);
-					SitePresence spExisting = getHibernateTemplate().execute(session -> {
-						return doGetSitePresence(session, siteId, userId, date);
-					});
-					Date spExistingLastVisitStartTime = (spExisting != null) ? spExisting.getLastVisitStartTime():dateTime;
-					sp.setLastVisitStartTime(spExistingLastVisitStartTime != null ? spExistingLastVisitStartTime:dateTime);
+					sp.setLastVisitStartTime(null);
 					spc = new SitePresenceConsolidation(sp, dateTime);
 				}
 				if(spc.sitePresence.getLastVisitStartTime() != null) {
@@ -775,6 +771,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						log.warn("A site presence is longer than 4h!: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
 					}
 					spc.sitePresence.setDuration(existingDuration + additionalDuration);
+					spc.sitePresence.setLastVisitStartTime(null);
 				}
 				presencesMap.put(pKey, spc);
 			}finally{
