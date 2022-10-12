@@ -1554,7 +1554,7 @@ $.datepicker._gotoToday = function (id) {
 		//cfg.buttonImage = (options.icon === 0) ? null : "/library/image/silk/calendar.png";
 		//cfg.buttonImageOnly = true;
 		//Use font-awesome instead of an image
-		cfg.buttonText = (options.icon === 0) ? null : "<span class='fa fa-calendar' aria-hidden='true'></span>";
+		cfg.buttonText = (options.icon === 0) ? null : "<span class='bi bi-calendar' aria-hidden='true'></span>";
 
 		cfg.stepMinute = options.stepMinute;
 		cfg.altField = options.altField;
@@ -1916,4 +1916,3 @@ SDP.initSakaiDatePicker = function(inputField, value, useTime, allowEmptyDate)
         ashidden: { iso8601: inputField+'ISO8601' }
     });
 };
-
