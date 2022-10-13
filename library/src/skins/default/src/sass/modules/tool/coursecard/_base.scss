@@ -1,0 +1,23 @@
+html {
+  --sakai-course-card-width: 402px;
+  --sakai-course-card-info-height: 90px;
+  --sakai-course-card-border-width: 0;
+  --sakai-course-card-border-color: var(--sakai-border-color);
+  --sakai-course-card-border-radius: 4px;
+  --sakai-course-card-padding: 20px;
+  --sakai-course-card-info-block-bg-color: var(--sakai-active-color-1);
+  --sakai-icon-favourite-color: var(--all-sites-button-star-full-color);
+  --sakai-course-card-title-color: var(--sakai-text-color-inverse);
+  --sakai-course-card-title-font-size: 16px;
+  --sakai-course-card-code-color: var(--sakai-text-color-inverse);
+  --sakai-course-card-code-font-size: 12px;
+  --sakai-course-card-tool-alerts-height: 40px;
+  --sakai-course-card-tool-alerts-padding: 5px;
+  --sakai-course-card-tool-alerts-color: var(--sakai-text-color-1);
+  --sakai-course-card-bg-color: var(--sakai-background-color-1);
+  --sakai-course-card-tool-alert-icon-color: var(--sakai-primary-color-1);
+  --sakai-course-card-options-menu-favourites-block-color: var(--sakai-text-color);
+  --sakai-course-card-options-menu-favourites-block-font-size: inherit;
+  --sakai-course-card-options-menu-favourites-block-font-weight: bold;
+  --sakai-course-card-options-menu-tools-title-font-weight: bold;
+}

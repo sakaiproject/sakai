@@ -7,6 +7,8 @@
     background: var(--sakai-background-color-1);
     font-size: $default-font-size-small;
     line-height: 22px;
+    border: none;
+    font-weight: bold;
     
     &:focus {
         outline:none;
@@ -25,10 +27,12 @@
     border-radius: $button-radius; 
     background: var(--sakai-primary-color-1);
     color: var(--sakai-text-color-inverted);
+
 }
 
 #sakai-darkThemeSwitcher[role="switch"][aria-checked="false"] :last-child,
 #sakai-darkThemeSwitcher[role="switch"][aria-checked="true"] :first-child {
+    background: none;
     color: var(--sakai-text-color-1);
 }
 

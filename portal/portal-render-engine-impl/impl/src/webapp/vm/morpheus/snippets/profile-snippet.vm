@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="accordion-item">
-        <h2 class="accordion-header" id="sakai-accountPanelWidgets-headingTwo">
+        <h2 class="accordion-header mt-0" id="sakai-accountPanelWidgets-headingTwo">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseTwo" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseTwo">
             My Calendar
           </button>
@@ -68,19 +68,15 @@
         </div>
       </div>
     </div>  
-    ## To do - Dark mode
-    <div class="text-center border-top pt-3 mt-auto">
-      <fieldset class="btn-group" role="radiogroup" aria-label="Switch between light and dark themes">
-        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented Mrphs-userNav__submenuitem-toggle">
-          <label for="sakai-darkThemeSwitcher" class="sakaiThemeSwitch">${rloader.sit_themeSwitcher}</label>
-            <button role="switch" aria-checked="false"
-                id="sakai-darkThemeSwitcher" class="Mrphs-userNav__submenuitem--themeSwitcher switch">
-                <span>${rloader.sit_themeSwitcherOff}</span>
-                <span>${rloader.sit_themeSwitcherOn}</span>
-            </button>
-        </li>
-      </fieldset>
     </div>
+        <div class="text-center border-top pt-3 mt-auto">
+      <fieldset class="btn-group" role="radiogroup" aria-label="Switch between light and dark themes">
+            <button role="switch" aria-checked="false"
+                id="sakai-darkThemeSwitcher" class="sakaiThemeSwitch Mrphs-userNav__submenuitem--themeSwitcher switch">
+                <span><i class="bi bi-sun"></i>${rloader.sit_themeSwitcherOff}</span>
+                <span><i class="bi bi-moon"></i>${rloader.sit_themeSwitcherOn}</span>
+            </button>
+      </fieldset>
   </div>
 </aside>
 #end

@@ -1,0 +1,6 @@
+html {
+    --sakai-button-border-width: 1px;
+    --sakai-button-border-color: var(--button-border-color);
+    --sakai-button-border-radius: #{$button-radius};
+    --sakai-button-padding: 7px 16px;
+}

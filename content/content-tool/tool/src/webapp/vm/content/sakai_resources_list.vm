@@ -79,16 +79,18 @@
 		<input type="hidden" name="selectedItemId" id="selectedItemId" value="" />
 		######################  Page Title / Breadcrumbs  ##############
     <br>
-    <ol class="breadcrumb">
+    <ol class="breadcrumb bg-light">
       #if (!$dropboxMode)
-        <li class="dropdown keep-open">
+        <li class="breadcrumb-item dropdown keep-open">
           <a id="navigate" data-toggle="dropdown" href="">
-            $clang.getString('list.nav.button.title') <span class="caret"></span>
+            $clang.getString('list.nav.button.title')   <button type="button" class="btn btn-outline-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="visually-hidden">Toggle Dropdown</span>
+  </button>
           </a>
           <div id="navigatePanel" class="dropdown-menu" role="menu">
             <div class="navigatePanelControls">
               <span class="expand_collapse">
-                <button id="navigatePanelInnerCollapse" style="display:none" class="btn btn-link btn-xs" title="$clang.getString('collapseall')">
+                <button id="navigatePanelInnerCollapse" style="display:none" class="btn btn-link btn-xs dropdown" title="$clang.getString('collapseall')">
                   <span class="fa fa-chevron-up" aria-hidden="true"></span>
                   <span class="sr-only">$clang.getString('collapseall')</span>
                 </button> 
@@ -107,11 +109,11 @@
       #foreach ($item in $collectionPath)
         #set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
         #if($item.isLast())
-          <li class="active">
+          <li class=" breadcrumb-item active mt-2">
             $formattedText.escapeHtml("$item.name")
           </li>
         #elseif($item.canRead())
-          <li>
+          <li class="breadcrumb-item">
             <a href="#"
               onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
               title= "$tlang.getString('sh.go')">
@@ -120,7 +122,7 @@
           </li>
           #set($upOneLevel = $item)
         #else
-          <li class="active">
+          <li class="breadcrumb-item active mt-2">
             $formattedText.escapeHtml("$item.name")
           </li>
         #end

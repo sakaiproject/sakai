@@ -1,0 +1,19 @@
+#timeout_alert_body
+{
+	z-index: 1001;
+	background: var(--sakai-background-color-1);
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	width: 50%;
+	padding: 2em;
+	text-align: center;
+	@include transform( translate(-50%,-50%) ); /* perfect centering */
+	box-shadow: var(--elevation-4dp);
+	
+	@media #{$phone}
+	{
+		padding: 1em;
+		width: calc(100% - 2em);
+	}
+}

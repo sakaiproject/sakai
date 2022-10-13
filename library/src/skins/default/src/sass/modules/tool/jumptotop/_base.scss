@@ -1,0 +1,35 @@
+#jumptotop {
+    position: fixed;
+    right: 40px;
+    bottom: 40px;
+    height: 60px;
+    width: 60px;
+    background-image: url(#{$skin-path}images/jumptotop.svg);
+    background-size: 60px;
+    border-radius: 30px;
+
+    &.hidden {
+        display: none;
+    }
+
+    &.visible {
+        cursor: pointer;
+        box-shadow: var(--elevation-2dp);
+        &:hover, &:focus {
+            box-shadow: var(--elevation-4dp);
+            border-radius: 50%;
+            opacity: 1 !important;
+        }
+        &:active {
+            box-shadow: var(--elevation-3dp);
+        }
+    }
+
+    @media #{$tablet} {
+        display: none !important;
+    }
+
+    @media #{$phone} {
+        display: none !important;
+    }
+}
