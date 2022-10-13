@@ -394,6 +394,9 @@ export class SakaiTasks extends SakaiPageableElement {
     return [
       ...super.styles,
       css`
+      .global-overlays {
+        z-index: 1200;
+      }
         #add-block {
           text-align: right;
           margin-top: 8px;

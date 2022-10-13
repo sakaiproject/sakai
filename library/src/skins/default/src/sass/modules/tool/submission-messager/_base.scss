@@ -1,0 +1,70 @@
+.submission-messager {
+
+  .sm-title {
+    font-weight: bold;
+    font-size: larger;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .sm-block {
+    margin-bottom: 7px;
+  }
+
+  .sm-score-block {
+    margin-left: 20px;
+    input { margin-left: 5px; }
+  }
+
+  .sm-label {
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 3px;
+  }
+
+  .sm-more-link {
+    margin-bottom: 5px;
+    a {
+      font-size: smaller;
+      text-decoration: none;
+    }
+  }
+
+  .sm-more {
+    margin: 7px 0px 10px 10px;
+  }
+
+  .message-input {
+    height: 200px;
+    width: 100%;
+  }
+
+  .sm-alert {
+    margin-left: 10px;
+  }
+
+  .sm-recipients-label {
+    font-weight: bold;
+    margin-top: 7px;
+    margin-left: 10px;
+  }
+
+  .sm-recipients {
+    max-height: 100px;
+    overflow: auto;
+    margin-left: 10px;
+    margin-bottom: 7px;
+  }
+
+  .send-button-wrapper {
+    margin-top: 7px;
+    display: flex;
+    alight-items: center;
+  }
+
+  .sm-progressbar {
+    display: inline-block;
+    margin-left: 10px;
+    width: 200px;
+  }
+}

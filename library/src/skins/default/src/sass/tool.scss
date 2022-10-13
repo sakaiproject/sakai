@@ -116,6 +116,7 @@ $jumbotron-heading-font-size: $h4-font-size;
 
 //Tools
 @import "modules/tool/portal/portal";
+@import "modules/toolmenu";
 @import "modules/tool/base";
 @import "modules/tool/elements";
 @import "modules/tool/menu";
@@ -138,8 +139,8 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/lessonbuilder/lessonbuilder";
 @import "modules/tool/myconnections/myconnections";
 @import "modules/tool/samigo/samigo";
-@import "modules/tool/resources/resources";
 @import "modules/tool/synoptic/synoptic";
+@import "modules/tool/resources/resources";
 @import "modules/tool/forums/forums";
 @import "modules/tool/mbm/mbm";
 @import "modules/tool/profile2/profile2";
@@ -162,15 +163,34 @@ $jumbotron-heading-font-size: $h4-font-size;
 @import "modules/tool/simplerss/simplerss";
 @import "modules/tool/emailtemplates/emailtemplates";
 
-@import "modules/tool/dashboard/base";
-@import "modules/tool/editor/base";
-@import "modules/tool/widget-panel/base";
-@import "modules/tool/icon/base";
-@import "modules/tool/multiselect/base";
-@import "modules/tool/pager/base";
-@import "modules/tool/sakai-options-menu/sakai-options-menu";
+@import "base/rtl";
+
+@import "modules/tool/quicklinks/quicklinks_variables";
+@import "modules/tool/quicklinks/base";
+@import "modules/tool/timeout-alert/base";
+@import "modules/tool/swapped-view/base";
+@import "modules/tool/cookies/base";
+@import "modules/tool/tutorial/base";
 @import "modules/tool/reorderer/base";
+@import "modules/tool/pager/base";
+@import "modules/tool/connection-manager/base";
+@import "modules/tool/profile-popup/base";
+@import "modules/tool/joinpage/base";
+@import "modules/tool/editor/base";
+@import "modules/tool/jumptotop/base";
+@import "modules/tool/submission-messager/base";
+@import "modules/tool/grader/base";
+@import "modules/tool/button/base";
+@import "modules/tool/dashboard/base";
+@import "modules/tool/courselist/base";
+@import "modules/tool/coursecard/base";
+@import "modules/tool/icon/base";
+@import "modules/tool/widget-panel/base";
 @import "modules/tool/theme-switcher/base";
+@import "modules/tool/multiselect/base";
+@import "modules/tool/sakai-options-menu/sakai-options-menu";
+
+
 
 
 //
@@ -205,4 +225,7 @@ table {
 	margin-left: 12px;
 }
 
-
+// to make sakai task accordion visible in account menu
+.global-overlays {
+	z-index: 1200 !important;
+  }

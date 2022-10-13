@@ -1,0 +1,45 @@
+.#{$namespace}joinpage {
+    position: fixed;
+    width: 100%;
+    min-height: 14em;
+    background: var(--sakai-background-color-1);
+
+    .join {
+        position: fixed;
+        top: calc(50% - 17em);
+        left: calc(50% - 17em);
+        width: 34em;
+        min-height: 14em;
+        background: var(--sakai-background-color-1);
+        box-shadow: var(--elevation-2dp);
+    }
+
+    h1 {
+        padding: 0.6em;
+        font-size: 1.8em;
+        color: var(--sakai-primary-color-1);
+        text-align: center;
+    }
+
+    .logo {
+        background: var(--sakai-primary-color-1) var(--logo) no-repeat center center;
+        background-size: var(--logo-width) var(--logo-height);
+        width: 100%;
+        height: calc(#{var(--logo-height)} * 2);
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    p {
+        margin: 1em 1em 0 1em;
+    }
+
+    form {
+        padding: 1em;
+        text-align: right;
+
+        input:last-of-type {
+            margin-right: 0;
+        }
+    }
+}
