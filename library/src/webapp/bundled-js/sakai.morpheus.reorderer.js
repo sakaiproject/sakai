@@ -104,17 +104,6 @@ $PBJQ(document).ready(function(){
         }
         registerChange('notfluid', $PBJQ(this).parents('.reorder-element'));
     });
-
-    // the jquery-ui sortable initialization
-    return $PBJQ('[id$="reorder-list"]').keyboardSortable({
-      items: '.reorder-element:not(.notsortable)',
-      start: function( event, ui ) {
-        preserveStatus(ui);
-      },
-      update: function( event, ui ) {
-        registerChange(event, ui);
-      },
-    });
 });
 
 

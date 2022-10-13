@@ -7,7 +7,7 @@
         </div>
 
         <script id="courseGradeHeaderTemplate" type="text/template">
-            <span class="colHeader hide" data-col-index="${col}">${col}</span>
+            <span class="colHeader d-none" data-col-index="${col}">${col}</span>
             <div class="relative">
                 <a class="gb-title">
                     <wicket:message key="column.header.coursegrade"/>
@@ -38,7 +38,7 @@
                 {if settings.isUserAbleToEditAssessments}
                     <div class="btn-group">
                         <a class="btn btn-sm btn-default dropdown-toggle"
-                           data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                           data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                            wicket:message="title:coursegrade.header.menulabel"
                            tabindex="-1">
                             <span class="caret"></span>
@@ -65,7 +65,7 @@
             </div>
         </script>
         <script id="assignmentHeaderTemplate" type="text/template">
-            <span class="colHeader hide" data-col-index="${col}">${col}</span>
+            <span class="colHeader d-none" data-col-index="${col}">${col}</span>
             <div class="relative">
                 {if extraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
@@ -131,7 +131,7 @@
                 </div>
                 <div class="btn-group">
                     <a class="btn btn-sm btn-default dropdown-toggle"
-                       data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                       data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                        tabindex="-1">
                         <span class="caret"></span>
                     </a>
@@ -202,7 +202,7 @@
                 {/for}
                 <div class="btn-group">
                     <a class="btn btn-sm btn-default dropdown-toggle"
-                       data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                       data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                        tabindex="-1">
                         <span class="caret"></span>
                     </a>
@@ -220,7 +220,7 @@
                     </a>
                     <div class="btn-group">
                         <a class="btn btn-sm btn-default dropdown-toggle"
-                           data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                           data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                            wicket:message="title:students.menulabel"
                            tabindex="-1">
                             <span class="caret"></span>
@@ -268,7 +268,7 @@
             <div class="gb-value gb-section-cell">
               {if sections.length > 0}
               <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle gb-section-button" type="button" title="${sections[0]}" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary dropdown-toggle gb-section-button" type="button" title="${sections[0]}" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   ${sections[0]}
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -289,12 +289,12 @@
                 <span class="gb-comment-notification"></span>
                 <div class="btn-group">
                     <a class="btn btn-sm btn-default dropdown-toggle"
-                       data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                       data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                        tabindex="-1">
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                        <li class="{if !hasAssociatedRubric} hidden {/if}"><a class="gb-grade-rubric" href="#" role="menuitem"><wicket:message key="rubrics.option.graderubric" /></a></li>
+                        <li class="{if !hasAssociatedRubric} d-none {/if}"><a class="gb-grade-rubric" href="#" role="menuitem"><wicket:message key="rubrics.option.graderubric" /></a></li>
                         <li><a class="gb-view-log" href="#" role="menuitem"><wicket:message key="grade.option.viewlog" /></a></li>
                         <li><a class="gb-edit-comments" href="#" role="menuitem"><wicket:message key="comment.option.edit" /></a></li>
                         <li><a class="gb-excuse-grade" href="#" role="menuitem"><wicket:message id="excuse-message" key="excuse.grade" /></a></li>
@@ -310,7 +310,7 @@
                 {if GbGradeTable.settings.isUserAbleToEditAssessments}
                     <div class="btn-group">
                         <a class="btn btn-sm btn-default dropdown-toggle"
-                           data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                           data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                            wicket:message="title:coursegrade.cell.menulabel"
                            tabindex="-1">
                             <span class="caret"></span>

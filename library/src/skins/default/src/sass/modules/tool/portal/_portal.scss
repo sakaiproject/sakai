@@ -254,6 +254,12 @@
   }
 }
 
+.wicket-modal .w_caption {
+  cursor: move;
+  background: var(--sakai-modal-header-bg) !important;
+  color: var(--sakai-modal-header-color) !important;
+}
+
 .portal-nav-sidebar{
 
   .btn-nav,
