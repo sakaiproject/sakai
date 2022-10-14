@@ -403,7 +403,7 @@ export class SakaiTasks extends SakaiPageableElement {
           margin-bottom: 10px;
         }
           sakai-icon[type="add"] {
-            color: green;
+            color: #003a6b;
           }
 
         #controls {
