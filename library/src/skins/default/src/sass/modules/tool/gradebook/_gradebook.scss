@@ -178,11 +178,12 @@
   }
   #gradeTableWrapper .gb-grade-item-flags {
     position: absolute;
-    bottom: 0;
+    bottom: 5px;
     left: 5px;
+    font-size: 16px;
   }
-  #gradeTableWrapper th .btn-group,
-  #gradeTableWrapper td .btn-group {
+  #gradeTableWrapper th .dropdown,
+  #gradeTableWrapper td .dropdown {
     position: absolute;
     bottom: 5px;
     right: 5px;
@@ -267,9 +268,11 @@
   }
   .gb-flag-not-counted:before {
     content: '\F1DF';
+    text-decoration-line: line-through;
   }
   .gb-flag-not-released:before {
-    content: '\F33F';
+    content: '\F33E';
+    text-decoration-line: line-through;
   }
   .gb-flag-counted,
   .gb-flag-released {

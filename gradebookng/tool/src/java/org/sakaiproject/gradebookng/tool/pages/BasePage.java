@@ -244,7 +244,7 @@ public class BasePage extends WebPage {
 
 		flagWithPopover.add(new AttributeModifier("title", message));
 		flagWithPopover.add(new AttributeModifier("aria-label", message));
-		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
+		flagWithPopover.add(new AttributeModifier("data-bs-toggle", "popover"));
 		flagWithPopover.add(new AttributeModifier("data-trigger", trigger));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
