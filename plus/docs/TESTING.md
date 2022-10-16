@@ -16,7 +16,7 @@ as 'admin' unless you add an email address to the admin account.
 
 Create a Sakai Site as the instructor and add the student account to the site - we will call
 this the "Main Site" - this site will serve as a proxy for the launch, roster, and gradebook
-in Canvas/D2L/Blackboard, etc.
+as if it were in in Canvas/D2L/Blackboard, etc.
 
 Don't log into the student yet - they should just be in the roster in the main site.
 
