@@ -23,6 +23,9 @@ var focus_path;
 
 var doubleDeep = false;
 
+let myRubrics = document.querySelectorAll(".popover");
+myRubrics.style.display = "none";
+
 function inIframe () {
 	try {
 		return window.self !== window.top;

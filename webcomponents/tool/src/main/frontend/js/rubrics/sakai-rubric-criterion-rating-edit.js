@@ -34,15 +34,15 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     return html`
       <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editRating}" title="${tr("edit_rating")} ${this.rating.title}" aria-label="${tr("edit_rating")} ${this.rating.title}" href="#"></a>
 
-      <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom">
-        <div class="arrow"></div>
+      <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom" style="top: 389px; left: -10px; display: none; position: absolute; padding: 10px;">
+        <div class="arrow-1"></div>
         <div class="popover-title">
           <div class="buttons act">
             <button class="active btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
             ${!this.isLocked ? html`
-              <button class="delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
+              <button class="btn-link delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
             ` : ""}
             <button class="btn btn-link btn-xs cancel" title="${tr("cancel")}" @click="${this.cancelEdit}">
               <sr-lang key="cancel" />

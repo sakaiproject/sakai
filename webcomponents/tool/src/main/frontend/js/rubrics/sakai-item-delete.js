@@ -61,15 +61,15 @@ export class SakaiItemDelete extends RubricsElement {
         <span class="fa fa-times"/>
       </button>
 
-      <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left">
-        <div class="arrow"></div>
+      <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left" style="top: 389px; left: -10px; display: none; position: absolute; padding: 10px;">
+        <div class="arrow-0"></div>
         <div class="popover-title" tabindex="0">${tr("confirm_remove")} ${this.item.title}</div>
         <div class="popover-content">
           <div class="buttons text-right act">
             <button title="${tr("confirm_remove")}" class="active save" @click="${this.saveDelete}">
               <sr-lang key="remove_label" />
             </button>
-            <button class="cancel" @click="${this.cancelDelete}">
+            <button class="btn btn-link btn-xs cancel" @click="${this.cancelDelete}">
               <sr-lang key="cancel">Cancel</sr-lang>
             </button>
           </div>

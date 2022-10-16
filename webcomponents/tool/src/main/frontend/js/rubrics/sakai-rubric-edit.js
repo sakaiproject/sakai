@@ -36,8 +36,8 @@ export class SakaiRubricEdit extends RubricsElement {
     return html`
       <a class="linkStyle edit fa fa-edit" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="edit_rubric_${this.rubric.id}" tabindex="0" @keyup="${this.openEditWithKeyboard}" @click="${this.editRubric}" title="${tr("edit_rubric")} ${this.rubric.title}" aria-label="${tr("edit_rubric")} ${this.rubric.title}" href="#"></a>
 
-      <div id="edit_rubric_${this.rubric.id}" @click="${this.eatEvent}" class="popover rubric-edit-popover bottom">
-        <div class="arrow"></div>
+      <div id="edit_rubric_${this.rubric.id}" @click="${this.eatEvent}" class="popover rubric-edit-popover bottom" style="top: 389px; left: -10px; display: none; position: absolute; padding: 10px;">
+        <div class="arrow-1"></div>
         <div class="popover-title">
           <div class="buttons act">
             <button class="active save" @click="${this.saveEdit}">
