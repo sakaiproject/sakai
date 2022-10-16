@@ -1,44 +1,51 @@
-Sakai
------
+Installing SakaiPlus In Sakai (Inception)
+=========================================
 
-For 21 and later versions of Sakai you can use IMS Dynamic Configuration.  Create a Tenant with a title
-(often SakaiPlus), issuer, and registration unlock code.   Then go to the Plus -> Tenant detail
-page and find the IMS Dynamic Registration url.
-
-Sometimes this is truly two independent servers but more commonly we are just setting this
-up in a "loop back" configuration for testing.
+This documentation will show how to install and use SakaiPlus on the same server.  This is a
+loop-back scenario - often used for testing.   You can do this with different servers if you like.
+In this document, I will use a nightly server and loop back to itself.
 
 The issuer for a Sakai system is the base URL of the system without a trailing slash:
 
-    https://sakai.school.edu
-
 For testing you might use and issuer like:
 
-    https://localhost:8080
+    https://trunk-mysql.nightly.sakaiproject.org
+
+    http://localhost:8080    (for a local instance of Sakai)
 
 In both cases do not include a trailing slash.
 
-If you want to test both deep link and site launch make sure to add at least one tool plus
-'sakai.site' to the allowed tools (i.e. like sakai.resources:sakai.site)
+Adding A Tenant to Sakai
+------------------------
 
-Make sure to "trust email" or launches in the "loop back" use case site will log you out of the
-browser you are launching from.  This is only weird when we run both the main site and the plus
+Log in to the admin account then go to Administration Workspace -> Plus Admin.
+
+For fresh installs, Plus Admin is automatically added to Administration Workspace.
+If this is an upgraded server, you may need to add the Plus Admin (sakai.plus) tool to
+the Administration Workspace using the Sites tool.
+
+Add a tennant, give it a title and set the issuer, set "Trust Email", set "Verbose Logging", set
+Allowed Tools to `sakai.resources:sakai.site`, and Registration Lock to 42.
+
+Save the Tenant - it is "draft" because it is missing a lot of fields that will be set when
+IMS Dynamic Provisioning runs.
+
+If you don't set "trust email", each plus launch will log you out of the window you launched from.
+This is only weird when we run both the main site and the plus
 site on the same server (i.e. loop back testing).  If these are different servers and URLs,
 the logout at launch will not be a problem.
 
-For Dynamic Registration to work, Sakai Plus demands that the issuer in Sakai Plus
-match the issuer provided by the LMS during the IMS Dynamic Configuration process.
-The registration lock is single use and must be reset in Sakai Plus to re-run the Dynamic
-Registration process.
-
-Once you have the Dynamic Registration URL like:
+Once the draft tenant is saved, view the tenant and grab the Dynamic Registration URL like:
 
     http://localhost:8080/plus/sakai/dynamic/8efcdee4-96c3-44bf-92fd-1d901ad593a3?unlock_token=42
 
+Adding A SakaiPlus Placement to Sakai
+-------------------------------------
+
 Go into Administration Workspace -> External Tools -> LTI Advantage Auto Provision,
 give the new tool  a title like "LMS End of Sakai Plus" and press "Auto-Provision".  Then press
-"Use LTI Advantage Auto Configuration" and paste in the Dynamic Registration URL, and run
-the process.  Make sure to enable:
+"Use LTI Advantage Auto Configuration" and paste in the Dynamic Registration URL from the Tenant,
+and run the process.  Make sure to enable:
 
 * Send email
 * Send name
@@ -57,6 +64,10 @@ url is something like "http../plus/sakai/" with no suffix like sakai.site or sak
 
 Once the tool (or tools) are configured, save the tool.
 
-You can place the SakaiPlus site launch in the left navigation of a site using
-Site Info -> Manage Tools -> External Tools (near the bottom of the tool list)
+Testing SakaiPlus
+-----------------
+
+We have a simple outline of how to [testing SakaiPlus from Sakai](TESTING.md).  It is a little weird
+because you end up with two tabs - one tab from the "main site" and another tab for the "plus site".
+The easiest way to keep them seaprate it has different tools in the sites or edit the Overview message.
 
