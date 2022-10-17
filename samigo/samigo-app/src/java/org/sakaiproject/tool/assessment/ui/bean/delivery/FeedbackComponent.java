@@ -24,8 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 import java.io.Serializable;
 
-import lombok.Getter;
-
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 
 /**
@@ -51,7 +49,6 @@ public class FeedbackComponent implements Serializable
   private boolean showStudentQuestionScore;
   private boolean showDateFeedback;
   private boolean showNoFeedback;
-  @Getter private Integer correctAnswerOption;
 
   /**
    *
@@ -286,8 +283,6 @@ public class FeedbackComponent implements Serializable
     setShowImmediate(AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
     setShowOnSubmission(AssessmentFeedbackIfc.FEEDBACK_ON_SUBMISSION.equals(feedbackDelivery));
     setShowNoFeedback(AssessmentFeedbackIfc.NO_FEEDBACK.equals(feedbackDelivery));
-
-    this.correctAnswerOption = feedback.getCorrectAnswerOption();
   }
 
 }
