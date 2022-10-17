@@ -131,6 +131,12 @@
   background-color: var(--sakai-background-color-1);
 }
 
+.breadcrumb-item + .breadcrumb-item::before {
+  color: var(--sakak-breadcrumb-color);
+}
+
+text-decoration-line-throughh
+
 .portal-footer {
   grid-area: footer;
 }

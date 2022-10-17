@@ -262,6 +262,8 @@ $active-transition-active: box-shadow 100ms ease-in !default;
 
 $scroll-behavior: smooth;
 
+$breadcrumb-divider: '>';
+
 :root {
     font-size: 14px;
     --portal-nav-sidebar-width: 16rem;
