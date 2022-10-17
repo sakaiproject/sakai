@@ -207,23 +207,6 @@ public class EntityHandlerImplTest extends TestCase {
         }
     }
 
-    public void testHandleEntityAccessNOFORMAT() {
-        EntityHttpServletRequest req = null;
-        EntityHttpServletResponse res = null;
-
-        // test get an entity space
-        req = new EntityHttpServletRequest("GET", DIRECT_PREFIX + TestData.SPACE6);
-        res = new EntityHttpServletResponse();
-
-        try {
-            entityHandler.handleEntityAccess(req, res, null);
-            fail("Should have thrown exception");
-        } catch (EntityException e) {
-            assertNotNull(e.getMessage());
-            assertEquals(HttpServletResponse.SC_NOT_ACCEPTABLE, e.responseCode);
-        }
-    }
-
     public void testHandleEntityAccessInputHTML() {
         EntityHttpServletRequest req = null;
         EntityHttpServletResponse res = null;

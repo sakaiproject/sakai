@@ -717,9 +717,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                         }
                                     } catch (FormatUnsupportedException e) {
                                         // this format could not be handled internally so we will pass it to the access provider, nothing else to do here
-                                        throw new EntityException( "AccessProvider: Method/Format unsupported: Will not handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
-                                                + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + ")",
-                                                view.getEntityReference()+"", HttpServletResponse.SC_NOT_ACCEPTABLE );
+                                        formatInvalidFailure = true;
+                                        handled = false;
                                     } catch (SecurityException se) {
                                         // AJAX/WS type security exceptions are handled specially, no redirect
                                         throw new EntityException("Security exception handling request for view ("+view+"), "
@@ -746,13 +745,24 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
                                 if (! handled) {
                                     // default handling, send to the access provider if there is one (if none this will throw EntityException)
-                                    boolean accessProviderExists = handleAccessProvider(view, req, res);
-                                    if (!accessProviderExists) {
-                                        String message = "Access Provider: Attempted to access an entity URL path ("
-                                            + view + ") using method ("+view.getMethod()+") for an entity (" + view.getEntityReference()
-                                            + ") and view ("+view.getViewKey()+") when there is no "
-                                            + "access provider to handle the request for prefix (" + view.getEntityReference().getPrefix() + ")";
-                                        throw new EntityException( message, view.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                                    try {
+                                        boolean accessProviderExists = handleAccessProvider(view, req, res);
+                                        if (!accessProviderExists) {
+                                            if (formatInvalidFailure) {
+                                                // trigger the format 
+                                                throw new FormatUnsupportedException("Nothing (AP and internal) available to handle the requested format", view.getEntityReference()+"", view.getFormat());
+                                            }
+                                            String message = "Access Provider: Attempted to access an entity URL path ("
+                                                + view + ") using method ("+view.getMethod()+") for an entity (" + view.getEntityReference() 
+                                                + ") and view ("+view.getViewKey()+") when there is no " 
+                                                + "access provider to handle the request for prefix (" + view.getEntityReference().getPrefix() + ")";
+                                            throw new EntityException( message, view.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                                        }
+                                    } catch (FormatUnsupportedException e) {
+                                        // TODO add in the methods "allowed" header?
+                                        throw new EntityException( "AccessProvider: Method/Format unsupported: Will not handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
+                                                + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + ")",
+                                                view.getEntityReference()+"", HttpServletResponse.SC_NOT_ACCEPTABLE );
                                     }
                                 }
                             }
