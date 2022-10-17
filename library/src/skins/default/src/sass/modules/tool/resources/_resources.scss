@@ -318,6 +318,10 @@
 		padding-left: $standard-spacing;
 		padding-right: 5px;
 	}
+
+	#content-display-columns-dropdown {
+		margin-left: auto;
+	}
 }
 
 /* this belongs to resources but it is accessed out of its namespace */

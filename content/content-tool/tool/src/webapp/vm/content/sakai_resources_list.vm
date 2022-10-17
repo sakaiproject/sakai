@@ -82,7 +82,7 @@
     <ol class="breadcrumb bg-light">
       #if (!$dropboxMode)
         <li class="breadcrumb-item dropdown keep-open">
-          <a id="navigate" data-toggle="dropdown" href="">
+          <a id="navigate" data-bs-toggle="dropdown" href="">
             $clang.getString('list.nav.button.title')   <button type="button" class="btn btn-outline-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
     <span class="visually-hidden">Toggle Dropdown</span>
   </button>
@@ -212,23 +212,38 @@
               </select>
             #end
             #if (!$dropboxMode)
-              <span class="hidden-sm hidden-xs pull-right">
-                <button style="margin:0" type="button" class="btn btn-default btn-sm resources-dropdown colPicker" aria-expanded="false" data-toggle="dropdown">
+              <div id="content-display-columns-dropdown" class="hidden-sm hidden-xs dropdown">
+                <button style="margin:0" type="button"
+                    class="btn btn-default btn-sm resources-dropdown colPicker"
+                    aria-expanded="false"
+                    data-bs-toggle="dropdown">
                   $clang.getString('list.cols.columns')
-                  <span class="caret"></span>
+                  <i class="bi-chevron-down"></i>
                 </button>
                 <ul class="dropdown-menu" id="columnTog">
-                  <li class="dropdown-button">
-                      <span class="close-button"></span>
+                  <li>
+                    <span class="dropdown-item" id="accessTog">
+                      <input type="checkbox" id="accessCol" checked="checked" /><label for="accessCol">&nbsp;&nbsp;$clang.getString("gen.access")</label>
+                    </span>
                   </li>
-                  <li class="dropdown-header"><span>$clang.getString('list.cols.columns.inst')</span></li>
-                  <li class="dropdown-header"><span id="accessTog"><input type="checkbox" id="accessCol" checked="checked" /><label for="accessCol">&nbsp;&nbsp;$clang.getString("gen.access")</label></span></li>
-                  <li class="dropdown-header"><span id="creatorTog"><input type="checkbox" id="creatorCol" checked="checked" /><label for ="creatorCol">&nbsp;&nbsp;$clang.getString("gen.created")</label></span></li>
-                  <li class="dropdown-header"><span id="modifiedTog"><input type="checkbox" id="modifiedCol" checked="checked"/><label for="modifiedCol">&nbsp;&nbsp;$clang.getString("gen.last1")</label></span></li>
-                  <li class="dropdown-header"><span id="sizeTog"><input type="checkbox" id="sizeCol" checked="checked"/><label for="sizeCol">&nbsp;&nbsp;$clang.getString("gen.size")</label></span></li>
-                  <li class="dropdown-header act"><button class="active" id="saveCols">$clang.getString("gen.save")</button></li>
+                  <li>
+                    <span class="dropdown-item" id="creatorTog">
+                      <input type="checkbox" id="creatorCol" checked="checked" /><label for ="creatorCol">&nbsp;&nbsp;$clang.getString("gen.created")</label>
+                    </span>
+                  </li>
+                  <li>
+                    <span class="dropdown-item" id="modifiedTog">
+                      <input type="checkbox" id="modifiedCol" checked="checked"/><label for="modifiedCol">&nbsp;&nbsp;$clang.getString("gen.last1")</label>
+                    </span>
+                  </li>
+                  <li>
+                    <span class="dropdown-item" id="sizeTog">
+                      <input type="checkbox" id="sizeCol" checked="checked"/><label for="sizeCol">&nbsp;&nbsp;$clang.getString("gen.size")</label>
+                    </span>
+                  </li>
+                  <li><button class="active dropdown-item" id="saveCols">$clang.getString("gen.save")</button></li>
                 </ul>
-              </span>
+              </div>
             #end
         </div>
       </div>
@@ -452,7 +467,7 @@
 								#end
 							#end 
 							#if ($item.description !="" && $item.description)
-								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" data-content="<div class='whiteSpacePreLine'>$item.description</div>"></a>
+								<a class="fa fa-info-circle" tabindex="0" data-bs-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" data-bs-content="<div class='whiteSpacePreLine'>$item.description</div>"></a>
 							#end
 							#if(!$item.isAvailable())
 								<span class="not-available fa fa-eye-slash" aria-hidden="true" title="$clang.getString('resource.is.hidden')"></span>
@@ -479,29 +494,26 @@
 					
 					
 					<td headers="actions2" class="attach actions2">
-                        <div class="btn-group  pull-right">
+                        <div class="btn-group  float-end m-s-auto">
                             <button type="button" class="btn btn-primary dropdown-toggle"  data-bs-toggle="dropdown" aria-expanded="false" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$formattedText.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-	                            <li class="dropdown-button">
-	                                <a href="" class="dropdown-item close-button"></a>
-	                            </li>
                                 #if($item.addActions && !$item.addActions.isEmpty())
-                                    <li role="presentation" class="dropdown-header">$clang.getString('gen.add')</li>
-                                    <li class="divider"></li>
+                                    <li><h6 class="dropdown-header">$clang.getString('gen.add')</h6></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     #foreach($action in $item.addActions)
                                         <li><a href="#" role="menuitem" class="dropdown-item" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
                                     #end
                                 #end
                                 #if($item.addActions && !$item.addActions.isEmpty() && $item.otherActions && !$item.otherActions.isEmpty())
-                                    <li class="divider"></li>
+                                    <li><hr class="dropdown-divider"></li>
                                 #end
                                 #if($item.otherActions && !$item.otherActions.isEmpty())
-                                    <li role="presentation" class="dropdown-header">$clang.getString('gen.actions')</li>
-                                    <li class="divider"></li>
+                                    <li><h6 class="dropdown-header">$clang.getString('gen.actions')</h6></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     #foreach($action in $item.otherActions)
                                     <li>
                                         <a href="#" role="menuitem" class="dropdown-item" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
@@ -570,8 +582,8 @@
                         disabled="disabled">$tlang.getString('action.copy')
                     </button>
                   </div>
-                  <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9 pull-right">
-                    <div class="pull-right">
+                  <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9 float-end m-s-auto">
+                    <div class="float-end">
   								    <span class="instructionx" style="margin-bottom:.3em;">$tlang.getString("viewing") $topMsgPos - $btmMsgPos $tlang.getString("of") $allMsgNumber $tlang.getString("items")</span>&nbsp;&nbsp;
     									#if ("$pagesize" != "0")
     										#if ($goPPButton == "true")
@@ -724,7 +736,7 @@
 										#end
 									#end
 									#if ($item.description !="" && $item.description)
-										<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" data-content="<div class='whiteSpacePreLine'>$item.description</div>"></a>
+										<a class="fa fa-info-circle" tabindex="0" data-bs-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" data-bs-content="<div class='whiteSpacePreLine'>$item.description</div>"></a>
 									#end
 							</th>
 							
