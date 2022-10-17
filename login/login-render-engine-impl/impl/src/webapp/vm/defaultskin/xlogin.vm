@@ -11,7 +11,7 @@
     #end
     </head>
     <body class="portalBody Mrphs-portalBody">
-        <div class="modal position-static d-block">
+        <div id="sakai-login-dialog" class="modal position-static d-block">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header justify-content-center">

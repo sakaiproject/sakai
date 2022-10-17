@@ -260,6 +260,11 @@ text-decoration-line-throughh
   }
 }
 
+#sakai-login-dialog .modal-header {
+  background: var(--sakai-modal-content-bg);
+  color: var(--sakai-text-color-1);
+}
+
 .wicket-modal .w_caption {
   cursor: move;
   background: var(--sakai-modal-header-bg) !important;
