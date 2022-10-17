@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -141,6 +142,21 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Optional<Site> getCurrentSite() {
+		String siteId = getCurrentSiteId();
+
+		try {
+			return Optional.of(siteService.getSite(siteId));
+		} catch (Exception ex) {
+			log.error("Unable to find the site with Id {}.", siteId);
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
 	}
@@ -152,6 +168,30 @@ public class DateManagerServiceImpl implements DateManagerService {
 	public Locale getUserLocale() {
 		Locale locale = prefService.getLocale(getCurrentUserId());
 		if (locale == null) locale = Locale.US;
+		return locale;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Locale getLocaleForCurrentSiteAndUser() {
+		Locale locale = null;
+
+		// First try to get site locale
+		Optional<Site> currentSite = getCurrentSite();
+		if (currentSite.isPresent()) {
+			ResourceProperties siteProperties = currentSite.get().getProperties();
+			String siteLocale = (String) siteProperties.get("locale_string");
+			if (StringUtils.isNotBlank(siteLocale)) {
+				locale = serverConfigurationService.getLocaleFromString(siteLocale);
+			}
+		}
+
+		// If there is not site locale defined, get user default locale
+		if (locale == null) {
+			locale = getUserLocale();
+		}
+
 		return locale;
 	}
 
