@@ -34,7 +34,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     return html`
       <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editRating}" title="${tr("edit_rating")} ${this.rating.title}" aria-label="${tr("edit_rating")} ${this.rating.title}" href="#"></a>
 
-      <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom" style="top: 389px; left: -10px; display: none; position: absolute; padding: 10px;">
+      <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom rubrics-popover">
         <div class="arrow-1"></div>
         <div class="popover-title">
           <div class="buttons act">
@@ -52,16 +52,16 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
         <div class="popover-content form">
           <div class="first-row">
               <div class="form-group title">
-                <label for="rating-title-${this.rating.id}"><sr-lang key="rating_title" /></label>
+                <label class="label-rubrics" for="rating-title-${this.rating.id}"><sr-lang key="rating_title" /></label>
                 <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
               </div>
               <div class="form-group points ${this.isLocked ? "hidden" : ""}">
-                <label for="rating-points-${this.rating.id}"><sr-lang key="points" /></label>
+                <label class="label-rubrics" for="rating-points-${this.rating.id}"><sr-lang key="points" /></label>
                 <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${ifDefined(this.minpoints)}" max="${ifDefined(this.maxpoints)}" />
               </div>
           </div>
           <div class="form-group">
-            <label for="rating-description-${this.rating.id}"><sr-lang key="rating_description" /></label>
+            <label class="label-rubrics" for="rating-description-${this.rating.id}"><sr-lang key="rating_description" /></label>
             <textarea name="" id="rating-description-${this.rating.id}" class="form-control">${this.rating.description}</textarea>
           </div>
         </div>

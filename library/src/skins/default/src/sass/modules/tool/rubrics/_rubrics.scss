@@ -762,7 +762,7 @@ dl {
 div.collapse-toggle-buttons > button {
     padding: 0.5rem;
 }
-
+// TODO: This is a hack to get the rubrics working in the new UI(Boosttrap-5)
 .arrow-1 {
     position: absolute;
     top: -15px;
@@ -787,6 +787,14 @@ div.collapse-toggle-buttons > button {
     -webkit-filter: drop-shadow(2px 0px 0px #AAA);
   }
 
-  label {
+  .label-rubrics {
     font-weight: bold;
+  }
+
+  .rubrics-popover {
+    top: 389px; 
+    left: -10px; 
+    display: none; 
+    position: absolute; 
+    padding: 10px;
   }
