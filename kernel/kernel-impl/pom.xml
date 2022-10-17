@@ -270,11 +270,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-hibernate-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.gridgain</groupId>
-            <artifactId>ignite-hibernate_5.3</artifactId>
+            <artifactId>ignite-hibernate-ext</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
