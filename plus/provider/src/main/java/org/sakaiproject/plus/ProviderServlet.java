@@ -105,8 +105,8 @@ import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import org.apache.http.client.utils.URIBuilder;
 
 import org.tsugi.deeplink.objects.LtiResourceLink;
@@ -241,7 +241,7 @@ public class ProviderServlet extends HttpServlet {
 
 		// /plus/sakai/oidc_login/44guid44
 		if (parts.length >= 3 && "oidc_login".equals(parts[1])) {
-			if ( parts.length == 3 && isNotEmpty(parts[2])) {
+			if ( parts.length == 3 && isNotBlank(parts[2])) {
 				handleOIDCLogin(request, response, parts[2]);
 				return;
 			}
@@ -252,7 +252,7 @@ public class ProviderServlet extends HttpServlet {
 		// /plus/sakai/dynamic/44guid44?reg_token=..&openid_configuration=https:..
 		// https://github.com/IMSGlobal/lti-dynamic-registration/blob/develop/docs/lti-dynamic-registration.md
 		if (parts.length >= 3 && "dynamic".equals(parts[1])) {
-			if ( parts.length == 3 && isNotEmpty(parts[2])) {
+			if ( parts.length == 3 && isNotBlank(parts[2])) {
 				handleDynamicRegistration(request, response, parts[2]);
 				return;
 			}
@@ -301,13 +301,13 @@ public class ProviderServlet extends HttpServlet {
 		String clientId = launchJWT.audience;
 		String deploymentId = launchJWT.deployment_id;
 
-		if ( isEmpty(issuer) || isEmpty(clientId) || isEmpty(deploymentId) ) {
+		if ( isBlank(issuer) || isBlank(clientId) || isBlank(deploymentId) ) {
 			doError(request, response, "plus.launch.id_token.missing.data", null, null);
 			return;
 		}
 
 		// Check if we are in the install-phase of a DeepLink process (i.e. payloadStr is defined)
-		if ( LaunchJWT.MESSAGE_TYPE_DEEP_LINK.equals(launchJWT.message_type) && isNotEmpty(payloadStr)) {
+		if ( LaunchJWT.MESSAGE_TYPE_DEEP_LINK.equals(launchJWT.message_type) && isNotBlank(payloadStr)) {
 			if ( ! serverConfigurationService.getBoolean(PlusService.PLUS_DEEPLINK_ENABLED, PlusService.PLUS_DEEPLINK_ENABLED_DEFAULT)) {
 
 				log.warn("DeepLink is Disabled IP={}", ipAddress);
@@ -392,7 +392,7 @@ public class ProviderServlet extends HttpServlet {
 		} else if ( LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) ) {
 			// For a normal launch, the target_link_uri is our guide to what is next
 			String target_link_uri = launchJWT.target_link_uri;
-			if (  LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) && isEmpty(target_link_uri) ) {
+			if (  LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) && isBlank(target_link_uri) ) {
 				doError(request, response, "plus.target_link_uri.missing", target_link_uri, null);
 				return;
 			}
@@ -402,7 +402,7 @@ public class ProviderServlet extends HttpServlet {
 			//   0  1        2        3     4       5
 			String [] pieces = target_link_uri.split("/");
 			List<String> allowedToolsList = getAllowedTools(tenant);
-			if ( pieces.length == 6 ) {
+			if ( pieces.length == 6 && isNotBlank(pieces[5]) ) {
 				if ( allowedToolsList.contains(pieces[5])) {
 					tool_id = pieces[5];
 				} else {
@@ -415,7 +415,7 @@ public class ProviderServlet extends HttpServlet {
 				} else if ( allowedToolsList.contains(SAKAI_SITE_LAUNCH) ) {
 					tool_id = SAKAI_SITE_LAUNCH;
 				} else {
-					doError(request, response, "launch.tool.notfound", launchJWT.message_type, null);
+					doError(request, response, "launch.tool.nodefault", launchJWT.message_type, null);
 					return;
 				}
 			}
@@ -451,7 +451,7 @@ public class ProviderServlet extends HttpServlet {
 		// Sometimes for a browser like Safari - we can't set a cookie so we need to launch in
 		// a new window even if it is not the ideal or requested UX
 		String repost = request.getParameter("repost");
-		if ( isEmpty(repost) ) {
+		if ( isBlank(repost) ) {
 			List<String> newWindowTools = getNewWindowTools(tenant);
 			boolean forceNewWindow = SAKAI_SITE_LAUNCH.equals(tool_id) || newWindowTools.contains(tool_id);
 			handleRepost(request, response, forceNewWindow);
@@ -654,8 +654,8 @@ public class ProviderServlet extends HttpServlet {
 
 		// registration_token is optional
 		String missing = "";
-		if (isEmpty(openid_configuration) ) missing = missing + " openid_configuration";
-		if (isEmpty(unlock_token_request) ) missing = missing + " unlock_token";
+		if (isBlank(openid_configuration) ) missing = missing + " openid_configuration";
+		if (isBlank(unlock_token_request) ) missing = missing + " unlock_token";
 
 		if ( ! missing.equals("") ) {
 			doError(request, response, "plus.dynamic.request.missing", missing, null);
@@ -747,11 +747,11 @@ public class ProviderServlet extends HttpServlet {
 
 		// Check for required items
 		missing = "";
-		if (isEmpty(issuer) ) missing = missing + " issuer";
-		if (isEmpty(authorization_endpoint) ) missing = missing + " authorization_endpoint";
-		if (isEmpty(token_endpoint) ) missing = missing + " token_endpoint";
-		if (isEmpty(jwks_uri) ) missing = missing + " jwks_uri";
-		if (isEmpty(registration_endpoint) ) missing = missing + " registration_endpoint";
+		if (isBlank(issuer) ) missing = missing + " issuer";
+		if (isBlank(authorization_endpoint) ) missing = missing + " authorization_endpoint";
+		if (isBlank(token_endpoint) ) missing = missing + " token_endpoint";
+		if (isBlank(jwks_uri) ) missing = missing + " jwks_uri";
+		if (isBlank(registration_endpoint) ) missing = missing + " registration_endpoint";
 
 		if ( ! missing.equals("") ) {
 			addError(out, "plus.dynamic.missing", missing, null);
@@ -780,11 +780,11 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		String title = tenant.getTitle();
-		if ( isEmpty(title) ) {
+		if ( isBlank(title) ) {
 			title = serverConfigurationService.getString(PlusService.PLUS_SERVER_TITLE, rb.getString(PlusService.PLUS_SERVER_TITLE));
 		}
 		String description = tenant.getDescription();
-		if ( isEmpty(description) ) {
+		if ( isBlank(description) ) {
 			description = serverConfigurationService.getString(PlusService.PLUS_SERVER_DESCRIPTION, rb.getString(PlusService.PLUS_SERVER_DESCRIPTION));
 		}
 
@@ -888,7 +888,7 @@ public class ProviderServlet extends HttpServlet {
 		reg.lti_tool_configuration = ltitc;
 
 		Map<String, String> headers = new HashMap<String, String>();
-		if (! isEmpty(registration_token) ) headers.put("Authorization", "Bearer "+registration_token);
+		if (! isBlank(registration_token) ) headers.put("Authorization", "Bearer "+registration_token);
 		headers.put("Content-type", "application/json");
 
 		String regs = reg.prettyPrintLog();
@@ -897,7 +897,7 @@ public class ProviderServlet extends HttpServlet {
 		try {
 			HttpResponse<String> registrationResponse = HttpClientUtil.sendPost(registration_endpoint, regs, headers, dbs);
 			body = registrationResponse.body();
-			if ( isEmpty(body) ) {
+			if ( isBlank(body) ) {
 				addError(out, "plus.dynamic.registration.post", null, null);
 			}
 		} catch (Exception e) {
@@ -911,7 +911,7 @@ public class ProviderServlet extends HttpServlet {
 		// Remember the registration
 		tenant.setOidcRegistration(body);
 
-		if ( isEmpty(body) ) {
+		if ( isBlank(body) ) {
 			tenant.setStatus("Error posting client registration "+registration_endpoint);
 			tenant.setDebugLog(dbs.toString());
 			log.error(dbs.toString());
@@ -952,7 +952,7 @@ public class ProviderServlet extends HttpServlet {
 		tenant.setOidcRegistrationEndpoint(openIDConfig.registration_endpoint);
 
 		tenant.setClientId(platformResponse.client_id);
-		if ( ! isEmpty(deployment_id) ) {
+		if ( ! isBlank(deployment_id) ) {
 			tenant.setDeploymentId(deployment_id);
 			tenant.setStatus("Registration "+tenant_guid+" complete with deployment_id "+deployment_id);
 		} else {
@@ -1405,7 +1405,7 @@ public class ProviderServlet extends HttpServlet {
 		ltiResourceLink.url = tool_launch;
 		ltiResourceLink.setWindowTarget("_blank");
 		dlr.content_items.add(ltiResourceLink);
-		if ( launchJWT.deep_link != null && isNotEmpty(launchJWT.deep_link.data) ) {
+		if ( launchJWT.deep_link != null && isNotBlank(launchJWT.deep_link.data) ) {
 			dlr.data = launchJWT.deep_link.data;
 		}
 		dlr.deployment_id = launchJWT.deployment_id;
@@ -1440,8 +1440,9 @@ public class ProviderServlet extends HttpServlet {
 	public List<String> getAllowedTools(Tenant tenant)
 	{
 		String allowedToolsConfig = tenant.getAllowedTools();
-		if ( isEmpty(allowedToolsConfig) ) allowedToolsConfig =
+		if ( isBlank(allowedToolsConfig) ) allowedToolsConfig =
 			serverConfigurationService.getString(PlusService.PLUS_TOOLS_ALLOWED, PlusService.PLUS_TOOLS_ALLOWED_DEFAULT);
+		if ( isBlank(allowedToolsConfig) ) return new ArrayList<String>();
 		String[] allowedTools = allowedToolsConfig.split(":");
 		return Arrays.asList(allowedTools);
 	}
@@ -1449,8 +1450,9 @@ public class ProviderServlet extends HttpServlet {
 	public List<String> getNewWindowTools(Tenant tenant)
 	{
 		String newWindowToolsConfig = tenant.getNewWindowTools();
-		if ( isEmpty(newWindowToolsConfig) ) newWindowToolsConfig =
+		if ( isBlank(newWindowToolsConfig) ) newWindowToolsConfig =
 			serverConfigurationService.getString(PlusService.PLUS_TOOLS_NEW_WINDOW, PlusService.PLUS_TOOLS_NEW_WINDOW_DEFAULT);
+		if ( isBlank(newWindowToolsConfig) ) return new ArrayList<String>();
 		String[] newWindowTools = newWindowToolsConfig.split(":");
 		return Arrays.asList(newWindowTools);
 	}
@@ -1541,11 +1543,11 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		String title = tenant.getTitle();
-		if ( isEmpty(title) ) {
+		if ( isBlank(title) ) {
 			title = serverConfigurationService.getString(PlusService.PLUS_CANVAS_TITLE, rb.getString(PlusService.PLUS_CANVAS_TITLE));
 		}
 		String description = tenant.getDescription();
-		if ( isEmpty(description) ) {
+		if ( isBlank(description) ) {
 			description = serverConfigurationService.getString(PlusService.PLUS_CANVAS_DESCRIPTION, rb.getString(PlusService.PLUS_CANVAS_DESCRIPTION));
 		}
 		canvas.put("title", title);
