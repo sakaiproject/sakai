@@ -18,9 +18,13 @@ class SitesSidebar {
 
       const chevron = element.querySelector(`[data-bs-target='#${btn.id}'] > i`);
       btn.addEventListener("show.bs.collapse", e => {
+
+        e.stopPropagation();
         chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
       });
       btn.addEventListener("hide.bs.collapse", e => {
+
+        e.stopPropagation();
         chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
       });
     });

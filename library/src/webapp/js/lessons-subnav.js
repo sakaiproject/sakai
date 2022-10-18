@@ -45,11 +45,15 @@
         const collapseId = `page-${page_id}-lessons-subpages`;
         const template = `
             <div class="d-inline-flex align-items-stretch">
-                <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
-                    <i class="btn-site-carret" aria-hidden="true"></i><span>Lessons</span>
+                <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#${collapseId}"
+                        aria-expanded="false"
+                        aria-controls="${collapseId}">
+                    <i class="bi-chevron-right" aria-hidden="true"></i><span>Lessons</span>
                 </button>
             </div>
-            <div id="${collapseId}" class="collapse">
+            <div id="${collapseId}" class="lessons-subpages-collapse collapse">
                 <ul class="nav flex-column pe-2">
                     <li class="nav-item">
                         <a class="btn btn-nav rounded-end ps-4" href="${mainLink}">
@@ -70,6 +74,23 @@
         `;
         lessonsElement.remove()
         siteListItem.insertAdjacentHTML("afterbegin", template);
+
+        window.addEventListener("DOMContentLoaded", () => {
+
+          const collapseEl = document.getElementById(collapseId);
+          const chevron = document.querySelector(`[data-bs-target='#${collapseId}'] > i`);
+          collapseEl.addEventListener("show.bs.collapse", e => {
+
+            e.stopPropagation();
+            chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
+          });
+
+          collapseEl.addEventListener("hide.bs.collapse", e => {
+
+            e.stopPropagation();
+            chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
+          });
+        });
         
         /*
         var $submenu = document.createElement('ul');
