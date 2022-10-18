@@ -31,7 +31,11 @@
                 <span>${site.title}</span>
             </button>
             #if ($loggedIn)
-                <button data-pin-site="${site.id}" data-pinned="$!{site.isPinned}" title="${pinTitle}" class="site-opt-pin btn btn-site-opt bi $!{pinIconClass}"></button>
+                <button class="site-opt-pin btn btn-site-opt bi $!{pinIconClass}"
+                    data-pin-site="${site.id}"
+                    data-pinned="$!{site.isPinned}"
+                    title="${pinTitle}">
+                </button>
             #end
         </div>
         <div id="site-${index}-pages" class="site-list-item-collapse collapse $!{isExpandedClass}">

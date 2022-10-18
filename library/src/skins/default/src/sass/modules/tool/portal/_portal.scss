@@ -308,6 +308,10 @@ text-decoration-line-throughh
     }
   }
 
+  .site-opt-pin:hover {
+    color: var(--sakai-pin-hover-color);
+  }
+
   .sakai-sitesAndToolsNav {
     background-color: var(--site-nav-bg);
   }
