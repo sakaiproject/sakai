@@ -51,6 +51,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
+    @Autowired private PlusService plusService;
     @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;

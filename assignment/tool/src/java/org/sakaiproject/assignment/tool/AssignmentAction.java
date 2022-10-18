@@ -3479,7 +3479,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Placement placement = toolManager.getCurrentPlacement();
         // String contentReturn = SakaiBLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() +
         String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-                + "/sakai.basiclti.admin.helper.helper"
+                + "/sakai.lti.admin.helper.helper"
                 + "?panel=AssignmentsMain"
 				+ "&flow=assignment";
          context.put("findExternalToolUrl", contentReturn);

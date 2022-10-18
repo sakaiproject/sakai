@@ -99,8 +99,9 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final String INCLUDE_TABS = "include-tabs";
 
-	private static final String URL_FRAGMENT = "site";
-	
+	// Cannot be static to allow for this class to be extended at a different fragment
+	protected String URL_FRAGMENT = "site";
+
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -142,7 +143,11 @@ public class SiteHandler extends WorksiteHandler
 
 	public SiteHandler()
 	{
-		setUrlFragment(SiteHandler.URL_FRAGMENT);
+		// Allow any sub-classes to register their own URL_FRAGMENT
+		// https://stackoverflow.com/questions/41566202/possible-to-avoid-default-call-to-super-in-java
+		if(this.getClass() == SiteHandler.class) {
+			setUrlFragment(URL_FRAGMENT);
+		}
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 		imageLogic = ComponentManager.get(ProfileImageLogic.class);
@@ -152,7 +157,7 @@ public class SiteHandler extends WorksiteHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals(SiteHandler.URL_FRAGMENT)))
+		if ((parts.length >= 2) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			// This is part of the main portal so we simply remove the attribute
 			session.setAttribute(PortalService.SAKAI_CONTROLLING_PORTAL, null);

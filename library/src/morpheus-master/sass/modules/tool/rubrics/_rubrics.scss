@@ -16,6 +16,7 @@
         border: $rubrics-title-border-size solid $rubrics-title-border-color;
         border-width: $rubrics-title-border-size 0px;
         font-weight: bold;
+        position: relative;
         @include display-flex;
         @include justify-content(space-between);
 
@@ -61,6 +62,19 @@
                 }
             }
         }
+
+        .highlight {
+            color: var(--sakai-highlight-color);
+            &.bold {
+                font-weight: bold;
+            }
+        }
+
+        button.draft {
+            &.disabled > span.highlight{
+                filter: brightness(60%);
+            }
+        }
     }
 
     #site-rubrics-title {
@@ -92,7 +106,8 @@
     }
 
     .rubric-details {
-        padding: $standard-spacing;
+        padding-top: $standard-spacing;
+        padding-inline: $standard-spacing;
         .weighted-grade-info {
             display: flex;
             margin: 0 2px 15px 2px;
@@ -110,14 +125,23 @@
             .total-data > div {
                 margin-bottom: 4px;
             }
+            .banner-container {
+                display: flex;
+                flex-grow: 1;
+                .sak-banner-success:not(.hidden) ~ div:not(.hidden) {
+                    display: none;
+                }
+            }
             .sak-banner-error,
-            .sak-banner-success {
+            .sak-banner-success,
+            .sak-banner-warn {
+                height: fit-content;
                 flex-grow: 1;
                 margin: 0;
             }
         }
-        .margin-cero {
-            margin: 0;
+        .action-butons {
+            margin-bottom: $standard-spacing;
         }
     }
 

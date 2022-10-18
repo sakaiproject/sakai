@@ -110,6 +110,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -144,6 +145,7 @@ public class GradingServiceImpl implements GradingService {
     @Autowired private GradingPersistenceManager gradingPersistenceManager;
     @Autowired private ResourceLoader resourceLoader;
     @Autowired private SiteService siteService;
+    @Autowired private PlusService plusService;
     @Autowired private SectionAwareness sectionAwareness;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -315,18 +317,33 @@ public class GradingServiceImpl implements GradingService {
         assignmentDefinition.setUngraded(internalAssignment.getUngraded());
         assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
         assignmentDefinition.setCategorizedSortOrder(internalAssignment.getCategorizedSortOrder());
+        assignmentDefinition.setLineItem(internalAssignment.getLineItem());
 
         return assignmentDefinition;
     }
 
-    public Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted,
+    // Legacy method - Removed 2022-08-21 - Chuck S.
+    /*
+    private Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted,
         Boolean isReleased, Boolean isExtraCredit, Integer sortOrder)
             throws ConflictingAssignmentNameException, StaleObjectModificationException {
 
-        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, null);
+        Assignment assignmentDefinition = null;
+        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, null, assignmentDefinition);
+    }
+    */
+
+    private Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted,
+        Boolean isReleased, Boolean isExtraCredit, Integer sortOrder,
+        Assignment assignmentDefinition)
+            throws ConflictingAssignmentNameException, StaleObjectModificationException {
+
+        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, null, assignmentDefinition);
     }
 
-    public Long createAssignmentForCategory(Long gradebookId, Long categoryId, String name, Double points, Date dueDate, Boolean isNotCounted,
+    // Legacy method - Removed 2022-08-21 - Chuck S.
+    /*
+    private Long createAssignmentForCategory(Long gradebookId, Long categoryId, String name, Double points, Date dueDate, Boolean isNotCounted,
         Boolean isReleased, Boolean isExtraCredit, Integer categorizedSortOrder)
             throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException {
 
@@ -334,19 +351,32 @@ public class GradingServiceImpl implements GradingService {
             throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
         }
 
-        return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, null, categorizedSortOrder);
+        Assignment assignmentDefinition = null;
+        return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, null, categorizedSortOrder, assignmentDefinition);
+    }
+    */
+
+    private Long createAssignmentForCategory(Long gradebookId, Long categoryId, String name, Double points, Date dueDate, Boolean isNotCounted,
+        Boolean isReleased, Boolean isExtraCredit, Integer categorizedSortOrder, Assignment assignmentDefinition)
+            throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException {
+
+        if (gradebookId == null || categoryId == null) {
+            throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
+        }
+
+        return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, null, categorizedSortOrder, assignmentDefinition);
     }
 
     private Long createNewAssignment(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
-            final Boolean isReleased, final Boolean isExtraCredit, final Integer sortOrder, final Integer categorizedSortOrder)
+            final Boolean isReleased, final Boolean isExtraCredit, final Integer sortOrder, final Integer categorizedSortOrder, Assignment assignmentDefinition)
                     throws ConflictingAssignmentNameException, StaleObjectModificationException {
 
-        GradebookAssignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, categorizedSortOrder);
+        GradebookAssignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, categorizedSortOrder, assignmentDefinition);
         return saveNewAssignment(gradebookId, categoryId, asn);
     }
 
     private GradebookAssignment prepareNewAssignment(final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased,
-            final Boolean isExtraCredit, final Integer sortOrder, final Integer categorizedSortOrder) {
+            final Boolean isExtraCredit, final Integer sortOrder, final Integer categorizedSortOrder, Assignment assignmentDefinition) {
 
         // name cannot contain these special chars as they are reserved for special columns in import/export
         String validatedName = GradebookHelper.validateGradeItemName(name);
@@ -372,6 +402,13 @@ public class GradingServiceImpl implements GradingService {
             asn.setCategorizedSortOrder(categorizedSortOrder);
         }
 
+        // Add things not include in the calling sequence
+        if ( assignmentDefinition != null ) {
+            asn.setExternallyMaintained(assignmentDefinition.getExternallyMaintained());
+            asn.setExternalId(assignmentDefinition.getExternalId());
+            asn.setExternalAppName(assignmentDefinition.getExternalAppName());
+        }
+
         return asn;
     }
 
@@ -382,7 +419,6 @@ public class GradingServiceImpl implements GradingService {
         if (assignmentNameExists(asn.getName(), asn.getGradebook())) {
             throw new ConflictingAssignmentNameException("You cannot save multiple assignments in a gradebook with the same name");
         }
-
         return gradingPersistenceManager.saveAssignment(asn).getId();
     }
 
@@ -653,7 +689,7 @@ public class GradingServiceImpl implements GradingService {
                         // create the assignment for the current category
                         try {
                             Long newId = createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), a.getName(), a.getPoints(),
-                                    a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getCategorizedSortOrder());
+                                    a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getCategorizedSortOrder(), null);
                             transversalMap.put("gb/"+a.getId(),"gb/"+newId);
                         } catch (final ConflictingAssignmentNameException e) {
                             // assignment already exists. Could be from a merge.
@@ -686,7 +722,7 @@ public class GradingServiceImpl implements GradingService {
         assignments.forEach(a -> {
 
             try {
-                Long newId = createAssignment(gradebook.getId(), a.getName(), a.getPoints(), a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getSortOrder());
+                Long newId = createAssignment(gradebook.getId(), a.getName(), a.getPoints(), a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getSortOrder(), null);
                 transversalMap.put("gb/"+a.getId(),"gb/"+newId);
             } catch (final ConflictingAssignmentNameException e) {
                 // assignment already exists. Could be from a merge.
@@ -756,15 +792,44 @@ public class GradingServiceImpl implements GradingService {
 
         final Gradebook gradebook = getGradebook(gradebookUid);
 
+        Long assignmentId = null;
         // if attaching to category
         if (assignmentDefinition.getCategoryId() != null) {
-            return createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), validatedName,
+            assignmentId = createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), validatedName,
                     assignmentDefinition.getPoints(), assignmentDefinition.getDueDate(), !assignmentDefinition.getCounted(), assignmentDefinition.getReleased(),
-                    assignmentDefinition.getExtraCredit(), assignmentDefinition.getCategorizedSortOrder());
+                    assignmentDefinition.getExtraCredit(), assignmentDefinition.getCategorizedSortOrder(),
+                    assignmentDefinition);
+        } else {
+            assignmentId = createAssignment(gradebook.getId(), validatedName, assignmentDefinition.getPoints(), assignmentDefinition.getDueDate(),
+                !assignmentDefinition.getCounted(), assignmentDefinition.getReleased(), assignmentDefinition.getExtraCredit(), assignmentDefinition.getSortOrder(), 
+                assignmentDefinition);
         }
 
-        return createAssignment(gradebook.getId(), validatedName, assignmentDefinition.getPoints(), assignmentDefinition.getDueDate(),
-                !assignmentDefinition.getCounted(), assignmentDefinition.getReleased(), assignmentDefinition.getExtraCredit(), assignmentDefinition.getSortOrder());
+
+        // Check if this ia a plus course
+        if ( plusService.enabled() ) {
+            try {
+                final Site site = this.siteService.getSite(gradebookUid);
+                if ( plusService.enabled(site) ) {
+
+                    String lineItem = plusService.createLineItem(site, assignmentId, assignmentDefinition);
+
+                    // Update the assignment with the new lineItem
+                    final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
+                    if (assignment == null) {
+                        throw new AssessmentNotFoundException(
+                                "There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
+                    }
+                    assignment.setLineItem(lineItem);
+                    updateAssignment(assignment);
+                }
+            } catch (Exception e) {
+                log.error("Could not load site associated with gradebook - lineitem not created", e);
+            }
+        }
+
+        return assignmentId;
+
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -814,6 +879,8 @@ public class GradingServiceImpl implements GradingService {
         assignment.setExternalId(assignmentDefinition.getExternalId());
         assignment.setExternalData(assignmentDefinition.getExternalData());
 
+        assignment.setLineItem(assignmentDefinition.getLineItem());
+
         // if we have a category, get it and set it
         // otherwise clear it fully
         if (assignmentDefinition.getCategoryId() != null) {
@@ -827,6 +894,18 @@ public class GradingServiceImpl implements GradingService {
 
         if (scaleGrades) {
             scaleGrades(gradebook, assignment, originalPointsPossible);
+        }
+
+        // Check if this is a plus course
+        if ( plusService.enabled() ) {
+            try {
+                final Site site = this.siteService.getSite(gradebookUid);
+                if ( plusService.enabled(site) ) {
+                    plusService.updateLineItem(site, assignmentDefinition);
+                }
+            } catch (Exception e) {
+                log.error("Could not load site associated with gradebook - lineitem not updated", e);
+            }
         }
     }
 
@@ -2111,6 +2190,7 @@ public class GradingServiceImpl implements GradingService {
             gradeRecordsToUpdate.forEach(gradingPersistenceManager::saveAssignmentGradeRecord);
             commentsToUpdate.forEach(gradingPersistenceManager::saveComment);
             eventsToAdd.forEach(gradingPersistenceManager::saveGradingEvent);
+            eventsToAdd.forEach(this::sendGradingEvent);
         } catch (final HibernateOptimisticLockingFailureException | StaleObjectStateException holfe) {
             // TODO: Adrian How janky is this?
             log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item {}", gradableObjectId);
@@ -2755,8 +2835,43 @@ public class GradingServiceImpl implements GradingService {
      */
     private void postUpdateGradeEvent(String gradebookUid, String assignmentName, String studentUid, Double pointsEarned) {
 
+        log.debug("postUpdateGradeEvent {} {} {} {}", gradebookUid, assignmentName, studentUid, pointsEarned);
         postEvent("gradebook.updateItemScore",
                 "/gradebook/" + gradebookUid + "/" + assignmentName + "/" + studentUid + "/" + pointsEarned + "/student");
+    }
+
+    /**
+     * Send a GradebookEvent to Sakai's event table
+     *
+     * @param gradebookEvent
+     * @return
+     */
+    private void sendGradingEvent(GradingEvent gradingEvent) {
+        String studentId = gradingEvent.getStudentId();
+        String scoreStr = gradingEvent.getGrade();
+
+        // Null is actually OK.
+        Double score = null;
+        if ( scoreStr != null ) {
+            try {
+                score = new Double(scoreStr);
+            } catch (Exception e) {
+                log.debug("Could not parse score as number studentId={} score={}", studentId, scoreStr);
+                return;
+            }
+        }
+
+        GradableObject go = gradingEvent.getGradableObject();
+
+        log.debug("sendGradingEventchecking GradableObject studentId={} score={} go={}", studentId, score, go);
+
+        if ( go == null ) return;
+        String assignmentName = go.getName();
+        Gradebook gb = go.getGradebook();
+        if ( gb == null ) return;
+        String gradebookUid = gb.getUid();
+
+        postUpdateGradeEvent(gradebookUid, assignmentName, studentId, score);
     }
 
     /**
@@ -3616,6 +3731,7 @@ public class GradingServiceImpl implements GradingService {
 
         // Insert the new grading events (GradeRecord)
         eventsToAdd.forEach(gradingPersistenceManager::saveGradingEvent);
+        eventsToAdd.forEach(this::sendGradingEvent);
     }
 
     /**
@@ -3785,10 +3901,33 @@ public class GradingServiceImpl implements GradingService {
         asn.setReleased(true);
         asn.setUngraded(false);
 
-        gradingPersistenceManager.saveAssignment(asn);
+        Long assignmentId = gradingPersistenceManager.saveGradebookAssignment(asn).getId();
 
         log.info("External assessment added to gradebookUid={}, externalId={} by userUid={} from externalApp={}", gradebookUid, externalId,
                 getUserUid(), externalServiceDescription);
+
+        // Check if this ia a plus course
+        if ( plusService.enabled() ) {
+            try {
+                final Site site = this.siteService.getSite(gradebookUid);
+                if ( plusService.enabled(site) ) {
+
+                    String lineItem = plusService.createLineItem(site, assignmentId, getAssignmentDefinition(asn));
+
+                    // Update the assignment with the new lineItem
+                    final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
+                    if (assignment == null) {
+                        throw new AssessmentNotFoundException(
+                                "There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
+                    }
+                    assignment.setLineItem(lineItem);
+                    updateAssignment(assignment);
+                }
+            } catch (Exception e) {
+                log.error("Could not load site associated with gradebook - lineitem not created", e);
+            }
+        }
+
     }
 
     @Override
@@ -3829,6 +3968,18 @@ public class GradingServiceImpl implements GradingService {
         gradingPersistenceManager.saveAssignment(asn);
         log.info("External assessment updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId,
                 getUserUid());
+
+        // Check if this is a plus course
+        if ( plusService.enabled() ) {
+            try {
+                final Site site = this.siteService.getSite(gradebookUid);
+                if ( plusService.enabled(site) ) {
+                    plusService.updateLineItem(site, getAssignmentDefinition(asn));
+                }
+            } catch (Exception e) {
+                log.error("Could not load site associated with gradebook - lineitem not updated", e);
+            }
+        }
     }
 
     @Override
@@ -4282,14 +4433,42 @@ public class GradingServiceImpl implements GradingService {
             asn.setUngraded(false);
         }
 
-        gradingPersistenceManager.saveGradebookAssignment(asn);
+        Long assignmentId = gradingPersistenceManager.saveGradebookAssignment(asn).getId();
 
         log.info("External assessment added to gradebookUid={}, externalId={} by userUid={} from externalApp={}", gradebookUid, externalId,
                 getUserUid(), externalServiceDescription);
+
+        // Check if this ia a plus course
+        if ( plusService.enabled() ) {
+            try {
+                final Site site = this.siteService.getSite(gradebookUid);
+                if ( plusService.enabled(site) ) {
+
+                    String lineItem = plusService.createLineItem(site, assignmentId, getAssignmentDefinition(asn));
+
+                    // Update the assignment with the new lineItem
+                    final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
+                    if (assignment == null) {
+                        throw new AssessmentNotFoundException(
+                                "There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
+                    }
+                    assignment.setLineItem(lineItem);
+                    updateAssignment(assignment);
+                }
+            } catch (Exception e) {
+                log.error("Could not load site associated with gradebook - lineitem not created", e);
+            }
+        }
     }
 
     @Override
-    public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, String externalData, final String title,
+    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl, String externalData, String title, Double points, Date dueDate, Boolean ungraded)
+            throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException {
+        updateExternalAssessment(gradebookUid, externalId, externalUrl, externalData, title, null, points, dueDate, ungraded);
+    }
+
+    @Override
+    public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, String externalData, final String title, Long categoryId,
                                          final Double points, final Date dueDate, final Boolean ungraded)
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException {
         final Optional<GradebookAssignment> optAsn = getDbExternalAssignment(gradebookUid, externalId);
@@ -4328,9 +4507,24 @@ public class GradingServiceImpl implements GradingService {
         } else {
             asn.setUngraded(false);
         }
+        if (categoryId != null) {
+            asn.setCategory(getCategory(categoryId));
+        }
         gradingPersistenceManager.saveGradebookAssignment(asn);
 
         log.info("External assessment updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId, getUserUid());
+
+        // Check if this is a plus course
+        if ( plusService.enabled() ) {
+            try {
+                final Site site = this.siteService.getSite(gradebookUid);
+                if ( plusService.enabled(site) ) {
+                    plusService.updateLineItem(site, getAssignmentDefinition(asn));
+                }
+            } catch (Exception e) {
+                log.error("Could not load site associated with gradebook - lineitem not updated", e);
+            }
+        }
     }
 
     @Override

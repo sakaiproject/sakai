@@ -957,6 +957,9 @@ public interface GradingService extends EntityProducer {
                                          String title, Double points, Date dueDate, Boolean ungraded)
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
 
+    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl, String externalData, String title, Long categoryId, Double points, Date dueDate, Boolean ungraded)
+            throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
+
     /**
      * Remove the assessment reference from the gradebook. Although Samigo
      * doesn't currently delete assessments, an instructor can retract an

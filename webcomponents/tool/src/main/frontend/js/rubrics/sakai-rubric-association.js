@@ -108,7 +108,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
           <div class="rubrics-selections">
             <select @change="${this.rubricSelected}" name="rbcs-rubricslist" aria-label="${tr("rubric_selector_label")}" class="form-control" ?disabled=${!this.isAssociated || this.readOnly}>
-            ${this.rubrics.map(r => html`
+            ${this.rubrics.map((r) => html`
               <option value="${r.id}" ?selected=${r.id == this.selectedRubric}>${r.title}</option>
             `)}
             </select>
@@ -198,7 +198,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
   handleRubrics(data) {
 
-    this.rubrics = data;
+    this.rubrics = data.slice().filter( (rubric) => rubric.draft === false);
 
     if (this.rubrics.length) {
       //this.selectedConfigOptions = this.association.parameters ? this.association.parameters : {};

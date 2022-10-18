@@ -1193,6 +1193,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       studentId: $.data($cell[0], "studentid")
     });
   }).
+  on("click", ".gb-dropdown-menu .gb-quick-entry", function() { // go to this item's Quick Entry
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    GbGradeTable.ajax({
+      action: 'quickEntry',
+      assignmentId: $.data($cell[0], "assignmentid")
+    });
+  }).
   // Delete Grade Item
   on("click", ".gb-dropdown-menu .gb-delete-item", function() {
     var $dropdown = $(this).closest(".gb-dropdown-menu");

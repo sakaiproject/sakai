@@ -211,8 +211,6 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private String feedbackComponentOption;
   @Getter @Setter
-  private boolean onlyShowingIncorrect = false;
-  @Getter @Setter
   private boolean feedbackOnDate;
   @Getter @Setter
   private String errorMessage;

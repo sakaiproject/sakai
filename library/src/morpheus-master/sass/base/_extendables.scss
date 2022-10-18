@@ -404,7 +404,7 @@ button.btn-transparent {
 		box-shadow: none;
 	}
 
-	&[disabled="disabled"], &[disabled], &[disabled="true"], &[class="disabled"] {
+	&:disabled, &.disabled {
 		&, &:hover, &:active, &:focus {
 			color: var(--button-disabled-text-color);
 			background: var(--sakai-background-color);

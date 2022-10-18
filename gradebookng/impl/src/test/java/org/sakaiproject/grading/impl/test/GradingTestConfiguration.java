@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.repository.GradebookRepository;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
@@ -58,6 +59,11 @@ public class GradingTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.authz.api.FunctionManager")
     public FunctionManager functionManager() {
         return mock(FunctionManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.plus.api.PlusService")
+    public PlusService plusService() {
+        return mock(PlusService.class);
     }
 
     /*

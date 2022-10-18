@@ -30,14 +30,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -246,74 +244,73 @@ public class DeliveryActionListener
               break;
 
       case 3: // Review assessment
-          setFeedbackMode(delivery); //this determine if we should gather the itemGrading
-          Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
-          String assessmentGradingId = ContextUtil.lookupParam("assessmentGradingId");
+              setFeedbackMode(delivery); //this determine if we should gather the itemGrading
+              Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
+              String assessmentGradingId = ContextUtil.lookupParam("assessmentGradingId");
               
-          if (("true").equals(delivery.getFeedback())) {
+              if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
-                if (delivery.getFeedbackComponent().getShowResponse()
-                    || delivery.getFeedbackComponent().getShowStudentQuestionScore()
-                    ||delivery.getFeedbackComponent().getShowItemLevel()) {
-
+                if (delivery.getFeedbackComponent().getShowResponse() || delivery.getFeedbackComponent().getShowStudentQuestionScore() ||
+                        delivery.getFeedbackComponent().getShowItemLevel())
                 	itemGradingHash = service.getSubmitData(id, agent, scoringoption, assessmentGradingId);
-                }
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
 	      }
-          setDisplayByAssessment(delivery);
-          FeedbackComponent component = new FeedbackComponent();
-          AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) publishedAssessment.getAssessmentFeedback();
-          if ( info != null) {
-                component.setAssessmentFeedback(info);
-          }
-          delivery.setFeedbackComponent(component);
-          AssessmentGradingData agData = null;
-          if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
-              agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
-          } else {
-              agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
-          }
-          if (agData == null) {
-              delivery.setOutcome("reviewAssessmentError");
-              return;
-          }
-
-          //agData.setItemGradingSet(agData.getItemGradingSet().stream().filter(gd -> !gd.getIsCorrect()).collect(Collectors.toSet()));
-          log.debug("GraderComments: getComments()" + agData.getComments());
-          delivery.setGraderComment(agData.getComments());
-          delivery.setAssessmentGradingAttachmentList(agData.getAssessmentGradingAttachmentList());
-          delivery.setHasAssessmentGradingAttachment(
-                  agData.getAssessmentGradingAttachmentList() != null && agData.getAssessmentGradingAttachmentList().size() > 0);
-          delivery.setAssessmentGradingId(agData.getAssessmentGradingId());
-          delivery.setOutcome("takeAssessment");
-          delivery.setSecureDeliveryHTMLFragment( "" );
-          delivery.setBlockDelivery( false );
-
-          if ( secureDelivery.isSecureDeliveryAvaliable() ) {
-              String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-              if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-                  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-                  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, publishedAssessment, request );
-                  delivery.setSecureDeliveryHTMLFragment(
-                          secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );
-                  if ( PhaseStatus.FAILURE == status )  {
-                      delivery.setOutcome( "secureDeliveryError" );
-                      delivery.setBlockDelivery( true );
-                  }
+              setDisplayByAssessment(delivery);
+              //setDeliveryFeedbackOnforEvaluation(delivery);
+              //setGraderComment(delivery);
+              FeedbackComponent component = new FeedbackComponent();
+              AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) publishedAssessment.getAssessmentFeedback();
+              if ( info != null) {
+            	  	component.setAssessmentFeedback(info);
               }
-          }
+              delivery.setFeedbackComponent(component);
+              AssessmentGradingData agData = null;
+              if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
+            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
+              } else {
+            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
+              }
+              if (agData == null) {
+            	  delivery.setOutcome("reviewAssessmentError");
+            	  return;
+              }
+              log.debug("GraderComments: getComments()" + agData.getComments());
+              delivery.setGraderComment(agData.getComments());
+              delivery.setAssessmentGradingAttachmentList(agData.getAssessmentGradingAttachmentList());
+              delivery.setHasAssessmentGradingAttachment(
+            		  agData.getAssessmentGradingAttachmentList() != null && agData.getAssessmentGradingAttachmentList().size() > 0);
+              delivery.setAssessmentGradingId(agData.getAssessmentGradingId());
+              delivery.setOutcome("takeAssessment");
+              delivery.setSecureDeliveryHTMLFragment( "" );
+              delivery.setBlockDelivery( false );
+              
+              if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+            	  
+            	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+            	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+              		  
+            		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+            		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, publishedAssessment, request );
+            		  delivery.setSecureDeliveryHTMLFragment( 
+            				  secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );             		 
+            		  if ( PhaseStatus.FAILURE == status )  {           			 
+            			  delivery.setOutcome( "secureDeliveryError" );
+            			  delivery.setBlockDelivery( true );
+            		  }
+            	  }                 	  
+              }
 
-          generateSecureTokenForAssessment(delivery);
+              generateSecureTokenForAssessment(delivery);
 
-          // post event
-          eventRef = new StringBuffer("publishedAssessmentId=");
-          eventRef.append(delivery.getAssessmentId());
-          eventRef.append(", submissionId=");
-          eventRef.append(agData.getAssessmentGradingId());
-          event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVIEW, eventRef.toString(), true);
-          eventTrackingService.post(event);
-          break;
+              // post event
+              eventRef = new StringBuffer("publishedAssessmentId=");
+              eventRef.append(delivery.getAssessmentId());
+              eventRef.append(", submissionId=");
+              eventRef.append(agData.getAssessmentGradingId());
+              event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVIEW, eventRef.toString(), true);
+              eventTrackingService.post(event);
+              break;
  
       case 4: // Grade assessment
     	  	  String gradingData = ContextUtil.lookupParam("gradingData");
@@ -840,20 +837,14 @@ public class DeliveryActionListener
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
                                                  itemGradingHash, delivery,
                                                  publishedAnswerHash);
-
-      // If we are in review mode and only show incorrect responses is checked in the
-      // assignment settings, there may well be no parts added. If so, we want to skip
-      // the empty section but still do the max score calculations.
-      if (partBean.getItemContents().size() > 0) {
-        partBean.setNumParts(Integer.toString(partSet.size()));
-        if (partBean.getItemContentsSize().equals("0")) {
-          log.debug("getPageContentsByAssessment(): no question");
-          partBean.setNoQuestions(true);
-        }
-        partsContents.add(partBean);
+      partBean.setNumParts(Integer.toString(partSet.size()));
+      if (partBean.getItemContentsSize().equals("0")) {
+    	  log.debug("getPageContentsByAssessment(): no question");
+    	  partBean.setNoQuestions(true);
       }
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
+      partsContents.add(partBean);
     }
 
     delivery.setPrevious(false);
@@ -1083,14 +1074,7 @@ public class DeliveryActionListener
       {
         unansweredQuestions++;
       }
-
-      Integer correctAnswerOption = delivery.getFeedbackComponent().getCorrectAnswerOption();
-      delivery.setOnlyShowingIncorrect(correctAnswerOption == AssessmentFeedbackIfc.INCORRECT_QUESTIONS);
-      if (delivery.getActionMode() != DeliveryBean.REVIEW_ASSESSMENT) {
-        itemContents.add(itemBean);
-      } else if (correctAnswerOption == AssessmentFeedbackIfc.ALL_QUESTIONS || itemBean.getItemGradingDataArray().stream().anyMatch(gd -> gd.getIsCorrect() == null || !gd.getIsCorrect())) {
-        itemContents.add(itemBean);
-      }
+      itemContents.add(itemBean);
     }
 
     // scoring information

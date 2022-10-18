@@ -12,9 +12,13 @@ import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.BasicOutcome;
 import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LTI11Transition;
-import org.tsugi.lti13.objects.PlatformConfiguration;
+import org.tsugi.lti13.objects.OpenIDProviderConfiguration;
 import org.tsugi.lti13.objects.LTIPlatformConfiguration;
-import org.tsugi.lti13.objects.LTIPlatformMessage;
+import org.tsugi.lti13.objects.LTILaunchMessage;
+import org.tsugi.lti13.objects.OpenIDClientRegistration;
+import org.tsugi.lti13.objects.LTIToolConfiguration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.tsugi.lti13.LTICustomVars;
 
@@ -122,7 +126,7 @@ public class LTI13ObjectTest {
 				.signWith(key)
 				.compact();
 
-		assertEquals(2254, jws.length());
+		assertEquals(2376, jws.length());
 		Matcher m = base64url_pattern.matcher(jws);
 		good = m.find();
 		if (!good) {
@@ -148,16 +152,16 @@ public class LTI13ObjectTest {
 	@Test
 	public void testTwo() {
 		LTIPlatformConfiguration lpc = new LTIPlatformConfiguration();
-		LTIPlatformMessage mp = new LTIPlatformMessage();
+		LTILaunchMessage mp = new LTILaunchMessage();
 		mp.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
 		lpc.messages_supported.add(mp);
-        mp = new LTIPlatformMessage();
+        mp = new LTILaunchMessage();
         mp.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
         lpc.messages_supported.add(mp);
 		lpc.variables.add(LTICustomVars.USER_ID);
 		lpc.variables.add(LTICustomVars.PERSON_EMAIL_PRIMARY);
 
-		PlatformConfiguration pc = new PlatformConfiguration();
+		OpenIDProviderConfiguration pc = new OpenIDProviderConfiguration();
 		pc.lti_platform_configuration = lpc;
 
 		String pcs = JacksonUtil.toString(pc);
@@ -175,29 +179,70 @@ public class LTI13ObjectTest {
 	public void testThree() throws com.fasterxml.jackson.core.JsonProcessingException {
 
 		LaunchJWT lj = new LaunchJWT();
+		assertNotNull(lj.nonce);
+		assertNotNull(lj.expires);
+		assertNotNull(lj.issued);
+		lj.nonce = null;  // Since we can't match random stuff
+		lj.expires = null;  // Since we can't match random stuff
+		lj.issued = null;  // Since we can't match random stuff
+		lj.jti = null;  // Since we can't match random stuff
 		String expected =
 "{\"https://purl.imsglobal.org/spec/lti/claim/message_type\":\"LtiResourceLinkRequest\",\"https://purl.imsglobal.org/spec/lti/claim/version\":\"1.3.0\",\"https://purl.imsglobal.org/spec/lti/claim/roles\":[],\"https://purl.imsglobal.org/spec/lti/claim/role_scope_mentor\":[],\"https://purl.imsglobal.org/spec/lti/claim/launch_presentation\":{\"document_target\":\"iframe\"}}";
 		String ljs = JacksonUtil.toString(lj);
 		assertEquals(expected,ljs);
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LAUNCH);
+		lj.nonce = null;  // Since we can't match random stuff
+		lj.expires = null;  // Since we can't match random stuff
+		lj.issued = null;  // Since we can't match random stuff
+		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
 		assertEquals(expected,ljs);
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_DEEP_LINK);
+		lj.nonce = null;  // Since we can't match random stuff
+		lj.expires = null;  // Since we can't match random stuff
+		lj.issued = null;  // Since we can't match random stuff
+		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
 		String expected2 = expected.replaceAll("LtiResourceLinkRequest", "LtiDeepLinkingRequest");
 		assertEquals(expected2,ljs);
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST);
+		lj.nonce = null;  // Since we can't match random stuff
+		lj.expires = null;  // Since we can't match random stuff
+		lj.issued = null;  // Since we can't match random stuff
+		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
 		expected2 = expected.replaceAll("LtiResourceLinkRequest", "DataPrivacyLaunchRequest");
 		assertEquals(expected2,ljs);
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST);
+		lj.nonce = null;  // Since we can't match random stuff
+		lj.expires = null;  // Since we can't match random stuff
+		lj.issued = null;  // Since we can't match random stuff
+		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
 		expected2 = expected.replaceAll("LtiResourceLinkRequest", "LtiSubmissionReviewRequest");
 		assertEquals(expected2,ljs);
 	}
 
+	@Test
+	public void testfour() throws com.fasterxml.jackson.core.JsonProcessingException {
+		LTIToolConfiguration ltc = new LTIToolConfiguration();
+		OpenIDClientRegistration cr = new OpenIDClientRegistration();
+		cr.lti_tool_configuration = ltc;
+
+		String crs = JacksonUtil.toString(cr);
+
+		// Lets test string / array equivalence!
+		String first = "{ \"contacts\": \"a@b.com\" }";
+		String second = "{ \"contacts\": [ \"a@b.com\"] }";
+
+        ObjectMapper mapper = JacksonUtil.getLaxObjectMapper();
+        OpenIDClientRegistration ocr1 = mapper.readValue(first, OpenIDClientRegistration.class);
+        OpenIDClientRegistration ocr2 = mapper.readValue(second, OpenIDClientRegistration.class);
+		assertTrue(ocr1.prettyPrintLog().contains("a@b.com"));
+		assertEquals(ocr1.prettyPrintLog(), ocr2.prettyPrintLog());
+	}
 }

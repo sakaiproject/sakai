@@ -315,6 +315,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         int assignmentsArchived = 0;
         for (Assignment assignment : getAssignmentsForContext(siteId)) {
             String xml = assignmentRepository.toXML(assignment);
+            log.debug(xml);
 
             try {
                 InputSource in = new InputSource(new StringReader(xml));
@@ -324,7 +325,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 element.appendChild(assignmentNode);
                 assignmentsArchived++;
             } catch (Exception e) {
-                log.warn("could not append assignment {} to archive, {}", assignment.getId(), e.getMessage());
+                String error = String.format("could not append assignment %s to archive: %s", assignment.getId(), e.getMessage());
+                log.error(error, e);
+                throw new RuntimeException(error);
             }
         }
 
@@ -1608,20 +1611,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public Collection<AssignmentSubmission> getGradeableSubmissions(Assignment assignment) {
-
-        // Obtain the user ids for every group that the current user should see
-        Set<String> currentUserGroups = getGroupsAllowGradeAssignment(assignmentReference(assignment.getId())).stream()
-                .flatMap(group -> group.getMembers().stream()).map(Member::getUserId).collect(Collectors.toSet());
-
-        // Take the submissions of the previous users
-        return currentUserGroups.isEmpty() ? assignment.getSubmissions() : assignment.getSubmissions().stream()
-                .filter(submission -> !submission.getSubmitters().stream()
-                .map(AssignmentSubmissionSubmitter::getSubmitter).filter(currentUserGroups::contains)
-                .collect(Collectors.toList()).isEmpty()).collect(Collectors.toSet());
-    }
-
-    @Override
     public AssignmentConstants.Status getAssignmentCannonicalStatus(String assignmentId) throws IdUnusedException, PermissionException {
         Assignment assignment = getAssignment(assignmentId);
         ZonedDateTime currentTime = ZonedDateTime.now();
@@ -1651,17 +1640,27 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         //   - if assignment is restricted to groups only those in the group
         //   - minimally user needs read permission
         for (Assignment assignment : assignmentRepository.findAssignmentsBySite(context)) {
-            if (assignment.getDraft()) {
-                if (isDraftAssignmentVisible(assignment)) {
-                    // only those who can see a draft assignment
+        	String currentUserId = sessionManager.getCurrentSessionUserId();
+        	boolean canViewAssigment = false;
+        	try {
+                checkAssignmentAccessibleForUser(assignment, currentUserId);
+                canViewAssigment = true;
+            } catch (PermissionException e) {
+            	canViewAssigment = false;
+            }
+            if(canViewAssigment) {
+                if (assignment.getDraft()) {
+                    if (isDraftAssignmentVisible(assignment)) {
+                        // only those who can see a draft assignment
+                        assignments.add(assignment);
+                    }
+                } else if (assignment.getTypeOfAccess() == GROUP) {
+                    if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
+                        assignments.add(assignment);
+                    }
+                } else if (allowGetAssignment(context)) {
                     assignments.add(assignment);
                 }
-            } else if (assignment.getTypeOfAccess() == GROUP) {
-                if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
-                    assignments.add(assignment);
-                }
-            } else if (allowGetAssignment(context)) {
-                assignments.add(assignment);
             }
         }
 

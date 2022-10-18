@@ -277,7 +277,7 @@ public class MenuBuilder
                 menu.add( buildMenuEntry( rl.getString( "java.link" ), "doLinkHelper", activeTab.equals( SiteInfoActiveTab.LINK_TO_PARENT_SITE ) ) );
             }
 
-            if( !TM.isStealthed( "sakai.basiclti.admin.helper" ) )
+            if( !TM.isStealthed( "sakai.lti.admin.helper" ) )
             {
                 // 'External Tools'
                 menu.add( buildMenuEntry( rl.getString( "java.external" ), "doExternalHelper", activeTab.equals( SiteInfoActiveTab.EXTERNAL_TOOLS ) ) );

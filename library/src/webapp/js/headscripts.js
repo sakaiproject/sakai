@@ -249,13 +249,14 @@ var MainFrameHeightTimeOut = false;
 // pass -1 for no max
 function setMainFrameHeightWithMax(id, maxHeight)
 {
-	if ( ! inIframe() ) return;
-	// some browsers need a moment to finish rendering so the height and scroll are correct
-	if ( MainFrameHeightTimeOut ) {
-		clearTimeout(MainFrameHeightTimeOut);
-		MainFrameHeightTimeOut = false;
-	}
-	MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
+	if ( inIframe() ) {
+	    // some browsers need a moment to finish rendering so the height and scroll are correct
+	    if ( MainFrameHeightTimeOut ) {
+		    clearTimeout(MainFrameHeightTimeOut);
+		    MainFrameHeightTimeOut = false;
+	    }
+	    MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
+    }
 }
 
 function setMainFrameHeight(id)
@@ -290,7 +291,7 @@ function setMainFrameHeightNow(id, maxHeight)
 	}
 
 	//SAK-21209 check we can access the document, 
-	//ie this could be a Basic LTI request and therefore we are not allowed
+	//ie this could be a LTI request and therefore we are not allowed
 	try {
 		var frame = parent.document.getElementById(id);
 	} catch (e) {
@@ -936,4 +937,12 @@ function copyToClipboardNoScroll(parent_element, textToCopy) {
   input.remove();
 }
 
+// From tsugiscripts.js
+function tsugi_window_close(message)
+{
+    window.close();
+    try { window.open('', '_self').close(); } catch(e) {};
+    setTimeout(function(){ console.log("Attempting self.close"); self.close(); }, 1000);
+    setTimeout(function(){ console.log("Notifying the user."); alert(message); open("about:blank", '_self').close(); }, 2000);
+}
 
