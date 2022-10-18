@@ -378,10 +378,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		messageElement.setAttribute(MESSAGE_LABEL, message.getLabel());
 		messageElement.setAttribute(MESSAGE_TYPE_UUID, message.getTypeUuid());
 		messageElement.setAttribute(MESSAGE_UUID, message.getUuid());
-		messageElement.setAttribute(MESSAGE_APPROVED, message.getApproved().toString());
+		if (message.getApproved() != null) {
+			messageElement.setAttribute(MESSAGE_APPROVED, message.getApproved().toString());
+		}
 		messageElement.setAttribute(MESSAGE_DELETED, message.getDeleted().toString());
 		messageElement.setAttribute(MESSAGE_HAS_ATTACHMENTS, message.getHasAttachments().toString());
-		messageElement.setAttribute(MESSAGE_NUM_READER, message.getNumReaders().toString());
+		if (message.getNumReaders() != null) {
+			messageElement.setAttribute(MESSAGE_NUM_READER, message.getNumReaders().toString());
+		}
 		if (message.getThreadId() != null) {
 			messageElement.setAttribute(MESSAGE_THREAD_ID, message.getThreadId().toString());
 		} else {
