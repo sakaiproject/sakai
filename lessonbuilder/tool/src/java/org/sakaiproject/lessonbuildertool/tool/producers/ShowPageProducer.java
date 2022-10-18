@@ -4264,6 +4264,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// right side
 		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
+		createToolBarLink(SubpageBulkEditProducer.VIEW_ID, toolBar, "bulk-edit-pages", "simplepage.bulk-edit-pages", currentPage, "simplepage.bulk-edit-pages.tooltip");
 
 		UIComponent layoutlink = UIInternalLink.makeURL(tofill, "layout-link", "#");
 		layoutlink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.layout-descrip")));

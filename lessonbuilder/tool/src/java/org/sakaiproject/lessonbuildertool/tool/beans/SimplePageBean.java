@@ -29,6 +29,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -88,6 +89,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
+import org.sakaiproject.lessonbuildertool.tool.beans.helpers.SubpageBulkEditHelper;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
@@ -235,6 +237,9 @@ public class SimplePageBean {
 	public String selectedQuiz = null;
 
 	public String[] selectedChecklistItems = new String[] {};
+
+	private Map<Long, SubpageBulkEditHelper> subpageBulkEditTitleMap = new HashMap<>();
+	public String subpageBulkEditJson = null;
 	
 	public long removeId = 0;
 
@@ -9301,5 +9306,59 @@ public class SimplePageBean {
 	private void completeUserTask(Long itemId, String userId) {
 		taskService.completeUserTaskByReference("/lessonbuilder/item/" + itemId, Arrays.asList(userId) );
 	}
-	
+
+	private void setSubpageTitleBulkEditData() {
+		final JSONParser parser = new JSONParser();
+		try {
+			JSONArray subpageArray = (JSONArray) parser.parse(subpageBulkEditJson);
+			for (Object obj : subpageArray) {
+				JSONObject subpageTitleInfo = (JSONObject) parser.parse((String) obj);
+				String itemId = (String) subpageTitleInfo.get("itemId");
+				String newTitle = (String) subpageTitleInfo.get("title");
+				String description = (String) subpageTitleInfo.get("description");
+				if (StringUtils.isNotBlank(itemId) && StringUtils.isNotBlank(newTitle)) {
+					SubpageBulkEditHelper subpageHelper = new SubpageBulkEditHelper(newTitle, description);
+					subpageBulkEditTitleMap.put(Long.valueOf(itemId), subpageHelper);
+				} else {
+					throw new RuntimeException("Page id is null or new title is blank");
+				}
+			}
+		} catch (ClassCastException e) {
+			log.error("Parser returned a non-JSONObject. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		} catch (ParseException e) {
+			log.error("Parser unable to parse json. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		} catch (RuntimeException e) {
+			log.error("Bad data. Null page id or blank page title. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		}
+	}
+
+	/**
+	 * Method to save subpage bulk edit changes
+	 */
+	public String subpageBulkEditSubmit() {
+		if (canEditPage() || !checkCsrf()) {
+			setSubpageTitleBulkEditData();
+			if (subpageBulkEditTitleMap.isEmpty()) {
+				setErrMessage(messageLocator.getMessage("simplepage.bulk-edit-pages.blank"));
+				return "failure";
+			}
+			subpageBulkEditTitleMap.forEach((itemId, subpageHelper) -> {
+				SimplePageItem item = simplePageToolDao.findItem(itemId);
+				if (item != null && (!StringUtils.equals(item.getName(), subpageHelper.getTitle()) || !StringUtils.equals(item.getDescription(), subpageHelper.getDescription()))) {
+					SimplePage subpage = getPage(Long.valueOf(item.getSakaiId()));
+					subpage.setTitle(subpageHelper.getTitle());
+					update(subpage);
+					item.setName(subpageHelper.getTitle());
+					item.setDescription(subpageHelper.getDescription());
+					update(item);
+				}
+			});
+			return "success";
+		} else {
+			return "permission-failed";
+		}
+	}
 }
