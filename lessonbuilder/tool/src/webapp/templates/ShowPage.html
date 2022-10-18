@@ -1202,7 +1202,7 @@
                     <div class="act">
                         <input class="active" type="submit" value="Create!" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();" />
                         <a role="button" href="#" id="subpage-choose" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
-                        <button id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
+                        <button class="btn-link" id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
                         <input type="submit" rsf:id="cancel-subpage" onclick="closeSubpageDialog(); return false" />
                     </div>
                 </form>
@@ -1285,7 +1285,7 @@
               <div id="formatstuff">
                   <div class="panel panel-default dialog-panel">
                       <div class="panel-heading edit-header">
-                          <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.format.heading" data-toggle="collapse" data-target="#formatstuffbody" ></button>
+                          <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.format.heading" data-bs-toggle="collapse" data-target="#formatstuffbody" ></button>
                       </div>
                       <div id="formatstuffbody" class="panel-collapse collapse">
                           <div class="card-body">
@@ -1308,7 +1308,7 @@
 
               <div id="stylingstuff" class="stylingstuff panel panel-default dialog-panel">
                   <div class="edit-header panel-heading">
-                      <button type="button" rsf:id="msg=simplepage.layoutstyle" data-toggle="collapse" data-target="#stylingstuffbody"
+                      <button type="button" rsf:id="msg=simplepage.layoutstyle" data-bs-toggle="collapse" data-target="#stylingstuffbody"
                               class="collapsed accordionBtn"></button>
                   </div>
                   <div id="stylingstuffbody" class="panel-collapse collapse">
@@ -1345,7 +1345,7 @@
               <div rsf:id="permDiv" class="">
                   <div id="prereqstuff" class="panel panel-default dialog-panel">
                       <div class="panel-heading edit-header">
-                          <button type="button" rsf:id="msg=simplepage.prereqs" data-toggle="collapse" data-target="#prereqstuffbody"
+                          <button type="button" rsf:id="msg=simplepage.prereqs" data-bs-toggle="collapse" data-target="#prereqstuffbody"
                                   class="collapsed accordionBtn"></button>
                       </div>
                       <div id="prereqstuffbody" class="panel-collapse collapse">
@@ -1380,7 +1380,7 @@
 
                   <div class="panel panel-default dialog-panel">
                       <div class="panel-heading edit-header" id="visibility-header">
-                          <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility" data-toggle="collapse" data-target="#visibilitybody">
+                          <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility" data-bs-toggle="collapse" data-target="#visibilitybody">
                           </button>
                       </div>
                       <div id="visibilitybody" class="panel-collapse collapse in">
@@ -1481,7 +1481,7 @@
                         <div class="card text-center bg-light" >
                             <h4 class="panel-title">
                                 <span class="fa fa-upload"> </span>
-                                <a id="new-file-section-collapse" data-toggle="collapse" href="#new-file-section" rsf:id="msg=simplepage.new_file" data-parent="#collapse-bars-parent" />
+                                <a id="new-file-section-collapse" data-bs-toggle="collapse" href="#new-file-section" rsf:id="msg=simplepage.new_file" data-parent="#collapse-bars-parent" />
                             </h4>
                         </div>
                         <div id="new-file-section" class="panel-collapse collapse in">
@@ -1507,7 +1507,7 @@
                         <div class="card text-center bg-light" >
                             <h4 class="panel-title">
                                 <span class="fa fa-external-link"> </span>
-                                <a id="new-url-section-collapse" data-toggle="collapse" href="#new-url-section" rsf:id="msg=simplepage.new_url" data-parent="#collapse-bars-parent" />
+                                <a id="new-url-section-collapse" data-bs-toggle="collapse" href="#new-url-section" rsf:id="msg=simplepage.new_url" data-parent="#collapse-bars-parent" />
                             </h4>
                         </div>
                         <div id="new-url-section" class="panel-collapse collapse">
@@ -1525,7 +1525,7 @@
                         <div class="card text-center bg-light" >
                             <h4 class="panel-title">
                                 <span class="fa fa-folder-open"> </span>
-                                <a id="existing-resource-section-collapse" data-toggle="collapse" href="#existing-resource-section" rsf:id="msg=simplepage.existing_file" data-parent="#collapse-bars-parent" />
+                                <a id="existing-resource-section-collapse" data-bs-toggle="collapse" href="#existing-resource-section" rsf:id="msg=simplepage.existing_file" data-parent="#collapse-bars-parent" />
                             </h4>
                         </div>
                         <div id="existing-resource-section" class="panel-collapse collapse">
@@ -1626,7 +1626,7 @@
                         <div class="panel panel-default dialog-panel">
                             <div class="panel-heading edit-header">
                                 <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.prereqs"
-                                data-toggle="collapse" data-target="#mm-prereqbody"></button>
+                                data-bs-toggle="collapse" data-target="#mm-prereqbody"></button>
                             </div>
                             <div class="panel-collapse collapse" id="mm-prereqbody">
                             <div class="card-body">
@@ -1641,7 +1641,7 @@
                         <div class="panel panel-default dialog-panel">
                             <div class="panel-heading edit-header">
                                 <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility"
-                                data-toggle="collapse" data-target="#mm-visibility"></button>
+                                data-bs-toggle="collapse" data-target="#mm-visibility"></button>
                             </div>
                             <div class="panel-collapse collapse in" id="mm-visibility">
                             <div class="card-body">
@@ -2418,8 +2418,8 @@
                 </div>
                     <h3><span rsf:id="msg=simplepage.layout.add.from.template"></span></h3>
                     <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#sectionlayout"><span rsf:id="msg=simplepage.layout.section.layouts" ></span></a></li>
-                        <li><a data-toggle="tab" href="#pagelayout"><span rsf:id="msg=simplepage.layout.page.layouts" ></span></a></li>
+                        <li class="active"><a data-bs-toggle="tab" href="#sectionlayout"><span rsf:id="msg=simplepage.layout.section.layouts" ></span></a></li>
+                        <li><a data-bs-toggle="tab" href="#pagelayout"><span rsf:id="msg=simplepage.layout.page.layouts" ></span></a></li>
                     </ul>
                     <div class="tab-content" >
                         <div id="sectionlayout" class="tab-pane fade in active" >
