@@ -555,9 +555,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options)
 	{
 		Map<String, String> transversalMap = new HashMap<>();
-		
+
 		boolean importOpenCloseDates = serverConfigurationService.getBoolean("msgcntr.forums.import.openCloseDates", true);
-		try 
+		try
 		{
 			log.debug("transfer copy mc items by transferCopyEntities");
 
@@ -625,14 +625,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						// get/add the forum's attachments
 						List fromAttach = forumManager.getForumById(true, fromForumId).getAttachments();
 						if (fromAttach != null && !fromAttach.isEmpty()) {
-							for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {                   			
+							for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {
 								Attachment thisAttach = (Attachment)fromAttach.get(currAttach);
 								Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
 								if (newAttachment != null) {
 									newForum.addAttachment(newAttachment);
 								}
 							}
-						}   
+						}
 
 						//add the gradebook assignment associated with the forum settings
 						newForum.setDefaultAssignName(fromForum.getDefaultAssignName());
@@ -651,7 +651,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 							newForum.setDraft(Boolean.TRUE);
 							newForum = forumManager.saveDiscussionForum(newForum, true, false, currentUserId);
 						}
-						
+
 						//add the ref's for the old and new forum
 						transversalMap.put("forum/" + fromForumId, "forum/" + newForum.getId());
 
@@ -705,32 +705,32 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								// Add the attachments
 								List fromTopicAttach = forumManager.getTopicByIdWithAttachments(fromTopicId).getAttachments();
 								if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
-									for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
+									for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {
 										Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
 										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
 										if (newAttachment != null)
 											newTopic.addAttachment(newAttachment);
-									}			
+									}
 								}
 
-								//add the gradebook assignment associated with the topic	
+								//add the gradebook assignment associated with the topic
 								newTopic.setDefaultAssignName(fromTopic.getDefaultAssignName());
 
 								newTopic = forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft(), currentUserId, false);
-								
+
 								//add the ref's for the old and new topic
 								transversalMap.put("forum_topic/" + fromTopicId, "forum_topic/" + newTopic.getId());
 							}
 						}
-					}	
+					}
 				}
-			}			
+			}
 		}
 
 		catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		
+
 		return transversalMap;
 	}
 
@@ -1247,9 +1247,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		if (value.length() == 0) return null;
 		return value;
 	}
-	
+
 	private Attachment copyAttachment(String attachmentId, String toContext) {
-		try {			
+		try {
 			ContentResource oldAttachment = contentHostingService.getResource(attachmentId);
 			ContentResource attachment = contentHostingService.addAttachmentResource(
 				Validator.escapeResourceName(oldAttachment.getProperties().getProperty(
@@ -1257,7 +1257,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						"sakai.forums").getTitle(), oldAttachment.getContentType(),
 						oldAttachment.getContent(), oldAttachment.getProperties());
 			Attachment thisDFAttach = dfManager.createDFAttachment(
-				attachment.getId(), 
+				attachment.getId(),
 				attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
 			return thisDFAttach;
 		} catch (IdUnusedException iue) {
@@ -1271,12 +1271,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		return null;
 	}
-	
+
 	private Set getMembershipItemSetFromPermissionElement(Element permissionsElement, String siteId) {
 		Set membershipItemSet = new HashSet();
 		List allowedPermNames = getSiteRolesAndGroups(siteId);
 		List allowedPermLevels = permissionManager.getOrderedPermissionLevelNames();
-		
+
 		// add the custom level, as well
 		if (allowedPermLevels != null && !allowedPermLevels.contains(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)) {
 			allowedPermLevels.add(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM);
@@ -1340,13 +1340,13 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		}
 		return membershipItemSet;
 	}
-	
+
 	private List getSiteRolesAndGroups(String contextId) {
 		// get the roles in the site
 		AuthzGroup realm;
 		List rolesAndGroups = new ArrayList();
 		try
-		{      
+		{
 			realm = authzGroupService.getAuthzGroup("/site/" + contextId);
 			Set roleSet = realm.getRoles();
 
@@ -1356,19 +1356,19 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				while (roleIter.hasNext())
 				{
 					Role role = (Role) roleIter.next();
-					if (role != null) 
+					if (role != null)
 					{
 						rolesAndGroups.add(role.getId());
 					}
 				}
 			}
-			
+
 			// get any groups/sections in site
-			Site currentSite = siteService.getSite(contextId); 
+			Site currentSite = siteService.getSite(contextId);
 			  Collection groups = currentSite.getGroups();
 			  for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
 		      {
-		        Group currentGroup = (Group) groupIterator.next(); 
+		        Group currentGroup = (Group) groupIterator.next();
 		        rolesAndGroups.add(currentGroup.getTitle());
 		      }
 		} catch (GroupNotDefinedException e) {
@@ -1377,12 +1377,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		} catch (Exception e) {
 			log.error("Exception retrieving site's roles and groups", e);
 		}
-		
+
 		return rolesAndGroups;
 	}
-	
+
 	private DBMembershipItem getMembershipItemCopy(DBMembershipItem itemToCopy) {
-		DBMembershipItem newItem = permissionManager.createDBMembershipItem(itemToCopy.getName(), itemToCopy.getPermissionLevelName(), 
+		DBMembershipItem newItem = permissionManager.createDBMembershipItem(itemToCopy.getName(), itemToCopy.getPermissionLevelName(),
 				itemToCopy.getType());
 		PermissionLevel oldPermLevel = itemToCopy.getPermissionLevel();
 		if (newItem.getPermissionLevelName().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)) {
@@ -1401,18 +1401,18 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup)
-	{	
+	{
 		Map<String, String> transversalMap = new HashMap<>();
 		try
 		{
 			if (cleanup == true)
 			{
-				try 
+				try
 				{
 					List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
 					if (existingForums != null && !existingForums.isEmpty())
 					{
-						for (int currForum = 0; currForum < existingForums.size(); currForum++) 
+						for (int currForum = 0; currForum < existingForums.size(); currForum++)
 						{
 							DiscussionForum fromForum = (DiscussionForum)existingForums.get(currForum);
 							forumManager.deleteDiscussionForum(fromForum);
@@ -1430,7 +1430,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		{
 			log.debug ("Forums transferCopyEntities failed" + e);
 		}
-		
+
 		return transversalMap;
 	}
 
@@ -1444,13 +1444,13 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
 			String currentUserId = sessionManager.getCurrentSessionUserId();
 
-			if (existingForums != null && !existingForums.isEmpty()) 
+			if (existingForums != null && !existingForums.isEmpty())
 			{
-				for (int currForum = 0; currForum < existingForums.size(); currForum++) 
+				for (int currForum = 0; currForum < existingForums.size(); currForum++)
 				{
 					boolean updateForum = false;
 					DiscussionForum fromForum = (DiscussionForum)existingForums.get(currForum);
-					
+
 					//check long Desc:
 					String fLongDesc = fromForum.getExtendedDescription();
 					if(fLongDesc != null){
@@ -1460,7 +1460,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 							updateForum = true;
 						}
 					}
-					
+
 					if(fromForum.getDefaultAssignName()!=null && transversalMap.get("gb/"+fromForum.getDefaultAssignName()) != null){
 						fromForum.setDefaultAssignName(transversalMap.get("gb/"+fromForum.getDefaultAssignName()).substring(3));
 						updateForum = true;
@@ -1470,7 +1470,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						//update forum
 						fromForum = dfManager.saveForum(fromForum, fromForum.getDraft(), toContext, false, currentUserId);
 					}
-					
+
 					List topics = fromForum.getTopics();
 					if(topics != null && !topics.isEmpty()){
 						//check topics too:
@@ -1497,7 +1497,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								//update forum
 								dfManager.saveTopic(topic, topic.getDraft(), null, currentUserId);
 							}
-						}						
+						}
 					}
 				}
 			}
