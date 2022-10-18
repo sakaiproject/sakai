@@ -15,12 +15,18 @@
  */
 package org.sakaiproject.gradebookng.framework;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -28,11 +34,13 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -55,6 +63,18 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	@Setter
 	protected GradingService gradingService;
 
+	@Setter
+	protected GradebookNgBusinessService gradebookNgBusinessService;
+
+	@Setter
+	protected SiteService siteService;
+
+	@Setter
+	protected ThreadLocalManager threadLocalManager;
+
+	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
+	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
+
 	/**
 	 * Register this class as an EntityProducer.
 	 */
@@ -69,20 +89,195 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 	@Override
 	public boolean willArchiveMerge() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public String archive(final String siteId, final Document doc, final Stack<Element> stack,
 			final String archivePath, final List<Reference> attachments) {
-		return null;
+
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch(IdUnusedException e) {
+			return "ERROR: site does not exist\n";
+		}
+
+		ToolConfiguration tool = site.getToolForCommonId("sakai.gradebookng");
+		if (tool == null) {
+			return "Gradebook tool not found in site=" + siteId + "\n";
+		}
+
+		threadLocalManager.set(CURRENT_PLACEMENT, tool);
+		threadLocalManager.set(CURRENT_TOOL, tool.getTool());
+
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+
+		StringBuilder result = new StringBuilder();
+		result.append("archiving ").append(getLabel()).append("\n");
+
+		// <GradebookNG>
+		Element root = doc.createElement(getLabel());
+
+		// <GradebookConfig>
+		Element gradebookConfigEl = doc.createElement("GradebookConfig");
+		Gradebook gradebook = null;
+		try {
+			gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
+		} catch (GradebookNotFoundException e) {
+			return "ERROR: Gradebook not found in site\n";
+		}
+
+		GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
+		List<GradeMappingDefinition> gradeMappings = settings.getGradeMappings();
+		String configuredGradeMappingId = settings.getSelectedGradeMappingId();
+		GradeMappingDefinition configuredGradeMapping = gradeMappings.stream()
+				.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), configuredGradeMappingId))
+				.findFirst()
+				.get();
+
+		Map<String, Double> gradeMap = settings.getSelectedGradingScaleBottomPercents();
+
+		Element gradeMappingsEl = doc.createElement("GradeMappings");
+		gradeMappingsEl.setAttribute("name", configuredGradeMapping.getName());
+		for (Map.Entry<String, Double> entry : gradeMap.entrySet()) {
+			Element gradeMappingEl = doc.createElement("GradeMapping");
+			gradeMappingEl.setAttribute("letterGrade", entry.getKey());
+			gradeMappingEl.setAttribute("bottomPercentage", String.valueOf(entry.getValue()));
+			gradeMappingsEl.appendChild(gradeMappingEl);
+		}
+
+		gradebookConfigEl.appendChild(gradeMappingsEl);
+
+		Element courseGradeDisplayedEl = doc.createElement("CourseGradeDisplayed");
+		courseGradeDisplayedEl.setTextContent(String.valueOf(settings.isCourseGradeDisplayed()));
+		gradebookConfigEl.appendChild(courseGradeDisplayedEl);
+
+		Element courseLetterGradeDisplayedEl = doc.createElement("CourseLetterGradeDisplayed");
+		courseLetterGradeDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
+		gradebookConfigEl.appendChild(courseLetterGradeDisplayedEl);
+
+		Element coursePointsDisplayedEl = doc.createElement("CoursePointsDisplayed");
+		coursePointsDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
+		gradebookConfigEl.appendChild(coursePointsDisplayedEl);
+
+		Element totalPointsDisplayedEl = doc.createElement("TotalPointsDisplayed");
+		totalPointsDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
+		gradebookConfigEl.appendChild(totalPointsDisplayedEl);
+
+		Element courseAverageDisplayedEl = doc.createElement("CourseAverageDisplayed");
+		courseAverageDisplayedEl.setTextContent(String.valueOf(settings.isCourseAverageDisplayed()));
+		gradebookConfigEl.appendChild(courseAverageDisplayedEl);
+
+		Element categoryTypeEl = doc.createElement("CategoryType");
+		String categoryCode = null;
+		if (settings.getCategoryType() == 1) {
+			categoryCode = "NO_CATEGORIES";
+		} else if (settings.getCategoryType() == 2) {
+			categoryCode = "CATEGORIES_APPLIED";
+		} else if (settings.getCategoryType() == 3) {
+			categoryCode = "WEIGHTED_CATEGORIES_APPLIED";
+		} else {
+			categoryCode = "UNKNOWN";
+		}
+		categoryTypeEl.setTextContent(categoryCode);
+		gradebookConfigEl.appendChild(categoryTypeEl);
+
+		Element gradeTypeEl = doc.createElement("GradeType");
+		String gradeTypeCode = null;
+		switch(settings.getGradeType()) {
+			case 1:
+				gradeTypeCode = "POINTS";
+				break;
+			case 2:
+				gradeTypeCode = "PERCENTAGE";
+				break;
+			case 3:
+				gradeTypeCode = "LETTER";
+				break;
+			default:
+				gradeTypeCode = "UNKNOWN";
+		}
+		gradeTypeEl.setTextContent(gradeTypeCode);
+		gradebookConfigEl.appendChild(gradeTypeEl);
+
+		if (settings.getCategoryType() > 1) {
+			Element categoriesEl = doc.createElement("categories");
+			for (CategoryDefinition category : settings.getCategories()) {
+				Element categoryEl = doc.createElement("category");
+				categoryEl.setAttribute("id", String.valueOf(category.getId()));
+				categoryEl.setAttribute("name", category.getName());
+				categoryEl.setAttribute("extraCredit", String.valueOf(category.getExtraCredit()));
+				if (settings.getCategoryType() == 3) {
+					categoryEl.setAttribute("weight", String.valueOf(category.getWeight()));
+				} else {
+					categoryEl.setAttribute("weight", "");
+				}
+				categoryEl.setAttribute("dropLowest", String.valueOf(category.getDropLowest()));
+				categoryEl.setAttribute("dropHighest", String.valueOf(category.getDropHighest()));
+				categoryEl.setAttribute("keepHighest", String.valueOf(category.getKeepHighest()));
+				categoryEl.setAttribute("order", String.valueOf(category.getCategoryOrder()));
+				categoriesEl.appendChild(categoryEl);
+			}
+			gradebookConfigEl.appendChild(categoriesEl);
+		}
+
+		root.appendChild(gradebookConfigEl);
+
+		// <GradebookItems>
+		List<Assignment> gradebookItems = this.gradebookNgBusinessService.getGradebookAssignments(siteId);
+
+		// apply external app denylist
+		List<String> blockedExternalAppNames = Arrays.asList(ServerConfigurationService.getString("gradebookng.archive.external_app_name.deny", "").split(","));
+		gradebookItems = gradebookItems.stream().filter(item -> {
+			return !item.isExternallyMaintained() || !blockedExternalAppNames.contains(item.getExternalAppName());
+		}).collect(Collectors.toList());
+
+//		Disable allowlist.
+//		// apply external app allowlist
+//		List<String> allowedExternalAppNames = Arrays.asList(ServerConfigurationService.getString("gradebookng.archive.external_app_name.allow", "").split(","));
+//		gradebookItems = gradebookItems.stream().filter(item -> {
+//			return !item.isExternallyMaintained() || allowedExternalAppNames.contains(item.getExternalAppName());
+//		}).collect(Collectors.toList());
+
+		Element gradebookItemsEl = doc.createElement("GradebookItems");
+		for (Assignment gradebookItem : gradebookItems) {
+			Element gradebookItemEl = doc.createElement("GradebookItem");
+			gradebookItemEl.setAttribute("id", String.valueOf(gradebookItem.getId()));
+			gradebookItemEl.setAttribute("name", gradebookItem.getName());
+			gradebookItemEl.setAttribute("points", String.valueOf(gradebookItem.getPoints()));
+			if (gradebookItem.getDueDate() == null) {
+				gradebookItemEl.setAttribute("dueDate", "");
+			} else {
+				gradebookItemEl.setAttribute("dueDate", dateFormat.format(gradebookItem.getDueDate()));
+			}
+			gradebookItemEl.setAttribute("countedInCourseGrade", String.valueOf(gradebookItem.isCounted()));
+			gradebookItemEl.setAttribute("externallyMaintained", String.valueOf(gradebookItem.isExternallyMaintained()));
+			gradebookItemEl.setAttribute("externalAppName", gradebookItem.getExternalAppName());
+			gradebookItemEl.setAttribute("externalId", gradebookItem.getExternalId());
+			gradebookItemEl.setAttribute("releasedToStudent", String.valueOf(gradebookItem.isReleased()));
+			if (gradebookItem.getCategoryId() == null) {
+				gradebookItemEl.setAttribute("categoryId", "");
+			} else {
+				gradebookItemEl.setAttribute("categoryId", String.valueOf(gradebookItem.getCategoryId()));
+			}
+			gradebookItemEl.setAttribute("extraCredit", String.valueOf(gradebookItem.isExtraCredit()));
+			gradebookItemEl.setAttribute("order", String.valueOf(gradebookItem.getSortOrder()));
+			gradebookItemEl.setAttribute("categorizedOrder", String.valueOf(gradebookItem.getCategorizedSortOrder()));
+			gradebookItemsEl.appendChild(gradebookItemEl);
+		}
+		root.appendChild(gradebookItemsEl);
+
+		stack.peek().appendChild(root);
+
+		return result.toString();
 	}
 
 	@Override
 	public String merge(final String siteId, final Element root, final String archivePath,
 			final String fromSiteId, final Map<String, String> attachmentNames,
 			final Map<String, String> userIdTrans, final Set<String> userListAllowImport) {
-		return null;
+		return "GradebookNG merge not supported: nothing to do.";
 	}
 
 	@Override
