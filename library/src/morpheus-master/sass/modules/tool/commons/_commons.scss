@@ -258,3 +258,7 @@ span.commons-high-priority {
     border: 1px solid black;
     overflow: hidden;
 }
+
+.commons-post-content[contenteditable="true"]:empty:before {
+    content: "\feff"; /* ZERO WIDTH NO-BREAK SPACE */
+}
