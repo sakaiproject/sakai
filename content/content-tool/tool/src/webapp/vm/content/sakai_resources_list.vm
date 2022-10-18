@@ -214,7 +214,7 @@
             #if (!$dropboxMode)
               <div id="content-display-columns-dropdown" class="hidden-sm hidden-xs dropdown">
                 <button style="margin:0" type="button"
-                    class="btn btn-default btn-sm resources-dropdown colPicker"
+                    class="btn btn-link btn-default btn-sm resources-dropdown colPicker"
                     aria-expanded="false"
                     data-bs-toggle="dropdown">
                   $clang.getString('list.cols.columns')
