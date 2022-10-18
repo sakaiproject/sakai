@@ -5,14 +5,16 @@
 <wicket:panel>
 
 	<div class="card">
-		<div class="card text-center bg-light" role="tab" id="settingsStatisticsHeader">
-			<h3 class="panel-title">
-				<a role="button" data-bs-toggle="collapse" href="#settingsStatistics" aria-expanded="false" aria-controls="settingsStatistics">
-					<wicket:message key="settingspage.statistics.heading">Statistics</wicket:message>
-				</a>
+		<div class="text-center gb-settings-header" id="settingsStatisticsHeader">
+			<h3 class="panel-title"
+				data-bs-toggle="collapse"
+				data-bs-target="#settingsStatistics"
+				aria-expanded="false"
+				aria-controls="settingsStatistics">
+				<wicket:message key="settingspage.statistics.heading">Statistics</wicket:message>
 			</h3>
 		</div>
-		<div wicket:id="settingsStatisticsPanel" id="settingsStatistics" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsStatisticsHeader">
+		<div wicket:id="settingsStatisticsPanel" id="settingsStatistics" class="panel-collapse collapse" aria-labelledby="settingsStatisticsHeader">
 			<div class="card-body">
 				<div class="checkbox">
 					<label>

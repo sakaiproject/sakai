@@ -5,14 +5,16 @@
 	<wicket:panel>
 
 		<div class="card">
-			<div class="card text-center bg-light" role="tab" id="settingsGradeEntryHeader">
-				<h3 class="panel-title">
-					<a role="button" data-bs-toggle="collapse" href="#settingsGradeEntry" aria-expanded="false" aria-controls="settingsGradeEntry">
+			<div class="text-center gb-settings-header" id="settingsGradeEntryHeader">
+				<h3 class="panel-title"
+							data-bs-toggle="collapse"
+							data-bs-target="#settingsGradeEntry"
+							aria-expanded="false"
+							aria-controls="settingsGradeEntry">
 						<wicket:message key="settingspage.gradeentry.heading">Grade Entry</wicket:message>
-					</a>
 				</h3>
 			</div>
-			<div wicket:id="settingsGradeEntryPanel" id="settingsGradeEntry" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradeEntryHeader">
+			<div wicket:id="settingsGradeEntryPanel" id="settingsGradeEntry" class="panel-collapse collapse" aria-labelledby="settingsGradeEntryHeader">
 				<div class="card-body">
 					<p><wicket:message key="settingspage.gradeentry.instructions">How will graders enter grades...</wicket:message></p>
 

@@ -31,7 +31,6 @@ import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -153,28 +152,6 @@ public class SettingsCategoryPanel extends BasePanel {
 		}
 
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
-		// Preserve the expand/collapse state of the panel
-		settingsCategoriesPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				SettingsCategoryPanel.this.expanded = true;
-			}
-		});
-		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				SettingsCategoryPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-		}
 		add(settingsCategoriesPanel);
 
 		// category types (note categoriesAndWeighting treated differently due to inter panel updates)

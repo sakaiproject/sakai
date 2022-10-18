@@ -1495,6 +1495,15 @@
     height: 45px;
   }
 
+  #settingsAccordion {
+    .gb-settings-header {
+      background: var(--sakai-background-color-2);
+    }
+    .card {
+      margin-bottom: 6px;
+    }
+  }
+
   /* Bootstrap > Morpheus overrides */
   .checkbox input[type="checkbox"][disabled],
   .radio input[type="radio"][disabled]{

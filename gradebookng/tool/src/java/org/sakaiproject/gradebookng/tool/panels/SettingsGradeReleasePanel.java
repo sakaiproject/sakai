@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -69,24 +67,6 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		final SettingsPage settingsPage = (SettingsPage) getPage();
 
 		final WebMarkupContainer settingsGradeReleasePanel = new WebMarkupContainer("settingsGradeReleasePanel");
-		// Preserve the expand/collapse state of the panel
-		settingsGradeReleasePanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				SettingsGradeReleasePanel.this.expanded = true;
-			}
-		});
-		settingsGradeReleasePanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				SettingsGradeReleasePanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-		}
 		add(settingsGradeReleasePanel);
 
 		// display released items to students
