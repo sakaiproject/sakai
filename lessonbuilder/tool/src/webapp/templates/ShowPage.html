@@ -2417,12 +2417,12 @@
                     </div>
                 </div>
                     <h3><span rsf:id="msg=simplepage.layout.add.from.template"></span></h3>
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a data-bs-toggle="tab" href="#sectionlayout"><span rsf:id="msg=simplepage.layout.section.layouts" ></span></a></li>
-                        <li><a data-bs-toggle="tab" href="#pagelayout"><span rsf:id="msg=simplepage.layout.page.layouts" ></span></a></li>
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item active"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sectionlayout"><span rsf:id="msg=simplepage.layout.section.layouts" ></span></button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pagelayout"><span rsf:id="msg=simplepage.layout.page.layouts" ></span></button></li>
                     </ul>
                     <div class="tab-content" >
-                        <div id="sectionlayout" class="tab-pane fade in active" >
+                        <div id="sectionlayout" class="tab-pane fade show active" >
                             <form action="#" rsf:id="layout-form" class="controlsPanel form">
                                 <input type="hidden" rsf:id="csrf28" />
                                 <div class="row row-no-margin">
@@ -2479,13 +2479,17 @@
                                     </div>
                                     <div class="col-md-3 col-sm-4">
                                         <div class="layout-option">
-                                            <div>
-                                                <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
-                                                    <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
-                                                    <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
-                                                </div></div>
-                                                <div class="col-xs-6" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
-                                                <div class="col-xs-6" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                            <div class="container">
+                                                <div class="col-xs-12 row" style="padding-left:2px;padding-right:2px;">
+                                                    <div class="col addSectionTitleExample">
+                                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col col-6 col-xs-6" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                                    <div class="col col-6 col-xs-6" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                                </div>
                                             </div>
                                             <div class="caption">
                                                 <label><input rsf:id="layout-two-equal" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.two.columns"></span></label>
@@ -2494,13 +2498,17 @@
                                     </div>
                                     <div class="col-md-3 col-sm-4">
                                         <div class="layout-option">
-                                            <div>
-                                                <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
-                                                    <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
-                                                    <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
-                                                </div></div>
-                                                <div class="col-xs-8" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
-                                                <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                            <div class="container">
+                                                <div class="col-xs-12 row" style="padding-left:2px;padding-right:2px;">
+                                                    <div class="col addSectionTitleExample">
+                                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class=" col col-8 col-xs-8" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                                    <div class="col col-4 col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                                </div>
                                             </div>
                                             <div class="caption">
                                                 <label><input rsf:id="layout-left-double" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.double.left"></span></label>
@@ -2509,13 +2517,21 @@
                                     </div>
                                     <div class="col-md-3 col-sm-4">
                                         <div class="layout-option">
-                                            <div>
-                                                <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
-                                                    <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
-                                                    <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
-                                                </div></div>
-                                                <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
-                                                <div class="col-xs-8" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                            <div class="container">
+                                                <div class="col-xs-12 row" style="padding-left:2px;padding-right:2px;">
+                                                    <div class="col addSectionTitleExample">
+                                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col col-4 col-xs-4" style="padding-left:2px;padding-right:0;">
+                                                        <div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div>
+                                                    </div>
+                                                    <div class="col col-8 col-xs-8" style="padding-left:0;padding-right:2px;">
+                                                        <div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="caption">
                                                 <label><input rsf:id="layout-right-double" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.double.right"></span></label>
@@ -2524,14 +2540,18 @@
                                     </div>
                                     <div class="col-md-3 col-sm-4">
                                         <div class="layout-option">
-                                            <div>
-                                                <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
-                                                    <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
-                                                    <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
-                                                </div></div>
-                                                <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
-                                                <div class="col-xs-4" style="padding-left:0;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
-                                                <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                            <div class="container">
+                                                <div class="col-xs-12 row" style="padding-left:2px;padding-right:2px;">
+                                                    <div class="col addSectionTitleExample">
+                                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                                    <div class="col col-xs-4" style="padding-left:0;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                                    <div class="col col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                                </div>
                                             </div>
                                             <div class="caption">
                                                 <label><input rsf:id="layout-three-equal" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.three.columns"></span></label>
