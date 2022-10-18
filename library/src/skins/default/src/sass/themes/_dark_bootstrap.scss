@@ -3,22 +3,19 @@
 :root.sakaiUserTheme-dark {
 
   .table {
-    color: var(--sakai-text-color-1);
+    --bs-table-color: var(--sakai-text-color-1);
+    --bs-table-striped-color: var(--sakai-text-color-1);
+    --bs-table-hover-color: var(--sakai-text-color-1);
   }
 
-  .table-striped > tbody > tr:nth-of-type(odd) > * {
-    color: var(--sakai-text-color-1);
+  .btn {
+    --bs-btn-color: white;
   }
 
-  .table-hover > tbody > tr:hover > * {
-    color: var(--sakai-text-color-1);
+  .dropdown-menu {
+    --bs-dropdown-bg: var(--sakai-background-color-3);
+    --bs-dropdown-color: var(--sakai-text-color-1);
+    --bs-dropdown-header-color: var(--sakai-text-color-2);
+    --bs-dropdown-divider-bg: white;
   }
-
-  .modal-footer {
-    .btn {
-      color: white;
-    }
-  }
-
-  --sakai-breadcrumb-color: white;
 }
