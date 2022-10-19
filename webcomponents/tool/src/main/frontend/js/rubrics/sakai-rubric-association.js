@@ -1,9 +1,29 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
-import { rubricsApiMixin } from "./sakai-rubrics-api-mixin.js";
 
-class SakaiRubricAssociation extends rubricsApiMixin(RubricsElement) {
+class SakaiRubricAssociation extends RubricsElement {
+
+  static get properties() {
+
+    return {
+      association: { type: Object },
+      associationId: { attribute: "association-id", type: String },
+      isAssociated: Boolean,
+      entityId: { attribute: "entity-id", type: String },
+      siteId: { attribute: "site-id", type: String },
+      toolId: { attribute: "tool-id", type: String },
+      dontAssociateLabel: { attribute: "dont-associate-label", type: String },
+      associateLabel: { attribute: "associate-label", type: String },
+      dontAssociateValue: { attribute: "dont-associate-value", type: Number },
+      associateValue: { attribute: "associate-value", type: Number },
+      fineTunePoints: { attribute: "fine-tune-points", type: String },
+      hideStudentPreview: { attribute: "hide-student-preview", type: String },
+      readOnly: { attribute: "read-only", type: Boolean },
+      selectedRubricId: { attribute: false, type: String },
+      rubrics: { attribute: false, type: Array },
+    };
+  }
 
   constructor() {
 
@@ -15,14 +35,13 @@ class SakaiRubricAssociation extends rubricsApiMixin(RubricsElement) {
 
     this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
     this.i18nPromise.then(r => this.i18n = r);
-    this.maxPoints = [];
   }
 
   set siteId(value) {
 
     this._siteId = value;
     this.i18nPromise.then(r => this.initLightbox(r, value));
-    this.getRubrics();
+    this._getRubrics();
   }
 
   get siteId() { return this._siteId; }
@@ -31,46 +50,24 @@ class SakaiRubricAssociation extends rubricsApiMixin(RubricsElement) {
 
     this._entityId = value;
     if (this.toolId) {
-      this.getAssociation();
+      this._getAssociation();
     }
   }
 
   get entityId() { return this._entityId; }
-
-  static get properties() {
-
-    return {
-      association: { type: Object },
-      associationId: { attribute: "association-id", type: String },
-      isAssociated: Boolean,
-      entityId: { attribute: "entity-id", type: String },
-      siteId: { attribute: "site-id", type: String },
-      toolId: { attribute: "tool-id", type: String },
-      selectedRubric: { type: String },
-      dontAssociateLabel: { attribute: "dont-associate-label", type: String },
-      associateLabel: { attribute: "associate-label", type: String },
-      dontAssociateValue: { attribute: "dont-associate-value", type: Number },
-      associateValue: { attribute: "associate-value", type: Number },
-      fineTunePoints: { attribute: "fine-tune-points", type: String },
-      hideStudentPreview: { attribute: "hide-student-preview", type: String },
-      rubrics: { type: Array },
-      maxPoints: { type: Array },
-      readOnly: { attribute: "read-only", type: Boolean },
-    };
-  }
-
+  
   set association(value) {
 
     this._association = value;
-    this.selectedRubric = value.rubricId;
+    this.selectedRubricId = value.rubricId;
     this.selectedConfigOptions = value.parameters ? value.parameters : {};
     this.isAssociated = true;
-    this.getRubrics();
+    this._getRubrics();
   }
 
   get association() { return this._association; }
 
-  toggleFineTunePoints(e) {
+  _toggleFineTunePoints(e) {
 
     if (!e.target.checked) {
       if (!confirm(this.i18n.adjust_scores_warning)) {
@@ -79,86 +76,7 @@ class SakaiRubricAssociation extends rubricsApiMixin(RubricsElement) {
     }
   }
 
-  shouldUpdate() {
-    return this.i18n && this.rubrics && this.rubrics.length > 0;
-  }
-
-  render() {
-
-    const optionItems = [];
-    const rubrics = Array.from(this.rubrics);
-    const maxPoints = Array.from(this.maxPoints);
-    for (let i = 0; i < this.rubrics.length; i++) {
-      const r = rubrics.pop();
-      const m = maxPoints.pop();
-      if (! m) {
-        optionItems.push(html`<option value="${r.id}" ?selected=${r.id === this.selectedRubric}>${r.title}</option>`);
-      } else {
-        optionItems.push(html`<option value="${r.id}" ?selected=${r.id === this.selectedRubric}>${r.title} (${m} <sr-lang key="points">Points</sr-lang>)</option>`);
-      }
-    }
-
-    return html`
-      <h4><sr-lang key="grading_rubric">Grading Rubric</sr-lang></h4>
-      <div class="sak-banner-warn"><small><sr-lang key="rubric_points_warning">A rubric's point value should match the maximum point value of the activity or question to grade.</sr-lang></small></div>
-      <div class="sakai-rubric-association form">
-        ${this.readOnly ? "" : html`
-          <div class="radio">
-            <label class="label-rubrics">
-              <input
-                  @click="${this.associate}"
-                  name="rbcs-associate"
-                  type="radio"
-                  .value="${this.dontAssociateValue}"
-                  ?checked=${!this.isAssociated}
-                  ?disabled=${this.readOnly}>${this.dontAssociateLabel}
-            </label>
-          </div>
-
-          <div class="radio">
-            <label class="label-rubrics">
-              <input @click="${this.associate}" name="rbcs-associate" type="radio" .value="${this.associateValue}" ?checked=${this.isAssociated} ?disabled=${this.readOnly}>${this.associateLabel}
-            </label>
-          </div>
-        `}
-        <div class="rubrics-list">
-
-          <div class="rubrics-selections">
-            <select @change="${this.rubricSelected}" name="rbcs-rubricslist" aria-label="${tr("rubric_selector_label")}" class="form-control" ?disabled=${!this.isAssociated || this.readOnly}>
-            ${optionItems}
-            </select>
-
-            <button @click="${this.showRubric}" class="btn btn-link" ?disabled=${!this.isAssociated}>
-              <sr-lang key="preview_rubric">Preview Rubric</sr-lang>
-            </button>
-          </div>
-
-          ${this.readOnly ? "" : html`
-            <div class="rubric-options">
-              <div class="checkbox">
-                <label class="label-rubrics">
-                  <input
-                      name="rbcs-config-fineTunePoints"
-                      type="checkbox"
-                      @click=${this.toggleFineTunePoints}
-                      ?checked=${this.selectedConfigOptions.fineTunePoints}
-                      value="1"
-                      ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
-                </label>
-              </div>
-              <div class="checkbox">
-                <label class="label-rubrics">
-                  <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
-                </label>
-              </div>
-            </div>
-        `}
-        </div>
-      </div>
-    `;
-  }
-
-  getAssociation() {
+  _getAssociation() {
 
     let url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}`;
     if (this.entityId) url += `/items/${this.entityId}`;
@@ -184,16 +102,16 @@ class SakaiRubricAssociation extends rubricsApiMixin(RubricsElement) {
       this.association = assoc;
       if (this.association) {
         this.isAssociated = 1;
-        this.selectedRubric = this.association.rubricId;
+        this.selectedRubricId = this.association.rubricId;
       } else {
         this.isAssociated = 0;
       }
-      this.getRubrics();
+      this._getRubrics();
     })
     .catch (error => console.error(error));
   }
 
-  getRubrics() {
+  _getRubrics() {
 
     const url = `/api/sites/${this.siteId}/rubrics?withshared=true`;
     fetch(url, {
@@ -207,64 +125,104 @@ class SakaiRubricAssociation extends rubricsApiMixin(RubricsElement) {
       }
       throw new Error("Network error while requesting rubrics");
     })
-    .then(data => this.handleRubrics(data))
+    .then(data => this._handleRubrics(data))
     .catch (error => console.error(error));
   }
 
-  async calcMaxPoints(rubric, i) {
-    let result;
-
-    try {
-      result = await this.apiGetRubric(rubric.id);
-      let maxPoints = 0;
-      result.criteria.filter((c) => !this.isCriterionGroup(c)).forEach((c) => {
-        const pointrange = this.getHighLow(c.ratings);
-
-        if (rubric.weighted && pointrange.high > 0) {
-          maxPoints += (pointrange.high * (c.weight / 100));
-        }
-        else {
-          maxPoints += pointrange.high;
-        }
-      });
-
-      this.maxPoints[i] = (maxPoints - Math.floor(maxPoints)) === 0 ? maxPoints.toFixed(0) : maxPoints.toFixed(2);
-
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  handleRubrics(data) {
+  _handleRubrics(data) {
 
     this.rubrics = data.slice().filter( (rubric) => rubric.draft === false);
 
-    if (this.rubrics.length) {
-      //this.selectedConfigOptions = this.association.parameters ? this.association.parameters : {};
-      if (!this.isAssociated) {
-        this.selectedRubric = this.rubrics[0].id;
-      }
-      const rubrics = Array.from(this.rubrics);
-      for (let i = 0; i < this.rubrics.length; i++) {
-        this.calcMaxPoints(rubrics.pop(), i);
-      }
+    if (this.rubrics.length && !this.isAssociated) {
+      // Not associated yet, select the first rubric in the list.
+      this.selectedRubricId = this.rubrics[0].id;
     }
   }
 
-  rubricSelected(e) {
-    this.selectedRubric = e.target.value;
+  _rubricSelected(e) {
+    this.selectedRubricId = e.target.value;
   }
 
-  showRubric(e) {
+  _showRubric(e) {
 
     e.preventDefault();
     if (this.isAssociated) {
-      this.showRubricLightbox(this.selectedRubric);
+      this.showRubricLightbox(this.selectedRubricId);
     }
   }
 
-  associate(e) {
+  _associate(e) {
     this.isAssociated = e.target.value == 1;
+  }
+
+  shouldUpdate() {
+    return this.i18n && this.rubrics && this.rubrics.length > 0;
+  }
+
+  render() {
+
+    return html`
+      <h4><sr-lang key="grading_rubric">Grading Rubric</sr-lang></h4>
+      <div class="sak-banner-warn"><small>${this.i18n.rubric_points_warning}</small></div>
+      <div class="sakai-rubric-association form">
+        ${this.readOnly ? "" : html`
+          <div class="radio">
+            <label>
+              <input
+                  @click="${this._associate}"
+                  name="rbcs-associate"
+                  type="radio"
+                  .value="${this.dontAssociateValue}"
+                  ?checked=${!this.isAssociated}
+                  ?disabled=${this.readOnly}>${this.dontAssociateLabel}
+            </label>
+          </div>
+
+          <div class="radio">
+            <label>
+              <input @click="${this._associate}" name="rbcs-associate" type="radio" .value="${this.associateValue}" ?checked=${this.isAssociated} ?disabled=${this.readOnly}>${this.associateLabel}
+            </label>
+          </div>
+        `}
+        <div class="rubrics-list">
+
+          <div class="rubrics-selections">
+            <select @change="${this._rubricSelected}" name="rbcs-rubricslist" aria-label="${tr("rubric_selector_label")}" class="form-control" ?disabled=${!this.isAssociated || this.readOnly}>
+            ${this.rubrics.map(r => html`
+              <option value="${r.id}" ?selected=${r.id === this.selectedRubricId}>
+                ${r.title} ${r.maxPoints ? `(${r.maxPoints} ${this.i18n.points})` : ""}
+              </option>
+            `)}
+            </select>
+
+            <button @click="${this._showRubric}" class="btn btn-link" ?disabled=${!this.isAssociated}>
+              <sr-lang key="preview_rubric">Preview Rubric</sr-lang>
+            </button>
+          </div>
+
+          ${this.readOnly ? "" : html`
+            <div class="rubric-options">
+              <div class="checkbox">
+                <label>
+                  <input
+                      name="rbcs-config-fineTunePoints"
+                      type="checkbox"
+                      @click=${this._toggleFineTunePoints}
+                      ?checked=${this.selectedConfigOptions.fineTunePoints}
+                      value="1"
+                      ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
+                </label>
+              </div>
+            </div>
+        `}
+        </div>
+      </div>
+    `;
   }
 }
 

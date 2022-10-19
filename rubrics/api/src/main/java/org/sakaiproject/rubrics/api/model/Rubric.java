@@ -95,6 +95,9 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
 
     private Boolean shared = Boolean.FALSE;
 
+    @Column(name = "max_points")
+    private Double maxPoints = 0D;
+
     @Transient
     private Boolean locked = Boolean.FALSE;
 

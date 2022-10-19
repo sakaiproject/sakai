@@ -37,6 +37,7 @@ public class RubricTransferBean {
     public Boolean shared;
     public Boolean locked;
     public Boolean draft;
+    public Double maxPoints;
 
     public static RubricTransferBean of(Rubric rubric) {
 
@@ -52,6 +53,7 @@ public class RubricTransferBean {
         bean.shared = rubric.getShared();
         bean.locked = rubric.getLocked();
         bean.draft = rubric.getDraft();
+        bean.maxPoints = rubric.getMaxPoints();
         return bean;
     }
 
@@ -68,6 +70,7 @@ public class RubricTransferBean {
         rubric.setCreatorId(creatorId);
         rubric.setShared(shared);
         rubric.setDraft(draft);
+        rubric.setMaxPoints(maxPoints);
         return rubric;
     }
 }
