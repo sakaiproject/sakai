@@ -21,4 +21,18 @@
   .card {
     --bs-card-bg: var(--sakai-background-color-3);
   }
+
+  .nav-tabs {
+    --bs-nav-tabs-link-active-bg: var(--sakai-background-color-3);
+    --bs-nav-tabs-link-active-color: var(--sakai-text-color-1);
+  }
+
+  .nav-link {
+    --bs-nav-link-color: white;
+    --bs-nav-link-hover-color: white;
+  }
+
+  .list-group {
+      --bs-list-group-bg: var(--sakai-background-color-3);
+  }
 }

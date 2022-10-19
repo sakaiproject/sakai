@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
-<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script rsf:id="scr=portal-matter"src="/library/js/headscripts.js"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <title rsf:id="msg=simplepage.blti.chooser"></title>
@@ -108,50 +108,54 @@
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 
-		<div id="modal-iframe-div" style="display:none; overflow: hidden;" tabindex="-1" role="dialog">
-			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
-		</div>
+    <div id="modal-iframe-div" class="modal fade" tabindex="-1" aria-labelledby="bltiModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="bltiModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+			      <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
 	</div>
 
-<script>
-includeLatestJQuery('BltiPicker.html');
-</script>
+  <script>
+  includeLatestJQuery('BltiPicker.html');
+  </script>
 
-<script>
-//<![CDATA[
-function showIframe(title, doreload) {
-	$("#modal-iframe-div").dialog({
-		title: title,
-		width: modalDialogWidth(),
-		height: modalDialogHeight(),
-		modal: true,
-		draggable: false,
-		open: function() {
-		    $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
-		    $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
-            // Note that width() gives the content width, taking into consideration the border, padding, etc.
-			$('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-			$('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
-			// https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
-			$(this).parent().focus();
-		},
-		close: function() {
-            if ( doreload ) {
-                location.reload();
-            } else {
-			    $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
-            }
-		}
-	});
+  <script>
+    //<![CDATA[
+    function showIframe(title, doreload) {
 
-	$(window).resize(function() {
-		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
-		$("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
+      const el = document.getElementById("modal-iframe-div")
+      const modal = bootstrap.Modal.getOrCreateInstance(el)
+      modal.addEventListener("shown.bs.modal", e => {
+
+        $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
+      });
+      modal.addEventListener("hidden.bs.modal", e => {
+
+        if ( doreload ) {
+          location.reload();
+        } else {
+          $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+        }
+      });
+      modal.show();
+
+      $(window).resize(function() {
+
         // Note that width() gives the content width, taking into consideration the border, padding, etc.
-		$('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-		$('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
-	});
-}
+        $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
+      });
+    }
 
 // See if we are supposed to launch the shortcut link
 var shortcut_tag = document.getElementById('app-store-shortcut::blti-create::blti-create-link');

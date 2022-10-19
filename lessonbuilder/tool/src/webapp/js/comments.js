@@ -42,34 +42,9 @@ $(function() {
                 var i = pageToRequest.indexOf("Comment");
                 pageToRequest = "/lessonbuilder-tool/faces/" + pageToRequest.substring(i);
 		$(this).load(pageToRequest, commentsLoaded);
-		//$.PeriodicalUpdater(pageToRequest, {minTimeout:5000, maxTimeout:120000}, function(data) {
-		//	$(".deleteLink").attr("title", msg("simplepage.comment_delete"));
-		//	$(".editLink").attr("title", msg("simplepage.edit-comment"));
-		//	$(".replaceWithComments").html(data);
-		//});
 	});
-	
-	$("#delete-dialog").dialog({
-		autoOpen: false,
-		width: 400,
-		modal: false,
-		resizable: false,
-		buttons:[{
-			text: msg("simplepage.cancel_message"),
-			click: function() {
-				if(originalDeleteDialogText !== null) {
-					$("#delete-comment-confirm").text(originalDeleteDialogText);
-				}
-			
-				$(this).dialog("close");
-			}
-		},{
-			text: msg("simplepage.delete_comment"),
-			click: function() {
-				deleteButton();
-			}
-		}]
-	});
+
+  document.getElementById("delete-comment-confirm-button")?.addEventListener("click", e => deleteButton());
 });
 
 /* only do this once if there is more than one comment block */
@@ -231,7 +206,9 @@ function deleteComment(link) {
 	$("#delete-comment-confirm").text(
 			originalDeleteDialogText.replace("{}", link.parents(".commentDiv").find(".author").text()));
 	
-	$("#delete-dialog").dialog("open");
+  const el = document.querySelector("#delete-comment-confirm-dialog");
+  const modal = bootstrap.Modal.getOrCreateInstance(el);
+  modal.show();
 	
 	commentToReload = $(link).parents(".replaceWithComments");
 
@@ -246,7 +223,9 @@ function deleteButton() {
 	$(commentToReload).load(deleteDialogCommentURL, commentsLoaded);
 	//$("#delete-dialog").parents(".replaceWithComments").load($(dialog).children(".delete-dialog-comment-url").text());
 	setMainFrameHeight(window.name);
-	$("#delete-dialog").dialog("close");
+  const el = document.querySelector("#delete-comment-confirm-dialog");
+  const modal = bootstrap.Modal.getOrCreateInstance(el);
+  modal.hide();
 	$("#delete-comment-confirm").text(originalDeleteDialogText);
 }
 

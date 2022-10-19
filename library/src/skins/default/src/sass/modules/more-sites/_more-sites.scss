@@ -51,15 +51,6 @@ body.active-more-sites {
 
 #selectSite {
 
-  .nav-tabs .nav-link[aria-selected='true'] {
-    background-color: var(--sakai-background-color-1);
-    color: var(--sakai-text-color-1);
-  }
-
-  .nav-tabs .nav-link[aria-selected='false'] {
-    color: var(--sakai-text-color-1);
-  }
-
   .favorites-term-header {
     color: var(--all-sites-title-text-color);
     font-size: $all-sites-title-text-size;

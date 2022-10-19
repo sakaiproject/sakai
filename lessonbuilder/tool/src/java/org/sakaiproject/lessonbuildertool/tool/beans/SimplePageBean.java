@@ -514,6 +514,10 @@ public class SimplePageBean {
 	}
 	
 	public void setRubricRow(String rubricRow) {
+
+		if (StringUtils.isBlank(rubricRow)) {
+			return;
+		}
 		this.rubricRow = rubricRow;
 		
 		if(rubricRows==null) {
