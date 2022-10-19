@@ -46,7 +46,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
      * At a minimum, it must have a WEB-INF/ directory containing a components.xml file. Optionally, it may have:
      * <p>
      * - a classes/ directory to put on the classpath - a lib/ directory with .jar files to put on the classpath - a
-     * demo-components.xml file for special beans or properties in "demo mode" (when sakai.demo is true)
+     * components-demo.xml file for special beans or properties in "demo mode" (when sakai.demo is true)
      *
      * @param path absolute path on disk to the component directory
      * @throws MalformedComponentException if the component is not well-formed
@@ -58,7 +58,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
         this.classes = webInf.resolve("classes");
         this.lib = webInf.resolve("lib");
         this.componentsXml = webInf.resolve("components.xml");
-        this.demoComponentsXml = webInf.resolve("demo-components.xml");
+        this.demoComponentsXml = webInf.resolve("components-demo.xml");
         validate();
     }
 
@@ -80,7 +80,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
 
     /**
      * Set up a ClassLoader for this components packaged classes/jars, and register the bean definitions from
-     * components.xml (and demo-components.xml, if in demo mode) with the Spring context.
+     * components.xml (and components-demo.xml, if in demo mode) with the Spring context.
      *
      * @param registry the bean registry for the active application context
      */

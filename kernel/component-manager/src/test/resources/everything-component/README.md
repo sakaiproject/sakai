@@ -3,7 +3,7 @@
 This is a minimal test case of everything components can do:
 
  - Define beans in components.xml
- - Define beans for demo mode in demo-components.xml
+ - Define beans for demo mode in components-demo.xml
  - Package bare classes for dependencies
  - Package jar dependencies
 
