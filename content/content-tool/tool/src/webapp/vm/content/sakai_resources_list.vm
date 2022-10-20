@@ -79,7 +79,7 @@
 		<input type="hidden" name="selectedItemId" id="selectedItemId" value="" />
 		######################  Page Title / Breadcrumbs  ##############
     <br>
-    <ol class="breadcrumb">
+    <ol class="breadcrumb bg-light">
       #if (!$dropboxMode)
         <li class="breadcrumb-item dropdown keep-open">
           <a id="navigate" data-bs-toggle="dropdown" href="">
@@ -193,7 +193,7 @@
     					#end
     				</div>
     		#end
-        <div class="col-xs-12 col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right;padding-right:0">
+        <div class="col-xs-12 col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group-sm form-inline" style="text-align: right;padding-right:0">
             #if($showHotDropboxWidget)
               <label for="dropboxHighlight">
                   <small>$clang.getString("dropbox_highlight")</small>
