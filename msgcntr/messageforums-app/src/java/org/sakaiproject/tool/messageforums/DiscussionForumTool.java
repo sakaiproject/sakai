@@ -4485,6 +4485,14 @@ public class DiscussionForumTool {
 	  GradingService gradingService = getGradingService();
 	  if (gradingService == null) return;
 	  
+	  if (!gradingService.isAssignmentDefined(toolManager.getCurrentPlacement().getContext(), selAssignmentName)) {
+		  // this is the "Select a gradebook item" selection
+		  allowedToGradeItem = false;
+		  selGBItemRestricted = true;
+		  setSelectedAssignForMessage(DEFAULT_GB_ITEM);
+		  return;
+	  }
+
 	  Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
 	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
