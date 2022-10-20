@@ -79,7 +79,7 @@
 		<input type="hidden" name="selectedItemId" id="selectedItemId" value="" />
 		######################  Page Title / Breadcrumbs  ##############
     <br>
-    <ol class="breadcrumb bg-light">
+    <ol class="breadcrumb">
       #if (!$dropboxMode)
         <li class="breadcrumb-item dropdown keep-open">
           <a id="navigate" data-bs-toggle="dropdown" href="">
