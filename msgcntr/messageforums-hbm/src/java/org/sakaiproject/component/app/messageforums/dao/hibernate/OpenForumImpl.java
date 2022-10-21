@@ -31,6 +31,7 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     private Boolean draft;
     private Boolean locked;
+    private Boolean lockedAfterClosed = false;
     private String defaultAssignName;
     private DBMembershipItem membershipItem;
     private Date openDate;
@@ -79,6 +80,14 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     public void setLocked(Boolean locked) {
         this.locked = locked;
+    }
+
+    public Boolean getLockedAfterClosed() {
+        return this.lockedAfterClosed;
+    }
+
+    public void setLockedAfterClosed(Boolean lockedAfterClosed) {
+        this.lockedAfterClosed = lockedAfterClosed;
     }
 
 //    public int getAreaindex() {

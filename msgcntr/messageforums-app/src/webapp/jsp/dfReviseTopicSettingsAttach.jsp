@@ -32,10 +32,11 @@
 		function resize() {
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
-	</script> 
-	<script>
-		function setDatesEnabled(radioButton) {
+	</script>
+	<script type="text/javascript">
+		function setDatesEnabled(radioButton){
 			$(".calWidget").fadeToggle('slow');
+			$(".lockForumAfterCloseDateSpan").fadeToggle('slow');
 		}
 
 		window.onload = function(){
@@ -296,6 +297,10 @@
 					<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
 				</h:panelGroup>
 			</p>
+			<h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+				<h:selectBooleanCheckbox id="lockForumAfterCloseDate" value="#{ForumTool.selectedTopic.topic.lockedAfterClosed}"/>
+				<h:outputLabel for="lockForumAfterCloseDate" value="#{msgs.lockForumAfterCloseDate}" />
+			</h:panelGroup>
 		</div>
 
 		<script>

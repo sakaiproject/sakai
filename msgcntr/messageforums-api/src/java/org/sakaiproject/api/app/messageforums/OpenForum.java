@@ -29,6 +29,10 @@ public interface OpenForum extends BaseForum {
 
     public void setLocked(Boolean locked);
 
+    public Boolean getLockedAfterClosed();
+
+    public void setLockedAfterClosed(Boolean lockedAfterClosed);
+
     public Boolean getDraft();
     
     public void setDraft(Boolean draft);
