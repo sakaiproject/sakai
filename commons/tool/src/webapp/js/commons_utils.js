@@ -429,7 +429,7 @@ commons.utils = {
             var numberOfLikes = $('.commons-likes-count');
             numberOfLikes.each(function(){commons.utils.addLikeCount(this)});
             commons.utils.getUserLikes();
-            $('[data-toggle="popover"]').popover();
+            $('[data-bs-toggle="popover"]').popover();
             var textarea = $('#commons-comment-textarea-' + post.id);
             textarea.each(function () { autosize(this); });
             var creator = $('#commons-comment-creator-' + post.id);

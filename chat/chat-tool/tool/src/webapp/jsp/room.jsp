@@ -46,10 +46,10 @@
 
                 <ul class="nav nav-tabs" role="tabpanel">
                     <li class="active">
-                        <a href="#chatListWrapperCont" role="tab" data-toggle="tab"><span><h:outputText value="#{msgs.messages}" /></span></a>
+                        <a href="#chatListWrapperCont" role="tab" data-bs-toggle="tab"><span><h:outputText value="#{msgs.messages}" /></span></a>
                     </li>
                     <li>
-                        <a href="#chatPresenceWrapper" role="tab" data-toggle="tab"><span><h:outputText value="#{msgs.lay_user}" /></span></a>
+                        <a href="#chatPresenceWrapper" role="tab" data-bs-toggle="tab"><span><h:outputText value="#{msgs.lay_user}" /></span></a>
                     </li>
                 </ul>
                 <div class="panel-body panel-body-chat tab-content" id="chatLeft">

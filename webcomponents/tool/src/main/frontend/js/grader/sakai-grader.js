@@ -306,7 +306,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         ${this.renderFailed()}
         <span>(${this.assignmentsI18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
         ${this.gradable.allowPeerAssessment ? html`
-          <a id="peer-info" class="fa fa-info-circle" data-toggle="popover" data-container="body" data-placement="auto" data-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}"></a>
+          <a id="peer-info" class="fa fa-info-circle" data-bs-toggle="popover" data-container="body" data-placement="auto" data-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}"></a>
         ` : ""}
       ` : ""}
       ${this.gradeScale === PASS_FAIL_GRADE_TYPE ? html`
@@ -414,7 +414,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                   ${result[Submission.originalityConstants.originalityStatus] === 'true' ? html`
                     <a href="#${result[Submission.originalityConstants.originalityKey]}"
                         class="grader-originality-link"
-                        data-toggle="collapse"
+                        data-bs-toggle="collapse"
                         role="button"
                         aria-expanded="false"
                         aria-controls="${result[Submission.originalityConstants.originalityKey]}">
@@ -424,7 +424,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                   ` : html`
                     <a href="#${result[Submission.originalityConstants.originalityKey]}"
                         class="grader-originality-link"
-                        data-toggle="collapse"
+                        data-bs-toggle="collapse"
                         role="button"
                         aria-expanded="false"
                         aria-controls="${result[Submission.originalityConstants.originalityKey]}">
@@ -464,7 +464,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 ` : html`
                   ${result[Submission.originalityConstants.originalityStatus] === 'true' ? html`
                     <a href="#${result[Submission.originalityConstants.originalityKey]}"
-                        data-toggle="collapse"
+                        data-bs-toggle="collapse"
                         role="button"
                         aria-expanded="false"
                         aria-controls="${result[Submission.originalityConstants.originalityKey]}"
@@ -484,7 +484,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                     </div>
                   ` : html`
                     <a href="#${result[Submission.originalityConstants.originalityKey]}"
-                        data-toggle="collapse"
+                        data-bs-toggle="collapse"
                         role="button"
                         aria-expanded="false"
                         aria-controls="${result[Submission.originalityConstants.originalityKey]}"

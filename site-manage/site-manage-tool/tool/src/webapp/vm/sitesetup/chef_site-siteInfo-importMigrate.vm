@@ -18,7 +18,7 @@
 					<div class="card text-center bg-light">
 						<h4 class="panel-title">
 							#set ($sitesSize = $sites.size() - 1)
-							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
+							<a data-bs-toggle="collapse" data-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
 						</h4>
 					</div>
 					<div id="mysites" class="panel-collapse collapse in">
@@ -43,7 +43,7 @@
 				<div class="card">
 					<div class="card text-center bg-light">
 						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
+							<a data-bs-toggle="collapse" data-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
 						</h4>
 					</div>
 					<div id="hiddenSites" class="panel-collapse collapse">
