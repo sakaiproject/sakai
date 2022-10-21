@@ -72,7 +72,7 @@
                 <li role="presentation" class="dropdown">
                     #foreach( $page in $sitePages.pageNavTools )
                         #if ( $index == 0 )
-                            <a href="#" class="dropdown-toggle" id="current-site-tab" data-toggle="dropdown" aria-controls="subsites-breadcrumb" aria-expanded="false" title="${siteTitle}">
+                            <a href="#" class="dropdown-toggle" id="current-site-tab" data-bs-toggle="dropdown" aria-controls="subsites-breadcrumb" aria-expanded="false" title="${siteTitle}">
                                 #if (${isUserSite})
                                     <i class='fa fa-home' aria-hidden="true"></i>
                                 #end
@@ -88,7 +88,7 @@
                         #foreach ( $pwd in $portalPwd )
                             #set ($tabCountBread = $tabCountBread + 1)
                             <li>
-                                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" role="tab" id="breadbrumb-dropdown-item-${$tabCountBread}" data-toggle="tab">
+                                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" role="tab" id="breadbrumb-dropdown-item-${$tabCountBread}" data-bs-toggle="tab">
                                     <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitleTrunc}#end</span>
                                     <i class="fa fa-level-up" aria-hidden="true"></i>
                                 </a>

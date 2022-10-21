@@ -77,7 +77,7 @@
     ##Delete records
     #if ($!allowSubmit && $!timeSheetSource == "submission")
         <div class="act">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">$!tlang.getString("ts.btn.add.record")</button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-target=".bd-example-modal-sm">$!tlang.getString("ts.btn.add.record")</button>
             #if ($!isAnyRegTimeSheet)
                 <input type="button" name="btnTimesheetDelete" id="btnTimesheetDelete" onclick="ASN.removeTimeSheet(this);" disabled="disabled" value=$!tlang.getString("ts.btn.del.record")>
             #end

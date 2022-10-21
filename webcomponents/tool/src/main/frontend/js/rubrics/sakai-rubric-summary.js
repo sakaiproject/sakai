@@ -65,7 +65,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
               <div class="card">
                 <div class="card text-center bg-light">
                   <h4 class="panel-title">
-                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#collapse${c.id}">${c.title}</a>
+                    <a class="collapse-toggle collapsed" data-bs-toggle="collapse" href="#collapse${c.id}">${c.title}</a>
                   </h4>
                 </div>
                   <div id="collapse${c.id}" class="panel-collapse collapse">

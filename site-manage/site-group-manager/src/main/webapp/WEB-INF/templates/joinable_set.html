@@ -59,7 +59,7 @@
               <div class="card">
                 <div class="card text-center bg-light">
                   <h4 class="panel-title">
-                    <a data-parent="#accordion" data-toggle="collapse" href="#groupCollapsible" th:text="|#{joinableset.current.groups} (${joinableSetGroups.size()})|">Current Groups:</a>
+                    <a data-parent="#accordion" data-bs-toggle="collapse" href="#groupCollapsible" th:text="|#{joinableset.current.groups} (${joinableSetGroups.size()})|">Current Groups:</a>
                   </h4>
                 </div>
                 <div id="groupCollapsible" class="panel-collapse collapse">
@@ -71,7 +71,7 @@
               <div class="card">
                 <div class="card text-center bg-light">
                   <h4 class="panel-title">
-                    <a data-parent="#accordion" data-toggle="collapse" href="#additionalGroupsCollapsible" th:text="#{joinableset.additional.groups}">Generate Additional Groups</a>
+                    <a data-parent="#accordion" data-bs-toggle="collapse" href="#additionalGroupsCollapsible" th:text="#{joinableset.additional.groups}">Generate Additional Groups</a>
                   </h4>
                 </div>
                 <div id="additionalGroupsCollapsible" class="panel-collapse collapse">
@@ -100,7 +100,7 @@
               <div class="card">
                 <div class="card text-center bg-light">
                   <h4 class="panel-title">
-                    <a data-parent="#accordion" data-toggle="collapse" href="#notJoinedUsersCollapsible" th:text="|#{joinableset.unjoined.users} (${notJoinedUserList.size()})|">Users who have not yet joined a group in this set</a>
+                    <a data-parent="#accordion" data-bs-toggle="collapse" href="#notJoinedUsersCollapsible" th:text="|#{joinableset.unjoined.users} (${notJoinedUserList.size()})|">Users who have not yet joined a group in this set</a>
                   </h4>
                 </div>
                 <div id="notJoinedUsersCollapsible" class="panel-collapse collapse">

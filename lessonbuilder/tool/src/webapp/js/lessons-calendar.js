@@ -17,8 +17,8 @@ $(function(){
                 },
                 buttonIcons: {
                     /*Use of bootstrap5 as themeSystem will expect bootstrap icons and prepend bi bi-*/
-                    prev: ' fa fa-chevron-left',
-                    next: ' fa fa-chevron-right',
+                    prev: 'caret-left',
+                    next: 'caret-right',
                 },
 
                 eventSources: [{
