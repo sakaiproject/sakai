@@ -498,3 +498,21 @@
 		}
 	}
 }
+
+table.table-bordered.dataTable {
+    border-right-width: 0;
+    border: 1px solid #dee2e6 !important;
+    border-collapse: collapse !important;
+}
+
+.input-group-addon {
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1;
+    color: var(--sakai-text-color-1);
+    text-align: center;
+    background-color: var(--sakai-background-color-2);
+    border: 1px solid var(--sakai-border-color);
+    border-radius: 4px;
+}
