@@ -617,14 +617,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             return (Topic) q.getSingleResult();
         };
 
-        Topic res = getHibernateTemplate().execute(hcb);
+        Topic topic = (Topic) Hibernate.unproxy(getHibernateTemplate().execute(hcb));
 
-        if (res != null) {
-            BaseForum parentForum = open ? (BaseForum) Hibernate.unproxy(res.getOpenForum()) : (BaseForum) Hibernate.unproxy(res.getPrivateForum());
-            res.setBaseForum(parentForum);
+        if (topic != null) {
+            BaseForum parentForum = open ? (BaseForum) Hibernate.unproxy(topic.getOpenForum()) : (BaseForum) Hibernate.unproxy(topic.getPrivateForum());
+            topic.setBaseForum(parentForum);
         }
 
-        return res;
+        return topic;
     }
 
     public Topic getTopicByUuid(final String uuid) {
