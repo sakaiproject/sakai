@@ -575,6 +575,12 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 				Element questionPool = doc.createElement("QuestionPool");
 				QuestionPoolDataIfc pool = (QuestionPoolDataIfc)poolObj;
+
+				if (pool == null) {
+					log.warn("Question pool not found");
+					continue;
+				}
+
 				questionPool.setAttribute("title", pool.getTitle());
 				questionPool.setAttribute("id", String.valueOf(pool.getQuestionPoolId()));
 				questionPool.setAttribute("ownerId", pool.getOwnerId());
