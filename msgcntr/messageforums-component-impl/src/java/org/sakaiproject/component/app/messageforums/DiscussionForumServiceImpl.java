@@ -213,7 +213,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					Element messageForumElement = doc.createElement(MESSAGEFORUM);
 
 					// APPEND DISCUSSION FORUM ELEMENTS
-					int discussionForumCount = appendDiscussionForumElements(siteId, doc, messageForumElement);
+					int discussionForumCount = appendDiscussionForumElements(siteId, doc, messageForumElement, attachments);
 
 					results.append(ARCHIVING).append(getLabel()).append(": (").append(discussionForumCount)
 							.append(") messageforum DF items archived successfully.\n");
@@ -232,7 +232,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return results.toString();
 	}
 
-	private int appendDiscussionForumElements(String siteId, Document doc, Element messageForumElement) {
+	private int appendDiscussionForumElements(String siteId, Document doc, Element messageForumElement, List attachments) {
 		int discussionForumCount = 0;
 		List<DiscussionForum> discussionForums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
 		if (CollectionUtils.isNotEmpty(discussionForums)) {
@@ -252,15 +252,15 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 							getEncodedString(discussionForum.getShortDescription()));
 
 					// attachments
-					List<Attachment> atts = discussionForum.getAttachments();
-					appendAttachmentElements(doc, discussionForumElement, atts);
+					List<Attachment> forumAttachments = discussionForum.getAttachments();
+					appendAttachmentElements(doc, discussionForumElement, forumAttachments, attachments);
 
 					// permissions
 					Set<DBMembershipItem> forumMembershipItems = discussionForum.getMembershipItemSet();
 					appendPermissionsElement(doc, discussionForumElement, forumMembershipItems);
 
 					// APPEND DISCUSSION TOPIC ELEMENTS
-					appendDiscussionTopicElements(doc, discussionForum, discussionForumElement);
+					appendDiscussionTopicElements(doc, discussionForum, discussionForumElement, attachments);
 					messageForumElement.appendChild(discussionForumElement);
 				}
 			}
@@ -268,7 +268,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return discussionForumCount;
 	}
 
-	private void appendDiscussionTopicElements(Document doc, DiscussionForum forum, Element discussionForumElement) {
+	private void appendDiscussionTopicElements(Document doc, DiscussionForum forum, Element discussionForumElement, List attachments) {
 		List<DiscussionTopic> discussionTopics = dfManager
 				.getTopicsByIdWithMessagesMembershipAndAttachments(forum.getId());
 		if (CollectionUtils.isNotEmpty(discussionTopics)) {
@@ -293,12 +293,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				appendPermissionsElement(doc, discussionTopicElement, membershipItems);
 
 				// attachments
-				final List<Attachment> attachments = discussionTopic.getAttachments();
-				appendAttachmentElements(doc, discussionTopicElement, attachments);
+				final List<Attachment> topicAttachments = discussionTopic.getAttachments();
+				appendAttachmentElements(doc, discussionTopicElement, topicAttachments, attachments);
 
 				// APPEND MESSAGE ELEMENTS
 				Element messagesElement = appendMessagesElements(doc, discussionTopic.getMessages(), null,
-						discussionTopicElement);
+						discussionTopicElement, attachments);
 				if (messagesElement != null) {
 					discussionTopicElement.appendChild(messagesElement);
 				}
@@ -308,7 +308,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private Element appendMessagesElements(Document doc, List<Message> messages, Message parentMessage,
-										   Element discussionTopicElement) {
+		   Element discussionTopicElement, List attachments) {
 		Element messagesElement = null;
 		if (CollectionUtils.isNotEmpty(messages)) {
 			List<Message> startConversationMessages = null;
@@ -323,14 +323,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				messagesElement = doc.createElement(MESSAGES);
 				for (Message startConversationMessage : startConversationMessages) {
 					appendMessageElement(doc, messages, discussionTopicElement, messagesElement,
-							startConversationMessage);
+							startConversationMessage, attachments);
 				}
 			}
 		}
 		return messagesElement;
 	}
 	private void appendMessageElement(Document doc, List<Message> messages, Element discussionTopicElement,
-									  final Element messagesElement, Message message) {
+			  final Element messagesElement, Message message, List attachments) {
 		final Element messageElement = doc.createElement(MESSAGE);
 		messageElement.setAttribute(ID, message.getId().toString());
 		if (message.getInReplyTo() != null) {
@@ -373,10 +373,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		// attachments
 		final List<Attachment> messageAttachments = message.getAttachments();
-		appendAttachmentElements(doc, messageElement, messageAttachments);
+		appendAttachmentElements(doc, messageElement, messageAttachments, attachments);
 
 		messages.remove(message);
-		Element childMessagesElement = appendMessagesElements(doc, messages, message, discussionTopicElement);
+		Element childMessagesElement = appendMessagesElements(doc, messages, message, discussionTopicElement, attachments);
 		if (childMessagesElement != null) {
 			messageElement.appendChild(childMessagesElement);
 		}
@@ -408,14 +408,17 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return discussionTopicPropertiesElement;
 	}
 
-	private void appendAttachmentElements(Document doc, Element parentElement, List<Attachment> attachments) {
-		if (CollectionUtils.isNotEmpty(attachments)) {
-			for (Attachment attachment : attachments) {
-				final Element attachmentElement = doc.createElement(ATTACHMENT);
-				String attachId = attachment.getAttachmentId();
-				attachmentElement.setAttribute(ATTACH_ID, attachId);
-				parentElement.appendChild(attachmentElement);
-			}
+	private void appendAttachmentElements(Document doc, Element parentElement, List<Attachment> itemAttachments, List archiveAttachments) {
+		for (Attachment attachment : itemAttachments) {
+			// Append to the XML doc
+			final Element attachmentElement = doc.createElement(ATTACHMENT);
+			String attachId = attachment.getAttachmentId();
+			attachmentElement.setAttribute(ATTACH_ID, attachId);
+			parentElement.appendChild(attachmentElement);
+
+			// Append to the attachment reference list for archive
+			Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getAttachmentId()));
+			archiveAttachments.add(ref);
 		}
 	}
 
