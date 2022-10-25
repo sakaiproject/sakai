@@ -503,4 +503,11 @@ simplePageBean.addForumSummary
       <property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
     </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.integration.LessonsGradeInfoProvider"
+      class="org.sakaiproject.lessonbuildertool.integration.LessonsGradeInfoProvider"
+      lazy-init="false" init-method="init" destroy-method="destroy">
+    <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
+    <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
+  </bean>
  </beans>
