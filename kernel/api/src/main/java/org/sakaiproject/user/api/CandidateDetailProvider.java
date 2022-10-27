@@ -51,11 +51,26 @@ public interface CandidateDetailProvider {
     Optional<List<String>> getAdditionalNotes(User user, Site site);
 
     /**
-     * Is the additional notes enabled for this site.
+     * Are additional notes enabled for this site.
      * @param site The site in which the lookup is happening.
      * @return If <code>true</code> then show the additional details for this site.
      */
      boolean isAdditionalNotesEnabled(Site site);
+
+    /**
+     * This gets special needs info for a user.
+     * @param user The user for who special needs info is wanted. Cannot be <code>null</code>
+     * @param site The site in which the lookup is happening. If site is null, it will try to get the current site
+     * @return An Optional containing a list of the users special needs.
+     */
+    Optional<List<String>> getSpecialNeeds(User user, Site site);
+
+    /**
+     * Is special needs info enabled for this site.
+     * @param site The site in which the lookup is happening.
+     * @return If <code>true</code> then show the special needs on this site.
+     */
+     boolean isSpecialNeedsEnabled(Site site);
 
     /**
      * Gets the student number (institutional numeric id) for the given user.

@@ -1,0 +1,23 @@
+<!-- roster modal -->
+<div id="roster-modal" class="modal fade" role="dialog" aria-labelledby="roster-modal-title">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="{{tr 'roster_modal_close'}}">
+          <span class="fa fa-times" aria-hidden="true"></span> 
+        </button>
+        <h4 id="roster-modal-title" class="modal-title">{{title}}</h4>
+      </div>
+      {{#if htmlContent}}
+      <div class="modal-body">
+        {{{htmlContent}}}
+      </div>
+      {{/if}}
+      {{#if htmlFooter}}
+      <div class="modal-footer">
+        {{{htmlFooter}}}
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>

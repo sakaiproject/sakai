@@ -63,7 +63,7 @@ package org.sakaiproject.roster.api;
 public interface RosterFunctions {
 
 	public static final String ROSTER_FUNCTION_PREFIX = "roster.";
-	
+
 	public static final String ROSTER_FUNCTION_VIEWALL = ROSTER_FUNCTION_PREFIX + "viewallmembers";
 	public static final String ROSTER_FUNCTION_VIEWHIDDEN = ROSTER_FUNCTION_PREFIX + "viewhidden";
 	public static final String ROSTER_FUNCTION_EXPORT = ROSTER_FUNCTION_PREFIX + "export";
@@ -74,5 +74,6 @@ public interface RosterFunctions {
 	public static final String ROSTER_FUNCTION_VIEWOFFICIALPHOTO = ROSTER_FUNCTION_PREFIX + "viewofficialphoto";
 	public static final String ROSTER_FUNCTION_VIEWSITEVISITS = ROSTER_FUNCTION_PREFIX + "viewsitevisits";
 	public static final String ROSTER_FUNCTION_VIEWUSERPROPERTIES = ROSTER_FUNCTION_PREFIX + "viewuserproperties";
-	
+	public static final String ROSTER_FUNCTION_VIEWCANDIDATEDETAILS = ROSTER_FUNCTION_PREFIX + "viewcandidatedetails";
+
 }
