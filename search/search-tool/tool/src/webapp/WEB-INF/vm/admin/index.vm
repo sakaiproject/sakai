@@ -43,7 +43,7 @@
 		<p>${rlb.vm_searchadmin_last_loaded} ${searchStatus.lastLoad} ${rlb.vm_searchadmin_in} ${searchStatus.loadTime}</p>
 		<p>${rlb.vm_searchadmin_being_indexed} ${searchStatus.currentWorker} ${rlb.vm_searchadmin_expected_before} ${searchStatus.currentWorkerETC}</p>
 		<p>${rlb.vm_searchadmin_index_contains} ${searchStatus.nDocuments} ${rlb.vm_searchadmin_documents} ${searchStatus.pDocuments} ${rlb.vm_searchadmin_pending}</p>
-		<div class="table-responsive">
+		<div class="table">
 		<table class="table table-striped table-bordered table-hover" summary="${rlb.searchadmin_index_master_control_records}" >
 		<tr><th colspan="4">${rlb.searchadmin_index_master_control_records}</th></tr>
 		<tr>
@@ -63,7 +63,7 @@
 #end
 	</table>
 	</div>
-	<div class="table-responsive">
+	<div class="table">
 	<table class="table table-striped table-bordered table-hover" summary="${rlb.searchadmin_index_site_control_records}">
 	<tr><th colspan="4">${rlb.searchadmin_index_site_control_records}</th></tr>
 	<tr>
@@ -82,7 +82,7 @@
 #end
 	</table>
 	</div>
-	<div class="table-responsive">
+	<div class="table">
 	<table class="table table-striped table-bordered table-hover" summary="${rlb.searchadmin_index_list_index}">
 	<tr>
 		<th colspan="3">${rlb.searchadmin_index_indexer_workers}</th>
@@ -101,7 +101,7 @@
 #end
 	</table>
 	</div>
-	<div class="table-responsive">
+	<div class="table">
 	<table class="table table-striped table-bordered table-hover" summary="${rlb.searchadmin_index_list_segments}" >
 	<tr>
 		<th colspan="3">${rlb.searchadmin_index_segments}</th>

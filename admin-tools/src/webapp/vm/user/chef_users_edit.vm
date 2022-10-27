@@ -1,10 +1,8 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_edit.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
 
-#css("/admin-tools/css/sakai-user-tool.css" 'media="screen"')
-
 ${includeLatestJQuery}
 
-<script type="text/javascript">
+<script>
 
 function addOptionalAttributeBlock() {
 	
@@ -27,12 +25,11 @@ function removeOptionalAttributeBlock(elem) {
 	$(elem).parent("p").remove();
 }
 
-
 </script>
 
 #javascript("/admin-tools/js/userValidationCommon.js")
-<script type="text/javascript">USER.isSuperUser =#if ($!superUser) true; #else false; #end</script>
-<script type="text/javascript">USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
+<script>USER.isSuperUser =#if ($!superUser) true; #else false; #end</script>
+<script>USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
 #javascript("/admin-tools/js/userEditValidation.js")
 #javascript("/library/js/spinner.js")
 
@@ -56,8 +53,8 @@ function removeOptionalAttributeBlock(elem) {
                     <span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")
                 </div>
 
-				<div class="form-group">
-					<label class="control-label col-sm-2" #if(!$user) for="user_eid" #end>
+				<div class="mb-3 row">
+					<label class="col-sm-2 col-form-label" #if(!$user) for="user_eid" #end>
 						<span class="red">*</span> $tlang.getString("useconrem.useid")
 					</label>
 					#if($!user && !$valueEid)
@@ -79,8 +76,8 @@ function removeOptionalAttributeBlock(elem) {
 					</div>
 				</div>
 
-				<div class="form-group">
-					<label class="control-label col-sm-2" for="first-name">
+				<div class="mb-3 row">
+					<label class="col-sm-2 col-form-label" for="first-name">
 						$tlang.getString("usecre.firnam")
 					</label>
 					<div class="col-sm-3">
@@ -92,8 +89,8 @@ function removeOptionalAttributeBlock(elem) {
 					</div>
 				</div>
 
-				<div class="form-group">
-					<label class="control-label col-sm-2" for="last-name">
+				<div class="mb-3 row">
+					<label class="col-sm-2 col-form-label" for="last-name">
 						$tlang.getString("usecre.lasnam")
 					</label>
 					<div class="col-sm-3">
@@ -105,8 +102,8 @@ function removeOptionalAttributeBlock(elem) {
 					</div>
 				</div>
 
-				<div class="form-group">
-					<label class="control-label col-sm-2" for="email">
+				<div class="mb-3 row">
+					<label class="col-sm-2 col-form-label" for="email">
 						$tlang.getString("useconrem.ema")
 					</label>
 					<div class="col-sm-3">
@@ -127,8 +124,8 @@ function removeOptionalAttributeBlock(elem) {
 				#if ($incPw && !$providedUserType)
 					#if(!$!superUser)
 							#if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
-								<div class="form-group">
-									<label class="control-label col-sm-2" for="user_pwcur">
+								<div class="mb-3 row">
+									<label class="col-sm-2 col-form-label" for="user_pwcur">
 										<span class="red">*</span> $tlang.getString("usecre.vercurpass")
 									</label>
 									<div class="col-sm-3">
@@ -141,8 +138,8 @@ function removeOptionalAttributeBlock(elem) {
 					#end
 
 					#if ($service.allowUpdateUserPassword($user.Id) || !$user)
-						<div class="form-group">
-							<label class="control-label col-sm-2" for="user_pw">
+						<div class="mb-3 row">
+							<label class="col-sm-2 col-form-label" for="user_pw">
 								$tlang.getString("usecre.crenewpass")
 							</label>
 							<div class="col-sm-3">
@@ -151,8 +148,8 @@ function removeOptionalAttributeBlock(elem) {
 						</div>
 
 						<div class="form-group forPopover" id="strengthBar" style="display:none;" >
-							<div class="row status-row">
-								<label class="control-label col-sm-2" for="strengthBarMeter">
+							<div class="mb-3 row status-row">
+								<label class="col-sm-2 col-form-label" for="strengthBarMeter">
 									 <span class="red">*</span> $tlang.getString("pw.strength")
 								</label>
 								<div class="status-display col-sm-3">
@@ -195,8 +192,8 @@ function removeOptionalAttributeBlock(elem) {
 							</div>
 						</div>
 
-						<div class="form-group">
-							<label class="control-label col-sm-2" for="user_pw0">
+						<div class="mb-3 row">
+							<label class="col-sm-2 col-form-label" for="user_pw0">
 								$tlang.getString("usecre.vernewpass")
 							</label>
 							<div class="col-sm-3">
@@ -219,8 +216,8 @@ function removeOptionalAttributeBlock(elem) {
 				#end
 
 				#if ($incType)
-					<div class="form-group">
-						<label class="control-label col-sm-2" for="type">
+					<div class="mb-3 row">
+						<label class="col-sm-2 col-form-label" for="type">
 							$tlang.getString("usecre.typ")
 						</label>
 						<div class="col-sm-3">
@@ -241,8 +238,8 @@ function removeOptionalAttributeBlock(elem) {
 					</div>
 				#end
 
-				<div class="form-group">
-					<label class="control-label col-sm-2" for="disabled">
+				<div class="mb-3 row">
+					<label class="col-sm-2 col-form-label" for="disabled">
 						$tlang.getString("disable.user")
 					</label>
 					#set($disabled = $user.Properties.getProperty("disabled"))

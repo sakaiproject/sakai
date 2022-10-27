@@ -139,7 +139,7 @@ commons.switchState = function (state, arg) {
             });
             if(commons.currentUserPermissions.postDeleteAny){   //if the user can delete any post, we will give them access to Hi-Priority posting too.
                 document.getElementById('commons-editor-priority-container').removeAttribute('style');
-                $('[data-toggle="popover"]').popover(); //we need the popover to work only when Hi-Priority is exposed.
+                $('[data-bs-toggle="popover"]').popover(); //we need the popover to work only when Hi-Priority is exposed.
             }
             editorPostButton.click(function (e) {
 

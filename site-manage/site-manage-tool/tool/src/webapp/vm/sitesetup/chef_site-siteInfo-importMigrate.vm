@@ -14,15 +14,15 @@
 				$tlang.getString("sitinfimp.replace")
 			</p>
 			<div class="panel-group" id="sitesAccordion">
-				<div class="panel panel-default">
-					<div class="panel-heading">
+				<div class="card">
+					<div class="card text-center bg-light">
 						<h4 class="panel-title">
 							#set ($sitesSize = $sites.size() - 1)
-							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
+							<a data-bs-toggle="collapse" data-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
 						</h4>
 					</div>
 					<div id="mysites" class="panel-collapse collapse in">
-						<div class="panel-body">
+						<div class="card-body">
 							#set ($siteIDCounter =0)
 							#foreach($site in $sites)
 								#set ($siteIDCounter = $siteIDCounter + 1)
@@ -40,14 +40,14 @@
 				</div>
 
 			#if ($!hiddenSites && $hiddenSites.size() > 0)
-				<div class="panel panel-default">
-					<div class="panel-heading">
+				<div class="card">
+					<div class="card text-center bg-light">
 						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
+							<a data-bs-toggle="collapse" data-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
 						</h4>
 					</div>
 					<div id="hiddenSites" class="panel-collapse collapse">
-						<div class="panel-body">
+						<div class="card-body">
 							<p class="instruction">
 								$tlang.getString("sitinfimp.hiddensites.info")
 							</p>

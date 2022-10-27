@@ -11,7 +11,6 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -361,8 +360,6 @@ public class QuickEntryPage extends BasePage {
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css%s", PortalUtils.getCDNQuery())));
-        response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css%s", PortalUtils.getCDNQuery())));
         response.render(JavaScriptHeaderItem.forUrl("/gradebookng-tool/scripts/gradebook-quick-entry.js"));
     }
 

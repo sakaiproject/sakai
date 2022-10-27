@@ -209,7 +209,7 @@
 					<h:outputText value=" #{msgs.you_need_to_login}" rendered="#{!SignupMeetingsBean.userLoggedInStatus}" escape="false"/>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{SignupMeetingsBean.meetingsAvailable}">
-					<div class="table-responsive">
+					<div class="table">
 				 	<t:dataTable 
 				 		id="meetinglist"
 				 		value="#{SignupMeetingsBean.signupMeetings}"

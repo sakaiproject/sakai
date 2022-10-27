@@ -47,7 +47,7 @@
       </div>
       <div id="joinableOptionsDiv" class="form-group row" th:if="${!joinableSetList.isEmpty()}">
         <div class="col-sm-8">
-          <div class="well">
+          <div class="card text-dark bg-light mb-3 p-3">
             <div class="checkbox">
               <label for="groupAllowPreviewMembership" class="form-control-label block">
                 <input id="groupAllowPreviewMembership" class="form-control" type="checkbox" th:field="*{groupAllowPreviewMembership}" th:checked="${groupForm.groupAllowPreviewMembership}"/>
@@ -62,7 +62,7 @@
             </div>
             <div class="block">
               <label for="joinableSetNumOfMembers" class="form-control-label" th:text="#{groups.joinableset.maxmembers}">Max members:</label>
-              <a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" th:attr="data-content=''+#{groups.joinableset.maxmembers.info}+''"></a>
+              <a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-bs-toggle="popover" data-trigger="focus" data-html="true" th:attr="data-content=''+#{groups.joinableset.maxmembers.info}+''"></a>
             </div>
             <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="1" max="999" class="form-control"/>
           </div>
@@ -73,7 +73,7 @@
               <input id="groupJoinableShowAllUsers" class="form-control" type="checkbox" th:field="*{groupJoinableShowAllUsers}" th:checked="${groupForm.groupJoinableShowAllUsers}"/>
               <span th:text="#{groups.joinableset.show.all}">Show all site participants, even if they already joined a group of this joinable set</span>
             </label>
-            <a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" th:attr="data-content=''+#{groups.joinableset.show.all.info}+''"></a>
+            <a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-bs-toggle="popover" data-trigger="focus" data-html="true" th:attr="data-content=''+#{groups.joinableset.show.all.info}+''"></a>
           </div>
         </div>
       </div>

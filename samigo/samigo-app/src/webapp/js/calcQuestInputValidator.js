@@ -3,7 +3,7 @@ includeWebjarLibrary('mathjs');
 $( document ).ready(function() {
 
   $('.calculatedQuestionInput').each( function() {
-    $(this).attr('data-toggle', 'popover'); 
+    $(this).attr('data-bs-toggle', 'popover'); 
     $(this).attr('data-content', calcqFormatError);
     $(this).attr('data-trigger', 'focus');
   });

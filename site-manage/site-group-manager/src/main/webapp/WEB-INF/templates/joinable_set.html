@@ -54,8 +54,8 @@
               </div>
               <div th:if="${joinableSetForm.joinableSetId != null}">
                 <div class="panel-group" id="accordion">
-                  <div class="panel panel-default">
-                    <div class="panel-heading">
+                  <div class="card">
+                    <div class="card text-center bg-light">
                       <h4 class="panel-title">
                         <a data-parent="#accordion" data-toggle="collapse" href="#groupCollapsible" th:text="|#{joinableset.current.groups} (${joinableSetGroups.size()})|">Current Groups:</a>
                       </h4>
@@ -66,8 +66,8 @@
                       </ul>
                     </div>
                   </div>
-                  <div class="panel panel-default">
-                    <div class="panel-heading">
+                  <div class="card">
+                    <div class="card text-center bg-light">
                       <h4 class="panel-title">
                         <a data-parent="#accordion" data-toggle="collapse" href="#additionalGroupsCollapsible" th:text="#{joinableset.additional.groups}">Generate Additional Groups</a>
                       </h4>
@@ -95,8 +95,8 @@
                       <div class="clearfix"></div>
                     </div>
                   </div>
-                  <div class="panel panel-default">
-                    <div class="panel-heading">
+                  <div class="card">
+                    <div class="card text-center bg-light">
                       <h4 class="panel-title">
                         <a data-parent="#accordion" data-toggle="collapse" href="#notJoinedUsersCollapsible" th:text="|#{joinableset.unjoined.users} (${notJoinedUserList.size()})|">Users who have not yet joined a group in this set</a>
                       </h4>

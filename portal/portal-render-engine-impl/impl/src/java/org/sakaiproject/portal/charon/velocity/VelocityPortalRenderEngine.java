@@ -92,12 +92,13 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
 			styleAbleContentSummary = serverConfigurationService.getBoolean(
 					"portal.styleable.contentSummary", false);
+			
+			//this variable will decide which templates and configs (bundle) are picked
 			defaultSkin = serverConfigurationService.getString("portal.templates", "morpheus");
 		}
 		catch (Exception ex)
 		{
-			log
-					.warn("No Server configuration service available, assuming default settings ");
+			log.warn("No Server configuration service available, assuming default settings ");
 		}
 		if ( sessionManager == null ) {
 			log.warn("No session Manager, assuming test mode ");
@@ -128,7 +129,6 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		 * m = new HashMap(); m.put("name", "skintwo"); m.put("display", "Skin
 		 * Two"); availablePortalSkins.add(m);
 		 */
-		vengine.getTemplate("/vm/"+defaultSkin+"/macros.vm");
 		}
 		catch (IOException e) {
 			throw new RuntimeException("Exception encounterd:  " + e, e);
@@ -200,7 +200,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		}
 		catch (Exception ex)
 		{
-			log.info("No options loaded ", ex);
+			log.info("No options loaded. Check options.config for " + defaultSkin, ex);
 
 		} 
 		finally {
@@ -228,10 +228,6 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		if (skin == null || skin.length() == 0)
 		{
 			skin = defaultSkin;
-		}
-		if (!defaultSkin.equals(skin))
-		{
-			vengine.getTemplate("/vm/" + skin + "/macros.vm");
 		}
 		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
 				((VelocityPortalRenderContext) rcontext).getVelocityContext(), out);

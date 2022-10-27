@@ -49,7 +49,7 @@ class SakaiUserPhoto extends SakaiElement {
       this.generatedId = `sakai-user-photo-${this.userId}-${Math.floor(Math.random() * 100)}`;
 
       this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
-                  + (this.siteId && `?siteId=${this.siteId}`);
+                  + (this.siteId ? `?siteId=${this.siteId}` : "");
     }
 
     if (this.profilePopup == SakaiUserPhoto.ON && this.generatedId) {

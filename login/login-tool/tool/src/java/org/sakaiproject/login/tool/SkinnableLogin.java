@@ -477,6 +477,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("xloginChoice", xloginChoice);
 		rcontext.put("containerText", containerText);
 		rcontext.put("loginContainerUrl", loginContainerUrl);
+		rcontext.put("rloader", rb);
 
 		String eid = StringEscapeUtils.escapeHtml4(request.getParameter("eid"));
 		String pw = StringEscapeUtils.escapeHtml4(request.getParameter("pw"));

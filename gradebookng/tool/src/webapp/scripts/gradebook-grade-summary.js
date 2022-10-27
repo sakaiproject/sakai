@@ -229,7 +229,7 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
 
 
 GradebookGradeSummary.prototype.setupPopovers = function() {
-  this.$content.find('[data-toggle="popover"]').popover();
+  this.$content.find('[data-bs-toggle="popover"]').popover();
 };
 
 

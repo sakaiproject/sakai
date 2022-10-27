@@ -1,0 +1,24 @@
+/* Dark Theme */
+
+:root.sakaiUserTheme-dark {
+
+  .table {
+    --bs-table-color: var(--sakai-text-color-1);
+    --bs-table-striped-color: var(--sakai-text-color-1);
+    --bs-table-hover-color: var(--sakai-text-color-1);
+  }
+
+  .btn {
+    --bs-btn-color: white;
+  }
+
+  .dropdown-menu {
+    --bs-dropdown-bg: var(--sakai-background-color-3);
+    --bs-dropdown-color: var(--sakai-text-color-1);
+    --bs-dropdown-header-color: var(--sakai-text-color-2);
+    --bs-dropdown-divider-bg: white;
+  }
+  .card {
+    --bs-card-bg: var(--sakai-background-color-3);
+  }
+}

@@ -241,11 +241,11 @@ export class SakaiRubricCriteria extends RubricsElement {
             </button>`
             : ""
           }
-          <button class="add-criterion" @click="${this.createCriterion}">
+          <button class="btn-link add-criterion" @click="${this.createCriterion}">
             <span class="add fa fa-plus"></span>
             <sr-lang key="add_criterion">Add Criterion</sr-lang>
           </button>
-          <button class="add-empty-criterion" @click="${(event) => this.createCriterion(event, true)}">
+          <button class="btn-link add-empty-criterion" @click="${(event) => this.createCriterion(event, true)}">
             <span class="add fa fa-plus"></span>
             <sr-lang key="add_criterion_group">Add Criterion Group</sr-lang>
           </button>

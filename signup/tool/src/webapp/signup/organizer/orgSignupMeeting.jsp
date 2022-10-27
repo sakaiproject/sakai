@@ -470,7 +470,7 @@
 			 	</div>
 
 
-				<div class="table-responsive">
+				<div class="table">
 				<h:panelGrid columns="1">					
 					<%-- control email and the expand-collapse --%>			
 					<h:panelGrid  id="orgMeeting_191" columns="3" rendered="#{!OrganizerSignupMBean.announcementType}" columnClasses="titleColumn,valueColumn,alignRightColumn" styleClass="emailTable">										
