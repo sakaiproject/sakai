@@ -91,8 +91,8 @@ class SakaiCourseHeader extends LitElement {
             font-weight: var(--sakai-course-dashboard-programme-font-weight);
           }
       #course-image {
-        width: 509px;
-        height: 293px;
+        max-width: 509px;
+        max-height: 293px;
       }
     `;
   }
