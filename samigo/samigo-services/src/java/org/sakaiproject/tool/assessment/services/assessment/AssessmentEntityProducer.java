@@ -723,7 +723,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         try {
             db = SqlService.borrowConnection();
 
-            loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where assessmentid = ?",
+            loadResourceIds(db, "select resourceid from SAM_PUBLISHEDATTACHMENT_T where assessmentid = ?",
 			   "resourceid",  pubAssessmentId, result);
 
             loadResourceIds(db,
