@@ -248,7 +248,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		poolIds.addAll(fetchAssessmentPoolIds(data.getPublishedAssessmentId(), false));
 
 		// Attachments
-		for (String resourceId : fetchAllAttachmentResourceIds(data.getPublishedAssessmentId())) {
+		for (String resourceId : fetchAllPublishedAttachmentResourceIds(data.getPublishedAssessmentId())) {
 			ContentResource resource = null;
 			try {
 				resource = ContentHostingService.getResource(resourceId);
@@ -715,6 +715,50 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
         return result;
     }
+
+    private List<String> fetchAllPublishedAttachmentResourceIds(Long pubAssessmentId) {
+        List<String> result = new ArrayList<>();
+
+        Connection db = null;
+        try {
+            db = SqlService.borrowConnection();
+
+            loadResourceIds(db, "select resourceid from SAM_ATTACHMENT_T where assessmentid = ?",
+			   "resourceid",  pubAssessmentId, result);
+
+            loadResourceIds(db,
+                            "select resourceid from SAM_PUBLISHEDATTACHMENT_T where sectionid in " +
+                            " (select sectionid from SAM_PUBLISHEDSECTION_T where assessmentid = ?)",
+			    "resourceid",
+                            pubAssessmentId,
+                            result);
+
+            loadResourceIds(db,
+                            "select resourceid from SAM_PUBLISHEDATTACHMENT_T where itemid in " +
+                            " (select itemid from SAM_PUBLISHEDITEM_T where sectionid in " +
+                            "  (select sectionid from SAM_PUBLISHEDSECTION_T where assessmentid = ?))",
+			    "resourceid",
+                            pubAssessmentId,
+                            result);
+
+            loadResourceIds(db,
+                            "select resourceid from SAM_PUBLISHEDATTACHMENT_T where itemtextid in " +
+                            " (select itemtextid from SAM_PUBLISHEDITEMTEXT_T where itemid in " +
+                            "  (select itemid from SAM_PUBLISHEDITEM_T where sectionid in" +
+                            "   (select sectionid from SAM_PUBLISHEDSECTION_T where assessmentid = ?)))",
+			    "resourceid",
+                            pubAssessmentId,
+                            result);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            SqlService.returnConnection(db);
+        }
+
+        return result;
+    }
+
 
 	private List<String> fetchItemAttachmentResourceIds(Long itemId) {
 		List<String> result = new ArrayList<>();
