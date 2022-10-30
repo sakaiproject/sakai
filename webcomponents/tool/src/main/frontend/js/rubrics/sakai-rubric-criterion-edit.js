@@ -146,6 +146,10 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     this.hideToolTip();
     this.dispatchEvent(new CustomEvent('hide-tooltip', {details: this.criterion}));
     $(`#edit_criterion_${this.criterion.id}`).hide();
+    const popover = $(`#edit_criterion_${this.criterion.id}`);
+    popover.find("input[type='text']")[0].value = this.criterion.title;
+    this.querySelector("sakai-editor").setContent(this.criterion.description);
+    popover.hide();
   }
 
   saveEdit(e) {
