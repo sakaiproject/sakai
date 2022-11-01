@@ -2,15 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
     [(${sakaiHtmlHead})]
   </head>
   <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
-    <script>includeLatestJQuery('sakai.plus');</script>
     <div class="portletBody">
         <h1 th:text="#{plus.tool.title.tenants}">Tenants</h1>
         <p th:unless="${enabled}" th:text="#{plus.tool.not.enabled}" class="sak-banner-error">Not Enabled</p>
-        <p><a class="btn btn-info" th:href="@{/create}" th:text="#{plus.tool.addtenant}">Add Tenant</a></p>
+        <p><a class="btn btn-primary" th:href="@{/create}" th:text="#{plus.tool.addtenant}">Add Tenant</a></p>
         <ul>
         <li th:each="tenant: ${tenants}">
             <a th:href="@{/tenant/{id}(id=${tenant.id})}">
