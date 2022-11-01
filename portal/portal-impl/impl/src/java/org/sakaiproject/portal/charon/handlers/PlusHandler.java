@@ -113,7 +113,6 @@ public class PlusHandler extends SiteHandler
 	protected void doSendResponse(PortalRenderContext rcontext, HttpServletResponse res,
 			String contentType) throws IOException
 	{
-System.out.println("PlusHandler.java doSendResponse URL_FRAGMENT="+URL_FRAGMENT);
 		portal.sendResponse(rcontext, res, "plus", null);
 	}
 

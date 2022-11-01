@@ -2,16 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
     [(${sakaiHtmlHead})]
   </head>
   <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
-    <script>includeLatestJQuery('sakai.plus');</script>
     <div class="portletBody">
         <h1><span th:text="#{plus.tool.context.title}">Context:</span> <span th:text="${context.title}">Sakai</span></h1>
         <div th:if="${admin}">
-        <p><a th:href="@{/contexts/{id}(id=${tenantId})}" th:text="#{plus.tool.all.contexts}">All Contexts</a> |
-        <a th:href="@{/}" th:text="#{plus.tool.all.tenants}">All Tenants</a></p>
+        <p><a th:href="@{/contexts/{id}(id=${tenantId})}" th:text="#{plus.tool.all.contexts}" class="btn btn-secondary">All Contexts</a>
+        <a th:href="@{/}" th:text="#{plus.tool.all.tenants}" class="btn btn-secondary">All Tenants</a></p>
         </div>
         <p><b th:text="#{plus.tool.job.start}">Start:</b> <span th:text="${context.nrpsStart}">Start</span></p>
         <p><b th:text="#{plus.tool.job.finish}">Finish:</b> <span th:text="${context.nrpsFinish}">Finish</span></p>

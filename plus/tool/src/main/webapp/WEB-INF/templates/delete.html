@@ -2,11 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
     [(${sakaiHtmlHead})]
   </head>
   <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
-    <script>includeLatestJQuery('sakai.plus');</script>
     <div class="portletBody">
         <h1><span th="#{plus.tool.deletetenant}"> Delete: </span>
             <span th:text="${tenant.title}">Sakai</span> /
