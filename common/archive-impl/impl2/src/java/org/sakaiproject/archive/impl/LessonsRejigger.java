@@ -2,9 +2,11 @@ package org.sakaiproject.archive.impl;
 
 import org.jsoup.Jsoup;
 
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -340,7 +342,14 @@ public class LessonsRejigger {
 
             Source src = new SAXSource(xr, new InputSource(path));
             Result res = new StreamResult(new FileOutputStream(path + ".rewritten"));
-            TransformerFactory.newInstance().newTransformer().transform(src, res);
+
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer t = tf.newTransformer();
+
+            t.setOutputProperty(OutputKeys.INDENT, "yes");
+            t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+            t.transform(src, res);
 
             // Keep the original copy for reference
             new File(path).renameTo(new File(path + ".pre_rewrite"));
