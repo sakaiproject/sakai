@@ -530,7 +530,7 @@
 						<executions>
 							<execution>
 								<id>install node and npm</id>
-								<phase>generate-resources</phase>
+								<phase>initialize</phase>
 								<goals>
 									<goal>install-node-and-npm</goal>
 								</goals>
@@ -541,7 +541,7 @@
 							</execution>
 							<execution>
 								<id>npm install dependencies</id>
-								<phase>generate-resources</phase>
+								<phase>initialize</phase>
 								<goals>
 									<goal>npm</goal>
 								</goals>
@@ -680,7 +680,6 @@
 									</arguments>
 								</configuration>
 							</execution>
-
 						</executions>
 					</plugin>
 				</plugins>
