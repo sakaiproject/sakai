@@ -15,28 +15,27 @@ This allows Sakai to keep you logged into both sites at the same time.  Don't us
 as 'admin' unless you add an email address to the admin account.
 
 Create a Sakai Site as the instructor and add the student account to the site - we will call
-this the "Main Site" - this site will serve as a proxy for the launch, roster, and gradebook
-as if it were in in Canvas/D2L/Blackboard, etc.
+this the "Main Site" - this site will serve as a proxy for the launch, roster, gradebook,
+and plus launch as if it were in in Canvas/D2L/Blackboard, etc.
 
 Don't log into the student yet - they should just be in the roster in the main site.
 
-As instructor, add the Gradebook and Lessons to the Main Site. Place the "SakaiPlus Launch" in Lessons
-in the Main Site and tell it to open in a new window.   Later you should test that if you
-lauch sakai.site from SakaiPlus in an iframe - it will escape to a new window.  Launches
-to specific tools should stay in the iframe - the entire site launch should force
-itself out of the iframe.
+As instructor, add the Gradebook, Lessons, and Plus Launch to the Main Site.
 
-Launch the Sakai Plus Link from the Main Site. You should now have two tabs - one on the
-Main Site and one on the Plus Site - they will have the same name and you can't change that.
-SakaiPlus keeps the name synchronized at each launch.
+Launch the Plus Launch link from the Main Site. You should now have two tabs - one on the
+Main Site and one on the Plus Site.  The instructor can change the Site Description in
+Site Info, but you need go into admin -> Administration Workspace -> Sites to change the
+site title in the plus site.  It is a good idea to change both so you keep the two
+sites straight whilst testing.
 
 From the Plus site, look at Site Info and verify that the roster has both the instructor and
 student (i.e. before the student has even launched SakaiPlus).
 
 In the Plus Site, add Lessons, Gradebook, Samigo, Forums, and Assignments.  There is a "sakai.plus"
-tool that yon need to add to the site using the Admin because it is not in the Site Info list
+tool that you need to add to the site using the Admin because it is not in the Site Info list
 of tools.  In time - I might make a plus template that has this tool pre-installed to bypass
-this step.
+this step.  Do not add the Plus Launch tool in the Plus Site - or you will end up with three
+sites and inception.  It should technically work - but will give you a headache :).
 
 Note that the Plus tool can be added to any site - but it will only show information for
 a Plus site (i.e. if you add it to the Main Site you will never see any data).
