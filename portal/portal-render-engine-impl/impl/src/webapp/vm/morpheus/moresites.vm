@@ -34,7 +34,7 @@
         class="modal"
         role="dialog"
         aria-hidden="true"
-        aria-label="${rloader.sit_all_sites_dialog_label}">
+        aria-label="${rloader.sit_allsites_dialog_label}">
     <div class="modal-dialog modal-lg">
       <div class="modal-content border-0">
         <div class="modal-header">
