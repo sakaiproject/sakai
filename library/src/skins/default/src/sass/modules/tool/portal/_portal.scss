@@ -38,7 +38,7 @@
     visibility: visible;
     box-shadow: none;
     transform: none;
-    .sidebar-collapsed & {
+    &.sidebar-collapsed {
       display: none;
     }
   }
@@ -353,6 +353,13 @@ text-decoration-line-throughh
     &:focus {
       outline: none;
       color: var(--site-nav-btn-current-hover-color);
+    }
+
+    &.selected-page {
+      background-color: var(--sakai-selected-page-bg-color);
+      border-color: var(--sakai-selected-page-bg-color);
+      color: var(--sakai-selected-page-color);
+      font-weight: 600;
     }
 
     span {

@@ -12,7 +12,25 @@ class SitesSidebar {
     const pinButtonElements = element.querySelectorAll(".site-opt-pin");
     pinButtonElements.forEach((buttonEl) => new PinButton(buttonEl, { i18n: this._i18n?.pinButtons}));
 
-    document.addEventListener("site-pin-change", this.#handlePinChange)
+    document.addEventListener("site-pin-change", this.#handlePinChange);
+
+    element.querySelectorAll(".site-page-list .nav-item a").forEach(link => {
+
+      link.addEventListener("click", e => {
+
+        e.preventDefault();
+
+        fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?selectedPage=${e.target.dataset.pageId}`, { method: "PUT" })
+        .then(r => {
+
+          if (!r.ok) {
+            console.error(`Could not set selectedPage preference: ${r.status}`);
+          }
+
+          window.location = e.target.href;
+        });
+      });
+    });
 
     element.querySelectorAll(".site-list-item-collapse").forEach(btn => {
 
