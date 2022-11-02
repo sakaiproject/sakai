@@ -294,7 +294,7 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
 
   $table.tablesorter({
     theme : "bootstrap",
-    widthFixed: true,
+    widthFixed: false,
     headerTemplate : '{content} {icon}',
     widgets : [ "uitheme", "zebra", "stickyHeaders" ],
     widgetOptions : {
