@@ -1311,12 +1311,14 @@ public class ProviderServlet extends HttpServlet {
 
 		boolean changed = false;
 
-		if (BasicLTIUtil.isNotBlank(context_title) && !context_title.equals(site.getTitle())) {
+		// Only copy title once
+		if (BasicLTIUtil.isNotBlank(context_title) && BasicLTIUtil.isBlank(site.getTitle()) ) {
 			site.setTitle(context_title);
 			changed = true;
 		}
 
-		if (BasicLTIUtil.isNotBlank(context_label) && !context_label.equals(site.getShortDescription())) {
+		// Only copy description once
+		if (BasicLTIUtil.isNotBlank(context_label) && BasicLTIUtil.isBlank(site.getShortDescription()) ) {
 			site.setShortDescription(context_label);
 			changed = true;
 		}
