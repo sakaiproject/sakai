@@ -403,6 +403,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				pageMap.put("url", page.getUrl());
 				pageMap.put("resetUrl", page.getUrl().replaceFirst("page", "page-reset"));
 			}
+			pageMap.put("id", page.getId());
 			pageMap.put("icon", "si-" + toolList.get(0).getToolId().replace('.', '-'));
 		} else {
 			pageMap.put("icon", "si-default-tool");

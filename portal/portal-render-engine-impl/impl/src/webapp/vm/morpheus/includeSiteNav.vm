@@ -8,16 +8,18 @@
         #set ($pinIconClass = "bi-pin")
     #end
 
+    #if ($isCurrentSite)
+        #set ($currentSiteClass = "is-current-site")
+        #set ($isExpanded = "true")
+    #else
+        #set ($currentSiteClass = "")
+        #set ($isExpanded = "false")
+    #end
+
     #if ($isExpanded)
         #set ($isExpandedClass = "show")
     #else
         #set ($isCollapsedClass = "collapsed")
-    #end
-
-    #if ($isCurrentSite)
-        #set ($currentSiteClass = "is-current-site")
-    #else
-        #set ($currentSiteClass = "")
     #end
 
     <li class="site-list-item py-1 $!{currentSiteClass}">
@@ -49,7 +51,7 @@
                 #else
                     #set ($pageUrl = $page.url)
                 #end
-                #pageListItem ($page.title, $pageUrl, "si ${page.icon}", 4)
+                #pageListItem ($page.id, $page.title, $pageUrl, "si ${page.icon}", 4)
                 #*
                 <li class="nav-item">
                     <a class="btn btn-nav rounded-end ps-4" href="${pageUrl}">
@@ -70,7 +72,7 @@
                     <div id="site-${index}-subpages" class="collapse">
                         <ul class="nav flex-column">
                             #foreach ( $subSite in $site.subSites )
-                                #pageListItem ($subSite.title, $subSite.url, "si si-subsite", 5)
+                                #pageListItem ("subsites", $subSite.title, $subSite.url, "si si-subsite", 5)
                             #end
                         </ul>
                     </div>
@@ -81,17 +83,17 @@
     </li>
 #end
 
-#macro( pageListItem $title $url $icon $indentation)
+#macro( pageListItem $id $title $url $icon $indentation)
     <li class="nav-item">
-        <a class="btn btn-nav rounded-end ps-${indentation}" href="$!{url}">
+        <a class="btn btn-nav rounded-end ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}" href="$!{url}">
             <i class="me-1 $!{icon}" aria-hidden="true"></i>
-            <span>${title}</span>
+            <span class="pe-none">${title}</span>
         </a>
     </li>
 #end
 
 <!-- START VM includeSiteNav.vm -->
-<aside id="portal-nav-sidebar" class="d-none portal-nav-sidebar overflow-auto" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
+<aside id="portal-nav-sidebar" class="d-none portal-nav-sidebar overflow-auto #if ($sidebarCollapsed)sidebar-collapsed#end" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
     <div class="offcanvas-header d-md-none">
         <h2 class="offcanvas-title">${rloader.sitenav_title}</h2>
         <button type="button" class="btn-close text-reset ms-auto" data-bs-dismiss="offcanvas" aria-label="Close the sites sidebar"></button>

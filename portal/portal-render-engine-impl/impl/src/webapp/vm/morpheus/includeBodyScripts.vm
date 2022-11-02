@@ -16,7 +16,8 @@
                 titleCollapsed: "${rloader.mainnav_btn_sidebar_expand}"
             },
             toggleClass: "sidebar-collapsed",
-            portalConstainer: portal.container
+            portalContainer: portal.container,
+            sitesSidebar: portal.sidebars.sites,
         };
         const collapseButton = new SidebarCollapseButton(buttonElement, buttonConfig);
     })();
