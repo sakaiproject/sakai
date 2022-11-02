@@ -17,8 +17,8 @@ $(function(){
                 },
                 buttonIcons: {
                     /*Use of bootstrap5 as themeSystem will expect bootstrap icons and prepend bi bi-*/
-                    prev: 'caret-left',
-                    next: 'caret-right',
+                    prev: 'chevron-left',
+                    next: 'chevron-right',
                 },
 
                 eventSources: [{
@@ -94,7 +94,11 @@ $(function(){
                     //when Full Details is clicked, event in the Calendar tool is shown.
                     $('#fullDetails').html('<a href=' + more_info + ' target=_top>' + fullDetailsText + '</a>');
                     //On event click dialog is opened near the event
-                    $('#calendarEventDialog').dialog({ modal: true, title: eventClick.event.title, width: 400 });
+                    const modalEl = document.querySelector("#calendarEventDialog");
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    const title = document.getElementById("calendarEventModalLabel");
+                    title && (title.innerText = eventClick.event.title);
+                    modal.show();
                 }
             });
             calendar.render();

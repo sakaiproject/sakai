@@ -2344,7 +2344,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tofill, "comments-script");
 							UIOutput.make(tofill, "fckScript");
 							addedCommentsScript = true;
-							UIOutput.make(tofill, "delete-dialog");
+							UIOutput.make(tofill, "delete-comment-confirm-dialog");
 						}
 						
 						// forced comments have to be edited on the main page
@@ -4179,7 +4179,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIComponent layoutlink = UIInternalLink.makeURL(tofill, "layout-link", "#");
 		layoutlink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.layout-descrip")));
 
-
 		// add content menu
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text1", null, currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource1", null, false, false,  currentPage, "simplepage.resource.tooltip");
@@ -5161,7 +5160,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "delete-student-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
 		UICommand.make(form, "cancel-student", messageLocator.getMessage("simplepage.cancel"), null);
-		
+
 		// RU Rubrics
 		UIOutput.make(tofill, "peer-eval-create-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.peer-eval-create-title")));
 	}

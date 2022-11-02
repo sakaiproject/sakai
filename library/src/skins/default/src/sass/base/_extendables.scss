@@ -360,6 +360,7 @@ input::placeholder {
 							var(--button-primary-shadow),
 							var(--button-primary-hover-shadow),
 							var(--button-primary-active-shadow));
+	margin-right: $standard-space;
 }
 
 // the standard button design for non-primary action buttons (opposite of sakai_primary_button above)
