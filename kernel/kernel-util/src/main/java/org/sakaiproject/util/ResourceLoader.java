@@ -214,7 +214,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			this.baseName + ", locale=" + getLocale().toString() +
 			", key=" + key + ", pattern=" + pattern);
 		}
-			
+		pattern = pattern.replaceAll("'", "''");
 		return (new MessageFormat(pattern, getLocale())).format(args, new StringBuffer(), null).toString();
 	}
 
