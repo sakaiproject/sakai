@@ -132,12 +132,16 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String DRAFT = "draft";
 	private static final String LOCKED = "locked";
 	private static final String MODERATED = "moderated";
+	private static final String POST_ANONYMOUS = "anonymous";
 	private static final String POST_FIRST = "post_first";
 	private static final String SORT_INDEX = "sort_index";
 	private static final String PROPERTIES = "properties";
 	private static final String PROPERTY = "property";
 	private static final String TOPIC_SHORT_DESC = "Classic:bboardForums_description";
 	private static final String TOPIC_LONG_DESC = "Classic:bboardForums_content";
+	private static final String GRADE_ASSIGNMENT = "grade_assignment";
+	private static final String OPEN_DATE = "available_open";
+	private static final String CLOSE_DATE = "available_close";
 	private static final String NAME = "name";
 	private static final String ENCODE = "enc";
 	private static final String BASE64 = "BASE64";
@@ -245,11 +249,23 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					discussionForumElement.setAttribute(DRAFT, discussionForum.getDraft().toString());
 					discussionForumElement.setAttribute(LOCKED, discussionForum.getLocked().toString());
 					discussionForumElement.setAttribute(MODERATED, discussionForum.getModerated().toString());
+					discussionForumElement.setAttribute(POST_FIRST, discussionForum.getPostFirst().toString());
 					discussionForumElement.setAttribute(SORT_INDEX, discussionForum.getSortIndex().toString());
 					discussionForumElement.setAttribute(DISCUSSION_FORUM_DESC,
 							getEncodedString(discussionForum.getExtendedDescription()));
 					discussionForumElement.setAttribute(DISCUSSION_FORUM_SHORT_DESC,
 							getEncodedString(discussionForum.getShortDescription()));
+					if (discussionForum.getDefaultAssignName() != null) {
+						discussionForumElement.setAttribute(GRADE_ASSIGNMENT, discussionForum.getDefaultAssignName());
+					}
+					if (discussionForum.getAvailabilityRestricted()) {
+						if (discussionForum.getOpenDate() != null) {
+							discussionForumElement.setAttribute(OPEN_DATE, discussionForum.getOpenDate().toString());
+						}
+						if (discussionForum.getCloseDate() != null) {
+							discussionForumElement.setAttribute(CLOSE_DATE, discussionForum.getCloseDate().toString());
+						}
+					}
 
 					// attachments
 					List<Attachment> forumAttachments = discussionForum.getAttachments();
@@ -279,6 +295,19 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				discussionTopicElement.setAttribute(DRAFT, discussionTopic.getDraft().toString());
 				discussionTopicElement.setAttribute(LOCKED, discussionTopic.getLocked().toString());
 				discussionTopicElement.setAttribute(MODERATED, discussionTopic.getModerated().toString());
+				discussionTopicElement.setAttribute(POST_ANONYMOUS, discussionTopic.getPostAnonymous().toString());
+				discussionTopicElement.setAttribute(POST_FIRST, discussionTopic.getPostFirst().toString());
+				if (discussionTopic.getDefaultAssignName() != null) {
+					discussionTopicElement.setAttribute(GRADE_ASSIGNMENT, discussionTopic.getDefaultAssignName());
+				}
+				if (discussionTopic.getAvailabilityRestricted()) {
+					if (discussionTopic.getOpenDate() != null) {
+						discussionTopicElement.setAttribute(OPEN_DATE, discussionTopic.getOpenDate().toString());
+					}
+					if (discussionTopic.getCloseDate() != null) {
+						discussionTopicElement.setAttribute(CLOSE_DATE, discussionTopic.getCloseDate().toString());
+					}
+				}
 				if (discussionTopic.getSortIndex() != null) {
 					discussionTopicElement.setAttribute(SORT_INDEX, discussionTopic.getSortIndex().toString());
 				} else {
@@ -349,10 +378,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		messageElement.setAttribute(MESSAGE_LABEL, message.getLabel());
 		messageElement.setAttribute(MESSAGE_TYPE_UUID, message.getTypeUuid());
 		messageElement.setAttribute(MESSAGE_UUID, message.getUuid());
-		messageElement.setAttribute(MESSAGE_APPROVED, message.getApproved().toString());
+		if (message.getApproved() != null) {
+			messageElement.setAttribute(MESSAGE_APPROVED, message.getApproved().toString());
+		}
 		messageElement.setAttribute(MESSAGE_DELETED, message.getDeleted().toString());
 		messageElement.setAttribute(MESSAGE_HAS_ATTACHMENTS, message.getHasAttachments().toString());
-		messageElement.setAttribute(MESSAGE_NUM_READER, message.getNumReaders().toString());
+		if (message.getNumReaders() != null) {
+			messageElement.setAttribute(MESSAGE_NUM_READER, message.getNumReaders().toString());
+		}
 		if (message.getThreadId() != null) {
 			messageElement.setAttribute(MESSAGE_THREAD_ID, message.getThreadId().toString());
 		} else {
