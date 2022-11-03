@@ -67,7 +67,7 @@
     }
   }
 
-  #portal-notifications-button {
+  .portal-notifications-button {
     position: relative;
   }
 }
@@ -145,6 +145,12 @@ text-decoration-line-throughh
   position: sticky;
   bottom: 0;
   z-index: 1050;
+  color: white;
+  button {
+    i {
+      font-size: 24px;
+    }
+  }
 }
 .portal-jump-links {
   grid-area: jumpLinks;

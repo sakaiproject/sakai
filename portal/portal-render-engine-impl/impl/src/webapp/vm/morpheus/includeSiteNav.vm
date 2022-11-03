@@ -16,15 +16,9 @@
         #set ($isExpanded = "false")
     #end
 
-    #if ($isExpanded)
-        #set ($isExpandedClass = "show")
-    #else
-        #set ($isCollapsedClass = "collapsed")
-    #end
-
     <li class="site-list-item py-1 $!{currentSiteClass}">
         <div class="site-list-item-head d-flex align-items-stretch pe-2">
-            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 d-flex flex-grow-1 $!{isCollapsedClass}"
+            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 d-flex flex-grow-1 #if (!$isCurrentSite)collapsed#end"
                     data-bs-toggle="collapse"
                     data-bs-target="#site-${index}-pages"
                     aria-expanded="${isExpanded}"
@@ -40,7 +34,7 @@
                 </button>
             #end
         </div>
-        <div id="site-${index}-pages" class="site-list-item-collapse collapse $!{isExpandedClass}">
+        <div id="site-${index}-pages" class="site-list-item-collapse collapse #if ($isCurrentSite)show#end">
             #if ($site.shortDescription)
                 <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">${site.shortDescription}</p>
             #end

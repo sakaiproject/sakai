@@ -8,11 +8,6 @@ body{
   font-weight: $default-font-weight;
   line-height: $default-line-height;
   scroll-behavior: $scroll-behavior;
-  &.#{$namespace}portalBody{
-    @media #{$phone}{
-      padding: $banner-height 0 0 0;
-    }
-  }
   #maximised-indicator {
     position: fixed;
     overflow: hidden;
@@ -276,6 +271,18 @@ span.marker {
     -moz-appearance: none;
     appearance: none;
     margin: 0;
+  }
+}
+
+button.icon-button {
+  background-color: transparent;
+  color: inherit;
+
+  border: 1px solid transparent;
+
+  &:focus, &:hover {
+    background-color: transparent;
+    border-color: inherit;
   }
 }
 
