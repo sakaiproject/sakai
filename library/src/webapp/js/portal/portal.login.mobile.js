@@ -4,7 +4,7 @@ class MobileLogin {
 
     this._passConfig = config?.passwordField;
     this._element = element;
-    this._element.addEventListener("click", this.showModal.bind(this));
+    this._element.addEventListener("click", this.#showModal.bind(this));
   }
 
   async #showModal() {

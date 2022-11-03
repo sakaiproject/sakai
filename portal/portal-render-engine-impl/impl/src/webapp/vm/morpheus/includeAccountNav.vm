@@ -29,7 +29,7 @@ For opening help sidebar
     </li>
   #end
   <li class="d-none d-md-inline">
-    <button class="btn only-icon-btn"
+    <button class="btn icon-button"
         data-bs-toggle="modal"
         data-bs-target="#select-site-modal"
         aria-label="$rloader.sit_allsites"
@@ -41,7 +41,7 @@ For opening help sidebar
 
   #if (${usePortalSearch})
     <li class="d-none d-md-inline">
-      <button class="btn only-icon-btn"
+      <button class="btn icon-button"
           data-bs-toggle="offcanvas"
           data-bs-target="#sakai-searchPanel"
           aria-controls="sakai-searchPanel"
@@ -65,8 +65,7 @@ For opening help sidebar
 
   #if (${useBullhornAlerts})
     <li class="d-none d-md-inline">
-      <button id="portal-notifications-button"
-          class="btn only-icon-btn"
+      <button class="portal-notifications-button btn icon-button"
           data-bs-toggle="offcanvas"
           data-bs-target="#sakai-notificationsPanel"
           aria-controls="sakai-notificationsPanel"

@@ -37,15 +37,13 @@ body.active-more-sites {
     border-radius: 2px;
   }
 
-  .only-icon-btn {
-    background: none;
-    color: inherit;
+  button.icon-button {
     border: none;
-    font: inherit;
+    padding: 5px 0 5px 0;
+  }
 
-    &.up-btn, &.down-btn {
-      //width: 10px;
-    }
+  .fav-sites-entry {
+    padding: 5px;
   }
 }
 

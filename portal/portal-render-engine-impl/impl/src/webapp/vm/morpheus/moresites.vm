@@ -3,7 +3,7 @@
   <li class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
     #if (!${site.isMyWorkspace})
       <button data-site-id="${site.siteId}"
-          class="site-favorite-btn only-icon-btn"
+          class="site-favorite-btn icon-button"
           title="$rloader.getFormattedMessage("site_fav_toggle", $site.siteTitle)"
           aria-label="$rloader.getFormattedMessage("site_fav_toggle", $site.siteTitle)">
         <i class="bi-pin" style="display: none"></i>
@@ -103,7 +103,7 @@
                         #if ( !$termKey || $termKey == "" )
                           <h3 class="favorites-term-header">
                             <span class="favorites-select-container">
-                              <button class="favorites-select-all-none only-icon-btn"
+                              <button class="favorites-select-all-none icon-button"
                                   title="${rloader.moresite_toggle_all_as_favorites_no_term}"
                                   aria-label="${rloader.moresite_toggle_all_as_favorites_no_term}">
                                 <i class="bi-pin-fill" style="display: none"></i>
@@ -115,7 +115,7 @@
                         #else
                           <h3 class="favorites-term-header">
                             <span class="favorites-select-container">
-                              <button class="favorites-select-all-none only-icon-btn"
+                              <button class="favorites-select-all-none icon-button"
                                   title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
                                   aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
                                 <i class="bi-pin-fill" style="display: none"></i>
@@ -143,7 +143,7 @@
                         #if ( $termKey && $termKey != "" )
                           <h3 class="favorites-term-header">
                             <span class="favorites-select-container">
-                              <button class="favorites-select-all-none only-icon-btn"
+                              <button class="favorites-select-all-none icon-button"
                                   title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
                                   aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
                                 <i class="bi-pin-fill" style="display: none"></i>
@@ -193,7 +193,7 @@
                           </div>
                           <div class="organize-pinned-arrow-buttons">
                             <div>
-                              <button class="only-icon-btn up-btn #if ($velocityCount == 1)d-none#end"
+                              <button class="icon-button up-btn #if ($velocityCount == 1)d-none#end"
                                   title="${rloader.sit_move_pinned_up}"
                                   aria-label="${rloader.sit_move_pinned_up}"
                               >
@@ -201,7 +201,7 @@
                               </button>
                             </div>
                             <div>
-                              <button class="only-icon-btn down-btn #if ($velocityCount == $tabsSites.pinned.size())d-none#end"
+                              <button class="icon-button down-btn #if ($velocityCount == $tabsSites.pinned.size())d-none#end"
                                   title="${rloader.sit_move_pinned_down}"
                                   aria-label="${rloader.sit_move_pinned_down}"
                               >

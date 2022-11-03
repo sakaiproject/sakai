@@ -3,44 +3,55 @@
 <nav class="portal-mobilebar bg-dark d-flex d-md-none align-items-center justify-content-between">
   <ul class="nav flex-nowrap align-items-center justify-content-around w-100">
     <li>
-      <a class="sak-sysInd-sites nav-link text-white position-relative" data-bs-toggle="offcanvas" href="#portal-nav-sidebar" role="button" aria-controls="portal-nav-sidebar">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-grid" viewBox="0 0 16 16">
-        <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
-      </svg>
-      </a>
+      <button class="btn icon-button"
+		  data-bs-toggle="offcanvas"
+		  data-bs-target="#portal-nav-sidebar"
+		  aria-controls="portal-nav-sidebar"
+		  aria-label="$rloader.sit_navigation"
+		  title="$rloader.sit_navigation">
+        <i class="bi-grid"></i>
+      </button>
     </li>
 
     #if (${useBullhornAlerts} && !${loginTopLogin})
     <li>
-      <a class="sak-sysInd-notifications nav-link text-white position-relative" data-bs-toggle="offcanvas" href="#sakai-notificationsPanel" role="button" aria-controls="sakai-notificationsPanel">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16" role="img" aria-label="View notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications">
-          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
-        </svg>
-        <span class="portal-notifications-indicator p-1 bg-danger rounded-circle">
+      <button class="portal-notifications-button btn icon-button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-notificationsPanel"
+          aria-controls="sakai-notificationsPanel"
+          aria-label="$rloader.sit_notifications"
+          title="$rloader.sit_notifications">
+        <i class="bi-bell"></i>
+        <span id="portal-notifications-indicator" class="portal-notifications-indicator p-1 bg-danger rounded-circle" style="display: none">
           <span class="visually-hidden">There are new notifications available</span>
         </span>
-      </a>
+      </button>
     </li>
     #end 
 
     #if (!${loginTopLogin})
     <li>
-      <a class="sak-sysInd-account nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-accountPanel" role="button" aria-controls="sakai-accountPanel" title="Account">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
-          <path fill-rule="evenodd" d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
-          <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"/>
-        </svg>
-      </a>
+      <button class="btn icon-button"
+		  data-bs-toggle="offcanvas"
+		  data-bs-target="#sakai-accountPanel"
+		  aria-controls="sakai-accountPanel"
+          aria-label="$rloader.sit_account"
+          title="$rloader.sit_account">
+        <i class="bi-house"></i>
+      </button>
     </li>
     #end
 
     #if (${usePortalSearch} && !${loginTopLogin})
     <li>
-      <a class="sak-sysInd-search nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-searchPanel" role="button" aria-controls="sakai-searchPanel">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16" role="img" aria-label="Search Sakai" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Search">
-          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-        </svg>
-      </a>
+      <button class="btn icon-button"
+      		data-bs-toggle="offcanvas"
+			data-bs-target="#sakai-searchPanel"
+			aria-controls="sakai-searchPanel"
+            aria-label="$rloader.sit_search_for_content"
+            title="$rloader.sit_search_for_content">
+        <i class="bi-search"></i>
+      </button>
     </li>
     #end
 
