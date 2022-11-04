@@ -88,7 +88,7 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 		ti.setKeyword(keyword);
 		ti.setDisplayName(displayName);
 		ti.setDescription(description);
-		getHibernateTemplate().save(ti);
+		ti = getHibernateTemplate().merge(ti);
 		return ti;
 	}
 
