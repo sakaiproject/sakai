@@ -1227,15 +1227,17 @@ public class ProviderServlet extends HttpServlet {
 		try {
 			site = siteService.getSite(siteId);
 			if ( plusService.verbose() ) {
-				log.info("Loaded existing site={}", site.getId());
+				log.info("Loaded existing plus site={}", site.getId());
 			} else {
-				log.debug("Loaded existing site={}", site.getId());
+				log.debug("Loaded existing plus site={}", site.getId());
 			}
 			updateSiteDetailsIfChanged(site, context_title, context_label);
 			return site;
 		} catch (Exception e) {
-			if (log.isDebugEnabled()) {
-				log.debug(e.getLocalizedMessage(), e);
+			if ( plusService.verbose() ) {
+				log.info("Did not find existing plus site={}", siteId);
+			} else {
+				log.debug("Did not find existing plus site={}", siteId);
 			}
 		}
 
@@ -1244,14 +1246,18 @@ public class ProviderServlet extends HttpServlet {
 		try {
 			String sakai_type = PlusService.PLUS_NEW_SITE_TYPE_DEFAULT;
 
-			// BLTI-154. If an autocreation site template has been specced in sakai.properties, use it.
 			String autoSiteTemplateId =
 				serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_TEMPLATE, PlusService.PLUS_NEW_SITE_TEMPLATE_DEFAULT);
 
 			boolean templateSiteExists = siteService.siteExists(autoSiteTemplateId);
+			if (!templateSiteExists) {
+				log.warn("Could not find template site ({}) falling back to ({}) instead.", autoSiteTemplateId, PlusService.PLUS_NEW_SITE_TEMPLATE_BACKUP);
+				autoSiteTemplateId = PlusService.PLUS_NEW_SITE_TEMPLATE_BACKUP;
+				templateSiteExists = siteService.siteExists(autoSiteTemplateId);
+			}
 
 			if(!templateSiteExists) {
-				log.warn("A template site id was specced ({}) but no site with this id exists. A default lti site will be created instead.", autoSiteTemplateId);
+				log.warn("Template site ({}) was not found. A site will be created with the default template.", autoSiteTemplateId);
 			}
 
 			if(autoSiteTemplateId == null || !templateSiteExists) {
@@ -1270,7 +1276,8 @@ public class ProviderServlet extends HttpServlet {
 				site.setType(sakai_type);
 			} else {
 				Site autoSiteTemplate = siteService.getSite(autoSiteTemplateId);
-				site = siteService.addSite(siteId, autoSiteTemplate);
+				String realmTemplate = serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_REALM, PlusService.PLUS_NEW_SITE_REALM_DEFAULT);
+				site = siteService.addSite(siteId, autoSiteTemplate, realmTemplate);
 			}
 
 			if (BasicLTIUtil.isNotBlank(context_title)) {

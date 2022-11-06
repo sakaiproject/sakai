@@ -1370,6 +1370,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException
 	{
+		return addSite(id, other, null);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public Site addSite(String id, Site other, String realmTemplate) throws IdInvalidException, IdUsedException, PermissionException
+	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
 			throw new IdInvalidException("Id " + id + " is not valid");
@@ -1412,10 +1420,20 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// make this site a copy of other, but with new ids (not an exact copy)
 		((BaseSite) site).set((BaseSite) other, false);
 
-		// copy the realm (to get permissions settings)
+		// copy the realm (to get permissions settings), falling back to the template if available
+		AuthzGroup realm = null;
 		try
 		{
-			AuthzGroup realm = authzGroupService().getAuthzGroup(other.getReference());
+			try {
+				realm = authzGroupService().getAuthzGroup(other.getReference());
+			} catch (Exception e) {
+				if ( realmTemplate != null ) {
+					realm = authzGroupService().getAuthzGroup(realmTemplate);
+				} else {
+					throw e;
+				}
+			}
+
 			AuthzGroup re = authzGroupService().addAuthzGroup(site.getReference(), realm,
 					userDirectoryService().getCurrentUser().getId());
 

@@ -24,21 +24,15 @@ As instructor, add the Gradebook, Lessons, and Plus Launch to the Main Site.
 
 Launch the Plus Launch link from the Main Site. You should now have two tabs - one on the
 Main Site and one on the Plus Site.  The instructor can change the Site Description in
-Site Info, but you need go into admin -> Administration Workspace -> Sites to change the
-site title in the plus site.  It is a good idea to change both so you keep the two
-sites straight whilst testing.
+and site title.  sites straight whilst testing.
 
 From the Plus site, look at Site Info and verify that the roster has both the instructor and
 student (i.e. before the student has even launched SakaiPlus).
 
-In the Plus Site, add Lessons, Gradebook, Samigo, Forums, and Assignments.  There is a "sakai.plus"
-tool that you need to add to the site using the Admin because it is not in the Site Info list
-of tools.  In time - I might make a plus template that has this tool pre-installed to bypass
-this step.  Do not add the Plus Launch tool in the Plus Site - or you will end up with three
+In the Plus Site, add Lessons, Gradebook, Samigo, Forums, and Assignments if they are not there.
+The "sakai.plus" tool in the Plus site is quite different from the "Plus Launch" tool in the
+main site.  Do not add the Plus Launch tool in the Plus Site - or you will end up with three
 sites and inception.  It should technically work - but will give you a headache :).
-
-Note that the Plus tool can be added to any site - but it will only show information for
-a Plus site (i.e. if you add it to the Main Site you will never see any data).
 
 Go into the Sakai Plus tool.  You should be able to see some information and a debug log of recent
 activity.  At this point you should see one launch and one roster retrieval.  The log of the
