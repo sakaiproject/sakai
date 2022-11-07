@@ -31,7 +31,7 @@ export class GraderToggle extends SakaiElement {
         this.checked = true;
       } else {
         this.prefs = JSON.parse(prefs);
-        this.checked = this.prefs.usegrader;
+        this.checked = this.prefs?.usegrader;
       }
     });
   }

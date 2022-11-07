@@ -66,10 +66,6 @@
       font-size: 22px;
     }
   }
-
-  .portal-notifications-button {
-    position: relative;
-  }
 }
 
 .portal-main-content {
@@ -168,6 +164,9 @@ text-decoration-line-throughh
 }
 .portal-header-logo img {
   max-height: 3rem;
+}
+.portal-notifications-button {
+  position: relative;
 }
 .portal-notifications-indicator {
   position: absolute;

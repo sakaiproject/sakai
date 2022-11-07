@@ -1,208 +1,183 @@
 <script>
-    //Set portal dom references
-    portal.container = document.querySelector("div.portal-container");
-    portal.head = portal.container.querySelector("header.portal-header");
-    portal.footer = portal.container.querySelector("footer.portal-footer");
-    portal.sidebars = {
-        sites: portal.container.querySelector("#portal-nav-sidebar")
-    }; 
+  //Set portal dom references
+  portal.container = document.querySelector("div.portal-container");
+  portal.head = portal.container.querySelector("header.portal-header");
+  portal.footer = portal.container.querySelector("footer.portal-footer");
+  portal.sidebars = {
+    sites: portal.container.querySelector("#portal-nav-sidebar")
+  };
 
-    //Setup sidebar collapse button
-    (() => {
-        const buttonElement = portal.head.querySelector(".btn-sidebar-collapse");
-        const buttonConfig = {
-            i18n: {
-                titleExpanded: "${rloader.mainnav_btn_sidebar_collapse}",
-                titleCollapsed: "${rloader.mainnav_btn_sidebar_expand}"
-            },
-            toggleClass: "sidebar-collapsed",
-            portalContainer: portal.container,
-            sitesSidebar: portal.sidebars.sites,
-        };
-        const collapseButton = new SidebarCollapseButton(buttonElement, buttonConfig);
-    })();
+  //Setup sidebar collapse button
+  new SidebarCollapseButton(portal.head.querySelector(".btn-sidebar-collapse"), {
+    i18n: {
+      titleExpanded: "${rloader.mainnav_btn_sidebar_collapse}",
+      titleCollapsed: "${rloader.mainnav_btn_sidebar_expand}"
+    },
+    toggleClass: "sidebar-collapsed",
+    portalContainer: portal.container,
+    sitesSidebar: portal.sidebars.sites,
+  });
 
-    //Setup sidebar
-    (() => {
-        const siteSidebarConfig = {
-            i18n: {
-                pinButtons: {
-                    titlePin: "${rloader.sitenav_btn_pin}",
-                    titleUnpin: "${rloader.sitenav_btn_unpin}"
-                }
-            }
-        };
-        const siteSidebar = new SitesSidebar(portal.sidebars.sites, siteSidebarConfig);
-        const setSidebarView = (currentBP, previousBP) => {
-            let currentMobile = BreakpointManager.compare(currentBP, "sm") <= 0;
-            let previousMobile = previousBP ? BreakpointManager.compare(previousBP, "sm") <= 0 : null;
-            //Only set View if we are crossing the sm breakpoint
-            if (previousMobile === null || currentMobile != previousMobile) {
-                siteSidebar.setView(currentMobile);
-            }
-        };
-        portal.breakpointManager.registerCallback(setSidebarView);
-        setSidebarView(portal.breakpointManager.currentBreakpoint);
-    })();
+  //Setup sidebar
+  const siteSidebar = new SitesSidebar(portal.sidebars.sites, {
+    i18n: {
+      pinButtons: {
+        titlePin: "${rloader.sitenav_btn_pin}",
+        titleUnpin: "${rloader.sitenav_btn_unpin}",
+      }
+    }
+  });
+  const setSidebarView = (currentBP, previousBP) => {
+    let currentMobile = BreakpointManager.compare(currentBP, "sm") <= 0;
+    let previousMobile = previousBP ? BreakpointManager.compare(previousBP, "sm") <= 0 : null;
+    //Only set View if we are crossing the sm breakpoint
+    if (previousMobile === null || currentMobile != previousMobile) {
+      siteSidebar.setView(currentMobile);
+    }
+  };
+  portal.breakpointManager.registerCallback(setSidebarView);
+  setSidebarView(portal.breakpointManager.currentBreakpoint);
 
-    //Setup server info popover
-    (() => {
-        const serverInfo = document.querySelector("#serverInfo");
-        const serverInfoPopover = new ServerInfoPopover(serverInfo, {
-            #if ($showServerTime)
-            serverTime: {
-                selector: "#serverTime",
-                initialTime: ${serverTzGMTOffset},
-                timeZone: "${serverTzDisplay}",
-            },
-            #end
-            #if ($showServerTime && $showPreferredTzTime)
-            preferredTime: {
-                selector: "#preferredTime",
-                initialTime: ${preferredTzGMTOffset},
-                timeZone: "${preferredTzDisplay}",
-            },
-            #end
-            popoverContainer: portal.footer,
-            iconClasses: ["bi-info-circle", "bi-info-circle-fill"]
-        });
-    })();
-
-    //Setup lessons subpage navigaion
-
-    //Macros to add Lessons data to an js array
-    #macro (addLessonsSubnavData $arrayName $site)
-        #if ($site && $site.lessonsSubPages)
-            ${arrayName}.push(${site.lessonsSubPages})
-        #end
+  //Setup server info popover
+  new ServerInfoPopover(document.querySelector("#server-info"), {
+    #if ($showServerTime)
+    serverTime: {
+      selector: "#serverTime",
+      initialTime: ${serverTzGMTOffset},
+      timeZone: "${serverTzDisplay}",
+    },
     #end
-
-    #macro (addLessonsSubnavDataList $arrayName $siteList)
-        #if ($siteList)
-            #foreach ($site in $siteList)
-                #addLessonsSubnavData ($arrayName, $site)
-            #end
-        #end
+    #if ($showServerTime && $showPreferredTzTime)
+    preferredTime: {
+      selector: "#preferredTime",
+      initialTime: ${preferredTzGMTOffset},
+      timeZone: "${preferredTzDisplay}",
+    },
     #end
+    popoverContainer: portal.footer,
+    iconClasses: ["bi-info-circle", "bi-info-circle-fill"],
+  });
 
-    (() => {
-        let lessonSubnavArray = new Array();
+  // Setup lessons subpage navigaion
 
-        #addLessonsSubnavData("lessonSubnavArray", $sidebarSites.currentSite);
-        #addLessonsSubnavDataList("lessonSubnavArray", $sidebarSites.pinnedSites);
-        #addLessonsSubnavDataList("lessonSubnavArray", $sidebarSites.recentSites);
-        
-        //Remove duplicate pages e.g. page in current and pinned
-        lessonSubnavArray = lessonSubnavArray.filter((value, index, currentArray) => {
-            return lessonSubnavArray.findIndex(val => val.siteId === value.siteId) === index;
-        });
+  let lessonSubnavs = [];
 
-        //Create LessonsSubPageNavigation instance for each site
-        lessonSubnavArray.forEach(lessonSubnavData => {
-            new LessonsSubPageNavigation(lessonSubnavData);
-        });
-    })();
+  // Macros to add Lessons data to an js array
+  #macro (addLessonsSubnavData $site)
+    #if ($site && $site.lessonsSubPages)
+      lessonSubnavs.push(${site.lessonsSubPages})
+    #end
+  #end
 
-    #if (!$loggedIn)
+  #macro (addLessonsSubnavDataList $siteList)
+    #if ($siteList)
+      #foreach ($site in $siteList)
+        #addLessonsSubnavData ($site)
+      #end
+    #end
+  #end
+
+  #addLessonsSubnavData($sidebarSites.currentSite);
+  #addLessonsSubnavDataList($sidebarSites.pinnedSites);
+  #addLessonsSubnavDataList($sidebarSites.recentSites);
+
+  // Remove duplicate pages e.g. page in current and pinned, then create
+  // a LessonsSubPageNavigation instance for each site
+  lessonSubnavs.filter((v, i) => lessonSubnavs.findIndex(val => val.siteId === v.siteId) === i)
+    .forEach(lessonSubnavData => new LessonsSubPageNavigation(lessonSubnavData));
+
+  #if (!$loggedIn)
     //--start-logged-out-scripts
-        //Setup header login password field
-        (() => {
-            const loginInputGroup = portal.head.querySelector(".password-field"); 
-            const mobileLogin = new PasswordField(loginInputGroup, {
-                icons: {
-                    hidden: "bi-eye-slash-fill",
-                    shown:"bi-eye-fill",
-                    capsLock: "bi-capslock-fill"
-                }
-            });
-        })();
+    // Setup header login password field
+    new PasswordField(portal.head.querySelector(".password-field"), {
+      icons: {
+        hidden: "bi-eye-slash-fill",
+        shown:"bi-eye-fill",
+        capsLock: "bi-capslock-fill"
+      }
+    });
 
-        //Setup mobile login
-        (() => {
-            const mobileLoginConfig = {
-                passwordField: {
-                    icons: {
-                        hidden: "bi-eye-slash-fill",
-                        shown:"bi-eye-fill",
-                        capsLock: "bi-capslock-fill"
-                    }
-                }
-            };
-            const mobileLoginBtn = portal.head.querySelector("#mobileLoginBtn"); 
-            const mobileLogin = new MobileLogin(mobileLoginBtn, mobileLoginConfig);
-        })();
+    // Setup mobile login
+    new MobileLogin(portal.head.querySelector("#mobileLoginBtn"), {
+      passwordField: {
+        icons: {
+          hidden: "bi-eye-slash-fill",
+          shown:"bi-eye-fill",
+          capsLock: "bi-capslock-fill",
+        }
+      }
+    });
 
-        //Add an on-load listener to focus the password field
-        (() => {
-            window.addEventListener("load", () => {
-                //Check if window is above xs breakpoint
-                if (BreakpointManager.compare(portal.breakpointManager.currentBreakpoint, "xs") > 1) {
-                    document.querySelector("#eid")?.focus()
-                }
-            });
-        })();
-    //--end-logged-out-scripts
-    #end
+    // Add an on-load listener to focus the password field
+    window.addEventListener("load", () => {
+
+      // Check if window is above xs breakpoint
+      if (BreakpointManager.compare(portal.breakpointManager.currentBreakpoint, "xs") > 1) {
+        document.querySelector("#eid")?.focus()
+      }
+    });
+  //--end-logged-out-scripts
+  #end
 </script>
 <script>
-    var needJQuery = true;
-    var secondJQuery = false;
-    var notJQuery = false;
-    var dollarEmpty = false;
-    var dollarVersion = false;
-    if ( window.$ ) {
-            if ( window.${d}.fn && window.${d}.fn ) {
-                dollarVersion = window.${d}.fn.jquery;
-            } else {
-                dollarVersion = 'not jQuery';
-                window.console && console.log('Dollar is defined but is not jQuery');
-                window.console && console.log($d);
-                //Just have it reload this other $ afterward
-                notJQuery = true;
-            }
-        } else {
-            dollarEmpty = true;
-            dollarVersion = 'not present';
-            if ( window.jQuery ) {
-                window.console && console.log('tool called jQuery.noConflict()');
-            }
-    }
-    if ( window.jQuery ) {
-        tver = jQuery.fn.jquery;
-        if ( tver.indexOf('1.12.') == 0 ) {
-            window.console && console.log('Using tool jQuery '+tver);
-            needJQuery = false;
-        } else {
-            secondJQuery = true;
-        }
-    }
-    if ( needJQuery ) {
-        document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.12.4/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-        document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-        document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-        document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
-        if (Modernizr.touch) {
-            document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-        }
-        window.console && console.log('Portal scripts loaded JQ+MI+UI');
+  var needJQuery = true;
+  var secondJQuery = false;
+  var notJQuery = false;
+  var dollarEmpty = false;
+  var dollarVersion = false;
+  if (window.$) {
+    if (window.${d}.fn && window.${d}.fn) {
+      dollarVersion = window.${d}.fn.jquery;
     } else {
-        if (typeof jQuery.migrateWarnings == 'undefined') {
-            document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            window.console && console.log('Portal adding jQuery migrate');
-        }
-        if (typeof jQuery.ui == 'undefined') {
-            document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
-            window.console && console.log('Portal adding jQuery UI');
-        }
-        if (typeof jQuery.ui == 'undefined' || (typeof jQuery.ui.mouse != 'undefined' && typeof jQuery.ui.mouse.prototype._touchStart == 'undefined')) {
-            document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            window.console && console.log('Portal adding jQuery UI Touch Punch for touch device support');
-        }
+      dollarVersion = 'not jQuery';
+      console.debug('Dollar is defined but is not jQuery');
+      console.debug($d);
+      //Just have it reload this other $ afterward
+      notJQuery = true;
     }
+  } else {
+    dollarEmpty = true;
+    dollarVersion = 'not present';
+    if (window.jQuery) {
+      console.debug('tool called jQuery.noConflict()');
+    }
+  }
+  if (window.jQuery) {
+    tver = jQuery.fn.jquery;
+    if (tver.indexOf('1.12.') == 0) {
+      console.debug('Using tool jQuery '+tver);
+      needJQuery = false;
+    } else {
+      secondJQuery = true;
+    }
+  }
+  if (needJQuery) {
+    document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.12.4/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
+    if (Modernizr.touch) {
+      document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    }
+    console.debug('Portal scripts loaded JQ+MI+UI');
+  } else {
+    if (typeof jQuery.migrateWarnings == 'undefined') {
+      document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+      console.debug('Portal adding jQuery migrate');
+    }
+    if (typeof jQuery.ui == 'undefined') {
+      document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
+      console.debug('Portal adding jQuery UI');
+    }
+    if (typeof jQuery.ui == 'undefined' || (typeof jQuery.ui.mouse != 'undefined' && typeof jQuery.ui.mouse.prototype._touchStart == 'undefined')) {
+      document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+      console.debug('Portal adding jQuery UI Touch Punch for touch device support');
+    }
+  }
 </script>
 
 <script>
-    ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
+  ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
 </script>
 
 #if ($loggedIn)
@@ -210,9 +185,9 @@
 #end
 
 <script>
-    if (typeof Handlebars == 'undefined') {
-        document.write('\x3Cscript src="${pageWebjarsPath}handlebars/4.0.6/handlebars.runtime.min.js$!{portalCDNQuery}">\x3C/script>');
-    }
+  if (typeof Handlebars == 'undefined') {
+    document.write('\x3Cscript src="${pageWebjarsPath}handlebars/4.0.6/handlebars.runtime.min.js$!{portalCDNQuery}">\x3C/script>');
+  }
 </script>
 
 <script src="/library/templates.js$!{portalCDNQuery}"></script>
@@ -226,9 +201,9 @@
 <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
 <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
 <script>
-    if (typeof jQuery.i18n == 'undefined') {
-        document.write('\x3Cscript src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js$!{portalCDNQuery}">\x3C/script>');
-    }
+  if (typeof jQuery.i18n == 'undefined') {
+    document.write('\x3Cscript src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js$!{portalCDNQuery}">\x3C/script>');
+  }
 </script>
 <script src="/library/js/jquery/jquery.clearsearch.js$!{portalCDNQuery}"></script>
 
@@ -244,24 +219,28 @@
 #end
 
 <script>
-    function portal_check_pnotify() {
-        ${d}PBJQ.getJSON( "/direct/portal/notify.json", function( data ) {
-            for(i=0; i<data.error.length; i++ ) {
-                    ${d}PBJQ(function(){
-                    PNotify.defaults.styling = 'bootstrap3';
-                    PNotify.defaults.icons = 'fontawesome4';
-                    PNotify.alert({
-                        title: '${rloader.getString("pnotify_notice")}',
-                        text: data.error[i],
-                        type: 'notice'
-                    });
-                });
-            }
+  function portal_check_pnotify() {
+
+    ${d}PBJQ.getJSON( "/direct/portal/notify.json", function(data) {
+
+      data.error.forEach(error => {
+
+        ${d}PBJQ(function () {
+
+          PNotify.defaults.styling = 'bootstrap3';
+          PNotify.defaults.icons = 'fontawesome4';
+          PNotify.alert({
+            title: '${rloader.getString("pnotify_notice")}',
+            text: error,
+            type: 'notice',
+          });
         });
-    }
-    #if ($userWarning) 
-        ${d}PBJQ(document).ready(portal_check_pnotify);
-    #end
+      });
+    });
+  }
+  #if ($userWarning)
+    ${d}PBJQ(document).ready(portal_check_pnotify);
+  #end
 </script>
 
 #* TODO: These should maybe be  bundled somehow *#
@@ -279,28 +258,29 @@
 
 #if ($pageTop)
 <script>
-    var sakaiPortalWindow = "";
+  var sakaiPortalWindow = "";
 </script>
 #end
 
 <script>
-    // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
-    if ( secondJQuery ) {
-        ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
-        if ( ! dollarEmpty && !notJQuery ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
-    }
-    if (notJQuery && !secondJQuery) {
-        ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
-        //Just set jQuery to be the same thing since it didn't exist before
-        jQuery = ${d}PBJQ;
-    }
-    window.console && console.log('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+dollarVersion);
+  // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
+  if (secondJQuery) {
+    ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+    if (!dollarEmpty && !notJQuery ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
+  }
+  if (notJQuery && !secondJQuery) {
+    ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+    //Just set jQuery to be the same thing since it didn't exist before
+    jQuery = ${d}PBJQ;
+  }
+  console.debug('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+dollarVersion);
 
-    // Listen for notifications-loaded on the body element. This is fired by the sui-notifications
-    // component when it has an update to its list of notifications
-    document.body.addEventListener("notifications-loaded", e => {
+  // Listen for notifications-loaded on the body element. This is fired by the sui-notifications
+  // component when it has an update to its list of notifications
+  document.body.addEventListener("notifications-loaded", e => {
 
-        const indicator = document.getElementById("portal-notifications-indicator");
-        indicator && (indicator.style.display = e.detail.count > 0 ? "inline" : "none");
+    document.body.querySelectorAll(".portal-notifications-indicator").forEach(i => {
+      i.style.display = e.detail.count > 0 ? "inline" : "none";
     });
+  });
 </script>

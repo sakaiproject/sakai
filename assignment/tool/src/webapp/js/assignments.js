@@ -330,7 +330,7 @@ ASN.setupToggleAreas = function(toggler, togglee, openInit, speed){
     }
     else {
         $('.' + togglee).hide();
-        $('.collapse').hide();
+        $('.Mrphs-sakai-assignment-grades .collapse').hide();
         ASN.resizeFrame();
     }
     $('.' + toggler).click(function(){
