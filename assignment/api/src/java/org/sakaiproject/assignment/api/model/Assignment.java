@@ -154,6 +154,10 @@ public class Assignment {
     @Column(name = "DROP_DEAD_DATE")
     private Instant dropDeadDate;
 
+    @Type(type = "org.hibernate.type.InstantType")
+    @Column(name = "SOFT_REMOVED_DATE")
+    private Instant softRemovedDate;
+
     @Column(name = "MODIFIER", length = 99)
     private String modifier;
 
