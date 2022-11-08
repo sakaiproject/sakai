@@ -8436,6 +8436,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
+		if ( StringUtils.isBlank(site_type) ) return true;
 		return site_type != null 
 				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null 
 					&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
