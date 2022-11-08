@@ -55,7 +55,7 @@ class SakaiRubricAssociation extends RubricsElement {
   }
 
   get entityId() { return this._entityId; }
-  
+
   set association(value) {
 
     this._association = value;
