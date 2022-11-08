@@ -55,7 +55,7 @@ public interface CandidateDetailProvider {
      * @param site The site in which the lookup is happening.
      * @return If <code>true</code> then show the additional details for this site.
      */
-     boolean isAdditionalNotesEnabled(Site site);
+    boolean isAdditionalNotesEnabled(Site site);
 
     /**
      * This gets special needs info for a user.
@@ -70,7 +70,7 @@ public interface CandidateDetailProvider {
      * @param site The site in which the lookup is happening.
      * @return If <code>true</code> then show the special needs on this site.
      */
-     boolean isSpecialNeedsEnabled(Site site);
+    boolean isSpecialNeedsEnabled(Site site);
 
     /**
      * Gets the student number (institutional numeric id) for the given user.
