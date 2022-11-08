@@ -135,8 +135,21 @@
                 .roster-card-value {
                     word-wrap: break-word;
                     font-weight: bold;
-                    .roster-user-properties {
-                        list-style: none;
+                }
+                .roster-user-properties {
+                    list-style: none;
+                    padding-left: 0;
+                }
+                .roster-card-value-row,
+                .roster-card-label-row {
+                    grid-column: 1 / 3;
+                }
+                .roster-card-button {
+                    margin-right: 0;
+                    &.additional-info {
+                        display: flex;
+                        align-items: center;
+                        gap: 7px;
                     }
                 }
             }
@@ -166,6 +179,13 @@
         }
         &.photogrid {
             grid-template-columns: repeat(auto-fill, 120px);
+        }
+    }
+
+    .roster-modal {
+        .roster-modal-label {
+            color: red;
+            @extend .roster-card-value;
         }
     }
 

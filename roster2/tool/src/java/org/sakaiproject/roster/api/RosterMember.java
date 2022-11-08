@@ -36,6 +36,7 @@ package org.sakaiproject.roster.api;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -65,6 +66,9 @@ public class RosterMember {
 	private String credits;
 	private String pronouns;
 	private String pronunciation;
+	private String studentNumber;
+	private List<String> specialNeeds;
+	private List<String> additionalNotes;
 	private Map<String, String> groups = new HashMap<String, String>();
 	private Map<String, String> userProperties = new HashMap<>();
 	private int connectionStatus; // connection status to the current user
