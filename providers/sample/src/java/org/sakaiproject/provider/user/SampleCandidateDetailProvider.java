@@ -35,9 +35,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.CandidateDetailProvider;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
 
 /**
@@ -52,7 +54,7 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
 	private static final String USER_PROP_SPECIAL_NEEDS = "specialNeeds";
 	private static final String USER_PROP_STUDENT_NUMBER = "studentNumber";
-	
+
 	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 	private final static String SITE_PROP_DISPLAY_SPECIAL_NEEDS = "displaySpecialNeeds";
@@ -63,19 +65,39 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	private final static String SYSTEM_PROP_DISPLAY_SPECIAL_NEEDS = "displaySpecialNeeds";
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
-
+	
+	private static final String[] SAMPLE_SPECIAL_NEEDS = {
+		"Anticipate the material to work on, for example upload the teaching material ahead of time.",
+		"Don't overload information pages.",
+		"At the beginning of the class, the teacher should indicate how he will organize the session and summarize the most important ideas at the end of the session.	",
+		"Respect if student does not want to read out loud in front of classmates.",
+		"Less demanding spelling.",
+		"More time to take the exams.",
+		"Brief problem statements divided into parts."
+	};
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	private SecureRandom random = new SecureRandom();
+	private PreferencesService preferencesService;
 	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
 	private SiteService siteService;
 	private ToolManager toolManager;
 	private ValueEncryptionUtilities encryptionUtilities;
-	 
+
+	public void setPreferencesService(PreferencesService preferencesService) {
+		this.preferencesService = preferencesService;
+	}
+	
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 	
 	public void setSiteService(SiteService siteService) {
@@ -99,9 +121,11 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	 */
 	public void init()
 	{
+		Objects.requireNonNull(preferencesService, "ServerConfigurationService must be set");
+		Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set");
+		Objects.requireNonNull(sessionManager, "SessionManager must be set");
 		Objects.requireNonNull(siteService, "SiteService must be set");
 		Objects.requireNonNull(toolManager, "ToolManager must be set");
-		Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set");
 
 		log.info("init()");
 	}
@@ -166,11 +190,12 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 		try {
 			if(user != null) {
 				//check if additional notes is enabled (system-wide or site-based)
-				if(isAdditionalNotesEnabled(site)) {
-					if(user.getProperties() != null && user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO) != null) {
+				if (isAdditionalNotesEnabled(site) && user.getProperties() != null) {
+					List<String> encryptedAdditionalNotesList = getI18nPropertyList(USER_PROP_ADDITIONAL_INFO, user, site);
+					if (encryptedAdditionalNotesList != null) {
 						log.debug("Showing additional notes for user {}", user.getId());
 						List<String> ret = new ArrayList<String>();
-						for(String s : user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO)) {
+						for(String s : encryptedAdditionalNotesList) {
 							//this property is encrypted, so we need to decrypt it
 							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(encryptionUtilities.decrypt(s))){
 								ret.add(encryptionUtilities.decrypt(s));
@@ -207,68 +232,85 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 		try {
 			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION))));
 		} catch(Exception e) {
-			log.warn("Error on isAdditionalNotesEnabled (sample) ", e);
+			log.warn("Could not determine if Additional Notes is enabled: {} ", e.toString());
 		}
 		return false;
 	}
 
 	public Optional<List<String>> getSpecialNeeds(User user, Site site){
 		if(site == null) {
-			log.error("getSpecialNeeds: Null site.");
+			log.error("A null site was detected, returning empty");
 			return Optional.empty();
 		}
 
 		try {
 			//check if special needs info is enabled (system-wide or site-based)
-			if (user != null && isSpecialNeedsEnabled(site)) {
-				if (user.getProperties() != null && user.getProperties().getPropertyList(USER_PROP_SPECIAL_NEEDS) != null) {
+			if (user != null && isSpecialNeedsEnabled(site) && user.getProperties() != null ) {
+				List<String> encryptedSecialNeedsList = getI18nPropertyList(USER_PROP_SPECIAL_NEEDS, user, site);
+				if (encryptedSecialNeedsList != null) {
 					log.debug("Showing special needs info for user {}", user.getId());
-					List<String> ret = new ArrayList<String>();
-					for (String s : user.getProperties().getPropertyList(USER_PROP_SPECIAL_NEEDS)) {
+					List<String> decryptedSpecialNeedsList = new ArrayList<String>();
+					for (String encryptedValue : encryptedSecialNeedsList) {
 						//this property is encrypted, so we need to decrypt it
-						if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(encryptionUtilities.decrypt(s))) {
-							ret.add(encryptionUtilities.decrypt(s));
+						if(StringUtils.isNotBlank(encryptedValue) && StringUtils.isNotBlank(encryptionUtilities.decrypt(encryptedValue))) {
+							decryptedSpecialNeedsList.add(encryptionUtilities.decrypt(encryptedValue));
 						}
 					}
-					return Optional.ofNullable(ret);
+					return Optional.of(decryptedSpecialNeedsList);
 				} else {
-					List<String> ret = new ArrayList<String>();
+					List<String> sampleSpecialNeeds = new ArrayList<String>();
 					int hashInt = user.getId().hashCode();
 					if (hashInt % 10 == 2) {
 						log.debug("Not generating random special needs infos for user {}", user.getId());
 						return Optional.empty();
 					} else {
 						log.debug("Generating random special needs infos for user {}", user.getId());
-						String[] sampleSpecialNeeds = {
-							"Anticipate the material to work on, for example upload the teaching material ahead of time.",
-							"Don't overload information pages.",
-							"At the beginning of the class, the teacher should indicate how he will organize the session and summarize the most important ideas at the end of the session.	",
-							"Respect if student does not want to read out loud in front of classmates.",
-							"Less demanding spelling.",
-							"More time to take the exams.",
-							"Brief problem statements divided into parts."
-						};
-						ret.add(sampleSpecialNeeds[random.nextInt(sampleSpecialNeeds.length)]);
-						ret.add(sampleSpecialNeeds[random.nextInt(sampleSpecialNeeds.length)]);
+						sampleSpecialNeeds.add(SAMPLE_SPECIAL_NEEDS[random.nextInt(SAMPLE_SPECIAL_NEEDS.length)]);
+						sampleSpecialNeeds.add(SAMPLE_SPECIAL_NEEDS[random.nextInt(SAMPLE_SPECIAL_NEEDS.length)]);
 						if (hashInt % 10 == 7) {
 							log.debug("Generating more random special needs infos for user {}", user.getId());
-							ret.add(sampleSpecialNeeds[random.nextInt(sampleSpecialNeeds.length)]);
+							sampleSpecialNeeds.add(SAMPLE_SPECIAL_NEEDS[random.nextInt(SAMPLE_SPECIAL_NEEDS.length)]);
 						}
-						return Optional.ofNullable(ret);
+						return Optional.ofNullable(sampleSpecialNeeds);
 					}
 				}
 			}
 		} catch (Exception e) {
-			log.error("Error getting sample special needs info for {}", ((user != null) ? user.getId() : "-null-"), e);
+			log.error("Could not determine if special needs is enabled: {} ", e.toString());
 		}
 		return Optional.empty();
+	}
+
+	private List<String> getI18nPropertyList(String propName, User user, Site site) {
+
+		String siteLanguage = site.getProperties().getProperty(Site.PROP_SITE_LANGUAGE);
+
+		if (StringUtils.isNotEmpty(siteLanguage)) {
+			siteLanguage = "_" + StringUtils.substring(siteLanguage, 0, 2);
+			List<String> propList = user.getProperties().getPropertyList(propName + siteLanguage);
+			if (propList != null) {
+				return propList; 
+			}
+		}
+
+		String userLanguage = preferencesService.getLocale(sessionManager.getCurrentSession().getUserId()).getLanguage();
+
+		if (StringUtils.isNotEmpty(userLanguage)) {
+			userLanguage = "_" + userLanguage;
+			List<String> propList = user.getProperties().getPropertyList(propName + userLanguage);
+			if (propList != null) {
+				return propList; 
+			}
+		}
+
+		return null;
 	}
 
 	public boolean isSpecialNeedsEnabled(Site site) {
 		try {
 			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_SPECIAL_NEEDS, true) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_SPECIAL_NEEDS))));
 		} catch(Exception e) {
-			log.warn("Error on isSpecialNeedsEnabled (sample) ", e);
+			log.warn("Could not determine if special needs is enabled: {} ", e.toString());
 		}
 		return false;
 	}
