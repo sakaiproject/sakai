@@ -1,5 +1,5 @@
 ## Default popover template with some additonal classes
-#set ($popoverTemplate = '<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body p-2"></div></div>')
+#set ($popoverTemplate = '<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="mt-0 popover-header"></h3><div class="popover-body p-2"></div></div>')
 
 ## Popover content
 <ul class="list-group list-group-flush">

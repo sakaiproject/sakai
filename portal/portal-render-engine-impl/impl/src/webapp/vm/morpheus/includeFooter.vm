@@ -7,7 +7,7 @@
               </li>
           #end
           <li class="nav-item">
-              <button id="serverInfo" 
+              <button id="server-info"
                       class="btn nav-link"
                       title="${rloader.footer_serverinfo_title}"
                       data-bs-container="footer"

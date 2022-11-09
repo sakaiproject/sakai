@@ -696,10 +696,6 @@ function includeLatestJQuery(where) {
 			document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
 			window.console && console.log('Adding jQuery UI');
 		}
-		if ( typeof jQuery.fn.popover == 'undefined') {
-			document.write('\x3Cscript src="'+webjars+'bootstrap/5.2.0/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
-			window.console && console.log('Adding Bootstrap');
-		}
 	} else {
 		document.write('\x3Cscript src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')

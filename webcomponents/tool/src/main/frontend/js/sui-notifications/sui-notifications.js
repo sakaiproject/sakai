@@ -95,7 +95,7 @@ class SuiNotifications extends SakaiElement {
 
     const notificationId = e.target.dataset.notificationId;
 
-    fetch(`/direct/portal/clearBullhornAlert?id=${notificationId}`, { credentials: "include" })
+    fetch(`/direct/portal/clearBullhornAlert?id=${notificationId}`, { cache: "no-store", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
@@ -111,7 +111,7 @@ class SuiNotifications extends SakaiElement {
 
   clearAllNotifications() {
 
-    fetch("/direct/portal/clearAllBullhornAlerts", { credentials: "include" })
+    fetch("/direct/portal/clearAllBullhornAlerts", { cache: "no-store", credentials: "include" })
       .then(r => {
 
         if (r.ok) {

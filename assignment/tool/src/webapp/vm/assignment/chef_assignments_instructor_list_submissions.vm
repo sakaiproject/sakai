@@ -3,7 +3,6 @@
 #set( $H = '-' )
 #set( $T = 'T' )
 <script>includeLatestJQuery('assignments');</script>
-#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 #module("/webcomponents/grader/grader-toggle.js")
 #module("/webcomponents/sakai-user-photo.js")
 
