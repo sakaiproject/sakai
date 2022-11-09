@@ -40,7 +40,7 @@
         <div id="allowedtools-group" class="form-group">
           <label for="allowedtools" class="form-control-label" th:text="#{plus.tool.allowedtools}">Value</label>
           <div>
-            <input type="text" class="form-control" id="allowedtools" th:value="${tenant.allowedTools}" th:field="*{allowedTools}" />
+            <input type="text" class="form-control" id="allowedtools" placeholder="sakai.site:sakai.resources" th:value="${tenant.allowedTools}" th:field="*{allowedTools}" />
           </div>
         </div>
         <div id="newwindowtools-group" class="form-group">
@@ -92,7 +92,7 @@
         <div id="oidcregistrationlock-group" class="form-group">
           <label for="oidcregistrationlock" class="form-control-label" th:text="#{plus.tool.oidcregistrationlock}">Value</label>
           <div>
-            <input type="text" class="form-control" id="oidcregistrationlock" th:value="${tenant.oidcRegistrationLock}" th:field="*{oidcRegistrationLock}" />
+            <input type="text" class="form-control" id="oidcregistrationlock" placeholder="42" th:value="${tenant.oidcRegistrationLock}" th:field="*{oidcRegistrationLock}" />
           </div>
         </div>
         <div id="edit-group" class="form-group">

@@ -607,6 +607,30 @@ public interface SiteService extends EntityProducer
 	Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException;
 
 	/**
+	 * Add a new site. Will be structured just like <other>, if the other site has no realm, we use the realm template.
+	 *
+	 * Most normal sites created with Site Info have a realm.   But some template sites that are hand-inserted into
+	 * the database like !worksite - do not have a realm.   We could hand insert lots of realms that are in effect
+	 * copies of !site.template or !site.template.course - which then have to be maintained separately, or just allow
+	 * a realmless site to be "other" and have a realm template as a fall back option if a site does not have a realm.
+	 *
+	 * @param id
+	 *        The site id.
+	 * @param other
+	 *        The site to make this site a structural copy of.
+	 * @param realmTemplate
+	 *        A realm template to use if the other site does not have a realm
+	 * @return The new site object.
+	 * @exception IdInvalidException
+	 *            if the site id is invalid.
+	 * @exception IdUsedException
+	 *            if the site id is already used.
+	 * @exception PermissionException
+	 *            if the current user does not have permission to add a site.
+	 */
+	Site addSite(String id, Site other, String realmTemplate) throws IdInvalidException, IdUsedException, PermissionException;
+
+	/**
 	 * check permissions for removeSite().
 	 * 
 	 * @param id
