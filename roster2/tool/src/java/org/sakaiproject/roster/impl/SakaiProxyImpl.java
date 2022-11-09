@@ -912,13 +912,13 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             Collection<Group> groups = site.getGroups();
             Set<Role> roles = site.getRoles();
 
-            Map<String, List<RosterMember>> cacheMembersMap = new HashMap<String, List<RosterMember>>();
+            Map<String, List<RosterMember>> cacheMembersMap = new HashMap<>();
 
             for (Role role : roles) {
-                cacheMembersMap.put(siteId + "#" + role.getId(), new ArrayList<RosterMember>());
-                groups.forEach(group -> cacheMembersMap.put(siteId + "#" + group.getId() + "#" + role.getId(), new ArrayList<RosterMember>()));
+                cacheMembersMap.put(siteId + "#" + role.getId(), new ArrayList<>());
+                groups.forEach(group -> cacheMembersMap.put(siteId + "#" + group.getId() + "#" + role.getId(), new ArrayList<>()));
             }
-            groups.forEach(group -> cacheMembersMap.put(siteId + "#" + group.getId(), new ArrayList<RosterMember>()));
+            groups.forEach(group -> cacheMembersMap.put(siteId + "#" + group.getId(), new ArrayList<>()));
 
 			for (Member member : membership) {
 
@@ -943,7 +943,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 			cacheMembersMap.values().forEach(a -> Collections.sort(a, memberComparator));
 			cache.putAll(cacheMembersMap);
-            return (List<RosterMember>) cache.get(key);
+			return (List<RosterMember>) cache.get(key);
         }
 		log.debug("Cache hit on '{}'.", key);
 		return siteMembers;
