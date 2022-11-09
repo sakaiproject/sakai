@@ -50,6 +50,8 @@ import org.hibernate.StaleObjectStateException;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity.UrlType;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
@@ -108,6 +110,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.plus.api.PlusService;
@@ -140,6 +143,7 @@ public class GradingServiceImpl implements GradingService {
     public static final String PROP_COURSE_GRADE_STATS_DISPLAYED = "gradebook.stats.coursegrade.displayed";
 
     @Autowired private EventTrackingService eventTrackingService;
+    @Autowired private EntityManager entityManager;
     @Autowired private GradingAuthz gradingAuthz;
     @Autowired private GradingPermissionService gradingPermissionService;
     @Autowired private GradingPersistenceManager gradingPersistenceManager;
@@ -296,6 +300,8 @@ public class GradingServiceImpl implements GradingService {
 
         Assignment assignmentDefinition = new Assignment();
         assignmentDefinition.setName(internalAssignment.getName());
+        assignmentDefinition.setReference(internalAssignment.getReference());
+        assignmentDefinition.setContext(internalAssignment.getGradebook().getUid());
         assignmentDefinition.setPoints(internalAssignment.getPointsPossible());
         assignmentDefinition.setDueDate(internalAssignment.getDueDate());
         assignmentDefinition.setCounted(internalAssignment.getCounted());
@@ -4362,6 +4368,13 @@ public class GradingServiceImpl implements GradingService {
     public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points,
                                                    final Date dueDate, final String externalServiceDescription, String externalData, final Boolean ungraded, final Long categoryId)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException {
+        addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, externalData, ungraded, categoryId, null);
+    }
+
+    @Override
+    public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points,
+                                           final Date dueDate, final String externalServiceDescription, String externalData, final Boolean ungraded, final Long categoryId, String gradableReference)
+            throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException {
         // Ensure that the required strings are not empty
         if (StringUtils.trimToNull(externalServiceDescription) == null ||
                 StringUtils.trimToNull(externalId) == null ||
@@ -4416,6 +4429,7 @@ public class GradingServiceImpl implements GradingService {
 
         // Create the external assignment
         final GradebookAssignment asn = new GradebookAssignment(gradebook, title, points, dueDate);
+        asn.setReference(gradableReference);
         asn.setExternallyMaintained(true);
         asn.setExternalId(externalId);
         asn.setExternalInstructorLink(externalUrl);
@@ -5330,6 +5344,33 @@ public class GradingServiceImpl implements GradingService {
      */
     public GradebookAssignment getAssignment(Long id) {
         return gradingPersistenceManager.getAssignmentById(id).orElse(null);
+    }
+
+    @Override
+    public String getUrlForAssignment(Assignment assignment) {
+
+        String gbUrl = "";
+        try {
+            Site site = siteService.getSite(assignment.getContext());
+            ToolConfiguration tc = site.getToolForCommonId("sakai.gradebookng");
+            if (tc != null) {
+                gbUrl = "/portal/directtool/" + tc.getId();
+            } else {
+                log.warn("No gradebook tool for site {}", assignment.getContext());
+            }
+        } catch (IdUnusedException idue) {
+            log.warn("No site for id {}", assignment.getContext());
+        }
+
+        if (assignment.getExternallyMaintained()) {
+            if (assignment.getReference() != null) {
+                return entityManager.getUrl(assignment.getReference(), UrlType.PORTAL).orElse("");
+            } else {
+                return gbUrl;
+            }
+        } else {
+            return gbUrl;
+        }
     }
 
     private void createDefaultLetterGradeMapping(final Map gradeMap) {

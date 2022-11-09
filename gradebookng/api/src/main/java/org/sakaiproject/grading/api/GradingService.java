@@ -931,6 +931,31 @@ public interface GradingService extends EntityProducer {
                                       Date dueDate, String externalServiceDescription, String externalData, Boolean ungraded, Long categoryId)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException, InvalidCategoryException;
 
+    /**
+     * This method is identical to {@link #addExternalAssessment(String, String, String, String, Double, Date, String, String, Boolean, Long)} but
+     * allows you to also specify the reference for the thing being graded via the gradableReference.
+     * @param gradebookUid
+     * @param externalId
+     * @param externalUrl
+     * @param title
+     * @param points
+     * @param dueDate
+     * @param externalServiceDescription
+     * @param externalData if there is some data that the external service wishes to store.
+     * @param ungraded
+     * @param categoryId
+     * @param gradableReference
+     * @throws ConflictingAssignmentNameException
+     * @throws ConflictingExternalIdException
+     * @throws AssignmentHasIllegalPointsException
+     * @throws InvalidCategoryException
+     */
+    public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl, String title, Double points,
+                                      Date dueDate, String externalServiceDescription, String externalData, Boolean ungraded, Long categoryId, String gradableReference)
+            throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException, InvalidCategoryException;
+
+
+
         /**
          * @deprecated Replaced by
          *      {@link updateExternalAssessment(String, String, String, String, Double, Date, Boolean)}
@@ -1208,4 +1233,6 @@ public interface GradingService extends EntityProducer {
      *
      */
     public void updateGradeMapping(Long gradeMappingId, Map<String, Double> gradeMap);
+
+    public String getUrlForAssignment(Assignment assignment);
 }
