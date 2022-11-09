@@ -920,30 +920,30 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             }
             groups.forEach(group -> cacheMembersMap.put(siteId + "#" + group.getId(), new ArrayList<RosterMember>()));
 
-				for (Member member : membership) {
+			for (Member member : membership) {
 
-					try {
-						RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronunceMap);
+				try {
+					RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronunceMap);
 
-						siteMembers.add(rosterMember);
-						String memberRoleId = rosterMember.getRole();
+					siteMembers.add(rosterMember);
+					String memberRoleId = rosterMember.getRole();
 
-						for (String memberGroupId : rosterMember.getGroups().keySet()) {
-							cacheMembersMap.get(siteId + "#" + memberGroupId).add(rosterMember);
-							cacheMembersMap.get(siteId + "#" + memberGroupId + "#" + memberRoleId).add(rosterMember);
-						}
-						cacheMembersMap.get(siteId + "#" + memberRoleId).add(rosterMember);
-					} catch (UserNotDefinedException e) {
-						log.warn("user not found: " + e.getId());
+					for (String memberGroupId : rosterMember.getGroups().keySet()) {
+						cacheMembersMap.get(siteId + "#" + memberGroupId).add(rosterMember);
+						cacheMembersMap.get(siteId + "#" + memberGroupId + "#" + memberRoleId).add(rosterMember);
 					}
+					cacheMembersMap.get(siteId + "#" + memberRoleId).add(rosterMember);
+				} catch (UserNotDefinedException e) {
+					log.warn("user not found: " + e.getId());
 				}
+			}
 
-				cacheMembersMap.put(siteId, siteMembers);
-				log.debug("Caching on '{}' ...", siteId);
+			cacheMembersMap.put(siteId, siteMembers);
+			log.debug("Caching on '{}' ...", siteId);
 
-				cacheMembersMap.values().forEach(a -> Collections.sort(a, memberComparator));
-				cache.putAll(cacheMembersMap);
-	            return (List<RosterMember>) cache.get(key);
+			cacheMembersMap.values().forEach(a -> Collections.sort(a, memberComparator));
+			cache.putAll(cacheMembersMap);
+            return (List<RosterMember>) cache.get(key);
         }
 		log.debug("Cache hit on '{}'.", key);
 		return siteMembers;
