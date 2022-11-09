@@ -1365,17 +1365,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return site;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		return addSite(id, other, null);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public Site addSite(String id, Site other, String realmTemplate) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		// check for a valid site id
@@ -1420,13 +1414,15 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// make this site a copy of other, but with new ids (not an exact copy)
 		((BaseSite) site).set((BaseSite) other, false);
 
-		// copy the realm (to get permissions settings), falling back to the template if available
+		// copy the realm from the other site (to get permissions settings)
+		// however, some sites are created without a realm assiciated with it, so we can take
+		// the realm configuration from one of the template realms like !site.template
 		AuthzGroup realm = null;
 		try
 		{
 			try {
 				realm = authzGroupService().getAuthzGroup(other.getReference());
-			} catch (Exception e) {
+			} catch (GroupNotDefinedException e) {
 				if ( realmTemplate != null ) {
 					realm = authzGroupService().getAuthzGroup(realmTemplate);
 				} else {
