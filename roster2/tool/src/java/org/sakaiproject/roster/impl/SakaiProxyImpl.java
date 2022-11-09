@@ -890,10 +890,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         List<RosterMember> siteMembers = (List<RosterMember>) cache.get(key);
 
-        if (siteMembers != null) {
-            log.debug("Cache hit on '{}'.", key);
-            return new ArrayList<>(siteMembers);
-        } else {
+        if (siteMembers == null) {
             log.debug("Cache miss on '{}'.", key);
 
             Set<Member> membership = site.getMembers();
@@ -915,65 +912,41 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             Collection<Group> groups = site.getGroups();
             Set<Role> roles = site.getRoles();
 
-            synchronized(this) {
-                // Precache an empty list for each site#group and each site#group#role
-                for (Group group : groups) {
-                    String gId = group.getId();
-                    cache.put(siteId + "#" + gId, new ArrayList<RosterMember>());
-                    roles.forEach(r -> cache.put(siteId + "#" + gId + "#" + r.getId(), new ArrayList<RosterMember>()));
-                }
+            Map<String, List<RosterMember>> cacheMembersMap = new HashMap<String, List<RosterMember>>();
 
-                // Same for site#role
-                roles.forEach(r -> cache.put(siteId + "#" + r.getId(), new ArrayList<RosterMember>()));
-
-                for (Member member : membership) {
-                    try {
-                        RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronunceMap);
-
-                        siteMembers.add(rosterMember);
-
-                        String memberRoleId = rosterMember.getRole();
-
-                        for (String memberGroupId : rosterMember.getGroups().keySet()) {
-                            List<RosterMember> groupMembers = (List<RosterMember>) cache.get(siteId + "#" + memberGroupId);
-                            groupMembers.add(rosterMember);
-
-                            List<RosterMember> groupRoleMembers = (List<RosterMember>) cache.get(siteId + "#" + memberGroupId + "#" + memberRoleId);
-                            groupRoleMembers.add(rosterMember);
-                        }
-
-                        List<RosterMember> roleMembers = (List<RosterMember>) cache.get(siteId + "#" + memberRoleId);
-                        roleMembers.add(rosterMember);
-                    } catch (UserNotDefinedException e) {
-                        log.warn("user not found: " + e.getId());
-                    }
-                }
-
-                // Sort the groups. They're already cached.
-                for (Group group : groups) {
-                    String gId = group.getId();
-                    Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId), memberComparator);
-                    for (Role role : roles) {
-                        Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId + "#" + role.getId()), memberComparator);
-                    }
-                }
-
-                // Now sort the role lists for this site
-                for (Role role : roles) {
-                    Collections.sort((List<RosterMember>) cache.get(siteId + "#" + role.getId()), memberComparator);
-                }
-
-                // Sort the main site list
-                Collections.sort(siteMembers, memberComparator);
-
-                log.debug("Caching on '{}' ...", siteId);
-
-                // Cache the main site list
-                cache.put(siteId, siteMembers);
-
-                return new ArrayList<>((List<RosterMember>) cache.get(key));
+            for (Role role : roles) {
+                cacheMembersMap.put(siteId + "#" + role.getId(), new ArrayList<RosterMember>());
+                groups.forEach(group -> cacheMembersMap.put(siteId + "#" + group.getId() + "#" + role.getId(), new ArrayList<RosterMember>()));
             }
+            groups.forEach(group -> cacheMembersMap.put(siteId + "#" + group.getId(), new ArrayList<RosterMember>()));
+
+				for (Member member : membership) {
+
+					try {
+						RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronunceMap);
+
+						siteMembers.add(rosterMember);
+						String memberRoleId = rosterMember.getRole();
+
+						for (String memberGroupId : rosterMember.getGroups().keySet()) {
+							cacheMembersMap.get(siteId + "#" + memberGroupId).add(rosterMember);
+							cacheMembersMap.get(siteId + "#" + memberGroupId + "#" + memberRoleId).add(rosterMember);
+						}
+						cacheMembersMap.get(siteId + "#" + memberRoleId).add(rosterMember);
+					} catch (UserNotDefinedException e) {
+						log.warn("user not found: " + e.getId());
+					}
+				}
+
+				cacheMembersMap.put(siteId, siteMembers);
+				log.debug("Caching on '{}' ...", siteId);
+
+				cacheMembersMap.values().forEach(a -> Collections.sort(a, memberComparator));
+				cache.putAll(cacheMembersMap);
+	            return (List<RosterMember>) cache.get(key);
         }
+		log.debug("Cache hit on '{}'.", key);
+		return siteMembers;
     }
 
     /**
