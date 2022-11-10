@@ -43,7 +43,7 @@ export const calendarStyles = css`
     text-align: right;
     margin-bottom: 10px;
   }
-    sakai-icon[type="add"] {
+  sakai-icon[type="add"] {
       color: var(--sakai-color-green);
     }
 
