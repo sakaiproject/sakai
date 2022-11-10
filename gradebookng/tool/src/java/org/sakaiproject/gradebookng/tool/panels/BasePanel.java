@@ -16,6 +16,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -134,8 +135,9 @@ public abstract class BasePanel extends Panel {
 	 *
 	 * @return A map with key and value of those parameters
 	 */
-	protected HashMap<String, String> getRubricParameters(final String entityId) {
-		final HashMap<String, String> list = new HashMap<String, String>();
+	protected Map<String, String> getRubricParameters(final String entityId) {
+
+		final Map<String, String> map = new HashMap<>();
 
 		String entity = RubricsConstants.RBCS_PREFIX;
 		if (entityId != null && !entityId.isEmpty()) {
@@ -146,10 +148,10 @@ public abstract class BasePanel extends Panel {
 		final IRequestParameters parameters = RequestCycle.get().getRequest().getPostParameters();
 		parameters.getParameterNames().forEach((value) -> {
 			if (value.startsWith(startsWith)) {
-				list.put(value, parameters.getParameterValue(value).toString());
+				map.put(value, parameters.getParameterValue(value).toString());
 			}
 		});
 
-		return list;
+		return map;
 	}
 }

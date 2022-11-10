@@ -369,12 +369,14 @@ $(document).ready(function(){
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
 		<sakai-rubric-student-preview-button
-			tool-id="sakai.assignment"
+			site-id="$context"
+			tool-id="sakai.assignment.grades"
 			entity-id="$assignment.Id"></sakai-rubric-student-preview-button>
 
 		#if ($submission.Graded && ($submission.GradeReleased || $returned))
 		<sakai-rubric-student
-			tool-id="sakai.assignment"
+			site-id="$context"
+			tool-id="sakai.assignment.grades"
 			entity-id="$assignment.Id"
 			evaluated-item-id="$submission.Id"
 			enable-pdf-export="$enablePdfExport"
@@ -696,7 +698,7 @@ $(document).ready(function(){
 				<div class="row">
 					#if(!$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT).equals(""))
 						<div class="col-sm-5">
-							<label for="timeTimesheet" class="itemSummaryHeader itemSummaryWrap">$!tlang.getString( "gen.useimputedtime" )<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">$!tlang.getString( "ts.tab.timesheet" )</a> ( $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT))</label>
+							<label for="timeTimesheet" class="itemSummaryHeader itemSummaryWrap">$!tlang.getString( "gen.useimputedtime" )<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">$!tlang.getString( "ts.tab.timesheet" )</a> ($formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT))</label>
 						</div>
 						<div class="col-sm-2">
 							<div class="itemSummaryValue">

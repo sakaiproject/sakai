@@ -14,7 +14,7 @@
     </div>
     <div class="row">
       <div class="col-sm-8">
-        <div class="well">
+        <div class="card text-dark bg-light mb-3 p-3">
           <div th:text="#{autogroups.step2.role.info}">We see that you have selected to make groups of participants in the following role(s):</div>
             <ul>
               <li th:each="role : ${autoGroupsForm.selectedRoleList}"><span th:text="${role}"></span></li>

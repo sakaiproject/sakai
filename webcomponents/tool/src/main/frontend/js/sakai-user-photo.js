@@ -1,19 +1,21 @@
 import { SakaiElement } from "./sakai-element.js";
 import { html } from "./assets/lit-html/lit-html.js";
+import { ifDefined } from "./assets/lit-html/directives/if-defined.js";
 
 /**
- * A simple wrapper for Sakai's profile picture.
+ * A simple wrapper for Sakai's user profile picture.
  *
  * Usage:
- *
- * Renders adrian's profile picture and pops up the profile panel when clicked.
  * <sakai-user-photo user-id="adrian">
  *
- * Renders adrian's profile picture without a popup
- * <sakai-user-photo user-id="adrian" no-popup>
- *
- * Renders adrian's profile picture with a popup and some custom styles from the supplied class.
- * <sakai-user-photo user-id="adrian" style-class="custom">
+ * @element sakai-user-photo
+ * @property {string} user-id - A Sakai user id
+ * @property {string} [classes] - Extra classes to style the content
+ * @property {string} [profile-popup] By default, profile popups are off. Set this to "on" if you want them
+ * @property {boolean} [official] Set this if you want the official Sakai photo
+ * @property {string} [site-id] Set this to trigger permissions checks on the photo
+ * @property {string} [label] This will be used as the title and aria-label for the div
+ * @property {boolean} [print] Set this to trigger the render of a print friendly img tag
  */
 class SakaiUserPhoto extends SakaiElement {
 
@@ -21,49 +23,71 @@ class SakaiUserPhoto extends SakaiElement {
 
     super();
 
-    this.sizeClass = "large-thumbnail";
+    this.classes = "large-thumbnail";
+    this.profilePopup = SakaiUserPhoto.OFF;
   }
 
   static get properties() {
 
     return {
       userId: { attribute: "user-id", type: String },
-      sizeClass: { attribute: "size-class", type: String },
-      noPopup: { attribute: "no-popup", type: Boolean },
+      classes: { type: String },
+      profilePopup: { attribute: "profile-popup", type: String },
       official: { type: Boolean },
+      siteId: { attribute: "site-id", type: String },
+      label: { type: String },
+      print: { type: Boolean },
+      online: { type: Boolean },
     };
   }
 
-  set userId(value) {
+  attributeChangedCallback(name, oldValue, newValue) {
 
-    const old = this._userId;
-    this._userId = value;
-    this.generatedId = `sakai-user-photo-${this.userId}-${Math.floor(Math.random() * 100)}`;
-    this.requestUpdate("userId", old);
+    super.attributeChangedCallback(name, oldValue, newValue);
 
-    if (!this.noPopup) {
+    if (this.userId) {
+      this.generatedId = `sakai-user-photo-${this.userId}-${Math.floor(Math.random() * 100)}`;
+
+      this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
+                  + (this.siteId ? `?siteId=${this.siteId}` : "");
+    }
+
+    if (this.profilePopup == SakaiUserPhoto.ON && this.generatedId) {
       this.updateComplete.then(() => {
         profile.attachPopups($(`#${this.generatedId}`));
       });
     }
   }
 
-  get userId() { return this._userId; }
-
   shouldUpdate() {
-    return this.userId && this.sizeClass;
+    return this.userId;
   }
 
   render() {
 
+    if (this.print) {
+      return html`
+        <img src="${this.url}" alt="${ifDefined(this.label ? this.label : undefined)}" />
+      `;
+    }
+
     return html`
       <div id="${this.generatedId}"
           data-user-id="${this.userId}"
-          class="sakai-user-photo ${this.sizeClass}"
-          style="background-image:url(/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"})">
+          class="sakai-user-photo ${this.classes}"
+          aria-label="${ifDefined(this.label ? this.label : undefined)}"
+          title="${ifDefined(this.label ? this.label : undefined)}"
+          style="background-image:url(${this.url}) ${this.profilePopup === SakaiUserPhoto.OFF ? "" : ";cursor: pointer;"}">
+        ${this.online ? html`
+        <span></span>
+        ` : ""}
+      </div>
     `;
   }
 }
+
+SakaiUserPhoto.OFF = "off";
+SakaiUserPhoto.ON = "on";
 
 const tagName = "sakai-user-photo";
 !customElements.get(tagName) && customElements.define(tagName, SakaiUserPhoto);

@@ -1603,7 +1603,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false) && !securityService.isSuperUser()) {
-				views.put(SiteConstants.SITE_ACTIVE, rb.getString("java.myActive"));
 				views.put(SiteConstants.SITE_INACTIVE, rb.getString("java.myInactive"));
 			}
 			
@@ -4479,7 +4478,7 @@ public class SiteAction extends PagedResourceActionII {
 		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), "sakai.basiclti.admin.helper");
+		startHelper(data.getRequest(), "sakai.lti.admin.helper");
 	}
 	
 	public void doUserAuditEventLog(RunData data) {
@@ -4872,7 +4871,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// read the search form field into the state object
-		String search = StringUtils.trimToNull(formattedText.escapeHtml(data.getParameters().getString(FORM_SEARCH)));
+		String search = StringUtils.trimToNull(data.getParameters().getString(FORM_SEARCH));
 
 		// If there is no search term provided, remove any previous search term from state
 		if (StringUtils.isBlank(search)) {
@@ -5020,11 +5019,9 @@ public class SiteAction extends PagedResourceActionII {
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
 
-					SelectionType selectionType;
+					SelectionType selectionType = SelectionType.ACCESS;
 					if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
 						selectionType = SelectionType.MEMBER;
-					} else {
-						selectionType = SelectionType.ACCESS;
 					}
 
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
@@ -5049,9 +5046,6 @@ public class SiteAction extends PagedResourceActionII {
 							size++;
 						} catch (IdUnusedException e) {
 						}
-					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
-						view = null;
-						size += siteService.countSites(SelectionType.PUBVIEW, view, search, termProp);
 					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
 						size += siteService.countSites(SelectionType.INACTIVE_ONLY,null, search, termProp);
 					} else {
@@ -5152,12 +5146,9 @@ public class SiteAction extends PagedResourceActionII {
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
 
-					SelectionType selectionType;
-
+					SelectionType selectionType = SelectionType.ACCESS;
 					if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
 						selectionType = SelectionType.MEMBER;
-					} else {
-						selectionType = SelectionType.ACCESS;
 					}
 
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
@@ -5182,8 +5173,6 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
 						return siteService.getSites(SelectionType.DELETED, null, search, null, sortType, new PagingPosition(first, last));
-					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
-						rv.addAll(siteService.getSites(SelectionType.PUBVIEW, null, search, termProp, sortType, new PagingPosition(first, last)));
 					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
 						rv.addAll(siteService.getSites(SelectionType.INACTIVE_ONLY, null, search, termProp, sortType, new PagingPosition(first, last)));
 					} else {
@@ -8447,6 +8436,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
+		if ( StringUtils.isBlank(site_type) ) return true;
 		return site_type != null 
 				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null 
 					&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
@@ -10939,7 +10929,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			for(Object object : participants){
 				Participant participant = (Participant)object;
 				//if search term is in the display name or in display Id, add into the list
-				if (StringUtils.containsIgnoreCase(participant.getDisplayName(), search) || StringUtils.containsIgnoreCase(participant.getDisplayId(),search)) {
+				if (StringUtils.containsIgnoreCase(StringUtils.stripAccents(participant.getDisplayName()), StringUtils.stripAccents(search)) || StringUtils.containsIgnoreCase(participant.getDisplayId(),search)) {
 					members.add(participant);
 				}
 			}

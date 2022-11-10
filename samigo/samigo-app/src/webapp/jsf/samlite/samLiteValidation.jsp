@@ -54,7 +54,7 @@
 		    <p/>
 		    <div class="instructions"><h:outputText value="#{samLiteMessages.samlite_validation_instructions}"/></div>
   		 	<p/>
-			<div class="table-responsive">
+			<div class="table">
 				<h:dataTable id="questions"
 					styleClass="table table-hover table-striped table-bordered"
 					columnClasses="list-column,list-column,list-column,list-column,list-column,list-column,list-column"

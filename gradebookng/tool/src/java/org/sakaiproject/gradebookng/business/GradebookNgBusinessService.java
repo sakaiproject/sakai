@@ -47,6 +47,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -108,6 +112,7 @@ import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.Preferences;
@@ -136,6 +141,9 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 @Slf4j
 public class GradebookNgBusinessService {
+
+	@Setter
+	private AssignmentService assignmentService;
 
 	@Setter
 	private SiteService siteService;
@@ -942,12 +950,14 @@ public class GradebookNgBusinessService {
 	}
 
 	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
-		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
+
+		HashMap<String, Boolean> map = new HashMap<>();
 		for (Assignment assignment : assignments) {
 			String externalAppName = assignment.getExternalAppName();
-			if(assignment.getExternallyMaintained()) {
-				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, toolManager.getLocalizedToolProperty("sakai.assignment", "title")) ? rubricsService.hasAssociatedRubric(externalAppName, assignment.getExternalId()) : false;
-				map.put(assignment.getExternalId(), hasAssociatedRubric);
+			if (assignment.getExternallyMaintained()) {
+				String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignment.getExternalId()).reckon().getId();
+				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, AssignmentConstants.TOOL_ID) ? rubricsService.hasAssociatedRubric(externalAppName, assignmentId) : false;
+				map.put(assignmentId, hasAssociatedRubric);
 			} else {
 				Long assignmentId = assignment.getId();
 				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
@@ -1742,7 +1752,7 @@ public class GradebookNgBusinessService {
 		// get groups (handles both groups and sections)
 		try {
 			final Site site = this.siteService.getSite(siteId);
-			final Collection<Group> groups = site.getGroups();
+			final Collection<Group> groups = isSuperUser() ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
 
 			for (final Group group : groups) {
 				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
@@ -3036,17 +3046,23 @@ public class GradebookNgBusinessService {
 	 */
 	public String getIconClass(final Assignment assignment) {
 		final String externalAppName = assignment.getExternalAppName();
-
-		String iconClass = getDefaultIconClass();
-		if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"))) {
-			iconClass = getAssignmentsIconClass();
-		} else if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"))) {
-			iconClass = getSamigoIconClass();
-		// "Lesson Builder" is currently hardcoded in SimplePageBean.java (no localization required)
-		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
-			iconClass = getLessonBuilderIconClass();
-		} else if (StringUtils.equals(externalAppName, "Attendance")) {
-			iconClass = getAttendanceIconClass();
+		String iconClass;
+		switch (externalAppName) {
+			case AssignmentConstants.TOOL_ID:
+				iconClass = getAssignmentsIconClass();
+				break;
+			case "sakai.samigo":
+				iconClass = getSamigoIconClass();
+				break;
+			case "sakai.lessonbuildertool":
+				iconClass = getLessonBuilderIconClass();
+				break;
+			case "sakai.attendance":
+				iconClass = getAttendanceIconClass();
+				break;
+			default:
+				iconClass = getDefaultIconClass();
+				break;
 		}
 		return iconClass;
 	}
@@ -3059,10 +3075,10 @@ public class GradebookNgBusinessService {
 	public Map<String, String> getIconClassMap() {
 		final Map<String, String> mapping = new HashMap<>();
 
-		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"), getAssignmentsIconClass());
-		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"), getSamigoIconClass());
-		mapping.put("Lesson Builder", getLessonBuilderIconClass());
-		mapping.put("Attendance", getAttendanceIconClass());
+		mapping.put(AssignmentConstants.TOOL_ID, getAssignmentsIconClass());
+		mapping.put("sakai.samigo", getSamigoIconClass());
+		mapping.put("sakai.lessonbuildertool", getLessonBuilderIconClass());
+		mapping.put("sakai.attendance", getAttendanceIconClass());
 
 		return mapping;
 	}
@@ -3138,5 +3154,33 @@ public class GradebookNgBusinessService {
 		}
 
 		return userTimeService.dateFormat(date, getUserPreferredLocale(), DateFormat.SHORT);
+	}
+
+	/**
+	 * Get the tool title in the current user language
+	 * @param externalAppId tool id
+	 * @return a tool title in user's current language
+	 */
+	public String getExternalAppName(String externalAppId) {
+		Tool externalTool = toolManager.getTool(externalAppId);
+		return externalTool != null ? externalTool.getTitle() : externalAppId;
+	}
+
+	public String getExternalSubmissionId(String externalId, String userId) {
+
+		String assignmentId = AssignmentReferenceReckoner.reckoner().reference(externalId).reckon().getId();
+
+		try {
+			AssignmentSubmission as = assignmentService.getSubmission(assignmentId, userId);
+
+			if (as == null) {
+				throw new IllegalArgumentException("No submission for external id " + externalId + " and user " + userId);
+			}
+
+			return as.getId();
+		} catch (Exception e) {
+			log.error("Exception while getting external submission: {}", e.toString());
+			return "";
+		}
 	}
 }

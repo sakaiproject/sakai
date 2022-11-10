@@ -41,7 +41,7 @@
      </servlet>
 
      <servlet>
-        <servlet-name>sakai.basiclti.admin.helper</servlet-name>
+        <servlet-name>sakai.lti.admin.helper</servlet-name>
         <servlet-class>org.sakaiproject.blti.tool.LTIAdminTool</servlet-class>
         <init-param>
             <param-name>helper</param-name>

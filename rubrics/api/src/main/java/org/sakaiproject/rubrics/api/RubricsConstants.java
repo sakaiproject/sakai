@@ -25,7 +25,6 @@ package org.sakaiproject.rubrics.api;
 public interface RubricsConstants {
 
 	public static final String RBCS_TOOL = "sakai.rubrics";
-	public static final String RBCS_TOOL_ASSIGNMENT = "sakai.assignment";
 	public static final String RBCS_TOOL_FORUMS = "sakai.forums";
 	public static final String RBCS_TOOL_GRADEBOOKNG = "sakai.gradebookng";
 	public static final String RBCS_TOOL_SAMIGO = "sakai.samigo";
@@ -43,7 +42,9 @@ public interface RubricsConstants {
     public static final String RBCS_PERMISSIONS_EVALUATOR = "rubrics.evaluator";
     public static final String RBCS_PERMISSIONS_EDITOR = "rubrics.editor";
     public static final String RBCS_PERMISSIONS_EVALUEE = "rubrics.evaluee";
-    public static final String RBCS_PERMISSIONS_SUPERUSER = "rubrics.superuser";
+    public static final String RBCS_PERMISSIONS_MANAGER_VIEW = "rubrics.manager.view";
+
+    public static final String RBCS_EXPORT_PDF = "rubrics.export.pdf";
 
 	//samigo custom props
 	public static final	String RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX = "pub.";

@@ -32,11 +32,17 @@
 		function resize() {
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
-	</script> 
-	<script>
-		function setDatesEnabled(radioButton) {
+	</script>
+	<script type="text/javascript">
+		function setDatesEnabled(radioButton){
 			$(".calWidget").fadeToggle('slow');
+			$(".lockForumAfterCloseDateSpan").fadeToggle('slow');
 		}
+
+		window.onload = function(){
+			const sendCheckbox = document.getElementById("revise:sendOpenCloseDateToCalendar");
+			sendCheckbox?.disabled && (sendCheckbox.checked = false);	//make sure that Calendar sending is not checked when it's disabled/when the site has no calendar
+		};
 
 		function openDateCal() {
 			NewCal('revise:openDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
@@ -48,23 +54,21 @@
 
 		function updateGradeAssignment() {
 
-			var elems = document.getElementsByTagName('sakai-rubric-association');
-			var topicAssignments = document.getElementById("revise:topic_assignments");
+			const associations = document.querySelectorAll('sakai-rubric-association');
+			const topicAssignments = document.getElementById("revise:topic_assignments");
 			const createTaskGroup = document.getElementById("revise:createTaskGroup");
 			const createTaskEmptyPanel = document.getElementById("revise:createTaskEmptyPanel");
-			if ( topicAssignments !== null && topicAssignments.value != null && topicAssignments.value != 'Default_0') {
-				for (var i = 0; i < elems.length; i++) {
-					elems[i].setAttribute("entity-id", topicAssignments.value);
-					elems[i].style.display = 'inline';
-				}
-				createTaskGroup.style.display = 'inline';
-				createTaskEmptyPanel.style.display = 'inline';
+			if (topicAssignments?.value && topicAssignments.value !== "Default_0") {
+				associations.forEach(a => {
+					a.setAttribute("entity-id", topicAssignments.value);
+					a.style.display = 'inline';
+				});
+				createTaskGroup && (createTaskGroup.style.display = 'inline');
+				createTaskEmptyPanel && (createTaskEmptyPanel.style.display = 'inline');
 			} else {
-				for (var i = 0; i < elems.length; i++) {
-					elems[i].style.display = 'none';
-				}
-				createTaskGroup.style.display = 'none';
-				createTaskEmptyPanel.style.display = 'none';
+				associations.forEach(a => a.style.display = 'none');
+				createTaskGroup && (createTaskGroup.style.display = 'none');
+				createTaskEmptyPanel && (createTaskEmptyPanel.style.display = 'none');
 			}
 		}
 
@@ -194,7 +198,7 @@
 				</h:column>
 				<h:column rendered="#{!empty ForumTool.attachments}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_attsize}" /></f:facet>
-					<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
+					<h:outputText value="#{ForumTool.getAttachmentReadableSize(eachAttach.attachment.attachmentSize)}"/>
 				</h:column>
 				<h:column rendered="#{!empty ForumTool.attachments}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_atttype}" /></f:facet>
@@ -283,6 +287,20 @@
 				<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
 				<h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
 			</h:panelGroup>
+			<p class="checkbox">
+				<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
+							  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
+							  style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+					<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar"
+											 disabled="#{not ForumTool.doesSiteHaveCalendar}"
+											 value="#{ForumTool.selectedTopic.topic.sendOpenCloseToCalendar}"/>
+					<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
+				</h:panelGroup>
+			</p>
+			<h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+				<h:selectBooleanCheckbox id="lockForumAfterCloseDate" value="#{ForumTool.selectedTopic.topic.lockedAfterClosed}"/>
+				<h:outputLabel for="lockForumAfterCloseDate" value="#{msgs.lockForumAfterCloseDate}" />
+			</h:panelGroup>
 		</div>
 
 		<script>
@@ -332,7 +350,7 @@
 			<h:outputLabel for="autoMarkThreadsRead" value="#{msgs.cdfm_auto_mark_threads_read}" />
 		</p>
 
-		<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
+		<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" /></h2>
 		<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both"  styleClass="itemSummary">
 			<h:panelGroup  style="white-space:nowrap;">
 				<h:outputLabel for="topic_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>
@@ -364,12 +382,7 @@
 			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'
 			associate-value="1"
 			read-only="true"
-
 			tool-id="sakai.gradebookng"
-			<% if(entityId != null && !"".equals(entityId)){ %>
-				entity-id=<%= entityId %>
-			<%}%>
-
 			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
 			hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
 

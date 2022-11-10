@@ -21,21 +21,13 @@ class SakaiRubricsManager extends RubricsElement {
 
     return {
       siteId: { attribute: "site-id", type: String },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
       i18nLoaded: { attribute: false, type: Boolean },
-      enablePdfExport: { type: Boolean },
     };
   }
 
   shouldUpdate() {
     return this.i18nLoaded;
-  }
-
-  set enablePdfExport(newValue) {
-    this._enablePdfExport = (newValue === 'true');
-  }
-
-  get enablePdfExport() {
-    return this._enablePdfExport;
   }
 
   render() {
@@ -47,7 +39,7 @@ class SakaiRubricsManager extends RubricsElement {
 
       <div class="row">
         <div class="col-md-4 form-group">
-          <label for="rubrics-search-bar"><sr-lang key="search_rubrics">Search Rubrics by title or author</sr-lang></label>
+          <label class="label-rubrics" for="rubrics-search-bar"><sr-lang key="search_rubrics">Search Rubrics by title or author</sr-lang></label>
           <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup="${this.filterRubrics}">
         </div>
       </div>
@@ -71,7 +63,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-list id="sakai-rubrics" site-id="${this.siteId}" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" ?enablePdfExport=${this.enablePdfExport}></sakai-rubrics-list>
+        <sakai-rubrics-list id="sakai-rubrics" site-id="${this.siteId}" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-list>
       </div>
       
       <hr>
@@ -95,7 +87,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" ?enablePdfExport=${this.enablePdfExport}></sakai-rubrics-shared-list>
+        <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-shared-list>
       </div>
       <br>
       </div>
@@ -142,22 +134,11 @@ class SakaiRubricsManager extends RubricsElement {
 
   filterRubrics() {
 
-    const searchInput = document.getElementById('rubrics-search-bar');
-    const searchInputValue = searchInput.value.toLowerCase();
+    const search = document.getElementById('rubrics-search-bar').value.toLowerCase();
 
     this.querySelectorAll('sakai-rubrics-list, sakai-rubrics-shared-list').forEach(rubricList => {
-      rubricList.querySelectorAll('.rubric-item').forEach(rubricItem => {
-        rubricItem.classList.remove('hidden');
-        const rubricTitle = rubricItem.querySelector('.rubric-name').textContent;
-        const rubricAuthor = rubricItem.querySelector('sakai-rubric-creator-name').textContent;
-        const rubricSite = rubricItem.querySelector('sakai-rubric-site-title').textContent;
-        if (!rubricAuthor.toLowerCase().includes(searchInputValue) &&
-            !rubricTitle.toLowerCase().includes(searchInputValue) &&
-            !rubricSite.toLowerCase().includes(searchInputValue)
-        ) {
-          rubricItem.classList.add('hidden');
-        }
-      });
+
+      rubricList.search(search);
     });
   }
 

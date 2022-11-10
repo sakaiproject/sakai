@@ -42,6 +42,7 @@
 
 	function setDatesEnabled(radioButton){
 		$(".calWidget").fadeToggle('slow');
+		$(".lockForumAfterCloseDateSpan").fadeToggle('slow');
 	}
 
 	function updateGradeAssignment(){
@@ -61,6 +62,11 @@
 			createTaskGroup.style.display = 'none';
 		}
 	}
+
+	window.onload = function(){
+		const sendCheckbox = document.getElementById("revise:sendOpenCloseDateToCalendar");
+		sendCheckbox?.disabled && (sendCheckbox.checked = false);	//make sure that Calendar sending is not checked when it's disabled/when the site has no calendar
+	};
 
 	function setAutoCreatePanel() {
 		$(".createOneForumPanel").slideToggle("fast");
@@ -220,7 +226,7 @@
 						<f:facet name="header">
 							<h:outputText value="#{msgs.cdfm_attsize}" />
 						</f:facet>
-						<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
+						<h:outputText value="#{ForumTool.getAttachmentReadableSize(eachAttach.attachment.attachmentSize)}"/>
 					</h:column>
 					<h:column rendered="#{!empty ForumTool.attachments}">
 						<f:facet name="header">
@@ -290,25 +296,32 @@
                    <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}" onchange="storeCloseDateISO(event)"/>
                    <h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedForum.closeDateISO}"></h:inputText>
                </h:panelGroup>
+				<p class="checkbox">
+					<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
+								  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
+								  style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+						<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar"
+												 disabled="#{not ForumTool.doesSiteHaveCalendar}"
+												 value="#{ForumTool.selectedForum.forum.sendOpenCloseToCalendar}"/>
+						<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
+					</h:panelGroup>
+				</p>
+               <h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+                   <h:selectBooleanCheckbox id="lockForumAfterCloseDate" value="#{ForumTool.selectedForum.forum.lockedAfterClosed}"/>
+                   <h:outputLabel for="lockForumAfterCloseDate" value="#{msgs.lockForumAfterCloseDate}" />
+               </h:panelGroup>
 			</h:panelGroup>
 
 			<script>
 				function storeOpenDateISO(e) {
 					e.preventDefault();
-					document.getElementsByClassName("openDateISO")[0].value = document.getElementById("openDateISO8601").value;
+					document.getElementById("revise:openDateISO").value = document.getElementById("openDateISO8601").value;
 				}
 
 				function storeCloseDateISO(e) {
 					e.preventDefault();
-					document.getElementsByClassName("closeDateISO")[0].value = document.getElementById("closeDateISO8601").value;
+					document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
 				}
-
-				$(document).ready(function() {
-					if (document.getElementById("openDateISO8601").value != null) {
-						document.getElementsByClassName("openDateISO")[0].value = document.getElementById("openDateISO8601").value;
-						document.getElementsByClassName("closeDateISO")[0].value = document.getElementById("closeDateISO8601").value;
-					}
-				});
 
 				localDatePicker({
 					input: '.openDate',

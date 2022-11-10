@@ -15,6 +15,7 @@ package org.sakaiproject.rubrics.api.beans;
 
 import org.sakaiproject.rubrics.api.model.Criterion;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +30,9 @@ public class CriterionTransferBean {
     public String title;
     public String description;
     public Float weight;
-    public List<RatingTransferBean> ratings;
+    public List<RatingTransferBean> ratings = new ArrayList<>();
     public String ownerId;
+    public boolean isNew;
 
     public static CriterionTransferBean of(Criterion criterion) {
 

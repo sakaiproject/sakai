@@ -205,7 +205,7 @@
           /http(s)?:\/\/[A-Za-z0-9:_.-]+(\/samigo-app\/servlet\/Login\?id=[A-Za-z0-9-]*)/ ,
           /*
              Example URL for Adobe Connect via eSyncTraining
-             http://sakai.noodle-partners.com:8080/egcint/redirect.jsf\?url=http://sakai.noodle-partners.com:8080/access/basiclti/site/sakai-demo/null/?ltiId=15169%26ltiAction=join%2673ad790e-b17e-46e2-89c3-412cb0167823
+             http://sakai.noodle-partners.com:8080/egcint/redirect.jsf\?url=http://sakai.noodle-partners.com:8080/access/lti/site/sakai-demo/null/?ltiId=15169%26ltiAction=join%2673ad790e-b17e-46e2-89c3-412cb0167823
            */
           /http(s)?:\/\/[A-Za-z0-9:_.-]+\/egcint\/redirect.jsf\?url=http(s)?:\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]*\/\?ltiId=\d*%26ltiAction=join%26[0-9A-Fa-f-]*/,
           /*

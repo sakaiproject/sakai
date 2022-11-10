@@ -328,7 +328,7 @@ public class PDFExportService {
 
                 // Use the middle of the month since the start/end ranges
                 // may be in an adjacent month.
-                TimeBreakdown breakDown = actualTimeRange.firstTime().breakdownLocal();
+                TimeBreakdown breakDown = timeRangeList.get(0).firstTime().breakdownLocal();
 
                 monthCalendar.setDay(breakDown.getYear(), breakDown.getMonth(), breakDown.getDay());
 

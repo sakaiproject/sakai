@@ -102,10 +102,16 @@
     <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
   </bean>
 
+  <bean id="org.sakaiproject.conversations.api.TopicShowDateMessager"
+      class="org.sakaiproject.conversations.impl.TopicShowDateMessagerImpl">
+    <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.conversations" />
+  </bean>
+
   <bean id="org.sakaiproject.conversations.api.ConversationsService"
       class="org.sakaiproject.conversations.impl.ConversationsServiceImpl" init-method="init">
 
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
     <property name="commentRepository" ref="org.sakaiproject.conversations.api.repository.ConversationsCommentRepository" />
     <property name="convStatusRepository" ref="org.sakaiproject.conversations.api.repository.ConvStatusRepository" />
     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
@@ -116,6 +122,7 @@
     <property name="postReactionTotalRepository" ref="org.sakaiproject.conversations.api.repository.PostReactionTotalRepository" />
     <property name="postStatusRepository" ref="org.sakaiproject.conversations.api.repository.PostStatusRepository" />
     <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.conversations" />
+    <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
     <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
@@ -123,9 +130,11 @@
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
     <property name="tagRepository" ref="org.sakaiproject.conversations.api.repository.TagRepository" />
+    <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     <property name="topicRepository" ref="org.sakaiproject.conversations.api.repository.ConversationsTopicRepository" />
     <property name="topicReactionRepository" ref="org.sakaiproject.conversations.api.repository.TopicReactionRepository" />
     <property name="topicReactionTotalRepository" ref="org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository" />
+    <property name="topicShowDateMessager" ref="org.sakaiproject.conversations.api.TopicShowDateMessager" />
     <property name="topicStatusRepository" ref="org.sakaiproject.conversations.api.repository.TopicStatusRepository" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     <property name="userMessagingService" ref="org.sakaiproject.messaging.api.UserMessagingService" />

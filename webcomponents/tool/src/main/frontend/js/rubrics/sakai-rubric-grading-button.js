@@ -1,5 +1,5 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 
 class SakaiRubricGradingButton extends RubricsElement {
 
@@ -13,11 +13,11 @@ class SakaiRubricGradingButton extends RubricsElement {
   static get properties() {
 
     return {
-      entityId: {attribute: "entity-id", type: String},
+      entityId: { attribute: "entity-id", type: String },
       siteId: { attribute: "site-id", type: String },
-      toolId: {attribute: "tool-id", type: String},
-      evaluatedItemId: {attribute: "evaluated-item-id", type: String},
-      hasEvaluation: Boolean,
+      toolId: { attribute: "tool-id", type: String },
+      evaluatedItemId: { attribute: "evaluated-item-id", type: String },
+      hasEvaluation: { attribute: false, type: Boolean },
     };
   }
 
@@ -34,7 +34,7 @@ class SakaiRubricGradingButton extends RubricsElement {
 
     return html`
       <a href="javascript:;">
-        <span class="icon-sakai--sakai-rubrics ${this.hasEvaluation ? "rubric-active" : ""}"></span>
+        <span class="si si-sakai-rubrics ${this.hasEvaluation ? "rubric-active" : ""}"></span>
       </a>
     `;
   }

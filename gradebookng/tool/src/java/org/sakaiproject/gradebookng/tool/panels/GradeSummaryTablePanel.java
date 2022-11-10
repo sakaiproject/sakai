@@ -39,6 +39,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -318,14 +319,15 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						assignmentItem.add(compareLink);
 
 						// popover flags
+						String externalAppIconClass = assignment.getExternallyMaintained() ? "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment) : "";
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
 						flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracredit"), assignment.getExtraCredit()));
 						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.getCounted()));
 						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.getReleased()));
 						flags.add(newPopoverFlag("isExcused", getString("grade.notifications.excused"), excused));
-						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { assignment.getExternalAppName() }).getString();
+						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { GradeSummaryTablePanel.this.businessService.getExternalAppName(assignment.getExternalAppName()) }).getString();
 						flags.add(newPopoverFlag("isExternal", extAppName, assignment.getExternallyMaintained())
-								.add(new AttributeModifier("class", "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment))));
+								.add(new AttributeModifier("class", externalAppIconClass)));
 						flags.setVisible(
 								assignment.getExtraCredit() ||
 								!assignment.getCounted() ||
@@ -362,8 +364,16 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
 							sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
+							sakaiRubricButton.setVisible(false);
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
+
+							Optional<AssociationTransferBean> optAssociation
+								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+							if (optAssociation.isPresent()) {
+								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
+								sakaiRubricButton.setVisible(true);
+							}
 
 							if (assignment.getId() != null) {
 								sakaiRubricButton.add(AttributeModifier.append("entity-id", assignment.getId()));
@@ -379,55 +389,57 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
 							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
-
-							 try {
-								Optional<AssociationTransferBean> optAssociation
-									= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
-								if (optAssociation.isPresent()) {
-									sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
-								}
-							} catch (Exception e) {
-								log.error("Failed to get association", e);
-							}
+							sakaiRubricButton.setVisible(false);
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
+							Optional<AssociationTransferBean> optAssociation
+								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+							if (optAssociation.isPresent()) {
+								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
+								sakaiRubricButton.setVisible(true);
+							}
+
 							if (assignment.getExternallyMaintained()) {
-								sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
+								sakaiRubricButton.add(AttributeModifier.append("tool-id", AssignmentConstants.TOOL_ID));
 								String[] bits = assignment.getExternalId().split("/");
 								if (bits != null && bits.length >= 1) {
 									String assignmentId = bits[bits.length-1];
 									String ownerId = studentUuid;
-									try {
-										org.sakaiproject.assignment.api.model.Assignment assignmentsAssignment = assignmentService.getAssignment(assignmentId);
-										if (assignmentsAssignment.getIsGroup()) {
-											Optional<String> groupId = assignmentsAssignment.getGroups().stream().filter(g -> {
+									if (assignment.getExternalAppName().equals(assignmentService.getToolId())) {
+										try {
+											org.sakaiproject.assignment.api.model.Assignment assignmentsAssignment = assignmentService.getAssignment(assignmentId);
+											if (assignmentsAssignment.getIsGroup()) {
+												Optional<String> groupId = assignmentsAssignment.getGroups().stream().filter(g -> {
 
-												try {
-													AuthzGroup group = authzGroupService.getAuthzGroup(g);
-													return group.getMember(studentUuid) != null;
-												} catch (GroupNotDefinedException gnde) {
-													return false;
+													try {
+														AuthzGroup group = authzGroupService.getAuthzGroup(g);
+														return group.getMember(studentUuid) != null;
+													} catch (GroupNotDefinedException gnde) {
+														return false;
+													}
+												}).findAny();
+
+												if (groupId.isPresent()) {
+													ownerId = groupId.get();
+												} else {
+													log.error("Assignment {} is a group assignment, but {} was not in any of the groups", assignmentId, studentUuid);
 												}
-											}).findAny();
-
-											if (groupId.isPresent()) {
-												ownerId = groupId.get();
-											} else {
-												log.error("Assignment {} is a group assignment, but {} was not in any of the groups", assignmentId, studentUuid);
 											}
+											sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
+	
+											String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, AssignmentConstants.TOOL_ID, getCurrentSiteId());
+	                                        if (submissionId != null) {
+											    sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
+	                                        }
+	
+											rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, getCurrentSiteId())
+												.ifPresent(assoc -> sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId)));
+											
+										} catch (Exception e) {
+											log.error("Failed to configure rubric button for submission: {}", e.toString());
+											sakaiRubricButton.setVisible(false);
 										}
-									} catch (Exception e) {
-										log.error("Failed to determine ownerId for submission", e);
-									}
-									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, RubricsConstants.RBCS_TOOL_ASSIGNMENT, getCurrentSiteId());
-									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
-									sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
-									try {
-										rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId, getCurrentSiteId())
-											.ifPresent(assoc -> sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId)));
-									} catch (Exception e) {
-										log.error("Failed to get association", e);
 									}
 								} else {
 									log.warn(assignment.getExternalId() + " is not a valid assignment reference");

@@ -46,16 +46,30 @@ export class SakaiItemDelete extends RubricsElement {
   render() {
 
     return html`
-      <a @focus="${this.onFocus}" @focusout="${this.focusOut}" role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove", [this.item.title])}" class="linkStyle delete fa fa-times" @keyup="${this.openEditWithKeyboard}" @click="${this.deleteItem}" href="#"></a>
-      <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left">
-        <div class="arrow"></div>
+      <button
+        class="btn-transparent link-color delete"
+        @focus="${this.onFocus}"
+        @focusout="${this.focusOut}"
+        aria-haspopup="true"
+        aria-expanded="${this.popoverOpen}"
+        aria-controls="delete_${this.type}_${this.item.id}"
+        title="${tr("remove", [this.item.title])}"
+        aria-label="${tr("remove", [this.item.title])}"
+        @keyup="${this.openEditWithKeyboard}"
+        @click="${this.deleteItem}"
+      >
+        <span class="fa fa-times"/>
+      </button>
+
+      <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left rubrics-popover">
+        <div class="arrow-0"></div>
         <div class="popover-title" tabindex="0">${tr("confirm_remove")} ${this.item.title}</div>
         <div class="popover-content">
           <div class="buttons text-right act">
             <button title="${tr("confirm_remove")}" class="active save" @click="${this.saveDelete}">
               <sr-lang key="remove_label" />
             </button>
-            <button class="cancel" @click="${this.cancelDelete}">
+            <button class="btn btn-link btn-xs cancel" @click="${this.cancelDelete}">
               <sr-lang key="cancel">Cancel</sr-lang>
             </button>
           </div>

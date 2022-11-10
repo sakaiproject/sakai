@@ -55,7 +55,7 @@
             #if (!$zipDownloadIndividualFileSizeExceeded && !$zipDownloadTotalFileSizeExceeded)
                 <input type="submit" class="active" onclick="SPNR.disableElementAndSpin(this.parentNode.id, this, false)" id="zipDownloadButton" name="eventSubmit_doFinalizeZipDownload" value="$tlang.getString("zipdownload.show1")" accesskey="s" aria-label="$tlang.getString("zipdownload.submit")"/>
             #end
-                <input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("label.continue")" accesskey="x" />
+                <input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("label.cancel")" accesskey="x" />
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             </p>
         #end

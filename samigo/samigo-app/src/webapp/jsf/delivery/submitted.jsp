@@ -96,7 +96,7 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
 
 <h:form id="submittedForm">
 
-<div class="table-responsive">
+<div class="table">
 	<h:outputText id="renderTimeoutMessage" styleClass="sak-banner-error" value="#{deliveryMessages.timeOutSubmission}" rendered="#{delivery.timeOutSubmission=='true'}"/>
   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
@@ -163,10 +163,10 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
        rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}" />
 
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && (delivery.anonymousLogin || delivery.accessByUrlAndAuthorized) && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}" 
        style="act" onclick="reviewAssessment(this);" onkeypress="reviewAssessment(this);" />
 
-    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}">
+    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && (delivery.anonymousLogin || delivery.accessByUrlAndAuthorized) && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}">
       <f:param name="publishedId" value="#{delivery.assessmentId}" />
       <f:param name="nofeedback" value="false"/>
       <f:param name="actionString" value="reviewAssessment"/>

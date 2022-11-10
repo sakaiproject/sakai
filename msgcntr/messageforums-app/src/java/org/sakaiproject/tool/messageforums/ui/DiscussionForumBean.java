@@ -150,6 +150,9 @@ public class DiscussionForumBean
 	    	locked = Boolean.TRUE.toString();
 	    }
     }
+
+    handleLockedAfterClosedCondition();
+
     return locked;
   }
 
@@ -187,6 +190,9 @@ public class DiscussionForumBean
 	    	locked = Boolean.TRUE.toString();
 	    }
     }
+
+    handleLockedAfterClosedCondition();
+
     return Boolean.parseBoolean(locked);
   }
 
@@ -198,6 +204,21 @@ public class DiscussionForumBean
   {
     log.debug("setForumLocked(String"+ locked+")");
     forum.setLocked(locked);
+  }
+
+  private void handleLockedAfterClosedCondition() {
+    Boolean availabilityRestricted = getForum().getAvailabilityRestricted();
+
+    if(availabilityRestricted && locked.equals(Boolean.FALSE.toString())) {
+      Date closeDate = getForum().getCloseDate();
+      if(closeDate != null) {
+        // this seems so dirty.
+        if (getForum().getLockedAfterClosed() && closeDate.before(new Date())) {
+          setForumLocked(true);
+          locked = Boolean.TRUE.toString();
+        }
+      }
+    }
   }
   
   private String moderated = null;
@@ -540,14 +561,14 @@ public class DiscussionForumBean
 	}
 
 	public void setOpenDate(String openDateStr){
-		if (StringUtils.isNoneBlank(openDateStr, openDateISO)) {
-			try{
+		if (StringUtils.isNotBlank(openDateISO)) {
+			try {
 				Date openDate = (Date) datetimeFormat.parse(openDateISO);
 				forum.setOpenDate(openDate);
-			}catch (ParseException e) {
+			} catch (ParseException e) {
 				log.error("Couldn't convert open date", e);
 			}
-		}else{
+		} else if (StringUtils.isBlank(openDateStr)) {
 			forum.setOpenDate(null);
 		}
 	}
@@ -561,14 +582,14 @@ public class DiscussionForumBean
 	}
 
 	public void setCloseDate(String closeDateStr){
-		if (StringUtils.isNoneBlank(closeDateStr, closeDateISO)) {
-			try{
+		if (StringUtils.isNotBlank(closeDateISO)) {
+			try {
 				Date closeDate = (Date) datetimeFormat.parse(closeDateISO);
 				forum.setCloseDate(closeDate);
-			}catch (ParseException e) {
+			} catch (ParseException e) {
 				log.error("Couldn't convert Close date", e);
 			}
-		}else{
+		} else if (StringUtils.isBlank(closeDateStr)) {
 			forum.setCloseDate(null);
 		}
 	}
@@ -599,11 +620,15 @@ public class DiscussionForumBean
 
 	public void setOpenDateISO(String openDateISO) {
 		this.openDateISO = openDateISO;
-		setOpenDate(this.openDateISO);
+		if (StringUtils.isNotBlank(openDateISO)) {
+			this.setOpenDate(openDateISO);
+		}
 	}
 
 	public void setCloseDateISO(String closeDateISO) {
 		this.closeDateISO = closeDateISO;
-		setCloseDate(this.closeDateISO);
+		if (StringUtils.isNotBlank(closeDateISO)) {
+			this.setCloseDate(closeDateISO);
+		}
 	}
 }

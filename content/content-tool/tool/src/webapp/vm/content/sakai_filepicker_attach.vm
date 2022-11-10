@@ -120,7 +120,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 		#if($attached.isEmpty())
 		#else
 		
-		<div class="table-responsive">
+		<div class="table">
 			<table class="table table-striped table-bordered" cellspacing="0" cellpadding="0" summary="$tlang.getString("att.sellistsum")">
 				<caption class="skip" style="display:none">$tlang.getString("att.sellistcap")</caption>
 				<tr>

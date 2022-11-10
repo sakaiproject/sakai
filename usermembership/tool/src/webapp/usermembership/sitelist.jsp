@@ -120,7 +120,7 @@
 		<h:form id="buttonholder">
 			<t:div rendered="#{SiteListBean.renderTable && !SiteListBean.emptySiteList}">
 				<t:div styleClass="act">
-					<h:commandButton id="invert-selection" type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="sakaiUserMembership.invertSelection(); sakaiUserMembership.checkSiteSelection();" />
+					<h:commandButton id="invert-selection" type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="sakaiUserMembership.invertSelection();" />
 					<h:commandButton id="set-to-inactive" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}"
 									 onclick="SPNR.disableControlsAndSpin( this, null );" />
 					<h:commandButton id="set-to-active" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}"

@@ -34,11 +34,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
@@ -48,6 +52,8 @@ import org.sakaiproject.conversations.api.ConversationsEvents;
 import org.sakaiproject.conversations.api.Permissions;
 import org.sakaiproject.conversations.api.PostSort;
 import org.sakaiproject.conversations.api.Reaction;
+import org.sakaiproject.conversations.api.ShowDateContext;
+import org.sakaiproject.conversations.api.TopicShowDateMessager;
 import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
@@ -82,6 +88,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.Message;
@@ -91,16 +98,23 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import org.hibernate.exception.ConstraintViolationException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -110,9 +124,12 @@ import lombok.Setter;
 
 @Slf4j
 @Setter
+@Transactional
 public class ConversationsServiceImpl implements ConversationsService, Observer {
 
     private AuthzGroupService authzGroupService;
+
+    private CalendarService calendarService;
 
     private FunctionManager functionManager;
 
@@ -132,6 +149,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     private PostStatusRepository postStatusRepository;
 
+    private ScheduledInvocationManager scheduledInvocationManager;
+
     private SecurityService securityService;
 
     private ServerConfigurationService serverConfigurationService;
@@ -146,9 +165,13 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     private TagRepository tagRepository;
 
+    private TimeService timeService;
+
     private TopicReactionRepository topicReactionRepository;
 
     private TopicReactionTotalRepository topicReactionTotalRepository;
+
+    private TopicShowDateMessager topicShowDateMessager;
 
     private ConversationsTopicRepository topicRepository;
 
@@ -164,6 +187,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     private Cache<String, List<ConversationsStat>> sortedStatsCache;
     private Cache<String, Map<String, Map<String, Object>>> postsCache;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public void init() {
 
@@ -238,11 +263,13 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     public boolean currentUserCanViewTopic(ConversationsTopic topic) {
 
+        if (topic == null) return false;
+
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
         if (StringUtils.isBlank(currentUserId)) return false;
 
-        final String siteRef = "/site/" + topic.getSiteId();
+        final String siteRef = siteService.siteReference(topic.getSiteId());
 
         if (!securityService.unlock(SiteService.SITE_VISIT, siteRef)) return false;
 
@@ -259,7 +286,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
         if (!topic.getDraft() && topic.getVisibility() == TopicVisibility.SITE) return true;
 
-        if (topic.getVisibility() == TopicVisibility.INSTRUCTORS
+        if (!topic.getDraft() && topic.getVisibility() == TopicVisibility.INSTRUCTORS
                     && securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
             return true;
         }
@@ -276,7 +303,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return false;
     }
 
-    @Transactional
     public List<TopicTransferBean> getTopicsForSite(String siteId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -289,7 +315,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         Settings settings = getSettingsForSite(siteId);
 
         List<ConversationsTopic> topics = topicRepository.findBySiteId(siteId).stream()
-            //.map(this::setupDateState)
             .map(this::showIfAfterShowDate)
             .map(this::lockIfAfterLockDate)
             .map(this::hideIfAfterHideDate)
@@ -379,12 +404,11 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         });
     }
 
-    @Transactional
     public TopicTransferBean saveTopic(final TopicTransferBean topicBean, boolean sendMessage) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        String siteRef = "/site/" + topicBean.siteId;
+        String siteRef = siteService.siteReference(topicBean.siteId);
 
         Settings settings = getSettingsForSite(topicBean.siteId);
 
@@ -406,6 +430,12 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             throw new ConversationsPermissionsException("Current user cannot update topic.");
         }
 
+        boolean wasDraft = false;
+        ConversationsTopic existingTopic = null;
+        String oldDueDateCalendarEventId = null;
+        String oldShowMessageScheduleId = null;
+        boolean removeScheduledMessage = false;
+
         Instant now = Instant.now();
         if (isNew) {
             topicBean.setCreator(currentUserId);
@@ -417,29 +447,47 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                 topicBean.lockDate = null;
             }
         } else {
-            ConversationsTopic topic = topicRepository.findById(topicBean.id)
+            existingTopic = topicRepository.findById(topicBean.id)
                 .orElseThrow(() -> new IllegalArgumentException("No existing topic for " + topicBean.id));
 
-            if (topic.getLocked() && !isModerator) {
+            oldDueDateCalendarEventId = existingTopic.getDueDateCalendarEventId();
+            oldShowMessageScheduleId = existingTopic.getShowMessageScheduleId();
+
+            wasDraft = existingTopic.getDraft() && !topicBean.draft;
+
+            if (existingTopic.getLocked() && !isModerator) {
                 throw new ConversationsPermissionsException("Current user cannot update topic.");
             }
 
-            if (topicBean.showDate == null && topic.getShowDate() != null) {
+            if (topicBean.showDate == null && existingTopic.getShowDate() != null) {
                 // show date has been removed
                 if (topicBean.hideDate == null || topicBean.hideDate.isAfter(now)) {
                     topicBean.hidden = false;
                 }
+
+                removeScheduledMessage = true;
             }
 
-            if (topicBean.lockDate == null && topic.getLockDate() != null) {
+            if (topicBean.showDate != null && existingTopic.getShowDate() != null && !topicBean.showDate.equals(existingTopic.getShowDate())) {
+                // The show date has been changed
+                removeScheduledMessage = true;
+            }
+
+            // If a show date was set in the past (it was in this case) we need to remove the
+            // scheduled message invocation that was previously set
+            if (removeScheduledMessage && oldShowMessageScheduleId != null) {
+                scheduledInvocationManager.deleteDelayedInvocation(oldShowMessageScheduleId);
+            }
+
+            if (topicBean.lockDate == null && existingTopic.getLockDate() != null) {
                 // lock date has been removed
                 topicBean.locked = false;
             }
 
             // Only moderators can set a show or lock date
-            if ((!Objects.equals(topic.getShowDate(), topicBean.showDate)
-                || !Objects.equals(topic.getHideDate(), topicBean.hideDate)
-                || !Objects.equals(topic.getLockDate(), topicBean.lockDate)) && !isModerator) {
+            if ((!Objects.equals(existingTopic.getShowDate(), topicBean.showDate)
+                || !Objects.equals(existingTopic.getHideDate(), topicBean.hideDate)
+                || !Objects.equals(existingTopic.getLockDate(), topicBean.lockDate)) && !isModerator) {
                 throw new ConversationsPermissionsException("Current user cannot update show, hide or lock dates.");
             }
 
@@ -449,6 +497,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             // has been updated, or whatever.
             postsCache.remove(topicBean.id);
         }
+
         topicBean.setModifier(currentUserId);
         topicBean.setModified(now);
 
@@ -458,52 +507,106 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
         ConversationsTopic topic = topicRepository.save(topicBean.asTopic());
 
+        topic = updateCalendarForTopic(oldDueDateCalendarEventId, topic);
+
         TopicTransferBean outTopicBean = TopicTransferBean.of(topic);
 
-        outTopicBean.tags = topic.getTagIds().stream().map(tagId -> {
-
-            Optional<Tag> optTag = tagRepository.findById(tagId);
-            if (optTag.isPresent()) {
-                return optTag.get();
-            } else {
-                return null;
-            }
-        }).collect(Collectors.toList());
+        outTopicBean.tags = topic.getTagIds().stream()
+            .map(tagId -> tagRepository.findById(tagId).orElse(null))
+            .collect(Collectors.toList());
 
         TopicTransferBean decoratedBean = decorateTopicBean(outTopicBean, topic, currentUserId, settings);
 
-        this.afterCommit(() -> {
+        ConversationsTopic finalTopic = topic;
 
-            ConversationsEvents event = isNew ? ConversationsEvents.TOPIC_CREATED : ConversationsEvents.TOPIC_UPDATED;
-            eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, decoratedBean.siteId, true, NotificationService.NOTI_OPTIONAL));
+        boolean finalWasDraft = wasDraft;
 
-            if (sendMessage) {
-                try {
-                    Site site = siteService.getSite(decoratedBean.siteId);
-                    Set<User> users = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+        if (sendMessage) {
+            this.afterCommit(() -> this.sendOrScheduleTopicMessages(finalTopic.getId(), isNew, finalWasDraft));
+        }
 
-                    Map<String, Object> replacements = new HashMap<>();
-                    replacements.put("siteTitle", site.getTitle());
-                    replacements.put("topicTitle", decoratedBean.title);
-                    replacements.put("topicUrl", decoratedBean.portalUrl);
-                    replacements.put("bundle", new ResourceLoader("conversations_notifications"));
-
-                    userMessagingService.message(users,
-                        Message.builder()
-                            .siteId(decoratedBean.siteId)
-                            .tool(TOOL_ID)
-                            .type(topic.getType() == TopicType.QUESTION ? "newquestion" : "newdiscussion").build(),
-                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
-                } catch (IdUnusedException iue) {
-                    log.error("No group for site reference {}", siteRef);
-                }
-            }
-        });
-        
         return decoratedBean;
     }
 
     @Transactional
+    private void sendOrScheduleTopicMessages(String topicId, boolean isNew, boolean wasDraft) {
+
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        Instant showDate = topic.getShowDate();
+
+        if (showDate != null && showDate.isAfter(Instant.now())) {
+
+            (new Thread(() -> {
+
+                // This topic has a show date in the future. We need to set up a scheduled task to
+                // send out email alerts on the show date
+
+                try {
+                    ShowDateContext showDateContext = new ShowDateContext();
+                    showDateContext.setTopicId(topicId);
+                    showDateContext.setWasNew(isNew);
+                    String context = objectMapper.writeValueAsString(showDateContext);
+                    if (!topic.getDraft()) {
+                        String invocationId = scheduledInvocationManager.createDelayedInvocation(showDate, "org.sakaiproject.conversations.impl.TopicShowDateMessager", context);
+                        topic.setShowMessageScheduleId(invocationId);
+                        topicRepository.save(topic);
+                    }
+                } catch (JsonProcessingException e) {
+                    log.error("Exception while building json context for topic message sheduler: {}", e.toString());
+                }
+            })).start();
+        } else {
+            if (!topic.getDraft()) {
+                topicShowDateMessager.message(topic, isNew);
+            }
+        }
+    }
+
+    private CalendarEventEdit populateCalendarEvent(CalendarEventEdit calEdit, ConversationsTopic topic) {
+
+        long start = topic.getDueDate().toEpochMilli();
+        calEdit.setRange(timeService.newTimeRange(timeService.newTime(start), timeService.newTime(start), true, false));
+        calEdit.setDisplayName(resourceLoader.getString("topic_due") + " " + topic.getTitle());
+        calEdit.setDescriptionFormatted(topic.getMessage());
+        calEdit.setType(CalendarEventType.DEADLINE.getType());
+        calEdit.setEventUrl(getTopicPortalUrl(topic.getId()).orElse(""));
+        return calEdit;
+    }
+
+    private ConversationsTopic updateCalendarForTopic(String oldCalId, ConversationsTopic newTopic) {
+
+        Calendar cal = this.getCalendar(newTopic.getSiteId());
+
+        if ((newTopic.getDueDate() == null || newTopic.getDraft()) && oldCalId != null) {
+
+            // Either the due date has been removed, or the topic has been set to draft at some point.
+
+            try {
+                cal.removeEvent(cal.getEditEvent(oldCalId, CalendarService.EVENT_REMOVE_CALENDAR));
+                newTopic.setDueDateCalendarEventId(null);
+                return topicRepository.save(newTopic);
+            } catch (Exception e) {
+                log.error("Failed to remove due date from calendar: {}", e.toString());
+            }
+        }
+
+        if (newTopic.getDueDate() != null && !newTopic.getDraft()) {
+
+            try {
+                CalendarEventEdit calEdit = populateCalendarEvent(oldCalId != null ? cal.getEditEvent(oldCalId, CalendarService.EVENT_MODIFY_CALENDAR) : cal.addEvent(), newTopic);
+                cal.commitEvent(calEdit);
+                newTopic.setDueDateCalendarEventId(calEdit.getId());
+                return topicRepository.save(newTopic);
+            } catch (Exception e) {
+                log.error("Failed to add due date to calendar: {}", e.toString());
+            }
+        }
+
+        return newTopic;
+    }
+
     public void pinTopic(String topicId, boolean pinned) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -519,7 +622,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         topicRepository.save(topic);
     }
 
-    @Transactional
     public TopicTransferBean lockTopic(String topicId, boolean locked, boolean needsModerator) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -554,17 +656,17 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         postRepository.findByParentPostId(post.getId()).forEach(p -> recursivelyLockPosts(p, locked));
     }
 
-    @Transactional
-    public ConversationsTopic hideTopic(String topicId, boolean hidden) throws ConversationsPermissionsException {
+    public ConversationsTopic hideTopic(String topicId, boolean hidden, boolean needsModerator) throws ConversationsPermissionsException {
 
-        String currentUserId = getCheckedCurrentUserId();
+        getCheckedCurrentUserId();
 
         ConversationsTopic topic = topicRepository.findById(topicId)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
-        if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + topic.getSiteId())) {
-            throw new ConversationsPermissionsException("Current user cannot hide/show topics.");
+        if (needsModerator && !securityService.unlock(Permissions.MODERATE.label, "/site/" + topic.getSiteId())) {
+            throw new ConversationsPermissionsException("Current user cannot lock/unlock topics.");
         }
+
         topic.setHidden(hidden);
 
         if (!hidden) {
@@ -575,7 +677,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return topicRepository.save(topic);
     }
 
-    @Transactional
     public void bookmarkTopic(String topicId, boolean bookmarked) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -589,7 +690,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         });
     }
 
-    @Transactional
     public void deleteTopic(String topicId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -619,6 +719,15 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         topicReactionTotalRepository.deleteByTopicId(topicId);
         topicRepository.delete(topic);
 
+        if (topic.getDueDateCalendarEventId() != null) {
+            Calendar cal = this.getCalendar(topic.getSiteId());
+            try {
+                cal.removeEvent(cal.getEditEvent(topic.getDueDateCalendarEventId(), CalendarService.EVENT_REMOVE_CALENDAR));
+            } catch (Exception e) {
+                log.error("Failed to remove due date event from calendar: {}", e.toString());
+            }
+        }
+
         afterCommit(() -> {
             String ref = ConversationsReferenceReckoner.reckoner()
                 .siteId(topic.getSiteId())
@@ -627,7 +736,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         });
     }
 
-    @Transactional
     public Map<Reaction, Integer> saveTopicReactions(String topicId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -701,7 +809,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return postRepository.findById(postId).map(PostTransferBean::of);
     }
 
-    @Transactional
     public PostTransferBean savePost(PostTransferBean postBean, boolean sendMessage) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -729,11 +836,15 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         final ConversationsTopic topic = topicRepository.findById(postBean.topic)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + postBean.topic));
 
+        boolean wasDraft = false;
+
         // We're creating a new topic, so set the initial dates of creation and modification
         Instant now = Instant.now();
         if (isNew) {
             postBean.setCreator(currentUserId);
             postBean.setCreated(now);
+        } else {
+            wasDraft = postRepository.findById(postBean.id).map(p -> p.getDraft() && !postBean.draft).orElse(false);
         }
         postBean.setModifier(currentUserId);
         postBean.setModified(now);
@@ -773,8 +884,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         }
         this.markPostViewed(postBean.topic, post.getId(), currentUserId);
 
-        if (!post.getDraft() && !post.getPrivatePost()
-            && securityService.unlock(currentUserId, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
+        if (!post.getDraft() && !post.getPrivatePost() && !post.getAnonymous()
+            && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
 
             topic.setResolved(true);
             topicRepository.save(topic);
@@ -792,12 +903,14 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         // We have to do this to satisfy the lambda requirements
         Optional<ConversationsPost> optParent = parent;
 
+        final boolean finalWasDraft = wasDraft;
+
         this.afterCommit(() -> {
 
             ConversationsEvents event = isNew ? ConversationsEvents.POST_CREATED : ConversationsEvents.POST_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, postBean.siteId, true, NotificationService.NOTI_OPTIONAL));
 
-            if (sendMessage) {
+            if (sendMessage && (isNew || finalWasDraft) && !postBean.draft) {
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
@@ -835,6 +948,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     public boolean currentUserCanViewPost(ConversationsPost post) {
 
+        if (post == null) return false;
+
         String currentUserId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isBlank(currentUserId)) return false;
 
@@ -842,6 +957,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
     }
 
     public boolean currentUserCanViewComment(ConversationsComment comment) {
+
+        if (comment == null) return false;
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isBlank(currentUserId)) return false;
@@ -851,7 +968,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return canUserViewPost(post, currentUserId);
     }
 
-    @Transactional
     private ConversationsTopic lockIfAfterLockDate(ConversationsTopic topic) {
 
         Instant now = Instant.now();
@@ -867,7 +983,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
     }
 
     /*
-    @Transactional
     private Topic setupDateState(Topic topic) {
 
         Instant now = Instant.now();
@@ -907,12 +1022,11 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
     }
     */
 
-    @Transactional
     private ConversationsTopic showIfAfterShowDate(ConversationsTopic topic) {
 
         if (topic.getShowDate() != null && topic.getHidden() && topic.getShowDate().isBefore(Instant.now())) {
             try {
-                return this.hideTopic(topic.getId(), false);
+                return hideTopic(topic.getId(), false, false);
             } catch (ConversationsPermissionsException cpe) {
                 return topic;
             }
@@ -921,12 +1035,11 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         }
     }
 
-    @Transactional
     private ConversationsTopic hideIfAfterHideDate(ConversationsTopic topic) {
 
         if (topic.getHideDate() != null && !topic.getHidden() && topic.getHideDate().isBefore(Instant.now())) {
             try {
-                return this.hideTopic(topic.getId(), true);
+                return this.hideTopic(topic.getId(), true, false);
             } catch (ConversationsPermissionsException cpe) {
                 return topic;
             }
@@ -945,7 +1058,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                 Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
     }
 
-    @Transactional
     private void updateThreadHowActiveScore(ConversationsPost thread) {
 
         int numberOfReplies = thread.getNumberOfThreadReplies();
@@ -1152,7 +1264,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         }
     }
 
-    @Transactional
     public void deletePost(String siteId, String topicId, String postId, boolean setTopicResolved) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -1167,13 +1278,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         if (!securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)
             && !(isMine && securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef))) {
             throw new ConversationsPermissionsException("Current user is not allowed to delete post.");
-        }
-
-        if (setTopicResolved && securityService.unlock(post.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
-            topicRepository.findById(post.getTopicId()).ifPresent(t -> {
-                setTopicResolved(t);
-                topicRepository.save(t);
-            });
         }
 
         if (postRepository.countByParentPostId(postId) > 0) {
@@ -1194,6 +1298,13 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         }
         postRepository.delete(post);
 
+        if (setTopicResolved && securityService.unlock(post.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
+            topicRepository.findById(post.getTopicId()).ifPresent(t -> {
+                setTopicResolved(t);
+                topicRepository.save(t);
+            });
+        }
+
         postsCache.remove(topicId);
 
         this.afterCommit(() -> {
@@ -1202,7 +1313,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         });
     }
 
-    @Transactional
     public PostTransferBean lockPost(String siteId, String topicId, String postId, boolean locked) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -1238,7 +1348,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         postBean.posts = children;
     }
 
-    @Transactional
     public PostTransferBean hidePost(String siteId, String topicId, String postId, boolean hidden) throws ConversationsPermissionsException {
 
         if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + siteId)) {
@@ -1259,7 +1368,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return bean;
     }
 
-    @Transactional
     public Map<Reaction, Integer> savePostReactions(String topicId, String postId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -1327,7 +1435,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                 .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
     }
 
-    @Transactional
     public void markPostsViewed(Set<String> postIds, String topicId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -1344,7 +1451,12 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
             .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
         topicStatus.setViewed(numberOfUnreadPosts == 0L);
-        topicStatus = topicStatusRepository.save(topicStatus);
+        try {
+            topicStatusRepository.save(topicStatus);
+        } catch (ConstraintViolationException e) {
+            log.debug("Caught a constraint exception while saving topic status. This can happen " +
+                "due to the way the client detects posts scrolling into view");
+        }
 
         Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
         if (topicCache != null) topicCache.remove(currentUserId);
@@ -1358,8 +1470,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         status.setViewedDate(Instant.now());
         try {
             postStatusRepository.save(status);
-        } catch (Exception e) {
-            log.debug("Caught exception while marking post viewed. This can happen " +
+        } catch (ConstraintViolationException e) {
+            log.debug("Caught constraint exception while marking post viewed. This can happen " +
                 "due to the way the client detects posts scrolling into view");
         }
     }
@@ -1368,7 +1480,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return commentRepository.findById(commentId).map(CommentTransferBean::of);
     }
 
-    @Transactional
     public CommentTransferBean saveComment(CommentTransferBean commentBean) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -1424,7 +1535,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return decorateCommentBean(CommentTransferBean.of(updatedComment), commentBean.siteId, currentUserId);
     }
 
-    @Transactional
     public void deleteComment(String siteId, String commentId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -1450,19 +1560,19 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     private void setTopicResolved(ConversationsTopic topic) {
 
-        String siteRef = "/site/" + topic.getSiteId();
+        String siteRef = siteService.siteReference(topic.getSiteId());
 
         topic.setResolved(postRepository.findByTopicId(topic.getId()).stream().anyMatch(p -> {
-            return !p.getDraft() && securityService.unlock(p.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
+
+            return !p.getDraft() && !p.getAnonymous()
+                && securityService.unlock(p.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
         }));
     }
 
-    @Transactional
     private List<TopicTransferBean> decorateTopics(List<ConversationsTopic> topics, String currentUserId, Settings settings) {
         return topics.stream().map(t -> decorateTopicBean(TopicTransferBean.of(t), t, currentUserId, settings)).collect(Collectors.toList());
     }
 
-    @Transactional
     private TopicTransferBean decorateTopicBean(TopicTransferBean topicBean, ConversationsTopic topic, String currentUserId, Settings settings) {
 
         try {
@@ -1483,9 +1593,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             topicBean.formattedDueDate = userTimeService.dateTimeFormat(topicBean.dueDate, FormatStyle.MEDIUM, FormatStyle.SHORT);
         }
 
-        if (!topicBean.draft) {
-            topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
-        }
+        topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (topic != null) {
             topicBean.tags = topic.getTagIds().stream().map(tagId -> {
@@ -1544,7 +1652,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             topicBean.canEdit = securityService.unlock(Permissions.MODERATE.label, siteRef);
         }
 
-
         topicBean.url = "/api/sites/" + topicBean.siteId + "/topics/" + topicBean.id;
         getTopicPortalUrl(topicBean.id).ifPresent(portalUrl -> topicBean.portalUrl = portalUrl);
         topicBean.reference = ConversationsReferenceReckoner.reckoner().siteId(topicBean.siteId).type("t").id(topicBean.id).reckon().getReference();
@@ -1595,7 +1702,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             log.error("No user for id: {}", postBean.creator);
         }
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         postBean.isMine = postBean.creator.equals(currentUserId);
         postBean.formattedCreatedDate = userTimeService.dateTimeFormat(postBean.created, FormatStyle.MEDIUM, FormatStyle.SHORT);
@@ -1615,7 +1722,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         }
 
         postBean.canView = !postBean.hidden ? true : securityService.unlock(Permissions.MODERATE.label, siteRef);
-        postBean.isInstructor = securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
+        postBean.isInstructor = !postBean.anonymous && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
         postBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (postBean.anonymous && !securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef)) {
@@ -1694,7 +1801,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return commentBean;
     }
 
-    @Transactional
     public PostTransferBean upvotePost(String siteId, String topicId, String postId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -1731,7 +1837,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return PostTransferBean.of(postRepository.save(post));
     }
 
-    @Transactional
     public PostTransferBean unUpvotePost(String siteId, String postId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -1762,7 +1867,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return PostTransferBean.of(postRepository.save(post));
     }
 
-    @Transactional
     public Tag saveTag(Tag tag) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -1776,7 +1880,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return tagRepository.save(tag);
     }
 
-    @Transactional
     public List<Tag> createTags(List<Tag> tags) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -1804,7 +1907,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return tagRepository.findBySiteId(siteId);
     }
 
-    @Transactional
     public void deleteTag(Long tagId) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -1844,7 +1946,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return settingsRepository.findBySiteId(siteId).orElse(new Settings(siteId));
     }
 
-    @Transactional
     public Settings saveSettings(Settings settings) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -2103,5 +2204,23 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     public String[] getEventKeys() {
         return new String[] { ConversationsEvents.TOPIC_CREATED.label, ConversationsEvents.POST_CREATED.label, ConversationsEvents.REACTED_TO_TOPIC.label };
+    }
+
+    private Calendar getCalendar(String site) {
+
+        Calendar calendar = null;
+
+        String calendarId = calendarService.calendarReference(site, siteService.MAIN_CONTAINER);
+        try {
+            calendar = calendarService.getCalendar(calendarId);
+        } catch (IdUnusedException e) {
+            log.warn("No calendar found for site: {}", site);
+        } catch (PermissionException e) {
+            log.error("The current user does not have permission to access the calendar for site: {}", site, e.toString());
+        } catch (Exception ex) {
+            log.error("Unknown exception occurred retrieving calendar for site: {}", site, ex.toString());
+        }
+
+        return calendar;
     }
 }

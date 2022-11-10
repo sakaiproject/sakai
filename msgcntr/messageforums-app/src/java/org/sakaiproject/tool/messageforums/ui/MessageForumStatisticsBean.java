@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import javax.faces.application.FacesMessage;
@@ -1019,6 +1020,11 @@ public class MessageForumStatisticsBean {
 			userAuthoredInfo.setForumDate(msg.getCreated());
 			userAuthoredInfo.setForumSubject(msg.getTitle());
 			userAuthoredInfo.setMessage(msg.getBody());
+			if (msg.getBody() != null) {
+				userAuthoredInfo.setWordCount(new StringTokenizer(msg.getBody()).countTokens());
+			} else {
+				userAuthoredInfo.setWordCount(0);
+			}
 			userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
 			userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
 			userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
@@ -1098,6 +1104,11 @@ public class MessageForumStatisticsBean {
 				userAuthoredInfo.setForumDate(mesWithAttach.getCreated());
 				userAuthoredInfo.setForumSubject(mesWithAttach.getTitle());
 				userAuthoredInfo.setMessage(mesWithAttach.getBody());
+				if (mesWithAttach.getBody() != null) {
+					userAuthoredInfo.setWordCount(new StringTokenizer(mesWithAttach.getBody()).countTokens());
+				} else {
+					userAuthoredInfo.setWordCount(0);
+				}
 				userAuthoredInfo.setMsgId(selectedMsgId);
 				userAuthoredInfo.setTopicId(Long.toString(t.getId()));
 				userAuthoredInfo.setForumId(Long.toString(d.getId()));
@@ -2755,8 +2766,12 @@ public class MessageForumStatisticsBean {
 				defaultAssignName = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId)).getDefaultAssignName();
 			}
 			if (StringUtils.isNotBlank(defaultAssignName)) {
-				Assignment assignment = getGradingService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
-				setDefaultSelectedAssign(assignment.getName());
+				try {
+					Assignment assignment = getGradingService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
+					setDefaultSelectedAssign(assignment.getName());
+				} catch (Exception ex) {
+					log.error("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
+				}
 			}
 		}
 		gradebookItemChosen = false;

@@ -293,16 +293,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getToolTitle() {
-        Tool tool = toolManager.getTool(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID);
-        String toolTitle = null;
-
-        if (tool == null)
-            toolTitle = "Assignments";
-        else
-            toolTitle = tool.getTitle();
-
-        return toolTitle;
+    public String getToolId() {
+        return AssignmentServiceConstants.ASSIGNMENT_TOOL_ID;
     }
 
     @Override
@@ -323,6 +315,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         int assignmentsArchived = 0;
         for (Assignment assignment : getAssignmentsForContext(siteId)) {
             String xml = assignmentRepository.toXML(assignment);
+            log.debug(xml);
 
             try {
                 InputSource in = new InputSource(new StringReader(xml));
@@ -332,7 +325,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 element.appendChild(assignmentNode);
                 assignmentsArchived++;
             } catch (Exception e) {
-                log.warn("could not append assignment {} to archive, {}", assignment.getId(), e.getMessage());
+                String error = String.format("could not append assignment %s to archive: %s", assignment.getId(), e.getMessage());
+                log.error(error, e);
+                throw new RuntimeException(error);
             }
         }
 
@@ -975,6 +970,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignment.setPosition(existingAssignment.getPosition());
                 assignment.setIsGroup(existingAssignment.getIsGroup());
                 assignment.setAllowPeerAssessment(existingAssignment.getAllowPeerAssessment());
+                assignment.setModifier(userDirectoryService.getCurrentUser().getId());
+                assignment.setDateModified(Instant.now());
                 if (!existingAssignment.getGroups().isEmpty()) {
                 	assignment.setGroups(new HashSet<>(existingAssignment.getGroups()));
                 	assignment.setTypeOfAccess(GROUP);
@@ -1109,9 +1106,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 //copy rubric
                 try {
-                    Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
+                    Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignmentId);
                     if (rubricAssociation.isPresent()) {
-                        rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.getId(), rubricAssociation.get().getFormattedAssociation());
+                        rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId(), rubricAssociation.get().getFormattedAssociation());
                     }
                 } catch(Exception e){
                     log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
@@ -1350,7 +1347,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             if (submissionSubmitters.isEmpty()) {
-                log.warn("A new submission can't be added to assignment {} with no submitters");
+                log.warn("A submission can't be added to assignment {} with no submitters", a.getId());
                 return null;
             }
 
@@ -1643,17 +1640,27 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         //   - if assignment is restricted to groups only those in the group
         //   - minimally user needs read permission
         for (Assignment assignment : assignmentRepository.findAssignmentsBySite(context)) {
-            if (assignment.getDraft()) {
-                if (isDraftAssignmentVisible(assignment)) {
-                    // only those who can see a draft assignment
+        	String currentUserId = sessionManager.getCurrentSessionUserId();
+        	boolean canViewAssigment = false;
+        	try {
+                checkAssignmentAccessibleForUser(assignment, currentUserId);
+                canViewAssigment = true;
+            } catch (PermissionException e) {
+            	canViewAssigment = false;
+            }
+            if(canViewAssigment) {
+                if (assignment.getDraft()) {
+                    if (isDraftAssignmentVisible(assignment)) {
+                        // only those who can see a draft assignment
+                        assignments.add(assignment);
+                    }
+                } else if (assignment.getTypeOfAccess() == GROUP) {
+                    if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
+                        assignments.add(assignment);
+                    }
+                } else if (allowGetAssignment(context)) {
                     assignments.add(assignment);
                 }
-            } else if (assignment.getTypeOfAccess() == GROUP) {
-                if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
-                    assignments.add(assignment);
-                }
-            } else if (allowGetAssignment(context)) {
-                assignments.add(assignment);
             }
         }
 
@@ -2897,6 +2904,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
     }
 
+    public boolean isGradeOverridden(AssignmentSubmission submission, String submitter) {
+
+        Assignment assignment = submission.getAssignment();
+
+        if (!assignment.getIsGroup()) {
+            return false;
+        }
+
+        Optional<AssignmentSubmissionSubmitter> submissionSubmitter
+            = submission.getSubmitters().stream()
+                .filter(s -> s.getSubmitter().equals(submitter)).findAny();
+
+        return submissionSubmitter.isPresent() && StringUtils.isNotBlank(submissionSubmitter.get().getGrade());
+    }
+
     /**
      * Contains logic to consistently output a String based version of a grade
      * Interprets the grade using the scale for display
@@ -2965,19 +2987,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (returnGrade.equalsIgnoreCase("Fail")) {
                     returnGrade = resourceLoader.getString("fail");
                 } else {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
                 break;
             case CHECK_GRADE_TYPE:
                 if (returnGrade.equalsIgnoreCase("Checked")) {
                     returnGrade = resourceLoader.getString("gen.checked");
                 } else {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
                 break;
             default:
                 if (returnGrade.isEmpty()) {
-                    returnGrade = resourceLoader.getString("ungra");
+                    returnGrade = "";
                 }
         }
         return returnGrade;
@@ -4287,7 +4309,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     gradingService.addExternalAssessment(nAssignment.getContext()
                                             , nAssignmentRef, null, nAssignment.getTitle()
                                             , nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor()
-                                            , Date.from(nAssignment.getDueDate()), this.getToolTitle()
+                                            , Date.from(nAssignment.getDueDate()), this.getToolId()
                                             , null, false, categoryId.isPresent() ? categoryId.get() : null);
 
                                     nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
@@ -5020,13 +5042,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         dupes.sort(Comparator.comparing(r -> r.user.getDisplayName()));
         return dupes;
-    }
-
-    @Override
-    public boolean existsTimeSheetEntries(AssignmentSubmissionSubmitter asnSubmissionSubmitter) {
-        AssignmentSubmission submission = asnSubmissionSubmitter.getSubmission();
-        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-        return timeSheetService.existsAny(reference);
     }
 
     @Override

@@ -22,6 +22,7 @@
 
 package org.sakaiproject.webapi.controllers;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
@@ -29,10 +30,11 @@ import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
 import org.sakaiproject.tool.api.SessionManager;
-
+import org.sakaiproject.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -175,6 +177,16 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
+    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/defaultEmpty", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> getDefaultEmptyCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
+
+        checkSakaiSession();
+
+        return rubricsService.createDefaultEmptyCriterion(siteId, rubricId)
+            .map(criterion -> ResponseEntity.ok(entityModelForCriterionBean(criterion)))
+            .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
     @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criterions/{criterionId}")
     public ResponseEntity deleteRubric(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId) {
 
@@ -266,6 +278,13 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }
     }
 
+    @GetMapping(value = "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<EvaluationTransferBean>> getEvaluationsForItem(@PathVariable String siteId, @PathVariable String toolId, @PathVariable String itemId) throws Exception {
+
+        checkSakaiSession();
+        return ResponseEntity.ok(rubricsService.getEvaluationsForToolAndItem(toolId, itemId, siteId));
+    }
+
     @PutMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/sort")
     ResponseEntity sortCriteria(@PathVariable String siteId, @PathVariable Long rubricId, @RequestBody List<Long> sortedIds) {
 
@@ -293,7 +312,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId));
     }
 
-    @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}", consumes = "application/json-patch+json")
+    @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}",
+                    consumes = "application/json-patch+json",
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity patchCriterion(@PathVariable String siteId, @PathVariable Long criterionId, @RequestBody JsonPatch patch) throws Exception {
 
         checkSakaiSession();
@@ -305,8 +326,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
             try {
                 JsonNode patched = patch.apply(objectMapper.convertValue(criterion, JsonNode.class));
                 CriterionTransferBean patchedBean  = objectMapper.treeToValue(patched, CriterionTransferBean.class);
-                rubricsService.saveCriterion(patchedBean, siteId);
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.saveCriterion(patchedBean, siteId)));
             } catch (Exception e) {
                 log.error("Failed to patch criterion", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -315,32 +335,31 @@ public class RubricsRestController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/default", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<RatingTransferBean>> getDefaultRating(@PathVariable String siteId, @PathVariable Long criterionId, @RequestParam Integer position) {
+    ResponseEntity<EntityModel<RatingTransferBean>> getDefaultRating(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId, @RequestParam Integer position) {
 
         checkSakaiSession();
 
-        return rubricsService.createDefaultRating(siteId, criterionId, position)
+        return rubricsService.createDefaultRating(siteId, rubricId, criterionId, position)
             .map(rating -> ResponseEntity.ok(entityModelForRatingBean(rating)))
             .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     //@PreAuthorize("canCopy(#sourceId, 'Rating')")
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}")
-    ResponseEntity saveRating(@PathVariable String siteId, @RequestBody RatingTransferBean ratingBean) {
+    ResponseEntity saveRating(@PathVariable String siteId, @PathVariable Long rubricId, @RequestBody RatingTransferBean ratingBean) {
 
         checkSakaiSession();
 
-        rubricsService.saveRating(ratingBean, siteId);
+        rubricsService.saveRating(ratingBean, siteId, rubricId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}")
-    ResponseEntity deleteRating(@PathVariable String siteId, @PathVariable Long criterionId, @PathVariable Long ratingId) throws Exception {
+    @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> deleteRating(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId, @PathVariable Long ratingId) throws Exception {
 
         checkSakaiSession();
 
-        rubricsService.deleteRating(ratingId, criterionId, siteId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.deleteRating(ratingId, criterionId, siteId, rubricId)));
     }
 
     @ResponseBody
@@ -351,7 +370,14 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        return ResponseEntity.ok().body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
+        ContentDisposition contentDisposition = rubricsService.getRubric(rubricId).map(rubric -> {
+            String filename = StringUtils.trimToEmpty(rubric.title).replace(".", "_");
+            filename = StringUtils.isNotBlank(filename) ? filename : "_";
+            return ContentDisposition.builder("attachment").filename(String.format("%s.pdf", filename)).build();
+        }).orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
+
+        return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))
+                .body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
     }
 
     private EntityModel<RubricTransferBean> entityModelForRubricBean(RubricTransferBean rubricBean) {

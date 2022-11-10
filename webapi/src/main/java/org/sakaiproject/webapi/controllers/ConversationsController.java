@@ -204,7 +204,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
 		checkSakaiSession();
 
-        conversationsService.hideTopic(topicId, hidden);
+        conversationsService.hideTopic(topicId, hidden, true);
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -324,11 +324,12 @@ public class ConversationsController extends AbstractSakaiApiController {
     }
 
 	@PostMapping(value = "/sites/{siteId}/topics/{topicId}/posts/{postId}/hidden")
-    public EntityModel<PostTransferBean> hidePost(@PathVariable String siteId, @PathVariable String topicId, @PathVariable String postId, @RequestBody Boolean hidden) throws ConversationsPermissionsException {
+    public ResponseEntity hidePost(@PathVariable String siteId, @PathVariable String topicId, @PathVariable String postId, @RequestBody Boolean hidden) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
 
-        return entityModelForPostBean(conversationsService.hidePost(siteId, topicId, postId, hidden));
+        conversationsService.hidePost(siteId, topicId, postId, hidden);
+        return ResponseEntity.ok().build();
     }
 
     private EntityModel<PostTransferBean> entityModelForPostBean(PostTransferBean postBean) {
@@ -402,13 +403,12 @@ public class ConversationsController extends AbstractSakaiApiController {
     }
 
 	@PutMapping(value = "/sites/{siteId}/conversations/tags/{tagId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateTag(@PathVariable String siteId, @PathVariable Long tagId, @RequestBody Tag tag) throws ConversationsPermissionsException {
+    public ResponseEntity<Tag> updateTag(@PathVariable String siteId, @PathVariable Long tagId, @RequestBody Tag tag) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
 
         tag.setId(tagId);
-        conversationsService.saveTag(tag);
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.ok(conversationsService.saveTag(tag));
     }
 
 	@DeleteMapping(value = "/sites/{siteId}/conversations/tags/{tagId}")

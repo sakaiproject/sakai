@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,9 +51,10 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
+import static org.tsugi.basiclti.BasicLTIUtil.parseIMS8601;
 
 /**
- * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
+ * Some Sakai Utility code for IMS LTI This is mostly code to support the
  * Sakai conventions for making and launching BLTI resources within Sakai.
  */
 @SuppressWarnings("deprecation")
@@ -195,10 +197,16 @@ public class LineItemUtil {
 					assignmentObject.setReleased(releaseToStudent); // default true
 					assignmentObject.setCounted(includeInComputation); // default true
 					assignmentObject.setUngraded(false);
-					// NOTE: addAssignment does *not* set the external values - Update *does* store them
+					Date endDateTime = parseIMS8601(lineItem.endDateTime);
+					assignmentObject.setDueDate(endDateTime);
+
 					assignmentId = g.addAssignment(context_id, assignmentObject);
 					assignmentObject.setId(assignmentId);
+
+					/*  Removed when GradingSerivceImpl fixed - 2202-08-21 - Chuck S.
+					// NOTE: addAssignment does *not* set the external values - Update *does*
 					g.updateAssignment(context_id, assignmentId, assignmentObject);
+					*/
 					log.info("Added assignment: {} with Id: {}", lineItem.label, assignmentId);
 				} catch (ConflictingAssignmentNameException e) {
 					failure = "ConflictingAssignmentNameException while adding assignment " + e.getMessage();
@@ -268,6 +276,8 @@ public class LineItemUtil {
 		assignmentObject.setReleased(releaseToStudent); // default true
 		assignmentObject.setCounted(includeInComputation); // default true
 		assignmentObject.setUngraded(false);
+		Date dueDate = org.tsugi.basiclti.BasicLTIUtil.parseIMS8601(lineItem.endDateTime);
+		if ( dueDate != null ) assignmentObject.setDueDate(dueDate);
 
 		pushAdvisor();
 		try {
@@ -460,6 +470,10 @@ public class LineItemUtil {
 		SakaiLineItem li = new SakaiLineItem();
 		li.label = assignment.getName();
 		li.scoreMaximum = assignment.getPoints();
+		Date dueDate = assignment.getDueDate();
+		if ( dueDate != null ) {
+			li.endDateTime = org.tsugi.basiclti.BasicLTIUtil.getISO8601(dueDate);
+		}
 
 		// Parse the external_id
 		// tool_id|content_id|resourceLink|tag|

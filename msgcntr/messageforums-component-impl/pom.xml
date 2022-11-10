@@ -99,10 +99,6 @@
         <artifactId>scheduler-api</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-kernel-private</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.rubrics</groupId>
       <artifactId>rubrics-api</artifactId>
     </dependency>
@@ -144,8 +140,8 @@
       <artifactId>elasticsearch-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
     </dependency>
   </dependencies>
   <build>

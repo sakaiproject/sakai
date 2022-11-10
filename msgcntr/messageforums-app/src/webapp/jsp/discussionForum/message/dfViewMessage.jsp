@@ -12,6 +12,7 @@
 			<h:inputHidden id="currentMessageId" value="#{ForumTool.selectedMessage.message.id}"/>
 			<h:inputHidden id="currentTopicId" value="#{ForumTool.selectedTopic.topic.id}"/>
 			<h:inputHidden id="currentForumId" value="#{ForumTool.selectedForum.forum.id}"/>
+			<h:inputHidden id="deletedMessage" value="#{ForumTool.selectedMessage.message.deleted}"/>
 			<script>includeLatestJQuery("msgcntr");</script>
 			<script>includeWebjarLibrary("qtip2");</script>
 			<script src="/messageforums-tool/js/forum.js"></script>
@@ -41,9 +42,12 @@
 						event.preventDefault();
 						$('#permalinkHolder').fadeOut('fast');
 					});
-					var msgBody = document.getElementById("messageBody").innerHTML;
-					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-					msgcntr_word_count(msgBody);
+					const delMessage = document.getElementById("deletedMessage");
+					if (delMessage?.value === "false"){
+						var msgBody = document.getElementById("messageBody").innerHTML;
+						msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
+						msgcntr_word_count(msgBody);
+					}
 
 					var menuLink = $('#forumsMainMenuLink');
 					var menuLinkSpan = menuLink.closest('span');
@@ -122,13 +126,13 @@
 					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 				</h:panelGroup>
 				<h:panelGroup layout="block">
-					<p id="openLinkBlock" class="toggleParent openLinkBlock display-none">
+					<p id="openLinkBlock" class="toggleParent openLinkBlock">
 						<a href="#" id="showMessage" class="toggle show">
 							<h:graphicImage url="/images/collapse.gif" alt=""/>
 							<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 						</a>
 					</p>
-					<p id="hideLinkBlock" class="toggleParent hideLinkBlock">
+					<p id="hideLinkBlock" class="toggleParent hideLinkBlock display-none">
 						<a href="#" id="hideMessage" class="toggle show">
 							<h:graphicImage url="/images/expand.gif" alt="" />
 							<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>

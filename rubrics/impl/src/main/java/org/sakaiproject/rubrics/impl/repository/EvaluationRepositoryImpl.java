@@ -22,6 +22,7 @@
 
 package org.sakaiproject.rubrics.impl.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.sakaiproject.rubrics.api.model.Evaluation;
@@ -39,6 +40,17 @@ import org.hibernate.Session;
 
 public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluation, Long> implements EvaluationRepository {
 
+    public List<Evaluation> findByAssociationId(Long associationId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> eval = query.from(Evaluation.class);
+        query.where(cb.equal(eval.get("associationId"), associationId));
+
+        return session.createQuery(query).list();
+    }
     public Optional<Evaluation> findByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {
 
         Session session = sessionFactory.getCurrentSession();

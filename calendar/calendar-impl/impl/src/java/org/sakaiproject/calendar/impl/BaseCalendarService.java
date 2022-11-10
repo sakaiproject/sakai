@@ -4013,6 +4013,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		} // getLocation
 
 		/**
+		 * Access the event url (cover for PROP_CALENDAR_URL).
+		 *
+		 * @return The event's eventUrl property.
+		 */
+		public String getEventUrl()
+		{
+			return m_properties.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_URL);
+
+		}
+
+		/**
 		 * Gets the recurrence rule, if any.
 		 * 
 		 * @return The recurrence rule, or null if none.
@@ -4145,6 +4156,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_properties.addProperty(ResourceProperties.PROP_CALENDAR_LOCATION, location);
 
 		} // setLocation
+
+		public void setEventUrl(String url)
+		{
+			m_properties.addProperty(ResourceProperties.PROP_CALENDAR_URL, url);
+		}
 
 		/**
 		* Gets the event creator (userid), if any (cover for PROP_CREATOR).

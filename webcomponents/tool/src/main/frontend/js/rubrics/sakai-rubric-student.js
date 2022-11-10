@@ -3,7 +3,6 @@ import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import "./sakai-rubric-criterion-preview.js";
 import "./sakai-rubric-criterion-student.js";
 import "./sakai-rubric-pdf.js";
-import "./sakai-rubric-student-comment.js";
 import { SakaiRubricsLanguage } from "./sakai-rubrics-language.js";
 
 class SakaiRubricStudent extends RubricsElement {
@@ -31,7 +30,7 @@ class SakaiRubricStudent extends RubricsElement {
       rubric: { type: Object },
       rubricId: { attribute: "rubric-id", type: String },
       forcePreview: { attribute: "force-preview", type: Boolean },
-      enablePdfExport: { attribute: "enable-pdf-export", type: Object }
+      enablePdfExport: { attribute: "enable-pdf-export", type: Object },
     };
   }
 
@@ -76,6 +75,12 @@ class SakaiRubricStudent extends RubricsElement {
 
   get rubricId() { return this._rubricId; }
 
+  handleClose() {
+
+    const el = this.querySelector("sakai-rubric-criterion-student");
+    el && el.handleClose();
+  }
+
   shouldUpdate() {
     return this.i18nLoaded && this.rubric && (this.instructor || !this.options.hideStudentPreview);
   }
@@ -90,31 +95,61 @@ class SakaiRubricStudent extends RubricsElement {
           <span>${this.rubric.title}</span>
           ${this.enablePdfExport ? html`
             <sakai-rubric-pdf
-                rubricTitle="${this.rubric.title}"
-                rubricId="${this.rubric.id}"
-                toolId="${this.toolId}"
-                entityId="${this.entityId}"
-                evaluatedItemId="${this.evaluatedItemId}"
+                site-id="${this.siteId}"
+                rubric-title="${this.rubric.title}"
+                rubric-id="${this.rubric.id}"
+                tool-id="${this.toolId}"
+                entity-id="${this.entityId}"
+                evaluated-item-id="${this.evaluatedItemId}"
             />
           ` : ""}
         </h3>
 
-        ${this.preview || this.forcePreview ? html`
+        ${this.instructor === 'true' ? html`
+        <div class="rubrics-tab-row">
+          <a href="javascript:void(0);"
+              id="rubric-grading-or-preview-button"
+              class="rubrics-tab-button rubrics-tab-selected"
+              @keypress=${this.openGradePreviewTab}
+              @click=${this.openGradePreviewTab}>
+            <sr-lang key="grading_rubric">gradingrubric</sr-lang>
+          </a>
+          <a href="javascript:void(0);"
+              id="rubric-student-summary-button"
+              class="rubrics-tab-button"
+              @keypress=${this.makeStudentSummary}
+              @click=${this.makeStudentSummary}>
+            <sr-lang key="student_summary">studentsummary</sr-lang>
+          </a>
+          <a href="javascript:void(0);"
+              id="rubric-criteria-summary-button"
+              class="rubrics-tab-button"
+              @keypress=${this.makeCriteriaSummary}
+              @click=${this.makeCriteriaSummary}>
+            <sr-lang key="criteria_summary">criteriasummary</sr-lang>
+          </a>
+        </div>
+        ` : html``}
+
+        <div id="rubric-grading-or-preview" class="rubric-tab-content rubrics-visible">
+          ${this.preview || this.forcePreview ? html`
           <sakai-rubric-criterion-preview
-            criteria="${JSON.stringify(this.rubric.criteria)}"
+            .criteria="${this.rubric.criteria}"
             .weighted=${this.rubric.weighted}
           ></sakai-rubric-criterion-preview>
           ` : html`
           <sakai-rubric-criterion-student
-            criteria="${JSON.stringify(this.rubric.criteria)}"
+            .criteria="${this.rubric.criteria}"
             rubric-association="${JSON.stringify(this.association)}"
             evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
             ?preview="${this.preview}"
             entity-id="${this.entityId}"
             .weighted=${this.rubric.weighted}
           ></sakai-rubric-criterion-student>
-        `}
+          `}
       </div>
+      <div id="rubric-student-summary" class="rubric-tab-content"></div>
+      <div id="rubric-criteria-summary" class="rubric-tab-content"></div>
     `;
   }
 
@@ -171,36 +206,41 @@ class SakaiRubricStudent extends RubricsElement {
         })
         .then(rubric => {
 
-          // Now, get the evaluation
-          const evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
-          fetch(evalUrl, {
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-          })
-          .then(r => {
+          if (this.evaluatedItemId) {
+            const evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
+            fetch(evalUrl, {
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+            })
+            .then(r => {
 
-            if (r.ok) {
-              return r.json();
-            }
+              if (r.ok) {
+                return r.json();
+              }
 
-            if (r.status !== 404) {
-              throw new Error("Server error while getting evaluation");
-            }
-          })
-          .then(evaluation => {
+              if (r.status !== 404) {
+                throw new Error("Server error while getting evaluation");
+              }
+            })
+            .then(evaluation => {
 
-            if (evaluation) {
-              this.evaluation = evaluation;
-              this.preview = false;
-            } else {
-              this.evaluation = { criterionOutcomes: [] };
-              this.preview = true;
-            }
+              if (evaluation) {
+                this.evaluation = evaluation;
+                this.preview = false;
+              } else {
+                this.evaluation = { criterionOutcomes: [] };
+                this.preview = true;
+              }
 
-            // Set the rubric, thus triggering a render
+              // Set the rubric, thus triggering a render
+              this.rubric = rubric;
+            })
+            .catch (error => console.error(error));
+          } else {
+            this.evaluation = { criterionOutcomes: [] };
+            this.preview = true;
             this.rubric = rubric;
-          })
-          .catch (error => console.error(error));
+          }
         })
         .catch (error => console.error(error));
 
@@ -210,6 +250,24 @@ class SakaiRubricStudent extends RubricsElement {
       }
     })
     .catch (error => console.error(error));
+  }
+
+  openGradePreviewTab(e) {
+
+    e.stopPropagation();
+    this.openRubricsTab("rubric-grading-or-preview");
+  }
+
+  makeStudentSummary(e) {
+
+    e.stopPropagation();
+    this.makeASummary("student", this.siteId);
+  }
+
+  makeCriteriaSummary(e) {
+
+    e.stopPropagation();
+    this.makeASummary("criteria", this.siteId);
   }
 }
 

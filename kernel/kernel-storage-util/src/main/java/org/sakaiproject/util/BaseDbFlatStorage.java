@@ -74,6 +74,10 @@ public class BaseDbFlatStorage
 {
 	private static final String CACHE_NAME_PREFIX = "org.sakaiproject.db.BaseDbFlatStorage.";
 
+	protected final String SAKAI_USER_TABLE = "SAKAI_USER";
+	protected final String ORDER_BY_CLAUSE = " order by ";
+	protected final String ROLEVIEW_TYPE_FILTER = " where SAKAI_USER.TYPE != 'roleview' ";
+
 	/** Table name for resource records. */
 	protected String m_resourceTableName = null;
 
@@ -349,6 +353,10 @@ public class BaseDbFlatStorage
 	{
 		// read all resources from the db
 		String sql = flatStorageSql.getSelectFieldsSql(m_resourceTableName, fieldList(m_resourceTableReadFields, null));
+		// This is related to the student view, these users must be hidden in the tools because they are used by the system.
+		if (StringUtils.equalsIgnoreCase(SAKAI_USER_TABLE, m_resourceTableName)) {
+			sql = sql + ROLEVIEW_TYPE_FILTER;
+		}
 		List rv = m_sql.dbRead(sql, null, m_reader);
 
 		return rv;
@@ -356,9 +364,12 @@ public class BaseDbFlatStorage
 
 	public int countAllResources()
 	{
-
 		// read all count
 		String sql = flatStorageSql.getSelectCountSql(m_resourceTableName);
+		// This is related to the student view, these users must be hidden in the tools because they are used by the system.
+		if (StringUtils.equalsIgnoreCase(SAKAI_USER_TABLE, m_resourceTableName)) {
+			sql = sql + ROLEVIEW_TYPE_FILTER;
+		}
 		List results = m_sql.dbRead(sql, null, new SqlReader()
 		{
 			public Object readSqlResultRecord(ResultSet result)
@@ -395,6 +406,11 @@ public class BaseDbFlatStorage
 		{
 			sql = flatStorageSql.getSelectFieldsSql1(m_resourceTableName, fieldList(m_resourceTableReadFields, null), null,
 					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1));
+		}
+		// This is related to the student view, these users must be hidden in the tools because they are used by the system.
+		if (StringUtils.equalsIgnoreCase(SAKAI_USER_TABLE, m_resourceTableName)) {
+			// Before the order by clause we must filter by user type.
+			sql = StringUtils.replace(sql, ORDER_BY_CLAUSE, ROLEVIEW_TYPE_FILTER + ORDER_BY_CLAUSE);
 		}
 		List rv = m_sql.dbRead(sql, fields, m_reader);
 

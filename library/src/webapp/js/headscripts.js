@@ -249,13 +249,14 @@ var MainFrameHeightTimeOut = false;
 // pass -1 for no max
 function setMainFrameHeightWithMax(id, maxHeight)
 {
-	if ( ! inIframe() ) return;
-	// some browsers need a moment to finish rendering so the height and scroll are correct
-	if ( MainFrameHeightTimeOut ) {
-		clearTimeout(MainFrameHeightTimeOut);
-		MainFrameHeightTimeOut = false;
-	}
-	MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
+	if ( inIframe() ) {
+	    // some browsers need a moment to finish rendering so the height and scroll are correct
+	    if ( MainFrameHeightTimeOut ) {
+		    clearTimeout(MainFrameHeightTimeOut);
+		    MainFrameHeightTimeOut = false;
+	    }
+	    MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
+    }
 }
 
 function setMainFrameHeight(id)
@@ -290,7 +291,7 @@ function setMainFrameHeightNow(id, maxHeight)
 	}
 
 	//SAK-21209 check we can access the document, 
-	//ie this could be a Basic LTI request and therefore we are not allowed
+	//ie this could be a LTI request and therefore we are not allowed
 	try {
 		var frame = parent.document.getElementById(id);
 	} catch (e) {
@@ -690,10 +691,6 @@ function includeLatestJQuery(where) {
 			document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
 			window.console && console.log('Adding jQuery migrate');
 		}
-		if ( typeof jQuery.fn.popover == 'undefined') {
-			document.write('\x3Cscript src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
-			window.console && console.log('Adding Bootstrap');
-		}
 		if (typeof jQuery.ui == 'undefined') {
 			document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
 			document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
@@ -702,7 +699,6 @@ function includeLatestJQuery(where) {
 	} else {
 		document.write('\x3Cscript src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
 		window.console && console.log("jQuery+migrate+BootStrap+UI Loaded by "+where+" from "+webjars);
@@ -718,8 +714,7 @@ function includeWebjarLibrary(library) {
 
 	switch(library) {
 		case 'bootstrap':
-			libraryVersion = "3.3.7";
-			jsReferences.push('/js/bootstrap.min.js');
+			libraryVersion = "5.2.0";
 			cssReferences.push('/css/bootstrap.min.css');
 			break;
 		case 'bootstrap-multiselect':
@@ -936,4 +931,12 @@ function copyToClipboardNoScroll(parent_element, textToCopy) {
   input.remove();
 }
 
+// From tsugiscripts.js
+function tsugi_window_close(message)
+{
+    window.close();
+    try { window.open('', '_self').close(); } catch(e) {};
+    setTimeout(function(){ console.log("Attempting self.close"); self.close(); }, 1000);
+    setTimeout(function(){ console.log("Notifying the user."); alert(message); open("about:blank", '_self').close(); }, 2000);
+}
 

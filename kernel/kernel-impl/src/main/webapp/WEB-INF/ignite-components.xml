@@ -182,7 +182,7 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.taggable.impl.LinkImpl"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.Assignment"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
@@ -194,10 +194,10 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.Assignment.groups"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission.submitters"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
@@ -256,6 +256,55 @@
           class="java.util.ArrayList">
         <constructor-arg>
             <list>
+                <!-- Attendance Caches -->
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceEvent" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.atomic">
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceEvent" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceGrade" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.atomic">
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceGrade" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceRecord" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.atomic">
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceRecord" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceSite" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.atomic">
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceSite" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceStatus" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.atomic">
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceStatus" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.sakaiproject.attendance.api.model.GradingRule" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.atomic">
+                            <property name="name" value="org.sakaiproject.attendance.api.model.GradingRule" />
+                        </bean>
+                    </property>
+                </bean>
                 <!-- SCORM Caches -->
                 <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
                     <property name="className" value="org.adl.datamodels.DataModel" />

@@ -46,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
@@ -139,7 +140,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("gen.dra2")).thenReturn("Draft -");
         when(resourceLoader.getString("gen.subm4")).thenReturn("Submitted");
         when(resourceLoader.getString("gen.nograd")).thenReturn("No Grade");
-        when(resourceLoader.getString("ungra")).thenReturn("Ungraded");
+        when(resourceLoader.getString("ungra")).thenReturn(AssignmentConstants.UNGRADED_GRADE_TYPE_STRING);
         when(resourceLoader.getString("gen.returned")).thenReturn("Returned");
         when(resourceLoader.getString("pass")).thenReturn("Pass");
         when(resourceLoader.getString("fail")).thenReturn("Fail");
@@ -157,8 +158,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void checkAssignmentToolTitle() {
-        Assert.assertNotNull(assignmentService.getToolTitle());
+    public void checkAssignmentToolId() {
+        Assert.assertNotNull(assignmentService.getToolId());
     }
 
     @Test
@@ -216,6 +217,61 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
         Assert.assertNotNull(assignment);
         Assert.assertEquals(assignmentId, assignment.getId());
+    }
+
+    @Test
+    public void getAssignmentsForContextStudentsCantViewFutureAssignments() {
+    	String context = UUID.randomUUID().toString();
+    	
+    	Site site = mock(Site.class);
+    	Collection<Group> siteGroups = new HashSet<>();
+    	Set<String> groupARef = new HashSet<>();
+    	Group groupA = mock(Group.class);
+    	String groupAId = UUID.randomUUID().toString();
+    	when(groupA.getId()).thenReturn(groupAId);
+    	when(groupA.getReference()).thenReturn("/site/" + context + "/group/" + groupAId);
+    	siteGroups.add(groupA);
+    	groupARef.add(groupA.getReference());
+    	when(site.getGroups()).thenReturn(siteGroups);
+    	try {
+    		when(siteService.getSite(context)).thenReturn(site);
+    	} catch (IdUnusedException e) {
+    		Assert.fail("missing mock site\n" + e.toString());
+    	}
+    	
+    	createNewFutureAssignment(context);
+        
+		when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(false);
+        Collection assignments = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignments);
+        Assert.assertEquals(0, assignments.size());
+    }
+
+    @Test
+    public void getAssignmentsForContextInstructorsCanViewFutureAssignments() {
+    	String context = UUID.randomUUID().toString();
+    	
+    	Site site = mock(Site.class);
+    	Collection<Group> siteGroups = new HashSet<>();
+    	Set<String> groupARef = new HashSet<>();
+    	Group groupA = mock(Group.class);
+    	String groupAId = UUID.randomUUID().toString();
+    	when(groupA.getId()).thenReturn(groupAId);
+    	when(groupA.getReference()).thenReturn("/site/" + context + "/group/" + groupAId);
+    	siteGroups.add(groupA);
+    	groupARef.add(groupA.getReference());
+    	when(site.getGroups()).thenReturn(siteGroups);
+    	try {
+    		when(siteService.getSite(context)).thenReturn(site);
+    	} catch (IdUnusedException e) {
+    		Assert.fail("missing mock site\n" + e.toString());
+    	}
+    	
+    	createNewFutureAssignment(context);
+
+        Collection assignments = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignments);
+        Assert.assertEquals(1, assignments.size());
     }
 
     @Test
@@ -411,6 +467,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             submissionSubmitters.forEach(s -> Assert.assertTrue(submitters.contains(s.getSubmitter())));
             Assert.assertEquals(1, submissionSubmitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).collect(Collectors.toList()).size());
             Assert.assertEquals(groupSubmitter, getSubmission.getGroupId());
+
+            getSubmission.setGrade("44");
+            Optional<AssignmentSubmissionSubmitter> optAss = submissionSubmitters.stream().filter(ass -> ass.getSubmitter().equals(submitter1)).findAny();
+            Assert.assertTrue(optAss.isPresent());
+            optAss.get().setGrade("22");
+            assignmentService.updateSubmission(getSubmission);
+            Assert.assertTrue(assignmentService.isGradeOverridden(getSubmission, submitter1));
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
         }
@@ -601,6 +664,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void duplicateAssignment() throws IdUnusedException {
         // Setup a new Assignment
         String context = UUID.randomUUID().toString();
+        User mockUser = mock(User.class);
         Assignment assignment = createNewAssignment(context);
         Assert.assertNotNull(assignment);
 
@@ -627,6 +691,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         // Duplicate the Assignment
         Assignment duplicateAssignment = null;
         try {
+            when(userDirectoryService.getCurrentUser()).thenReturn(mockUser);
             duplicateAssignment = assignmentService.addDuplicateAssignment(context, assignment.getId());
         } catch (IdInvalidException | PermissionException | IdUsedException e) {
             Assert.fail("Duplicating assignment\n" + e.toString());
@@ -1068,12 +1133,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         Assert.assertEquals("Pass", assignmentService.getGradeDisplay("pass", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
         Assert.assertEquals("Fail", assignmentService.getGradeDisplay("fail", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
-        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("any", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
+        Assert.assertEquals("", assignmentService.getGradeDisplay("any", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
 
-        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("any", Assignment.GradeType.CHECK_GRADE_TYPE, null));
+        Assert.assertEquals("", assignmentService.getGradeDisplay("any", Assignment.GradeType.CHECK_GRADE_TYPE, null));
         Assert.assertEquals("Checked", assignmentService.getGradeDisplay("checked", Assignment.GradeType.CHECK_GRADE_TYPE, null));
 
-        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("", Assignment.GradeType.GRADE_TYPE_NONE, null));
+        Assert.assertEquals("", assignmentService.getGradeDisplay("", Assignment.GradeType.GRADE_TYPE_NONE, null));
         Assert.assertEquals("self", assignmentService.getGradeDisplay("self", Assignment.GradeType.GRADE_TYPE_NONE, null));
     }
 
@@ -1471,6 +1536,22 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.fail(e.toString());
         }
         return null;
+    }
+
+    private Assignment createNewFutureAssignment(String context) {
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(UUID.randomUUID().toString());
+        Assignment assignment = null;
+        try {
+            assignment = assignmentService.addAssignment(context);
+            assignment.setOpenDate(Instant.now().plusSeconds(300));
+            assignment.setVisibleDate(Instant.now().plusSeconds(300));
+        } catch (PermissionException e) {
+            Assert.fail(e.toString());
+        }
+        return assignment;
     }
 
     private Assignment createNewAssignment(String context) {

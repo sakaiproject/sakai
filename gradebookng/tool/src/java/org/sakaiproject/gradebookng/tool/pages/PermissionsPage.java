@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -358,18 +357,18 @@ public class PermissionsPage extends BasePage {
 				item.add(new Label("can", new ResourceModel("permissionspage.item.can")));
 
 				// function list
-				final DropDownChoice<String> functionChooser = new DropDownChoice<String>("function",
-						new PropertyModel<String>(permission, "function"), assignablePermissions, new ChoiceRenderer<String>() {
+				final DropDownChoice<String> functionChooser = new DropDownChoice<String>("functionName",
+						new PropertyModel<String>(permission, "functionName"), assignablePermissions, new ChoiceRenderer<String>() {
 							private static final long serialVersionUID = 1L;
 
 							@Override
-							public Object getDisplayValue(final String function) {
-								return getString("permissionspage.function." + function);
+							public Object getDisplayValue(final String functionName) {
+								return getString("permissionspage.function." + functionName);
 							}
 
 							@Override
-							public String getIdValue(final String function, final int index) {
-								return function;
+							public String getIdValue(final String functionName, final int index) {
+								return functionName;
 							}
 
 						});
@@ -515,12 +514,4 @@ public class PermissionsPage extends BasePage {
 		}
 
 	}
-
-	@Override
-	public void renderHead(final IHeaderResponse response) {
-		super.renderHead(response);
-
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-permissions.css%s", PortalUtils.getCDNQuery())));
-	}
-
 }

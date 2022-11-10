@@ -100,7 +100,7 @@
                             #foreach($tool in $mapEntry.value)
                                 #set($toolId = $tool.id)
                                 #if (!$toolId.equals("sakai.web.168"))
-                                    ## exclude the Basic LTI tools, since they would be listed separately down the list
+                                    ## exclude the LTI tools, since they would be listed separately down the list
                                     #set ($rowCount = $rowCount + 1)
                                     #if ($tool.required)
                                         <li style="display:none">

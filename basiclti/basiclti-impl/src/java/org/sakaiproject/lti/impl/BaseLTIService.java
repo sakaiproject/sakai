@@ -597,7 +597,7 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1 AND lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1 OR lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0, siteId);
 	}
 
 	@Override
@@ -806,7 +806,7 @@ public abstract class BaseLTIService implements LTIService {
 			catch (PermissionException ee)
 			{
 				retval = new String("0" + rb.getFormattedMessage("error.link.placement.update", new Object[]{id}));
-				log.warn("Cannot add page and basic lti tool to site {}", siteId);
+				log.warn("Cannot add page and LTI tool to site {}", siteId);
 			}
 		}
 		catch (IdUnusedException e)

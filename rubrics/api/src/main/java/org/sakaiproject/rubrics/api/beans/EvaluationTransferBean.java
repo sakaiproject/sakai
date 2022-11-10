@@ -44,6 +44,8 @@ public class EvaluationTransferBean {
     public Instant modified;
     public String creatorId;
     public String ownerId;
+    public double score;
+    public String sortName;
 
     public boolean isNew;
 
@@ -57,6 +59,7 @@ public class EvaluationTransferBean {
         bean.evaluatedItemOwnerId = evaluation.getEvaluatedItemOwnerId();
         bean.overallComment = evaluation.getOverallComment();
         bean.criterionOutcomes = evaluation.getCriterionOutcomes().stream().map(CriterionOutcomeTransferBean::of).collect(Collectors.toList());
+        bean.score = bean.criterionOutcomes.stream().reduce(0D, (t, oc) -> t + oc.points, Double::sum);
         bean.status = evaluation.getStatus();
         bean.evaluatedItemOwnerType = evaluation.getEvaluatedItemOwnerType();
         bean.created = evaluation.getCreated();

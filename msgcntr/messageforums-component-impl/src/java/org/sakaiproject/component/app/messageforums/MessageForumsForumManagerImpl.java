@@ -611,39 +611,20 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         log.debug("getTopicById executing with topicId: " + topicId);
 
-        HibernateCallback<List> hcb = session -> {
-            String query;
-            if (open) {
-                query = QUERY_OPEN_BY_TOPIC_AND_PARENT;
-            } else {
-                query = QUERY_PRIVATE_BY_TOPIC_AND_PARENT;
-            }
-            Query q = session.getNamedQuery(QUERY_OPEN_BY_TOPIC_AND_PARENT);
+        HibernateCallback<Topic> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
             q.setParameter("id", topicId, LongType.INSTANCE);
-            return q.list();
+            return (Topic) q.getSingleResult();
         };
 
-        Topic res = null;
-		try {
-			List temp = getHibernateTemplate().execute(hcb);
-			if (temp != null && temp.size() > 0) {
+        Topic topic = (Topic) Hibernate.unproxy(getHibernateTemplate().execute(hcb));
 
-				Object[] results = (Object[]) temp.get(0);
-				if (results != null && results.length > 1) {
-					if (results[0] instanceof Topic) {
-						res = (Topic) Hibernate.unproxy(results[0]);
-						res.setBaseForum((BaseForum) Hibernate.unproxy(results[1]));
-					} else {
-						res = (Topic) Hibernate.unproxy(results[1]);
-						res.setBaseForum((BaseForum) Hibernate.unproxy(results[0]));
-					}
-				}
-			}
-		} catch (Exception e) {
-			log.warn(e.getMessage());
-		}
-	
-        return res;
+        if (topic != null) {
+            BaseForum parentForum = open ? (BaseForum) Hibernate.unproxy(topic.getOpenForum()) : (BaseForum) Hibernate.unproxy(topic.getPrivateForum());
+            topic.setBaseForum(parentForum);
+        }
+
+        return topic;
     }
 
     public Topic getTopicByUuid(final String uuid) {
@@ -851,7 +832,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
            }
         }
         //make sure availability flag is set properly
-        forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate()));
+        forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate(), forum.getLockedAfterClosed()));
 
         forum = getHibernateTemplate().merge(forum);
 
@@ -912,7 +893,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         transformNullsToFalse(topic, currentUser);
 
         //make sure availability is set properly
-        topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
+        topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate(), topic.getLockedAfterClosed()));
 
         DiscussionTopic topicReturn = topic;
         if (isNew) {

@@ -159,7 +159,7 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 
 		// Can set ContentItemSelection launch values or put in our own data items
 		// which will come back later.  Be mindful of GET length limitations enroute
-		// to the /access/basiclti servlet.
+		// to the /access/lti servlet.
 		Properties contentData = new Properties();
 		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_CC);
 		contentData.setProperty("answer", "42");  // An example
@@ -186,7 +186,7 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 				String siteInfoToolId = simplePageBean.getCurrentTool("sakai.siteinfo");
 
 				String helperUrl = ServerConfigurationService.getToolUrl() + "/" + siteInfoToolId +
-					"/sakai.basiclti.admin.helper.helper?panel=ContentConfig&flow=import&tool_id=" +
+					"/sakai.lti.admin.helper.helper?panel=ContentConfig&flow=import&tool_id=" +
 					tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(contentReturn);
 
 				String title = (String) tool.get(LTIService.LTI_TITLE);

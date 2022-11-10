@@ -1,8 +1,7 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import "./sakai-rubric.js";
-import {SharingChangeEvent} from "./sharing-change-event.js";
+import { SharingChangeEvent } from "./sharing-change-event.js";
 
 const rubricName = 'name';
 const rubricTitle = 'title';
@@ -12,7 +11,9 @@ const rubricModified = 'modified';
 export class SakaiRubricsList extends RubricsElement {
 
   constructor() {
+
     super();
+
     this.enablePdfExport = false;
   }
 
@@ -21,7 +22,7 @@ export class SakaiRubricsList extends RubricsElement {
     return {
       siteId: { attribute: "site-id", type: String },
       rubrics: { attribute: false, type: Array },
-      enablePdfExport: { type: Boolean },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     };
   }
 
@@ -33,6 +34,15 @@ export class SakaiRubricsList extends RubricsElement {
 
   get siteId() { return this._siteId; }
 
+  search(search) {
+
+    this.querySelectorAll("sakai-rubric, sakai-rubric-readonly").forEach(rubric => {
+
+      rubric.classList.remove("hidden");
+      rubric.classList.toggle("hidden", !rubric.matches(search));
+    });
+  }
+
   shouldUpdate() {
     return this.rubrics;
   }
@@ -42,10 +52,8 @@ export class SakaiRubricsList extends RubricsElement {
     return html`
       <div role="presentation">
         <div role="tablist">
-        ${repeat(this.rubrics, r => r.id, r => html`
-          <div class="rubric-item" id="rubric_item_${r.id}">
-            <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric>
-          </div>
+        ${this.rubrics.map(r => html`
+          <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric>
         `)}
         </div>
       </div>
@@ -96,11 +104,9 @@ export class SakaiRubricsList extends RubricsElement {
     this.rubrics = [];
     this.rubrics = tmp;
 
+    nr.expanded = true;
+
     this.requestUpdate();
-    this.updateComplete.then(async() => {
-      await this.createRubricUpdateComplete;
-      this.querySelector(`#rubric_item_${nr.id} sakai-rubric`).toggleRubric();
-    });
   }
 
   deleteRubric(e) {
@@ -153,13 +159,6 @@ export class SakaiRubricsList extends RubricsElement {
     .catch (error => console.error(error));
   }
 
-  get createRubricUpdateComplete() {
-
-    return (async () => {
-      return this.querySelector(`#rubric_item_${this.rubrics[this.rubrics.length - 1].id} sakai-rubric`).updateComplete;
-    })();
-  }
-
   sortRubrics(rubricType, ascending) {
 
     switch (rubricType) {
@@ -167,13 +166,13 @@ export class SakaiRubricsList extends RubricsElement {
         this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
         break;
       case rubricTitle:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.siteName.localeCompare(b.metadata.siteName) : b.metadata.siteName.localeCompare(a.metadata.siteName));
+        this.rubrics.sort((a, b) => ascending ? a.siteTitle.localeCompare(b.siteTitle) : b.siteTitle.localeCompare(a.siteTitle));
         break;
       case rubricCreator:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.creatorName.localeCompare(b.metadata.creatorName) : b.metadata.creatorName.localeCompare(a.metadata.creatorName));
+        this.rubrics.sort((a, b) => ascending ? a.creatorDisplayName.localeCompare(b.creatorDisplayName) : b.creatorDisplayName.localeCompare(a.creatorDisplayName));
         break;
       case rubricModified:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.modified.localeCompare(b.metadata.modified) : b.metadata.modified.localeCompare(a.metadata.modified));
+        this.rubrics.sort((a, b) => ascending ? a.formattedModifiedDate.localeCompare(b.formattedModifiedDate) : b.formattedModifiedDate.localeCompare(a.formattedModifiedDate));
         break;
     }
     this.requestUpdate('rubrics');

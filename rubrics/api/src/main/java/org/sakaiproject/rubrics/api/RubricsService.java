@@ -61,9 +61,11 @@ public interface RubricsService {
 
     Optional<CriterionTransferBean> createDefaultCriterion(String siteId, Long rubricId);
 
+    Optional<CriterionTransferBean> createDefaultEmptyCriterion(String siteId, Long rubricId);
+
     CriterionTransferBean copyCriterion(Long rubricId, Long sourceId);
 
-    Optional<RatingTransferBean> createDefaultRating(String siteId, Long criterionId, int position);
+    Optional<RatingTransferBean> createDefaultRating(String siteId, Long rubricId, Long criterionId, int position);
 
     RatingTransferBean copyRating(Long sourceId);
 
@@ -75,9 +77,9 @@ public interface RubricsService {
 
     void sortCriterionRatings(Long criteriaId, List<Long> sortedRatingIds);
 
-    RatingTransferBean saveRating(RatingTransferBean bean, String siteId);
+    RatingTransferBean saveRating(RatingTransferBean bean, String siteId, Long rubricId);
 
-    void deleteRating(Long ratingId, Long criterionId, String siteId);
+    CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId, Long rubricId);
 
     Optional<RubricTransferBean> getRubric(Long rubricId);
 
@@ -88,6 +90,8 @@ public interface RubricsService {
     Optional<EvaluationTransferBean> getEvaluation(Long evaluationId, String siteId);
 
     Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
+
+    List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId);
 
     EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId);
 

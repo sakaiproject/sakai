@@ -102,7 +102,11 @@
                     $tlang.getString("gen.totaltimespent")
                 </th>
                 <td>
-                    $formattedText.escapeHtml($!assignment_input_add_time_spent)
+                    #if ($!assignment_input_add_time_spent && !$!assignment_input_add_time_spent.equals(""))
+                        $formattedText.escapeHtml($!assignment_input_add_time_spent)
+                    #else
+                        $tlang.getString("gen.noestimate")
+                    #end
                 </td>
             </tr>
         #end

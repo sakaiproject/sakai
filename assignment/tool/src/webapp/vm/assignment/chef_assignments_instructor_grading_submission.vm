@@ -1,6 +1,7 @@
 <!-- start: chef_assignments_instructor_grading_submission.vm  -->
 #rubricsRequirements
 #set( $H = '-' )
+#set( $T = 'T' )
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <script>
@@ -297,7 +298,11 @@
                     $tlang.getString("gen.totaltimespent")
                 </h3>
                 <p>
-                    $!submitterTimeSpent
+                    #if ($!submitterTimeSpent && !$!submitterTimeSpent.equals(""))
+                        $!submitterTimeSpent
+                    #else
+                        $tlang.getString("gen.noestimate")
+                    #end
                 </p>
             #end
             ## Submitted Attachment
@@ -347,7 +352,7 @@
         <div role="tabpanel" class="tab-pane" id="rubric">
             <sakai-rubric-grading
                 site-id="$!assignment.Context"
-                tool-id="sakai.assignment"
+                tool-id="sakai.assignment.grades"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
                 enable-pdf-export="$enablePdfExport"
@@ -393,7 +398,7 @@
                         <p class="shorttext">
                             <label for="grade">$tlang.getString("gen.gra2")</label>
                             #if($assignment.getAllowPeerAssessment())
-                                <a id="infoImg" href="javascript:;"  class="fa fa-info-circle" data-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
+                                <a id="infoImg" href="javascript:;"  class="fa fa-info-circle" data-bs-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
                             #end
                             <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
                             <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
@@ -477,13 +482,14 @@
                                     <div class="row-override">
                                         <label>$formattedText.escapeHtml($!submitterName)</label>
                                         <div class="shorttext">
-                                            <span>$tlang.getString("gen.grade.override")</span> <input type="text"
+                                            <span>$tlang.getString("gen.grade.override")</span>
+                                            <input type="text"
                                                 name="$group_name_grade"
                                                 size="5"
                                                 maxlength="11"
                                                 value="$!group_value_grade"
                                                 id="grade"
-                                                onkeypress="return ASN.handleEnterKeyPress(event);"/>
+                                                onkeypress="return ASN.handleEnterKeyPress(event);" />
                                             <span>($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
                                         </div>
                                     </div>
@@ -724,23 +730,14 @@
                         style="display: none"
                     #end
                 >
-                    <label for="allowExtensionDate">$tlang.getString("gen.acesubunt")</label>
-                    <input type="text" id="allowExtensionDate" name="allowExtensionDate" class="datepicker" value=""/>
-                    <script type="text/javascript">
-                        localDatePicker({
-                            input: '#allowExtensionDate',
-                            useTime: 1,
-                            val: "$value_ExtensionYear$H$value_ExtensionMonth$H$value_ExtensionDay $value_ExtensionHour:$value_ExtensionMin",
-                            parseFormat: 'YYYY-MM-DD HH:mm',
-                            ashidden: {
-                                month: "allow_extension_closeMonth",
-                                day: "allow_extension_closeDay",
-                                year: "allow_extension_closeYear",
-                                hour: "allow_extension_closeHour",
-                                minute: "allow_extension_closeMin"
-                            }
-                        });
-                    </script>
+                    <label for="allow-extension-date">$tlang.getString("gen.acesubunt")</label>
+                    <sakai-date-picker
+                        id="allow-extension-date"
+                        label="$tlang.getString("gen.acesubunt")"
+                        iso-date="$value_ExtensionYear$H$value_ExtensionMonth$H$value_ExtensionDay$T$value_ExtensionHour:$value_ExtensionMin"
+                        hidden-prefix="allow_extension_close"
+                        add-hidden-fields>
+                    </sakai-date-picker>
                 </div>
             </div>
             <div class="form-group" id="tempAllowRes" style="$resubmitVisibility">
@@ -767,23 +764,14 @@
                 </span>
                 <span>&nbsp;</span>
                 <span id="allowResubmitTime">
-                    <label for="allowResubmitDate">$tlang.getString("gen.acesubunt")</label>
-                    <input type="text" id="allowResubmitDate" name="allowResubmitDate" class="datepicker" value=""/>
-                    <script>
-                        localDatePicker({
-                            input: '#allowResubmitDate',
-                            useTime: 1,
-                            val: "$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-                            parseFormat: 'YYYY-MM-DD HH:mm',
-                            ashidden: {
-                                month: "allow_resubmit_closeMonth",
-                                day: "allow_resubmit_closeDay",
-                                year: "allow_resubmit_closeYear",
-                                hour: "allow_resubmit_closeHour",
-                                minute: "allow_resubmit_closeMin"
-                            }
-                        });
-                    </script>
+                    <label for="allow-resubmit-date">$tlang.getString("gen.acesubunt")</label>
+                    <sakai-date-picker
+                        id="allow-resubmit-date"
+                        label="$tlang.getString("gen.acesubunt")"
+                        iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
+                        hidden-prefix="allow_resubmit_close"
+                        add-hidden-fields>
+                    </sakai-date-picker>
                 </span>
             </div> <!-- End of the allowResubmitContainer -->
         #end

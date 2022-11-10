@@ -282,12 +282,14 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					String local_received=rb.getString("pvt_received");
 					String local_sent = rb.getString("pvt_sent");
 					String local_deleted= rb.getString("pvt_deleted");
+					String local_scheduler= rb.getString("pvt_scheduler");
 
 					String current_NAV= rb.getString("pvt_message_nav");
 
 					topicsbyLocalization.add(local_received);
 					topicsbyLocalization.add(local_sent);
 					topicsbyLocalization.add(local_deleted);
+					topicsbyLocalization.add(local_scheduler);
 
 					int countForFolderNum = 0;// only three folder 
 					Iterator iterator = pvtTopics.iterator(); 
@@ -627,11 +629,13 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 		String local_received=rb.getString("pvt_received");
 		String local_sent = rb.getString("pvt_sent");
 		String local_deleted= rb.getString("pvt_deleted");
+		String local_scheduler= rb.getString("pvt_scheduler");
 		
 
 		topicsbyLocalization.add(local_received);
 		topicsbyLocalization.add(local_sent);
 		topicsbyLocalization.add(local_deleted);
+		topicsbyLocalization.add(local_scheduler);
 
 		//need to add more dictionary to support more language
 		if (((String) topicsbyLocalization.get(0)).equalsIgnoreCase(navMode)||"Recibidos".equalsIgnoreCase(navMode)||"Received".equalsIgnoreCase(navMode)){
@@ -642,6 +646,9 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 		}
 		else if (((String) topicsbyLocalization.get(2)).equalsIgnoreCase(navMode)||"Borrados".equalsIgnoreCase(navMode)||"Deleted".equalsIgnoreCase(navMode)){
 			return typeManager.getDeletedPrivateMessageType(); 
+		}
+		else if (((String) topicsbyLocalization.get(3)).equalsIgnoreCase(navMode)||"Programado".equalsIgnoreCase(navMode)||"Scheduled".equalsIgnoreCase(navMode)){
+			return typeManager.getSchedulerPrivateMessageType();
 		}
 		else if (PVTMSG_MODE_DRAFT.equalsIgnoreCase(navMode)){
 			return typeManager.getDraftPrivateMessageType();

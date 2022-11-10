@@ -18,7 +18,6 @@ package org.sakaiproject.messaging.impl;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +27,6 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
-import javax.annotation.Resource;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
@@ -37,29 +34,39 @@ import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import static org.sakaiproject.messaging.api.MessageMedium.*;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class UserMessagingServiceImpl implements UserMessagingService {
 
-    @Resource private DigestService digestService;
-    @Resource private EmailService emailService;
-    @Resource private EmailTemplateService emailTemplateService;
-    @Resource private PreferencesService preferencesService;
-    @Resource private UserDirectoryService userDirectoryService;
-    @Resource private ServerConfigurationService serverConfigurationService;
-    @Resource private ToolManager toolManager;
+    @Autowired private DigestService digestService;
+    @Autowired private EmailService emailService;
+    @Autowired private EmailTemplateService emailTemplateService;
+    @Autowired private PreferencesService preferencesService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private SessionManager sessionManager;
+    @Autowired private SiteService siteService;
+    @Autowired private ToolManager toolManager;
+    @Setter    private ResourceLoader resourceLoader;
 
     private ExecutorService executor;
 
@@ -101,13 +108,29 @@ public class UserMessagingServiceImpl implements UserMessagingService {
 
             // do it
             emailService.sendToUsers(Collections.singleton(user), getHeaders(user.getEmail(), this.subject),
-                    formatMessage(this.subject, this.message));
+                    formatMessage(user.getId(), this.subject, this.message));
 
             log.info("Email sent to: {}", user.getId());
         }
 
         /** helper methods for formatting the message */
-        private String formatMessage(final String subject, final String message) {
+        private String formatMessage(String userId, String subject, String message) {
+
+            try {
+                Site userSite = siteService.getSite(siteService.getUserSiteId(userId));
+                ToolConfiguration tc = userSite.getToolForCommonId("sakai.preferences");
+                if (tc != null) {
+                    String url = serverConfigurationService.getPortalUrl() + "/site/" + userSite.getId() + "/tool/" + tc.getId();
+                    String prefsLink = "<br /><br />" + resourceLoader.getFormattedMessage("preferences_link_message", url);
+                    message = message + prefsLink;
+                } else {
+                    log.debug("No preferences tool on user {}'s site", userId);
+                }
+            } catch (IdUnusedException iue) {
+                log.warn("User id {} doesn't have a home site yet. We can't add the preferences link until they've logged in a least once", userId);
+            } catch (Exception e) {
+                log.error("Failed to add preferences link to email message body: {}", e.toString());
+            }
 
             StringBuilder sb = new StringBuilder();
             return sb.append(MIME_ADVISORY)
@@ -183,7 +206,7 @@ public class UserMessagingServiceImpl implements UserMessagingService {
 
                 String siteId = context != null ? context : message.getSiteId();
                 
-                String siteOverride = siteId != null ? toolProps.getProperty(message.getSiteId()) : null;
+                String siteOverride = siteId != null ? toolProps.getProperty(siteId) : null;
 
                 media.forEach(m -> {
 

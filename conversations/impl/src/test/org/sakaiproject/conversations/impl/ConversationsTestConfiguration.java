@@ -32,10 +32,14 @@ import org.hsqldb.jdbcDriver;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.conversations.api.TopicShowDateMessager;
 import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
 import org.sakaiproject.conversations.impl.repository.ConversationsCommentRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
@@ -59,6 +63,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -191,6 +196,11 @@ public class ConversationsTestConfiguration {
         return tagRepository;
     }
 
+    @Bean(name = "org.sakaiproject.calendar.api.CalendarService")
+    public CalendarService calendarService() {
+        return mock(CalendarService.class);
+    }
+
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
     public AuthzGroupService authzGroupService() {
         return mock(AuthzGroupService.class);
@@ -246,6 +256,11 @@ public class ConversationsTestConfiguration {
         return mock(UserTimeService.class);
     }
 
+    @Bean(name = "org.sakaiproject.time.api.TimeService")
+    public TimeService timeService() {
+        return mock(TimeService.class);
+    }
+
     @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")
     public UserMessagingService userMessagingService() {
         return mock(UserMessagingService.class);
@@ -264,6 +279,16 @@ public class ConversationsTestConfiguration {
     @Bean(name = "org.sakaiproject.search.api.SearchService")
     public SearchService searchService() {
         return mock(SearchService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.api.app.scheduler.ScheduledInvocationManager")
+    public ScheduledInvocationManager scheduledInvocationManager() {
+        return mock(ScheduledInvocationManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.conversations.api.TopicShowDateMessager")
+    public TopicShowDateMessager topicShowDateMessager() {
+        return mock(TopicShowDateMessager.class);
     }
 
     @Bean(name = "org.sakaiproject.user.api.UserNotificationPreferencesRegistration")

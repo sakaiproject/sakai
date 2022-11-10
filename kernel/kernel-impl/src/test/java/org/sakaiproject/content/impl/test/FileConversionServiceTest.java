@@ -50,8 +50,6 @@ public class FileConversionServiceTest extends AbstractTransactionalJUnit4Spring
 
         Assert.isTrue(fileConversionService.canConvert(ContentHostingService.DOCX_MIMETYPE), "DOCX is one of the default convertable types");
         Assert.isTrue(fileConversionService.canConvert(ContentHostingService.DOC_MIMETYPE), "DOC is one of the default convertable types");
-        Assert.isTrue(fileConversionService.canConvert(ContentHostingService.ODT_MIMETYPE), "ODT is one of the default convertable types");
-        Assert.isTrue(fileConversionService.canConvert(ContentHostingService.ODP_MIMETYPE), "ODP is one of the default convertable types");
         Assert.isTrue(fileConversionService.canConvert(ContentHostingService.PPT_MIMETYPE), "PPT is one of the default convertable types");
         Assert.isTrue(fileConversionService.canConvert(ContentHostingService.PPTX_MIMETYPE), "PPTX is one of the default convertable types");
     }

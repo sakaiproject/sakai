@@ -156,7 +156,11 @@
                 <h4>
                     $tlang.getString("gen.totaltimespentconfirm")
                 </h4>
-                $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+                #if ($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT && !$!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT.equals(""))
+                    $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+                #else
+                    $tlang.getString("gen.noestimate")
+                #end
             </div>
         #end
         ## only show the following if attachment submission is allowed
@@ -203,11 +207,11 @@
             #end
         #end
 
-        #if (!$!linkInvoked)
+        #if (!$!linkInvoked && $isAssignmentsToolVisible)
             <p class="act">
-                <input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission"
-                       value="$tlang.getString('gen.backtolist')" class="active"
-                       onclick="SPNR.disableControlsAndSpin( this, null );"/>
+                    <input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission"
+                           value="$tlang.getString('gen.backtolist')" class="active"
+                           onclick="SPNR.disableControlsAndSpin( this, null );"/>
             </p>
         #end
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>

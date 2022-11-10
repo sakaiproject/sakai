@@ -170,5 +170,30 @@ public class SignupTimeslot implements Comparable{
 		int result = this.getStartTime().compareTo(((SignupTimeslot)o).getStartTime());
 		return result;
 	}
-
+	
+	/**
+	 * This method will obtain number of participants total signed
+	 * 
+	 * @return a int
+	 */
+	public int getParticipantsNum() {
+		if (attendees == null) {
+			return 0;
+		}else {
+			return attendees.size();
+		}
+	}
+	
+	/**
+	 * This method will obtain the number of participants total signed in the waiting list
+	 * 
+	 * @return a int
+	 */
+	public int getWaitingListNum() {
+		if (waitingList == null) {
+			return 0;
+		}else {
+			return waitingList.size();
+		}
+	}
 }

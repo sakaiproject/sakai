@@ -50,9 +50,9 @@
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
-      <version>${sakai.elasticsearch.version}</version>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
+      <version>${sakai.opensearch.version}</version>
     </dependency>
 <!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
   </dependencies>

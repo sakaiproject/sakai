@@ -115,15 +115,47 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             igniteConfiguration.setWorkDirectory(home + File.separator + "work");
             igniteConfiguration.setConsistentId(node);
             igniteConfiguration.setIgniteInstanceName(name);
+            igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS);
+
+            igniteConfiguration.setGridLogger(new Slf4jLogger());
+
+            // configuration for metrics update frequency
+            igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
+            igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
+
+            TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
+            TcpDiscoverySpi tcpDiscovery = new TcpDiscoverySpi();
+            TcpDiscoveryVmIpFinder finder = new TcpDiscoveryVmIpFinder();
+            Set<String> discoveryAddresses = new HashSet<>();
+
+            String localInterfaceAddress;
+            if (StringUtils.isNotBlank(address)) {
+                localInterfaceAddress = address;
+            } else {
+                // use loop back if no interface was configured
+                localInterfaceAddress = "127.0.0.1";
+            }
 
             if (StringUtils.equalsIgnoreCase("client", mode)) {
                 igniteConfiguration.setClientMode(true);
             } else {
                 igniteConfiguration.setClientMode(false);
-            }
 
-            igniteConfiguration.setCollisionSpi(new FifoQueueCollisionSpi());
-            igniteConfiguration.setCheckpointSpi(new CacheCheckpointSpi());
+                igniteConfiguration.setCollisionSpi(new FifoQueueCollisionSpi());
+                igniteConfiguration.setCheckpointSpi(new CacheCheckpointSpi());
+
+                igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
+
+                igniteConfiguration.setFailureDetectionTimeout(20000);
+                if (stopOnFailure) {
+                    IgniteStopNodeAndExitHandler failureHandler = new IgniteStopNodeAndExitHandler();
+                    failureHandler.setIgnoredFailureTypes(Collections.emptySet());
+                    igniteConfiguration.setFailureHandler(failureHandler);
+                }
+
+                igniteConfiguration.setSystemWorkerBlockedTimeout(20000);
+                igniteConfiguration.setSegmentationPolicy(SegmentationPolicy.NOOP);
+            }
 
             TransactionConfiguration transactionConfiguration = new TransactionConfiguration();
             transactionConfiguration.setDefaultTxConcurrency(TransactionConcurrency.OPTIMISTIC);
@@ -131,56 +163,15 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             transactionConfiguration.setDefaultTxTimeout(30 * 1000);
             igniteConfiguration.setTransactionConfiguration(transactionConfiguration);
 
-            igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS);
-
-            igniteConfiguration.setGridLogger(new Slf4jLogger());
-
             configureCaches();
 
-            igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
-
-            // configuration for metrics update frequency
-            igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
-            igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
-
-            igniteConfiguration.setFailureDetectionTimeout(20000);
-            if (stopOnFailure) {
-                IgniteStopNodeAndExitHandler failureHandler = new IgniteStopNodeAndExitHandler();
-                failureHandler.setIgnoredFailureTypes(Collections.emptySet());
-                igniteConfiguration.setFailureHandler(failureHandler);
-            }
-
-            igniteConfiguration.setSystemWorkerBlockedTimeout(20000);
-            igniteConfiguration.setSegmentationPolicy(SegmentationPolicy.NOOP);
-
-            // local node network configuration
-            TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
-            TcpDiscoverySpi tcpDiscovery = new TcpDiscoverySpi();
-            TcpDiscoveryVmIpFinder finder = new TcpDiscoveryVmIpFinder();
-
-            // limits outbound/inbound message queue
-            tcpCommunication.setMessageQueueLimit(tcpMessageQueueLimit);
-
-            if (tcpSlowClientMessageQueueLimit > tcpMessageQueueLimit) {
-                tcpSlowClientMessageQueueLimit = tcpMessageQueueLimit;
-            }
-            // detection of a nodes with a high outbound message queue
-            tcpCommunication.setSlowClientQueueLimit(tcpSlowClientMessageQueueLimit);
-
-            Set<String> discoveryAddresses = new HashSet<>();
-            String localDiscoveryAddress;
-            if (StringUtils.isNotBlank(address)) {
-                tcpCommunication.setLocalAddress(address);
-                tcpDiscovery.setLocalAddress(address);
-                localDiscoveryAddress = address;
-            } else {
-                localDiscoveryAddress = "127.0.0.1";
-            }
+            // which interface tcp communication will use
+            tcpCommunication.setLocalAddress(localInterfaceAddress);
 
             if (range - 1 == 0) {
-                discoveryAddresses.add(localDiscoveryAddress + ":" + (port + range));
+                discoveryAddresses.add(localInterfaceAddress + ":" + (port + range));
             } else {
-                discoveryAddresses.add(localDiscoveryAddress + ":" + (port + range) + ".." + (port + range + range - 1));
+                discoveryAddresses.add(localInterfaceAddress + ":" + (port + range) + ".." + (port + range + range - 1));
             }
 
             tcpCommunication.setLocalPort(port);
@@ -188,6 +179,18 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
             tcpDiscovery.setLocalPort(port + range);
             tcpDiscovery.setLocalPortRange(range - 1);
+
+            // limits outbound/inbound message queue
+            tcpCommunication.setMessageQueueLimit(tcpMessageQueueLimit);
+
+            // detection of nodes with a high outbound message queue
+            if (tcpSlowClientMessageQueueLimit > tcpMessageQueueLimit) {
+                tcpSlowClientMessageQueueLimit = tcpMessageQueueLimit;
+            }
+            tcpCommunication.setSlowClientQueueLimit(tcpSlowClientMessageQueueLimit);
+
+            // which interface discovery will use
+            tcpDiscovery.setLocalAddress(localInterfaceAddress);
 
             // remote node network configuration, 1.2.3.5:49000..49009
             if (remoteAddresses != null && remoteAddresses.length > 0) {

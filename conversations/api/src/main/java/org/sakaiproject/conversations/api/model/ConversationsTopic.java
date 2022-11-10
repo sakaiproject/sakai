@@ -133,6 +133,12 @@ public class ConversationsTopic implements PersistableEntity<String> {
     @Column(name = "DUE_DATE")
     private Instant dueDate;
 
+    @Column(name = "DUE_DATE_CALENDAR_EVENT_ID", length = 36)
+    private String dueDateCalendarEventId;
+
+    @Column(name = "SHOW_MESSAGE_SCHEDULE_ID", length = 36)
+    private String showMessageScheduleId;
+
     @Embedded
     private Metadata metadata;
 }

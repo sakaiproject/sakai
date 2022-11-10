@@ -114,8 +114,12 @@
 	  					<h:outputText escape="false" value="#{msgDecorateBean.message.body}"/>
 					<f:verbatim>  					
 	  					</span>	
-	  					<span><img src="/library/image/silk/table_add.png" />&nbsp;</f:verbatim><h:outputText value="#{msgs.cdfm_message_count}" /><f:verbatim>:&nbsp;<span  id="wordCountSpan"> </span></span>			
-		  			</f:verbatim>
+	  					<span>
+	  						<i class="fa fa-plus-square" aria-hidden="true"></i>
+	  						&nbsp;
+	  					</span>
+	  				</f:verbatim>
+					<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<h:outputText value="#{msgDecorateBean.wordCount}"/>
 					<f:verbatim><a name="boldMsg"></a></f:verbatim>
 					<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>
 						<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">

@@ -83,7 +83,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     }
 
   public boolean isAssignmentDefined(String assessmentTitle,
-		  org.sakaiproject.grading.api.GradingService g) throws Exception
+		  org.sakaiproject.grading.api.GradingService g)
   {
     String gradebookUId = GradebookFacade.getGradebookUId();
     return g.isAssignmentDefined(gradebookUId, assessmentTitle);
@@ -91,22 +91,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
   
   public String getAppName()
   {
-      // Tool name code added by Josh Holtzman
-      Tool tool = ToolManager.getTool("sakai.samigo");
-      String appName = null;
-
-      if (tool == null)
-      {
-        log.warn(
-          "could not get tool named sakai.samigo, " +
-          "so we're going to assume we're called 'Tests & Quizzes'");
-        appName = "Tests & Quizzes";
-      }
-      else
-      {
-        appName = tool.getTitle();
-      }
-      return appName;
+      return "sakai.samigo";
   }
 
   /**
@@ -139,7 +124,8 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
               getAppName(), // Use the app name from sakai
               null,
               false,
-              categoryId);
+              categoryId,
+              publishedAssessment.getReference());
       added = true;
     }
     return added;

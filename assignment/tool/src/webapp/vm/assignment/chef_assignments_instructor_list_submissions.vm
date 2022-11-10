@@ -1,9 +1,10 @@
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 #rubricsRequirements
 #set( $H = '-' )
+#set( $T = 'T' )
 <script>includeLatestJQuery('assignments');</script>
-#javascript("/library/js/lang-datepicker/lang-datepicker.js")
-<script type="module" src="/webcomponents/grader/grader-toggle.js" />
+#module("/webcomponents/grader/grader-toggle.js")
+#module("/webcomponents/sakai-user-photo.js")
 
 <script>
 function printView(url) {
@@ -90,7 +91,7 @@ function printView(url) {
 								</select>
 							#else
 							## instructor needs to type in default points in point-based-grading
-							<input type="number" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" min="0" step="0.01" placeholder="$tlang.getString('gen.gra')" />
+							<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" placeholder="$tlang.getString('gen.gra')" size="6" />
 							#end
 							<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -230,25 +231,12 @@ function printView(url) {
 								<label>
 									$tlang.getString("gen.acesubunt")
 								</label>
-
-  <input type="text" id="allowResubmitDate" name="allowResubmitDate" class="datepicker" value="">
- 
-                            <script type="text/javascript">
-                                localDatePicker({
-                                    input:'#allowResubmitDate', 
-                                    useTime:1, 
-                                    val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-                                    parseFormat: 'YYYY-MM-DD HH:mm',
-                                    ashidden:{
-                                        month:"allow_resubmit_closeMonth",
-                                        day:"allow_resubmit_closeDay",
-                                        year:"allow_resubmit_closeYear",
-                                        hour:"allow_resubmit_closeHour",
-                                        minute:"allow_resubmit_closeMin"
-                                    }
-                                });
-                            </script>
-
+								<sakai-date-picker
+									label="$tlang.getString("gen.acesubunt")"
+									iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
+									hidden-prefix="allow_resubmit_close"
+									add-hidden-fields>
+								</sakai-date-picker>
 								## for save the resubmission choice
 								<div class="act">
 									<input type="submit" class="active" onclick="SPNR.disableControlsAndSpin( this, escapeList );" name="eventSubmit_doSave_resubmission_option" value="$tlang.getString("update")" accesskey="s" />
@@ -450,63 +438,78 @@ function printView(url) {
 								#end
 							</td>
 							<td headers="studentname">
-								#if ($taggable)
-									#if ($value_CheckAnonymousGrading)
-										$anonymousSubmissionId
-									#else
-										$formattedText.escapeHtml($submitterName)
-									#end
-
-									#if ($gusers)
-										<div style="font-size: smaller; color: blue;">
-										#foreach ($user in $gusers)
-											#if($velocityCount > 1), #end
-											#set($is_user_duplicate=false)
-											#if($usersinmultiplegroups)
-												#foreach ($userin in $usersinmultiplegroups)
-													#if ($userin.indexOf($user.getDisplayName()) > -1)#set($is_user_duplicate=true)#end
-												#end
-											#end
-											#if($is_user_duplicate)<em class="error alertMessage"><abbr title="$tlang.getString("group.user.duplicate.error")">#end$user.getDisplayName()#if($is_user_duplicate)</abbr></em>#end
-												#set ($group_value_grade = "")
-												#set ($group_value_grade = $value_grades.get($user.getId()))
-												#if ($!group_value_grade.length() > 0)
-													<abbr title="$tlang.getFormattedMessage("group.user.grade.override", $user.getDisplayName())">($!group_value_grade)</abbr>
-												#end
+								<div class="student-name">
+									<div>
+										#if ($value_CheckAnonymousGrading || $assignment.IsGroup)
+										<sakai-user-photo user-id="blank"></sakai-user-photo>
+										#else
+										<sakai-user-photo
+											user-id="$userSubmission.User.Id"
+											label="$tlang.getFormattedMessage("grading.userphoto", $userSubmission.User.DisplayName)"
+											profile-popup="on">
+										</sakai-user-photo>
 										#end
-										</div>
-									#end
-									#if(!$disableGrade)
-										<div class="itemAction">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</span></a>
-											#foreach ($provider in $providers)
-												#set ($item = $producer.getItem($submission, $siteUser.getId()))
-												#set ($helperInfo = false)
-												#set ($helperInfo = $provider.provider.getItemHelperInfo($item.reference))
-												#if ($helperInfo)
-													| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
-												#end
-											#end
-										</div>
-									#end
-								#else
-									#if(!$disableGrade)
-										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
-											#if ($value_CheckAnonymousGrading)
-												$anonymousSubmissionId
-											#else
-												$formattedText.escapeHtml($submitterName)
-											#end
-
-										</a>
-									#else
+									</div>
+									<div>
+									#if ($taggable)
 										#if ($value_CheckAnonymousGrading)
 											$anonymousSubmissionId
 										#else
 											$formattedText.escapeHtml($submitterName)
+										#end
+
+										#if ($gusers)
+											<div style="font-size: smaller; color: blue;">
+											#foreach ($user in $gusers)
+												#if($velocityCount > 1), #end
+												#set($is_user_duplicate=false)
+												#if($usersinmultiplegroups)
+													#foreach ($userin in $usersinmultiplegroups)
+														#if ($userin.indexOf($user.getDisplayName()) > -1)#set($is_user_duplicate=true)#end
+													#end
+												#end
+												#if($is_user_duplicate)<em class="error alertMessage"><abbr title="$tlang.getString("group.user.duplicate.error")">#end$user.getDisplayName()#if($is_user_duplicate)</abbr></em>#end
+													#set ($group_value_grade = "")
+													#set ($group_value_grade = $value_grades.get($user.getId()))
+													#if ($!group_value_grade.length() > 0)
+														<abbr title="$tlang.getFormattedMessage("group.user.grade.override", $user.getDisplayName())">($!group_value_grade)</abbr>
+													#end
+											#end
+											</div>
+										#end
+										#if(!$disableGrade)
+											<div class="itemAction">
+												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</span></a>
+												#foreach ($provider in $providers)
+													#set ($item = $producer.getItem($submission, $siteUser.getId()))
+													#set ($helperInfo = false)
+													#set ($helperInfo = $provider.provider.getItemHelperInfo($item.reference))
+													#if ($helperInfo)
+														| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+													#end
+												#end
+											</div>
+										#end
+									#else
+										#if(!$disableGrade)
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
+												#if ($value_CheckAnonymousGrading)
+													$anonymousSubmissionId
+												#else
+													$formattedText.escapeHtml($submitterName)
+												#end
+
+											</a>
+										#else
+											#if ($value_CheckAnonymousGrading)
+												$anonymousSubmissionId
+											#else
+												$formattedText.escapeHtml($submitterName)
+										#end
 									#end
-								#end
-								#end
+									#end
+									</div>
+								</div>
 							</td>
 							#if($!isAdditionalNotesEnabled && !$assignment.IsGroup)
 							<td headers="notes">
@@ -590,7 +593,7 @@ function printView(url) {
 										rubric-id="$rubricId"
 										site-id="$assignment.context"
 										dont-check-association
-										tool-id="sakai.assignment"
+										tool-id="sakai.assignment.grades"
 										evaluated-item-id="$submission.Id"
 										entity-id="$assignment.Id"
 										instructor="true">
@@ -820,8 +823,6 @@ function printView(url) {
 				ASN.toggleAllowResubmissionPanel();
 			}
 		});
-
-		ASN.enableLinks();
 	}); // document.ready
 </script>
 

@@ -62,8 +62,8 @@ public class BasicLTIConstants {
 	/**
 	 * custom_keyname=value
 	 * <p>
-	 * The creator of a Basic LTI link can add custom key/value parameters to a
-	 * launch which are to be included with the launch of the Basic LTI link. The
+	 * The creator of a LTI link can add custom key/value parameters to a
+	 * launch which are to be included with the launch of the LTI link. The
 	 * Common Cartridge section below describes how these parameters are
 	 * represented when storing custom parameters in a Common Cartridge.
 	 * <p>
@@ -77,9 +77,9 @@ public class BasicLTIConstants {
 	 * <p>
 	 * Would map to: custom_review_chapter=1.2.56
 	 * <p>
-	 * Creators of Basic LTI links would be well served to limit their parameter
+	 * Creators of LTI links would be well served to limit their parameter
 	 * names to lower case and to use no punctuation other than underscores. If
-	 * these custom parameters are included in the Basic LTI link, the TC must
+	 * these custom parameters are included in the LTI link, the TC must
 	 * include them in the launch data or the TP may fail to function.
 	 */
 	public static final String CUSTOM_PREFIX = "custom_";
@@ -227,7 +227,7 @@ public class BasicLTIConstants {
 	/**
 	 * lti_message_type=basic-lti-launch-request
 	 * <p>
-	 * This indicates that this is a Basic LTI Launch Message. This allows a TP to
+	 * This indicates that this is a LTI Launch Message. This allows a TP to
 	 * accept a number of different LTI message types at the same launch URL. This
 	 * parameter is required.
 	 */
@@ -520,7 +520,7 @@ public class BasicLTIConstants {
 	 * If set, this will signal that the external application has provided an eid which
 	 * should be used preferentially. Many external applications will not have access to a user's uuid
 	 * in Sakai, so this allows integrations with those systems.
-	 * This parameter is optional and is unique to the Sakai Basic LTI provider.
+	 * This parameter is optional and is unique to the Sakai LTI provider.
 	 */
 	public static final String EXT_SAKAI_PROVIDER_EID = "ext_sakai_provider_eid";
 	
@@ -530,7 +530,7 @@ public class BasicLTIConstants {
 	 * If set, this will indicate to an external application that the user is normally
 	 * known by this ID and when displaying the ID to the user this ID should be used instead of the
 	 * user_id and ext_sakai_provider_eid.
-	 * This parameter is optional and is unique to the Sakai Basic LTI provider.
+	 * This parameter is optional and is unique to the Sakai LTI provider.
 	 */
 	public static final String EXT_SAKAI_PROVIDER_DISPLAYID = "ext_sakai_provider_displayid";
 

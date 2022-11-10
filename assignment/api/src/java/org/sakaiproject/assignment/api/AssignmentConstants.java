@@ -45,6 +45,12 @@ public final class AssignmentConstants {
      */
     public static final String EVENT_ADD_ASSIGNMENT = "asn.new.assignment";
 
+
+    /**
+     *  Event for delayed assignment
+     */
+    public static final String EVENT_AVAILABLE_ASSIGNMENT = "asn.available.assignment";
+
     /**********************************************************************************************************************************************************************************************************************************************************
      * EVENT STRINGS
      *********************************************************************************************************************************************************************************************************************************************************/
@@ -165,6 +171,8 @@ public final class AssignmentConstants {
      * Ungraded grade type string
      */
     public static final String UNGRADED_GRADE_TYPE_STRING = "Ungraded";
+
+    public static final String UNGRADED_GRADE_STRING = "ungraded";
 
     /** Grade type not set */
     // public static final int GRADE_TYPE_NOT_SET = -1; change to 0

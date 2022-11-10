@@ -159,7 +159,10 @@ public class GradeImportConfirmationStep extends BasePanel {
 					try {
 						ProcessedGradeItem pgi = entry.getKey();
 						assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(assignment);
-						rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), pgi.getRubricParameters());
+						Map<String, String> rubricParams = pgi.getRubricParameters();
+						if (!rubricParams.isEmpty()) {
+							rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), rubricParams);
+						}
 
 						success(MessageHelper.getString("notification.addgradeitem.success", assignment.getName()));
 

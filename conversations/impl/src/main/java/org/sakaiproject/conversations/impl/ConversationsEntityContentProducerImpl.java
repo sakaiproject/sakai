@@ -66,28 +66,27 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
 
     private List<String> addingEvents = new ArrayList<>();
     private List<String> deletingEvents = new ArrayList<>();
-    private List<String> refreshingEvents = new ArrayList<>();
 
     public void init() {
 
         if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
             addingEvents.add(ConversationsEvents.TOPIC_CREATED.label);
+            addingEvents.add(ConversationsEvents.TOPIC_UPDATED.label);
             addingEvents.add(ConversationsEvents.POST_CREATED.label);
+            addingEvents.add(ConversationsEvents.POST_UPDATED.label);
             addingEvents.add(ConversationsEvents.COMMENT_CREATED.label);
+            addingEvents.add(ConversationsEvents.COMMENT_UPDATED.label);
             deletingEvents.add(ConversationsEvents.TOPIC_DELETED.label);
             deletingEvents.add(ConversationsEvents.POST_DELETED.label);
             deletingEvents.add(ConversationsEvents.COMMENT_DELETED.label);
-            refreshingEvents.add(ConversationsEvents.TOPIC_UPDATED.label);
-            refreshingEvents.add(ConversationsEvents.POST_UPDATED.label);
-            refreshingEvents.add(ConversationsEvents.COMMENT_UPDATED.label);
             addingEvents.forEach(searchService::registerFunction);
-            refreshingEvents.forEach(searchService::registerFunction);
             deletingEvents.forEach(searchService::registerFunction);
 
             searchIndexBuilder.registerEntityContentProducer(this);
         }
     }
 
+    @Override
     public Integer getAction(Event event) {
 
         log.debug("getAction({})", event.getEvent());
@@ -95,27 +94,29 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
         String evt = event.getEvent();
 
         if (addingEvents.contains(evt)) return SearchBuilderItem.ACTION_ADD;
-        if (refreshingEvents.contains(evt)) return SearchBuilderItem.ACTION_REFRESH;
         if (deletingEvents.contains(evt)) return SearchBuilderItem.ACTION_DELETE;
 
         return SearchBuilderItem.ACTION_UNKNOWN;
     }
 
+    @Override
     public boolean matches(String reference) {
 
         log.debug("matches({})", reference);
 
-        return reference.startsWith(ConversationsService.REFERENCE_ROOT);
+        return reference != null && reference.startsWith(ConversationsService.REFERENCE_ROOT);
     }
 
+    @Override
     public boolean matches(Event event) {
 
         log.debug("matches({})", event.getEvent());
 
         String evt = event.getEvent();
-        return addingEvents.contains(evt) || deletingEvents.contains(evt) || refreshingEvents.contains(evt);
+        return addingEvents.contains(evt) || deletingEvents.contains(evt);
     }
 
+    @Override
     public boolean canRead(String reference) {
 
         log.debug("canRead({})", reference);
@@ -124,24 +125,25 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
         switch (ref.getType()) {
             case "t":
                 return conversationsService.currentUserCanViewTopic(topicRepository.findById(ref.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference)));
+                    .orElse(null));
             case "p":
                 return conversationsService.currentUserCanViewPost(postRepository.findById(ref.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid post reference: " + reference)));
+                    .orElse(null));
             case "c":
                 return conversationsService.currentUserCanViewComment(commentRepository.findById(ref.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid comment reference: " + reference)));
+                    .orElse(null));
             default:
                 return false;
         }
     }
 
+    @Override
     public String getId(String reference) {
 
-        return ConversationsReferenceReckoner.reckoner().reference(reference)
-            .reckon().getId();
+        return ConversationsReferenceReckoner.reckoner().reference(reference).reckon().getId();
     }
 
+    @Override
     public String getTool() {
         return ConversationsService.TOOL_ID;
     }
@@ -150,6 +152,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
         return title;
     }
 
+    @Override
     public String getType(String reference) {
 
         ConversationsReference ref = ConversationsReferenceReckoner.reckoner().reference(reference).reckon();
@@ -166,6 +169,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
         }
     }
 
+    @Override
     public String getSiteId(String reference) {
 
         log.debug("getSiteId({})", reference);
@@ -173,6 +177,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
         return ConversationsReferenceReckoner.reckoner().reference(reference).reckon().getSiteId();
     }
 
+    @Override
     public Iterator<String> getSiteContentIterator(String siteId) {
 
         List<String> ids = topicRepository.findBySiteId(siteId).stream().map(t -> {
@@ -190,6 +195,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
         return ids.iterator();
     }
 
+    @Override
     public String getUrl(String reference) {
 
         log.debug("getUrl({})", reference);
@@ -210,18 +216,17 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
         return "";
     }
 
+    @Override
     public String getTitle(String reference) {
 
         ConversationsReference ref = ConversationsReferenceReckoner.reckoner().reference(reference).reckon();
         StringBuilder sb = new StringBuilder();
-        String creator = "";
         switch (ref.getType()) {
             case "t":
                 ConversationsTopic topic = topicRepository.findById(ref.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference));
                 if (!topic.getDraft() && !topic.getHidden()) {
                     sb.append(topic.getTitle());
-                    creator = topic.getMetadata().getCreator();
                 }
                 break;
             case "p":
@@ -229,19 +234,18 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
                     .orElseThrow(() -> new IllegalArgumentException("Invalid post reference: " + reference));
                 if (!post.getDraft() && !post.getHidden()) {
                     sb.append("Post");
-                    creator = post.getMetadata().getCreator();
                 }
                 break;
             case "c":
                 ConversationsComment comment = commentRepository.findById(ref.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid comment reference: " + reference));
                 sb.append("Comment");
-                creator = comment.getMetadata().getCreator();
             default:
         }
         return sb.toString();
     }
 
+    @Override
     public String getContent(String reference) {
 
         log.debug("getContent({})", reference);
@@ -274,5 +278,98 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
             default:
         }
         return sb.toString();
+    }
+
+    @Override
+    public String getCreatorDisplayName(String reference) {
+
+        ConversationsReference ref = ConversationsReferenceReckoner.reckoner().reference(reference).reckon();
+
+        String creatorId = "";
+        switch (ref.getType()) {
+            case "t":
+                ConversationsTopic topic = topicRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference));
+                creatorId = topic.getMetadata().getCreator();
+                break;
+            case "p":
+                ConversationsPost post = postRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid post reference: " + reference));
+                creatorId = post.getMetadata().getCreator();
+                break;
+            case "c":
+                ConversationsComment comment = commentRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid comment reference: " + reference));
+                creatorId = comment.getMetadata().getCreator();
+                break;
+            default:
+                return "";
+        }
+
+        try {
+            return userDirectoryService.getUser(creatorId).getDisplayName();
+        } catch (UserNotDefinedException unde) {
+            log.error("No user for id {}. An empty display name will be returned: {}", creatorId, unde.toString());
+        }
+
+        return "";
+    }
+
+    @Override
+    public String getCreatorUserName(String reference) {
+
+        ConversationsReference ref = ConversationsReferenceReckoner.reckoner().reference(reference).reckon();
+
+        String creatorId = "";
+        switch (ref.getType()) {
+            case "t":
+                ConversationsTopic topic = topicRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference));
+                creatorId = topic.getMetadata().getCreator();
+                break;
+            case "p":
+                ConversationsPost post = postRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid post reference: " + reference));
+                creatorId = post.getMetadata().getCreator();
+                break;
+            case "c":
+                ConversationsComment comment = commentRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid comment reference: " + reference));
+                creatorId = comment.getMetadata().getCreator();
+                break;
+            default:
+                return "";
+        }
+
+        try {
+            return userDirectoryService.getUser(creatorId).getEid();
+        } catch (UserNotDefinedException unde) {
+            log.error("No user for id {}. An empty user name will be returned: {}", creatorId, unde.toString());
+        }
+
+        return "";
+    }
+
+    @Override
+    public String getCreatorId(String reference) {
+
+        ConversationsReference ref = ConversationsReferenceReckoner.reckoner().reference(reference).reckon();
+
+        switch (ref.getType()) {
+            case "t":
+                ConversationsTopic topic = topicRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference));
+                return topic.getMetadata().getCreator();
+            case "p":
+                ConversationsPost post = postRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid post reference: " + reference));
+                return post.getMetadata().getCreator();
+            case "c":
+                ConversationsComment comment = commentRepository.findById(ref.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid comment reference: " + reference));
+                return comment.getMetadata().getCreator();
+            default:
+                return "";
+        }
     }
 }

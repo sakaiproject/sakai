@@ -1291,29 +1291,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 			String sql = dbAuthzGroupSql.getSelectRealmIdSql(azGroups);
 			int size = 2;
-			String roleswap = null; // define the roleswap variable
 			if (azGroups != null)
 			{
 				size += azGroups.size();
-				for (Iterator i = azGroups.iterator(); i.hasNext();)
-				{
-					// FIXME - just use the azGroups directly rather than split them up
-					String[] refs = StringUtil.split(i.next().toString(), Entity.SEPARATOR); // splits the azGroups values so we can look for swapped state
-					for (int i2 = 0; i2 < refs.length; i2++)  // iterate through the groups to see if there is a swapped state in the variable
-					{
-						roleswap = securityService().getUserEffectiveRole("/site/" + refs[i2]);
-
-						 // break from this loop if the user is the current user and a swapped state is found
-						if (roleswap != null && auth && userId.equals(sessionManager().getCurrentSessionUserId()))
-							break;
-					}
-					if (roleswap!=null)
-					{
-						sql = dbAuthzGroupSql.getSelectRealmIdRoleSwapSql(azGroups);  // redefine the sql we use if there's a role swap
-						size++; // increase the "size" by 1 for our new sql
-						break; // break from the loop
-					}
-				}
 			}
 			Object[] fields = new Object[size];
 			fields[0] = lock;
@@ -1324,10 +1304,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				for (Iterator i = azGroups.iterator(); i.hasNext();)
 				{
 					fields[pos++] = i.next();
-				}
-				if (roleswap!=null) // add in name of the role for the alternate query
-				{
-					fields[pos++] = roleswap;
 				}
 			}
 
@@ -2124,7 +2100,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			Object[] fields = new Object[2 + (2 * realms.size()) + roleIds.size()];
 			int pos = 0;
 
-			// for roleswap
 			String userSiteRef = null;
 			String siteRef = null;
 
@@ -2176,22 +2151,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 			// Would be better to get this initially to make the code more efficient, but the realms collection
 			// does not have a common order for the site's id which is needed to determine if the session variable exists
-			// ZQIAN: since the role swap is only done at the site level, for group reference, use its parent site reference instead.
-			String roleswap = null;
+			String roleswap = securityService().getUserEffectiveRole();
 			Reference ref = entityManager().newReference(siteRef);
-			if (SiteService.GROUP_SUBTYPE.equals(ref.getSubType())) {
-				String containerSiteRef = siteService.siteReference(ref.getContainer());
-			    roleswap = securityService().getUserEffectiveRole(containerSiteRef);
-			} else {
-			    roleswap = securityService().getUserEffectiveRole(siteRef);
-			}
 
 			List results = null;
 
-			// Only check roleswap if the method is being called for the current user
-			if ( (roleswap != null || delegatedAccess)
-					&& userId != null && userId.equals(sessionManager().getCurrentSessionUserId())
-			) {
+			if (delegatedAccess && userId != null && userId.equals(sessionManager().getCurrentSessionUserId())) {
 
 				// First check in the user's own Home site realm if it's in the list
 				// We don't want to change the user's role in their own site, so call the regular function.
@@ -3040,7 +3005,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			String rv = null;
 
 			if (userId.equals(sessionManager().getCurrentSessionUserId())) {
-				rv = securityService().getUserEffectiveRole(azGroupId);
+				rv = securityService().getUserEffectiveRole();
 			}
 
 			// otherwise drop through to the usual check

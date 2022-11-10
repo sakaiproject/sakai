@@ -287,6 +287,16 @@ public interface GradingService extends EntityProducer {
     public void setAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid, String comment)
             throws AssessmentNotFoundException;
 
+    /**
+     * Delete a student-viewable comment on the score (or lack of score) associated with the given assignment.
+     *
+     * @param gradebookUid
+     * @param assignmentId
+     * @param studentUid
+     * @throws AssessmentNotFoundException
+     */
+    public void deleteAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid)
+            throws AssessmentNotFoundException;
 
     /**
      * Check to see if an assignment with the given name already exists in the given gradebook. This will give clients a chance to avoid the
@@ -425,6 +435,13 @@ public interface GradingService extends EntityProducer {
      *
      */
     public Gradebook getGradebook(String uid);
+
+    /**
+     * Ensure that a gradebook exists for the given id
+     *
+     * @param gradebookUid The gradebook we want to initialise.
+     */
+    public void initGradebook(String gradebookUid);
 
     /**
      * Check if there are students that have not submitted
@@ -914,6 +931,31 @@ public interface GradingService extends EntityProducer {
                                       Date dueDate, String externalServiceDescription, String externalData, Boolean ungraded, Long categoryId)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException, InvalidCategoryException;
 
+    /**
+     * This method is identical to {@link #addExternalAssessment(String, String, String, String, Double, Date, String, String, Boolean, Long)} but
+     * allows you to also specify the reference for the thing being graded via the gradableReference.
+     * @param gradebookUid
+     * @param externalId
+     * @param externalUrl
+     * @param title
+     * @param points
+     * @param dueDate
+     * @param externalServiceDescription
+     * @param externalData if there is some data that the external service wishes to store.
+     * @param ungraded
+     * @param categoryId
+     * @param gradableReference
+     * @throws ConflictingAssignmentNameException
+     * @throws ConflictingExternalIdException
+     * @throws AssignmentHasIllegalPointsException
+     * @throws InvalidCategoryException
+     */
+    public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl, String title, Double points,
+                                      Date dueDate, String externalServiceDescription, String externalData, Boolean ungraded, Long categoryId, String gradableReference)
+            throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException, InvalidCategoryException;
+
+
+
         /**
          * @deprecated Replaced by
          *      {@link updateExternalAssessment(String, String, String, String, Double, Date, Boolean)}
@@ -938,6 +980,9 @@ public interface GradingService extends EntityProducer {
      */
     public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl, String externalData,
                                          String title, Double points, Date dueDate, Boolean ungraded)
+            throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
+
+    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl, String externalData, String title, Long categoryId, Double points, Date dueDate, Boolean ungraded)
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
 
     /**
@@ -1188,4 +1233,6 @@ public interface GradingService extends EntityProducer {
      *
      */
     public void updateGradeMapping(Long gradeMappingId, Map<String, Double> gradeMap);
+
+    public String getUrlForAssignment(Assignment assignment);
 }

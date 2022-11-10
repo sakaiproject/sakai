@@ -53,6 +53,12 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private String name;
 
     /**
+     * @return Returns the gradable reference of the assignment. This might be null, but, if not, it
+     * represents thing being graded, an assignemnt in the Assignments tool perhaps.
+     */
+    private String reference;
+
+    /**
      *
      * @return Returns the ID of the assignment in the gradebook
      */
@@ -86,6 +92,11 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private String externalAppName;
 
     /**
+     * the external tool title, or null if the assignment is maintained by the Gradebook. Not persisted.
+     */
+    private String externalToolTitle;
+
+    /**
      * the external data, or null if the assignment is maintained by the Gradebook
      */
     private String externalData;
@@ -112,6 +123,7 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private Long categoryId;
     private Integer categoryOrder;
     private Integer categorizedSortOrder;
+    private String lineItem;
     @Getter
     @Setter
     private boolean createTask;

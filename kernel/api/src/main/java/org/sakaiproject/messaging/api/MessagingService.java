@@ -29,6 +29,22 @@ public interface MessagingService {
     public List<BullhornAlert> getAlerts(String userId);
 
     /**
+     * Register a handler for broadcast messages. The most recently registered handler that
+     * handles a given event will receive it exclusively.
+     *
+     * @param handler a broadcast message handler; may handle multiple events
+     */
+    void registerHandler(BullhornHandler handler);
+
+    /**
+     * Unregister a handler for broadcast messages from all of the events it handles. If a given event is
+     * handled by a different handler, it will not be unregistered.
+     *
+     * @param handler the broadcast message handler to unregister from events
+     */
+    void unregisterHandler(BullhornHandler handler);
+
+    /**
      * @param userId The user to clear the alert for
      * @param alertId The alert to clear
      * @return boolean to indicate success

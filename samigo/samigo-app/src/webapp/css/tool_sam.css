@@ -53,7 +53,6 @@ table.presentation p {
 }
 .progress-bar {
   background-color: var(--sakai-active-color-1);
-  border-right: 1px solid var(--sakai-border-color);
 }
 .progress-bar-success {
   background-color: var(--successBanner-bgcolor);
@@ -1159,6 +1158,7 @@ td.feedbackColumn2 {
 	color: var(--sakai-text-color-1);
 	border: 1px solid var(--sakai-border-color);
 	border-bottom-left-radius: 4px;
+	z-index: 3;
 }
 
 div#questionProgressPanel div.tier1 {
@@ -1181,6 +1181,7 @@ div#questionProgressPanel div.tier1 {
 	border-bottom-left-radius: 4px;
 	cursor: pointer;
 	top: 20px;
+	z-index: 3;
 }
 .currentQuestion a {
 	border: 1px solid var(--sakai-active-color-3);

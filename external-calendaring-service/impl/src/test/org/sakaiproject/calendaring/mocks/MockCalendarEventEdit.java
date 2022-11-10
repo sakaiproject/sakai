@@ -62,6 +62,7 @@ public class MockCalendarEventEdit implements CalendarEventEdit {
 	private RecurrenceRule recurrenceRule;
 	private String creator;
 	private String displayName;
+	private String eventUrl;
 	private String url;
 	private String id;
 	private String type;

@@ -424,8 +424,8 @@ public class ReportDataPage extends BasePage {
 						imgUrl = Locator.getFacade().getStatsManager().getResourceImage(ref);
 						lnkUrl = Locator.getFacade().getStatsManager().getResourceURL(ref);
 						lnkLabel = Locator.getFacade().getStatsManager().getResourceName(ref);
-						if(lnkLabel == null) {
-							lnkLabel = (String) new ResourceModel("resource_unknown").getObject();
+						if ("null".equals(lnkLabel)) {
+							lnkLabel = (String) new ResourceModel("overview_file_unavailable").getObject();
 						}					
 					}
 					resourceComp = new ImageWithLink(componentId, imgUrl, lnkUrl, lnkLabel, "_new");					

@@ -87,7 +87,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 /**
  * Notes:
  * 
- * This program is directly exposed as a URL to receive IMS Basic LTI launches
+ * This program is directly exposed as a URL to receive IMS LTI launches
  * so it must be carefully reviewed and any changes must be looked at carefully.
  * Here are some issues:
  * 
@@ -251,15 +251,15 @@ public class ProviderServlet extends HttpServlet {
 		String ipAddress = request.getRemoteAddr();
 
 		if (log.isDebugEnabled()) {
-			log.debug("Basic LTI Provider request from IP={}", ipAddress);
+			log.debug("LTI Provider request from IP={}", ipAddress);
 		}
 
 		String enabled = ServerConfigurationService.getString(
-				"basiclti.provider.enabled", null);
+				"lti.provider.enabled", null);
 		if (enabled == null || !("true".equals(enabled))) {
-			log.warn("Basic LTI Provider is Disabled IP={}", ipAddress);
+			log.warn("LTI Provider is Disabled IP={}", ipAddress);
 			response.sendError(HttpServletResponse.SC_FORBIDDEN,
-					"Basic LTI Provider is Disabled");
+					"LTI Provider is Disabled");
 			return;
 		}
 
@@ -557,7 +557,7 @@ public class ProviderServlet extends HttpServlet {
           }
           // store modified tool_id back in payload
           payload.put("tool_id", tool_id);
-          final String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", "");
+          final String allowedToolsConfig = ServerConfigurationService.getString("lti.provider.allowedtools", "");
 
           final String[] allowedTools = allowedToolsConfig.split(":");
           final List<String> allowedToolsList = Arrays.asList(allowedTools);
@@ -628,14 +628,14 @@ public class ProviderServlet extends HttpServlet {
 
 
           // Lookup the secret
-          final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
+          final String configPrefix = "lti.provider." + oauth_consumer_key + ".";
           final String oauth_secret = ServerConfigurationService.getString(configPrefix+ "secret", null);
           if (oauth_secret == null) {
               throw new LTIException( "launch.key.notfound",oauth_consumer_key, null);
           }
           final OAuthMessage oam = (OAuthMessage) payload.get("oauth_message");
 
-          final String forcedURIScheme = ServerConfigurationService.getString("basiclti.provider.forcedurischeme", null);
+          final String forcedURIScheme = ServerConfigurationService.getString("lti.provider.forcedurischeme", null);
 
           if(forcedURIScheme != null) {
         	  try {
@@ -776,7 +776,7 @@ public class ProviderServlet extends HttpServlet {
         Site site = null;
 
         // Get the site if it exists
-        if (ServerConfigurationService.getBoolean("basiclti.provider.lookupSitesByLTIContextIdProperty", false))  {
+        if (ServerConfigurationService.getBoolean("lti.provider.lookupSitesByLTIContextIdProperty", false))  {
             try {
                 site = findSiteByLTIContextId(context_id);
                 if (site != null) {
@@ -810,7 +810,7 @@ public class ProviderServlet extends HttpServlet {
                 String sakai_type = "project";
 
                 // BLTI-154. If an autocreation site template has been specced in sakai.properties, use it.
-                String autoSiteTemplateId = ServerConfigurationService.getString("basiclti.provider.autositetemplate", null);
+                String autoSiteTemplateId = ServerConfigurationService.getString("lti.provider.autositetemplate", null);
 
                 boolean templateSiteExists = SiteService.siteExists(autoSiteTemplateId);
 
@@ -820,7 +820,7 @@ public class ProviderServlet extends HttpServlet {
 
                 if(autoSiteTemplateId == null || !templateSiteExists) {
                     //BLTI-151 If the new site type has been specified in sakai.properties, use it.
-                    sakai_type = ServerConfigurationService.getString("basiclti.provider.newsitetype", null);
+                    sakai_type = ServerConfigurationService.getString("lti.provider.newsitetype", null);
                     if(BasicLTIUtil.isBlank(sakai_type)) {
                         // It wasn't specced in the props. Test for the ims course context type.
                         final String context_type = (String) payload.get(BasicLTIConstants.CONTEXT_TYPE);
@@ -1011,7 +1011,7 @@ public class ProviderServlet extends HttpServlet {
 		throws ServletException, IOException
 	{
 
-		String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", "");
+		String allowedToolsConfig = ServerConfigurationService.getString("lti.provider.allowedtools", "");
 		String[] allowedTools = allowedToolsConfig.split(":");
 		List<String> allowedToolsList = Arrays.asList(allowedTools);
 

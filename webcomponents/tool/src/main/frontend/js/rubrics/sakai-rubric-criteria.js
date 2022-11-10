@@ -1,6 +1,7 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
+import {unsafeHTML} from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import "./sakai-rubric-edit.js";
 import "./sakai-item-delete.js";
 import "./sakai-rubric-criterion-edit.js";
@@ -16,10 +17,14 @@ export class SakaiRubricCriteria extends RubricsElement {
     return {
       rubricId: { attribute: "rubric-id", type: String },
       siteId: { attribute: "site-id", type: String },
+      criteria: { type: Array },
       weighted: { type: Boolean },
       totalWeight: { attribute: "total-weight", type: String },
       validWeight: { attribute: "valid-weight", type: Boolean },
-      criteria: { type: Array }
+      maxPoints: { attribute: "max-points", type: String },
+      minPoints: { attribute: "min-points", type: String },
+      isLocked: { attribute: "is-locked", type: Boolean },
+      isDraft: { attribute: "is-draft", type: Boolean },
     };
   }
 
@@ -64,119 +69,199 @@ export class SakaiRubricCriteria extends RubricsElement {
     return html`
       <div data-rubric-id="${this.rubricId}" class="criterion style-scope sakai-rubric-criterion">
       ${repeat(this.criteria, c => c.id, c => html`
-        <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" class="criterion-row">
-          <div class="criterion-detail">
-            <h4 class="criterion-title">
-              <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
-              ${c.title}
-              <sakai-rubric-criterion-edit @criterion-edited="${this.criterionEdited}"
-                  site-id="${this.siteId}"
-                  rubric-id="${this.rubricId}"
-                  criterion="${JSON.stringify(c)}">
-              </sakai-rubric-criterion-edit>
-            </h4>
-            <p>
-              ${c.description}
-            </p>
-            ${this.weighted ? html`
-                <div class="form-inline weight-field">
-                    <div class="form-group input-group-sm ${this.validWeight ? "" : "has-error"}">
-                      <label
+        ${this.isCriterionGroup(c) ? html`
+          <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" class="criterion-row criterion-group">
+            <div class="criterion-detail criterion-title">
+              <h4 class="criterion-title">
+                <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" aria-label="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
+                ${c.title}
+                <sakai-rubric-criterion-edit
+                    @criterion-edited="${this.criterionEdited}"
+                    site-id="${this.siteId}"
+                    rubric-id="${this.rubricId}"
+                    criterion="${JSON.stringify(c)}"
+                    ?is-criterion-group="${true}">
+                </sakai-rubric-criterion-edit>
+              </h4>
+              <p>${unsafeHTML(c.description)}</p>
+            </div>
+            <div class="criterion-actions">
+              ${!this.isLocked ? html`
+                <a @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" aria-label="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @click="${this.cloneCriterion}" href="#"></a>
+                <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>`
+                : ""
+              }
+            </div>
+          </div>
+        ` : html`
+          <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" class="criterion-row">
+            <div class="criterion-detail">
+              <h4 class="criterion-title">
+                <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" aria-label="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
+                ${c.title}
+                <sakai-rubric-criterion-edit
+                    @criterion-edited="${this.criterionEdited}"
+                    site-id="${this.siteId}"
+                    rubric-id="${this.rubricId}"
+                    criterion="${JSON.stringify(c)}">
+                </sakai-rubric-criterion-edit>
+              </h4>
+              <p>
+                ${unsafeHTML(c.description)}
+              </p>
+              ${this.weighted ? html`
+                  <div class="form-inline weight-field">
+                    ${!this.isLocked ? html`
+                      <div class="field-item form-group input-group-sm ${this.validWeight ? "" : "has-error"}">
+                        <label
                           for="weight_input_${c.id}"
                           class="control-label"
                           title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
-                      >
-                        <sr-lang key="weight">Weight</sr-lang>
-                      </label>
-                      <input
-                        id="weight_input_${c.id}"
-                        data-criterion-id="${c.id}"
-                        type="text"
-                        class="form-control"
-                        placeholder="0.0"
-                        @input="${this.debounce(this.emitWeightChanged, 500)}"
-                        value="${c.weight.toLocaleString(this.locale)}"
-                        title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
-                      >
-                      <span class="control-label"
+                        >
+                          <sr-lang key="weight">Weight</sr-lang>
+                        </label>
+                        <input
+                          id="weight_input_${c.id}"
+                          data-criterion-id="${c.id}"
+                          type="text"
+                          class="form-control"
+                          placeholder="0.0"
+                          @input="${this.debounce(this.emitWeightChanged, 500)}"
+                          value="${c.weight.toLocaleString(this.locale)}"
                           title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
-                      >
-                        <sr-lang key="percent_sign">%</sr-lang>
-                      </span>
+                        >
+                        <span class="control-label"
+                          title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
+                        >
+                          <sr-lang key="percent_sign">%</sr-lang>
+                        </span>
+                      </div>`
+                      : ""
+                    }
+                    <div class="field-item">
+                      <span>${tr('min_max_points', [this.getCriterionMinPoints(c.id), this.getCriterionMaxPoints(c.id)])}</span>
                     </div>
-                </div>` : ""
+                  </div>`
+                  : ""
+                }
+              ${!this.isLocked ? html`
+                <div class="add-criterion-item">
+                  ${this.renderAddRatingButton(c)}
+                </div>`
+                : ""
               }
-            <div class="add-criterion-item">
-              ${this.renderAddRatingButton(c)}
             </div>
-          </div>
-          <div class="criterion-ratings">
-            <div id="cr-table-${c.id}" class="cr-table" data-criterion-id="${c.id}">
-            ${repeat(c.ratings, (r) => r.id, (r, i) => html`
-              <div class="rating-item" data-rating-id="${r.id}" id="rating_item_${r.id}">
-                <h5 class="criterion-item-title">
-                  ${r.title}
-                  <sakai-rubric-criterion-rating-edit criterion-id="${c.id}" @save-rating="${this.saveRating}" @delete-rating="${this.deleteRating}" minpoints="${c.pointrange ? c.pointrange.low : 0}" maxpoints="${c.pointrange ? c.pointrange.high : 0}" rating="${JSON.stringify(r)}"></sakai-rubric-criterion-rating-edit>
-                </h5>
-                <div class="div-description">
-                  <p>
-                  ${r.description}
-                  </p>
-                </div>
-                <span class="points">
-                  ${this.weighted && r.points > 0 ? html`
-                    <b>
-                      (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
-                    </b>`
+            <div class="criterion-ratings">
+              <div id="cr-table-${c.id}" class="cr-table" data-criterion-id="${c.id}">
+              ${repeat(c.ratings, (r) => r.id, (r, i) => html`
+                <div class="rating-item" data-rating-id="${r.id}" id="rating_item_${r.id}">
+                  <h5 class="criterion-item-title">
+                    ${r.title}
+                    <sakai-rubric-criterion-rating-edit
+                      criterion-id="${c.id}"
+                      @save-rating="${this.saveRating}"
+                      @delete-rating="${this.deleteRating}"
+                      minpoints="${c.pointrange ? c.pointrange.low : 0}"
+                      maxpoints="${c.pointrange ? c.pointrange.high : 0}"
+                      rating="${JSON.stringify(r)}"
+                      ?removable="${ this.isRatingRemovable(c) }"
+                      ?is-locked="${this.isLocked}">
+                    </sakai-rubric-criterion-rating-edit>
+                  </h5>
+                  <div class="div-description">
+                    <p>
+                    ${r.description}
+                    </p>
+                  </div>
+                  <span class="points">
+                    ${this.weighted && r.points > 0 ? html`
+                      <b>
+                        (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
+                      </b>`
+                      : ""
+                    }
+                    ${parseFloat(r.points).toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
+                  </span>
+                  ${!this.isLocked ? html`
+                    <div class="add-criterion-item">
+                      ${this.renderAddRatingButton(c, i + 1)}
+                    </div>
+                    <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" aria-label="${tr("drag_order")}" class="reorder-icon sideways fa fa-bars"></span>`
                     : ""
                   }
-                  ${parseFloat(r.points).toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
-                </span>
-
-                <div class="add-criterion-item">
-                  ${this.renderAddRatingButton(c, i + 1)}
                 </div>
-
-                <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon sideways fa fa-bars"></span>
+              `)}
               </div>
-            `)}
             </div>
+            ${!this.isLocked ? html`
+              <div class="criterion-actions">
+                <a @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" aria-label="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneCriterion}" href="#"></a>
+                <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}"></sakai-item-delete>
+              </div>`
+              : ""
+            }
           </div>
-          <div class="criterion-actions">
-            <a @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneCriterion}" href="#"></a>
-            <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}"></sakai-item-delete>
-          </div>
-        </div>
+        `}
       `)}
       </div>
       ${this.weighted ? html`
-        <br>
-        <div class="total-weight ${this.validWeight ? "" : "has-error"}">
-          <span class="control-label">${tr('total_weight', [this.totalWeight])}</span>
+        <div class="weighted-grade-info">
+          <div class="total-data">
+            <div class="${this.validWeight ? "" : "has-error"}">
+              <span class="control-label">
+                <span class="bold-header">${tr("total_weight")}</span>
+                <span>${this.totalWeight}<sr-lang key="percent_sign">%</sr-lang></span>
+              </span>
+            </div>
+            <div>
+              <span class="bold-header">${tr("total_grade")}</span>
+              <span>${tr('min_max_points', [this.minPoints, this.maxPoints])}</span>
+            </div>
+          </div>
+          <div class="banner-container">
+            <div class="sak-banner-success hidden save-success has-success fade">
+              <sr-lang key="saved_successfully">%</sr-lang>
+            </div>
+            <div class="sak-banner-warn ${!this.validWeight && this.isDraft ? "" : "hidden"}">
+            <sr-lang key="draft_save_invalid_weights">%</sr-lang>
+            </div>
+            <div class="sak-banner-error ${!this.validWeight && !this.isDraft ? "" : "hidden"}">
+              <sr-lang key="total_weight_wrong">%</sr-lang>
+            </div>
+          </div>
         </div>`
         : ""
       }
-      <br>
-      <div>
-        ${this.weighted ? html`
-          <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight}">
-            <span tabindex="0" role="button" class="add fa fa-save"></span>
-            <sr-lang key="save_weights">Save Weights</sr-lang>
-          </button>`
+      ${!this.isLocked ? html`
+        <div class="action-butons">
+          ${this.weighted ? html`
+            <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
+              <span class="add fa fa-save"></span>
+              <sr-lang key="save_weights">Save Weights</sr-lang>
+            </button>`
+            : ""
+          }
+          <button class="btn-link add-criterion" @click="${this.createCriterion}">
+            <span class="add fa fa-plus"></span>
+            <sr-lang key="add_criterion">Add Criterion</sr-lang>
+          </button>
+          <button class="btn-link add-empty-criterion" @click="${(event) => this.createCriterion(event, true)}">
+            <span class="add fa fa-plus"></span>
+            <sr-lang key="add_criterion_group">Add Criterion Group</sr-lang>
+          </button>
+        </div>
+        ${this.isDraft ? html`
+        <div class="sak-banner-warn margin-bottom">
+          <sr-lang key="draft_info">%</sr-lang>
+        </div>`
           : ""
         }
-        <button class="add-criterion" @click="${this.createCriterion}">
-          <span tabindex="0" role="button" class="add fa fa-plus"></span>
-          <sr-lang key="add_criterion">Add Criterion</sr-lang>
-        </button>
-      </div>
-      ${this.weighted ? html`
-        <br>
-        <div class="save-success has-success fade">
-          <span class="control-label">${tr("saved_successfully")}</span>
+      ` : html`
+        <div class="sak-banner-warn margin-bottom">
+          <sr-lang key="locked_warning">%</sr-lang>
         </div>`
-        : ""
       }
+      <br>
     `;
   }
 
@@ -203,9 +288,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     })
     .then(r => {
 
-      if (r.ok) {
-        console.log("OK");
-      } else {
+      if (!r.ok) {
         throw new Error("Network error while saving criteria sort");
       }
     })
@@ -279,6 +362,7 @@ export class SakaiRubricCriteria extends RubricsElement {
         rating.new = false;
         this.requestUpdate();
         this.letShareKnow();
+        this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
       } else {
         throw new Error("Network error while saving rating");
       }
@@ -353,16 +437,14 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   deleteRating(e) {
 
+    e.stopPropagation();
+
     const criterion = this.criteriaMap.get(parseInt(e.detail.criterionId));
 
     if (!criterion) {
       console.error(`No criterion found with id ${e.detail.criterionId}`);
       return;
     }
-
-    const ratingIndex = criterion.ratings.findIndex(r => r.id == e.detail.id);
-
-    e.stopPropagation();
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.detail.criterionId}/ratings/${e.detail.id}`;
     fetch(url, {
@@ -372,12 +454,44 @@ export class SakaiRubricCriteria extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        criterion.ratings.splice(ratingIndex, 1);
-        this.requestUpdate();
+        return r.json();
       }
+
       throw new Error("Network error while deleting rating");
     })
+    .then(c => {
+
+      // The current weight may be lost because comes from DB and the UI can have a different value.
+      c.weight = criterion.weight;
+
+      Object.assign(criterion, c);
+      this.requestUpdate();
+      this.letShareKnow();
+      this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
+    })
     .catch (error => console.error(error));
+  }
+
+  // SAK-47640 - Get the maximum and minimum possible grade of the criterion,
+  // multiplying the max-min rating points of the criterion by the criterion weight
+  getCriterionMaxPoints(criterionId) {
+    return this.getCriterionPoints(criterionId, Math.max);
+  }
+
+  getCriterionMinPoints(criterionId) {
+    return this.getCriterionPoints(criterionId, Math.min);
+  }
+
+  getCriterionPoints(criterionId, minOrMax) {
+
+    let totalPoints = 0;
+    const criterion = this.criteria.find(c => c.id == criterionId);
+
+    totalPoints += minOrMax(...criterion.ratings.map( (rating) => {
+      return rating.points * (criterion.weight / 100);
+    }));
+
+    return parseFloat(totalPoints).toLocaleString(this.locale);
   }
 
   cloneCriterion(e) {
@@ -403,10 +517,6 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   createCriterionResponse(nc) {
 
-    nc.new = true;
-    if (!nc.ratings) {
-      nc.ratings = [];
-    }
     this.criteria.push(nc);
     this.criteriaMap.set(nc.id, nc);
 
@@ -419,20 +529,19 @@ export class SakaiRubricCriteria extends RubricsElement {
     const criterion = this.criteriaMap.get(e.detail.id);
     criterion.title = e.detail.title;
     criterion.description = e.detail.description;
-    criterion.new = false;
+    criterion.isNew = e.detail.isNew;
     this.requestUpdate();
 
-    const sakaiItemDelete = this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`);
-    sakaiItemDelete.requestUpdate("criterion", criterion);
+    this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`).requestUpdate("criterion", criterion);
   }
 
   saveWeights() {
     this.dispatchEvent(new CustomEvent('save-weights'));
   }
 
-  createCriterion() {
+  createCriterion(e, empty = false) {
 
-    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/default`;
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/default${empty ? "Empty" : ""}`;
     fetch(url, {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -455,6 +564,10 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (e.keyCode == 32) {
       this.cloneCriterion(e);
     }
+  }
+
+  isRatingRemovable(criterion) {
+    return criterion.ratings.length > 1;
   }
 }
 

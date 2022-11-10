@@ -123,7 +123,10 @@ public class BeginDeliveryActionListener implements ActionListener
 
     AssessmentAccessControlIfc control = pub.getAssessmentAccessControl();
     boolean releaseToAnonymous = control.getReleaseTo() != null && control.getReleaseTo().indexOf("Anonymous Users")> -1;
-
+    boolean canReview = delivery.isAccessByUrlAndAuthorized();
+    PublishedAssessmentService service = new PublishedAssessmentService();
+    String siteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
+    
     // Does the user have permission to take this action on this assessment in this site?
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     if (DeliveryBean.PREVIEW_ASSESSMENT == action) {
@@ -136,10 +139,14 @@ public class BeginDeliveryActionListener implements ActionListener
           throw new IllegalArgumentException("User does not have permission to preview assessment id " + publishedId);
         }
       }
-    } else if (DeliveryBean.REVIEW_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT == action) {
-      if (!releaseToAnonymous && !authzBean.isUserAllowedToTakeAssessment(pub.getPublishedAssessmentId().toString())) {
-        throw new IllegalArgumentException("User does not have permission to view assessment id " + pub.getPublishedAssessmentId());
-      }
+    } else if (DeliveryBean.TAKE_ASSESSMENT == action) {
+    	if (!releaseToAnonymous && !authzBean.isUserAllowedToTakeAssessment(pub.getPublishedAssessmentId().toString(), siteId)) {
+            throw new IllegalArgumentException("User does not have permission to view assessment id " + pub.getPublishedAssessmentId());
+        }
+    } else if (DeliveryBean.REVIEW_ASSESSMENT == action) {
+    	if (!releaseToAnonymous && !canReview && !authzBean.isUserAllowedToTakeAssessment(pub.getPublishedAssessmentId().toString(), siteId)) {
+            throw new IllegalArgumentException("User does not have permission to review assessment id " + pub.getPublishedAssessmentId());
+        }
     }
 
     // Bug 1547: If this is during review and the assessment is retracted for edit now, 

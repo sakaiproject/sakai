@@ -29,6 +29,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -88,6 +89,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
+import org.sakaiproject.lessonbuildertool.tool.beans.helpers.SubpageBulkEditHelper;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
@@ -140,6 +142,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -234,6 +237,9 @@ public class SimplePageBean {
 	public String selectedQuiz = null;
 
 	public String[] selectedChecklistItems = new String[] {};
+
+	private Map<Long, SubpageBulkEditHelper> subpageBulkEditTitleMap = new HashMap<>();
+	public String subpageBulkEditJson = null;
 	
 	public long removeId = 0;
 
@@ -508,6 +514,10 @@ public class SimplePageBean {
 	}
 	
 	public void setRubricRow(String rubricRow) {
+
+		if (StringUtils.isBlank(rubricRow)) {
+			return;
+		}
 		this.rubricRow = rubricRow;
 		
 		if(rubricRows==null) {
@@ -2149,49 +2159,54 @@ public class SimplePageBean {
 		return deleteItem(i);
 	}
 
-	public String deleteItem(SimplePageItem i) {
+	public String deleteItem(SimplePageItem item) {
+		return deleteItem(item, true);
+	}
 
-		int seq = i.getSequence();
-
-		boolean b;
+	public String deleteItem(SimplePageItem item, boolean updateSequence) {
 
 		// if access controlled, clear it before deleting item
-		if (i.isPrerequisite()) {
-		    i.setPrerequisite(false);
-		    checkControlGroup(i, false);
+		if (item.isPrerequisite()) {
+		    item.setPrerequisite(false);
+		    checkControlGroup(item, false);
 		}
 		
 		// Also delete gradebook entries
-		if(i.getGradebookId() != null) {
-			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getGradebookId());
+		if(item.getGradebookId() != null) {
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getGradebookId());
 		}
 		
-		if(i.getAltGradebook() != null) {
-			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getAltGradebook());
+		if(item.getAltGradebook() != null) {
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getAltGradebook());
 		}
 
 		// If SimplePageItem is a checklist delete all of the saved statuses
-		if(i.getType() == SimplePageItem.CHECKLIST) {
-			simplePageToolDao.deleteAllSavedStatusesForChecklist(i);
+		if(item.getType() == SimplePageItem.CHECKLIST) {
+			simplePageToolDao.deleteAllSavedStatusesForChecklist(item);
 		}
 
-		b = simplePageToolDao.deleteItem(i);
-		
+
+		boolean deleted = simplePageToolDao.deleteItem(item);
+
 		// Delete task
-		String reference = "/lessonbuilder/item/" + i.getId();
+		String reference = "/lessonbuilder/item/" + item.getId();
 		taskService.removeTaskByReference(reference);
-		
-		if (b) {
+
+		if (updateSequence && deleted) {
 			// minimize opening for race conditions on sequence number by forcing new fetches
 			simplePageToolDao.setRefreshMode();
+
+			int seq = item.getSequence();
 			List<SimplePageItem> list = getItemsOnPage(getCurrentPageId());
-			for (SimplePageItem item : list) {
-				if (item.getSequence() > seq) {
-					item.setSequence(item.getSequence() - 1);
-					update(item);
+			for (SimplePageItem it : list) {
+				if (it.getSequence() > seq) {
+					it.setSequence(it.getSequence() - 1);
+					update(it);
 				}
 			}
+		}
 
+		if (deleted) {
 			return "successDelete";
 		} else {
 			log.warn("deleteItem error deleting Item: {}", itemId);
@@ -4465,7 +4480,7 @@ public class SimplePageBean {
 			} else if (newPoints != null && currentPoints == null) {
 				try {
 					add = gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
-						       	pageTitle, newPoints, null, "Lesson Builder");
+						       	pageTitle, newPoints, null, LESSONBUILDER_ID);
 				} catch(ConflictingAssignmentNameException cane) {
 					add = false;
 					setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -4755,7 +4770,7 @@ public class SimplePageBean {
 			for(int count=1; count<=pageSubpageCount; count++){
 				pageNow = addPage(pageSubpageTitle + ' ' + count, null, false, false);	//make new page
 				pageNow.setParent(getCurrentPageId());	//clean up page data
-				pageNow.setTopParent(getCurrentPage().getTopParent());
+				pageNow.setTopParent(getCurrentPage().getPageId());
 				update(pageNow);	//save revised page data
 				itemNow = simplePageToolDao.findItemsBySakaiId(Long.toString(pageNow.getPageId())).get(0);	//there should only be one item with this sakaiId, because it was just now created as part of addPage.
 				if(pageSubpageButton){	//clean up item data
@@ -5115,23 +5130,20 @@ public class SimplePageBean {
 
 	public void fixorder() {
 	    List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
-	    
-	    for(int i = 0; i < items.size(); i++) {
-		if(items.get(i).getSequence() <= 0) {
-		    items.remove(items.get(i));
-		    i--;
-		}
-	    }
+		items.sort(Comparator.comparing(SimplePageItem::getSequence));
 
-	    int i = 1;
-	    for(SimplePageItem item: items) {
-		if (item.getSequence() != i) {
-		    item.setSequence(i);
-		    update(item);
-		}
-		i++;
-	    }
+		// remove items where sequence is <= 0
+		items.stream().filter(i -> i.getSequence() <= 0).forEach(items::remove);
 
+		// the remaining items are ordered by sequence
+		int i = 1;
+		for (SimplePageItem item : items) {
+			if (item.getSequence() != i) {
+				item.setSequence(i);
+				update(item);
+			}
+			i++;
+		}
 	}
 
     // called by reorder tool to do the reordering
@@ -5198,7 +5210,7 @@ public class SimplePageBean {
 
 		// keep track of which old items are used so we can remove the ones that aren't.
 		// items in set are indices into "items"
-		Set<Integer>keep = new HashSet<>();
+		Set<SimplePageItem> keep = new HashSet<>();
 
 		// now do the reordering
 		for (int i = 0; i < split.length; i++) {
@@ -5206,7 +5218,7 @@ public class SimplePageBean {
 			    break;
 			if (split[i].startsWith("*")) {
 			    // item from second page. add copy
-			    SimplePageItem oldItem = secondItems.get(Integer.valueOf(split[i].substring(1)) - 1);
+			    SimplePageItem oldItem = secondItems.get(Integer.parseInt(split[i].substring(1)) - 1);
 			    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
 			    newItem.setPageId(getCurrentPageId());
 			    newItem.setSequence(i + 1);
@@ -5214,21 +5226,15 @@ public class SimplePageBean {
 			    simplePageToolDao.copyItem2(oldItem, newItem);
 			} else {
 			    // existing item. update its sequence and note that it's still used
-			    int old = items.get(Integer.valueOf(split[i]) - 1).getSequence();
-			    keep.add(Integer.valueOf(split[i]) - 1);
-			    items.get(Integer.valueOf(split[i]) - 1).setSequence(i + 1);
-			    if (old != i + 1) {
-				update(items.get(Integer.valueOf(split[i]) - 1));
-			    }
-
+			    SimplePageItem existingItem = items.get(Integer.parseInt(split[i]) - 1);
+			    existingItem.setSequence(i + 1);
+			    keep.add(existingItem);
+				update(existingItem);
 			}
 		}
 
-		// now kill all items on the page we didn't see in the new order
-		for (int i = 0; i < items.size(); i++) {
-		    if (!keep.contains((Integer)i))
-			deleteItem(items.get(i));
-		}
+		// delete items on the page that were not kept without changing the sequence of those items kept
+		items.stream().filter(Predicate.not(keep::contains)).forEach(i -> deleteItem(i, false));
 
 		itemsCache.remove(getCurrentPage().getPageId());
 		// removals left gaps in order. fix it.
@@ -7405,7 +7411,7 @@ public class SimplePageBean {
 						} else {
 							try {
 								add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
-									pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+									pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, LESSONBUILDER_ID);
 							} catch(ConflictingAssignmentNameException cane) {
 								add = false;
 								setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -7819,7 +7825,7 @@ public class SimplePageBean {
 			}	
 
 			try {
-				boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, "Lesson Builder");				
+				boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, LESSONBUILDER_ID);				
 				if(!add) {
 					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 				}else {
@@ -8132,7 +8138,7 @@ public class SimplePageBean {
 						add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null);
 					} else {
 						try {
-							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, "Lesson Builder");
+							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, LESSONBUILDER_ID);
 						} catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -8173,7 +8179,7 @@ public class SimplePageBean {
 					} else {
 					    try {
 							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
-								title, points, null, "Lesson Builder");
+								title, points, null, LESSONBUILDER_ID);
 					    } catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
@@ -9304,5 +9310,59 @@ public class SimplePageBean {
 	private void completeUserTask(Long itemId, String userId) {
 		taskService.completeUserTaskByReference("/lessonbuilder/item/" + itemId, Arrays.asList(userId) );
 	}
-	
+
+	private void setSubpageTitleBulkEditData() {
+		final JSONParser parser = new JSONParser();
+		try {
+			JSONArray subpageArray = (JSONArray) parser.parse(subpageBulkEditJson);
+			for (Object obj : subpageArray) {
+				JSONObject subpageTitleInfo = (JSONObject) parser.parse((String) obj);
+				String itemId = (String) subpageTitleInfo.get("itemId");
+				String newTitle = (String) subpageTitleInfo.get("title");
+				String description = (String) subpageTitleInfo.get("description");
+				if (StringUtils.isNotBlank(itemId) && StringUtils.isNotBlank(newTitle)) {
+					SubpageBulkEditHelper subpageHelper = new SubpageBulkEditHelper(newTitle, description);
+					subpageBulkEditTitleMap.put(Long.valueOf(itemId), subpageHelper);
+				} else {
+					throw new RuntimeException("Page id is null or new title is blank");
+				}
+			}
+		} catch (ClassCastException e) {
+			log.error("Parser returned a non-JSONObject. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		} catch (ParseException e) {
+			log.error("Parser unable to parse json. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		} catch (RuntimeException e) {
+			log.error("Bad data. Null page id or blank page title. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		}
+	}
+
+	/**
+	 * Method to save subpage bulk edit changes
+	 */
+	public String subpageBulkEditSubmit() {
+		if (canEditPage() || !checkCsrf()) {
+			setSubpageTitleBulkEditData();
+			if (subpageBulkEditTitleMap.isEmpty()) {
+				setErrMessage(messageLocator.getMessage("simplepage.bulk-edit-pages.blank"));
+				return "failure";
+			}
+			subpageBulkEditTitleMap.forEach((itemId, subpageHelper) -> {
+				SimplePageItem item = simplePageToolDao.findItem(itemId);
+				if (item != null && (!StringUtils.equals(item.getName(), subpageHelper.getTitle()) || !StringUtils.equals(item.getDescription(), subpageHelper.getDescription()))) {
+					SimplePage subpage = getPage(Long.valueOf(item.getSakaiId()));
+					subpage.setTitle(subpageHelper.getTitle());
+					update(subpage);
+					item.setName(subpageHelper.getTitle());
+					item.setDescription(subpageHelper.getDescription());
+					update(item);
+				}
+			});
+			return "success";
+		} else {
+			return "permission-failed";
+		}
+	}
 }

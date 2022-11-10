@@ -17,11 +17,8 @@
 package org.sakaiproject.grading.api.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -32,7 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -75,6 +71,10 @@ public abstract class GradableObject implements Serializable {
     @EqualsAndHashCode.Include
     @ToString.Include
     protected String name;
+
+    @Column(name = "REFERENCE")
+    @ToString.Include(name = "reference")
+    protected String reference;
 
     @Column(name = "SORT_ORDER")
     @ToString.Include(name = "sort")

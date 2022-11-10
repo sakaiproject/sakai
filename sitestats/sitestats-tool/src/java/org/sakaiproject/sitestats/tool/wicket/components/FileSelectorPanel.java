@@ -195,6 +195,9 @@ public class FileSelectorPanel extends Panel {
 				List<ContentEntity> members = collection.getMemberResources();
 				for(ContentEntity ce : members) {
 					String dispName = Locator.getFacade().getStatsManager().getResourceName("/content"+ce.getId(), false);
+					if ("null".equals(dispName)) {
+						dispName = (String) new ResourceModel("overview_folder_unavailable").getObject();
+					}
 					resourcesList.add(new CHResourceModel(ce.getId(), dispName, ce.isCollection()));
 				}
 			}

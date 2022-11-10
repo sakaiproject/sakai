@@ -263,10 +263,14 @@
 
         #parse ("/vm/assignment/assignments_display_video_submission.vm")
 
-	    #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
-			<h4>$tlang.getString("gen.totaltimespent")</h4>
-			<div class="textPanel borderPanel">$formattedText.escapeHtml($!submitter_time_spent)</div>
-		#end
+        #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
+            <h4>$tlang.getString("gen.totaltimespent")</h4>
+            #if ($!submitter_time_spent && !$!submitter_time_spent.equals(""))
+                <div class="textPanel borderPanel">$formattedText.escapeHtml($!submitter_time_spent)</div>
+            #else
+                <div class="textPanel borderPanel">$tlang.getString("gen.noestimate")</div>
+            #end
+        #end
 
         ## Submission Attachments
         #set ($attachments = $submission.Attachments)
@@ -315,7 +319,8 @@
 
     #if ($submission.Graded && ($submission.GradeReleased || $returned))
     <sakai-rubric-student
-        tool-id="sakai.assignment"
+        site-id="$assignment.context"
+        tool-id="sakai.assignment.grades"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
         enable-pdf-export="$enablePdfExport"
@@ -355,45 +360,49 @@
                             <b>$tlang.getString("gen.comments")</b>
                             <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
                         #end
-                        <ul class="attachList">
-                            <lh><strong>$tlang.getString("gen.attachments")</strong></lh>
-                            #foreach($attachment in $review.getAttachmentRefList())
-                                #set ($props = false)
-                                #set ($props = $attachment.Properties)
-                                #if ($!props)
-                                    <li>
-                                        #if ($props.getBooleanProperty($props.NamePropIsCollection))
-                                            <img src="#imageLink($contentTypeImageService.getContentTypeImage(
-                                                "folder"))" border="0" alt="$tlang.getString("gen.folatt")"/>
-                                        #else
-                                            <img src="#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))"
-                                                 border="0" alt="$tlang.getString("gen.filatt")"/>
-                                        #end
-                                        #if ($decoratedUrlMap)
-                                            <a href="$decoratedUrlMap.get($attachment.Url)"
-                                               target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                        #else
-                                            <a href="$attachment.Url"
-                                               target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                        #end
-                                        #propertyDetails($props)
-                                    </li>
+                        #if ($review.getAttachmentRefList())
+                            <ul class="attachList">
+                                <lh><strong>$tlang.getString("gen.attachments")</strong></lh>
+                                #foreach($attachment in $review.getAttachmentRefList())
+                                    #set ($props = false)
+                                    #set ($props = $attachment.Properties)
+                                    #if ($!props)
+                                        <li>
+                                            #if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                                <img src="#imageLink($contentTypeImageService.getContentTypeImage(
+                                                    "folder"))" border="0" alt="$tlang.getString("gen.folatt")"/>
+                                            #else
+                                                <img src="#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))"
+                                                     border="0" alt="$tlang.getString("gen.filatt")"/>
+                                            #end
+                                            #if ($decoratedUrlMap)
+                                                <a href="$decoratedUrlMap.get($attachment.Url)"
+                                                   target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                            #else
+                                                <a href="$attachment.Url"
+                                                   target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                            #end
+                                            #propertyDetails($props)
+                                        </li>
+                                    #end
                                 #end
-                            #end
-                        </ul>
+                            </ul>
+                        #end
                     </div>
                 #end
             </div>
         #end
     #end
     </div>
+#if ($isAssignmentsToolVisible)
     <form action="#toolForm("AssignmentAction")" method="post">
         <div class="act">
-            <input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade"
-                   value="$tlang.getString("gen.backtolist")" accesskey="x" class="active TB_hideControl"
-                   onclick="SPNR.disableControlsAndSpin( this, null );"/>
+                <input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade"
+                       value="$tlang.getString("gen.backtolist")" accesskey="x" class="active TB_hideControl"
+                       onclick="SPNR.disableControlsAndSpin( this, null );"/>
         </div>
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
     </form>
+#end
 </div>
 <!-- end: chef_assignments_student_view_grade.vm  -->

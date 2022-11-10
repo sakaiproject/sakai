@@ -1,6 +1,5 @@
 import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
-import "../sakai-icon.js";
 
 export class SakaiConversationsTagManager extends SakaiElement {
 
@@ -30,9 +29,22 @@ export class SakaiConversationsTagManager extends SakaiElement {
   createTags() {
 
     const field = this.querySelector("#tag-creation-field");
-    const tagLabels = field?.value?.split(",").map(s => s.trim());
 
-    if (!tagLabels?.length) return;
+    // Split it, trim it, filter it and use a Set to make them unique, no duplicates!
+    const tagLabels
+      = [...new Set(field?.value?.split(",").map(t => t.trim()).filter(t => t.length > 0))];
+
+    // If any tags are already defined, ignore them
+    this.tags.map(t => t.label).forEach(t => {
+
+      const i = tagLabels.indexOf(t);
+      (i !== -1) && tagLabels.splice(i, 1);
+    });
+
+    if (!tagLabels?.length) {
+      field.value = "";
+      return;
+    }
 
     const tagsData = tagLabels.map(label => ({ label, siteId: this.siteId }));
 
@@ -78,28 +90,30 @@ export class SakaiConversationsTagManager extends SakaiElement {
     const id = e.target.dataset.tagId;
     const label = this.querySelector(`#tag-${id}-editor`)?.value;
 
-    const tag = this.tags.find(t => t.id == id);
-    tag && (tag.label = label);
+    const body = this.tags.find(t => t.id == id);
+    body && (body.label = label);
 
     const url = `/api/sites/${this.siteId}/conversations/tags/${id}`;
     fetch(url, {
       method: "PUT",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(tag),
+      body: JSON.stringify(body),
     })
     .then(r => {
 
-      if (!r.ok) {
-        throw new Error("Network error while saving tag.");
-      } else {
-        this.cancelTagEditing(e);
-        this.dispatchEvent(new CustomEvent("tag-updated", { detail: { tag }, bubbles: true }));
+      if (r.ok) {
+        return r.json();
       }
+
+      throw new Error("Network error while saving tag.");
     })
-    .catch (error => {
-      console.error(error);
-    });
+    .then(tag => {
+
+      this.cancelTagEditing(e);
+      this.dispatchEvent(new CustomEvent("tag-updated", { detail: { tag }, bubbles: true }));
+    })
+    .catch (error => console.error(error));
   }
 
   deleteTag(e) {
@@ -128,6 +142,8 @@ export class SakaiConversationsTagManager extends SakaiElement {
     });
   }
 
+  _setSaveable() { this.saveable = true; }
+
   render() {
 
     return html`
@@ -136,7 +152,10 @@ export class SakaiConversationsTagManager extends SakaiElement {
         <div class="add-topic-label">Tags</div>
         <div id="tag-creation-block" style="flex-wrap: wrap;">
           <div>
-            <textarea id="tag-creation-field" @input=${() => this.saveable = true}></textarea>
+            <textarea id="tag-creation-field"
+                aria-labelledby="tag-creation-instruction"
+                @input="${this._setSaveable}">
+            </textarea>
             <div id="tag-creation-instruction" class="topic-option-label-text">Add multiple tags separated by a comma</div>
           </div>
           <div class="act" style="white-space: nowrap;">

@@ -162,8 +162,8 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       message: document.getElementById(`topic-${this.topic.id}-post-editor`).getContent(),
       topic: this.topic.id,
       siteId: this.topic.siteId,
-      privatePost: this.privatePost,
-      anonymous: this.anonymousPost,
+      privatePost: document.getElementById("conv-post-editor-private-checkbox").checked,
+      anonymous: this.topic.allowAnonymousPosts && document.getElementById("conv-post-editor-anonymous-checkbox").checked,
       draft,
       replyable: true,
     };
@@ -203,7 +203,6 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       }
       this.postEditorDisplayed = false;
       this.replying = false;
-
 
       this.updateComplete.then(() => {
 
@@ -389,7 +388,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     if (post.parentThread) {
       const thread = findPost(this.topic, { postId: post.parentThread });
       thread.keepExpanded = true;
-      if (e.detail.created) {
+      if (e.detail.created && !e.detail.post.draft) {
         thread.numberOfThreadReplies += 1;
       }
     }
@@ -511,6 +510,12 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
+  _unsetReplying() { this.replying = false; }
+
+  _setReplying() { this.replying = true; }
+
+  _toggleShowingMyReactions() { this.showingMyReactions = !this.showingMyReactions; }
+
   updated() {
 
     if (typeof MathJax !== "undefined") {
@@ -529,20 +534,20 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         <sakai-editor id="topic-${this.topic.id}-post-editor" set-focus></sakai-editor>
         <div class="conv-private-checkbox-block">
           <label>
-            <input type="checkbox" @click=${e => this.privatePost = e.target.checked}>${this.i18n.private_topic_reply}
+            <input id="conv-post-editor-private-checkbox" type="checkbox">${this.i18n.private_topic_reply}
           </label>
         </div>
         ${this.topic.allowAnonymousPosts ? html`
         <div class="conv-private-checkbox-block">
           <label>
-            <input type="checkbox" @click=${e => this.anonymousPost = e.target.checked}>${this.i18n.post_anonymously}
+            <input id="conv-post-editor-anonymous-checkbox" type="checkbox">${this.i18n.post_anonymously}
           </label>
         </div>
         ` : ""}
         <div class="act">
           <input type="button" class="active" @click=${this.publishPost} value="${this.i18n.publish}">
           <input type="button" @click=${this.savePostAsDraft} value="${this.i18n.save_as_draft}">
-          <input type="button" @click=${() => this.replying = false} value="${this.i18n.cancel}">
+          <input type="button" @click="${this._unsetReplying}" value="${this.i18n.cancel}">
         </div>
       </div>
     `;
@@ -574,7 +579,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         </div>
         <div class="author-and-tools">
           <div class="author-block">
-            <div><sakai-user-photo user-id="${this.topic.anonymous && !this.canViewAnonymous ? "blank" : this.topic.creator}"></sakai-user-photo></div>
+            <div><sakai-user-photo user-id="${this.topic.anonymous && !this.canViewAnonymous ? "blank" : this.topic.creator}" profile-popup="on"></sakai-user-photo></div>
             <div>
               <div class="author-details">
                 <div class="topic-creator-name">${this.topic.creatorDisplayName}</div>
@@ -746,7 +751,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                   <div><sakai-icon type="smile" size="small"></sakai-icon></div>
                   <div id="my-reactions-link-${this.topic.id}">
                     <a href="javascript:;"
-                        @click=${() => this.showingMyReactions = !this.showingMyReactions}
+                        @click="${this._toggleShowingMyReactions}"
                         aria-label="${this.i18n.reactions_tooltip}"
                         aria-haspopup="true"
                         title="${this.i18n.reactions_tooltip}">
@@ -761,7 +766,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 </div>
               </options-menu>
             </div>
-          <div>
+          </div>
           ` : ""}
           <div>
             <div class="topic-option">
@@ -781,7 +786,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
             ${this.replying ? html`
               ${this.renderPostEditor()}
             ` : html`
-            <a href="javascript:;" @click=${() => this.replying = true}>
+            <a href="javascript:;" @click="${this._setReplying}">
               <div class="placeholder">
                 <div><sakai-user-photo user-id="${window.top.portal.user.id}"></sakai-user-photo></div>
                 <div>${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.reply_to}</div>

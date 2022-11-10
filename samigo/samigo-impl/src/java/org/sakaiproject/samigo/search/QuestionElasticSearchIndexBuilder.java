@@ -21,13 +21,13 @@
 
 package org.sakaiproject.samigo.search;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.existsQuery;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
+import static org.opensearch.index.query.QueryBuilders.queryStringQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,26 +42,26 @@ import java.util.TimerTask;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
-import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.common.util.set.Sets;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.xcontent.XContentBuilder;
+import org.opensearch.action.admin.indices.validate.query.ValidateQueryRequest;
+import org.opensearch.action.admin.indices.validate.query.ValidateQueryResponse;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.delete.DeleteRequest;
+import org.opensearch.action.delete.DeleteResponse;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchType;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.util.set.Sets;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.Operator;
+import org.opensearch.index.reindex.DeleteByQueryRequest;
+import org.opensearch.rest.RestStatus;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.aggregations.AggregationBuilders;
+import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.common.xcontent.XContentBuilder;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
@@ -799,16 +799,16 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
 
     @Override
-    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
-       return search(searchTerms,references, siteIds, start, end, new HashMap<>());
+    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
+       return search(searchTerms,references, siteIds, toolIds, start, end, new HashMap<>());
     }
 
     /**
      * This is a new search that accepts additionalSearchInformation. We need it for our complex question searches.
      * We have duplicated the methods that need this parameter, like prepareSearchRequest
      */
-    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
-        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, start, end, additionalSearchInformation);
+    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInformation) {
+        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, toolIds, start, end, additionalSearchInformation);
         log.debug("Search request from index builder [{}]: {}", getName(), searchRequest.toString());
         ValidateQueryRequest validateQueryRequest = new ValidateQueryRequest(indexName);
         validateQueryRequest.query(searchRequest.source().query());
@@ -839,14 +839,14 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     @Override
-    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
-        return prepareSearchRequest(searchTerms,references, siteIds, start, end, new HashMap<>());
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
+        return prepareSearchRequest(searchTerms,references, siteIds, toolIds, start, end, new HashMap<>());
     }
 
-    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInformation) {
         SearchRequest searchRequest = newSearchRequestAndQueryBuilders(searchTerms, references, siteIds);
         addSearchCoreParams(searchRequest);
-        addSearchQuery(searchRequest, searchTerms, references, siteIds, additionalSearchInformation);
+        addSearchQuery(searchRequest, searchTerms, references, siteIds, toolIds, additionalSearchInformation);
         addSearchResultFields(searchRequest);
         addSearchPagination(searchRequest, start, end);
         addSearchFacetting(searchRequest);
@@ -866,11 +866,11 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     @Override
-    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds) {
-        addSearchQuery(searchRequest, searchTerms, references, siteIds, new HashMap<>());
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds) {
+        addSearchQuery(searchRequest, searchTerms, references, siteIds, toolIds, new HashMap<>());
     }
 
-    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, Map<String,String> additionalSearchInformation ) {
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, Map<String,String> additionalSearchInformation ) {
         addSearchTerms(searchRequest, searchTerms, additionalSearchInformation);
         addSearchReferences(searchRequest, references);
         addSearchSiteIds(searchRequest, siteIds);

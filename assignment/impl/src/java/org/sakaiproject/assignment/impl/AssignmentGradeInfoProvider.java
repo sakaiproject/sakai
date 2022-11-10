@@ -111,7 +111,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     public boolean isAssignmentDefined(String externalAppName, String id) {
-        if (!externalAppName.equals(getAppKey()) && !externalAppName.equals(assignmentService.getToolTitle())) {
+        if (!externalAppName.equals(getAppKey()) && !externalAppName.equals(assignmentService.getToolId())) {
           return false;
         }
         return getAssignment(id) != null;

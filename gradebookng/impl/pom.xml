@@ -32,10 +32,6 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-private</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-test</artifactId>
             <scope>test</scope>
         </dependency>
@@ -87,6 +83,22 @@
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>1.4.18</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.plus</groupId>
+            <artifactId>sakai-plus-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-util</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

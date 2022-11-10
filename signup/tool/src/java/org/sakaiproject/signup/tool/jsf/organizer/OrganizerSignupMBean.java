@@ -1458,4 +1458,30 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	public String getDisplayTimeFromInstant(Instant instant) {
 		return signupMeetingService.getUsersLocalDateTimeString(instant);
 	}
+	
+	public int getNumSigned(List<TimeslotWrapper> timeslotsList, int partOrWait) {
+		if (timeslotsList == null) {
+			return 0;
+		}
+		return timeslotsList.stream().map(s -> partOrWait == 1 ? s.getParticipants() : s.getWaitingListSize()).reduce(Integer::sum).orElse(0);
+	}
+	
+	public String getTextParticipants(String property) {
+		return MessageFormat.format(property, getNumSigned(timeslotWrappers, 1));
+	}
+	
+	public String getTextWaitingList(String property) {
+		return MessageFormat.format(property, getNumSigned(timeslotWrappers, 2));
+	}
+	
+	public String getTimeslotNum(String proterty, int position, int partOrWait) {
+		int num = 0;
+		if(partOrWait == 1) {
+			num = timeslotWrappers.get(position).getParticipants();
+		}else {
+			num = timeslotWrappers.get(position).getWaitingListSize();
+		}
+		
+		return MessageFormat.format(proterty, num);
+	}
 }

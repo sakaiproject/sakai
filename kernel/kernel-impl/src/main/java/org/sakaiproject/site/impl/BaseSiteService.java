@@ -632,11 +632,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 			else
 			{
-				String roleswap = securityService().getUserEffectiveRole(site.getReference());
-				if (roleswap!=null) // if in a swapped mode, treat it as a normal site else do the normal unpublished c
-					unlock(SITE_VISIT, site.getReference());
-				else
-					unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
+				unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
 			}
 		}
 	}
@@ -1369,10 +1365,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return site;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException
+	{
+		return addSite(id, other, null);
+	}
+
+	public Site addSite(String id, Site other, String realmTemplate) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
@@ -1416,10 +1414,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// make this site a copy of other, but with new ids (not an exact copy)
 		((BaseSite) site).set((BaseSite) other, false);
 
-		// copy the realm (to get permissions settings)
+		// copy the realm from the other site (to get permissions settings)
+		// however, some sites are created without a realm assiciated with it, so we can take
+		// the realm configuration from one of the template realms like !site.template
+		AuthzGroup realm = null;
 		try
 		{
-			AuthzGroup realm = authzGroupService().getAuthzGroup(other.getReference());
+			try {
+				realm = authzGroupService().getAuthzGroup(other.getReference());
+			} catch (GroupNotDefinedException e) {
+				if ( realmTemplate != null ) {
+					realm = authzGroupService().getAuthzGroup(realmTemplate);
+				} else {
+					throw e;
+				}
+			}
+
 			AuthzGroup re = authzGroupService().addAuthzGroup(site.getReference(), realm,
 					userDirectoryService().getCurrentUser().getId());
 

@@ -1,18 +1,57 @@
-.ui-progressbar {
-	position: relative;
-	background: var(--sakai-color-gray--darker-2);
-	margin-bottom: 15px;
+.progress-label-wrapper.progress-bar {
+	background: transparent;
+	transition: none;
+	line-height: 3rem;
+	font-size: 16px;
+	font-weight: 550;
+}
+
+.warn-banner {
+	padding-top: 12px;
+}
+
+.warn-banner > .sak-banner-warn {
+	margin-top: 0;
+	margin-left: 12px;
+	margin-right: 12px;
+}
+
+.warn-banner-dismiss {
+	float: right;
+}
+
+#timerBlock .progress-label-wrapper .progress-label,
+#timerBlock .progress-label-wrapper {
+	width: 100%;
+}
+
+#timerBlock .progress-wrapper {
+	display: flex;
+}
+
+#timerBlock .progress:first-child {
+	width: 100px;
+	margin-right: 0px;
+}
+#timerBlock .progress {
+	margin: 12px;
+	margin-bottom: 0;
+	height: 3rem;
+	width: 100%;
+}
+
+#timerBlock .progress-label {
+	width: 100%;
+	padding: 3px;
+}
+
+.progress-bar {
+	transition: all 0.6s ease;
 }
 
 .progress-label {
-	position: absolute;
-	width: 100%;
 	font-weight: bold;
-	text-align: center;
-	color: var(--sakai-color-white);
-	background: rgba(0, 0, 0, 0.2);
-	height: 26px;
-	line-height: 26px;
+	color: var(--sakai-text-color-1);
 }
 
 #dialog-timeout {
@@ -21,55 +60,22 @@
 
 #timeoutWarning {
 	display: none;
-	background-color: var(--errorBanner-bgcolor);
-	border-color: var(--errorBanner-bordercolor);
-	color: var(--errorBanner-color);
-	padding: 15px;
-	margin-bottom: 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	margin: 10px 15px 0px 15px;
-}
-
-#progressbar {
-	width: 98%;
-	margin: auto;
-	margin-top: 10px;
-	background-color: var(--sakai-color-gray--darker-2);
-	border-color: var(--sakai-color-gray--darker-2);
+	margin: 10px 15px 20px 15px;
 }
 
 #timerBlock {
-	position: absolute;
-	top: 0px;
-	width: 75%;
+	position: sticky;
+	top: 52px;
 	background-color: var(--sakai-primary-color-1);
-	margin: 0;
-	margin-left: 15px;
-	padding: 0;
 	z-index: 2;
 }
 
-#timerBlank {
-	height: 110px;
-	border: 0;
-	padding: 0;
-	margin: 0;
-}
-
 #showHide {
-	text-align: center;
-	margin-top: 8px;
-	margin-bottom: 5px;
-	cursor: pointer;
+	background-color: transparent;
+	border:none;
+	display: flex;
+	margin: 5px auto ;
 }
-
-/* Un-Comment this block to enable a more visible keyboard focus indicator
-div#showHide:focus {
-	outline: 3px solid #fff;
-	margin: 14px;
-}
-*/
 
 #showHideText {
 	padding-right: 3px;
@@ -84,12 +90,6 @@ div#showHide:focus {
 
 .ajaxImg {
 	vertical-align: middle;
-}
-
-#warnClose {
-	float: right;
-	text-decoration: underline;
-	cursor: pointer;
 }
 
 .ui-progressbar .ui-progressbar-value {
@@ -112,15 +112,3 @@ tr.timerSubmission:nth-child(even) {
 	background-color: var(--sakai-background-color-2);
 }
 
-@media only screen and (max-width: 770px) {
-	#timerBlock {
-		position: absolute;
-		top: 0px;
-		width: 100%;
-		background-color: var(--sakai-active-color-2);
-		margin: 0;
-		padding: 0;
-		z-index: 2;
-		left: 0px;
-	}
-}

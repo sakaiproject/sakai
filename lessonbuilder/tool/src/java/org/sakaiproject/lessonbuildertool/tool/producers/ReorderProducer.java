@@ -356,43 +356,43 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 
 		switch (pageItem.getType()) {
 			case SimplePageItem.FORUM:
-				return new UIStyleDecorator("icon-sakai--sakai-forums darkblueLessonsIcon");
+				return new UIStyleDecorator("si-sakai-forums");
 			case SimplePageItem.ASSIGNMENT:
-				return new UIStyleDecorator("icon-sakai--sakai-assignment-grades darkblueLessonsIcon");
+				return new UIStyleDecorator("si-sakai-assignment-grades");
 			case SimplePageItem.ASSESSMENT:
-				return new UIStyleDecorator("icon-sakai--sakai-samigo darkblueLessonsIcon");
+				return new UIStyleDecorator("si-sakai-samigo");
 			case SimplePageItem.QUESTION:
-				return new UIStyleDecorator("fa fa-question darkgrayLessonsIcon");
+				return new UIStyleDecorator("si-sakai-help");
 			case SimplePageItem.COMMENTS:
-				return new UIStyleDecorator("fa fa-commenting darkgrayLessonsIcon");
+				return new UIStyleDecorator("si-sakai-chat");
 			case SimplePageItem.BLTI:
-				return new UIStyleDecorator("fa fa-globe darkgrayLessonsIcon");
+				return new UIStyleDecorator("si-sakai-basiclti");
 			case SimplePageItem.PAGE:
-				return new UIStyleDecorator("fa fa-folder-open-o darkgrayLessonsIcon");
+				return new UIStyleDecorator("si-folder-open");
 			case SimplePageItem.CHECKLIST:
-				return new UIStyleDecorator("fa fa-list darkgrayLessonsIcon");
+				return new UIStyleDecorator("si-check");
 			case SimplePageItem.URL:
-				return new UIStyleDecorator("fa fa-external-link blueLessonsIcon");
+				return new UIStyleDecorator("si-external");
 			case SimplePageItem.STUDENT_CONTENT:
-				return new UIStyleDecorator("fa fa-user darkgrayLessonsIcon");
+				return new UIStyleDecorator("si-sakai-singleuser");
 			case SimplePageItem.PEEREVAL:
-				return new UIStyleDecorator("fa fa-users darkgrayLessonsIcon");
+				return new UIStyleDecorator("si-sakai-users");
 			case SimplePageItem.RESOURCE:
 				return getImageSourceDecoratorFromMimeType(pageItem);
 			case SimplePageItem.MULTIMEDIA:
 				return getImageSourceDecoratorFromMimeType(pageItem);
 			case SimplePageItem.TEXT:
-				return new UIStyleDecorator("fa fa-font darkgrayLessonsIcon");
+				return new UIStyleDecorator("si-sakai-font");
 			case SimplePageItem.ANNOUNCEMENTS:
-				return new UIStyleDecorator("icon-sakai--sakai-announcements darkblueLessonsIcon");
+				return new UIStyleDecorator("si-sakai-announcements");
 			case SimplePageItem.TWITTER:
-				return new UIStyleDecorator("fa fa-twitter blueLessonsIcon");
+				return new UIStyleDecorator("si-twitter");
 			case SimplePageItem.CALENDAR:
-				return new UIStyleDecorator("icon-sakai--sakai-schedule darkblueLessonsIcon");
+				return new UIStyleDecorator("si-sakai-schedule");
 			case SimplePageItem.FORUM_SUMMARY:
-				return new UIStyleDecorator("icon-sakai--sakai-forums darkblueLessonsIcon");
-            case SimplePageItem.RESOURCE_FOLDER:
-                return new UIStyleDecorator("icon-sakai--sakai-resources darkblueLessonsIcon");
+				return new UIStyleDecorator("si-sakai-forums");
+      		case SimplePageItem.RESOURCE_FOLDER:
+                return new UIStyleDecorator("si-sakai-resources");
 			default:
 				return new UIStyleDecorator("");
 		}
@@ -423,10 +423,10 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		src = imageToMimeMap.get(mimeType);
 
 		if (src == null) {
-			src = "fa-file-o darkgrayLessonsIcon";
+			src = "si-file-earmark";
 		}
 
-		return new UIStyleDecorator("fa " + src);
+		return new UIStyleDecorator(src);
 	}
 
 	@Setter

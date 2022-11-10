@@ -23,11 +23,15 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-private</artifactId>
+      <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
+      <groupId>org.sakaiproject.calendar</groupId>
+      <artifactId>sakai-calendar-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.calendar</groupId>
+      <artifactId>sakai-calendar-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -36,6 +40,10 @@
     <dependency>
       <groupId>org.sakaiproject.conversations</groupId>
       <artifactId>sakai-conversations-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.scheduler</groupId>
+      <artifactId>scheduler-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.search</groupId>
@@ -78,6 +86,14 @@
       <artifactId>jsoup</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
     </dependency>
@@ -102,9 +118,9 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
-      <version>${sakai.elasticsearch.version}</version>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
+      <version>${sakai.opensearch.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

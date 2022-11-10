@@ -1,0 +1,264 @@
+##{$namespace}sakai-commons {
+    #commons-toolbar {
+        margin-top: 0px !important;
+        margin-bottom: 10px !important;
+    }
+        .commons-photo-text-wrapper {
+            border: 1px solid var(--sakai-border-color);
+            padding: 8px;
+        }
+        #commons-editor-toolbar {
+            width: 100%;
+        }
+        .commons-image {
+            min-width: 20px;
+            max-width: 100%;
+        }
+
+    #commons-link-dialog {
+        display: none;
+    }
+    #commons-image-dialog {
+        display: none;
+    }
+    .commons-dialog-container {
+    
+        #commons-link-dialog-table {
+            display: table;
+        }
+            .commons-link-dialog-row {
+                display: table-row;
+                padding-bottom: 5px;
+                div {
+                    display: table-cell;
+                    white-space: nowrap;
+                    padding-right: 10px;
+                }
+            }
+        .commons-dialog-container button {
+            border-radius: 0px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+    }
+
+    .commons-editor-text-wrapper {
+        padding-left: 10px;
+        overflow: auto;
+    }
+
+    .commons-editor-text {
+        overflow: auto;
+    }
+
+    #commons-post-creator-editor {
+        min-height: 32px;
+        height: auto;
+        display: block;
+        padding-left: 1px;
+    }
+
+    .commons-post-author {
+        font-weight: bold;
+        padding-right: 10px;
+    }
+
+    #commons-posts-wrapper{
+        clear: both;
+        margin-left: 0px;
+    }
+
+    .commons-portletBody {
+        padding-top: 2px !important;
+    }
+
+    .commons-post {
+        margin-bottom: 5px;
+    }
+
+    .commons-post-outer-container {
+        border-bottom: 1px solid var(--sakai-border-color);
+        margin-bottom: 10px;
+    }
+        .commons-post-inner-container{
+            padding: 5px;
+            overflow: auto;
+        }
+            .commons-post-body {
+                clear: top;
+                margin-bottom: 5px;
+            }
+                .commons-post-author-name {
+                    font-weight: bold;
+                    padding-right: 5px;
+                    text-decoration: none !important;
+                    white-space: nowrap;
+                }
+                .commons-post-text-container {
+                    padding-left: 10px;
+                    margin-left: 33px;
+                }
+                .commons-post-options {
+                    font-size: smaller;
+                    margin-top: 8px;
+                }
+                    .commons-post-options a {
+                        text-decoration: none !important;
+                    }
+                .commons-post-edit-buttons {
+                    display: none;
+                }
+            .commons-comment-expander {
+                font-size: smaller;
+            }
+
+    .commons-post-with-comments {
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 0px;
+    }
+
+    .commons-comment-author-name {
+        font-weight: bold;
+        font-size: smaller;
+        text-decoration: none !important;
+    }
+
+    .commons-comments {
+        margin-left: 47px;
+    }
+        .commons-create-comment-link {
+            font-weight: bold;
+        }
+        .commons-comment-creator {
+            display: none;
+            padding: 10px 10px 0px 0px;
+        }
+        .commons-comment {
+            padding: 10px 0px 10px 0px;
+            overflow: auto;
+            white-space: nowrap;
+        }
+            .commons-comment-body {
+                display: inline-block;
+                padding-left: 10px;
+                padding-right: 10px;
+                width: calc(100% - 36px);
+            }
+                .commons-comment-content {
+                    white-space: normal;
+                    font-size: smaller;
+                }
+                .commons-comment-options {
+                    font-size: smaller;
+                }
+
+    .commons-comment-editor {
+        border-top: 1px solid var(--sakai-border-color);
+        padding: 3px;
+    }
+        .commons-comment-editor-text {
+            border: 1px solid var(--sakai-border-color);
+            background-color: var(--sakai-background-color-1);
+            border-radius: 3px;
+        }
+            .commons-comment-textarea {
+                font-size: smaller;
+                border: 0px;
+                width: 100%;
+                height: 32px;
+                resize: none;
+            }
+
+    #commons-permissions-not-set-message {
+        background-color: var(--sakai-background-color-2);
+        color: var(--sakai-text-color-1);
+        border: 1px solid var(--sakai-border-color);
+        border-radius: 3px;
+        padding: 5px;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .commons-og-fragment {
+        border: 1px solid var(--sakai-border-color);
+        padding: 5px;
+        width: 400px;
+    }
+        .commons-og-image {
+            width: 300px;
+        }
+        .commons-og-title {
+            font-weight: bold;
+        }
+        .commons-og-description {
+            font-size: smaller;
+        }
+        .commons-og-sitename {
+            margin-top: 5px;
+            font-size: smaller;
+        }
+
+    #commons-single-post-title {
+        font-size: larger;
+        padding-top: 10px;
+        font-weight: bold;
+    }
+
+    #commons-view-commons-link {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+}
+
+#commons-imagefile-instruction {
+    font-weight: bold;
+    font-size: larger;
+    margin-bottom: $standard-space-2x;
+    color: var(--sakai-text-color-1)
+}
+#commons-image-dialog-message {
+    font-weight: bold;
+    font-size: larger;
+    color: var(--errorBanner-color);
+}
+#commons-image-dialog-file {
+    margin-bottom: $standard-space-2x;
+}
+.qtip.commons-qtip {
+    border: 1px solid var(--sakai-border-color) !important;
+    background-color: var(--sakai-background-color-2) !important;
+    max-width: 310px;
+}
+
+.likedAlready {
+    font-weight: bold;
+}
+#commons-like-section {
+    margin-right: 1em;
+}
+
+.commons-editor-priority-label {
+    margin-top: 7px;
+}
+
+#commons-editor-priority-help {
+    text-decoration: none;
+}
+
+span.commons-high-priority {
+    float: right;
+}
+
+.commons-post-content[contenteditable="true"] {
+    display: inline-block;
+    min-width: 100%;
+    border: 1px solid black;
+    overflow: hidden;
+}
+
+.commons-post-content[contenteditable="true"]:empty:before {
+    content: "\feff"; /* ZERO WIDTH NO-BREAK SPACE */
+}

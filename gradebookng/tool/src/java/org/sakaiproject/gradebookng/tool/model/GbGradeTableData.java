@@ -70,6 +70,10 @@ public class GbGradeTableData {
 
 		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments();
 		assignments = businessService.getGradebookAssignments(sortBy);
+		assignments.stream()
+			.filter(assignment -> assignment.getExternallyMaintained())
+			.forEach(assignment -> assignment.setExternalToolTitle(businessService.getExternalAppName(assignment.getExternalAppName()))
+		);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
 		grades = businessService.buildGradeMatrix(

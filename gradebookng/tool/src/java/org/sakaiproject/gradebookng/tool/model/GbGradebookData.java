@@ -31,6 +31,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.wicket.Component;
 import org.apache.wicket.model.StringResourceModel;
 
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -118,6 +119,7 @@ public class GbGradebookData {
 		private boolean hasAssociatedRubric;
 		private String externalId;
 		private String externalAppName;
+		private String externalToolTitle;
 		private String externalAppIconCSS;
 
 		private String categoryId;
@@ -523,6 +525,9 @@ public class GbGradebookData {
 
 		for (int i = 0; i < assignments.size(); i++) {
 			final Assignment a1 = assignments.get(i);
+
+			String idForRubric = a1.getExternallyMaintained() ? AssignmentReferenceReckoner.reckoner().reference(a1.getExternalId()).reckon().getId() : a1.getId().toString();
+
 			final Assignment a2 = ((i + 1) < assignments.size()) ? assignments.get(i + 1) : null;
 
 			String categoryWeight = null;
@@ -546,9 +551,10 @@ public class GbGradebookData {
 					counted,
 					a1.getExtraCredit(),
 					a1.getExternallyMaintained(),
-					a1.getExternallyMaintained() ?  this.hasAssociatedRubricMap.get(a1.getExternalId()) : this.hasAssociatedRubricMap.get(String.valueOf(a1.getId())),
+					this.hasAssociatedRubricMap.get(idForRubric),
 					a1.getExternalId(),
 					a1.getExternalAppName(),
+					a1.getExternalToolTitle(),
 					getIconCSSForExternalAppName(a1.getExternalAppName()),
 
 					nullable(a1.getCategoryId()),

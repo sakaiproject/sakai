@@ -1,7 +1,7 @@
-import {SakaiElement} from "../sakai-element.js";
+import { SakaiElement } from "../sakai-element.js";
 import { getUserLocale } from "../sakai-portal-utils.js";
 
-class RubricsElement extends SakaiElement {
+export class RubricsElement extends SakaiElement {
 
   constructor() {
 
@@ -19,10 +19,10 @@ class RubricsElement extends SakaiElement {
     return available;
   }
 
-  initLightbox(i18n, siteId) {
+  initLightbox(i18n, siteId, enablePdfExport) {
 
     if (this.isUtilsAvailable()) {
-      window.top.rubrics.utils.initLightbox(i18n, siteId);
+      window.top.rubrics.utils.initLightbox(i18n, siteId, enablePdfExport);
     }
   }
 
@@ -50,6 +50,47 @@ class RubricsElement extends SakaiElement {
       low: lowest
     };
   }
-}
 
-export {RubricsElement};
+  isCriterionGroup(criterion) {
+
+    return criterion.ratings.length === 0;
+  }
+
+  openRubricsTab(tabId) {
+
+    this.querySelectorAll('.rubric-tab-content').forEach(tab => {
+
+      // put all tabs' styling back to default [invisible]
+      tab.setAttribute("class", "rubric-tab-content");
+      if (tab.getAttribute("id").indexOf("summary") !== -1 && tab.getAttribute("id").indexOf(tabId) === -1) { //remove any summary in this tab; only one should exist at a time
+        tab.innerHTML = "";
+      }
+    });
+
+    const tabNow = document.getElementById(tabId);
+    tabNow && tabNow.setAttribute("class", "rubric-tab-content rubrics-visible"); // style the clicked tab to be visible
+    this.querySelectorAll(".rubrics-tab-button").forEach(tb => tb.setAttribute("class", "rubrics-tab-button"));
+    const tabButtonNow = this.querySelector(`#${tabId}-button`);
+    tabButtonNow && tabButtonNow.setAttribute("class", "rubrics-tab-button rubrics-tab-selected"); //select styling on current tab button
+  }
+
+  makeASummary(type, siteId) {
+
+    if (this.querySelector(`${type}-summary`)) { //avoid adding an extra summary by accident
+      this.openRubricsTab(`rubric-${type}-summary-${this.instanceSalt}`);
+    }
+    const summary = document.createElement('sakai-rubric-summary');
+    summary.setAttribute('id', `${type}-summary`);
+    summary.setAttribute('site-id', siteId);
+    summary.setAttribute('entity-id', this.entityId);
+    summary.setAttribute('tool-id', this.toolId);
+    if (this.evaluatedItemId) {
+      summary.setAttribute('evaluated-item-id', this.evaluatedItemId);
+    }
+    summary.setAttribute('evaluated-item-owner-id', this.evaluatedItemOwnerId);
+    summary.setAttribute('summary-type', type);
+    const div = document.getElementById(`rubric-${type}-summary-${this.instanceSalt}`);
+    div && div.appendChild(summary);
+    this.openRubricsTab(`rubric-${type}-summary-${this.instanceSalt}`);
+  }
+}

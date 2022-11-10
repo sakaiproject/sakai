@@ -91,8 +91,13 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>txw2</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -166,12 +171,18 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Required by Tomcat 7.  Can be dropped once it's confirmed that JSF-related tools are bundling it up in their webapps. -->
+        <!-- Required by Tomcat.  Can be dropped once it's confirmed that JSF-related tools are bundling it up in their webapps. -->
         <dependency>
             <groupId>commons-el</groupId>
             <artifactId>commons-el</artifactId>
             <version>1.0</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
@@ -196,7 +207,7 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- lucene jars required by elasticsearch and help -->
+        <!-- lucene jars required by opensearch and help -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
@@ -262,40 +273,35 @@
             <artifactId>lucene-spatial3d</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- elasticsearch libs -->
+        <!-- opensearch libs -->
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-core</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-core</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-cli</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-cli</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-secure-sm</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-secure-sm</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-x-content</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-x-content</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-geo</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-lz4</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-geo</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -304,22 +310,22 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-high-level-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>transport-netty4-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.codelibs.elasticsearch.module</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>analysis-common</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -329,22 +335,22 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>parent-join-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>aggs-matrix-stats-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>rank-eval-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>lang-mustache-client</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -452,6 +458,11 @@
             <artifactId>stax2-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- Samigo shared dependencies -->
         <dependency>
@@ -473,6 +484,11 @@
         </dependency>
 
         <!-- portal -->
+        <dependency>
+            <groupId>org.codehaus.castor</groupId>
+            <artifactId>castor</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
@@ -497,6 +513,10 @@
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-taglib</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
         </dependency>
 
         <!-- spring -->
@@ -651,8 +671,28 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -818,12 +858,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-hibernate-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gridgain</groupId>
-            <artifactId>ignite-hibernate_5.3</artifactId>
+            <artifactId>ignite-hibernate-ext</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -971,6 +1006,26 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
             <scope>compile</scope>
         </dependency>
     </dependencies>

@@ -1,0 +1,103 @@
+{
+    "title": "DJ4E",
+    "scopes": [
+        "https:\/\/purl.imsglobal.org\/spec\/lti-ags\/scope\/lineitem",
+        "https:\/\/purl.imsglobal.org\/spec\/lti-ags\/scope\/lineitem.readonly",
+        "https:\/\/purl.imsglobal.org\/spec\/lti-ags\/scope\/result.readonly",
+        "https:\/\/purl.imsglobal.org\/spec\/lti-ags\/scope\/score",
+        "https:\/\/purl.imsglobal.org\/spec\/lti-nrps\/scope\/contextmembership.readonly"
+    ],
+    "extensions": [
+        {
+            "platform": "canvas.instructure.com",
+            "privacy_level": "public",
+            "settings": {
+                "selection_width": 800,
+                "selection_height": 800,
+                "placements": [
+                    {
+                        "text": "Lauch",
+                        "enabled": true,
+                        "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png",
+                        "placement": "course_navigation",
+                        "message_type": "LtiResourceLinkRequest",
+                        "windowTarget": "_blank",
+                        "target_link_uri": "sakai.site"
+                    },
+                    {
+                        "text": "Assignments",
+                        "enabled": true,
+                        "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png",
+                        "placement": "assignment_selection",
+                        "message_type": "LtiDeepLinkingRequest",
+                        "selection_width": 800,
+                        "selection_height": 800,
+                        "target_link_uri": "deep.link?placement=assignment_selection"
+                    },
+                    {
+                        "text": "Links",
+                        "enabled": true,
+                        "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png",
+                        "placement": "link_selection",
+                        "message_type": "LtiDeepLinkingRequest",
+                        "selection_width": 800,
+                        "selection_height": 800,
+                        "target_link_uri": "deep.link?placement=link_selection"
+                    },
+                    {
+                        "text": "Editor",
+                        "enabled": true,
+                        "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png",
+                        "placement": "editor_button",
+                        "message_type": "LtiDeepLinkingRequest",
+                        "selection_width": 800,
+                        "selection_height": 800,
+                        "target_link_uri": "deep.link?placement=editor_button"
+                    }
+                ],
+                "icon_url": "\/library\/skin\/morpheus-default\/images\/logo-jewel-square.png"
+            },
+            "domain": "www.dj4e.com",
+            "tool_id": "1b6b50366a9b783a81740a90e4df6e57"
+        }
+    ],
+    "public_jwk_url": "https:\/\/www.dj4e.com\/tsugi\/lti\/keyset",
+    "description": "DJ4E",
+    "custom_fields": {
+        "availableStart": "$ResourceLink.available.startDateTime",
+        "availableEnd": "$ResourceLink.available.endDateTime",
+        "submissionStart": "$ResourceLink.submission.startDateTime",
+        "submissionEnd": "$ResourceLink.submission.endDateTime",
+        "resourcelink_id_history": "$ResourceLink.id.history",
+        "context_id_history": "$Context.id.history",
+        "canvas_caliper_url": "$Caliper.url",
+        "timezone": "$Person.address.timezone",
+        "pointsPossible": "$Canvas.assignment.pointsPossible",
+        "userPronouns": "$com.instructure.Person.pronouns",
+        "localAssignmentId": "$Canvas.assignment.id",
+        "prevCourses": "$Canvas.course.previousCourseIds",
+        "termName": "$Canvas.term.name",
+        "assignmentUnlockAt": "$Canvas.assignment.unlockAt.iso8601",
+        "courseId": "$Canvas.course.id",
+        "canvas_api_domain": "$Canvas.api.domain",
+        "canvas_module_id": "$Canvas.module.id",
+        "toolContextLinkUrl": "$Canvas.externalTool.url",
+        "canvas_assignment_id": "$Canvas.assignment.id",
+        "prevContexts": "$Canvas.course.previousContextIds",
+        "userDisplayName": "$Person.name.display",
+        "assignmentLockAt": "$Canvas.assignment.lockAt.iso8601",
+        "anonymousGrading": "$com.instructure.Assignment.anonymous_grading",
+        "canvas_module_item_id": "$Canvas.moduleItem.id",
+        "ltiGroupContextIds": "$Membership.course.groupIds",
+        "termStart": "$Canvas.term.startAt",
+        "canvas_course_id": "$Canvas.course.id",
+        "courseName": "$Canvas.course.name",
+        "sectionIds": "$Canvas.course.sectionIds",
+        "sourceUserId": "$Person.sourcedId"
+    },
+    "oidc_initiation_url": "https:\/\/www.dj4e.com\/tsugi\/lti\/oidc_login\/3E9D49AD-6D15-7178-7E86-4C75557CB0F6",
+    "target_link_uri": "https:\/\/www.dj4e.com\/tsugi\/lti\/oidc_launch",
+    "note_from_sakai": "Canvas finds a default redirect_uris value from target_link_uri.  So Sakai (and Tsugi) puts its redirect_uri there and makes sure to override target_link_uri in each of the placements so the global target_link_uri is in effect ignored.",
+    "redirect_uris": "https:\/\/www.dj4e.com\/tsugi\/lti\/oidc_launch",
+    "oidc_redirect_uris": "https:\/\/www.dj4e.com\/tsugi\/lti\/oidc_launch"
+}

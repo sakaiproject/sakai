@@ -19,7 +19,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.feedback.ExactLevelFeedbackMessageFilter;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
@@ -66,16 +65,6 @@ public class ImportExportPage extends BasePage {
 		feedbackPanel.setVisibilityAllowed(false);
 		add(nonErrorFeedbackPanel);
 		add(errorFeedbackPanel);
-	}
-
-	@Override
-	public void renderHead(final IHeaderResponse response) {
-		super.renderHead(response);
-
-		final String version = PortalUtils.getCDNQuery();
-
-		// Gradebook Import/Export styles
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-importexport.css%s", version)));
 	}
 
 	@Override

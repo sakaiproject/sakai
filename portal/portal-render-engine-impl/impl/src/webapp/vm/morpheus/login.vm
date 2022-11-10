@@ -13,7 +13,7 @@
         <script src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
         <script src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
 
-        #parse("/vm/morpheus/snippets/styleable-snippet.vm")
+        ##parse("/vm/morpheus/snippets/styleable-snippet.vm")
 
     </head>
     <body class="portalBody">
@@ -39,8 +39,6 @@
                 </script>
 
             #end ## END of IF (!${loginTopLogin})
-
-            <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
 
         <!-- END VM login.vm -->
     </body>

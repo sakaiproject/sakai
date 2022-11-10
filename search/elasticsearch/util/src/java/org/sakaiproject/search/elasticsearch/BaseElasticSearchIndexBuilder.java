@@ -15,13 +15,14 @@
  */
 package org.sakaiproject.search.elasticsearch;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.existsQuery;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
+import static org.opensearch.index.query.QueryBuilders.simpleQueryStringQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,39 +48,39 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.core.CountRequest;
-import org.elasticsearch.client.core.CountResponse;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.GetIndexResponse;
-import org.elasticsearch.cluster.health.ClusterIndexHealth;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.util.set.Sets;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.xcontent.XContentBuilder;
-import org.elasticsearch.xcontent.XContentType;
+import org.opensearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.opensearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.opensearch.action.admin.indices.refresh.RefreshRequest;
+import org.opensearch.action.bulk.BulkItemResponse;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
+import org.opensearch.action.delete.DeleteRequest;
+import org.opensearch.action.delete.DeleteResponse;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.index.IndexResponse;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchType;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.core.CountRequest;
+import org.opensearch.client.core.CountResponse;
+import org.opensearch.client.indices.CreateIndexRequest;
+import org.opensearch.client.indices.CreateIndexResponse;
+import org.opensearch.client.indices.GetIndexRequest;
+import org.opensearch.client.indices.GetIndexResponse;
+import org.opensearch.cluster.health.ClusterIndexHealth;
+import org.opensearch.common.settings.Settings;
+import org.opensearch.common.util.set.Sets;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.rest.RestStatus;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.aggregations.AggregationBuilders;
+import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.common.xcontent.XContentBuilder;
+import org.opensearch.common.xcontent.XContentType;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -862,7 +863,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      */
     protected void indexAdd(String resourceName, EntityContentProducer ecp) {
         try {
-            prepareIndexAdd(resourceName, ecp, true);
+            prepareIndexAdd(resourceName, ecp, false);
         } catch (NoContentException e) {
             deleteDocument(e);
         } catch (Exception e) {
@@ -1068,9 +1069,9 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     @Override
-    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
+    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
 
-        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, start, end);
+        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, toolIds, start, end);
 
         getLog().debug("Search request from index builder [{}]: {}", getName(), searchRequest);
         try {
@@ -1090,16 +1091,16 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     @Override
-    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
+    public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInformation) {
         // additional information will be used in specific indexes,
         // so this method can be overridden in the index to make use of that field.
-        return search(searchTerms, references, siteIds, start, end);
+        return search(searchTerms, references, siteIds, toolIds, start, end);
     }
 
-    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
         SearchRequest searchRequest = newSearchRequestAndQueryBuilders();
         addSearchCoreParams(searchRequest);
-        addSearchQuery(searchRequest, searchTerms, references, siteIds);
+        addSearchQuery(searchRequest, searchTerms, references, siteIds, toolIds);
         addSearchResultFields(searchRequest);
         addSearchPagination(searchRequest, start, end);
         addSearchFacetting(searchRequest);
@@ -1117,10 +1118,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
     }
 
-    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds) {
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds) {
         addSearchTerms(searchRequest, searchTerms);
         addSearchReferences(searchRequest, references);
         addSearchSiteIds(searchRequest, siteIds);
+        addSearchToolIds(searchRequest, toolIds);
     }
 
     protected void addSearchTerms(SearchRequest searchRequest, String searchTerms) {
@@ -1128,15 +1130,16 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         if (searchTerms == null) {
             query.must(matchAllQuery());
-        } else if (searchTerms.contains(":")) {
-            String[] termWithType = searchTerms.split(":");
-            String termType = termWithType[0];
-            String termValue = termWithType[1];
-            // little fragile but seems like most providers follow this convention, there isn't a nice way to get the type
-            // without a handle to a reference.
-            query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
         } else {
-            query.must(simpleQueryStringQuery(searchTerms));
+            Arrays.stream(searchTerms.split(" ")).forEach(term -> {
+
+                if (term.contains(":")) {
+                    String[] fieldTerm = term.split(":");
+                    query.must(termQuery(fieldTerm[0], fieldTerm[1]));
+                } else {
+                    query.must(simpleQueryStringQuery(term));
+                }
+            });
         }
     }
 
@@ -1146,6 +1149,15 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[0])));
         }
     }
+
+    protected void addSearchToolIds(SearchRequest searchRequest, List<String> toolIds) {
+
+        if (toolIds != null && !toolIds.isEmpty()) {
+            BoolQueryBuilder queryBuilder = (BoolQueryBuilder) searchRequest.source().query();
+            queryBuilder.must(termsQuery(SearchService.FIELD_TOOL, toolIds));
+        }
+    }
+
 
     protected abstract void addSearchSiteIds(SearchRequest searchRequest, List<String> siteIds);
 
@@ -1349,6 +1361,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      */
     @Override
     public EntityContentProducer newEntityContentProducer(String ref) {
+        if (ref == null) return null;
+
         final Optional<EntityContentProducer> producer = matchEntityContentProducer(p -> p.matches(ref));
         if ( producer.isPresent() ) {
             getLog().debug("Matched content producer " + producer.get() + " for reference " + ref + " in index builder "

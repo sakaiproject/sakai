@@ -41,11 +41,13 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
+	private static final String USER_PROP_SPECIAL_NEEDS = "specialNeeds";
 	private static final String USER_PROP_STUDENT_NUMBER = "studentNumber";
 	private static final String USER_PERM_STUDENT_NUMBER_VISIBLE = "user.studentnumber.visible";
 	
 	private final static String PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String PROP_DISPLAY_SPECIAL_NEEDS = "displaySpecialNeeds";
 	private final static String PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	private final static String PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 
@@ -82,7 +84,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 		}
 		return Optional.empty();
 	}
-	
+
 	public boolean useInstitutionalAnonymousId(Site site) {
 		try {
 			return (serverConfigurationService.getBoolean(PROP_USE_INSTITUTIONAL_ANONYMOUS_ID, false) ||
@@ -90,7 +92,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 		} catch(Exception ignore) {}
 		return false;
 	}
-	
+
 	public Optional<List<String>> getAdditionalNotes(User user, Site site) {
 		try {
 			if(user != null) {
@@ -114,7 +116,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 		}
 		return Optional.empty();
 	}
-	
+
 	public boolean isAdditionalNotesEnabled(Site site) {
 		try {
 			return (serverConfigurationService.getBoolean(PROP_DISPLAY_ADDITIONAL_INFORMATION, false) ||
@@ -122,7 +124,37 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 		} catch(Exception ignore) {}
 		return false;
 	}
-	
+
+	public Optional<List<String>> getSpecialNeeds(User user, Site site) {
+		try {
+			//check if special needs info is enabled (system-wide or site-based)
+			if (user != null && isSpecialNeedsEnabled(site)) {
+				if (user.getProperties().getPropertyList(USER_PROP_SPECIAL_NEEDS) != null) {
+					List<String> ret = new ArrayList<>();
+					for (String s : user.getProperties().getPropertyList(USER_PROP_SPECIAL_NEEDS)) {
+						//this property is encrypted, so we need to decrypt it
+						//String decrypt = encryptionUtilities.decrypt(s);
+						String decrypt = s;
+						if (StringUtils.isNotBlank(s) && StringUtils.isNotBlank(decrypt)) {
+							ret.add(decrypt);
+						}
+					}
+					return Optional.ofNullable(ret);
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Error special needs info for {}", ((user != null) ? user.getId() : "-null-"), e);
+		}
+		return Optional.empty();
+	}
+
+	public boolean isSpecialNeedsEnabled(Site site) {
+		try {
+			return (serverConfigurationService.getBoolean(PROP_DISPLAY_SPECIAL_NEEDS, true) || (site != null && site.getProperties().getBooleanProperty(PROP_DISPLAY_SPECIAL_NEEDS)));
+		} catch(Exception ignore) {}
+		return false;
+	}
+
 	@Override
 	public Optional<String> getInstitutionalNumericId(User user, Site site)
 	{
@@ -173,7 +205,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	{
 		try
 		{
-			return (serverConfigurationService.getBoolean(PROP_USE_INSTITUTIONAL_NUMERIC_ID, false) ||
+			return (serverConfigurationService.getBoolean(PROP_USE_INSTITUTIONAL_NUMERIC_ID, true) ||
 			(site != null && site.getProperties().getBooleanProperty(PROP_USE_INSTITUTIONAL_NUMERIC_ID)));
 		}
 		catch (Exception ignore)

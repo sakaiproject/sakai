@@ -2,6 +2,7 @@ import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 import {tr} from "./sakai-rubrics-language.js";
+import "../sakai-editor.js";
 
 export class SakaiRubricCriterionEdit extends RubricsElement {
 
@@ -18,7 +19,8 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     return {
       siteId: { attribute: "site-id", type: String },
       rubricId: { attribute: "rubric-id", type: String },
-      criterion: { type: Object, notify: true }
+      criterion: { type: Object, notify: true },
+      isCriterionGroup: {attribute: "is-criterion-group", type: Boolean},
     };
   }
 
@@ -28,7 +30,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     this._criterion = newValue;
     this.criterionClone = JSON.parse(JSON.stringify(newValue));
     this.requestUpdate("criterion", oldValue);
-    if (this.criterionClone.new) {
+    if (this.criterionClone.isNew) {
       this.updateComplete.then(() => this.querySelector(".edit").click() );
     }
   }
@@ -38,10 +40,10 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   render() {
 
     return html`
-      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}" href="#"></a>
+      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}" aria-label="${tr("edit_criterion")} ${this.criterion.title}" href="#"></a>
 
-      <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom">
-        <div class="arrow"></div>
+      <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom rubrics-popover">
+        <div class="arrow-1"></div>
         <div class="popover-title">
           <div class="buttons act">
             <button class="active save" @click="${this.saveEdit}">
@@ -54,16 +56,29 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
         </div>
         <div class="popover-content form">
           <div class="form-group">
-            <label for="criterion-title-field-${this.criterion.id}">
-              <sr-lang key="criterion_title">Criterion Title</sr-lang>
+            <label class="label-rubrics" for="criterion-title-field-${this.criterion.id}">
+              ${this.isCriterionGroup ? html`
+                <sr-lang key="criterion_group_title">Criterion Group Title</sr-lang>
+              ` : html`
+                <sr-lang key="criterion_title">Criterion Title</sr-lang>
+              `}
             </label>
             <input id="criterion-title-field-${this.criterion.id}" type="text" class="form-control" value="${this.criterionClone.title}" maxlength="255">
           </div>
           <div class="form-group">
-            <label for="criterion-description-field-${this.criterion.id}">
-              <sr-lang key="criterion_description">Criterion Description</sr-lang>
+            <label class="label-rubrics" for="criterion-description-field-${this.criterion.id}">
+              ${this.isCriterionGroup ? html`
+                <sr-lang key="criterion_group_description">Criterion Group Description</sr-lang>
+              ` : html`
+                <sr-lang key="criterion_description">Criterion Description</sr-lang>
+              `}
             </label>
-            <textarea id="criterion-description-field-${this.criterion.id}" class="form-control">${this.criterionClone.description}</textarea>
+            <sakai-editor
+              toolbar="BasicText"
+              content="${this.criterionClone.description ? `${this.criterionClone.description}` : ``}"
+              @changed="${this.updateCriterionDescription}"
+              id="criterion-description-field-${this.criterion.id}">
+            </sakai-editor>
           </div>
         </div>
       </div>
@@ -131,6 +146,10 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     this.hideToolTip();
     this.dispatchEvent(new CustomEvent('hide-tooltip', {details: this.criterion}));
     $(`#edit_criterion_${this.criterion.id}`).hide();
+    const popover = $(`#edit_criterion_${this.criterion.id}`);
+    popover.find("input[type='text']")[0].value = this.criterion.title;
+    this.querySelector("sakai-editor").setContent(this.criterion.description);
+    popover.hide();
   }
 
   saveEdit(e) {
@@ -138,7 +157,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     e.stopPropagation();
 
     const title = document.getElementById(`criterion-title-field-${this.criterion.id}`).value;
-    const description = document.getElementById(`criterion-description-field-${this.criterion.id}`).value;
+    const description = this.criterionClone.description;
 
     const body = JSON.stringify([
       { "op": "replace", "path": "/title", "value": title },
@@ -155,19 +174,21 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        this.hideToolTip();
-        this.dispatchEvent(new CustomEvent('criterion-edited', { detail: { id: this.criterion.id, title, description } }));
-        this.dispatchEvent(new SharingChangeEvent());
+        return r.json();
       }
 
       throw new Error("Network error while updating criterion");
+    }).then(criterion => {
+
+      this.dispatchEvent(new CustomEvent('criterion-edited', { detail: criterion }));
+      this.dispatchEvent(new SharingChangeEvent());
     })
     .catch (error => console.error(error));
 
     // hide the popover
     this.hideToolTip();
     this.dispatchEvent(new CustomEvent('hide-tooltip', {detail: this.criterion}));
-    $(`#edit_criterion_${this.criterion.id}`).hide();
+    document.getElementById(`edit_criterion_${this.criterion.id}`).style.display = "none";
   }
 
   openEditWithKeyboard(e) {
@@ -175,6 +196,10 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     if (e.keyCode == 32) {
       this.editCriterion(e);
     }
+  }
+
+  updateCriterionDescription(e) {
+    this.criterionClone.description = e.detail.content;
   }
 }
 

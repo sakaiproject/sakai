@@ -86,6 +86,7 @@
                 <module>myconnections</module>
                 <module>oauth</module>
                 <module>pasystem</module>
+                <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
                 <module>portal</module>
@@ -173,6 +174,7 @@
                 <module>mycalendar</module>
                 <module>myconnections</module>
                 <module>osp</module>
+                <module>plus</module>
                 <module>podcasts</module>
                 <module>polls</module>
                 <module>portal</module>

@@ -13,6 +13,8 @@ const gradableDataMixin = Base => class extends Base {
 
           this.showOfficialPhoto = gradableData.showOfficialPhoto;
 
+          this.previewMimetypes = gradableData.previewMimetypes;
+
           this.gradable = gradableData.gradable;
 
           this.isGroupGradable = gradableData.gradable.access === "GROUP";

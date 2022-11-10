@@ -3,17 +3,16 @@
           cache: false,
       });
 
-      var savedMessage;
-      var subMessage;
-      var alertMessage;
-      var closeAlertMessage;
-      var alertTitle;
       var hideMessage;
+      var timeWarning;
+      var timeWarningClose;
+      var minReqScale;
+      var pleaseWait;
+      var savedMessage;
       var showMessage;
-      var timeRemaining;
-      var timeLimitHour;
-      var timeLimitMinute;
-      var timeLimitSecond;
+      var srRemaining;
+      var srTimerInfo;
+      var subMessage;
       var scrollSep = 0;
       var topWindow = window.self;
       var inFrame = false;
@@ -23,11 +22,11 @@
       var headerHeight;
       var routePrefix = "../delivery/";
       var routeSuffix = "";
+      var showWarning = false;
+      var disableWarning;
       var ajaxQuery = {
           "ajax": true
       };
-      var hours, minutes, seconds;
-      var minReqScale;
       var currentAid = parseInt($("#takeAssessmentForm\\:assessmentID").val());
 
       if (isFromLink()) {
@@ -41,25 +40,56 @@
           dataType: "json",
           async: false,
           success(data) {
-              savedMessage = data.savedMessage;
-              subMessage = data.subMessage;
-              alertMessage = data.alertMessage;
-              closeAlertMessage = data.closeAlertMessage;
-              alertTitle = data.alertTitle;
               hideMessage = data.hideMessage;
-              showMessage = data.showMessage;
-              timeRemaining = data.timeRemaining;
-              timeLimitHour = data.timeLimitHour;
-              timeLimitMinute = data.timeLimitMinute;
-              timeLimitSecond = data.timeLimitSecond;
+              timeWarning = data.timeWarning;
+              timeWarningClose = data.timeWarningClose;
               minReqScale = data.minReqScale;
+              pleaseWait = data.pleaseWait;
+              savedMessage = data.savedMessage;
+              showMessage = data.showMessage;
+              srRemaining = data.srRemaining;
+              srTimerInfo = data.srTimerInfo;
+              subMessage = data.subMessage;
           }
       });
 
-      var parnetBlock = $("main").length === 0 ? $("body") : $("main");
-      parnetBlock.prepend("<link href=\"/samigo-app/css/timerbar.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" /><div id=\"timerBlank\"></div></div><div id=\"timerBlock\" aria-hidden=\"true\"><div id=\"progressbar\"><div class=\"progress-label\"></div></div><div id=\"timeoutWarning\"><div tabindex=0 id=\"warnClose\" style=\"float: right\">" + closeAlertMessage + "</div><b>" + alertTitle + "</b> <span id=\"alertMessage\"></span></div><div tabindex=0 id=\"showHide\"><span class=\"showHideSym\">▲</span><span id=\"showHideText\">" + hideMessage + "</span><span class=\"showHideSym\">▲</span></div></div><div id=\"dialog-timeout\"><div id=\"indicator\"><img class=\"ajaxImg\" src=\"/samigo-app/images/ajaxReq.gif\"><span style=\"margin-left: 70px;\">" + savedMessage + "</span></div></div>");
+      var parnetBlock = $("#timerPosition");
+      parnetBlock.after(`
+          <link href='/samigo-app/css/timerbar.css' type='text/css' rel='stylesheet' media='all' />
+          <div id='timerBlock' aria-hidden='true'>
+              <div class="progress-wrapper">
+                  <div class="progress">
+                      <div class="progress-bar progress-label-wrapper">
+                          <span class='progress-label'></span>
+                      </div>
+                  </div>
+                  <div class="progress">
+                      <div id='progressbar' class="progress-bar"></div>
+                  </div>
+              </div>
+              <div class="warn-banner">
+                <div class="sak-banner-warn">
+                    ${ timeWarning }
+                    <a href="#" class="warn-banner-dismiss">${ timeWarningClose }</a>
+                </div>
+              </div>
+              <button id='showHide'>
+                  <span class='showHideSym'>▲</span>
+                  <span id='showHideText'>${ hideMessage }"</span>
+                  <span class='showHideSym'>▲</span>
+              </button>
+          </div>
+          <div id='dialog-timeout'>
+              <div id='indicator'>
+                  <img class='ajaxImg' alt='${ pleaseWait }' src='/samigo-app/images/ajaxReq.gif'>
+                  <span style='margin-left: 70px;'>${ savedMessage }</span>
+              </div>
+          </div>
+      `);
       var timeoutDialog = $("#dialog-timeout");
       var timerBlock = $("#timerBlock");
+      var warnBanner = $(".warn-banner").hide();
+      var warnBannerDismiss = $(".warn-banner-dismiss");
 
       function setScrolling() {
           headerHeight = $("header").height();
@@ -112,9 +142,6 @@
                       timerBlock.css("border-radius", "10px");
                   }
               }
-              timerBlock.css({
-                  "top": newTop,
-              });
           }
       }
 
@@ -128,7 +155,6 @@
 
       });
 
-
       updateScroll();
       if (!inFrame) {
           timerBlock.width("100%");
@@ -136,45 +162,39 @@
               margin: 0
           });
       }
+
       var progressbar = timerBlock.find("#progressbar");
-      var timeoutWarning = timerBlock.find("#timeoutWarning");
+      var progressWrapper = timerBlock.find(".progress-wrapper")
       var showHide = timerBlock.find("#showHide");
       var totalTime, elapsedTime, remain, lastAid = 0;
       var submitStatus, localCount, ajaxCount = null;
       var indicator = timeoutDialog.find("#indicator");
-      var showWarning = true;
       var showTimer = $("input[name$=\\:showTimer]");
-      timeoutWarning.find("#warnClose").click(function() {
-          timeoutWarning.slideUp();
-      });
 
-
-      showHide.click(function() {
+      showHide.click(function(e) {
+          e.preventDefault();
           if (progressbar.is(":visible")) {
-              progressbar.slideUp();
+              progressWrapper.slideUp();
+              if (showWarning) {
+                warnBanner.slideDown();
+              }
               showHide.find("#showHideText").text(showMessage);
               showHide.find(".showHideSym").text("▼");
               showTimer.val(false);
-              showHide.blur();
           } else {
-              progressbar.slideDown();
+              progressWrapper.slideDown();
+              warnBanner.slideUp();
               showHide.find("#showHideText").text(hideMessage);
               showHide.find(".showHideSym").text("▲");
               showTimer.val(true);
-              showHide.blur();
           }
       });
 
-      $("#warnClose").keypress(function(event) {
-          if (event.keyCode === 13) {
-              $("#warnClose").click();
-          }
-      });
-
-      $("#showHide").keypress(function(event) {
-          if (event.keyCode === 13) {
-              $("#showHide").click();
-          }
+      warnBannerDismiss.click(function(e) {
+          e.preventDefault();
+          warnBanner.slideUp();
+          showWarning = false;
+          disableWarning = true;
       });
 
       function startTimeFinish() {
@@ -206,72 +226,110 @@
       }
 
       if (showTimer.val() !== "true") {
-          progressbar.slideUp();
+          progressWrapper.slideUp();
           showHide.find("#showHideText").text(showMessage);
           showHide.find(".showHideImg").attr("src", "/samigo-app/images/timerOpen.png");
       } else {
-          progressbar.slideDown();
+          progressWrapper.slideDown();
           showHide.find("#showHideText").text(hideMessage);
           showHide.find(".showHideImg").attr("src", "/samigo-app/images/timerClose.png");
       }
 
       var readerAnnounce = true;
 
-      function readTime(warning) {
-          if (warning) {
-              $("#timerReader").html("Warning, only " + hours + " hours, " + minutes + " minutes, and " + seconds + " seconds remain");
+      function readTime() {
+          const alertEl = document.getElementById("timerReader");
+          //Clear alert, so it's read later
+          alertEl.innerText = "";
+          setTimeout(() => {
+              alertEl.innerText = getRemainingTimeString(remain).concat(" ", srRemaining);
+          }, 250);
+      }
+
+      function getColorString(progValue) {
+          if (progValue >= 50) {
+              return "var(--timer-bar-full-bg, green)"
+          } else if (progValue <= 25) {
+              return "var(--timer-bar-low-bg, red)"
           } else {
-              $("#timerReader").html(hours + " hours, " + minutes + " minutes, and " + seconds + " seconds remain");
+              return "var(--timer-bar-medium-bg, orange)"
           }
       }
 
+    function getRemainingTimeString(remainingSeconds) {
+        //Get defaults for Time threshhold
+        let defaultTimeThresholdMin = moment.relativeTimeThreshold('m');
+        let defaultTimeThresholdHour = moment.relativeTimeThreshold('h');
+        //Overwrite defaults for Time threshhold
+        moment.relativeTimeThreshold('m', 60);
+        moment.relativeTimeThreshold('h', 24);
+
+        let remainingTime;
+        if (remainingSeconds > 3660) {
+            //If time is over 1h and 1m return as x hour(s) and x minutes
+            const hours = Math.floor(moment.duration(remainingSeconds, "second").asHours());
+            const minutes = Math.floor(moment.duration(remainingSeconds - hours * 3600, "second").asMinutes());
+            remainingTime = `${moment().add(hours, "hour").fromNow(true)} and ${moment().add(minutes, "minute").fromNow(true)}`;
+        } else {
+            //Let moment hadle expressing the remaining time
+            const endtime = moment().add(remainingSeconds, "seconds");
+            remainingTime =  endtime.fromNow(true);
+        }
+
+        //Set defaults for Time threshhold
+        moment.relativeTimeThreshold('m', defaultTimeThresholdMin);
+        moment.relativeTimeThreshold('h', defaultTimeThresholdHour);
+
+        return remainingTime;
+    }
 
       function setProgressBar() {
-          var progValue = 100 - (elapsedTime / totalTime) * 100;
-          var red = 255 - Math.floor(2.55 * progValue);
-          var green = Math.floor(2.55 * progValue);
-          var colorString = "#" + ("00" + red.toString(16)).substr(-2) + ("00" + green.toString(16)).substr(-2) + "00";
-          var progressbarValue = progressbar.find(".ui-progressbar-value");
-          progressbarValue.css({
-              "background": colorString
-          });
-          var progressLabel = progressbar.find(".progress-label");
-          hours = parseInt(remain / 3600) % 24;
-          minutes = parseInt(remain / 60) % 60;
-          seconds = remain % 60;
-          var thours = parseInt(totalTime / 3600) % 24;
-          var tminutes = parseInt(totalTime / 60) % 60;
-          var tseconds = totalTime % 60;
+          //progress in %
+          const progValue = 100 - Math.floor(((totalTime - remain) / totalTime) * 100);
+
+          progressbar.css({"background-color": getColorString(progValue)});
+
+          const progressLabel = timerBlock.find(".progress-label");
+          const displayInfoThreshold = 30; //seconds
           if (readerAnnounce) {
-              parnetBlock.append("<span id=\"timerReader\" role=\"alert\" style=\"position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;\">This is a timed assessment, With a time limit of " + thours + " hours, " + tminutes + " minutes, and " + tseconds + " seconds, use hotkey control alt T to get current time remaining</span>");
-              $(document).keydown(function(event) {
-                  if (event.which === 84 && event.ctrlKey && event.altKey) { 
-                      readTime(false);
+              parnetBlock.append(`
+                <span id="timerReader" role="alert" style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
+                    ${elapsedTime <= displayInfoThreshold ? srTimerInfo.replace("{}", getRemainingTimeString(remain)) : ""}
+                </span>
+              `);
+
+              document.addEventListener('keydown', (event) => {
+                  if(event.key == 't' && event.ctrlKey && event.altKey) {
+                    readTime();
                   }
               });
+
               readerAnnounce = false;
-          }
-          progressLabel.text(timeRemaining + ": " + ("00" + hours.toString()).substr(-2) + ":" + ("00" + minutes.toString()).substr(-2) + ":" + ("00" + seconds.toString()).substr(-2));
-          progressbar.progressbar("value", progValue);
-          if (progValue < 10 && showWarning) {
-              var timeString = "";
-              if (hours > 0) {
-                  timeString = "" + hours + " " + timeLimitHour + ", " + minutes + " " + timeLimitMinute + ", " + seconds + " " + timeLimitSecond;
-              } else if (minutes > 0) {
-                  timeString = "" + minutes + " " + timeLimitMinute + ", " + seconds + " " + timeLimitSecond;
-              } else {
-                  timeString = "" + seconds + " " + timeLimitSecond;
+
+          } else {
+              const timerReader = document.getElementById("timerReader");
+              const remainingTime = getRemainingTimeString(remain).concat(" ", srRemaining);
+              if (elapsedTime > displayInfoThreshold && timerReader && timerReader.innerText != remainingTime) {
+                  readTime();
               }
-              timeoutWarning.find("#alertMessage").text(alertMessage.replace("#time#", timeString));
-              timeoutWarning.slideDown();
-              readTime(true);
-              showWarning = false;
+          }
+
+          const hours = parseInt(remain / 3600) % 24;
+          const minutes = parseInt(remain / 60) % 60;
+          const seconds = remain % 60;
+
+          progressLabel.text(("00" + hours.toString()).substr(-2) + ":" + ("00" + minutes.toString()).substr(-2) + ":" + ("00" + seconds.toString()).substr(-2));
+
+          progressbar.width(progValue + "%");
+
+          if (!disableWarning && !showWarning && progValue < 10) {
+            //Only show banner if the progressbar is hidden
+            if(progressbar.is(":hidden")) {
+                warnBanner.slideDown();
+            }
+            showWarning = true;
           }
       }
-
-      progressbar.progressbar({
-          value: false
-      });
 
       function leaveAssessment() {
 	      window.open("../delivery/submitted" + routeSuffix, "_self");
@@ -303,6 +361,8 @@
           if (currentAid && lastAid && currentAid > 0 && lastAid > 0 && currentAid !== lastAid) {
               $("#multiple-tabs-warning").show();
           }
+
+          disableWarning = (100 - Math.floor(((totalTime - remain) / totalTime) * 100)) < 10; 
           remain = data[0] - data[1];
           setProgressBar();
           var requestScale = (data[0] / 100) * 1000;
@@ -317,7 +377,6 @@
                   if (totalTime === elapsedTime) {
                       clearInterval(localCount);
                       clearInterval(ajaxCount);
-                      $("#timeoutWarning").hide();
                       $("[id$=\\:submitNoCheck]")[0].click();
                       return;
                   }
