@@ -28,7 +28,7 @@
         </property>
     </bean>
 
-	<bean id="tasksHibernateMappings"
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.taskservice"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="annotatedClasses">
 			<list>

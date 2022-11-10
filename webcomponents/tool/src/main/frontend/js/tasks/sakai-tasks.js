@@ -11,8 +11,9 @@ export class SakaiTasks extends SakaiPageableElement {
   static get properties() {
 
     return {
-      taskBeingEdited: { type: Object},
-      currentFilter: String,
+      taskBeingEdited: { attribute: false, type: Object },
+      currentFilter: { attribute: false, type: String },
+      canAddTask: { attribute: false, type: Boolean },
     };
   }
 
@@ -52,11 +53,8 @@ export class SakaiTasks extends SakaiPageableElement {
   }
 
   async loadAllData() {
-    const currSiteId = this.siteId;
-    let url = `/api/tasks`;
-    if (currSiteId) {
-      url = `/api/tasks/site/${currSiteId}`;
-    }
+
+    const url = `/api/tasks${this.siteId ? `/site/${this.siteId}` : ""}`;
     return fetch(url)
       .then(r => {
 
@@ -66,9 +64,10 @@ export class SakaiTasks extends SakaiPageableElement {
         throw new Error(`Failed to get tasks from ${url}`);
 
       })
-      .then(data => {
+      .then(response => {
 
-        this.data = data;
+        this.data = response.tasks;
+        this.canAddTask = response.canAddTask;
         this.filter("current");
       })
       .catch (error => console.error(error));
@@ -259,6 +258,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
     return html`
 
+      ${this.canAddTask ? html`
       <div id="add-block">
         <lion-dialog id="add-edit-dialog">
 
@@ -279,6 +279,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
         </lion-dialog>
       </div>
+      ` : ""}
       <div id="controls">
         <div id="filter">
           <select @change=${this.filterChanged} .value=${this.currentFilter}>

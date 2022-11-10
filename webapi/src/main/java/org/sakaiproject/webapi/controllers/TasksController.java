@@ -89,12 +89,14 @@ public class TasksController extends AbstractSakaiApiController {
     private SecurityService securityService;
 
     @GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserTaskAdapterBean> getTasks() throws UserNotDefinedException {
+    public Map<String, Object> getTasks() throws UserNotDefinedException {
 
         checkSakaiSession();
 
+        Map<String, Object> data = new HashMap<>();
+
         // Flatten the UserTask objects into a more compact form and return.
-        return taskService.getAllTasksForCurrentUser()
+        data.put("tasks", taskService.getAllTasksForCurrentUser()
             .stream().map(bean -> {
                 try {
                     Site site = siteService.getSite(bean.getSiteId());
@@ -107,18 +109,24 @@ public class TasksController extends AbstractSakaiApiController {
                     log.warn("No site for id {}", bean.getSiteId());
                 }
                 return bean;
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()));
+
+        data.put("canAddTask", taskService.canCurrentUserAddTask(null));
+
+        return data;
     }
     
     @GetMapping(value = "/tasks/site/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserTaskAdapterBean> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
+    public Map<String, Object> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
 
         checkSakaiSession();
         
         final Site site = siteService.getSite(siteId);
 
+        Map<String, Object> data = new HashMap<>();
+
         // Flatten the UserTask objects into a more compact form and return.
-        return taskService.getAllTasksForCurrentUserOnSite(siteId)
+        data.put("tasks", taskService.getAllTasksForCurrentUserOnSite(siteId)
             .stream().map(bean -> {
                 if (site != null) {
                 	bean.setSiteTitle(site.getTitle());
@@ -128,7 +136,11 @@ public class TasksController extends AbstractSakaiApiController {
                     entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
                 }
                 return bean;
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()));
+
+        data.put("canAddTask", taskService.canCurrentUserAddTask(siteId));
+
+        return data;
     }
     
     @GetMapping(value = "/sites/{siteId}/users/current/isSiteUpdater", produces = MediaType.APPLICATION_JSON_VALUE)
