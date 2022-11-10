@@ -977,9 +977,11 @@
     margin-top: 10px;
     margin-bottom: 10px;
   } 
+  .mainList div.question .matchingAnswer,
   .mainList div.question .multipleChoiceAnswer {
     padding: .5em 0;
   }
+  .matchingAnswer label,
   .multipleChoiceAnswer label {
     margin-left: 5px;
     font-weight: normal;

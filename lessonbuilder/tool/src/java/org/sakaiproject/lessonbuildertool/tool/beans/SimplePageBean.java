@@ -8041,7 +8041,7 @@ public class SimplePageBean {
 
 			correct = wrongResponses == 0 && correctResponses > 0;
 			double percentageCorrect = correctResponses / (correctResponses + wrongResponses);
-			gradebookPoints = Math.round( (percentageCorrect * gradebookPoints * 100.0) ) / 100.0;
+			gradebookPoints = Math.round( (percentageCorrect * (gradebookPoints != null ? gradebookPoints : 0) * 100.0) ) / 100.0;
 		}else {
 			log.warn("Invalid question type for question {}", question.getId());
 			correct = false;
