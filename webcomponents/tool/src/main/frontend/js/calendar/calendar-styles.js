@@ -61,6 +61,7 @@ export const calendarStyles = css`
   #days-events sakai-icon {
     margin-right: 10px;
   }
+  
   #days-events-title {
     font-weight: bold;
     margin-bottom: 10px;
