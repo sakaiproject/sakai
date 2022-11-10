@@ -116,6 +116,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -139,8 +142,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 	@Resource(name = "org.sakaiproject.authz.api.GroupProvider")
 	private GroupProvider groupProvider;
-
-	@Resource(name = "org.sakaiproject.user.api.CandidateDetailProvider")
+	
+	@Qualifier("org.sakaiproject.user.api.CandidateDetailProvider")
+	@Autowired(required = false)
 	private CandidateDetailProvider candidateDetailProvider;
 
 	@Resource private PrivacyManager privacyManager;
