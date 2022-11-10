@@ -313,6 +313,10 @@ text-decoration-line-throughh
     }
   }
 
+  .btn-nav {
+    width: 100%;
+  }
+
   .site-opt-pin:hover {
     color: var(--sakai-pin-hover-color);
   }
@@ -329,17 +333,6 @@ text-decoration-line-throughh
   .sakai-sitesAndToolsNav {
     overflow-y: scroll;
   }
-
-  /*
-  a.btn-nav{
-    color: var(--button-color);
-    &:hover,
-    &:focus {
-      outline: none;
-      color: var(--site-nav-btn-current-hover-color);
-    }
-  }
-  */
 
   .btn-site-opt {
     &:hover,

@@ -1,29 +1,63 @@
+var toolOrder = toolOrder || {};
+toolOrder.handleKeyboardSort = (sortableId, direction) => {
+
+  const order = toolOrder.sortable.toArray()
+  const index = order.indexOf(sortableId)
+
+  // pull the item we're moving out of the order
+  order.splice(index, 1)
+
+  // put it back in at the correct position
+  if (direction == 'down') {
+    order.splice(index + 1, 0, sortableId)
+  } else if (direction == 'up') {
+    order.splice(index - 1, 0, sortableId)
+  }
+
+  toolOrder.sortable.sort(order, true)
+};
+
 var serializationChanged = new Boolean(false);
 
 // stop propagation of keypress on edit_title fields (SAK-19026)
 // some get handled by a keyboard navigation function
 $(document).ready(function(){
-    $('.new_title').keypress(function(e){
-        e.stopPropagation();
+
+	$('.new_title').keypress(function(e){
+			e.stopPropagation();
+	});
+
+	const list = document.getElementById("reorder-list");
+  list && (toolOrder.sortable = Sortable.create(list, { dataIdAttr: "data-sortable-id" }));
+
+  list.querySelectorAll("li").forEach(li => {
+
+    li.addEventListener("keydown", e => {
+
+      const el = e.target;
+
+      if (e.keyCode == 68) {
+        toolOrder.handleKeyboardSort(e.target.dataset.sortableId, "down");
+      } else if (e.keyCode == 85) {
+        toolOrder.handleKeyboardSort(e.target.dataset.sortableId, "up");
+      }
     });
+  });
 })
 
+function serialize(s) {
 
-function serialize(s)
-{
 	//kill the unsaved changes message
 	if (navigator.userAgent.toLowerCase().indexOf("safari") != -1 && window != top) {
 		top.onbeforeunload = function() { };
-	}
-	else {
+	} else {
 		window.onbeforeunload = function() { };
 	}
-	
-	var order = "";
-    $('ul.sortable').children('li').each(function(idx, elm) {
-      order += elm.id.split(':')[3] + " ";
-    });       
-	
+
+	const order = Array.from(document.querySelectorAll("#reorder-list > li")).reduce((acc, li) => {
+      return acc + li.id.split(':')[3] + " ";
+    }, "");
+
 	document.getElementById('content::state-init').value = order;
 }
 
@@ -58,10 +92,10 @@ function doShowPage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
 			if (status == "pass") {
-				$(clickedLink).closest(".item_control_box").find(".item_control.show_link").hide();
-				$(clickedLink).closest(".item_control_box").find(".item_control.enable_link").hide();
-				$(clickedLink).closest(".item_control_box").find(".item_control.disable_link").show();
-				$(clickedLink).closest(".item_control_box").find(".item_control.hide_link").show();
+				$(clickedLink).closest(".dropdown-menu").find("li.show-li").hide();
+				$(clickedLink).closest(".dropdown-menu").find("li.hide-li").show();
+				$(clickedLink).closest(".dropdown-menu").find("li.unlock-li").hide();
+				$(clickedLink).closest(".dropdown-menu").find("li.lock-li").show();
 				$(clickedLink).closest(".sortable_item").find(".item-hidden-flag").hide();
 				$(clickedLink).closest(".sortable_item").find(".item-locked-flag").hide();
 				$("#call-results").fadeIn('400');
@@ -79,8 +113,8 @@ function doHidePage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
 			if (status == "pass") {
-				$(clickedLink).closest(".item_control_box").find(".item_control.hide_link").hide();
-				$(clickedLink).closest(".item_control_box").find(".item_control.show_link").show();
+				$(clickedLink).closest(".dropdown-menu").find("li.hide-li").hide();
+				$(clickedLink).closest(".dropdown-menu").find("li.show-li").show();
 				$(clickedLink).closest(".sortable_item").find(".item-hidden-flag").show();
 				$("#call-results").fadeIn('400');
 			}
@@ -97,10 +131,10 @@ function doEnablePage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
 			if (status == "pass") {
-				$(clickedLink).closest(".item_control_box").find(".item_control.enable_link").hide();
-				$(clickedLink).closest(".item_control_box").find(".item_control.disable_link").show();
-				$(clickedLink).closest(".item_control_box").find(".item_control.show_link").hide();
-				$(clickedLink).closest(".item_control_box").find(".item_control.hide_link").show();
+				$(clickedLink).closest(".dropdown-menu").find("li.unlock-li").hide();
+				$(clickedLink).closest(".dropdown-menu").find("li.lock-li").show();
+				$(clickedLink).closest(".dropdown-menu").find("li.show-li").hide();
+				$(clickedLink).closest(".dropdown-menu").find("li.hide-li").show();
 				$(clickedLink).closest(".sortable_item").find(".item-locked-flag").hide();
 				$(clickedLink).closest(".sortable_item").find(".item-hidden-flag").hide();
 				$("#call-results").fadeIn('400');
@@ -119,10 +153,10 @@ function doDisablePage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
 			if (status == "pass") {
-				$(clickedLink).closest(".item_control_box").find(".item_control.disable_link").hide();
-				$(clickedLink).closest(".item_control_box").find(".item_control.enable_link").show();
-				$(clickedLink).closest(".item_control_box").find(".item_control.hide_link").hide();
-				$(clickedLink).closest(".item_control_box").find(".item_control.show_link").show();
+				$(clickedLink).closest(".dropdown-menu").find("li.lock-li").hide();
+				$(clickedLink).closest(".dropdown-menu").find("li.unlock-li").show();
+				$(clickedLink).closest(".dropdown-menu").find("li.hide-li").hide();
+				$(clickedLink).closest(".dropdown-menu").find("li.show-li").show();
 				$(clickedLink).closest(".sortable_item").find(".item-locked-flag").show();
 				$(clickedLink).closest(".sortable_item").find(".item-hidden-flag").hide();
 				$("#call-results").fadeIn('400');
@@ -140,7 +174,7 @@ function doEditPage(clickedLink) {
 		if (status == "pass") {
 	    	var target = document.getElementById('content::page-row:' + $("#call-results").find("#pageId").text() + ':');
 			$("#call-results").fadeIn('500');
-					
+
 		}
 		else if (status == "fail") {
 			$("#call-results").fadeIn('500');
@@ -191,7 +225,7 @@ function doSaveEdit(clickedLink) {
 			$(li).find(".item_label_box").attr("style", "display: inline");
 			$(li).find(".item_control_box").show();
 			$(li).find(".item_control_box").attr("style", "display: inline");
-			$(li).addClass("sortable_item reorder-element");
+			$(li).addClass("sortable_item");
 			$(li).removeClass("editable_item");
 		}
   	});
@@ -204,7 +238,7 @@ function doCancelEdit(clickedLink) {
 	$(li).find(".item_label_box").attr("style", "display: inline");
 	$(li).find(".item_control_box").show();
 	$(li).find(".item_control_box").attr("style", "display: inline");
-	$(li).addClass("sortable_item reorder-element");
+	$(li).addClass("sortable_item");
 	$(li).removeClass("editable_item");
 	$(li).find(".new_title").val($(li).find(".item_label_box").text());
 }
@@ -216,7 +250,7 @@ function checkReset() {
 	else
 		return false;
 }
-				
+
 function sortByTitle() {
     // Do natural sorting
     $('ul.sortable').children('li').sort(function(a, b) {
@@ -241,40 +275,3 @@ function sortByTitle() {
         	return b[i]? -1:0;
     }).appendTo('ul.sortable');
 }
-				
-function addTool(draggable, manual) {
-	if (manual == true) {
-		// we got fired via the add link not a drag and drop..
-		//  so we need to manually add to the list
-		$('#reorder-list').append(draggable);
-	}
-	$(draggable).attr("style", "");
-	//force possitioning so IE displays this right
-	$(draggable).position("static");
-	$("#call-results").fadeOut('200');
-	url = $(draggable).find(".tool_add_url").attr("href");
-	oldId = $(draggable).id();
-	$(draggable).empty();
-	li = $(draggable);
-	$("#call-results").load(url, function() {
-		$(li).DraggableDestroy();
-		$(li).id("content::" + $("#call-results").find("li").id());
-		$(li).html($("#call-results").find("li").html());
-		$(this).find("li").remove();
-		$("#call-results").fadeIn('200', resetFrame());
-	});
-	return false;
-}
-
-function grabbing(selectedItem) {
-	li = $(selectedItem).closest(".sortable_item");
-	$(li).removeClass("grab_cursor");
-	$(li).addClass("grabbing_cursor");
-}
-
-function grab(selectedItem) {
-	li = $(selectedItem).closest(".sortable_item");
-	$(li).removeClass("grabbing_cursor");
-	$(li).addClass("grab_cursor");
-}
- 
