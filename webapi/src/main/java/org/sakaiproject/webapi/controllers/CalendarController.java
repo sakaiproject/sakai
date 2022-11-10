@@ -108,8 +108,8 @@ public class CalendarController extends AbstractSakaiApiController {
     private Map<EventFilterKey, Object> getBasicFilterOptions() {
 
         Map<EventFilterKey, Object> filterOptions = new HashMap<>();
-        filterOptions.put(EventFilterKey.LIMIT
-                , serverConfigurationService.getInt("webapi.calendar.events_limit", 50));
+        filterOptions.put(EventFilterKey.LIMIT,
+            serverConfigurationService.getInt("webapi.calendar.events_limit", 50));
         return filterOptions;
     }
 }
