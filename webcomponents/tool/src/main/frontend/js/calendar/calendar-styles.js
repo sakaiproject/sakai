@@ -67,6 +67,7 @@ export const calendarStyles = css`
     font-weight: bold;
     margin-bottom: 10px;
   }
+  
   #days-events a {
     color: var(--sakai-text-color);
     text-decoration: none;
