@@ -1974,7 +1974,7 @@ public class DeliveryActionListener
           if ((data.getPublishedAnswerId()!=null) && data.getPublishedAnswerId().equals(answer.getId()))
           {
             fbean.setItemGradingData(data);
-            fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setResponse(data.getAnswerText());
             if (answer.getText() == null)
             {
               answer.setText("");
