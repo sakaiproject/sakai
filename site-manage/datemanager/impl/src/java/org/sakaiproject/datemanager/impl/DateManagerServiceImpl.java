@@ -510,7 +510,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				boolean errored = false;
 
 				if (openDate == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.not.found"), "assessments", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.assessments.open.date.not.found"), "assessments", toolTitle, idx));
 				}
 				if (acceptUntil != null) {
 					if (dueDate == null) {
@@ -552,7 +552,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				update.setFeedbackEndDate(feedbackEnd);
 
 				if (dueDate != null && !update.openDate.isBefore(update.dueDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.before.due.date"), "assessments", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.assessments.open.date.before.due.date"), "assessments", toolTitle, idx));
 					continue;
 				}
 
