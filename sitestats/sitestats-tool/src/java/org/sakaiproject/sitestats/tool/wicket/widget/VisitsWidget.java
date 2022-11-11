@@ -68,13 +68,14 @@ public class VisitsWidget extends Panel {
 
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		boolean siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);
+		boolean siteStatsAll = statsAuthz.isUserAbleToViewSiteStatsAll(siteId);
 		boolean siteStatsOwn = statsAuthz.isUserAbleToViewSiteStatsOwn(siteId);
 		
 		// Single values (MiniStat)
 		List<WidgetMiniStat> widgetMiniStats = new ArrayList<WidgetMiniStat>();
 		boolean isEnableSitePresences = Locator.getFacade().getStatsManager().getEnableSitePresences();
 
-		if (siteStatsView) {
+		if (siteStatsAll) {
 			widgetMiniStats.add(getMiniStatVisits());
 			widgetMiniStats.add(getMiniStatUniqueVisits());
 			widgetMiniStats.add(getMiniStatEnrolledUsers());
@@ -112,7 +113,7 @@ public class VisitsWidget extends Panel {
 		// Final Widget object		
 		String icon = StatsManager.SILK_ICONS_DIR + "user_gray.png";
 		String title = (String) new ResourceModel("overview_title_visits").getObject();
-		if (siteStatsView) {
+		if (siteStatsAll) {
 			add(new Widget("widget", icon, title, widgetMiniStats, tabs, siteId));
 		} else {
 			add(new StudentVisitsWidget("widget", widgetMiniStats));

@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,6 +58,7 @@ import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -98,7 +100,8 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final String INCLUDE_TABS = "include-tabs";
 
-	private static final String URL_FRAGMENT = "site";
+	// Cannot be static to allow for this class to be extended at a different fragment
+	protected String URL_FRAGMENT = "site";
 
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
@@ -137,18 +140,25 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
 
+	protected ProfileImageLogic imageLogic;
+
 	public SiteHandler()
 	{
-		setUrlFragment(SiteHandler.URL_FRAGMENT);
+		// Allow any sub-classes to register their own URL_FRAGMENT
+		// https://stackoverflow.com/questions/41566202/possible-to-avoid-default-call-to-super-in-java
+		if(this.getClass() == SiteHandler.class) {
+			setUrlFragment(URL_FRAGMENT);
+		}
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
+		imageLogic = ComponentManager.get(ProfileImageLogic.class);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals(SiteHandler.URL_FRAGMENT)))
+		if ((parts.length >= 2) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			// This is part of the main portal so we simply remove the attribute
 			session.setAttribute(PortalService.SAKAI_CONTROLLING_PORTAL, null);
@@ -681,12 +691,20 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
+			ResourceProperties resourceProperties = PreferencesService.getPreferences(session.getUserId())
+				.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			
+
+			rcontext.put("currentSiteId", siteId);
+			rcontext.put("sidebarSites", portal.getSiteHelper().getContextSitesWithPages(req, siteId, null, null, loggedIn));
+
 			try
 			{
 				if (loggedIn)
 				{
 					includeLogo(rcontext, req, session, siteId);
 					includeTabs(rcontext, req, session, siteId, getUrlFragment(), false);
+					rcontext.put("picEditorEnabled", imageLogic.isPicEditorEnabled());
 				}
 				else
 				{
@@ -734,10 +752,6 @@ public class SiteHandler extends WorksiteHandler
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
 			rcontext.put("logoSkinRepo", skinRepo);
-			String siteType = portal.calcSiteType(siteId);
-			String cssClass = (siteType != null) ? siteType : "undeterminedSiteType";
-			rcontext.put("logoSiteType", siteType);
-			rcontext.put("logoSiteClass", cssClass);
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
@@ -799,12 +813,22 @@ public class SiteHandler extends WorksiteHandler
 			
 			// Check to see if we display a link in the UI for swapping the view
 			boolean roleswapcheck = false; // This variable will tell the UI if we will display any role swapping component; false by default
-			String roleswitchvalue = SecurityService.getUserEffectiveRole(SiteService.siteReference(siteId)); // checks the session for a role swap value
-			boolean roleswitchstate = false; // This variable determines if the site is in the switched state or not; false by default
-			boolean allowroleswap = SiteService.allowRoleSwap(siteId) && !SecurityService.isSuperUser();
-			
+			String roleswitchvalue = SecurityService.getUserEffectiveRole(); // checks the session for a role swap value
+			boolean roleswitchstate = SecurityService.isUserRoleSwapped(); // This variable determines if the site is in the switched state or not; false by default
+			boolean allowroleswap = SiteService.allowRoleSwap(siteId) && !SecurityService.isSuperUser();			
+
+			if (roleswitchvalue != null) {
+				String switchRoleUrl = ServerConfigurationService.getPortalUrl()
+						+ "/role-switch-out/"
+						+ siteId
+						+ "/?panel=Main";
+				rcontext.put("roleUrlValue", roleswitchvalue);
+				rcontext.put("switchRoleUrl", switchRoleUrl);
+				roleswapcheck = true;
+				roleswitchstate = true; // We're in a switched state, so set to true
+			}
 			// check for the site.roleswap permission
-			if (allowroleswap || roleswitchvalue != null)
+			else if (allowroleswap)
 			{
 				Site activeSite = null;
 	            try
@@ -824,38 +848,31 @@ public class SiteHandler extends WorksiteHandler
 	            // this block of code will check to see if the student role exists in the site.  It will be used to determine if we need to display any student view component
 	            boolean roleInSite = false;
             	Set<Role> roles = activeSite.getRoles();
+            	Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
 
             	String externalRoles = ServerConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
             	String[] svRoles = externalRoles.split(",");
             	List<String> svRolesFinal = new ArrayList<String>();
 
-            	for (Role role : roles)
-            	{
-            		for (int i = 0; i < svRoles.length; i++)
-            		{
-            			if (svRoles[i].trim().equals(role.getId()))
-            			{
+            	for (Role role : roles) {
+            		for (int i = 0; i < svRoles.length; i++) {
+            			if (svRoles[i].trim().equals(role.getId())) {
             				roleInSite = true;
             				svRolesFinal.add(role.getId());
             			}
             		}
             	}
-            	if (activeSite.getType() != null && roleInSite) // the type check filters out some of non-standard sites where swapping roles would not apply.  The boolean check makes sure a role is in the site
+            	
+            	// The type check filters out some of non-standard sites where swapping roles would not apply.
+            	// The roleInSite check makes sure a role is in the site
+            	// The current user role can't be one of the roles to be swapped
+            	if (activeSite.getType() != null && roleInSite) 
             	{
 		            String switchRoleUrl = "";
-		            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
+		            
 		            //if the userRole is null, this means they are more than likely a Delegated Access user.  Since the security check has already allowed
 		            //the user to "swaproles" @allowroleswap, we know they have access to this site
-		            if (roleswitchvalue != null && (userRole == null || !userRole.getId().equals(roleswitchvalue)))
-		            {
-		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
-						+ "/role-switch-out/"
-						+ siteId
-						+ "/?panel=Main";
-		            	rcontext.put("roleUrlValue", roleswitchvalue);
-		            	roleswitchstate = true; // We're in a switched state, so set to true
-		            }
-		            else
+		            if (roleswitchvalue == null)
 		            {
 		            	if (svRolesFinal.size()>1)
 		            	{
@@ -878,17 +895,19 @@ public class SiteHandler extends WorksiteHandler
 		            		rcontext.put("roleUrlValue", svRolesFinal.get(0));
 		            	}
 		            }
-		            roleswapcheck = true; // We made it this far, so set to true to display a component
+		            // We'll show the swap role snippet if the current user role is not in "studentview.roles"
+		            roleswapcheck = !svRolesFinal.contains(userRole.getId());
 		            rcontext.put("siteRoles", svRolesFinal);
 					rcontext.put("switchRoleUrl", switchRoleUrl);
             	}
 			}
-
+			
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
-
+			
 			int tabDisplayLabel = 1;
 			boolean toolsCollapsed = false;
+			String selectedPage = "";
 			boolean toolMaximised = false;
 
 			if (loggedIn) 
@@ -907,7 +926,10 @@ public class SiteHandler extends WorksiteHandler
 
 				try {
 					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
-				} catch (Exception any) {}
+					selectedPage = props.getProperty("selectedPage");
+				} catch (Exception any) {
+					log.warn("Exception caught whilst getting toolsCollapsed and selectedPage properties: {}", any.toString());
+				}
 
 				try {
 					toolMaximised = props.getBooleanProperty("toolMaximised");
@@ -915,7 +937,8 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("sidebarCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("selectedPage", selectedPage);
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(

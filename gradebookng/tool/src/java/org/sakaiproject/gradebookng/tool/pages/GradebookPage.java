@@ -31,7 +31,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -55,6 +54,7 @@ import org.sakaiproject.gradebookng.tool.actions.GradeUpdateAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentLeftAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentRightAction;
 import org.sakaiproject.gradebookng.tool.actions.OverrideCourseGradeAction;
+import org.sakaiproject.gradebookng.tool.actions.QuickEntryAction;
 import org.sakaiproject.gradebookng.tool.actions.SetScoreForUngradedAction;
 import org.sakaiproject.gradebookng.tool.actions.SetStudentNameOrderAction;
 import org.sakaiproject.gradebookng.tool.actions.SetZeroScoreAction;
@@ -65,6 +65,7 @@ import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeStatisticsAction
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeLogAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
+import org.sakaiproject.gradebookng.tool.actions.ViewRubricPreviewAction;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.GbGradeTable;
@@ -76,12 +77,12 @@ import org.sakaiproject.gradebookng.tool.panels.BulkEditItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.SortGradeItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GraderPermission;
-import org.sakaiproject.service.gradebook.shared.GradingType;
-import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
-import org.sakaiproject.service.gradebook.shared.SortType;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GraderPermission;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.PermissionDefinition;
+import org.sakaiproject.grading.api.SortType;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 /**
@@ -104,6 +105,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow studentGradeSummaryWindow;
 	GbModalWindow updateUngradedItemsWindow;
 	GbModalWindow rubricGradeWindow;
+	GbModalWindow rubricPreviewWindow;
 	GbModalWindow gradeLogWindow;
 	GbModalWindow gradeCommentWindow;
 	GbModalWindow deleteItemWindow;
@@ -152,7 +154,7 @@ public class GradebookPage extends BasePage {
 			// no perms
 			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
 			if (this.permissions.isEmpty()
-					|| (this.permissions.size() == 1 && StringUtils.equals(((PermissionDefinition) this.permissions.get(0)).getFunction(), GraderPermission.NONE.toString()))) {
+					|| (this.permissions.size() == 1 && StringUtils.equals(((PermissionDefinition) this.permissions.get(0)).getFunctionName(), GraderPermission.NONE.toString()))) {
 				sendToAccessDeniedPage(getString("ta.nopermission"));
 			}
 		}
@@ -186,6 +188,10 @@ public class GradebookPage extends BasePage {
 		this.rubricGradeWindow = new GbModalWindow("rubricGradeWindow");
 		this.rubricGradeWindow.setPositionAtTop(true);
 		this.form.add(this.rubricGradeWindow);
+
+		this.rubricPreviewWindow = new GbModalWindow("rubricPreviewWindow");
+		this.rubricPreviewWindow.setPositionAtTop(true);
+		this.form.add(this.rubricPreviewWindow);
 
 		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
 		this.form.add(this.gradeLogWindow);
@@ -239,7 +245,7 @@ public class GradebookPage extends BasePage {
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
 		// grading type?
-		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
+		final GradeType gradingType = gradebook.getGradeType();
 
 		this.tableArea = new WebMarkupContainer("gradeTableArea");
 		if (!this.hasGradebookItems) {
@@ -292,11 +298,13 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		this.gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
 		this.gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
+		this.gradeTable.addEventListener("previewRubric", new ViewRubricPreviewAction());
 		this.gradeTable.addEventListener("overrideCourseGrade", new OverrideCourseGradeAction());
 		this.gradeTable.addEventListener("editComment", new EditCommentAction());
 		this.gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
 		this.gradeTable.addEventListener("setZeroScore", new SetZeroScoreAction());
 		this.gradeTable.addEventListener("viewCourseGradeLog", new ViewCourseGradeLogAction());
+		this.gradeTable.addEventListener("quickEntry", new QuickEntryAction());
 		this.gradeTable.addEventListener("deleteAssignment", new DeleteAssignmentAction());
 		this.gradeTable.addEventListener("setUngraded", new SetScoreForUngradedAction());
 		this.gradeTable.addEventListener("setStudentNameOrder", new SetStudentNameOrderAction());
@@ -396,7 +404,7 @@ public class GradebookPage extends BasePage {
 
 				// but need to double check permissions to see if we have any permissions with no group reference
 				this.permissions.forEach(p -> {
-					if (!StringUtils.equalsIgnoreCase(p.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())
+					if (!StringUtils.equalsIgnoreCase(p.getFunctionName(), GraderPermission.VIEW_COURSE_GRADE.toString())
 							&& StringUtils.isBlank(p.getGroupReference())) {
 						this.showGroupFilter = true;
 					}
@@ -506,6 +514,10 @@ public class GradebookPage extends BasePage {
 		return this.rubricGradeWindow;
 	}
 
+	public GbModalWindow getRubricPreviewWindow() {
+		return this.rubricPreviewWindow;
+	}
+
 	public GbModalWindow getGradeLogWindow() {
 		return this.gradeLogWindow;
 	}
@@ -591,15 +603,7 @@ public class GradebookPage extends BasePage {
 		response.render(
 				JavaScriptHeaderItem.forScript("includeWebjarLibrary('awesomplete')", null));
 
-		// GradebookNG Grade specific styles and behaviour
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css%s", version)));
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-gbgrade-table.css%s", version)));
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-sorter.css%s", version)));
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-print.css%s", version), "print"));
+		// GradebookNG Grade specific behaviour
 		response.render(JavaScriptHeaderItem
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js%s", version)));
 		response.render(JavaScriptHeaderItem

@@ -63,6 +63,18 @@ public interface Topic extends MutableEntity {
     public BaseForum getBaseForum();
     
     public void setBaseForum(BaseForum forum);
+
+    public Boolean getSendOpenCloseToCalendar();
+
+    public void setSendOpenCloseToCalendar(Boolean sendOpenCloseToCalendar);
+
+    public String getCalendarEndId();
+
+    public void setCalendarEndId(String calendarEndId);
+
+    public String getCalendarBeginId();
+
+    public void setCalendarBeginId(String calendarBeginId);
     
     /**
      * @return List<Message>

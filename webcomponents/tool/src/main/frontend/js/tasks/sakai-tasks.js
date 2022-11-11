@@ -5,15 +5,15 @@ import '../sakai-icon.js';
 import moment from "../assets/moment/dist/moment.js";
 import "../assets/@lion/dialog/lion-dialog.js";
 import "./sakai-tasks-create-task.js";
-import "../sakai-editor.js";
 
 export class SakaiTasks extends SakaiPageableElement {
 
   static get properties() {
 
     return {
-      taskBeingEdited: { type: Object},
-      currentFilter: String,
+      taskBeingEdited: { attribute: false, type: Object },
+      currentFilter: { attribute: false, type: String },
+      canAddTask: { attribute: false, type: Boolean },
     };
   }
 
@@ -41,12 +41,6 @@ export class SakaiTasks extends SakaiPageableElement {
 
   get data() { return this._data; }
 
-  set siteId(value) {
-    this._siteId = value;
-  }
-
-  get siteId() { return this._siteId; }
-
   decorateTask(t) {
 
     t.visible = true;
@@ -60,7 +54,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
   async loadAllData() {
 
-    const url = "/api/tasks";
+    const url = `/api/tasks${this.siteId ? `/site/${this.siteId}` : ""}`;
     return fetch(url)
       .then(r => {
 
@@ -70,9 +64,10 @@ export class SakaiTasks extends SakaiPageableElement {
         throw new Error(`Failed to get tasks from ${url}`);
 
       })
-      .then(data => {
+      .then(response => {
 
-        this.data = data;
+        this.data = response.tasks;
+        this.canAddTask = response.canAddTask;
         this.filter("current");
       })
       .catch (error => console.error(error));
@@ -148,11 +143,12 @@ export class SakaiTasks extends SakaiPageableElement {
     const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
     this.shadowRoot.getElementById("add-edit-dialog").__toggle();
     this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.task = task;
+    this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.mode = "edit";
   }
 
   deleteTask(e) {
 
-    if (!confirm("Are you sure you want to delete this task?")) {
+    if (!confirm(`${this.i18n.alert_want_to_delete}`)) {
       return false;
     }
 
@@ -171,6 +167,7 @@ export class SakaiTasks extends SakaiPageableElement {
             this.filter("current");
           } else {
             this.requestUpdate();
+            this.repage();
           }
         } else {
           throw new Error(`Failed to delete task at ${url}`);
@@ -198,6 +195,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
         if (r.ok) {
           this.requestUpdate();
+          this.repage();
         } else {
           throw new Error(`Failed to soft delete task at ${url}`);
         }
@@ -248,6 +246,7 @@ export class SakaiTasks extends SakaiPageableElement {
     }
 
     this.filter("current");
+    this.currentFilter = "current";
     this.repage();
   }
 
@@ -259,25 +258,28 @@ export class SakaiTasks extends SakaiPageableElement {
 
     return html`
 
+      ${this.canAddTask ? html`
       <div id="add-block">
         <lion-dialog id="add-edit-dialog">
 
           <sakai-tasks-create-task class="dialog-content"
             id="create-task"
             slot="content"
+            site-id="${this.siteId}"
+            user-id="${this.userId}"
             @task-created=${this.taskCreated}
             @soft-deleted=${this.softDeleteTask}>
-
-            <div slot="task-text">
-              <sakai-editor element-id="task-text-editor" toolbar="basic" delay></sakai-editor>
-            </div>
-
           </sakai-tasks-create-task>
 
-          <div slot="invoker"><a @click=${this.add} href="javascript:;" title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}"><sakai-icon type="add" size="small"></a></div>
+          <div slot="invoker">
+            <a @click=${this.add} href="javascript:;" title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}">
+              <sakai-icon type="add" size="medium">
+            </a>
+          </div>
 
         </lion-dialog>
       </div>
+      ` : ""}
       <div id="controls">
         <div id="filter">
           <select @change=${this.filterChanged} .value=${this.currentFilter}>
@@ -393,13 +395,16 @@ export class SakaiTasks extends SakaiPageableElement {
     return [
       ...super.styles,
       css`
+      .global-overlays {
+        z-index: 1200;
+      }
         #add-block {
           text-align: right;
           margin-top: 8px;
           margin-bottom: 10px;
         }
           sakai-icon[type="add"] {
-            color: green;
+            color: #003a6b;
           }
 
         #controls {

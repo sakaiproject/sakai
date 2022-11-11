@@ -17,6 +17,8 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,7 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -46,9 +47,9 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GraderPermission;
-import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GraderPermission;
+import org.sakaiproject.grading.api.PermissionDefinition;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -88,6 +89,7 @@ public class PermissionsPage extends BasePage {
 
 		// get the list of TAs
 		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
+		teachingAssistants.sort(Comparator.nullsLast(GbUser::compareTo));
 
 		// get the TA GbUser for selected (if provided)
 		if (StringUtils.isNotBlank(taUuid)) {
@@ -149,7 +151,7 @@ public class PermissionsPage extends BasePage {
 					@Override
 					public Object getDisplayValue(final GbUser u) {
 						return new StringResourceModel("permissionspage.label.tausername", null,
-								new Object[] { u.getDisplayName(), u.getDisplayId() }).getString();
+								new Object[] { u.getSortName(), u.getDisplayId() }).getString();
 					}
 
 					@Override
@@ -200,14 +202,14 @@ public class PermissionsPage extends BasePage {
 			final Iterator<PermissionDefinition> iter = permissions.iterator();
 			while (iter.hasNext()) {
 				final PermissionDefinition p = iter.next();
-				if (StringUtils.equals(p.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())) {
+				if (StringUtils.equals(p.getFunctionName(), GraderPermission.VIEW_COURSE_GRADE.toString())) {
 					pageModel.setViewCourseGrade(true);
 					iter.remove();
 				}
 			}
 
 			// Clear all permissions if the only one on the stack is "none"
-			if (permissions.size() == 1 && StringUtils.equals(permissions.get(0).getFunction(), GraderPermission.NONE.toString())) {
+			if (permissions.size() == 1 && StringUtils.equals(permissions.get(0).getFunctionName(), GraderPermission.NONE.toString())) {
 				permissions.clear();
 			}
 
@@ -264,7 +266,7 @@ public class PermissionsPage extends BasePage {
 					viewCourseGradePermission.setUserId(PermissionsPage.this.taSelected.getUserUuid());
 					viewCourseGradePermission.setGroupReference(null);
 					viewCourseGradePermission.setCategoryId(null);
-					viewCourseGradePermission.setFunction(GraderPermission.VIEW_COURSE_GRADE.toString());
+					viewCourseGradePermission.setFunctionName(GraderPermission.VIEW_COURSE_GRADE.toString());
 					permissions.add(viewCourseGradePermission);
 				}
 
@@ -355,18 +357,18 @@ public class PermissionsPage extends BasePage {
 				item.add(new Label("can", new ResourceModel("permissionspage.item.can")));
 
 				// function list
-				final DropDownChoice<String> functionChooser = new DropDownChoice<String>("function",
-						new PropertyModel<String>(permission, "function"), assignablePermissions, new ChoiceRenderer<String>() {
+				final DropDownChoice<String> functionChooser = new DropDownChoice<String>("functionName",
+						new PropertyModel<String>(permission, "functionName"), assignablePermissions, new ChoiceRenderer<String>() {
 							private static final long serialVersionUID = 1L;
 
 							@Override
-							public Object getDisplayValue(final String function) {
-								return getString("permissionspage.function." + function);
+							public Object getDisplayValue(final String functionName) {
+								return getString("permissionspage.function." + functionName);
 							}
 
 							@Override
-							public String getIdValue(final String function, final int index) {
-								return function;
+							public String getIdValue(final String functionName, final int index) {
+								return functionName;
 							}
 
 						});
@@ -464,7 +466,7 @@ public class PermissionsPage extends BasePage {
 				newDef.setUserId(PermissionsPage.this.taSelected.getUserUuid());
 				newDef.setGroupReference(PermissionsPage.this.ALL_GROUPS);
 				newDef.setCategoryId(PermissionsPage.this.ALL_CATEGORIES);
-				newDef.setFunction(GraderPermission.VIEW.toString());
+				newDef.setFunctionName(GraderPermission.VIEW.toString());
 				pageModel.getPermissions().add(newDef);
 
 				target.add(form);
@@ -512,12 +514,4 @@ public class PermissionsPage extends BasePage {
 		}
 
 	}
-
-	@Override
-	public void renderHead(final IHeaderResponse response) {
-		super.renderHead(response);
-
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-permissions.css%s", PortalUtils.getCDNQuery())));
-	}
-
 }

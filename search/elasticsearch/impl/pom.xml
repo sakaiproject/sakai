@@ -18,30 +18,65 @@
     </properties>
 
     <dependencies>
-        <!-- Dependencies -->
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-cli</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-secure-sm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-x-content</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-geo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-high-level-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>transport-netty4-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codelibs.elasticsearch.module</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>analysis-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>org.opensearch.plugin</groupId>
+            <artifactId>parent-join-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.plugin</groupId>
+            <artifactId>aggs-matrix-stats-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.plugin</groupId>
+            <artifactId>rank-eval-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.plugin</groupId>
+            <artifactId>lang-mustache-client</artifactId>
         </dependency>
         <!-- Lucene -->
         <dependency>
@@ -90,14 +125,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial-extras</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-spatial3d</artifactId>
         </dependency>
         <dependency>
@@ -138,7 +165,6 @@
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -159,6 +185,10 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

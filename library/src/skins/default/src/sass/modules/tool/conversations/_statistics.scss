@@ -1,0 +1,55 @@
+.#{$namespace}sakai-conversations {
+
+	.active-topic-row {
+	  margin-top: 8px;
+	}
+
+	#statistics-timeframe-block {
+	  margin-top: 40px;
+	  div {
+	    font-weight: bold;
+	    font-size: 16px;
+	    color: var(--sakai-text-color-1);
+	    margin-bottom: 5px;
+	  }
+	  input {
+	    margin-right: 5px;
+	  }
+	  input:nth-child(2) {
+	    margin-left: 10px;
+	  }
+	}
+
+	#statistics-report-table {
+	  margin-top: 20px;
+
+	  th {
+	    background: var(--sakai-active-color-1);
+	    a {
+	      white-space: nowrap;
+	      font-size: 15px;
+	      font-weight: 500;
+	      color: var(--sakai-text-color-3);
+	      text-decoration: none;
+	    }
+
+	    .header-sort-block {
+	      display: flex;
+	      align-items: center;
+	      pointer-events: none;
+
+	      div:nth-child(2) {
+	        padding-top: 5px;
+	        margin-left: 10px;
+	      }
+	    }
+	  }
+
+	  td {
+	    white-space: nowrap;
+	    color: var(--sakai-text-color-1);
+	    font-size: 14px;
+	  }
+	}
+
+}

@@ -524,7 +524,7 @@ import org.sakaiproject.util.api.FormattedText;
 				int searchEnd = searchStart + pagesize;
 				try
 				{
-					searchResults = searchService.search(search, l, searchStart,
+					searchResults = searchService.search(search, l, null, searchStart,
 							searchEnd, filterName, sortName);
 					if (searchResults != null && searchResults.size() < 3) {
 						if ((searchResults.size() > 0 && searchResults.get(0).getScore() < 1)) {
@@ -685,17 +685,6 @@ import org.sakaiproject.util.api.FormattedText;
 				+ "/opensearch";
 	}
 	
-	
-	public String getSherlockIconUrl()
-	{
-		return formattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_IMAGE,false);
-	}
-
-	public String getSherlockUpdateUrl()
-	{
-		return formattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_URL,false);
-	}
-
 	public String getBaseUrl()
 	{
 		return serverConfigurationService.getPortalUrl() + "/tool/" + placementId;

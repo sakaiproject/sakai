@@ -24,7 +24,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 
 /**
- * An entity provider to register Basic LTI events with SiteStats 
+ * An entity provider to register LTI events with SiteStats 
  * 
  */
 public class BLTIEventsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Statisticable, Describeable {

@@ -564,7 +564,27 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         } else {
                                                             // get from a search
                                                             Search search = RequestUtils.makeSearchFromRequestParams(requestStorage.getStorageMapCopy(true, false, true, true)); // leave out headers));
-                                                            entities = entityBrokerManager.getEntitiesData(ref, search, requestStorage.getStorageMapCopy());
+                                                            try {
+                                                                entities = entityBrokerManager.getEntitiesData(ref, search, requestStorage.getStorageMapCopy());
+                                                            } catch (SecurityException se) {
+                                                                // AJAX/WS type security exceptions are handled specially, no redirect
+                                                                throw new EntityException("Security exception handling request for view ("+view+"), "
+                                                                        + "this is typically caused by the current user not having access to the "
+                                                                        + "data requested or the user not being logged in at all :: message=" + se.getMessage(),
+                                                                        view.getEntityReference()+"", HttpServletResponse.SC_FORBIDDEN);
+                                                            } catch (EntityNotFoundException e) {
+                                                                throw new EntityException( "Cannot execute entity ("+view.getEntityReference().getPrefix()+"): Could not find entity ("+e.entityReference+"): " + e.getMessage(),
+                                                                        view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
+                                                            } catch (FormatUnsupportedException e) {
+                                                                throw new EntityException( "Cannot execute entity ("+view.getEntityReference().getPrefix()+"): Format not supported ("+e.format+"): " + e.getMessage(),
+                                                                        view.getEntityReference()+"", HttpServletResponse.SC_NOT_ACCEPTABLE );
+                                                            } catch (IllegalArgumentException e) {
+                                                                throw new EntityException( "Cannot execute entity ("+view.getEntityReference().getPrefix()+"): Illegal arguments: " + e.getMessage(),
+                                                                        view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
+                                                            } catch (UnsupportedOperationException e) {
+                                                                throw new EntityException( "Cannot execute entity ("+view.getEntityReference().getPrefix()+"): Could not execute entity: " + e.getMessage(),
+                                                                        view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
+                                                            }
                                                         }
                                                         // set the modified header (use the sole entity in the list if there is one only)
                                                         setLastModifiedHeaders(res, (entities != null && entities.size()==1 ? entities.get(0) : null), System.currentTimeMillis());

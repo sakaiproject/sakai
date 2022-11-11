@@ -16,6 +16,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -24,16 +25,19 @@ import org.apache.wicket.request.IRequestParameters;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.pages.AccessDeniedPage;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 
 /**
  * Panel extension to abstract away some common functionality that many GBNG panels share. Classes extending {@link BasePanel} do not need
@@ -46,8 +50,14 @@ public abstract class BasePanel extends Panel {
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	@SpringBean(name = "org.sakaiproject.rubrics.logic.RubricsService")
+	@SpringBean(name = "org.sakaiproject.rubrics.api.RubricsService")
 	protected RubricsService rubricsService;
+
+	@SpringBean(name = "org.sakaiproject.assignment.api.AssignmentService")
+	protected AssignmentService assignmentService;
+
+	@SpringBean(name = "org.sakaiproject.authz.api.AuthzGroupService")
+	protected AuthzGroupService authzGroupService;
 
 	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
 	protected ServerConfigurationService serverConfigService;
@@ -125,8 +135,9 @@ public abstract class BasePanel extends Panel {
 	 *
 	 * @return A map with key and value of those parameters
 	 */
-	protected HashMap<String, String> getRubricParameters(final String entityId) {
-		final HashMap<String, String> list = new HashMap<String, String>();
+	protected Map<String, String> getRubricParameters(final String entityId) {
+
+		final Map<String, String> map = new HashMap<>();
 
 		String entity = RubricsConstants.RBCS_PREFIX;
 		if (entityId != null && !entityId.isEmpty()) {
@@ -137,10 +148,10 @@ public abstract class BasePanel extends Panel {
 		final IRequestParameters parameters = RequestCycle.get().getRequest().getPostParameters();
 		parameters.getParameterNames().forEach((value) -> {
 			if (value.startsWith(startsWith)) {
-				list.put(value, parameters.getParameterValue(value).toString());
+				map.put(value, parameters.getParameterValue(value).toString());
 			}
 		});
 
-		return list;
+		return map;
 	}
 }

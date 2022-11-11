@@ -13,16 +13,28 @@
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
-    <bean id="org.sakaiproject.tasks.api.TaskService"
-        class="org.sakaiproject.tasks.impl.TaskServiceImpl">
+    <bean id="org.sakaiproject.tasks.api.repository.TaskAssignedRepository"
+        class="org.sakaiproject.tasks.impl.repository.TaskAssignedRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
-	<bean id="tasksHibernateMappings"
+    <bean id="org.sakaiproject.tasks.api.TaskService"
+        class="org.sakaiproject.tasks.impl.TaskServiceImpl" init-method="init">
+
+        <property name="transactionTemplate">
+            <bean class="org.springframework.transaction.support.TransactionTemplate">
+                <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+            </bean>
+        </property>
+    </bean>
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.taskservice"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="annotatedClasses">
 			<list>
 				<value>org.sakaiproject.tasks.api.Task</value>
 				<value>org.sakaiproject.tasks.api.UserTask</value>
+				<value>org.sakaiproject.tasks.api.TaskAssigned</value>
 			</list>
 		</property>
 	</bean>

@@ -24,7 +24,7 @@
 <h:outputText value="#{msgs.searching}" />
 </div>  
 
-<h:form id="helpSearchForm" style="padding:6px">
+<h:form id="helpSearchForm" class="p-2">
       <%--<h:commandButton value="#{msgs.back}" onclick="history.back()" />
       <h:commandButton value="#{msgs.forward}" onclick="history.forward()" />      
       --%>
@@ -47,7 +47,7 @@
 </h:form>
 <sakai:group_box title="">
     <h:outputText value="#{SearchTool.numberOfResult}" />
-    <h:dataTable border="0" styleClass="listHier" value="#{SearchTool.searchResults}" var="result" summary="#{msgs.search_result_summary}">
+    <h:dataTable border="0" styleClass="listHier table table-striped" value="#{SearchTool.searchResults}" var="result" summary="#{msgs.search_result_summary}">
 	    <h:column>
 	    	<h:outputLink value="../content.hlp?docId=#{result.docId}" target="content" rendered="#{SearchTool.isRestEnabled}">
   	      <h:outputText value="#{result.name}"/>

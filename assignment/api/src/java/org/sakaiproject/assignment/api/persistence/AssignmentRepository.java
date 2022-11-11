@@ -24,7 +24,6 @@ import java.util.Set;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.serialization.SerializableRepository;
 
 /**
@@ -89,18 +88,10 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
      * Find an assignment that is linked with to a gradebook item
      * @param context the context the assignment is in
      * @param linkId the linked id or name of the gradebook item
-     * @return the assignment id or null if none is found
+     * @return the assignment id or empty if none is found
      */
-    String findAssignmentIdForGradebookLink(String context, String linkId);
+    Optional<String> findAssignmentIdForGradebookLink(String context, String linkId);
 
     Collection<String> findGroupsForAssignmentById(String assignmentId);
-
-    void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry);
-
-    boolean existsTimeSheetEntry(Long timeSheetId);
-
-    TimeSheetEntry findTimeSheetEntry(Long timeSheetId);
-
-    void deleteTimeSheetEntry(Long timeSheetId);
 
 }

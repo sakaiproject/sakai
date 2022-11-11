@@ -32,11 +32,17 @@
 		function resize() {
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
-	</script> 
-	<script>
-		function setDatesEnabled(radioButton) {
+	</script>
+	<script type="text/javascript">
+		function setDatesEnabled(radioButton){
 			$(".calWidget").fadeToggle('slow');
+			$(".lockForumAfterCloseDateSpan").fadeToggle('slow');
 		}
+
+		window.onload = function(){
+			const sendCheckbox = document.getElementById("revise:sendOpenCloseDateToCalendar");
+			sendCheckbox?.disabled && (sendCheckbox.checked = false);	//make sure that Calendar sending is not checked when it's disabled/when the site has no calendar
+		};
 
 		function openDateCal() {
 			NewCal('revise:openDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
@@ -48,17 +54,21 @@
 
 		function updateGradeAssignment() {
 
-			var elems = document.getElementsByTagName('sakai-rubric-association');
-			var topicAssignments = document.getElementById("revise:topic_assignments");
-			if ( topicAssignments !== null && topicAssignments.value != null && topicAssignments.value != 'Default_0') {
-				for (var i = 0; i < elems.length; i++) {
-					elems[i].setAttribute("entity-id", topicAssignments.value);
-					elems[i].style.display = 'inline';
-				}
+			const associations = document.querySelectorAll('sakai-rubric-association');
+			const topicAssignments = document.getElementById("revise:topic_assignments");
+			const createTaskGroup = document.getElementById("revise:createTaskGroup");
+			const createTaskEmptyPanel = document.getElementById("revise:createTaskEmptyPanel");
+			if (topicAssignments?.value && topicAssignments.value !== "Default_0") {
+				associations.forEach(a => {
+					a.setAttribute("entity-id", topicAssignments.value);
+					a.style.display = 'inline';
+				});
+				createTaskGroup && (createTaskGroup.style.display = 'inline');
+				createTaskEmptyPanel && (createTaskEmptyPanel.style.display = 'inline');
 			} else {
-				for (var i = 0; i < elems.length; i++) {
-					elems[i].style.display = 'none';
-				}
+				associations.forEach(a => a.style.display = 'none');
+				createTaskGroup && (createTaskGroup.style.display = 'none');
+				createTaskEmptyPanel && (createTaskEmptyPanel.style.display = 'none');
 			}
 		}
 
@@ -188,7 +198,7 @@
 				</h:column>
 				<h:column rendered="#{!empty ForumTool.attachments}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_attsize}" /></f:facet>
-					<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
+					<h:outputText value="#{ForumTool.getAttachmentReadableSize(eachAttach.attachment.attachmentSize)}"/>
 				</h:column>
 				<h:column rendered="#{!empty ForumTool.attachments}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_atttype}" /></f:facet>
@@ -215,24 +225,24 @@
 		</div>
 
 		<%--general posting  topic settings --%>
-		<h2><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h2>
+		<h2 id="topic_posting_head"><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h2>
 		<p class="checkbox">
 			<h:selectBooleanCheckbox
 				title="topicLocked" value="#{ForumTool.selectedTopic.topicLocked}"
 				id="topic_locked">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_locked" value="#{msgs.cdfm_lock_topic}" />
+			</h:selectBooleanCheckbox> <h:outputLabel for="topic_locked" id="topic_locked_label" value="#{msgs.cdfm_lock_topic}" />
 		</p>
 		<p class="checkbox">
 			<h:selectBooleanCheckbox
 				title="Moderated" value="#{ForumTool.selectedTopic.topicModerated}"
 				id="topic_moderated">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_moderated" value="#{msgs.cdfm_moderate_topic}" />
+			</h:selectBooleanCheckbox> <h:outputLabel for="topic_moderated" id="topic_moderated_label" value="#{msgs.cdfm_moderate_topic}" />
 		</p>
 		<p class="checkbox">
 			<h:selectBooleanCheckbox
 				title="postFirst" value="#{ForumTool.selectedTopic.topicPostFirst}"
 				id="topic_postFirst">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" value="#{msgs.cdfm_postFirst}" />
+			</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" id="topic_postFirst_label" value="#{msgs.cdfm_postFirst}" />
 		</p>
 		<t:htmlTag value="p" styleClass="checkbox anonTopic" rendered="#{ForumTool.anonymousEnabled}">
 			<h:selectBooleanCheckbox
@@ -241,7 +251,8 @@
 				onclick='togglePostAnonymousOption(this.checked);'
 				disabled="#{!ForumTool.newTopicOrPostAnonymousRevisable}">
 			</h:selectBooleanCheckbox>
-			<h:outputLabel escape="false" for="topic_postAnonymous" value="#{msgs.cdfm_postAnonymous} &nbsp;">
+			<h:outputLabel escape="false" for="topic_postAnonymous" value="#{msgs.cdfm_postAnonymous} &nbsp;" id="topic_postAnonymous_label">
+			    <h:outputText value="#{msgs.cdfm_postAnonymous}"/>
 				<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.postAnonymousRevisable && !ForumTool.existingTopic}"/>
 				<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
 			</h:outputLabel>
@@ -260,7 +271,7 @@
 			</p>
 		</t:htmlTag>
 
-		<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
+		<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" id="forumAvailabilityLabel3" /></h2>
 		<div class="indnt1">
 			<h:panelGroup styleClass="checkbox">
 				<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedTopic.availabilityRestricted}">
@@ -275,6 +286,20 @@
 			<h:panelGroup id="closeDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
 				<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
 				<h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
+			</h:panelGroup>
+			<p class="checkbox">
+				<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
+							  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
+							  style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+					<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar"
+											 disabled="#{not ForumTool.doesSiteHaveCalendar}"
+											 value="#{ForumTool.selectedTopic.topic.sendOpenCloseToCalendar}"/>
+					<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
+				</h:panelGroup>
+			</p>
+			<h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+				<h:selectBooleanCheckbox id="lockForumAfterCloseDate" value="#{ForumTool.selectedTopic.topic.lockedAfterClosed}"/>
+				<h:outputLabel for="lockForumAfterCloseDate" value="#{msgs.lockForumAfterCloseDate}" />
 			</h:panelGroup>
 		</div>
 
@@ -325,7 +350,7 @@
 			<h:outputLabel for="autoMarkThreadsRead" value="#{msgs.cdfm_auto_mark_threads_read}" />
 		</p>
 
-		<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
+		<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" /></h2>
 		<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both"  styleClass="itemSummary">
 			<h:panelGroup  style="white-space:nowrap;">
 				<h:outputLabel for="topic_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>
@@ -337,28 +362,27 @@
 				<h:outputText value="#{msgs.perm_choose_assignment_none_t}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
 				<h:outputText value=" #{msgs.perm_choose_instruction_topic} " styleClass="instrWithGrades" style="margin-left:0;"/>
 				<h:outputLink value="#" style="text-decoration:none"  styleClass="instrWithGrades">
-                    <h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}" />
-                </h:outputLink>
+					<h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}" />
+				</h:outputLink>
 			</h:panelGroup>
 			<h:panelGroup styleClass="displayMorePanel" style="display:none"></h:panelGroup>
 			<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none">
 				<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_topic_more}"/>
 			</h:panelGroup>
+			<h:panelGroup id="createTaskEmptyPanel" style="display:#{((ForumTool.selectedTopic.gradeAssign != null && ForumTool.selectedTopic.gradeAssign != 'Default_0') ? 'block' : 'none')}"></h:panelGroup>
+			<h:panelGroup id="createTaskGroup" style="display:#{((ForumTool.selectedTopic.gradeAssign != null && ForumTool.selectedTopic.gradeAssign != 'Default_0') ? 'block' : 'none')}">
+				<h:selectBooleanCheckbox id="createTask" title="createTask" value="#{ForumTool.selectedTopic.createTask}"/>
+				<h:outputLabel for="createTask" value="#{msgs.perm_create_task_topic}" style="margin-left:5px"/>
+			</h:panelGroup>
 		</h:panelGrid>
 		<sakai-rubric-association style="margin-left:20px;display:none"
-
-			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
+            site-id='<h:outputText value="#{ForumTool.siteId}" />'
 			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
 			dont-associate-value="0"
 			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'
 			associate-value="1"
 			read-only="true"
-
 			tool-id="sakai.gradebookng"
-			<% if(entityId != null && !"".equals(entityId)){ %>
-				entity-id=<%= entityId %>
-			<%}%>
-
 			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
 			hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
 
@@ -401,8 +425,8 @@
 				<h:dataTable value="#{ForumTool.siteGroups}" var="siteGroup" cellpadding="0" cellspacing="0" styleClass="indnt1 jsfFormTable"
 							 rendered="#{ForumTool.selectedTopic.topic.id==null}">
 					<h:column>
-						<h:selectBooleanCheckbox value="#{siteGroup.createTopicForGroup}" />
-						<h:outputText value="#{siteGroup.group.title}" />
+						<h:selectBooleanCheckbox value="#{siteGroup.createTopicForGroup}" id="topic_siteGroupCheck" />
+                        <h:outputText value="#{siteGroup.group.title}" id="topic_siteGroupCheck_label" />
 					</h:column>
 				</h:dataTable>
 			</h:panelGroup>
@@ -473,6 +497,19 @@
 			var menuLinkSpan = menuLink.closest('span');
 			menuLinkSpan.addClass('current');
 			menuLinkSpan.html(menuLink.text());
+			$('#revise\\:topic_locked, #revise\\:topic_moderated, #revise\\:topic_postFirst').each(function() {
+                $(this).attr('aria-labelledby', 'topic_posting_head ' + $(this).attr('id') + '_label');
+            });
+            if($('#revise\\:topic_postAnonymous').length){
+                $('#revise\\:topic_postAnonymous').attr('aria-labelledby', 'topic_posting_head revise:topic_postAnonymous_label');
+            }
+            $('#revise\\:availabilityRestricted\\:0, #revise\\:availabilityRestricted\\:1').each(function() {
+               let label = $('#revise\\:forumAvailabilityLabel3').text() + " " + $(this).next().text();
+               $(this).attr('aria-label', label);
+            });
+            $('input[id*="topic_siteGroupCheck"]').each(function() {
+                 $(this).attr('aria-labelledby', 'revise:createTopicsForGroups:1 ' + $(this).attr('id') + '_label');
+            });
 
 		 });
 	</script>

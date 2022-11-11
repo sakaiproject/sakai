@@ -25,19 +25,27 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import javax.faces.context.FacesContext;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -64,6 +72,7 @@ public class DiscussionTopicBean
   private String gradeAssign;
   private Boolean nonePermission = null;
   private boolean sorted = false;
+  @Getter @Setter private boolean createTask = true;
 
   
   private Boolean isRead = null;
@@ -113,6 +122,10 @@ public class DiscussionTopicBean
     this.userTimeService = userTimeService;
     datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     datetimeFormat.setTimeZone(userTimeService.getLocalTimeZone());
+    TaskService taskService = (TaskService) ComponentManager.get("org.sakaiproject.tasks.api.TaskService");
+    ToolManager toolManager = (ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
+    String reference = DiscussionForumService.REFERENCE_ROOT + "/" + toolManager.getCurrentPlacement().getContext() + "/" + this.topic.getBaseForum().getId();
+    this.createTask = !taskService.getTask(reference).isPresent();
   }
 
   /**
@@ -350,6 +363,9 @@ public class DiscussionTopicBean
 	      locked =  Boolean.TRUE.toString();
 	    }
     }
+
+    handleLockedAfterClosedCondition();
+
     return locked;
   }
 
@@ -386,6 +402,9 @@ public class DiscussionTopicBean
 	      locked =  Boolean.TRUE.toString();
 	    }
     }
+
+    handleLockedAfterClosedCondition();
+
     return Boolean.parseBoolean(locked);
   }
 
@@ -396,6 +415,18 @@ public class DiscussionTopicBean
   {
     log.debug("setTopicLocked(Boolean {})", locked);
     topic.setLocked(locked);
+  }
+
+  private void handleLockedAfterClosedCondition(){
+    Boolean availabilityRestricted = getTopic().getAvailabilityRestricted();
+
+    if(availabilityRestricted && locked.equals(Boolean.FALSE.toString())) {
+      Date closeDate = getTopic().getCloseDate();
+      if (closeDate != null && getTopic().getLockedAfterClosed() && closeDate.before(new Date())) {
+        setTopicLocked(true);
+        locked = Boolean.TRUE.toString();
+      }
+    }
   }
   
   

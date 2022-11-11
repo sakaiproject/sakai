@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -51,8 +49,8 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.stats.CourseGradeStatistics;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradeMappingDefinition;
 
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 
@@ -87,7 +85,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	/**
 	 * List of {@link CourseGrade} cached here as it is used by a few components
 	 */
-	private Map<String, CourseGrade> courseGradeMap;
+	private Map<String, CourseGradeTransferBean> courseGradeMap;
 
 	/**
 	 * Count of grades for the chart
@@ -138,32 +136,10 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
 		for (final GradeMappingDefinition gradeMapping : this.gradeMappings) {
-			gradeMappingMap.put(gradeMapping.getId(), new ResourceModel("settingspage.gradingschema.gradetypes." + gradeMapping.getName()).getObject());
+			gradeMappingMap.put(gradeMapping.getId(), gradeMapping.getName());
 		}
 
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
-		// Preserve the expand/collapse state of the panel
-		settingsGradingSchemaPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				SettingsGradingSchemaPanel.this.expanded = true;
-			}
-		});
-		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				SettingsGradingSchemaPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-		}
 		add(settingsGradingSchemaPanel);
 
 		// grading scale type chooser
@@ -429,7 +405,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 *
 	 * @return
 	 */
-	private Map<String, CourseGrade> getCourseGrades() {
+	private Map<String, CourseGradeTransferBean> getCourseGrades() {
 
 		final List<String> studentUuids = this.businessService.getGradeableUsers();
 		return this.businessService.getCourseGrades(studentUuids);
@@ -441,7 +417,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @param map
 	 * @return
 	 */
-	private int getTotalCourseGrades(final Map<String, CourseGrade> map) {
+	private int getTotalCourseGrades(final Map<String, CourseGradeTransferBean> map) {
 		return map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
 				.collect(Collectors.toList()).size();
 	}

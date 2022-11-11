@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -138,10 +139,11 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 					
 			boolean member = isEnrolledInSection(enrolled, section);
 			boolean memberOtherSection = isEnrolledInOtherSection(enrolled, section);
-			
-			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
-					section, catName, taNames, totalEnrollments, member, memberOtherSection, showNegativeSpots);
-			
+
+			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(section, catName, taNames,
+					totalEnrollments, member, memberOtherSection, showNegativeSpots,
+					(taUids.contains(getUserUid()) || (canManageAnySection())));
+
 			if(!hideSectionInTable) {
 				sections.add(decoratedSection);
 			}

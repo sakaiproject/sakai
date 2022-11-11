@@ -118,23 +118,6 @@ public class GradebookServiceImpl implements GradebookServiceAPI
   }
 
   /**
-   * Determine if a gradebook exists for the site.
-   * @param siteId the site id
-   * @return
-   */
-  public boolean gradebookExists(String siteId)
-  {
-    try
-    {
-      return GradebookServiceHelper.gradebookExists(siteId);
-    }
-    catch (Exception ex)
-    {
-      throw new GradingServiceException(ex);
-    }
-  }
-
-  /**
    * Update the score in the gradebook.
    * @param ag the assessment grading interface
    */

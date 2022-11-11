@@ -74,6 +74,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissio
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
 import org.sakaiproject.component.app.messageforums.ui.delegates.LRSDelegate;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -89,6 +90,8 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -483,6 +486,16 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
                 NotificationService.NOTI_OPTIONAL, params.lrsStatement);
         eventTrackingService.post(event);
     }
+
+    TaskService taskService = (TaskService) ComponentManager.get("org.sakaiproject.tasks.api.TaskService");
+    List<String> userList = new ArrayList<>();
+    userList.add(message.getAuthorId());
+    // Complete task related to forum 
+    String referenceForum = DiscussionForumService.REFERENCE_ROOT + "/" + getCurrentContext() + "/" + message.getTopic().getBaseForum().getId();
+    taskService.completeUserTaskByReference(referenceForum, userList);
+    // Complete task related to topic 
+    String referenceTopic = DiscussionForumService.REFERENCE_ROOT + "/" + getCurrentContext() + "/" + message.getTopic().getBaseForum().getId() + "/topic/" + message.getTopic().getId();
+    taskService.completeUserTaskByReference(referenceTopic, userList);
 
     return persistedMessage;
   }
@@ -939,7 +952,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   }
 
   public boolean isInstructor(String userId, String siteId) {
-    log.debug("isInstructor(String " + userId + ", " + siteId + ")");
+    log.debug("isInstructor(userId={}, siteId={})", userId, siteId);
     try {
 		return isInstructor(userDirectoryService.getUser(userId), siteId);
 	} catch (UserNotDefinedException e) {
@@ -956,10 +969,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public boolean isInstructor(User user)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isInstructor(User " + user + ")");
-    }
+    log.debug("isInstructor(User eid: {})", user.getEid());
     if (user != null)
       return isInstructor(user, getContextSiteId());
     else
@@ -988,10 +998,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public boolean isInstructor(User user, String siteId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isInstructor(User " + user + ", " + siteId + ")");
-    }
+    log.debug("isInstructor(userId={}, siteId={})", user.getId(), siteId);
     if (user != null)
       return securityService.unlock(user, "site.upd", siteId);
     else
@@ -1747,12 +1754,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       log.debug("isForumOwner(DiscussionForum " + forumId + ")");
     }
-    return forumCreatedBy.equals(userId) && !isRoleSwapView(siteId);
+    return forumCreatedBy.equals(userId) && !isRoleSwapView();
   }
   
-  private boolean isRoleSwapView(String siteId)
+  private boolean isRoleSwapView()
   {
-	return (securityService.getUserEffectiveRole(siteId) != null);
+	return (securityService.getUserEffectiveRole() != null);
   }
 
   /**
@@ -1780,15 +1787,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       log.debug("isTopicOwner(DiscussionTopic " + topicId + ")");
     }
-    return topicCreatedBy.equals(userId) && !isRoleSwapView(siteId);
+    return topicCreatedBy.equals(userId) && !isRoleSwapView();
   }
 
   private boolean getTopicAccess(DiscussionTopic t)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("getTopicAccess(DiscussionTopic" + t + ")");
-    }
+    log.debug("getTopicAccess(DiscussionTopic {} )", t.getId());
 
     // SAK-27570: Return early instead of looping through lots of database records
     if (isInstructor() || securityService.isSuperUser() || isTopicOwner(t)) {

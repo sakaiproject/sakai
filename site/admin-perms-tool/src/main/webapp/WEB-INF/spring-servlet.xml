@@ -29,6 +29,7 @@
         <property name="mappings">
             <value>
                 /sitePerms.htm=sitePermsController
+                /*/sitePerms.htm=sitePermsController
             </value>
         </property>
     </bean>

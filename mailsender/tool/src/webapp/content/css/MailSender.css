@@ -112,13 +112,9 @@
 	background:transparent;
 }
 
-.usersList {
-	padding: .25em 0 .25em 0;
-	margin: 0 0 .05em 15px;
-}
-
 .userGroupsList {
-	 padding: .25em 0 .25em 0
+	padding: .25em 0 .25em 0;
+	list-style: none;
 }
 
 h3.insBorder {
@@ -136,4 +132,39 @@ h3.insBorder {
 
 .navSeparator {
 	color: #ccc;
+}
+
+.align-header {
+	padding-top: 10px;
+}
+
+.select-all {
+	padding: 6px 6px 0 0;
+}
+
+.nav {
+	padding: 4px 0 10px 0;
+}
+
+.rolesArea {
+	padding-left: 0;
+}
+
+.not-found {
+	margin-left: 1.5em;
+}
+
+.scrollable-list {
+	overflow: auto;
+	max-height: 250px;
+	width: fit-content;
+	min-width: 285px;
+	background-color: var(--sakai-background-color-2);
+	border-radius: 4px;
+	padding: 2px 5px;
+	margin: 5px 0 0.05em 15px;
+}
+
+.user-label {
+	font-weight: normal;
 }

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchResponse;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 
@@ -68,9 +68,24 @@ public interface SearchService extends Diagnosable
 	 * The search fields being stored in the index
 	 */
 	/**
-	 * Search Index Field the site id of the entity ( where is was produced)
+	 * Search Index Field for the site id of the entity ( where is was produced)
 	 */
 	public static final String FIELD_SITEID = "siteid";
+
+	/**
+	 * Search index field for the entity creator's display name (where is was produced)
+	 */
+	public static final String FIELD_CREATOR_DISPLAY_NAME = "creatorDisplayName";
+
+	/**
+	 * Search index field for the entity creator's user id  (where is was produced)
+	 */
+	public static final String FIELD_CREATOR_ID = "creatorId";
+
+	/**
+	 * Search index field for the entity creator's username  (where is was produced)
+	 */
+	public static final String FIELD_CREATOR_USER_NAME = "creatorUserName";
 
 	/**
 	 * Search Index Field the url to the entity
@@ -138,7 +153,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchList search(String searchTerms, List<String> contexts, int searchStart,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int searchStart,
 			int searchEnd) throws InvalidSearchQueryException;
 
 	/**
@@ -156,7 +171,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	public SearchList search(String searchTerms, List<String> contexts, int start,
+	public SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 			int end, String filterName, String sorterName) throws InvalidSearchQueryException;
 
 	/**
@@ -172,7 +187,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
      */
-	SearchList search(String searchTerms, List<String> contexts, int start,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 			int end, String indexBuilderName) throws InvalidSearchQueryException;
 
 	/**
@@ -189,7 +204,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchList search(String searchTerms, List<String> contexts, int start,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
 
 
@@ -208,7 +223,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchResponse searchResponse(String searchTerms, List<String> contexts, int start,
+	SearchResponse searchResponse(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
 
 

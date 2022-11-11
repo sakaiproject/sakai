@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -46,13 +48,13 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -115,8 +117,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
-    private String outcomeSave;
-    private String outcomePublish;
+  private String outcomeSave;
+  private String outcomePublish;
   private AssessmentFacade assessment;
   private Long assessmentId;
   private String title;
@@ -185,7 +187,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   // properties of EvaluationModel
   private boolean anonymousGrading;
-  private boolean gradebookExists;
   private boolean toDefaultGradebook;
   private String scoringType;
   private String bgColor;
@@ -243,8 +244,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private static final ResourceLoader authorMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   @Autowired
-  @Qualifier("org.sakaiproject.service.gradebook.GradebookService")
-  private GradebookService gradebookService;
+  @Qualifier("org.sakaiproject.grading.api.GradingService")
+  private org.sakaiproject.grading.api.GradingService gradingService;
 
   @Autowired
   @Qualifier("org.sakaiproject.tool.api.SessionManager")
@@ -431,7 +432,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
           this.scoringType = evaluation.getScoringType().toString();
 
         String currentSiteId = AgentFacade.getCurrentSiteId();
-        this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
 
         this.categoriesSelectList = populateCategoriesSelectList();
         this.categorySelected = initializeCategorySelected(assessment.getData().getCategoryId());
@@ -962,14 +962,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   public void setToDefaultGradebook(boolean toDefaultGradebook) {
     this.toDefaultGradebook = toDefaultGradebook;
-  }
-
-  public boolean getGradebookExists() {
-    return this.gradebookExists;
-  }
-
-  public void setGradebookExists(boolean gradebookExists) {
-    this.gradebookExists = gradebookExists;
   }
 
   public String getScoringType() {
@@ -1812,21 +1804,19 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         List<CategoryDefinition> categoryDefinitions;
         List<SelectItem> selectList = new ArrayList<>();
 
-        if (this.gradebookExists) {
-            String gradebookUid = toolManager.getCurrentPlacement().getContext();
-            categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
+        String gradebookUid = toolManager.getCurrentPlacement().getContext();
+        categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid);
 
-            selectList.add(new SelectItem("-1", assessmentSettingMessages.getString("gradebook_uncategorized"))); // -1 for a cat id means unassigned
-            for (CategoryDefinition categoryDefinition: categoryDefinitions) {
-                selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
-            }
-            // Also set if categories are enabled based on category type
-            GradebookInformation gbInfo = gradebookService.getGradebookInformation(gradebookUid);
-            if (gbInfo != null) {
-                this.categoriesEnabled = gbInfo.getCategoryType() != GradebookService.CATEGORY_TYPE_NO_CATEGORY;
-            } else {
-                this.categoriesEnabled = false;
-            }
+        selectList.add(new SelectItem("-1", assessmentSettingMessages.getString("gradebook_uncategorized"))); // -1 for a cat id means unassigned
+        for (CategoryDefinition categoryDefinition: categoryDefinitions) {
+            selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
+        }
+        // Also set if categories are enabled based on category type
+        GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid);
+        if (gbInfo != null) {
+            this.categoriesEnabled = gbInfo.getCategoryType() != GradingCategoryType.NO_CATEGORY;
+        } else {
+            this.categoriesEnabled = false;
         }
         return selectList;
     }
@@ -1986,5 +1976,27 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         this.extendedTime = new ExtendedTime(this.getAssessment().getData());
         this.transitoryExtendedTime = null;
         this.editingExtendedTime = false;
+    }
+    
+    public List<FacesMessage> getErrorMessages() {
+        List<FacesMessage> list = FacesContext.getCurrentInstance().getMessageList();
+        Stream<FacesMessage> stream = list.stream();
+        return stream.filter(message -> FacesMessage.SEVERITY_WARN.equals(message.getSeverity()))
+        		.collect(Collectors.toList());
+    }
+    
+    public List<FacesMessage> getInfoMessages() {
+        List<FacesMessage> list = FacesContext.getCurrentInstance().getMessageList();
+        Stream<FacesMessage> stream = list.stream();
+        return stream.filter(message -> FacesMessage.SEVERITY_INFO.equals(message.getSeverity()))
+        		.collect(Collectors.toList());
+    }
+    
+    public boolean isRenderErrorMessage() {
+        return !getErrorMessages().isEmpty();
+    }
+    
+    public boolean isRenderInfoMessage() {
+        return !getInfoMessages().isEmpty();
     }
 }

@@ -1,5 +1,6 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
 #set( $H = '-' )
+#set( $T = 'T' )
 #rubricsRequirements
 <!-- Initialize the Bootstrap-multiselect plugin: -->
 <script>
@@ -157,13 +158,13 @@
 			<label for="$name_title" class="col-sm-12 form-control-label block">
 				$tlang.getString("gen.title")
 			</label>
-			<div class="col-sm-6">
-				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" size="30" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
+			<div class="col-sm-8">
+				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
 			</div>
 		</div>
 
 		<div class="longtext form-group row form-required">
-			<label for="new_assignment_instructions" class="block control-label col-sm-12">
+			<label for="new_assignment_instructions" class="block form-control-label col-sm-12">
 				$tlang.getString("gen.assinf")
 			</label>
 			<div class="col-sm-12">
@@ -259,28 +260,16 @@
 				$tlang.getString("gen.visible.date")
 			</label>
 			<div class="col-sm-6 form-inline">
-				<input type="text" id="visibledate" name="visibledate" class="form-control datepicker" value="">
+				<sakai-date-picker
+					label="$tlang.getString("gen.visible.date")"
+					hidden-prefix="new_assignment_visible"
+					iso-date="$value_VisibleYear$H$value_VisibleMonth$H$value_VisibleDay$T$value_VisibleHour:$value_VisibleMin"
+					add-hidden-fields>
+				</sakai-date-picker>
 				<p class="text-muted small visibleDatePanel" #if(!$!new_assignment_visibletoggle)style="display:none;"#end>
 					$tlang.getString("gen.stuwonsee")
 				</p>
 			</div>
-
-			<script>
-				localDatePicker({
-					input:'#visibledate',
-					useTime:1,
-					val:"$value_VisibleYear$H$value_VisibleMonth$H$value_VisibleDay $value_VisibleHour:$value_VisibleMin",
-					parseFormat: 'YYYY-MM-DD HH:mm',
-					ashidden:{
-						month:"new_assignment_visiblemonth",
-						day:"new_assignment_visibleday",
-						year:"new_assignment_visibleyear",
-						hour:"new_assignment_visiblehour",
-						minute:"new_assignment_visiblemin"
-					}
-				});
-			</script>
-
 		</div>
 		#end
 
@@ -288,54 +277,37 @@
 			<label for="opendate" class="col-sm-2 form-control-label">
 				$tlang.getString("newassig.opedat")
 			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="opendate" name="opendate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+			    <div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="opendate"
+						label="$tlang.getString("gen.opedat")"
+						hidden-prefix="new_assignment_open"
+						iso-date="$value_OpenYear$H$value_OpenMonth$H$value_OpenDay$T$value_OpenHour:$value_OpenMin"
+						add-hidden-fields>
+					</sakai-date-picker>
+				</div>	
 				<p class="text-muted small">
 					$tlang.getString("gen.stucantdo")
 				</p>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#opendate',
-			      	useTime:1,
-			      	val:"$value_OpenYear$H$value_OpenMonth$H$value_OpenDay $value_OpenHour:$value_OpenMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_openmonth",
-			      		day:"new_assignment_openday",
-			      		year:"new_assignment_openyear",
-			      		hour:"new_assignment_openhour",
-			      		minute:"new_assignment_openmin"
-			      	}
-			      });
-			</script>
-
 		</div>
 
 		<div class="form-group row form-required">
 			<label for="duedate" class="col-sm-2 form-control-label">
 				$tlang.getString("gen.duedat")
 			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="duedate" name="duedate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+				<div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="duedate"
+						label="$tlang.getString("gen.duedat")"
+						hidden-prefix="new_assignment_due"
+						iso-date="$value_DueYear$H$value_DueMonth$H$value_DueDay$T$value_DueHour:$value_DueMin"
+						add-hidden-fields>
+					</sakai-date-picker>
+				</div>	
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#duedate',
-			      	useTime:1,
-			      	val:"$value_DueYear$H$value_DueMonth$H$value_DueDay $value_DueHour:$value_DueMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_duemonth",
-			      		day:"new_assignment_dueday",
-			      		year:"new_assignment_dueyear",
-			      		hour:"new_assignment_duehour",
-			      		minute:"new_assignment_duemin"
-			      	}
-			      });
-			</script>
  		</div>
 
 		<div class="form-group row form-required">
@@ -343,29 +315,20 @@
 				$tlang.getString("gen.acesubunt")
 			</label>
 			#if ($value_EnableCloseDate)
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="closedate" name="closedate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+			    <div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="closedate"
+						label="$tlang.getString("gen.acesubunt")"
+						hidden-prefix="new_assignment_close"
+						iso-date="$value_CloseYear$H$value_CloseMonth$H$value_CloseDay$T$value_CloseHour:$value_CloseMin"
+						add-hidden-fields>
+					</sakai-date-picker>
+				</div>
 				<p class="text-muted small">
 					$tlang.getString("gen.noasscan")
 				</p>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#closedate',
-			      	useTime:1,
-			      	val:"$value_CloseYear$H$value_CloseMonth$H$value_CloseDay $value_CloseHour:$value_CloseMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_closemonth",
-			      		day:"new_assignment_closeday",
-			      		year:"new_assignment_closeyear",
-			      		hour:"new_assignment_closehour",
-			      		minute:"new_assignment_closemin"
-			      	}
-			      });
-			</script>
-
  			#else
 				<select name="$name_CloseMonth" id="$name_CloseMonth" title="$tlang.getString("dateselectionwidget.month")" disabled="disabled">
 					#foreach ($i in [1..12])
@@ -654,52 +617,34 @@ function showExternalIframe(title, doreload) {
 </script>
 
 		#if ($!isTimesheet)
-		<div id="timesheetsetupsection" style="display: block">
-			<h4>
-				$tlang.getString("gen.estimate")
-			</h4>
-	
-			#if ($!name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
+			<div id="timesheetsetupsection">
+				<h4>
+					$tlang.getString("gen.estimate")
+				</h4>
+
 				<div class="checkbox">
 					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
-					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
-					#end
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" #if ($value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE) checked #end onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
 						$tlang.getString("gen.isestimate")
 					</label>
 				</div>
-	
-				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-					<div id="checkestimaterequired" class="checkbox">
-				#else
-					<div id="checkestimaterequired" style="display:none" class="checkbox">
-				#end
+
+				<div id="checkestimaterequired" class="checkbox hidden">
 					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED.equals("true"))
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" checked="checked" />
-					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" />
-					#end
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" #if ($value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED) checked #end />
 						$tlang.getString("gen.reqestimate")
 					</label>
 				</div>
-				
-				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-					<div id="inputtimestimate" class="form-group row form-required">
-				#else
-					<div id="inputtimestimate" style="display:none" class="form-group row form-required">
-				#end
+
+				<div id="inputtimestimate" class="form-group row form-required hidden">
 						<label for="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" class="col-sm-2 form-required">
 							$tlang.getString("gen.timestimate")
 						</label>
 						<div class="col-sm-2">
 							<input name="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" id="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" type="text" value="$formattedText.escapeHtml($!value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE)" size="20" maxlength="20" class="form-control" placeholder="$!tlang.getString('ts.modal.field.tspent.format')" />
 						</div>
-					</div>
-			#end
 				</div>
+			</div>
 			#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
 			<script>
 				ASN.disableTimesheetSetupSection();
@@ -719,11 +664,11 @@ function showExternalIframe(title, doreload) {
 			#set($resubmitStyle="display:none")
 		#end
 
-		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<label class="col-sm-2 control-label" for="allowResToggle">
+		<div id="allowResubmissionContainer" class="form-group" #if ($value_SubmissionType == 4) style = "display:none"#end>
+			<label class="form-control-label" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
-			<div class="col-sm-10">
+			<div class="d-inline-block ml-25">
 				<div id="tempAllowRes">
 					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
 				</div>
@@ -733,7 +678,7 @@ function showExternalIframe(title, doreload) {
             </p>
 		</div>
 
-		<div class="form-group row" id="allowResubmitNumber" style="$!resubmitStyle">
+		<div class="form-group" id="allowResubmitNumber" style="$!resubmitStyle">
 			<label for="allowResubmitNumber" class="col-sm-offset-1 col-sm-2 control-label">
 				$tlang.getString("allow.resubmit.number")
 			</label>
@@ -755,24 +700,13 @@ function showExternalIframe(title, doreload) {
 				$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
 			</label>
 			<div class="col-sm-6 form-inline">
-				<input type="text" id="resubmit" name="resubmit" class="datepicker" value="">
+				<sakai-date-picker
+					label="$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")"
+					hidden-prefix="new_assignment_close"
+					iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
+					add-hidden-fields>
+				</sakai-date-picker>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#resubmit',
-			      	useTime:1,
-			      	val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"allow_resubmit_closeMonth",
-			      		day:"allow_resubmit_closeDay",
-			      		year:"allow_resubmit_closeYear",
-			      		hour:"allow_resubmit_closeHour",
-			      		minute:"allow_resubmit_closeMin"
-			      	}
-			      });
-			</script>
 		</div>
 
 		<div class="col-sm-offset-1 row" id="resubmitNotification" style="$!resubmitStyle">
@@ -1025,90 +959,6 @@ function showExternalIframe(title, doreload) {
 						#end
 					</div>
 				<!-- End TII custom options -->
-					#elseif($reviewServiceName.equals("VeriCite"))
-                        <div class="well">
-                            <h5>$tlang.getString("review.advancedSettings.vericite")</h5>
-
-                            <!-- Exclude Quoted materials -->
-							#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
-                                <div class="checkbox">
-                                    <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
-										#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
-                                            <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
-                                                   name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
-                                                   type="checkbox" value="true" checked="checked"/>
-										#else
-                                            <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
-                                                   name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
-                                                   type="checkbox" value="true"/>
-										#end
-										$tlang.getString("review.exclude.quoted")
-                                    </label>
-                                    <div class="info-text help-block small">$tlang.getString(
-										"review.exclude.quoted.help")</div>
-                                </div>
-							#end
-
-                            <!-- Exclude Self Plag -->
-							#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG)
-                                <div class="checkbox">
-                                    <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG">
-										#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG.equals("true"))
-                                            <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG"
-                                                   name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG"
-                                                   type="checkbox" value="true" checked="checked"/>
-										#else
-                                            <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG"
-                                                   name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG"
-                                                   type="checkbox" value="true"/>
-										#end
-										$tlang.getString("review.exclude.self.plag")
-                                    </label>
-                                    <div class="info-text help-block small">$tlang.getString(
-										"review.exclude.self.plag.help")</div>
-                                </div>
-							#end
-
-                            <!-- Store Inst Index -->
-							#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
-                                <div class="checkbox">
-                                    <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX">
-										#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX.equals("true"))
-                                            <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
-                                                   name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
-                                                   type="checkbox" value="true" checked="checked"/>
-										#else
-                                            <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
-                                                   name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
-                                                   type="checkbox" value="true"/>
-										#end
-										$tlang.getString("review.store.inst.index")
-                                    </label>
-                                    <div class="info-text help-block small">$tlang.getString(
-										"review.store.inst.index.help")</div>
-                                </div>
-							#end
-
-                            <!-- Student Preview -->
-							#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW)
-                                <div class="checkbox">
-                                    <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW">
-                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW"
-                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW"
-                                               type="checkbox" value="true"
-											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW.equals("true"))
-                                               checked="checked"
-											#end
-                                        />
-										$tlang.getString("review.studentPreview")
-                                    </label>
-                                    <div class="info-text help-block small">$tlang.getString(
-										"review.studentPreview.help")</div>
-                                </div>
-							#end
-                        </div>
-
-                        <!-- End VeriCite custom options -->
 					#elseif($reviewServiceProviderId == $turnitinOCProviderId)
 						<!-- Start TurnitinOC custom options -->
 						
@@ -1273,7 +1123,7 @@ function showExternalIframe(title, doreload) {
 
 	<div class="col-sm-6 row">
 		<table class="table table-striped" id="extraNodeLinkList">
-			<h5>$tlang.getString("supplement")</h5>
+			<h6>$tlang.getString("supplement")</h6>
 			<tr>
 				<td class="col-sm-2">
 					$tlang.getString("modelAnswer")
@@ -1535,7 +1385,7 @@ function showExternalIframe(title, doreload) {
 				</div>
 			</div>
 			## attachments for allpurpose item
-			<label for="allPurposeAttach" class="block">
+			<label for="allPurposeAttach" class="form-control-label block">
 					$tlang.getString("gen.att")
 			</label>
 			#set ($size = 0)
@@ -1584,67 +1434,43 @@ function showExternalIframe(title, doreload) {
 			<div class="form-group row">
 
 				<div class="col-sm-3">
-					<label for="allPurposeHide1">
+					<label for="allPurposeHide1" class="form-control-label">
 						<input name="allPurposeHide" id="allPurposeHide1" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
 						$tlang.getString("allPurpose.show")
 					</label>
 				</div>
 
 				<div class="col-sm-9">
-					<div class="form-group row">
-						<label for="allPurposeShowFrom" class="col-sm-2">
+					<div class="form-group d-flex align-items-center justify-content-evenly">
+						<label for="allPurposeShowFrom" class="col-sm-2 form-control-label">
 							<input name="allPurposeShowFrom" id="allPurposeShowFrom" value="true" type="checkbox" #if ($value_allPurposeShowFrom) checked="checked" #end />
 							$tlang.getString("allPurpose.show.from")
 						</label>
 						<div class="col-sm-10">
-							<input type="text" id="allPurposeRelease" name="allPurposeRelease" class="datepicker" value="">
-
-							<script type="text/javascript">
-										localDatePicker({
-										input:'#allPurposeRelease',
-										useTime:1,
-										val:"$value_allPurposeReleaseYear$H$value_allPurposeReleaseMonth$H$value_allPurposeReleaseDay $value_allPurposeReleaseHour:$value_allPurposeReleaseMin",
-										parseFormat: 'YYYY-MM-DD HH:mm',
-										ashidden:{
-											month:"allPurpose_releaseMonth",
-											day:"allPurpose_releaseDay",
-											year:"allPurpose_releaseYear",
-											hour:"allPurpose_releaseHour",
-											minute:"allPurpose_releaseMin"
-										}
-									});
-							</script>
+							<sakai-date-picker
+								hidden-prefix="allPurpose_release"
+								iso-date="$value_allPurposeReleaseYear$H$value_allPurposeReleaseMonth$H$value_allPurposeReleaseDay$T$value_allPurposeReleaseHour:$value_allPurposeReleaseMin"
+								add-hidden-fields>
+							</sakai-date-picker>
 						</div>
 					</div>
-					<div class="form-group row">
-						<label for="allPurposeShowTo" class="col-sm-2">
+					<div class="form-group d-flex align-items-center justify-content-evenly">
+						<label for="allPurposeShowTo" class="col-sm-2 form-control-label">
 							<input name="allPurposeShowTo" id="allPurposeShowTo" value="true" type="checkbox" #if ($!value_allPurposeShowTo) checked="checked" #end />
 							$tlang.getString("allPurpose.show.util")
 						</label>
 						<div class="col-sm-10">
-							<input type="text" id="allPurposeRetract" name="allPurposeRetract" class="datepicker" value="">
-
-							<script type="text/javascript">
-									localDatePicker({
-									input:'#allPurposeRetract',
-									useTime:1,
-									val:"$value_allPurposeRetractYear$H$value_allPurposeRetractMonth$H$value_allPurposeRetractDay $value_allPurposeRetractHour:$value_allPurposeRetractMin",
-									parseFormat: 'YYYY-MM-DD HH:mm',
-									ashidden:{
-										month:"allPurpose_retractMonth",
-										day:"allPurpose_retractDay",
-										year:"allPurpose_retractYear",
-										hour:"allPurpose_retractHour",
-										minute:"allPurpose_retractMin"
-									}
-								});
-							</script>
+							<sakai-date-picker
+								hidden-prefix="allPurpose_retract"
+								iso-date="$value_allPurposeRetractYear$H$value_allPurposeRetractMonth$H$value_allPurposeRetractDay$T$value_allPurposeRetractHour:$value_allPurposeRetractMin"
+								add-hidden-fields>
+							</sakai-date-picker>
 						</div>
 					</div>
 				</div>
 			</div>
 			## Hide This Item Checkbox
-			<label for="allPurposeHide2">
+			<label for="allPurposeHide2" class="form-control-label">
 				<input name="allPurposeHide" id="allPurposeHide2" value="true" #if($!value_allPurposeHide)checked="checked"#end type="radio" />
 				$tlang.getString("allPurpose.show.hide")
 			</label>
@@ -1652,7 +1478,7 @@ function showExternalIframe(title, doreload) {
 			<div class="validationError alertMessage" id="allPurpose_userselect">
 				$tlang.getString("extraNodesRequired")
 			</div>
-			<div class="table-responsive">
+			<div class="table">
 			<table class="table table-striped table-bordered table-hover" id="allPurposeGroupLists">
 				<tbody>
 					#set ($roleCount=0)
@@ -1671,13 +1497,13 @@ function showExternalIframe(title, doreload) {
 						<tr>
 							<td class="groupCell">
 								<a href="javascript:void(0)" id="collapse_$roleCount" class="toggleRoleLink" style="display:none;" title="$collapseString">
-									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><span class="members"><i class="icon-sakai--sakai-membership"></i></span>
+									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><span class="members"><i class="si si-sakai-membership"></i></span>
 								</a>
 								<a href="javascript:void(0)" id="expand_$roleCount" class="toggleRoleLink" style="display:inline" title="$expandString">
-									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><span class="members"><i class="icon-sakai--sakai-membership"></i></span>
+									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><span class="members"><i class="si si-sakai-membership"></i></span>
 								</a>
 								<input id="$showInputString" name="showInputString_$roleCount" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
-								<label for="showInputString_$roleCount">
+								<label for="showInputString_$roleCount" class="form-control-label">
 									$role
 								</label>
 								(<span class="highlight countDisplay"></span> <span class="highlight">$tlang.getString("allPurpose.user.selection.count")</span>)
@@ -1687,7 +1513,7 @@ function showExternalIframe(title, doreload) {
 										#set($showInputString = "allPurpose_")
 										#set($showInputString = $showInputString.concat($user.getId()))
 										<li>
-											<label for="$showInputString" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #else #set ($allSelected=false) #end>
+											<label for="$showInputString" class="form-control-label" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #else #set ($allSelected=false) #end>
 												<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" checked="checked" #set($userCount=$userCount + 1) #end type="checkbox" value="$user.Id"/>
 												$formattedText.escapeHtml($user.getDisplayName())
 											</label>
@@ -1716,7 +1542,6 @@ function showExternalIframe(title, doreload) {
 			#buttonBar()
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-		<input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
 	</form>
 </div>
 <!-- end: chef_assignments_instructor_new_edit_assignment.vm  -->

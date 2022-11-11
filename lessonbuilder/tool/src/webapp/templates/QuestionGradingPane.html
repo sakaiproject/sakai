@@ -5,12 +5,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
-<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-<script language="JavaScript" src="/lessonbuilder-tool/js/SakaiRSFWidgets.js" type="text/javascript" rsf:id="fckScript"></script>
-<script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
+<script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
+<script src="/lessonbuilder-tool/js/SakaiRSFWidgets.js" rsf:id="fckScript"></script>
+<script src="../js/rsf.js"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
 <link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css" rel="stylesheet" />
 
 <title rsf:id="msg=simplepage.gradingpane"></title>
@@ -25,9 +24,9 @@
 
 <body rsf:id="scr=sakai-body">
 <script>includeLatestJQuery('QuestionGradingPane.html');</script>
-<script type="text/javascript" language="JavaScript" src="../js/commonGrading.js"></script>
-<script type="text/javascript" language="JavaScript" src="../js/questionGrading.js"></script>
-<script type="text/javascript" language="JavaScript" src="../js/gradingAjax.js"></script>
+<script src="../js/commonGrading.js"></script>
+<script src="../js/questionGrading.js"></script>
+<script src="../js/gradingAjax.js"></script>
 
 <div class="gradingPane">
 
@@ -52,7 +51,8 @@
     <table rsf:id="gradingTable" class="listHier lines nolines gradingTable" cellpadding="0" cellspacing="0" role="list">
 		<tr class="bottomBorder">
 			<th rsf:id="msg=simplepage.grading-student"></th>
-			<th rsf:id="msg=simplepage.grading-response"></th>
+			<th rsf:id="msg=simplepage.grading-response"></th> 
+			<th rsf:id="msg=simplepage.grading-date"></th>
 			<th rsf:id="grade-header"></th>
 		</tr>
 		
@@ -60,6 +60,7 @@
 			<tr rsf:id="data-row" class="first-row topBorder" id="first-row">
 				<td rsf:id="student-name"></td>
 				<td rsf:id="student-response"></td>
+				<td rsf:id="student-date"></td>
 				<td rsf:id="student-grade">
 					<span rsf:id="gradingSpan">
 						<img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img>
@@ -74,9 +75,9 @@
 		</div>
 		<tr id="last-row" class="last-row">
 		  <td></td>
-		  <td rsf:id="clickfiller"></td>
+		  <td></td>
           <td></td>
-		  <td><a id="clickToSubmit" href="#" class="button useButton toggleButton" onclick="return false;" rsf:id="clickToSubmit"></a></td>
+		  <td rsf:id="last-row-grade"><a id="clickToSubmit" href="#" class="button useButton toggleButton" onclick="return false;" rsf:id="clickToSubmit"></a></td>
 		</tr>
 
 	</table>
@@ -101,7 +102,7 @@
 	</form>
 		
 
-	<script rsf:id="gradingForm-init" type="text/javascript">
+	<script rsf:id="gradingForm-init">
     	// a real function call with real values which come from the 
     	// "emitJavascriptCall" method will be placed here by RSF
 	</script>

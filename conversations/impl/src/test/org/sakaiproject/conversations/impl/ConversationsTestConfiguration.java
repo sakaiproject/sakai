@@ -32,29 +32,42 @@ import org.hsqldb.jdbcDriver;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.conversations.api.repository.CommentRepository;
-import org.sakaiproject.conversations.impl.repository.CommentRepositoryImpl;
-import org.sakaiproject.conversations.api.repository.PostRepository;
-import org.sakaiproject.conversations.impl.repository.PostRepositoryImpl;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.conversations.api.TopicShowDateMessager;
+import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
+import org.sakaiproject.conversations.impl.repository.ConversationsCommentRepositoryImpl;
+import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
+import org.sakaiproject.conversations.impl.repository.ConversationsPostRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.PostStatusRepository;
 import org.sakaiproject.conversations.impl.repository.PostStatusRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;
 import org.sakaiproject.conversations.impl.repository.SettingsRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.TagRepository;
 import org.sakaiproject.conversations.impl.repository.TagRepositoryImpl;
-import org.sakaiproject.conversations.api.repository.TopicRepository;
-import org.sakaiproject.conversations.impl.repository.TopicRepositoryImpl;
+import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
+import org.sakaiproject.conversations.impl.repository.ConversationsTopicRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.conversations.impl.repository.TopicStatusRepositoryImpl;
+import org.sakaiproject.conversations.impl.notificationprefs.ConversationsNotificationPreferencesRegistrationImpl;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -127,26 +140,26 @@ public class ConversationsTestConfiguration {
         return txManager;
     }
 
-    @Bean(name="org.sakaiproject.conversations.api.repository.PostRepository")
-    public PostRepository postRepository(SessionFactory sessionFactory) {
+    @Bean(name="org.sakaiproject.conversations.api.repository.ConversationsPostRepository")
+    public ConversationsPostRepository postRepository(SessionFactory sessionFactory) {
 
-        PostRepositoryImpl postRepository = new PostRepositoryImpl();
+        ConversationsPostRepositoryImpl postRepository = new ConversationsPostRepositoryImpl();
         postRepository.setSessionFactory(sessionFactory);
         return postRepository;
     }
 
-    @Bean(name="org.sakaiproject.conversations.api.repository.CommentRepository")
-    public CommentRepository commentRepository(SessionFactory sessionFactory) {
+    @Bean(name="org.sakaiproject.conversations.api.repository.ConversationsCommentRepository")
+    public ConversationsCommentRepository commentRepository(SessionFactory sessionFactory) {
 
-        CommentRepositoryImpl commentRepository = new CommentRepositoryImpl();
+        ConversationsCommentRepositoryImpl commentRepository = new ConversationsCommentRepositoryImpl();
         commentRepository.setSessionFactory(sessionFactory);
         return commentRepository;
     }
 
-    @Bean(name="org.sakaiproject.conversations.api.repository.TopicRepository")
-    public TopicRepository topicRepository(SessionFactory sessionFactory) {
+    @Bean(name="org.sakaiproject.conversations.api.repository.ConversationsTopicRepository")
+    public ConversationsTopicRepository topicRepository(SessionFactory sessionFactory) {
 
-        TopicRepositoryImpl topicRepository = new TopicRepositoryImpl();
+        ConversationsTopicRepositoryImpl topicRepository = new ConversationsTopicRepositoryImpl();
         topicRepository.setSessionFactory(sessionFactory);
         return topicRepository;
     }
@@ -183,9 +196,19 @@ public class ConversationsTestConfiguration {
         return tagRepository;
     }
 
+    @Bean(name = "org.sakaiproject.calendar.api.CalendarService")
+    public CalendarService calendarService() {
+        return mock(CalendarService.class);
+    }
+
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
     public AuthzGroupService authzGroupService() {
         return mock(AuthzGroupService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.entity.api.EntityManager")
+    public EntityManager entityManager() {
+        return mock(EntityManager.class);
     }
 
     @Bean(name = "org.sakaiproject.event.api.EventTrackingService")
@@ -218,6 +241,11 @@ public class ConversationsTestConfiguration {
         return mock(MemoryService.class);
     }
 
+    @Bean(name = "org.sakaiproject.site.api.SiteService")
+    public SiteService siteService() {
+        return mock(SiteService.class);
+    }
+
     @Bean(name = "org.sakaiproject.user.api.UserDirectoryService")
     public UserDirectoryService userDirectoryService() {
         return mock(UserDirectoryService.class);
@@ -226,5 +254,45 @@ public class ConversationsTestConfiguration {
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")
     public UserTimeService userTimeService() {
         return mock(UserTimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.time.api.TimeService")
+    public TimeService timeService() {
+        return mock(TimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")
+    public UserMessagingService userMessagingService() {
+        return mock(UserMessagingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+    public ServerConfigurationService serverConfigurationService() {
+        return mock(ServerConfigurationService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchIndexBuilder")
+    public SearchIndexBuilder searchIndexBuilder() {
+        return mock(SearchIndexBuilder.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchService")
+    public SearchService searchService() {
+        return mock(SearchService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.api.app.scheduler.ScheduledInvocationManager")
+    public ScheduledInvocationManager scheduledInvocationManager() {
+        return mock(ScheduledInvocationManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.conversations.api.TopicShowDateMessager")
+    public TopicShowDateMessager topicShowDateMessager() {
+        return mock(TopicShowDateMessager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.user.api.UserNotificationPreferencesRegistration")
+    public UserNotificationPreferencesRegistration userNotificationPreferencesRegistration() {
+        return mock(ConversationsNotificationPreferencesRegistrationImpl.class);
     }
 }

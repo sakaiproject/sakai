@@ -226,7 +226,6 @@ public class DeepLinkResponse {
 	public DeepLinkResponse(String id_token)
 	{
 		this.id_token = id_token;
-		
 		body = (JSONObject) LTI13JwtUtil.jsonJwtBody(id_token);
 		if ( body == null ) {
 			throw new java.lang.RuntimeException("Could not extract body from id_token");
@@ -240,6 +239,10 @@ public class DeepLinkResponse {
 		if ( returnedData == null || returnedData.length() < 1 ) {
 			throw new java.lang.RuntimeException("Missing data element from ContentItem return");
 		}
+
+		// It is OK for this to be null
+		deep_links = BasicLTIUtil.getArray(body, DEEP_LINKS);
+
 	}
 	
 	/**

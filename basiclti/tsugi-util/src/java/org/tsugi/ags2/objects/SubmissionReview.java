@@ -5,15 +5,12 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Generated("com.googlecode.jsonschema2pojo")
 
 /*  
        "submissionReview": {

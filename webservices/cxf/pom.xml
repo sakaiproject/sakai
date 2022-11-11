@@ -90,6 +90,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.common</groupId>
+            <artifactId>archive-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-api</artifactId>
         </dependency>
@@ -102,12 +106,12 @@
             <artifactId>sakai-assignment-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-api</artifactId>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-hibernate</artifactId>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.msgcntr</groupId>
@@ -142,11 +146,6 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>serializer</artifactId>
-            <version>2.7.2</version>
         </dependency>
         <!-- SAK-27503 we do not want aopalliance JAR deployed in our WAR! -->
         <dependency>
@@ -184,7 +183,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

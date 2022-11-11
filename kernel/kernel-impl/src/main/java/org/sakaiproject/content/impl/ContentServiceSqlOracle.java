@@ -78,4 +78,20 @@ public class ContentServiceSqlOracle extends ContentServiceSqlDefault
 		// return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?) on duplicate key update IN_COLLECTION = ?, LAST_UPDATE = ?";
 	}
 
+	/**
+	 * returns the sql statement which retrieves the number of content resources from the content_resource table.
+	 */
+	public String getNumContentResources1Sql()
+	{
+		return "select count(IN_COLLECTION) from CONTENT_RESOURCE where IN_COLLECTION like ? ESCAPE '\\'";
+	}
+
+	/**
+	 * returns the sql statement which retrieves the number of content resources from the content_collection table.
+	 */
+	public String getNumContentResources2Sql()
+	{
+		return "select count(IN_COLLECTION) from CONTENT_COLLECTION where IN_COLLECTION like ? ESCAPE '\\'";
+	}
+
 }

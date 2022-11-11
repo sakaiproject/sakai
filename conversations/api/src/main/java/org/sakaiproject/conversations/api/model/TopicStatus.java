@@ -20,8 +20,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -33,7 +31,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "CONV_TOPIC_STATUS",
     uniqueConstraints = { @UniqueConstraint(name = "UniqueTopicStatus", columnNames = { "TOPIC_ID", "USER_ID" }) },
-    indexes = { @Index(columnList = "TOPIC_ID, USER_ID") })
+    indexes = { @Index(name = "conv_topic_status_topic_user_idx", columnList = "TOPIC_ID, USER_ID") })
 @Getter
 @Setter
 public class TopicStatus implements PersistableEntity<Long> {
@@ -46,7 +44,7 @@ public class TopicStatus implements PersistableEntity<Long> {
     @Column(name = "SITE_ID", nullable = false)
     private String siteId;
 
-    @Column(name = "TOPIC_ID", nullable = false)
+    @Column(name = "TOPIC_ID", length = 36, nullable = false)
     private String topicId;
 
     @Column(name = "USER_ID", length = 99, nullable = false)
@@ -57,6 +55,9 @@ public class TopicStatus implements PersistableEntity<Long> {
 
     @Column(name = "UNREAD")
     private Integer unread = 0;
+
+    @Column(name = "POSTED")
+    private Boolean posted = Boolean.FALSE;
 
     @Column(name = "VIEWED")
     private Boolean viewed = Boolean.FALSE;

@@ -1,6 +1,7 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
+import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import "./sakai-rubric-student-comment.js";
 
 export class SakaiRubricCriterionStudent extends RubricsElement {
@@ -14,7 +15,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
       evaluationDetails: { attribute: "evaluation-details", type: Array },
       preview: Boolean,
       entityId: { attribute: "entity-id", type: String },
-      weighted: Boolean
+      weighted: Boolean,
     };
   }
 
@@ -47,64 +48,77 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
   get evaluationDetails() { return this._evaluationDetails; }
 
+  handleClose() {
+
+    this.querySelectorAll("sakai-rubric-student-comment").forEach(el => el.handleClose());
+  }
+
   render() {
 
     return html`
       <div class="criterion grading style-scope sakai-rubric-criterion-student" style="margin-bottom: 20px;">
         ${this.criteria.map(c => html`
-          <div id="criterion_row_${c.id}" class="criterion-row">
-            <div class="criterion-detail">
-              <h4 class="criterion-title">${c.title}</h4>
-              <p>${c.description}</p>
-              ${this.weighted ? html`
-                    <div class="criterion-weight">
-                        <span>
-                          <sr-lang key="weight">Weight</sr-lang>
-                        </span>
-                        <span>${c.weight.toLocaleString(this.locale)}</span>
-                        <span>
-                          <sr-lang key="percent_sign">%</sr-lang>
-                        </span>
-                    </div>`
-                  : ""
-                }
-            </div>
-            <div class="criterion-ratings">
-              <div class="cr-table">
-                <div class="cr-table-row">
-                ${repeat(c.ratings, r => r.id, r => html`
-                  <div class="rating-item student ${r.selected ? "selected" : ""}" id="rating-item-${r.id}">
-                    <h5 class="criterion-item-title">${r.title}</h5>
-                    <p>${r.description}</p>
-                    <span class="points">
-                      ${this.weighted && r.points > 0 ? html`
-                        <b>
-                            (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
-                        </b>`
-                        : ""
-                      }
-                      ${r.points.toLocaleString(this.locale)}
-                      <sr-lang key="points">Points</sr-lang>
-                    </span>
-                  </div>
-                `)}
-                </div>
+          ${this.isCriterionGroup(c) ? html`
+            <div id="criterion_row_${c.id}" class="criterion-row criterion-group">
+              <div class="criterion-detail">
+                <h4 class="criterion-title">${c.title}</h4>
+                <p>${unsafeHTML(c.description)}</p>
               </div>
             </div>
-            <div class="criterion-actions">
-            ${!this.preview ? html`
-              <sakai-rubric-student-comment criterion="${JSON.stringify(c)}"></sakai-rubric-student-comment>
-              <strong class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                ${c.selectedvalue.toLocaleString(this.locale)}
-                ${!c.selectedRatingId ? "0" : ""}
-                &nbsp;
-              </strong>
-              ${this.isOverridden(c.pointoverride, c.selectedvalue) ?
-                html`<strong class="points-display">${c.pointoverride.toLocaleString(this.locale)}</strong>`
-                : html``}
-            ` : html``}
+          ` : html`
+            <div id="criterion_row_${c.id}" class="criterion-row">
+              <div class="criterion-detail">
+                <h4 class="criterion-title">${c.title}</h4>
+                <p>${unsafeHTML(c.description)}</p>
+              </div>
+              ${this.weighted ? html`
+                <div class="criterion-weight">
+                  <span>
+                    <sr-lang key="weight">Weight</sr-lang>
+                  </span>
+                  <span>${c.weight.toLocaleString(this.locale)}</span>
+                  <span>
+                    <sr-lang key="percent_sign">%</sr-lang>
+                  </span>
+                </div>
+              ` : "" }
+              <div class="criterion-ratings">
+                <div class="cr-table">
+                  <div class="cr-table-row">
+                  ${repeat(c.ratings, r => r.id, r => html`
+                    <div class="rating-item student ${r.selected ? "selected" : ""}" id="rating-item-${r.id}">
+                      <h5 class="criterion-item-title">${r.title}</h5>
+                      <p>${r.description}</p>
+                      <span class="points">
+                        ${this.weighted && r.points > 0 ? html`
+                          <b>
+                              (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
+                          </b>`
+                          : ""
+                        }
+                        ${r.points.toLocaleString(this.locale)}
+                        <sr-lang key="points">Points</sr-lang>
+                      </span>
+                    </div>
+                  `)}
+                  </div>
+                </div>
+              </div>
+              <div class="criterion-actions">
+              ${!this.preview ? html`
+                <sakai-rubric-student-comment criterion="${JSON.stringify(c)}"></sakai-rubric-student-comment>
+                <strong class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
+                  ${c.selectedvalue.toLocaleString(this.locale)}
+                  ${!c.selectedRatingId ? "0" : ""}
+                  &nbsp;
+                </strong>
+                ${this.isOverridden(c.pointoverride, c.selectedvalue) ?
+                  html`<strong class="points-display">${c.pointoverride.toLocaleString(this.locale)}</strong>`
+                  : html``}
+              ` : html``}
+              </div>
             </div>
-          </div>
+          `}
         `)}
       </div>
       ${!this.preview ? html`
@@ -193,7 +207,6 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
       return 'strike';
     }
     return '';
-
   }
 }
 

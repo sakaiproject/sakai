@@ -14,7 +14,10 @@
 package org.sakaiproject.webapi.beans;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
-
+import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 
 import lombok.Getter;
@@ -30,14 +33,20 @@ public class AnnouncementRestBean {
     private String subject;
     private String author;
     private String url;
+    private long date;
 
     public AnnouncementRestBean(Site site, AnnouncementMessage am, String url) {
 
-        this.id = am.getId();
-        this.siteId = site.getId();
-        this.siteTitle = site.getTitle();
+        id = am.getId();
+        siteId = site.getId();
+        siteTitle = site.getTitle();
         subject = am.getAnnouncementHeader().getSubject();
         author = am.getAnnouncementHeader().getFrom().getDisplayName();
+        date = am.getAnnouncementHeader().getInstant().toEpochMilli();
+        ResourceProperties props = am.getProperties();
+        try {
+            date = props.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
+        } catch (EntityPropertyTypeException|EntityPropertyNotDefinedException e) { /*No action needed*/ }
         this.url = url;
     }
 }

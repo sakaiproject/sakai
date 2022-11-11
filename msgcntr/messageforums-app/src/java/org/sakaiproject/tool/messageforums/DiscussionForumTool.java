@@ -38,9 +38,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -61,6 +63,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -74,10 +77,12 @@ import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.EmailNotification;
 import org.sakaiproject.api.app.messageforums.EmailNotificationManager;
+import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.MutableEntity;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
@@ -97,7 +102,9 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.api.app.messageforums.MembershipItem;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -117,14 +124,21 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -146,8 +160,8 @@ import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.RoleIdComparator;
 
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -226,7 +240,6 @@ public class DiscussionForumTool {
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.AreaManager\"]}")
   private AreaManager areaManager;
   private int numPendingMessages = 0;
-  private boolean refreshPendingMsgs = true;
   
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
@@ -237,6 +250,8 @@ public class DiscussionForumTool {
   private static final String CURRENT_FORUM_ID = "currentForumId";
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
   private static final String FROMPAGE = "fromPage";
+  private static final String TOPIC_REF = Entity.SEPARATOR + "topic" + Entity.SEPARATOR;
+  private static final String SEPARATOR = "/";
 
   private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
   private static final String FORUMS_TOOL_ID = "sakai.forums";
@@ -307,6 +322,7 @@ public class DiscussionForumTool {
   private static final String AUTOCREATE_TOPICS_ROLES_DESCRIPTION = "cdfm_autocreate_topics_desc_roles";
   private static final String AUTOCREATE_TOPICS_GROUPS_DESCRIPTION = "cdfm_autocreate_topics_desc_groups";
   private static final String DUPLICATE_COPY_TITLE = "cdfm_duplicate_copy_title";
+  private static final String TASK_NOT_CREATED =  "cdfm_cant_create_task";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   /**
@@ -368,7 +384,7 @@ public class DiscussionForumTool {
   private String selectedAssign = DEFAULT_GB_ITEM; 
   private String gradePoint; 
   private String gradeComment; 
-  private boolean gradebookExist = false;
+  private boolean gradebookExist = true;
   private boolean gradebookExistChecked = false;
   private boolean displayDeniedMsg = false;
   private transient boolean selGBItemRestricted;
@@ -421,10 +437,18 @@ public class DiscussionForumTool {
   private ToolManager toolManager;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.thread_local.api.ThreadLocalManager\"]}")
   private ThreadLocalManager threadLocalManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.rubrics.logic.RubricsService\"]}")
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.rubrics.api.RubricsService\"]}")
   private RubricsService rubricsService;
   @ManagedProperty(value = "#{Components[\"org.sakaiproject.time.api.UserTimeService\"]}")
   private UserTimeService userTimeService;
+  @ManagedProperty(value = "#{Components[\"org.sakaiproject.tasks.api.TaskService\"]}")
+  private TaskService taskService;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.calendar.api.CalendarService\"]}")
+  @Getter @Setter
+  private CalendarService calendarService;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.time.api.TimeService\"]}")
+  @Setter
+  private TimeService timeService;
 
   private Boolean instructor = null;
   private Boolean sectionTA = null;
@@ -489,39 +513,8 @@ public class DiscussionForumTool {
     showProfileLink = showProfileInfo && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
 
-  // Is Gradebook defined for the site?
-  protected boolean isGradebookDefined()
-  {
-	  boolean rv = false;
-	  try
-	  {
-		  Object og = ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-		  if (!(og instanceof GradebookService)) {
-			log.info("Error getting gradebook service from component manager. CM returns:" + og.getClass().getName());
-			return false;
-		  }
-			
-		  GradebookService g = (GradebookService) og;
-		  String gradebookUid = toolManager.getCurrentPlacement().getContext();
-		  if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
-		  {
-			  rv = true;
-		  }
-	  }
-	  catch (Exception e)
-	  {
-		  log.info(this + "isGradebookDefined " + e.getMessage());
-	  }
-
-	  return rv;
-
-  } // isGradebookDefined()
-
-  protected GradebookService getGradebookService() {
-	if (isGradebookDefined()) {
-		return (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-	}
-	return null;
+  protected GradingService getGradingService() {
+    return (GradingService)  ComponentManager.get("org.sakaiproject.grading.api.GradingService");
   }
 
   /**
@@ -682,16 +675,14 @@ public class DiscussionForumTool {
         assignments.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)));
 
         //Code to get the gradebook service from ComponentManager
-        GradebookService gradebookService = getGradebookService();
+        GradingService gradingService = getGradingService();
 
-        if (getGradebookExist()) {
-          for (Assignment thisAssign : gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
-            if (!thisAssign.isExternallyMaintained()) {
-              try {
-                assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
-              } catch (Exception e) {
-                log.error("DiscussionForumTool - processDfMsgGrd:" + e);
-              }
+        for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
+          if (!thisAssign.getExternallyMaintained()) {
+            try {
+              assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
+            } catch (Exception e) {
+              log.error("DiscussionForumTool - processDfMsgGrd:" + e);
             }
           }
         }
@@ -1077,8 +1068,10 @@ public class DiscussionForumTool {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO));
       return gotoMain();
     }
-    HashMap<String, Integer> beforeChangeHM = null;    
-    Long forumId = selectedForum.getForum().getId();
+    HashMap<String, Integer> beforeChangeHM = null; 
+    DiscussionForum forum = selectedForum.getForum();
+    Long forumId = forum.getId();
+    List topics = forum.getTopics();
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null);
 
     forumManager.deleteForum(selectedForum.getForum());
@@ -1086,6 +1079,18 @@ public class DiscussionForumTool {
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
+    
+    // Delete task (forum)
+    String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId;
+    taskService.removeTaskByReference(reference);
+    // Delete task (topics)
+    for (Iterator topicIter = topics.iterator(); topicIter.hasNext();) {
+        DiscussionTopic topic = (DiscussionTopic) topicIter.next();
+        Long topicId = topic.getId();
+        reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
+        taskService.removeTaskByReference(reference);
+    }
+    
 
     reset();
     return gotoMain();
@@ -1445,6 +1450,7 @@ public class DiscussionForumTool {
     saveForumSelectedAssignment(forum);
     saveForumAttach(forum);  
     setObjectPermissions(forum);
+    processActionSendToCalendar(forum);
     if (draft)
       forum = forumManager.saveForumAsDraft(forum);
     else
@@ -1453,8 +1459,26 @@ public class DiscussionForumTool {
     if (!isNew && beforeChangeHM != null) {
       updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
-
+    
     selectedForum.getForum().setId(forum.getId());
+    
+    // Update or create task if needed
+    String gradeAssign = selectedForum.getGradeAssign();
+	gradeAssign = gradeAssign == null ? selectedForum.getForum().getDefaultAssignName() : gradeAssign;
+    if (!draft && gradeAssign != null) {
+      GradingService gradingService = getGradingService();
+      String gradebookUid = toolManager.getCurrentPlacement().getContext();
+      Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+      Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
+      Optional<Task> optTask = taskService.getTask(reference);
+      if (optTask.isPresent()) {
+        this.updateTask(optTask.get(), this.selectedForum.getForum().getTitle(), dueDate);
+      } else if (this.selectedForum.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
+        this.createTask(reference, this.selectedForum.getForum().getTitle(), dueDate);
+      }
+    }
+    
     return forum;
   }
 
@@ -1462,14 +1486,14 @@ public class DiscussionForumTool {
 	  if (newTarget instanceof DiscussionForum && oldTarget instanceof DiscussionForum){
 		  DiscussionForum forum = ((DiscussionForum) newTarget);
 		  DiscussionForum oldForum = ((DiscussionForum) oldTarget);
-		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate());
-		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldForum.getAvailabilityRestricted(), oldForum.getOpenDate(), oldForum.getCloseDate());
+		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate(), forum.getLockedAfterClosed());
+		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldForum.getAvailabilityRestricted(), oldForum.getOpenDate(), oldForum.getCloseDate(), oldForum.getLockedAfterClosed());
 		  return newAvailable != oldAvailable;			
 	  }else if (newTarget instanceof Topic && oldTarget instanceof Topic){
 		  DiscussionTopic topic = ((DiscussionTopic) newTarget);
 		  DiscussionTopic oldTopic = ((DiscussionTopic) oldTarget);
-		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate());
-		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldTopic.getAvailabilityRestricted(), oldTopic.getOpenDate(), oldTopic.getCloseDate());
+		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate(), topic.getLockedAfterClosed());
+		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldTopic.getAvailabilityRestricted(), oldTopic.getOpenDate(), oldTopic.getCloseDate(), oldTopic.getLockedAfterClosed());
 		  return newAvailable != oldAvailable;	
 	  }
 	  return false;
@@ -1893,56 +1917,73 @@ public class DiscussionForumTool {
 
   private String saveTopicSettings(boolean draft)
   {
-  	log.debug("saveTopicSettings(" + draft + ")");
-  	setPermissionMode(PERMISSION_MODE_TOPIC);
+    log.debug("saveTopicSettings({})", draft);
+    setPermissionMode(PERMISSION_MODE_TOPIC);
     if (selectedTopic != null)
     {
       DiscussionTopic topic = selectedTopic.getTopic();
       if (selectedForum != null)
       {
-    	boolean isNew = topic.getId() == null;
-    	boolean permissionsUpdated = false;
-	if(!isNew){
-		permissionsUpdated = needToUpdateSynopticOnForumSave(topic, draft);
-    	}
-	boolean synopticUpdate = isNew ? false : permissionsUpdated;
+        boolean isNew = topic.getId() == null;
+        boolean permissionsUpdated = false;
+        if(!isNew){
+          permissionsUpdated = needToUpdateSynopticOnForumSave(topic, draft);
+        }
+        boolean synopticUpdate = isNew ? false : permissionsUpdated;
         HashMap<String, Integer> beforeChangeHM = null;
         if(!isNew && synopticUpdate){
-		beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), topic.getBaseForum().getId(), topic.getId());
+          beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), topic.getBaseForum().getId(), topic.getId());
         }
 
-    	if(topic.getShortDescription()!=null && topic.getShortDescription().length() > 255){
-    		topic.setShortDescription(topic.getShortDescription().substring(0, 255));
-    	}
+        if(topic.getShortDescription()!=null && topic.getShortDescription().length() > 255){
+          topic.setShortDescription(topic.getShortDescription().substring(0, 255));
+        }
 
-    	StringBuilder alertMsg = new StringBuilder();
-    	topic.setExtendedDescription(formattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
-    	
-    	if ("<br/>".equals(topic.getExtendedDescription()))
-    	{
-    		topic.setExtendedDescription("");
-    	}
-    	
+        StringBuilder alertMsg = new StringBuilder();
+        topic.setExtendedDescription(formattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
+
+        if ("<br/>".equals(topic.getExtendedDescription()))
+        {
+          topic.setExtendedDescription("");
+        }
+
         topic.setBaseForum(selectedForum.getForum());
         if(selectedForum.getForum().getRestrictPermissionsForGroups() && ServerConfigurationService.getBoolean("msgcntr.restricted.group.perms", false)){
-            topic.setRestrictPermissionsForGroups(true);
+          topic.setRestrictPermissionsForGroups(true);
         }
         if(topic.getCreatedBy()==null&&this.forumManager.getAnonRole()==true){
-        	topic.setCreatedBy(".anon");
+          topic.setCreatedBy(".anon");
         }
         if(topic.getModifiedBy()==null&&this.forumManager.getAnonRole()==true){
-        	topic.setModifiedBy(".anon");
+          topic.setModifiedBy(".anon");
         }
         saveTopicSelectedAssignment(topic);
         saveTopicAttach(topic);
         setObjectPermissions(topic);
-
+        processActionSendToCalendar(topic);
         topic = forumManager.saveTopic(topic, draft);
 
-    	//anytime a forum settings change, we should update synoptic info for forums
+        //anytime a forum settings change, we should update synoptic info for forums
         if (!isNew && beforeChangeHM != null) {
-            updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+          updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         }
+
+        // Update or create task if needed
+        String gradeAssign = selectedTopic.getGradeAssign();
+        if (!draft) {
+          GradingService gradingService = getGradingService();
+          String gradebookUid = toolManager.getCurrentPlacement().getContext();
+          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+          Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+          String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + topic.getBaseForum().getId() + TOPIC_REF + topic.getId();
+          Optional<Task> optTask = taskService.getTask(reference);
+          if (optTask.isPresent()) {
+            this.updateTask(optTask.get(), topic.getTitle(), dueDate);
+          } else if (this.selectedTopic.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
+            this.createTask(reference, topic.getTitle(), dueDate);
+          }
+        }
+
       }
     }
     return gotoMain();
@@ -2032,6 +2073,10 @@ public class DiscussionForumTool {
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
+    
+    // Delete task
+    String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
+    taskService.removeTaskByReference(reference);
 
     reset();
     return gotoMain();
@@ -2193,6 +2238,220 @@ public class DiscussionForumTool {
 
     return gotoMain();
 
+  }
+
+  /*
+  * Send the open and close dates of a Forum or Forum Topic to the Calendar.
+  * MutableEntity is a parent class of both DiscussionForums and DiscussionTopics.
+  * The empty values declared at the beginning are used throughout this method's creation and maintenance of the Calendar sending.
+  */
+  private void processActionSendToCalendar(MutableEntity forumItem) {
+    String calendarBeginId;
+    String calendarEndId;
+    Boolean sendOpenCloseToCalendar;
+    Boolean availabilityRestrictedNow;
+    String title;
+    Date openDate;
+    Date closeDate;
+    String openingTitle;
+    String closingTitle;
+    Set<DBMembershipItem> membershipItems;
+    if (forumItem instanceof DiscussionTopic) {  //this part of the processing determines if the MutableEntity is a Forum or a Topic and fills in all the variables by appropriately casting.
+      DiscussionTopic topicNow = ((DiscussionTopic) forumItem);
+      calendarBeginId = topicNow.getCalendarBeginId();
+      calendarEndId = topicNow.getCalendarEndId();
+      sendOpenCloseToCalendar = topicNow.getSendOpenCloseToCalendar();
+      openDate = topicNow.getOpenDate();
+      closeDate = topicNow.getCloseDate();
+      membershipItems = topicNow.getMembershipItemSet();
+      availabilityRestrictedNow = topicNow.getAvailabilityRestricted();
+      openingTitle = getResourceBundleString("sendOpenCloseToCalendar.title.topic.assembly",new Object[]{topicNow.getTitle(),getResourceBundleString("sendOpenCloseToCalendar.topic.open")});
+      closingTitle = getResourceBundleString("sendOpenCloseToCalendar.title.topic.assembly",new Object[]{topicNow.getTitle(),getResourceBundleString("sendOpenCloseToCalendar.topic.close")});
+    } else if (forumItem instanceof DiscussionForum) {
+      DiscussionForum forumNow = ((DiscussionForum) forumItem);
+      calendarBeginId = forumNow.getCalendarBeginId();
+      calendarEndId = forumNow.getCalendarEndId();
+      sendOpenCloseToCalendar = forumNow.getSendOpenCloseToCalendar();
+      openDate = forumNow.getOpenDate();
+      closeDate = forumNow.getCloseDate();
+      membershipItems = forumNow.getMembershipItemSet();
+      availabilityRestrictedNow = forumNow.getAvailabilityRestricted();
+      openingTitle = getResourceBundleString("sendOpenCloseToCalendar.title.forum.assembly",new Object[]{forumNow.getTitle(),getResourceBundleString("sendOpenCloseToCalendar.topic.open")});
+      closingTitle = getResourceBundleString("sendOpenCloseToCalendar.title.forum.assembly",new Object[]{forumNow.getTitle(),getResourceBundleString("sendOpenCloseToCalendar.topic.close")});
+    } else {  //don't do anything with forumItem or the Calendar if it's not a Forum or a Forum Topic.
+      return;
+    }
+    Collection<Group> allowedGroups = getAllowedGroups(membershipItems);
+    if (allowedGroups.size() == 0 && !studentsAllowed(membershipItems)) {
+      sendOpenCloseToCalendar = false; //if no groups or students are allowed to see this, we will treat it as though Send is not checked at all.
+      if (forumItem instanceof DiscussionTopic) {  //clear the forum item's value as well, if this is the case.
+        ((DiscussionTopic) forumItem).setSendOpenCloseToCalendar(false);
+      } else if (forumItem instanceof DiscussionForum) {
+        ((DiscussionForum) forumItem).setSendOpenCloseToCalendar(false);
+      }
+    }
+    try {   //now actually start processing the data for Calendar.
+      Calendar targetCalendar = this.calendarService.getCalendar(calendarService.calendarReference(getContextSiteId().replace("/site/",""), siteService.MAIN_CONTAINER));
+      if(targetCalendar == null){
+        return; //no further processing is possible if the calendar has not been found.
+      }
+      CalendarEventEdit begin = null;
+      CalendarEventEdit end = null;
+      if (sendOpenCloseToCalendar && availabilityRestrictedNow) {
+        if (calendarBeginId != null) { //if there is already a Calendar record for the forum opening
+          try {
+            begin = targetCalendar.getEditEvent(calendarBeginId, CalendarService.EVENT_MODIFY_CALENDAR);
+          } catch (IdUnusedException e) {
+            // If we couldn't get Begin from the calendar, it likely means that the event was deleted from Calendar without consulting Forums,
+            // so Forums has an ID saved for a Calendar event that won't exist. We can just create it.
+            begin = targetCalendar.addEvent();
+          }
+          if (openDate != null) {
+            begin.setDisplayName(openingTitle);
+            begin.setDescription(getResourceBundleString("sendOpenCloseToCalendar.description.assembly",new Object[]{openingTitle,openDate.toString()}));
+            begin.setType(getResourceBundleString("sendOpenCloseToCalendar.type"));
+            begin.setGroupAccess(allowedGroups, false);
+            begin.setRange(this.timeService.newTimeRange(openDate.getTime(), 0));
+            targetCalendar.commitEvent(begin);
+          } else {  //if there is a Calendar event for the current forum item, but the open date is cleared, we interpret this as a removal.
+            targetCalendar.removeEvent(begin);
+            calendarBeginId = null;
+          }
+        } else if (calendarBeginId == null && openDate != null) { //if there is not already a Calendar record for this forum item, we create one if there is actually an Open date set.
+          begin = targetCalendar.addEvent();
+          begin.setDisplayName(openingTitle);
+          begin.setDescription(getResourceBundleString("sendOpenCloseToCalendar.description.assembly",new Object[]{openingTitle,openDate.toString()}));
+          begin.setType(getResourceBundleString("sendOpenCloseToCalendar.type"));
+          begin.setGroupAccess(allowedGroups, false);
+          begin.setRange(this.timeService.newTimeRange(openDate.getTime(), 0));
+          targetCalendar.commitEvent(begin);
+        }
+        if (calendarEndId != null) {
+          try {
+            end = targetCalendar.getEditEvent(calendarEndId, CalendarService.EVENT_MODIFY_CALENDAR);
+          } catch (IdUnusedException e) {
+            // This might happen if the event was removed from Calendar without this Forum data being changed,
+            // so Forums would have a record for a Calendar event that doesn't exist. We can just create it.
+            end = targetCalendar.addEvent();
+          }
+          if (closeDate != null) {
+            end.setDisplayName(closingTitle);
+            end.setDescription(getResourceBundleString("sendOpenCloseToCalendar.description.assembly",new Object[]{closingTitle,closeDate.toString()}));
+            end.setType(getResourceBundleString("sendOpenCloseToCalendar.type"));
+            end.setGroupAccess(allowedGroups, false);
+            end.setRange(this.timeService.newTimeRange(closeDate.getTime(), 0));
+            targetCalendar.commitEvent(end);
+          } else {  //if there is a Calendar record for the closing, but no close date, we interpret it as a removal.
+            targetCalendar.removeEvent(end);
+            calendarEndId = null;
+          }
+        } else if (calendarEndId == null && closeDate != null) {  //when there is not already a Calendar record for this closing date and there is a Close date actually set.
+          end = targetCalendar.addEvent();
+          end.setDisplayName(closingTitle);
+          end.setDescription(getResourceBundleString("sendOpenCloseToCalendar.description.assembly",new Object[]{closingTitle,closeDate.toString()}));
+          end.setType(getResourceBundleString("sendOpenCloseToCalendar.type"));
+          end.setGroupAccess(allowedGroups, false);
+          end.setRange(this.timeService.newTimeRange(closeDate.getTime(), 0));
+          targetCalendar.commitEvent(end);
+        }
+        if (begin != null) { //put the Calendar entry for Open in the Forum data.
+          if (forumItem instanceof DiscussionTopic) {
+            ((DiscussionTopic) forumItem).setCalendarBeginId(begin.getId());
+          } else if (forumItem instanceof DiscussionForum) {
+            ((DiscussionForum) forumItem).setCalendarBeginId(begin.getId());
+          }
+        } else {
+          if (forumItem instanceof DiscussionTopic) {
+            ((DiscussionTopic) forumItem).setCalendarBeginId(null);
+          } else if (forumItem instanceof DiscussionForum) {
+            ((DiscussionForum) forumItem).setCalendarBeginId(null);
+          }
+        }
+        if (end != null) {  //put the Calendar entry for End in the forum data.
+          if (forumItem instanceof DiscussionTopic) {
+            ((DiscussionTopic) forumItem).setCalendarEndId(end.getId());
+          } else if (forumItem instanceof DiscussionForum) {
+            ((DiscussionForum) forumItem).setCalendarEndId(end.getId());
+          }
+        } else {
+          if (forumItem instanceof DiscussionTopic) {
+            ((DiscussionTopic) forumItem).setCalendarEndId(null);
+          } else if (forumItem instanceof DiscussionForum) {
+            ((DiscussionForum) forumItem).setCalendarEndId(null);
+          }
+        }
+      } else {  // when Send To Calendar is not checked
+        if (calendarBeginId != null) {  //don't mess with the Calendar unless there have previously been Calendar events created for this topic
+          try {
+            begin = targetCalendar.getEditEvent(calendarBeginId, CalendarService.EVENT_MODIFY_CALENDAR);
+            targetCalendar.removeEvent(begin);
+          } catch (IdUnusedException e) { //if we couldn't get Begin from the calendar, it likely means that the event was deleted from Calendar without consulting Forums, so Forums has an ID saved for a Calendar event that won't exist. We can just create it.
+            log.info(e.toString());
+          }
+        }
+        if (calendarEndId != null) {
+          try {
+            end = targetCalendar.getEditEvent(calendarEndId, CalendarService.EVENT_MODIFY_CALENDAR);
+            targetCalendar.removeEvent(end);
+          } catch (IdUnusedException e) { //this might happen if the event was removed from Calendar without this Forum data being changed, so Forums would have a record for a Calendar event that doesn't exist. We can just create it.
+            log.info(e.toString());
+          }
+
+        }
+        if (forumItem instanceof DiscussionTopic) { //put the null begin/end IDs in the forumItem itself as well, depending on type.
+          ((DiscussionTopic) forumItem).setCalendarBeginId(null);
+          ((DiscussionTopic) forumItem).setCalendarEndId(null);
+        } else if (forumItem instanceof DiscussionForum) {
+          ((DiscussionForum) forumItem).setCalendarBeginId(null);
+          ((DiscussionForum) forumItem).setCalendarEndId(null);
+        }
+      }
+    } catch (IdUnusedException e) { //for getCalendar, if the Calendar doesn't exist.
+      log.error(e.toString());
+    } catch (PermissionException e) { //for addEvent, if the user can't edit a calendar.
+      log.error(e.toString());
+    } catch (InUseException e) {  //for getEditEvent, if it's already being edited.
+      log.error(e.toString());
+    }
+  }
+
+  public Boolean getDoesSiteHaveCalendar() {  //if any Calendar data exists for this site, this method returns True. It's not necessarily based on the literal presence of the Calendar tool in the site, but on Calendar-related data.
+    try { //just look for a usable calendar with this site's ID.
+      this.calendarService.getCalendar(calendarService.calendarReference(getContextSiteId().replace("/site/",""), siteService.MAIN_CONTAINER));
+    } catch (IdUnusedException e) { //this would be the normal Catch case...when the calendar we tried to get just doesn't exist.
+      log.debug(" No Calendar data exist for this site.");
+      return false;
+    } catch (PermissionException e) { //this just means the user can't edit. Probably rare.
+      log.debug(" User does not have permission to edit this calendar.");
+      return false;
+    }
+    return true;  // if no exceptions get thrown, return True...either usable Calendar data exists, or the Calendar tool is in the site.
+  }
+
+  private Collection<Group> getAllowedGroups(Set<DBMembershipItem> membershipItems) {  //get the groups allowed to see a Forum item's related Calendar events.
+    if (membershipItems == null) {
+      return Collections.emptyList();
+    }
+    Collection<Group> output = new ArrayList<>();
+    ArrayList<SiteGroupBean> availableGroups = (ArrayList<SiteGroupBean>) getSiteGroups();
+    List<String> availableGroupNames = availableGroups.stream().map(ag -> ag.getGroup().getTitle()).collect(Collectors.toList());
+    for(DBMembershipItem now: membershipItems) {
+      if (availableGroupNames.contains(now.getName()) && !now.getPermissionLevelName().equals("None")) { //we want the groups that are available to the site, and have some kind of permission to see the forum item.
+        for (int count = 0; count < availableGroups.size(); count++) {
+          if (now.getName().equals(availableGroups.get(count).getGroup().getTitle())) {
+            output.add(availableGroups.get(count).getGroup());
+          }
+        }
+      }
+    }
+    return output;
+  }
+
+  private Boolean studentsAllowed (Set<DBMembershipItem> membershipItems){  //find out if users in the Student role are allowed to use a Forum Item in any way.
+    if (membershipItems != null) {
+      return membershipItems.stream().filter(itemNow -> itemNow.getName().equals("Student") && !itemNow.getPermissionLevelName().equals("None")).findFirst().isPresent();
+    }
+    return false;
   }
 
   /**
@@ -3427,7 +3686,6 @@ public class DiscussionForumTool {
     attachments.clear();
     prepareRemoveAttach.clear();
     assignments.clear();
-    refreshPendingMsgs = true;
   }
 
   /**
@@ -4224,17 +4482,17 @@ public class DiscussionForumTool {
   }
 
   private void setUpGradeInformation(String gradebookUid, String selAssignmentName, String studentId) {
-	  GradebookService gradebookService = getGradebookService();
-	  if (gradebookService == null) return;
+	  GradingService gradingService = getGradingService();
+	  if (gradingService == null) return;
 	  
-	  Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
+	  Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
 	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
-	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
+	  String function = gradingService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
 	  if (function == null) {
 		  allowedToGradeItem = false;
 		  selGBItemRestricted = true;
-	  } else if (function.equalsIgnoreCase(GradebookService.gradePermission)) {
+	  } else if (function.equalsIgnoreCase(GradingService.gradePermission)) {
 		  allowedToGradeItem = true;
 		  selGBItemRestricted = false;
 	  } else {
@@ -4243,12 +4501,12 @@ public class DiscussionForumTool {
 	  }
 	  
 	  // get the grade entry type for the gradebook
-	  int gradeEntryType = gradebookService.getGradeEntryType(gradebookUid);
-	  if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+	  GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
+	  if (gradeEntryType == GradeType.LETTER) {
 	      gradeByLetter = true;
 	      gradeByPoints = false;
 	      gradeByPercent = false;
-	  } else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
+	  } else if (gradeEntryType == GradeType.PERCENTAGE) {
 	      gradeByLetter = false;
 	      gradeByPoints = false;
 	      gradeByPercent = true;
@@ -4264,7 +4522,7 @@ public class DiscussionForumTool {
 			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assignment.getPoints());
 		  }
 		  
-		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
+		  GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
 		      String decSeparator = formattedText.getDecimalSeparator();
@@ -4647,7 +4905,7 @@ public class DiscussionForumTool {
 		composeTitle = null;
 		attachments.clear();
 
-		getSelectedTopic();
+		selectedTopic = getSelectedTopic();
 		getThreadFromMessage();
 	} catch(Exception e) {
       log.error("Error while editing a message", e);
@@ -4764,7 +5022,7 @@ public class DiscussionForumTool {
 		  return null;
 	  }
 	  
-	  Message message = selectedMessage.getMessage();
+	  Message message = messageManager.getMessageById(selectedMessage.getMessage().getId());
 
 	  // 'delete' this message
 	  message.setDeleted(Boolean.TRUE);
@@ -4842,7 +5100,7 @@ public class DiscussionForumTool {
         displayPendingMsgQueue = false;
       }
 
-      if (refreshPendingMsgs && displayPendingMsgQueue) {
+      if (displayPendingMsgQueue) {
         refreshPendingMessages(membershipList, moderatedTopics);
       }
     }
@@ -4922,8 +5180,6 @@ public class DiscussionForumTool {
 		  	}
 		  }
 	  }
-	  
-	  refreshPendingMsgs = false;
   }
   
   /**
@@ -4945,7 +5201,7 @@ public class DiscussionForumTool {
 	  approveOrDenySelectedMsgs(true);
 	  
 	  if (numPendingMessages > 0)
-		  return PENDING_MSG_QUEUE;
+		  return null;
 	  
 	  return processActionHome();
   }
@@ -4959,7 +5215,7 @@ public class DiscussionForumTool {
 	  approveOrDenySelectedMsgs(false);
 	  
 	  if (numPendingMessages > 0)
-		  return PENDING_MSG_QUEUE;
+		  return null;
 	  
 	  return processActionHome();
   }
@@ -5015,13 +5271,12 @@ public class DiscussionForumTool {
 		  setErrorMessage(getResourceBundleString(NO_MSG_SEL_FOR_APPROVAL));
 	  else
 	  {
+		  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 		  if (approved)
 			  setSuccessMessage(getResourceBundleString(MSGS_APPROVED));
 		  else
 			  setSuccessMessage(getResourceBundleString(MSGS_DENIED));
 	  }
-	  
-	  refreshPendingMsgs = true;
   }
 
   /**
@@ -5056,7 +5311,7 @@ public class DiscussionForumTool {
 	  
 	  }
 	  
-	  refreshPendingMsgs = true;
+	  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 	  
 	  return MESSAGE_VIEW;
   }
@@ -5091,7 +5346,7 @@ public class DiscussionForumTool {
 		  
 	  }
 	  
-	  refreshPendingMsgs = true;
+	  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 	  
 	  return ADD_COMMENT;
   }
@@ -5138,7 +5393,7 @@ public class DiscussionForumTool {
 	      		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 	  }
 	  
-	  refreshPendingMsgs = true;
+	  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 	  
 	  return MESSAGE_VIEW;
   }
@@ -5769,18 +6024,18 @@ public class DiscussionForumTool {
   
    private boolean validateGradeInput()
    {
-       GradebookService gradebookService = getGradebookService();
-       if (gradebookService == null) {
+       GradingService gradingService = getGradingService();
+       if (gradingService == null) {
            return false;
        }
 
        String gradebookUid = getSiteId();
-       boolean gradeValid = gradebookService.isGradeValid(gradebookUid, gradePoint);
+       boolean gradeValid = gradingService.isGradeValid(gradebookUid, gradePoint);
 
        if (!gradeValid) {
            // see if we can figure out why
            String errorMessageRef = GRADE_INVALID_GENERIC;
-           if (gradebookService.getGradeEntryType(gradebookUid) != GradebookService.GRADE_TYPE_LETTER) {
+           if (gradingService.getGradeEntryType(gradebookUid) != GradeType.LETTER) {
                if(!isNumber(gradePoint))
                {
                    errorMessageRef = GRADE_GREATER_ZERO;
@@ -5812,8 +6067,8 @@ public class DiscussionForumTool {
   
   public String processDfGradeSubmit() 
   {
-	GradebookService gradebookService = getGradebookService();
-	if (gradebookService == null) {
+	GradingService gradingService = getGradingService();
+	if (gradingService == null) {
 //		Maybe print an error message if it's possible to get into this state
 //		setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 		return null;
@@ -5877,8 +6132,8 @@ public class DiscussionForumTool {
         	studentUid = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
-        gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
+        Long gbItemId = gradingService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
+        gradingService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
 
@@ -6826,32 +7081,6 @@ public class DiscussionForumTool {
 	    	return rb.getFormattedMessage(key, args);
 	    }
 
-		public boolean getGradebookExist() 
-		{
-			if (!gradebookExistChecked)
-			{
-		 	    try 
-			    { 
-				
-				GradebookService gradebookService = getGradebookService();
-				if (gradebookService == null) return false;
-		 	    	gradebookExist = gradebookService.isGradebookDefined(toolManager.getCurrentPlacement().getContext());
-		 	    	gradebookExistChecked = true;
-		 	    	return gradebookExist;
-			    }
-		 	    catch(Exception e)
-		 	    {
-		 	    	gradebookExist = false;
-		 	    	gradebookExistChecked = true;
-		 	    	return gradebookExist;
-		 	    }
-			}
-		 	else
-		 	{
-		 		return gradebookExist;
-		 	}
-		}
-
 	public String getUserNameOrEid()
 	{
 	  try
@@ -7506,7 +7735,7 @@ public class DiscussionForumTool {
 		return "";
 	}
 
-	private String getSiteId() {
+	public String getSiteId() {
 		return toolManager.getCurrentPlacement().getContext();
 	}
 
@@ -7735,18 +7964,15 @@ public class DiscussionForumTool {
 		}
 	}
 
-//	// get/add the gradebook assignment associated with the topic
-	if (isGradebookDefined())
-	{
-		String fromAssignmentTitle = fromTopic.getDefaultAssignName();
-		newTopic.setDefaultAssignName(fromAssignmentTitle);
-	}
+  String fromAssignmentTitle = fromTopic.getDefaultAssignName();
+  newTopic.setDefaultAssignName(fromAssignmentTitle);
 	
 	// copy the release/end dates	
 	if(fromTopic.getAvailabilityRestricted()){
 		newTopic.setAvailabilityRestricted(true);
 		newTopic.setOpenDate(fromTopic.getOpenDate());
 		newTopic.setCloseDate(fromTopic.getCloseDate());
+		newTopic.setLockedAfterClosed(fromTopic.getLockedAfterClosed());
 	}
 
 	newTopic.setBaseForum(forum);
@@ -7847,16 +8073,14 @@ public class DiscussionForumTool {
 			}
 		}
 
-		if (isGradebookDefined())
-		{
-			String fromAssignmentTitle = oldForum.getDefaultAssignName();
-			forum.setDefaultAssignName(fromAssignmentTitle);
-		}
+    String fromAssignmentTitle = oldForum.getDefaultAssignName();
+    forum.setDefaultAssignName(fromAssignmentTitle);
 
-		if(oldForum.getAvailabilityRestricted()){
+		if(oldForum.getAvailabilityRestricted()) {
 			forum.setAvailabilityRestricted(true);
 			forum.setOpenDate(oldForum.getOpenDate());
 			forum.setCloseDate(oldForum.getCloseDate());
+			forum.setLockedAfterClosed(oldForum.getLockedAfterClosed());
 		}
 
 		forum = saveForumSettings(oldForum.getDraft());
@@ -8957,12 +9181,7 @@ public class DiscussionForumTool {
 		}
 		return returnRank;
 	}
-    
-    private boolean alwaysShowFullDesc = false;
-    public boolean isAlwaysShowFullDesc(){
-    	return ServerConfigurationService.getBoolean("mc.alwaysShowFullDesc", false); 
-    }
-    
+
     public String getCurrentToolId(){
     	return toolManager.getCurrentPlacement().getId();
     }
@@ -9143,11 +9362,6 @@ public class DiscussionForumTool {
 		return list;
 	}
 
-	public String getRbcsToken() {
-		log.debug("getRbcsToken()");
-		return rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_FORUMS);
-	}
-
 	public boolean hasAssociatedRubric(){
 		return (allowedToGradeItem && (getRubricAssociationId() != null));
 	}
@@ -9206,6 +9420,32 @@ public class DiscussionForumTool {
         attachList.stream().map(DecoratedAttachment::new).forEach(decoAttachList::add);
       }
       bean.setAttachList(decoAttachList);
+    }
+	
+    private void updateTask(Task task, String title, Date dueDate) {
+      task.setDescription(title);
+      task.setDue(dueDate == null ? null : dueDate.toInstant());
+      taskService.saveTask(task);
+    }
+    
+    private void createTask(String reference, String title, Date dueDate) {
+      try {
+        Task task = new Task();
+        task.setSiteId(getSiteId());
+        task.setReference(reference);
+        task.setSystem(true);
+        task.setDescription(title);
+        task.setDue(dueDate == null ? null : dueDate.toInstant());
+        Site site = siteService.getSite(getSiteId());
+        Set<String> users = site.getUsersIsAllowed("section.role.student");
+        taskService.createTask(task, users, Priorities.HIGH);
+      } catch (Exception e) {
+        setErrorMessage(getResourceBundleString(TASK_NOT_CREATED));
+      }
+    }
+
+    public String getAttachmentReadableSize(final String attachmentSize) {
+      return FileUtils.byteCountToDisplaySize(Long.parseLong(attachmentSize));
     }
 
 }

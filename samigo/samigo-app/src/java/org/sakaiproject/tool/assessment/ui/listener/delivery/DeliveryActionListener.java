@@ -1974,7 +1974,7 @@ public class DeliveryActionListener
           if ((data.getPublishedAnswerId()!=null) && data.getPublishedAnswerId().equals(answer.getId()))
           {
             fbean.setItemGradingData(data);
-            fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setResponse(data.getAnswerText());
             if (answer.getText() == null)
             {
               answer.setText("");
@@ -2863,6 +2863,11 @@ public class DeliveryActionListener
   
   private long getSeed(SectionDataIfc sectionData, DeliveryBean delivery, long userSeed) {
 	  long seed = userSeed;
+	  // If the section has a previous seed we must use it to use the same order.
+	  String sectionRandomizationSeed = sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_SEED);
+	  if (StringUtils.isNotBlank(sectionRandomizationSeed)) {
+	      seed += Long.parseLong(sectionRandomizationSeed);
+	  }
 	  log.debug("input seed = " + seed);
 	  if (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE) != null && sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE).equals(SectionDataIfc.PER_SUBMISSION)) {
 		  Long id = delivery.getAssessmentGradingId();
@@ -2890,7 +2895,7 @@ public class DeliveryActionListener
   
   /**
    * CALCULATED_QUESTION
-   * This returns the comma delimted answer key for display such as "42.1,23.19"
+   * This returns the comma and space delimted answer key for display such as "42.1, 23.19"
    */
   private String commaDelimitedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
 	  long gradingId = determineCalcQGradingId(delivery);
@@ -2911,11 +2916,11 @@ public class DeliveryActionListener
 		  // We need the key formatted in scientificNotation
 		  answer = service.toScientificNotation(answer, decimalPlaces);
 		  
-		  keysString = keysString.concat(answer + ",");
+		  keysString = keysString.concat(answer + ", ");
 		  answerSequence++;
 	  }
 	  if (keysString.length() > 2) {
-		  keysString = keysString.substring(0, keysString.length()-1); // truncating the comma on the end
+		  keysString = keysString.substring(0, keysString.length()-2); // truncating the comma and blank on the end
 	  }
 	  return keysString;
   }

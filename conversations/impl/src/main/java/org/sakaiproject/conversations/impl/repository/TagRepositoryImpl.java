@@ -17,7 +17,10 @@ package org.sakaiproject.conversations.impl.repository;
 
 import java.util.List;
 
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.Session;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 
 import org.sakaiproject.conversations.api.model.Tag;
 import org.sakaiproject.conversations.api.repository.TagRepository;
@@ -30,8 +33,12 @@ public class TagRepositoryImpl extends SpringCrudRepositoryImpl<Tag, Long>  impl
     @Transactional
     public List<Tag> findBySiteId(String siteId) {
 
-        return (List<Tag>) sessionFactory.getCurrentSession().createCriteria(Tag.class)
-            .add(Restrictions.eq("siteId", siteId))
-            .list();
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Tag> query = cb.createQuery(Tag.class);
+        query.where(cb.equal(query.from(Tag.class).get("siteId"), siteId));
+
+        return session.createQuery(query).list();
     }
 }

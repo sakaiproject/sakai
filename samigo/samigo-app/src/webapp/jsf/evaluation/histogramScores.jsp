@@ -104,9 +104,6 @@ $Id$
 
           <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 
-          <h:outputText escape="false" value="<!--[if lt IE 9]>" />
-          <script type="text/javascript" src="/library/webjars/explorercanvas/r3/excanvas.min.js"></script>
-          <h:outputText escape="false" value="<![endif]-->" />
           <script type="text/javascript" src="/library/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.min.js"></script>
           <script type="text/javascript"
             src="/library/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.barRenderer.js"></script>
@@ -250,7 +247,7 @@ $Id$
         </table>
         </h:panelGroup>
         <h:panelGroup layout="block" styleClass="panel panel-default">
-          <div class="panel-heading" style="padding-top: 1px;padding-bottom: 1px;">
+          <div class="card text-center bg-light" style="padding-top: 1px;padding-bottom: 1px;">
             <strong>
               <h2>
                 <h:outputText value="#{evaluationMessages.fsd}" />
@@ -328,7 +325,7 @@ $Id$
               <h3 class="part-title">
                 <h:outputText value="#{item.title}" escape="false" />
               </h3>
-              <div class="panel panel-default" />
+              <div class="card" />
               <div class="question-text panel-heading">
                 <strong>
                   <h:outputText value="#{item.questionText}" escape="false" /></strong>
@@ -581,7 +578,7 @@ $Id$
                 </h:column>
                 <h:column>
                   <h:panelGroup>
-                    <div class="table-responsive question-thirteen-holder">
+                    <div class="table question-thirteen-holder">
                       <t:dataList layout="unorderedList" styleClass="question-with-progress" value="#{bar.itemBars}"
                         var="itemBar">
                       </t:dataList>

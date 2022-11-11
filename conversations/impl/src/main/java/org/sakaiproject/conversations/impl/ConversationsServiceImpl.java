@@ -19,85 +19,104 @@ import java.time.Instant;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
+import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
 import org.sakaiproject.conversations.api.ConversationsService;
 import org.sakaiproject.conversations.api.ConversationsStat;
-import org.sakaiproject.conversations.api.Events;
+import org.sakaiproject.conversations.api.ConversationsEvents;
 import org.sakaiproject.conversations.api.Permissions;
+import org.sakaiproject.conversations.api.PostSort;
 import org.sakaiproject.conversations.api.Reaction;
+import org.sakaiproject.conversations.api.ShowDateContext;
+import org.sakaiproject.conversations.api.TopicShowDateMessager;
 import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
-import org.sakaiproject.conversations.api.model.Comment;
+import org.sakaiproject.conversations.api.model.ConversationsComment;
 import org.sakaiproject.conversations.api.model.ConvStatus;
-import org.sakaiproject.conversations.api.model.Post;
+import org.sakaiproject.conversations.api.model.ConversationsPost;
 import org.sakaiproject.conversations.api.model.PostReaction;
 import org.sakaiproject.conversations.api.model.PostReactionTotal;
 import org.sakaiproject.conversations.api.model.PostStatus;
 import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
-import org.sakaiproject.conversations.api.model.Topic;
+import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.TopicReaction;
 import org.sakaiproject.conversations.api.model.TopicReactionTotal;
 import org.sakaiproject.conversations.api.model.TopicStatus;
-import org.sakaiproject.conversations.api.repository.CommentRepository;
+import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
+import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.conversations.api.repository.ConvStatusRepository;
-import org.sakaiproject.conversations.api.repository.PostRepository;
+import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
 import org.sakaiproject.conversations.api.repository.PostReactionRepository;
 import org.sakaiproject.conversations.api.repository.PostReactionTotalRepository;
 import org.sakaiproject.conversations.api.repository.PostStatusRepository;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;
 import org.sakaiproject.conversations.api.repository.TagRepository;
-import org.sakaiproject.conversations.api.repository.TopicRepository;
 import org.sakaiproject.conversations.api.repository.TopicReactionRepository;
 import org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.messaging.api.Message;
+import org.sakaiproject.messaging.api.MessageMedium;
+import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.comparator.UserSortNameComparator;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import org.apache.commons.lang3.StringUtils;
+import org.hibernate.exception.ConstraintViolationException;
 
-import javax.persistence.PersistenceException;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,15 +124,16 @@ import lombok.Setter;
 
 @Slf4j
 @Setter
-public class ConversationsServiceImpl implements ConversationsService/*, EntityProducer, Statisticable*/ {
+@Transactional
+public class ConversationsServiceImpl implements ConversationsService, Observer {
 
     private AuthzGroupService authzGroupService;
 
-    //private EntityManager entityManager;
+    private CalendarService calendarService;
 
     private FunctionManager functionManager;
 
-    private CommentRepository commentRepository;
+    private ConversationsCommentRepository commentRepository;
 
     private ConvStatusRepository convStatusRepository;
 
@@ -121,7 +141,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
 
     private MemoryService memoryService;
 
-    private PostRepository postRepository;
+    private ConversationsPostRepository postRepository;
 
     private PostReactionRepository postReactionRepository;
 
@@ -129,44 +149,160 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
 
     private PostStatusRepository postStatusRepository;
 
+    private ScheduledInvocationManager scheduledInvocationManager;
+
     private SecurityService securityService;
+
+    private ServerConfigurationService serverConfigurationService;
 
     private SessionManager sessionManager;
 
     private SettingsRepository settingsRepository;
 
+    private SiteService siteService;
+
     private StatsManager statsManager;
 
     private TagRepository tagRepository;
+
+    private TimeService timeService;
 
     private TopicReactionRepository topicReactionRepository;
 
     private TopicReactionTotalRepository topicReactionTotalRepository;
 
-    private TopicRepository topicRepository;
+    private TopicShowDateMessager topicShowDateMessager;
+
+    private ConversationsTopicRepository topicRepository;
 
     private TopicStatusRepository topicStatusRepository;
 
     private UserDirectoryService userDirectoryService;
 
+    private UserMessagingService userMessagingService;
+
     private UserTimeService userTimeService;
 
-    private static ResourceLoader bundle = new ResourceLoader("conversations");
+    private ResourceLoader resourceLoader;
 
     private Cache<String, List<ConversationsStat>> sortedStatsCache;
+    private Cache<String, Map<String, Map<String, Object>>> postsCache;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public void init() {
 
         Permissions.stream().forEach(p -> functionManager.registerFunction(p.label, true));
-        this.sortedStatsCache = memoryService.<String, List<ConversationsStat>>getCache("conversationsSortedStatsCache");
-        //entityManager.registerEntityProducer(this, this.getEntityPrefix());
+        this.sortedStatsCache = memoryService.<String, List<ConversationsStat>>getCache(STATS_CACHE_NAME);
+        this.postsCache = memoryService.<String, Map<String, Map<String, Object>>>getCache(POSTS_CACHE_NAME);
+        eventTrackingService.addObserver(this);
+
+        userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/new_question.xml", TOOL_ID + ".newquestion");
+        userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/new_discussion.xml", TOOL_ID + ".newdiscussion");
+        userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/instructor_answer.xml", TOOL_ID + ".instructoranswer");
+        userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/instructor_reply.xml", TOOL_ID + ".instructorreply");
+        userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/reply.xml", TOOL_ID + ".reply");
+    }
+
+    public void update(Observable observable, Object arg) {
+
+        if (arg instanceof Event) {
+            Event e = (Event) arg;
+            String event = e.getEvent();
+            if (event.equals(AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP)) {
+                String baseCacheKey = e.getContext() + "/conversations/";
+                this.sortedStatsCache.remove(baseCacheKey + SORT_NAME_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_NAME_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_CREATED_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_CREATED_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_VIEWED_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_VIEWED_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_CREATED_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_CREATED_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_REACTIONS_MADE_ASCENDING);
+            }
+        }
     }
 
     public String getEntityPrefix() {
         return Entity.SEPARATOR + "conversations";
     }
 
-    @Transactional(readOnly = true)
+    public TopicTransferBean getBlankTopic(String siteId) throws ConversationsPermissionsException {
+
+        String siteRef = siteService.siteReference(siteId);
+
+        if (StringUtils.isBlank(siteRef)) {
+            throw new IllegalArgumentException("Failed to get siteRef for siteId: " + siteId);
+        }
+
+        if (!securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)) {
+            throw new ConversationsPermissionsException("Can't create a blank topic");
+        }
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+
+        TopicTransferBean blankTopic = new TopicTransferBean();
+
+        blankTopic.id = "";
+        blankTopic.creator = currentUserId;
+        blankTopic.siteId = siteId;
+        blankTopic.title = "";
+        blankTopic.message = "";
+        blankTopic.type = TopicType.QUESTION.name();
+        blankTopic.availability = "AVAILABILITY_NOW";
+        blankTopic.pinned = false;
+        blankTopic.aboutReference = siteRef;
+
+        return decorateTopicBean(blankTopic, null, currentUserId, getSettingsForSite(siteId));
+    }
+
+    public Optional<TopicTransferBean> getTopic(String topicId) throws ConversationsPermissionsException {
+        return topicRepository.findById(topicId).map(TopicTransferBean::of);
+    }
+
+    public boolean currentUserCanViewTopic(ConversationsTopic topic) {
+
+        if (topic == null) return false;
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(currentUserId)) return false;
+
+        final String siteRef = siteService.siteReference(topic.getSiteId());
+
+        if (!securityService.unlock(SiteService.SITE_VISIT, siteRef)) return false;
+
+        if (!topic.getDraft() && securityService.isSuperUser()) return true;
+
+        Instant now = Instant.now();
+
+        if (topic.getHidden() || (topic.getHideDate() != null && topic.getHideDate().isBefore(now))) {
+            if (securityService.unlock(Permissions.MODERATE.label, siteRef)) return true;
+            else return false;
+        }
+
+        if (topic.getMetadata().getCreator().equals(currentUserId)) return true;
+
+        if (!topic.getDraft() && topic.getVisibility() == TopicVisibility.SITE) return true;
+
+        if (!topic.getDraft() && topic.getVisibility() == TopicVisibility.INSTRUCTORS
+                    && securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
+            return true;
+        }
+
+        if (topic.getVisibility() == TopicVisibility.GROUP) {
+            if (securityService.unlock(Permissions.VIEW_GROUP_TOPICS.label, siteRef)) return true;
+
+            ArrayList<String> groups = new ArrayList<>(topic.getGroups());
+            if (authzGroupService.getAuthzUserGroupIds(groups, currentUserId).stream().findAny().isPresent()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public List<TopicTransferBean> getTopicsForSite(String siteId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -178,48 +314,107 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
 
         Settings settings = getSettingsForSite(siteId);
 
-        List<Topic> topics = topicRepository.findBySiteId(siteId).stream().filter(t -> {
+        List<ConversationsTopic> topics = topicRepository.findBySiteId(siteId).stream()
+            .map(this::showIfAfterShowDate)
+            .map(this::lockIfAfterLockDate)
+            .map(this::hideIfAfterHideDate)
+            .filter(this::currentUserCanViewTopic)
+            .collect(Collectors.toList());
 
-            if (securityService.isSuperUser()) return true;
-
-            if (t.getHidden()) {
-                if (securityService.unlock(Permissions.MODERATE.label, reference)) return true;
-                else return false;
-            }
-
-            if (t.getMetadata().getCreator().equals(currentUserId)) return true;
-
-            if (!t.getDraft() && t.getVisibility() == TopicVisibility.SITE) return true;
-
-            if (t.getVisibility() == TopicVisibility.INSTRUCTORS
-                        && securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, reference)) {
-                return true;
-            }
-
-            if (t.getVisibility() == TopicVisibility.GROUP) {
-                if (securityService.unlock(Permissions.VIEW_GROUP_TOPICS.label, reference)) return true;
-
-                ArrayList<String> groups = new ArrayList<>(t.getGroups());
-                if (authzGroupService.getAuthzUserGroupIds(groups, currentUserId).stream().findAny().isPresent()) {
-                    return true;
-                }
-            }
-
-            return false;
-        }).collect(Collectors.toList());
         return decorateTopics(topics, currentUserId, settings);
     }
 
-    @Transactional
-    public TopicTransferBean saveTopic(TopicTransferBean topicBean) throws ConversationsPermissionsException {
+    public Optional<String> getTopicPortalUrl(String topicId) {
+
+        return topicRepository.findById(topicId).map(t -> {
+
+            try {
+                Site site = siteService.getSite(t.getSiteId());
+
+                return new StringBuilder(serverConfigurationService.getPortalUrl())
+                    .append("/site/")
+                    .append(t.getSiteId())
+                    .append("/tool/")
+                    .append(site.getToolForCommonId(TOOL_ID).getId())
+                    .append("/topics/")
+                    .append(topicId).toString();
+            } catch (IdUnusedException iue) {
+                log.error("No site for id {}", t.getSiteId());
+                return null;
+            }
+        });
+    }
+
+    public Optional<String> getPostPortalUrl(String topicId, String postId) {
+
+        if (StringUtils.isBlank(topicId)) {
+            topicId = postRepository.findById(postId).map(p -> p.getTopicId())
+                .orElseThrow(() -> new IllegalArgumentException("No post for id: " + postId));
+        }
+
+        return topicRepository.findById(topicId).map(t -> {
+
+            try {
+                Site site = siteService.getSite(t.getSiteId());
+
+                return new StringBuilder(serverConfigurationService.getPortalUrl())
+                    .append("/site/")
+                    .append(t.getSiteId())
+                    .append("/tool/")
+                    .append(site.getToolForCommonId(TOOL_ID).getId())
+                    .append("/topics/")
+                    .append(t.getId())
+                    .append("/posts/")
+                    .append(postId).toString();
+            } catch (IdUnusedException iue) {
+                log.error("No site for id {}", t.getSiteId());
+                return null;
+            }
+        });
+    }
+
+    public Optional<String> getCommentPortalUrl(String commentId) {
+
+        String postId = commentRepository.findById(commentId).map(c -> c.getPostId())
+            .orElseThrow(() -> new IllegalArgumentException("No comment for id: " + commentId));
+
+        String topicId = postRepository.findById(postId).map(p -> p.getTopicId())
+            .orElseThrow(() -> new IllegalArgumentException("No post for id: " + postId));
+
+        return topicRepository.findById(topicId).map(t -> {
+
+            try {
+                Site site = siteService.getSite(t.getSiteId());
+
+                return new StringBuilder(serverConfigurationService.getPortalUrl())
+                    .append("/site/")
+                    .append(t.getSiteId())
+                    .append("/tool/")
+                    .append(site.getToolForCommonId(TOOL_ID).getId())
+                    .append("/topics/")
+                    .append(topicId)
+                    .append("/posts/")
+                    .append(postId)
+                    .append("/comments/")
+                    .append(commentId).toString();
+            } catch (IdUnusedException iue) {
+                log.error("No site for id {}", t.getSiteId());
+                return null;
+            }
+        });
+    }
+
+    public TopicTransferBean saveTopic(final TopicTransferBean topicBean, boolean sendMessage) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        String siteRef = "/site/" + topicBean.siteId;
+        String siteRef = siteService.siteReference(topicBean.siteId);
 
         Settings settings = getSettingsForSite(topicBean.siteId);
 
-        if (settings.getSiteLocked() && !securityService.unlock(Permissions.MODERATE.label, siteRef)) {
+        boolean isModerator = securityService.unlock(Permissions.MODERATE.label, siteRef);
+
+        if (settings.getSiteLocked() && !isModerator) {
             throw new ConversationsPermissionsException("Current user cannot create topic.");
         }
 
@@ -235,116 +430,253 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             throw new ConversationsPermissionsException("Current user cannot update topic.");
         }
 
+        boolean wasDraft = false;
+        ConversationsTopic existingTopic = null;
+        String oldDueDateCalendarEventId = null;
+        String oldShowMessageScheduleId = null;
+        boolean removeScheduledMessage = false;
+
         Instant now = Instant.now();
         if (isNew) {
             topicBean.setCreator(currentUserId);
             topicBean.setCreated(now);
+            if (!isModerator) {
+                // Only moderators can lock or hide topics
+                topicBean.showDate = null;
+                topicBean.hideDate = null;
+                topicBean.lockDate = null;
+            }
         } else {
-            Optional<Topic> optTopic = topicRepository.findById(topicBean.id);
-            if (optTopic.isPresent()
-                && optTopic.get().getLocked()
-                && !securityService.unlock(Permissions.MODERATE.label, siteRef)) {
+            existingTopic = topicRepository.findById(topicBean.id)
+                .orElseThrow(() -> new IllegalArgumentException("No existing topic for " + topicBean.id));
+
+            oldDueDateCalendarEventId = existingTopic.getDueDateCalendarEventId();
+            oldShowMessageScheduleId = existingTopic.getShowMessageScheduleId();
+
+            wasDraft = existingTopic.getDraft() && !topicBean.draft;
+
+            if (existingTopic.getLocked() && !isModerator) {
                 throw new ConversationsPermissionsException("Current user cannot update topic.");
             }
+
+            if (topicBean.showDate == null && existingTopic.getShowDate() != null) {
+                // show date has been removed
+                if (topicBean.hideDate == null || topicBean.hideDate.isAfter(now)) {
+                    topicBean.hidden = false;
+                }
+
+                removeScheduledMessage = true;
+            }
+
+            if (topicBean.showDate != null && existingTopic.getShowDate() != null && !topicBean.showDate.equals(existingTopic.getShowDate())) {
+                // The show date has been changed
+                removeScheduledMessage = true;
+            }
+
+            // If a show date was set in the past (it was in this case) we need to remove the
+            // scheduled message invocation that was previously set
+            if (removeScheduledMessage && oldShowMessageScheduleId != null) {
+                scheduledInvocationManager.deleteDelayedInvocation(oldShowMessageScheduleId);
+            }
+
+            if (topicBean.lockDate == null && existingTopic.getLockDate() != null) {
+                // lock date has been removed
+                topicBean.locked = false;
+            }
+
+            // Only moderators can set a show or lock date
+            if ((!Objects.equals(existingTopic.getShowDate(), topicBean.showDate)
+                || !Objects.equals(existingTopic.getHideDate(), topicBean.hideDate)
+                || !Objects.equals(existingTopic.getLockDate(), topicBean.lockDate)) && !isModerator) {
+                throw new ConversationsPermissionsException("Current user cannot update show, hide or lock dates.");
+            }
+
+            // We remove the cache of posts for this topic. This clears the cache out for every user
+            // but seems the safest way of catching changes like due and availability dates. Maybe
+            // we will need to be more precise about when we need to do this, like when the due date
+            // has been updated, or whatever.
+            postsCache.remove(topicBean.id);
         }
+
         topicBean.setModifier(currentUserId);
         topicBean.setModified(now);
 
-        Topic topic = topicRepository.save(topicBean.asTopic());
+        if (topicBean.showDate != null && topicBean.showDate.isAfter(now)) {
+            topicBean.hidden = true;
+        }
 
-        topicBean = TopicTransferBean.of(topic);
+        ConversationsTopic topic = topicRepository.save(topicBean.asTopic());
 
-        topicBean.tags = topic.getTagIds().stream().map(tagId -> {
+        topic = updateCalendarForTopic(oldDueDateCalendarEventId, topic);
 
-            Optional<Tag> optTag = tagRepository.findById(tagId);
-            if (optTag.isPresent()) {
-                return optTag.get();
-            } else {
-                return null;
-            }
-        }).collect(Collectors.toList());
-        
+        TopicTransferBean outTopicBean = TopicTransferBean.of(topic);
 
-        TopicTransferBean decoratedBean = decorateTopicBean(topicBean, topic, currentUserId, settings);
+        outTopicBean.tags = topic.getTagIds().stream()
+            .map(tagId -> tagRepository.findById(tagId).orElse(null))
+            .collect(Collectors.toList());
 
-        this.afterCommit(() -> {
+        TopicTransferBean decoratedBean = decorateTopicBean(outTopicBean, topic, currentUserId, settings);
 
-            Events event = isNew ? Events.TOPIC_CREATED : Events.TOPIC_UPDATED;
-            eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, decoratedBean.siteId, true, NotificationService.NOTI_OPTIONAL));
-        });
-        
-        return topicBean;
+        ConversationsTopic finalTopic = topic;
+
+        boolean finalWasDraft = wasDraft;
+
+        if (sendMessage) {
+            this.afterCommit(() -> this.sendOrScheduleTopicMessages(finalTopic.getId(), isNew, finalWasDraft));
+        }
+
+        return decoratedBean;
     }
 
     @Transactional
+    private void sendOrScheduleTopicMessages(String topicId, boolean isNew, boolean wasDraft) {
+
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        Instant showDate = topic.getShowDate();
+
+        if (showDate != null && showDate.isAfter(Instant.now())) {
+
+            (new Thread(() -> {
+
+                // This topic has a show date in the future. We need to set up a scheduled task to
+                // send out email alerts on the show date
+
+                try {
+                    ShowDateContext showDateContext = new ShowDateContext();
+                    showDateContext.setTopicId(topicId);
+                    showDateContext.setWasNew(isNew);
+                    String context = objectMapper.writeValueAsString(showDateContext);
+                    if (!topic.getDraft()) {
+                        String invocationId = scheduledInvocationManager.createDelayedInvocation(showDate, "org.sakaiproject.conversations.impl.TopicShowDateMessager", context);
+                        topic.setShowMessageScheduleId(invocationId);
+                        topicRepository.save(topic);
+                    }
+                } catch (JsonProcessingException e) {
+                    log.error("Exception while building json context for topic message sheduler: {}", e.toString());
+                }
+            })).start();
+        } else {
+            if (!topic.getDraft()) {
+                topicShowDateMessager.message(topic, isNew);
+            }
+        }
+    }
+
+    private CalendarEventEdit populateCalendarEvent(CalendarEventEdit calEdit, ConversationsTopic topic) {
+
+        long start = topic.getDueDate().toEpochMilli();
+        calEdit.setRange(timeService.newTimeRange(timeService.newTime(start), timeService.newTime(start), true, false));
+        calEdit.setDisplayName(resourceLoader.getString("topic_due") + " " + topic.getTitle());
+        calEdit.setDescriptionFormatted(topic.getMessage());
+        calEdit.setType(CalendarEventType.DEADLINE.getType());
+        calEdit.setEventUrl(getTopicPortalUrl(topic.getId()).orElse(""));
+        return calEdit;
+    }
+
+    private ConversationsTopic updateCalendarForTopic(String oldCalId, ConversationsTopic newTopic) {
+
+        Calendar cal = this.getCalendar(newTopic.getSiteId());
+
+        if ((newTopic.getDueDate() == null || newTopic.getDraft()) && oldCalId != null) {
+
+            // Either the due date has been removed, or the topic has been set to draft at some point.
+
+            try {
+                cal.removeEvent(cal.getEditEvent(oldCalId, CalendarService.EVENT_REMOVE_CALENDAR));
+                newTopic.setDueDateCalendarEventId(null);
+                return topicRepository.save(newTopic);
+            } catch (Exception e) {
+                log.error("Failed to remove due date from calendar: {}", e.toString());
+            }
+        }
+
+        if (newTopic.getDueDate() != null && !newTopic.getDraft()) {
+
+            try {
+                CalendarEventEdit calEdit = populateCalendarEvent(oldCalId != null ? cal.getEditEvent(oldCalId, CalendarService.EVENT_MODIFY_CALENDAR) : cal.addEvent(), newTopic);
+                cal.commitEvent(calEdit);
+                newTopic.setDueDateCalendarEventId(calEdit.getId());
+                return topicRepository.save(newTopic);
+            } catch (Exception e) {
+                log.error("Failed to add due date to calendar: {}", e.toString());
+            }
+        }
+
+        return newTopic;
+    }
+
     public void pinTopic(String topicId, boolean pinned) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Topic> optTopic = topicRepository.findById(topicId);
-        if (optTopic.isPresent()) {
-            Topic topic = optTopic.get();
-            if (!securityService.unlock(Permissions.TOPIC_PIN.label, "/site/" + topic.getSiteId())) {
-                throw new ConversationsPermissionsException("Current user cannot pin topics.");
-            }
-            topic.setPinned(pinned);
-            topicRepository.save(topic);
-        } else {
-            log.error("No topic for id {}", topicId);
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        if (!securityService.unlock(Permissions.TOPIC_PIN.label, "/site/" + topic.getSiteId())) {
+            throw new ConversationsPermissionsException("Current user cannot pin topics.");
         }
+
+        topic.setPinned(pinned);
+        topicRepository.save(topic);
     }
 
-    @Transactional
-    public TopicTransferBean lockTopic(String topicId, boolean locked) throws ConversationsPermissionsException {
+    public TopicTransferBean lockTopic(String topicId, boolean locked, boolean needsModerator) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Topic> optTopic = topicRepository.findById(topicId);
-        if (optTopic.isPresent()) {
-            Topic topic = optTopic.get();
-            if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + topic.getSiteId())) {
-                throw new ConversationsPermissionsException("Current user cannot lock/unlock topics.");
-            }
-            topic.setLocked(locked);
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
-            postRepository.lockByTopic_Id(locked, topicId);
-            postRepository.findByTopic_Id(topicId).forEach(p -> recursivelyLockPosts(p, locked));
-
-            Settings settings = getSettingsForSite(topic.getSiteId());
-            return decorateTopicBean(TopicTransferBean.of(topicRepository.save(topic)), topic, currentUserId, settings);
-        } else {
-            log.error("No topic for id {}", topicId);
-            throw new IllegalArgumentException("No topic for id " + topicId);
+        if (needsModerator && !securityService.unlock(Permissions.MODERATE.label, "/site/" + topic.getSiteId())) {
+            throw new ConversationsPermissionsException("Current user cannot lock/unlock topics.");
         }
-    }
 
-    public void recursivelyLockPosts(Post post, Boolean locked) {
+        topic.setLocked(locked);
 
-        postRepository.lockByParentPost_Id(locked, post.getId());
-        commentRepository.lockByPost_Id(post.getId(), locked);
-        postRepository.findByParentPost_Id(post.getId()).forEach(p -> recursivelyLockPosts(p, locked));
-    }
-
-    @Transactional
-    public void hideTopic(String topicId, boolean hidden) throws ConversationsPermissionsException {
-
-        String currentUserId = getCheckedCurrentUserId();
-
-        Optional<Topic> optTopic = topicRepository.findById(topicId);
-        if (optTopic.isPresent()) {
-            Topic topic = optTopic.get();
-            if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + topic.getSiteId())) {
-                throw new ConversationsPermissionsException("Current user cannot hide/show topics.");
-            }
-            topic.setHidden(hidden);
-            topicRepository.save(topic);
-        } else {
-            log.error("No topic for id {}", topicId);
-            throw new IllegalArgumentException("No topic for id " + topicId);
+        if (!locked) {
+            topic.setLockDate(null);
         }
+
+        postRepository.lockByTopicId(locked, topicId);
+        postRepository.findByTopicId(topicId).forEach(p -> recursivelyLockPosts(p, locked));
+
+        Settings settings = getSettingsForSite(topic.getSiteId());
+        topic = topicRepository.save(topic);
+        TopicTransferBean bean = decorateTopicBean(TopicTransferBean.of(topic), topic, currentUserId, settings);
+        postsCache.remove(topicId);
+        return bean;
     }
 
-    @Transactional
+    public void recursivelyLockPosts(ConversationsPost post, Boolean locked) {
+
+        postRepository.lockByParentPostId(locked, post.getId());
+        commentRepository.lockByPostId(post.getId(), locked);
+        postRepository.findByParentPostId(post.getId()).forEach(p -> recursivelyLockPosts(p, locked));
+    }
+
+    public ConversationsTopic hideTopic(String topicId, boolean hidden, boolean needsModerator) throws ConversationsPermissionsException {
+
+        getCheckedCurrentUserId();
+
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        if (needsModerator && !securityService.unlock(Permissions.MODERATE.label, "/site/" + topic.getSiteId())) {
+            throw new ConversationsPermissionsException("Current user cannot lock/unlock topics.");
+        }
+
+        topic.setHidden(hidden);
+
+        if (!hidden) {
+            topic.setHideDate(null);
+            topic.setShowDate(null);
+        }
+
+        return topicRepository.save(topic);
+    }
+
     public void bookmarkTopic(String topicId, boolean bookmarked) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -358,102 +690,100 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         });
     }
 
-    @Transactional
-    public boolean deleteTopic(String topicId) throws ConversationsPermissionsException {
+    public void deleteTopic(String topicId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Topic> optTopic = topicRepository.findById(topicId);
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
-        if (optTopic.isPresent()) {
-            Topic topic = optTopic.get();
+        String siteRef = "/site/" + topic.getSiteId();
 
-            String siteRef = "/site/" + topic.getSiteId();
-
-            boolean isMine = topic.getMetadata().getCreator().equals(currentUserId);
-            if (!securityService.unlock(Permissions.TOPIC_DELETE_ANY.label, siteRef)
-                && (isMine && !securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef))) {
-                throw new ConversationsPermissionsException("Current user is not allowed to delete topic.");
-            }
-
-            postRepository.findByTopic_Id(topicId).forEach(p -> {
-
-                postReactionRepository.deleteByPost_Id(p.getId());
-                postReactionTotalRepository.deleteByPost_Id(p.getId());
-                postStatusRepository.deleteByPostId(p.getId());
-                commentRepository.deleteByPost_Id(p.getId());
-                postRepository.deleteById(p.getId());
-            });
-            topicStatusRepository.deleteByTopicId(topicId);
-            topicReactionRepository.deleteByTopic_Id(topicId);
-            topicReactionTotalRepository.deleteByTopic_Id(topicId);
-            topicRepository.delete(topic);
-
-            afterCommit(() -> {
-                String ref = "/conversations/topics/" + topicId;
-                eventTrackingService.post(eventTrackingService.newEvent(Events.TOPIC_DELETED.label, ref, topic.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
-            });
-            return true;
-        } else {
-            log.error("No topic for id {}. Returning false ...", topicId);
-            return false;
+        boolean isMine = topic.getMetadata().getCreator().equals(currentUserId);
+        if (!securityService.unlock(Permissions.TOPIC_DELETE_ANY.label, siteRef)
+            && (isMine && !securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef))) {
+            throw new ConversationsPermissionsException("Current user is not allowed to delete topic.");
         }
+
+        commentRepository.deleteByTopicId(topicId);
+
+        postRepository.findByTopicId(topicId).forEach(p -> {
+
+            postReactionRepository.deleteByPostId(p.getId());
+            postReactionTotalRepository.deleteByPostId(p.getId());
+            postStatusRepository.deleteByPostId(p.getId());
+            postRepository.deleteById(p.getId());
+        });
+        topicStatusRepository.deleteByTopicId(topicId);
+        topicReactionRepository.deleteByTopicId(topicId);
+        topicReactionTotalRepository.deleteByTopicId(topicId);
+        topicRepository.delete(topic);
+
+        if (topic.getDueDateCalendarEventId() != null) {
+            Calendar cal = this.getCalendar(topic.getSiteId());
+            try {
+                cal.removeEvent(cal.getEditEvent(topic.getDueDateCalendarEventId(), CalendarService.EVENT_REMOVE_CALENDAR));
+            } catch (Exception e) {
+                log.error("Failed to remove due date event from calendar: {}", e.toString());
+            }
+        }
+
+        afterCommit(() -> {
+            String ref = ConversationsReferenceReckoner.reckoner()
+                .siteId(topic.getSiteId())
+                .type("t").id(topicId).reckon().getReference();
+            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.TOPIC_DELETED.label, ref, topic.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
+        });
     }
 
-    @Transactional
     public Map<Reaction, Integer> saveTopicReactions(String topicId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Topic> optTopic = topicRepository.findById(topicId);
-
-        if (!optTopic.isPresent()) {
-            throw new IllegalArgumentException("No topic for id " + topicId);
-        }
-
-        Topic topic = optTopic.get();
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
         if (topic.getMetadata().getCreator().equals(currentUserId)) {
             throw new ConversationsPermissionsException("You can't react to your own topics");
         }
 
-        List<TopicReaction> current = topicReactionRepository.findByTopic_IdAndUserId(topicId, currentUserId);
+        List<TopicReaction> current = topicReactionRepository.findByTopicIdAndUserId(topicId, currentUserId);
 
         reactions.entrySet().forEach(es -> {
 
             TopicReactionTotal total
-                = topicReactionTotalRepository.findByTopic_IdAndReaction(topicId, es.getKey())
+                = topicReactionTotalRepository.findByTopicIdAndReaction(topicId, es.getKey())
                     .orElseGet(() -> {
                         TopicReactionTotal t = new TopicReactionTotal();
-                        t.setTopic(topic);
+                        t.setTopicId(topicId);
                         t.setReaction(es.getKey());
                         t.setTotal(0);
                         return t;
                     });
 
+            String ref = ConversationsReferenceReckoner.reckoner()
+                .siteId(topic.getSiteId())
+                .type("t").id(topicId).reckon().getReference();
+            boolean postReactedEvent = true;
             Optional<TopicReaction> optExistingReaction = current.stream().filter(tr -> tr.getReaction() == es.getKey()).findAny();
             if (optExistingReaction.isPresent()) {
                 TopicReaction existingReaction = optExistingReaction.get();
                 if (!existingReaction.getState() && es.getValue()) {
                     // This reaction is being turned on. Increment the total.
                     total.setTotal(total.getTotal() + 1);
-                    afterCommit(() -> {
-                        String ref = "/conversations/topics/" + topicId;
-                        eventTrackingService.post(eventTrackingService.newEvent(Events.REACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
-                    });
                 } else if (existingReaction.getState() && !es.getValue()) {
                     // This reaction is being turned off. Decrement the total.
                     total.setTotal(total.getTotal() - 1);
+                    postReactedEvent = false;
                     afterCommit(() -> {
-                        String ref = "/conversations/topics/" + topicId;
-                        eventTrackingService.post(eventTrackingService.newEvent(Events.UNREACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
+                        eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.UNREACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
                     });
                 }
                 existingReaction.setState(es.getValue());
                 topicReactionRepository.save(existingReaction);
             } else {
                 TopicReaction newReaction = new TopicReaction();
-                newReaction.setTopic(optTopic.get());
+                newReaction.setTopicId(topic.getId());
                 newReaction.setUserId(currentUserId);
                 newReaction.setReaction(es.getKey());
                 newReaction.setState(es.getValue());
@@ -462,23 +792,28 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                     total.setTotal(total.getTotal() + 1);
                 }
             }
-            afterCommit(() -> {
-                String ref = "/conversations/topics/" + topicId;
-                eventTrackingService.post(eventTrackingService.newEvent(Events.REACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
-            });
+
+            if (postReactedEvent) {
+                afterCommit(() -> {
+                    eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.REACTED_TO_TOPIC.label, ref, topic.getSiteId(), false, NotificationService.NOTI_OPTIONAL));
+                });
+            }
             topicReactionTotalRepository.save(total);
         });
 
-        return topicReactionTotalRepository.findByTopic_Id(topic.getId())
+        return topicReactionTotalRepository.findByTopicId(topic.getId())
                 .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
     }
 
-    @Transactional
-    public PostTransferBean savePost(PostTransferBean postBean) throws ConversationsPermissionsException {
+    public Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException {
+        return postRepository.findById(postId).map(PostTransferBean::of);
+    }
+
+    public PostTransferBean savePost(PostTransferBean postBean, boolean sendMessage) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        String siteRef = "/site/" + postBean.siteId;
+        String siteRef = siteService.siteReference(postBean.siteId);
 
         Settings settings = getSettingsForSite(postBean.siteId);
 
@@ -498,56 +833,259 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             throw new ConversationsPermissionsException("Current user cannot update posts.");
         }
 
+        final ConversationsTopic topic = topicRepository.findById(postBean.topic)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + postBean.topic));
+
+        boolean wasDraft = false;
+
         // We're creating a new topic, so set the initial dates of creation and modification
         Instant now = Instant.now();
         if (isNew) {
             postBean.setCreator(currentUserId);
             postBean.setCreated(now);
+        } else {
+            wasDraft = postRepository.findById(postBean.id).map(p -> p.getDraft() && !postBean.draft).orElse(false);
         }
         postBean.setModifier(currentUserId);
         postBean.setModified(now);
 
-        Post post = postBean.asPost();
-        Optional<Topic> optTopic = topicRepository.findById(postBean.topic);
+        ConversationsPost post = postBean.asPost();
 
-        if (optTopic.isPresent()) {
-            Topic topic = optTopic.get();
-            if (topic.getLocked() && !securityService.unlock(Permissions.MODERATE.label, siteRef)) {
+        if ((topic.getLocked() || (topic.getLockDate() != null && now.isAfter(topic.getLockDate()))) && !securityService.unlock(Permissions.MODERATE.label, siteRef)) {
                 throw new ConversationsPermissionsException("Current user cannot update posts on locked topics.");
             }
-            post.setTopic(topic);
-            post.setLocked(topic.getLocked());
-            post = postRepository.save(post);
-            if (!post.getDraft() && !post.getPrivatePost()
-                && securityService.unlock(currentUserId, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
-                topic.setResolved(true);
+
+        Optional<ConversationsPost> parent = Optional.empty();
+        if (StringUtils.isNotBlank(postBean.parentPost)) {
+            parent = postRepository.findById(postBean.parentPost);
+
+            if (parent.isPresent()) {
+                post.setDepth(parent.get().getDepth() + 1);
+            } else {
+                throw new IllegalArgumentException("No post for id " + postBean.parentPost);
             }
-            topic = topicRepository.save(topic);
-
-            PostTransferBean decoratedBean = decoratePostBean(PostTransferBean.of(post), postBean.siteId, postBean.topic, currentUserId, settings, null);
-
-            this.afterCommit(() -> {
-
-                Events event = isNew ? Events.POST_CREATED : Events.POST_UPDATED;
-                eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, postBean.siteId, true, NotificationService.NOTI_OPTIONAL));
-            });
-
-            return decoratedBean;
         } else {
-            log.error("No topic for id {}. Returning null ...", postBean.topic);
-            return null;
+            post.setDepth(1);
+        }
+
+        post.setTopicId(postBean.topic);
+        post.setLocked(topic.getLocked());
+        post = postRepository.save(post);
+
+        postsCache.remove(postBean.topic);
+
+        if (StringUtils.isNotBlank(postBean.parentThread)) {
+            postRepository.findById(postBean.parentThread).ifPresent(thread -> {
+
+                thread.setNumberOfThreadReplies(thread.getNumberOfThreadReplies() + 1);
+                postRepository.save(thread);
+                updateThreadHowActiveScore(thread);
+            });
+        }
+        this.markPostViewed(postBean.topic, post.getId(), currentUserId);
+
+        if (!post.getDraft() && !post.getPrivatePost() && !post.getAnonymous()
+            && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
+
+            topic.setResolved(true);
+            topicRepository.save(topic);
+        }
+
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
+            .orElse(new TopicStatus(postBean.siteId, postBean.topic, currentUserId));
+        topicStatus.setPosted(true);
+        topicStatusRepository.save(topicStatus);
+
+        topicStatusRepository.setViewedByTopicId(topic.getId(), false);
+
+        PostTransferBean decoratedBean = decoratePostBean(PostTransferBean.of(post), postBean.siteId, topic, currentUserId, settings, null);
+
+        // We have to do this to satisfy the lambda requirements
+        Optional<ConversationsPost> optParent = parent;
+
+        final boolean finalWasDraft = wasDraft;
+
+        this.afterCommit(() -> {
+
+            ConversationsEvents event = isNew ? ConversationsEvents.POST_CREATED : ConversationsEvents.POST_UPDATED;
+            eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, postBean.siteId, true, NotificationService.NOTI_OPTIONAL));
+
+            if (sendMessage && (isNew || finalWasDraft) && !postBean.draft) {
+                try {
+                    Site site = siteService.getSite(decoratedBean.siteId);
+
+                    Map<String, Object> replacements = new HashMap<>();
+                    replacements.put("siteTitle", site.getTitle());
+                    replacements.put("topicTitle", topic.getTitle());
+                    replacements.put("postUrl", decoratedBean.portalUrl);
+                    replacements.put("creatorDisplayName", decoratedBean.creatorDisplayName);
+                    replacements.put("bundle", new ResourceLoader("conversations_notifications"));
+
+                    if (topic.getType() == TopicType.QUESTION && decoratedBean.isInstructor) {
+                        Set<User> siteUsers = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+                        String topicCreator = topic.getMetadata().getCreator();
+                        Set<User> questionCreator = Collections.singleton(userDirectoryService.getUser(topicCreator));
+                        siteUsers.removeAll(questionCreator);
+                        sendMessage(siteUsers, decoratedBean.siteId, replacements, "instructoranswer");
+
+                        // Send a specific message to the question poster
+                        sendMessage(questionCreator, decoratedBean.siteId, replacements, "instructorreply");
+                    } else if (topic.getType() == TopicType.DISCUSSION && optParent.isPresent()) {
+                        String parentCreator = optParent.get().getMetadata().getCreator();
+                        if (!parentCreator.equals(currentUserId)) {
+                            Set<User> users = Collections.singleton(userDirectoryService.getUser(parentCreator));
+                            sendMessage(users, decoratedBean.siteId, replacements, "reply");
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to send notifications: {}", e.toString());
+                }
+            }
+        });
+
+        return decoratedBean;
+    }
+
+    public boolean currentUserCanViewPost(ConversationsPost post) {
+
+        if (post == null) return false;
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        if (StringUtils.isBlank(currentUserId)) return false;
+
+        return canUserViewPost(post, currentUserId);
+    }
+
+    public boolean currentUserCanViewComment(ConversationsComment comment) {
+
+        if (comment == null) return false;
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        if (StringUtils.isBlank(currentUserId)) return false;
+
+        ConversationsPost post = postRepository.findById(comment.getPostId())
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + comment.getPostId()));
+        return canUserViewPost(post, currentUserId);
+    }
+
+    private ConversationsTopic lockIfAfterLockDate(ConversationsTopic topic) {
+
+        Instant now = Instant.now();
+        if (!topic.getLocked() && (topic.getLockDate() != null && topic.getLockDate().isBefore(now))) {
+            try {
+                return this.lockTopic(topic.getId(), true, false).asTopic();
+            } catch (ConversationsPermissionsException cpe) {
+                return topic;
+            }
+        } else {
+            return topic;
         }
     }
 
-    private boolean canViewPost(Post post, Topic topic, String currentUserId) {
+    /*
+    private Topic setupDateState(Topic topic) {
 
-        if (securityService.isSuperUser()) return true;
+        Instant now = Instant.now();
+
+        Instant showDate = topic.getShowDate();
+        Instant hideDate = topic.getHideDate();
+        Instant lockDate = topic.getLockDate();
+        Instant acceptUntilDate = topic.getAcceptUntilDate();
+
+        try {
+
+            if (!topic.getHidden()) {
+                if (showDate != null && showDate.isAfter(now)) {
+                    topic = this.hideTopic(topic.getId(), true);
+                }
+                if (hideDate != null  && hideDate.isBefore(now)) {
+                    topic = this.hideTopic(topic.getId(), true);
+                }
+                if (showDate != null && hideDate != null && hideDate.isAfter(showDate)) {
+                    topic = this.hideTopic(topic.getId(), true);
+                }
+            } else if ((showDate == null || showDate.isBefore(now)))
+                && ((hideDate == null || hideDate.isAfter(now)) {
+                    topic = this.hideTopic(topic.getId(), false);
+                }
+            }
+
+            if (!topic.getLocked() && (lockDate != null && lockDate.isBefore(now))
+                    || (acceptUntilDate != null && acceptUntilDate.isBefore(now))) {
+                topic = this.lockTopic(topic.getId(), true, false).asTopic();
+            }
+        } catch (ConversationsPermissionsException e) {
+            log.error("Failed to setup date state for topic {}: {}", topic.getId(), e.toString());
+        }
+
+        return topic;
+    }
+    */
+
+    private ConversationsTopic showIfAfterShowDate(ConversationsTopic topic) {
+
+        if (topic.getShowDate() != null && topic.getHidden() && topic.getShowDate().isBefore(Instant.now())) {
+            try {
+                return hideTopic(topic.getId(), false, false);
+            } catch (ConversationsPermissionsException cpe) {
+                return topic;
+            }
+        } else {
+            return topic;
+        }
+    }
+
+    private ConversationsTopic hideIfAfterHideDate(ConversationsTopic topic) {
+
+        if (topic.getHideDate() != null && !topic.getHidden() && topic.getHideDate().isBefore(Instant.now())) {
+            try {
+                return this.hideTopic(topic.getId(), true, false);
+            } catch (ConversationsPermissionsException cpe) {
+                return topic;
+            }
+        } else {
+            return topic;
+        }
+    }
+
+    private void sendMessage(Set<User> users, String siteId, Map<String, Object> replacements, String type) {
+
+        userMessagingService.message(users,
+                Message.builder()
+                    .siteId(siteId)
+                    .tool(TOOL_ID)
+                    .type(type).build(),
+                Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
+    }
+
+    private void updateThreadHowActiveScore(ConversationsPost thread) {
+
+        int numberOfReplies = thread.getNumberOfThreadReplies();
+        int numberOfReactions = thread.getNumberOfThreadReactions();
+
+        int active = numberOfReplies + numberOfReactions;
+
+        thread.setHowActive(active);
+        postRepository.save(thread);
+    }
+
+    private boolean canUserViewPost(ConversationsPost post, String currentUserId) {
+
+        if (!post.getDraft() && securityService.isSuperUser()) return true;
 
         if (post.getMetadata().getCreator().equals(currentUserId)) return true;
 
         if (post.getPrivatePost()) {
-            String parentCreator = post.getParentPost() != null
-                ? post.getParentPost().getMetadata().getCreator() : topic.getMetadata().getCreator();
+            String parentPostId = post.getParentPostId();
+            Optional<ConversationsPost> optParentPost = Optional.empty();
+            if (parentPostId != null) {
+                optParentPost = postRepository.findById(parentPostId);
+            }
+            ConversationsPost parentPost = optParentPost.orElse(null);
+            ConversationsTopic topic = topicRepository.findById(post.getTopicId())
+                .orElseThrow(() -> new IllegalArgumentException("No topic for id " + post.getTopicId()));
+            String parentCreator = parentPost != null
+                ? parentPost.getMetadata().getCreator() : topic.getMetadata().getCreator();
             if (parentCreator.equals(currentUserId)) return true;
         }
 
@@ -557,7 +1095,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
     }
 
     @Transactional(readOnly = true)
-    public List<PostTransferBean> getPostsByTopicId(String siteId, String topicId) throws ConversationsPermissionsException {
+    public int getNumberOfThreadPages(String siteId, String topicId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
@@ -565,134 +1103,291 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             throw new ConversationsPermissionsException("Current user cannot view posts.");
         }
 
-        Optional<Topic> optTopic = topicRepository.findById(topicId);
+        List<ConversationsPost> threads = postRepository.findByTopicIdAndParentPostIdIsNull(topicId)
+            .stream().filter(p -> canUserViewPost(p, currentUserId)).collect(Collectors.toList());
+        int pageSize = serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10);
+        return (int) Math.ceil(threads.size() / pageSize);
+    }
 
-        if (optTopic.isPresent()) {
-            Settings settings = getSettingsForSite(siteId);
-            Topic topic = optTopic.get();
-            List<Post> posts = postRepository.findByTopic_Id(topicId)
-                .stream().filter(p -> canViewPost(p, topic, currentUserId)).collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    public Collection<PostTransferBean> getPostsByTopicId(String siteId, String topicId, Integer page, PostSort postSort, String requestedPostId) throws ConversationsPermissionsException {
+
+        String currentUserId = getCheckedCurrentUserId();
+
+        if (!securityService.unlock(SiteService.SITE_VISIT, "/site/" + siteId)) {
+            throw new ConversationsPermissionsException("Current user cannot view posts.");
+        }
+
+        ConversationsTopic topic = topicRepository.findById(topicId).orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        if (topic.getMustPostBeforeViewing() && !securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, "/site/" + siteId)) {
+            ConversationsPermissionsException cpe
+                = new ConversationsPermissionsException("Current user cannot view posts. They need to post something first.");
+            TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId).orElseThrow(() -> cpe);
+            if (!topicStatus.getPosted()) {
+                throw cpe;
+            }
+        }
+
+        List<PostTransferBean> fullList = null;
+        PostSort previousSort = null;
+        Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
+        if (topicCache == null) {
+            topicCache = new HashMap<>();
+            postsCache.put(topicId, topicCache);
+        } else {
+            Map<String, Object> userMap = topicCache.get(currentUserId);
+            fullList = userMap != null ? (List<PostTransferBean>) userMap.get("posts") : null;
+            previousSort = userMap != null ? (PostSort) userMap.get("sort") : null;
+        }
+
+        String requestedThreadId = null;
+
+        if (fullList == null || (previousSort != null && previousSort != postSort) || StringUtils.isNotBlank(requestedPostId)) {
+            log.debug("Cache miss on {} or post {} requested", topicId, requestedPostId);
+
+            List<ConversationsPost> posts = new ArrayList<>();
+
+            List<ConversationsPost> threads = postRepository.findByTopicIdAndParentPostIdIsNull(topicId)
+                .stream().filter(p -> canUserViewPost(p, currentUserId)).collect(Collectors.toList());
+
+            posts.addAll(threads);
+
+            if (topic.getType() == TopicType.DISCUSSION) {
+                for (ConversationsPost t : threads) {
+                    List<ConversationsPost> threadPosts = postRepository.findByParentThreadId(t.getId())
+                        .stream().filter(p -> canUserViewPost(p, currentUserId)).collect(Collectors.toList());
+
+                    if (requestedPostId != null && threadPosts.stream().anyMatch(p -> p.getId().equals(requestedPostId))) {
+                        requestedThreadId = t.getId();
+                    }
+
+                    posts.addAll(threadPosts);
+                }
+            } else {
+                requestedThreadId = requestedPostId;
+            }
 
             // Grab all the stati for this user and post, in one.
             Map<String, PostStatus> postStati = postStatusRepository.findByUserId(currentUserId)
                 .stream().collect(Collectors.toMap(s -> s.getPostId(), s -> s));
 
-            return decoratePosts(posts, siteId, topicId, currentUserId, settings, postStati);
-        } else {
-            log.warn("No topic for id {}", topicId);
+            Settings settings = getSettingsForSite(siteId);
+
+            List<PostTransferBean> postBeans
+                = posts.stream().map(p -> decoratePostBean(PostTransferBean.of(p), siteId, topic, currentUserId, settings, postStati))
+                    .collect(Collectors.toList());
+
+            Map<String, PostTransferBean> postBeanMap = postBeans.stream().collect(Collectors.toMap(pb -> pb.id, pb -> pb));
+
+            if (topic.getType() == TopicType.DISCUSSION) {
+                postBeans.forEach(pb -> {
+
+                    if (StringUtils.isNotBlank(pb.parentPost)) {
+                        PostTransferBean parent = postBeanMap.get(pb.parentPost);
+                        if (parent != null) {
+                            parent.posts.add(pb);
+                        } else {
+                            log.error("No post for parent post id {}", pb.parentPost);
+                        }
+                    }
+                });
+                // Only leave the top level threads in the map
+                postBeanMap.entrySet().removeIf(e -> StringUtils.isNotBlank(e.getValue().parentPost));
+            }
+
+            // Make sure we return the posts in the order the db returned them in. Maps don't order.
+            //List<PostTransferBean> fullList = threads.stream().map(t -> postBeanMap.get(t.getId())).collect(Collectors.toList());
+            fullList = topic.getType() == TopicType.DISCUSSION ?
+                threads.stream().map(t -> postBeanMap.get(t.getId())).collect(Collectors.toList())
+                : postBeans;
+
+            final PostSort pSort = postSort != null ? postSort : PostSort.NEWEST;
+
+            if (pSort != PostSort.OLDEST) {
+                // DB sorts by oldest already
+ 
+                fullList.sort((t1, t2) -> {
+
+                    switch (pSort) {
+                        case OLDEST:
+                            if (t1.created.isBefore(t2.created)) return 1;
+                            if (t1.created.isAfter(t2.created)) return -1;
+                            break;
+                        case NEWEST:
+                            if (t1.created.isBefore(t2.created)) return 1;
+                            if (t1.created.isAfter(t2.created)) return -1;
+                            break;
+                        case ASC_CREATOR:
+                            return t1.creatorDisplayName.compareTo(t2.creatorDisplayName);
+                        case DESC_CREATOR:
+                            return -1 * t1.creatorDisplayName.compareTo(t2.creatorDisplayName);
+                        case MOST_ACTIVE:
+                            if (t1.howActive > t2.howActive) return -1;
+                            if (t1.howActive < t2.howActive) return 1;
+                        case LEAST_ACTIVE:
+                            if (t1.howActive < t2.howActive) return -1;
+                            if (t1.howActive > t2.howActive) return 1;
+                        default:
+                    }
+                    return 0;
+                });
+            }
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("posts", fullList);
+            userMap.put("sort", pSort); 
+            topicCache.put(currentUserId, userMap);
+        }
+
+        int pageSize = serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10);
+
+        if (fullList.size() < pageSize) {
+            return fullList;
+        } else if (requestedThreadId != null) {
+            String testId = requestedThreadId;
+            int numberOfPages = (int) Math.ceil((double) fullList.size() / (double) pageSize);
+            for (int i = 0; i < numberOfPages; i++) {
+                int start = i * pageSize;
+                int end = start + pageSize;
+                if (end > fullList.size()) end = fullList.size();
+                List<PostTransferBean> pageOfThreads = fullList.subList(start, end);
+                if (pageOfThreads.stream().anyMatch(t -> t.id.equals(testId))) {
+                    return pageOfThreads;
+                }
+            }
             return Collections.<PostTransferBean>emptyList();
+        } else {
+            int start = page * pageSize;
+            int end = start + pageSize;
+            if (end > fullList.size()) end = fullList.size();
+            return fullList.subList(start, end);
         }
     }
 
-    @Transactional
-    public boolean deletePost(String siteId, String topicId, String postId, boolean setTopicResolved) throws ConversationsPermissionsException {
+    public void deletePost(String siteId, String topicId, String postId, boolean setTopicResolved) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Post> optPost = postRepository.findById(postId);
+        ConversationsPost post = postRepository.findById(postId)
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
 
-        if (optPost.isPresent()) {
-            Post post = optPost.get();
+        String siteRef = "/site/" + siteId;
 
-            String siteRef = "/site/" + siteId;
+        boolean isMine = post.getMetadata().getCreator().equals(currentUserId);
 
-            boolean isMine = post.getMetadata().getCreator().equals(currentUserId);
-
-            if (!securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)
-                && !(isMine && securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef))) {
-                throw new ConversationsPermissionsException("Current user is not allowed to delete post.");
-            }
-
-            commentRepository.deleteByPost_Id(postId);
-            if (setTopicResolved && securityService.unlock(post.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
-                Topic topic = post.getTopic();
-                setTopicResolved(topic);
-                topicRepository.save(topic);
-            }
-
-            postStatusRepository.deleteByPostId(postId);
-            postReactionTotalRepository.deleteByPost_Id(postId);
-            postReactionRepository.deleteByPost_Id(postId);
-
-            postRepository.delete(post);
-
-            this.afterCommit(() -> {
-                String reference = "/conversations/topics/" + topicId + "/posts/" + postId;
-                eventTrackingService.post(eventTrackingService.newEvent(Events.POST_DELETED.label, reference, siteId, true, NotificationService.NOTI_OPTIONAL));
-            });
-
-            return true;
-        } else { 
-            log.error("No post for id {}. Returning false ...", postId);
-            return false;
+        if (!securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)
+            && !(isMine && securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef))) {
+            throw new ConversationsPermissionsException("Current user is not allowed to delete post.");
         }
+
+        if (postRepository.countByParentPostId(postId) > 0) {
+            throw new IllegalArgumentException("Post " + postId + " has children. It cannot be deleted, only hidden");
+        }
+
+        // This post does not have childen. Just delete it.
+        commentRepository.deleteByPostId(postId);
+        postStatusRepository.deleteByPostId(postId);
+        postReactionTotalRepository.deleteByPostId(postId);
+        postReactionRepository.deleteByPostId(postId);
+        if (StringUtils.isNotBlank(post.getParentThreadId())) {
+            postRepository.findById(post.getParentThreadId()).ifPresent(thread -> {
+
+                thread.setNumberOfThreadReplies(thread.getNumberOfThreadReplies() - 1);
+                postRepository.save(thread);
+            });
+        }
+        postRepository.delete(post);
+
+        if (setTopicResolved && securityService.unlock(post.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
+            topicRepository.findById(post.getTopicId()).ifPresent(t -> {
+                setTopicResolved(t);
+                topicRepository.save(t);
+            });
+        }
+
+        postsCache.remove(topicId);
+
+        this.afterCommit(() -> {
+            String reference = ConversationsReferenceReckoner.reckoner().siteId(siteId).type("p").id(postId).reckon().getReference();
+            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.POST_DELETED.label, reference, siteId, true, NotificationService.NOTI_OPTIONAL));
+        });
     }
 
-    @Transactional
     public PostTransferBean lockPost(String siteId, String topicId, String postId, boolean locked) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Post> optPost = postRepository.findById(postId);
-        if (optPost.isPresent()) {
-            Post post = optPost.get();
-            if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + siteId)) {
-                throw new ConversationsPermissionsException("Current user cannot lock/unlock posts.");
-            }
-            post.setLocked(locked);
-            recursivelyLockPosts(post, locked);
-            Settings settings = getSettingsForSite(siteId);
-            return decoratePostBean(PostTransferBean.of(postRepository.save(post)), siteId, topicId, currentUserId, settings, null);
-        } else {
-            log.error("No post for id {}", postId);
-            throw new IllegalArgumentException("No post for id " + postId);
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        ConversationsPost post = postRepository.findById(postId)
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
+
+        if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + siteId)) {
+            throw new ConversationsPermissionsException("Current user cannot lock/unlock posts.");
         }
+
+        post.setLocked(locked);
+        recursivelyLockPosts(post, locked);
+        Settings settings = getSettingsForSite(siteId);
+        PostTransferBean postBean = decoratePostBean(PostTransferBean.of(postRepository.save(post)), siteId, topic, currentUserId, settings, null);
+        addDecoratedChildren(postBean, siteId, topic, currentUserId, settings);
+        postsCache.remove(topicId);
+        return postBean;
     }
 
-    @Transactional
-    public void hidePost(String postId, boolean hidden, String siteId) throws ConversationsPermissionsException {
+    private void addDecoratedChildren(PostTransferBean postBean, String siteId, ConversationsTopic topic, String currentUserId, Settings settings) {
+
+        List<PostTransferBean> children = new ArrayList<>();
+        postRepository.findByParentPostId(postBean.id).forEach(child -> {
+
+            PostTransferBean childBean = decoratePostBean(PostTransferBean.of(child), siteId, topic, currentUserId, settings, null);
+            addDecoratedChildren(childBean, siteId, topic, currentUserId, settings);
+            children.add(childBean);
+        });
+        postBean.posts = children;
+    }
+
+    public PostTransferBean hidePost(String siteId, String topicId, String postId, boolean hidden) throws ConversationsPermissionsException {
+
+        if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + siteId)) {
+            throw new ConversationsPermissionsException("Current user cannot hide/show posts.");
+        }
+
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
+
+        ConversationsPost post = postRepository.findById(postId)
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
+
+        post.setHidden(hidden);
+        Settings settings = getSettingsForSite(siteId);
+        String currentUserId = getCheckedCurrentUserId();
+        PostTransferBean bean = decoratePostBean(PostTransferBean.of(postRepository.save(post)), siteId, topic, currentUserId, settings, null);
+        postsCache.remove(topicId);
+        return bean;
+    }
+
+    public Map<Reaction, Integer> savePostReactions(String topicId, String postId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Post> optPost = postRepository.findById(postId);
-        if (optPost.isPresent()) {
-            Post post = optPost.get();
-            if (!securityService.unlock(Permissions.MODERATE.label, "/site/" + siteId)) {
-                throw new ConversationsPermissionsException("Current user cannot hide/show posts.");
-            }
-            post.setHidden(hidden);
-            postRepository.save(post);
-        } else {
-            log.error("No post for id {}", postId);
-        }
-    }
+        ConversationsPost post = postRepository.findById(postId)
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
 
-    @Transactional
-    public Map<Reaction, Integer> savePostReactions(String postId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException {
-
-        String currentUserId = getCheckedCurrentUserId();
-
-        Optional<Post> optPost = postRepository.findById(postId);
-
-        if (!optPost.isPresent()) {
-            throw new IllegalArgumentException("No post for id " + postId);
-        }
-
-        Post topic = optPost.get();
-
-        if (topic.getMetadata().getCreator().equals(currentUserId)) {
+        if (post.getMetadata().getCreator().equals(currentUserId)) {
             throw new ConversationsPermissionsException("You can't react to your own posts");
         }
 
-        List<PostReaction> current = postReactionRepository.findByPost_IdAndUserId(postId, currentUserId);
+        List<PostReaction> current = postReactionRepository.findByPostIdAndUserId(postId, currentUserId);
 
         reactions.entrySet().forEach(es -> {
 
             PostReactionTotal total
-                = postReactionTotalRepository.findByPost_IdAndReaction(postId, es.getKey())
+                = postReactionTotalRepository.findByPostIdAndReaction(postId, es.getKey())
                     .orElseGet(() -> {
                         PostReactionTotal t = new PostReactionTotal();
-                        t.setPost(topic);
+                        t.setPostId(postId);
                         t.setReaction(es.getKey());
                         t.setTotal(0);
                         return t;
@@ -712,7 +1407,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                 postReactionRepository.save(existingReaction);
             } else {
                 PostReaction newReaction = new PostReaction();
-                newReaction.setPost(optPost.get());
+                newReaction.setPostId(post.getId());
                 newReaction.setUserId(currentUserId);
                 newReaction.setReaction(es.getKey());
                 newReaction.setState(es.getValue());
@@ -724,46 +1419,67 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             postReactionTotalRepository.save(total);
         });
 
-        return postReactionTotalRepository.findByPost_Id(topic.getId())
+        // This post has now been updated. Removed any viewed stati from the db so that other users
+        // are alerted to the change.
+        postStatusRepository.findByPostIdAndUserIdNot(postId, currentUserId).forEach(status -> {
+
+            status.setViewed(false);
+            status.setViewedDate(null);
+            postStatusRepository.save(status);
+        });
+
+        // Do we need to uncache posts if it's just a reaction?
+        postsCache.remove(topicId);
+
+        return postReactionTotalRepository.findByPostId(postId)
                 .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
     }
 
     public void markPostsViewed(Set<String> postIds, String topicId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
+        postIds.forEach(postId -> this.markPostViewed(topicId, postId, currentUserId));
 
-        postIds.forEach(postId -> {
+        ConversationsTopic topic = topicRepository.findById(topicId)
+            .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
 
-            PostStatus status = postStatusRepository.findByPostIdAndUserId(postId, currentUserId)
-                .orElseGet(() -> new PostStatus(topicId, postId, currentUserId));
-            status.setViewed(true);
-            status.setViewedDate(Instant.now());
-            try {
-                postStatusRepository.save(status);
-            } catch (Exception e) {
-                log.debug("Caught exception while marking posts viewed. This can happen " +
-                    "due to the way the client detects posts scrolling into view");
-            }
-        });
+        long numberOfPosts = getNumberOfPostsInTopic(topic, currentUserId);
+        long read = postStatusRepository
+            .findByTopicIdAndUserIdAndViewed(topicId, currentUserId, true).stream().count();
+        long numberOfUnreadPosts = numberOfPosts - read;
 
-        topicRepository.findById(topicId).ifPresent(topic -> {
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+            .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
+        topicStatus.setViewed(numberOfUnreadPosts == 0L);
+        try {
+            topicStatusRepository.save(topicStatus);
+        } catch (ConstraintViolationException e) {
+            log.debug("Caught a constraint exception while saving topic status. This can happen " +
+                "due to the way the client detects posts scrolling into view");
+        }
 
-            long all = postRepository.findByTopic_Id(topicId).stream().filter(p -> canViewPost(p, topic, currentUserId)).count();
-            long viewed = postStatusRepository.findByTopicIdAndUserId(topicId, currentUserId).stream().count();
-
-            TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-                .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
-            topicStatus.setViewed(all == viewed);
-            try {
-                topicStatusRepository.save(topicStatus);
-            } catch (Exception e) {
-                log.debug("Caught exception while marking posts viewed. This can happen " +
-                    "due to the way the client detects posts scrolling into view");
-            }
-        });
+        Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
+        if (topicCache != null) topicCache.remove(currentUserId);
     }
 
-    @Transactional
+    private void markPostViewed(String topicId, String postId, String currentUserId) {
+
+        PostStatus status = postStatusRepository.findByPostIdAndUserId(postId, currentUserId)
+            .orElseGet(() -> new PostStatus(topicId, postId, currentUserId));
+        status.setViewed(true);
+        status.setViewedDate(Instant.now());
+        try {
+            postStatusRepository.save(status);
+        } catch (ConstraintViolationException e) {
+            log.debug("Caught constraint exception while marking post viewed. This can happen " +
+                "due to the way the client detects posts scrolling into view");
+        }
+    }
+
+    public Optional<CommentTransferBean> getComment(String commentId) throws ConversationsPermissionsException {
+        return commentRepository.findById(commentId).map(CommentTransferBean::of);
+    }
+
     public CommentTransferBean saveComment(CommentTransferBean commentBean) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
@@ -791,66 +1507,73 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         commentBean.setModifier(currentUserId);
         commentBean.setModified(now);
 
-        Comment comment = commentBean.asComment();
-        postRepository.findById(commentBean.post).ifPresent(p -> comment.setPost(p));
+        ConversationsComment comment = commentBean.asComment();
 
-        Comment updatedComment = commentRepository.save(comment);
+        ConversationsComment updatedComment = commentRepository.save(comment);
 
         if (isNew) {
             // Up the comment count by one
-            Post post = updatedComment.getPost();
-            post.setNumberOfComments(post.getNumberOfComments() + 1);
-            postRepository.save(post);
+            postRepository.findById(updatedComment.getPostId()).ifPresent(p -> {
+
+                p.setNumberOfComments(p.getNumberOfComments() + 1);
+                postRepository.save(p);
+            });
         }
+
+        this.afterCommit(() -> {
+
+            postsCache.remove(commentBean.topicId);
+
+            ConversationsEvents event = isNew ? ConversationsEvents.COMMENT_CREATED : ConversationsEvents.COMMENT_UPDATED;
+            String reference = ConversationsReferenceReckoner.reckoner()
+                .siteId(commentBean.siteId)
+                .type("c")
+                .id(updatedComment.getId()).reckon().getReference();
+            eventTrackingService.post(eventTrackingService.newEvent(event.label, reference, commentBean.siteId, true, NotificationService.NOTI_OPTIONAL));
+        });
 
         return decorateCommentBean(CommentTransferBean.of(updatedComment), commentBean.siteId, currentUserId);
     }
 
-    @Transactional
-    public boolean deleteComment(String siteId, String commentId) throws ConversationsPermissionsException {
+    public void deleteComment(String siteId, String commentId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Comment> optComment = commentRepository.findById(commentId);
+        ConversationsComment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new IllegalArgumentException("No comment with id " + commentId));
 
-        if (optComment.isPresent()) {
-            Comment comment = optComment.get();
-            Post post = comment.getPost();
+        String siteRef = "/site/" + siteId;
 
-            String siteRef = "/site/" + siteId;
-
-            boolean isMine = comment.getMetadata().getCreator().equals(currentUserId);
-            if (!securityService.unlock(Permissions.COMMENT_DELETE_ANY.label, siteRef)
-                && (isMine && !securityService.unlock(Permissions.COMMENT_DELETE_OWN.label, siteRef))) {
-                throw new ConversationsPermissionsException("Current user cannot delete comment");
-            }
-            commentRepository.deleteById(commentId);
-            // Drop the comment count by one
-            post.setNumberOfComments(post.getNumberOfComments() - 1);
-            postRepository.save(post);
-            return true;
-        } else {
-            log.error("No comment for id {}. Returning false ...", commentId);
-            return false;
+        boolean isMine = comment.getMetadata().getCreator().equals(currentUserId);
+        if (!securityService.unlock(Permissions.COMMENT_DELETE_ANY.label, siteRef)
+            && (isMine && !securityService.unlock(Permissions.COMMENT_DELETE_OWN.label, siteRef))) {
+            throw new ConversationsPermissionsException("Current user cannot delete comment");
         }
+        commentRepository.deleteById(commentId);
+        // Drop the comment count by one
+        postRepository.findById(comment.getPostId()).ifPresent(p -> {
+
+            p.setNumberOfComments(p.getNumberOfComments() - 1);
+            postRepository.save(p);
+        });
     }
 
-    private void setTopicResolved(Topic topic) {
+    private void setTopicResolved(ConversationsTopic topic) {
 
-        String siteRef = "/site/" + topic.getSiteId();
+        String siteRef = siteService.siteReference(topic.getSiteId());
 
-        topic.setResolved(postRepository.findByTopic_Id(topic.getId()).stream().anyMatch(p -> {
-            return !p.getDraft() && securityService.unlock(p.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
+        topic.setResolved(postRepository.findByTopicId(topic.getId()).stream().anyMatch(p -> {
+
+            return !p.getDraft() && !p.getAnonymous()
+                && securityService.unlock(p.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
         }));
     }
 
-    @Transactional
-    private List<TopicTransferBean> decorateTopics(List<Topic> topics, String currentUserId, Settings settings) {
+    private List<TopicTransferBean> decorateTopics(List<ConversationsTopic> topics, String currentUserId, Settings settings) {
         return topics.stream().map(t -> decorateTopicBean(TopicTransferBean.of(t), t, currentUserId, settings)).collect(Collectors.toList());
     }
 
-    @Transactional
-    private TopicTransferBean decorateTopicBean(TopicTransferBean topicBean, Topic topic, String currentUserId, Settings settings) {
+    private TopicTransferBean decorateTopicBean(TopicTransferBean topicBean, ConversationsTopic topic, String currentUserId, Settings settings) {
 
         try {
             User creator = userDirectoryService.getUser(topicBean.creator);
@@ -866,93 +1589,97 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         topicBean.formattedCreatedDate = userTimeService.dateTimeFormat(topicBean.created, FormatStyle.MEDIUM, FormatStyle.SHORT);
         topicBean.formattedModifiedDate = userTimeService.dateTimeFormat(topicBean.modified, FormatStyle.MEDIUM, FormatStyle.SHORT);
 
+        if (topicBean.dueDate != null) {
+            topicBean.formattedDueDate = userTimeService.dateTimeFormat(topicBean.dueDate, FormatStyle.MEDIUM, FormatStyle.SHORT);
+        }
+
+        topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
+
+        if (topic != null) {
+            topicBean.tags = topic.getTagIds().stream().map(tagId -> {
+
+                Optional<Tag> optTag = tagRepository.findById(tagId);
+                if (optTag.isPresent()) {
+                    return optTag.get();
+                } else {
+                    return null;
+                }
+            }).collect(Collectors.toList());
+
+            topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
+                .ifPresent(s -> {
+
+                    topicBean.bookmarked = s.getBookmarked();
+                    topicBean.hasPosted = s.getPosted();
+                });
+
+            topicBean.myReactions = topicReactionRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
+                .stream().collect(Collectors.toMap(tr -> tr.getReaction(), tr -> tr.getState()));
+
+            Reaction.stream().forEach(r -> {
+                if (!topicBean.myReactions.keySet().contains(r)) {
+                    topicBean.myReactions.put(r, Boolean.FALSE);
+                }
+            });
+
+            topicBean.reactionTotals = topicReactionTotalRepository.findByTopicId(topic.getId())
+                    .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
+
+            if (topicBean.anonymous && !securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef)) {
+                topicBean.creatorDisplayName = resourceLoader.getString("anonymous");
+            }
+
+            topicBean.numberOfPosts = getNumberOfPostsInTopic(topic, currentUserId);
+            topicBean.numberOfThreads = postRepository.findByTopicIdAndParentPostIdIsNull(topicBean.id)
+                .stream().filter(p -> canUserViewPost(p, currentUserId)).count();
+            Long read = postStatusRepository
+                .findByTopicIdAndUserIdAndViewed(topic.getId(), currentUserId, true).stream().count();
+            topicBean.numberOfUnreadPosts = topicBean.numberOfPosts - read;
+        }
+
         if (!topicBean.locked) {
             topicBean.canEdit = securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)
                 || (topicBean.isMine && securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef));
             topicBean.canDelete = securityService.unlock(Permissions.TOPIC_DELETE_ANY.label, siteRef)
                 || (topicBean.isMine && securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef));
-            topicBean.canPost = securityService.unlock(Permissions.POST_CREATE.label, siteRef);
+            topicBean.canPost = securityService.unlock(Permissions.POST_CREATE.label, siteRef)
+                && (!topicBean.mustPostBeforeViewing || topicBean.hasPosted || securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef));
             topicBean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
             topicBean.canBookmark = settings.getAllowBookmarking();
             topicBean.canTag = securityService.unlock(Permissions.TOPIC_TAG.label, siteRef);
             topicBean.canReact = !topicBean.isMine && settings.getAllowReactions();
+        } else {
+            topicBean.canEdit = securityService.unlock(Permissions.MODERATE.label, siteRef);
         }
-
-        if (!topicBean.draft) {
-            topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
-        }
-
-        topicBean.tags = topic.getTagIds().stream().map(tagId -> {
-
-            Optional<Tag> optTag = tagRepository.findById(tagId);
-            if (optTag.isPresent()) {
-                return optTag.get();
-            } else {
-                return null;
-            }
-        }).collect(Collectors.toList());
-
-        topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
-            .ifPresent(s -> topicBean.bookmarked = s.getBookmarked());
-
-        topicBean.myReactions = topicReactionRepository.findByTopic_IdAndUserId(topic.getId(), currentUserId)
-            .stream().collect(Collectors.toMap(tr -> tr.getReaction(), tr -> tr.getState()));
-
-        Reaction.stream().forEach(r -> {
-            if (!topicBean.myReactions.keySet().contains(r)) {
-                topicBean.myReactions.put(r, Boolean.FALSE);
-            }
-        });
-
-        topicBean.reactionTotals = topicReactionTotalRepository.findByTopic_Id(topic.getId())
-                .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
-
-        if (topicBean.anonymous && !securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef)) {
-            topicBean.creatorDisplayName = bundle.getString("anonymous");
-        }
-
-        topicBean.numberOfPosts = getNumberOfPostsInTopic(topic, currentUserId);
-        Long read = postStatusRepository
-            .findByTopicIdAndUserIdAndViewed(topic.getId(), currentUserId, true).stream().count();
-        topicBean.numberOfUnreadPosts = topicBean.numberOfPosts - read;
 
         topicBean.url = "/api/sites/" + topicBean.siteId + "/topics/" + topicBean.id;
-        topicBean.reference = "/conversations/topics/" + topicBean.id;
+        getTopicPortalUrl(topicBean.id).ifPresent(portalUrl -> topicBean.portalUrl = portalUrl);
+        topicBean.reference = ConversationsReferenceReckoner.reckoner().siteId(topicBean.siteId).type("t").id(topicBean.id).reckon().getReference();
 
         return topicBean;
     }
 
-    /*
-    private boolean canViewPost(Post post) {
+    @Transactional(readOnly = true)
+    private long getNumberOfPostsInTopic(ConversationsTopic topic, String currentUserId) {
 
-        if (securityService.isSuperUser()) return true;
+        return postRepository.findByTopicId(topic.getId()).stream().filter(p -> {
 
-        if (p.getMetadata().getCreator().equals(currentUserId)) return true;
+            if (p.getHidden()) return false;
 
-        if (p.getPrivatePost()) {
-            String parentCreator = p.getParentPost() != null
-                ? p.getParentPost().getMetadata().getCreator() : topic.getMetadata().getCreator();
-            if (parentCreator.equals(currentUserId)) return true;
-        }
-
-        if (!p.getPrivatePost()) return true;
-
-        return false;
-    }
-    */
-
-    @Transactional
-    private long getNumberOfPostsInTopic(Topic topic, String currentUserId) {
-
-        return postRepository.findByTopic_Id(topic.getId()).stream().filter(p -> {
-
-            if (securityService.isSuperUser()) return true;
+            if (!p.getDraft() && securityService.isSuperUser()) return true;
 
             if (p.getMetadata().getCreator().equals(currentUserId)) return true;
 
             if (p.getPrivatePost()) {
-                String parentCreator = p.getParentPost() != null
-                    ? p.getParentPost().getMetadata().getCreator() : topic.getMetadata().getCreator();
+                String parentPostId = p.getParentPostId();
+                Optional<ConversationsPost> optParentPost = Optional.empty();
+
+                if (parentPostId != null) {
+                    optParentPost = postRepository.findById(parentPostId);
+                }
+                ConversationsPost parentPost = optParentPost.orElse(null);
+                String parentCreator = parentPost != null
+                    ? parentPost.getMetadata().getCreator() : topic.getMetadata().getCreator();
                 return parentCreator.equals(currentUserId);
             }
 
@@ -966,11 +1693,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         }).count();
     }
 
-    private List<PostTransferBean> decoratePosts(List<Post> posts, String siteId, String topicId, String currentUserId, Settings settings, Map<String, PostStatus> postStati) {
-        return posts.stream().map(p -> decoratePostBean(PostTransferBean.of(p), siteId, topicId, currentUserId, settings, postStati)).collect(Collectors.toList());
-    }
-
-    private PostTransferBean decoratePostBean(PostTransferBean postBean, String siteId, String topicId, String currentUserId, Settings settings, Map<String, PostStatus> postStati) {
+    private PostTransferBean decoratePostBean(PostTransferBean postBean, String siteId, ConversationsTopic topic, String currentUserId, Settings settings, Map<String, PostStatus> postStati) {
 
         try {
             User creator = userDirectoryService.getUser(postBean.creator);
@@ -979,7 +1702,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             log.error("No user for id: {}", postBean.creator);
         }
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         postBean.isMine = postBean.creator.equals(currentUserId);
         postBean.formattedCreatedDate = userTimeService.dateTimeFormat(postBean.created, FormatStyle.MEDIUM, FormatStyle.SHORT);
@@ -988,23 +1711,26 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         if (!postBean.locked) {
             postBean.canEdit = securityService.unlock(Permissions.POST_UPDATE_ANY.label, siteRef)
                     || (postBean.isMine && securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef));
-            postBean.canDelete = securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)
-                    || (postBean.isMine && securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef));
-            postBean.canUpvote = !postBean.isMine && settings.getAllowUpvoting() && securityService.unlock(Permissions.POST_UPVOTE.label, siteRef);
-            postBean.canReact = !postBean.isMine && settings.getAllowReactions() && securityService.unlock(Permissions.POST_REACT.label, siteRef);
-            postBean.canComment = securityService.unlock(Permissions.COMMENT_CREATE.label, siteRef);
-        }
-
-        if (!postBean.draft) {
-            postBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
+            boolean hasChildren = postRepository.countByParentPostId(postBean.id) > 0L;
+            postBean.canDelete = !hasChildren &&
+                (securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)
+                    || (postBean.isMine && securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)));
+            postBean.canUpvote = !postBean.isMine && settings.getAllowUpvoting() && !postBean.hidden && securityService.unlock(Permissions.POST_UPVOTE.label, siteRef);
+            postBean.canReact = !postBean.isMine && settings.getAllowReactions() && !postBean.hidden && securityService.unlock(Permissions.POST_REACT.label, siteRef);
+            postBean.canComment = !postBean.hidden && securityService.unlock(Permissions.COMMENT_CREATE.label, siteRef);
+            postBean.canReply = !postBean.hidden && securityService.unlock(Permissions.POST_CREATE.label, siteRef);
         }
 
         postBean.canView = !postBean.hidden ? true : securityService.unlock(Permissions.MODERATE.label, siteRef);
-        postBean.isInstructor = securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
+        postBean.isInstructor = !postBean.anonymous && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
         postBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (postBean.anonymous && !securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef)) {
-            postBean.creatorDisplayName = bundle.getString("anonymous");
+            postBean.creatorDisplayName = resourceLoader.getString("anonymous");
+        }
+
+        if (topic.getDueDate() != null && postBean.created.isAfter(topic.getDueDate())) {
+            postBean.late = true;
         }
 
         postStatusRepository.findByPostIdAndUserId(postBean.id, currentUserId).ifPresent(s -> {
@@ -1013,9 +1739,9 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             postBean.viewed = s.getViewed();
         });
 
-        postBean.comments = decorateComments(commentRepository.findByPost_Id(postBean.id), siteId, currentUserId);
+        postBean.comments = decorateComments(commentRepository.findByPostId(postBean.id), siteId, currentUserId);
 
-        postBean.myReactions = postReactionRepository.findByPost_IdAndUserId(postBean.id, currentUserId)
+        postBean.myReactions = postReactionRepository.findByPostIdAndUserId(postBean.id, currentUserId)
             .stream().collect(Collectors.toMap(pr -> pr.getReaction(), pr -> pr.getState()));
 
         Reaction.stream().forEach(r -> {
@@ -1024,8 +1750,12 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             }
         });
 
-        postBean.reactionTotals = postReactionTotalRepository.findByPost_Id(postBean.id)
+        postBean.reactionTotals = postReactionTotalRepository.findByPostId(postBean.id)
                 .stream().collect(Collectors.toMap(rt -> rt.getReaction(), rt -> rt.getTotal()));
+
+        if (postBean.hidden && !securityService.unlock(Permissions.MODERATE.label, siteRef)) {
+            postBean.clear();
+        }
 
         if (postStati != null) {
             PostStatus postStatus = postStati.get(postBean.id);
@@ -1036,13 +1766,14 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             });
         }
 
-        postBean.url = "/api/sites/" + siteId + "/topics/" + topicId + "/posts/" + postBean.id;
-        postBean.reference = "/conversations/topics/" + topicId + "/posts/" + postBean.id;
+        postBean.url = "/api/sites/" + siteId + "/topics/" + topic.getId() + "/posts/" + postBean.id;
+        getPostPortalUrl(topic.getId(), postBean.id).ifPresent(portalUrl -> postBean.portalUrl = portalUrl);
+        postBean.reference = ConversationsReferenceReckoner.reckoner().siteId(siteId).type("p").id(postBean.id).reckon().getReference();
 
         return postBean;
     }
 
-    private List<CommentTransferBean> decorateComments(List<Comment> comments, String siteId, String currentUserId) {
+    private List<CommentTransferBean> decorateComments(List<ConversationsComment> comments, String siteId, String currentUserId) {
         return comments.stream().map(c -> decorateCommentBean(CommentTransferBean.of(c), siteId, currentUserId)).collect(Collectors.toList());
     }
 
@@ -1070,88 +1801,72 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         return commentBean;
     }
 
-    @Transactional
     public PostTransferBean upvotePost(String siteId, String topicId, String postId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Post> optPost = postRepository.findById(postId);
-        if (optPost.isPresent()) {
-            Post post = optPost.get();
+        ConversationsPost post = postRepository.findById(postId)
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
 
-            if (post.getMetadata().getCreator().equals(currentUserId)) {
-                throw new IllegalArgumentException("Users cannot upvote their own posts");
-            }
-
-            String siteRef = "/site/" + siteId;
-
-            if (!securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)) {
-                throw new ConversationsPermissionsException("Current user cannot upvote posts");
-            }
-
-            boolean alreadyUpvoted = false;
-            Optional<PostStatus> optStatus = postStatusRepository.findByPostIdAndUserId(postId, currentUserId);
-            if (optStatus.isPresent()) {
-                PostStatus status = optStatus.get();
-                alreadyUpvoted = status.getUpvoted();
-                status.setUpvoted(Boolean.TRUE);
-                postStatusRepository.save(status);
-            } else {
-                PostStatus status = new PostStatus(topicId, postId, currentUserId);
-                status.setUpvoted(Boolean.TRUE);
-                postStatusRepository.save(status);
-            }
-
-            if (!alreadyUpvoted) {
-                post.setUpvotes(post.getUpvotes() + 1);
-            }
-            return PostTransferBean.of(postRepository.save(post));
-        } else {
-            log.error("No post for id {}", postId);
-            throw new IllegalArgumentException("No post for id " + postId);
+        if (post.getMetadata().getCreator().equals(currentUserId)) {
+            throw new IllegalArgumentException("Users cannot upvote their own posts");
         }
+
+        String siteRef = "/site/" + siteId;
+
+        if (!securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)) {
+            throw new ConversationsPermissionsException("Current user cannot upvote posts");
+        }
+
+        boolean alreadyUpvoted = false;
+        Optional<PostStatus> optStatus = postStatusRepository.findByPostIdAndUserId(postId, currentUserId);
+        if (optStatus.isPresent()) {
+            PostStatus status = optStatus.get();
+            alreadyUpvoted = status.getUpvoted();
+            status.setUpvoted(Boolean.TRUE);
+            postStatusRepository.save(status);
+        } else {
+            PostStatus status = new PostStatus(topicId, postId, currentUserId);
+            status.setUpvoted(Boolean.TRUE);
+            postStatusRepository.save(status);
+        }
+
+        if (!alreadyUpvoted) {
+            post.setUpvotes(post.getUpvotes() + 1);
+        }
+        return PostTransferBean.of(postRepository.save(post));
     }
 
-    @Transactional
     public PostTransferBean unUpvotePost(String siteId, String postId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
-        Optional<Post> optPost = postRepository.findById(postId);
-        if (optPost.isPresent()) {
-            Post post = optPost.get();
+        ConversationsPost post = postRepository.findById(postId)
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + postId));
 
-            if (post.getMetadata().getCreator().equals(currentUserId)) {
-                throw new IllegalArgumentException("Users cannot unupvote their own posts");
-            }
-
-            String siteRef = "/site/" + siteId;
-
-            if (!securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)) {
-                throw new ConversationsPermissionsException("Current user cannot upvote posts");
-            }
-
-            boolean alreadyUpvoted = false;
-            Optional<PostStatus> optStatus = postStatusRepository.findByPostIdAndUserId(postId, currentUserId);
-            if (optStatus.isPresent()) {
-                PostStatus status = optStatus.get();
-                if (!status.getUpvoted()) {
-                    throw new IllegalArgumentException("Post for id " + postId + " has not been upvoted yet");
-                }
-                status.setUpvoted(Boolean.FALSE);
-                postStatusRepository.save(status);
-                post.setUpvotes(post.getUpvotes() - 1);
-                return PostTransferBean.of(postRepository.save(post));
-            } else {
-                throw new IllegalArgumentException("Post for id " + postId + " has not been upvoted yet");
-            }
-        } else {
-            log.error("No post for id {}", postId);
-            throw new IllegalArgumentException("No post for id " + postId);
+        if (post.getMetadata().getCreator().equals(currentUserId)) {
+            throw new IllegalArgumentException("Users cannot unupvote their own posts");
         }
+
+        String siteRef = "/site/" + siteId;
+
+        if (!securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)) {
+            throw new ConversationsPermissionsException("Current user cannot upvote posts");
+        }
+
+        boolean alreadyUpvoted = false;
+        PostStatus status = postStatusRepository.findByPostIdAndUserId(postId, currentUserId)
+            .orElseThrow(() -> new IllegalArgumentException("Post for id " + postId + " has not been upvoted yet"));
+
+        if (!status.getUpvoted()) {
+            throw new IllegalArgumentException("Post for id " + postId + " has not been upvoted yet");
+        }
+        status.setUpvoted(Boolean.FALSE);
+        postStatusRepository.save(status);
+        post.setUpvotes(post.getUpvotes() - 1);
+        return PostTransferBean.of(postRepository.save(post));
     }
 
-    @Transactional
     public Tag saveTag(Tag tag) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -1165,7 +1880,6 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         return tagRepository.save(tag);
     }
 
-    @Transactional
     public List<Tag> createTags(List<Tag> tags) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -1193,7 +1907,6 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         return tagRepository.findBySiteId(siteId);
     }
 
-    @Transactional
     public void deleteTag(Long tagId) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -1233,7 +1946,6 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         return settingsRepository.findBySiteId(siteId).orElse(new Settings(siteId));
     }
 
-    @Transactional
     public Settings saveSettings(Settings settings) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -1247,7 +1959,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         Boolean newSiteLocked = settings.getSiteLocked();
 
         if (oldSiteLocked != newSiteLocked) {
-            for (Topic topic : topicRepository.findBySiteId(settings.getSiteId())) {
+            for (ConversationsTopic topic : topicRepository.findBySiteId(settings.getSiteId())) {
                 if (!oldSiteLocked && newSiteLocked) {
                     topicRepository.lockBySiteId(settings.getSiteId(), true);
                     postRepository.lockBySiteId(settings.getSiteId(), true);
@@ -1261,7 +1973,11 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
             }
         }
 
-        return settingsRepository.save(settings);
+        Settings newSettings = settingsRepository.save(settings);
+
+        topicRepository.findBySiteId(settings.getSiteId()).forEach(t -> postsCache.remove(t.getId()));
+
+        return newSettings;
     }
 
     public ConvStatus getConvStatusForSiteAndUser(String siteId, String userId) throws ConversationsPermissionsException {
@@ -1279,6 +1995,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         convStatusRepository.save(convStatus);
     }
 
+    @Transactional(readOnly = true)
     public Map<String, Object> getSiteStats(String siteId, Instant from, Instant to, int page, String sort) throws ConversationsPermissionsException {
 
         int pageSize = 10;
@@ -1303,7 +2020,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         List<User> users = userDirectoryService.getUsers(userIds);
 
         List<Stat> topicCreatedStats = statsManager.getEventStats(siteId,
-            Arrays.asList(new String[] { Events.TOPIC_CREATED.label }),
+            Arrays.asList(new String[] { ConversationsEvents.TOPIC_CREATED.label }),
             from != null ? Date.from(from) : null,
             to != null ? Date.from(to) : null,
             userIds,
@@ -1318,7 +2035,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         });
 
         List<Stat> postCreatedStats = statsManager.getEventStats(siteId,
-            Arrays.asList(new String[] { Events.POST_CREATED.label }),
+            Arrays.asList(new String[] { ConversationsEvents.POST_CREATED.label }),
             from != null ? Date.from(from) : null,
             to != null ? Date.from(to) : null,
             userIds,
@@ -1333,7 +2050,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         });
 
         List<Stat> reactedStats = statsManager.getEventStats(siteId,
-            Arrays.asList(new String[] { Events.REACTED_TO_TOPIC.label }),
+            Arrays.asList(new String[] { ConversationsEvents.REACTED_TO_TOPIC.label }),
             from != null ? Date.from(from) : null,
             to != null ? Date.from(to) : null,
             userIds,
@@ -1388,7 +2105,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(nameAscendingKey, sortedStats);
                     }
                     break;
-                case "nameDescending":
+                case SORT_NAME_DESCENDING:
                     String nameDescendingKey = baseCacheKey + SORT_NAME_DESCENDING;
                     sortedStats = sortedStatsCache.get(nameDescendingKey);
                     if (sortedStats == null) {
@@ -1396,7 +2113,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(nameDescendingKey, sortedStats);
                     }
                     break;
-                case "topicsCreatedAscending":
+                case SORT_TOPICS_CREATED_ASCENDING:
                     String topicsCreatedAscendingKey = baseCacheKey + SORT_TOPICS_CREATED_ASCENDING;
                     sortedStats = sortedStatsCache.get(topicsCreatedAscendingKey);
                     if (sortedStats == null) {
@@ -1404,7 +2121,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(topicsCreatedAscendingKey, sortedStats);
                     }
                     break;
-                case "topicsCreatedDescending":
+                case SORT_TOPICS_CREATED_DESCENDING:
                     String topicsCreatedDescendingKey = baseCacheKey + SORT_TOPICS_CREATED_DESCENDING;
                     sortedStats = sortedStatsCache.get(topicsCreatedDescendingKey);
                     if (sortedStats == null) {
@@ -1412,7 +2129,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(topicsCreatedDescendingKey, sortedStats);
                     }
                     break;
-                case "topicsViewedAscending":
+                case SORT_TOPICS_VIEWED_ASCENDING:
                     String topicsViewedAscendingKey = baseCacheKey + SORT_TOPICS_VIEWED_ASCENDING;
                     sortedStats = sortedStatsCache.get(topicsViewedAscendingKey);
                     if (sortedStats == null) {
@@ -1420,7 +2137,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(topicsViewedAscendingKey, sortedStats);
                     }
                     break;
-                case "topicsViewedDescending":
+                case SORT_TOPICS_VIEWED_DESCENDING:
                     String topicsViewedDescendingKey = baseCacheKey + SORT_TOPICS_VIEWED_DESCENDING;
                     sortedStats = sortedStatsCache.get(topicsViewedDescendingKey);
                     if (sortedStats == null) {
@@ -1428,7 +2145,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(topicsViewedDescendingKey, sortedStats);
                     }
                     break;
-                case "postsCreatedAscending":
+                case SORT_POSTS_CREATED_ASCENDING:
                     String postsCreatedAscendingKey = baseCacheKey + SORT_POSTS_CREATED_ASCENDING;
                     sortedStats = sortedStatsCache.get(postsCreatedAscendingKey);
                     if (sortedStats == null) {
@@ -1436,7 +2153,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(postsCreatedAscendingKey, sortedStats);
                     }
                     break;
-                case "postsCreatedDescending":
+                case SORT_POSTS_CREATED_DESCENDING:
                     String postsCreatedDescendingKey = baseCacheKey + SORT_POSTS_CREATED_DESCENDING;
                     sortedStats = sortedStatsCache.get(postsCreatedDescendingKey);
                     if (sortedStats == null) {
@@ -1444,7 +2161,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(postsCreatedDescendingKey, sortedStats);
                     }
                     break;
-                case "reactionsMadeAscending":
+                case SORT_REACTIONS_MADE_ASCENDING:
                     String reactionsMadeAscendingKey = baseCacheKey + SORT_REACTIONS_MADE_ASCENDING;
                     sortedStats = sortedStatsCache.get(reactionsMadeAscendingKey);
                     if (sortedStats == null) {
@@ -1452,7 +2169,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(reactionsMadeAscendingKey, sortedStats);
                     }
                     break;
-                case "reactionsMadeDescending":
+                case SORT_REACTIONS_MADE_DESCENDING:
                     String reactionsMadeDescendingKey = baseCacheKey + SORT_REACTIONS_MADE_DESCENDING;
                     sortedStats = sortedStatsCache.get(reactionsMadeDescendingKey);
                     if (sortedStats == null) {
@@ -1467,7 +2184,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         int start = pageSize * (page - 1);
         int end = start + pageSize;
 
-        if (end > users.size()) end = users.size();
+        if (end > sortedStats.size()) end = sortedStats.size();
 
         data.put("stats", sortedStats.subList(start, end));
 
@@ -1486,6 +2203,24 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
     }
 
     public String[] getEventKeys() {
-        return new String[] { Events.TOPIC_CREATED.label, Events.POST_CREATED.label, Events.REACTED_TO_TOPIC.label };
+        return new String[] { ConversationsEvents.TOPIC_CREATED.label, ConversationsEvents.POST_CREATED.label, ConversationsEvents.REACTED_TO_TOPIC.label };
+    }
+
+    private Calendar getCalendar(String site) {
+
+        Calendar calendar = null;
+
+        String calendarId = calendarService.calendarReference(site, siteService.MAIN_CONTAINER);
+        try {
+            calendar = calendarService.getCalendar(calendarId);
+        } catch (IdUnusedException e) {
+            log.warn("No calendar found for site: {}", site);
+        } catch (PermissionException e) {
+            log.error("The current user does not have permission to access the calendar for site: {}", site, e.toString());
+        } catch (Exception ex) {
+            log.error("Unknown exception occurred retrieving calendar for site: {}", site, ex.toString());
+        }
+
+        return calendar;
     }
 }

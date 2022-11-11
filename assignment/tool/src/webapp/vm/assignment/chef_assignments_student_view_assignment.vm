@@ -120,7 +120,7 @@
 					#end
 				</td>
 			</tr>
-		#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+		#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<tr>
 				<th>
 					$tlang.getString("gen.estimatedselfempl")

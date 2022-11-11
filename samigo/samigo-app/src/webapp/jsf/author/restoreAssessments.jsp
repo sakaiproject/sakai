@@ -11,11 +11,13 @@
         <body onload="<%= request.getAttribute("html.body.onload") %>">
           <div class="portletBody container-fluid">
             <script>includeWebjarLibrary('datatables');</script>
+            <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
             <script>
                 $(document).ready(function() {
                     var notEmptyTableTd = $("#restoreAssessmentsForm\\:deletedAssessmentsTable td:not(:empty)").length;
                     if (notEmptyTableTd > 0) {
-                        var table = $("#restoreAssessmentsForm\\:deletedAssessmentsTable").DataTable({
+                        $("#restoreAssessmentsForm\\:deletedAssessmentsTable").DataTable({
                             "paging": true,
                             "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
                             "pageLength": 20,
@@ -23,8 +25,8 @@
                             "columns": [
                                 {"bSortable": true, "bSearchable": true, "type": "span"},
                                 {"bSortable": true, "bSearchable": true},
-                                {"bSortable": true, "bSearchable": true},
-                                {"bSortable": false, "bSearchable": false},
+                                {"bSortable": true, "bSearchable": true, "type": "numeric"},
+                                {"bSortable": false, "bSearchable": false}
                             ],
                             "language": {
                                 "search": <h:outputText value="'#{authorFrontDoorMessages.datatables_sSearch}'" />,
@@ -36,11 +38,11 @@
                                 "emptyTable": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
                                 "paginate": {
                                     "next": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_next}'" />,
-                                    "previous": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_previous}'" />,
+                                    "previous": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_previous}'" />
                                 },
                                 "aria": {
                                     "sortAscending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortAscending}'" />,
-                                    "sortDescending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortDescending}'" />,
+                                    "sortDescending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortDescending}'" />
                                 }
                             },
                             "fnDrawCallback": function(oSettings) {
@@ -86,8 +88,10 @@
                             <f:facet name="header">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_title}" />
                             </f:facet>
-                            <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" rendered="#{deletedAssessment.draft}" />
-                            <h:outputText value="#{deletedAssessment.title}" />
+                            <f:verbatim><div></f:verbatim>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" rendered="#{deletedAssessment.draft}" />
+                                <h:outputText styleClass="spanValue" value="#{deletedAssessment.title}" />
+                            <f:verbatim></div></f:verbatim>
                         </h:column>
                         <h:column>
                             <f:facet name="header">
@@ -100,9 +104,14 @@
                             <f:facet name="header">
                                 <h:outputText value="#{authorMessages.restore_assessments_deleted_on}" />
                             </f:facet>
-                            <h:outputText value="#{deletedAssessment.lastModifiedDate}">
-                                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-                            </h:outputText>
+                            <f:verbatim><div></f:verbatim>
+                                <h:outputText value="#{deletedAssessment.lastModifiedDate}">
+                                    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                                </h:outputText>
+                                <h:outputText value="#{deletedAssessment.lastModifiedDate}" styleClass="hidden spanValue">
+                                    <f:convertDateTime pattern="yyyyMMddHHmmss" />
+                                </h:outputText>
+                            <f:verbatim></div></f:verbatim>
                         </h:column>
 
                         <h:column>

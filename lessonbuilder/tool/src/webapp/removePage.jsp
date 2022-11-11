@@ -13,7 +13,9 @@
 %><%@ page import="org.sakaiproject.event.cover.EventTrackingService" %><%
 %><%@ page import="org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents" %><%
 %><%@ page import="org.sakaiproject.lessonbuildertool.SimplePage" %><%
-%><%@ page import="org.apache.commons.text.StringEscapeUtils" %>
+%><%@ page import="org.apache.commons.text.StringEscapeUtils" %><%
+%><%@ page import="org.sakaiproject.tasks.api.TaskService" %>
+
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -23,7 +25,6 @@
 <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-<link rel="stylesheet" href="../css/Simplepagetool.css" type="text/css"/>
 </head>
 <body>
 
@@ -40,6 +41,8 @@
 
     SimplePageToolDao dao = (SimplePageToolDao)ComponentManager
     .get(SimplePageToolDao.class);
+    
+    TaskService taskService = (TaskService)ComponentManager.get(TaskService.class);
 
     String siteId = request.getParameter("site");
     Site site = null;
@@ -99,8 +102,8 @@
     }
 		
     EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_REMOVE, "/lessonbuilder/page/" + simplePage.getPageId(), true));
-
-   out.println("<script>parent.location.replace(\"/portal/site/" + URLEncoder.encode(site.getId(), "UTF-8") + "\")</script>");
+    taskService.removeTaskByReference("/lessonbuilder/page/" + simplePage.getPageId());
+    out.println("<script>parent.location.replace(\"/portal/site/" + URLEncoder.encode(site.getId(), "UTF-8") + "\")</script>");
 
 %>
 

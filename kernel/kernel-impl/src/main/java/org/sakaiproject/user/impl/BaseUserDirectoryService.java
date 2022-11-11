@@ -225,6 +225,21 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		return getAccessPoint(true) + Entity.SEPARATOR + ((id == null) ? "" : id);
 	}
 
+	public String idFromReference(String reference) {
+
+		if (StringUtils.isBlank(reference)) {
+			throw new IllegalArgumentException("The user reference cannot be blank");
+		}
+
+		int lastSeparatorIndex = reference.lastIndexOf(Entity.SEPARATOR);
+
+		if (lastSeparatorIndex == -1 || reference.length() <= lastSeparatorIndex + 2) {
+			throw new IllegalArgumentException("The user reference cannot be valid. Eg: /user/3dkdxuj4sk");
+		}
+
+		return reference.substring(lastSeparatorIndex + 1);
+	}
+
 	/**
 	 * Access the user id extracted from a user reference.
 	 *
@@ -1347,7 +1362,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public List<User> getUsers(int first, int last)
 	{
 		List<User> all = m_storage.getAll(first, last);
-
 		return all;
 	}
 
@@ -1372,7 +1386,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		
 		List<User> userList = new ArrayList<User>(users);
-		
 		//sort on sortName, default.
 		Collections.sort(userList);
 		

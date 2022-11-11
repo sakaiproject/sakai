@@ -25,12 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.sakaiproject.content.metadata.mixins.ListMetadataTypeMixin;
 import org.sakaiproject.content.metadata.mixins.MetadataTypeMixin;
 import org.sakaiproject.content.metadata.model.ListMetadataType;
 import org.sakaiproject.content.metadata.model.MetadataType;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A simple parser that takes a JSON input stream and returns the MetadataTypes.
@@ -52,10 +53,10 @@ public class JsonMetadataParser implements MetadataParser {
 		try
 		{
 			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.getDeserializationConfig().addMixInAnnotations(MetadataType.class, MetadataTypeMixin.class);
-			objectMapper.getDeserializationConfig().addMixInAnnotations(ListMetadataType.class, ListMetadataTypeMixin.class);
+			objectMapper.addMixIn(MetadataType.class, MetadataTypeMixin.class);
+			objectMapper.addMixIn(ListMetadataType.class, ListMetadataTypeMixin.class);
 			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-			return objectMapper.readValue(inputStream, new TypeReference<List<MetadataType>>() {});
+			return objectMapper.readValue(inputStream, new TypeReference<>() {});
 		}
 		catch (IOException e)
 		{

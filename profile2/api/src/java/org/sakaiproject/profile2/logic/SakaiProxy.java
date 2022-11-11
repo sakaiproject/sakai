@@ -691,6 +691,12 @@ public interface SakaiProxy {
 	public boolean isOfficialImageEnabledGlobally();
 
 	/**
+	 * Checks if profile2.picture.type=official 
+	 *
+	 * @return
+	 */
+	public boolean isUsingOfficialImage();
+	/**
 	 * Checks if the conditions are appropriate for a user to be able to select whether to use the official image or an alternate of their
 	 * choice
 	 *

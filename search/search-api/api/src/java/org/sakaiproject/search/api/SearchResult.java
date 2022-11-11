@@ -120,6 +120,21 @@ public interface SearchResult
 	
 	String getSiteId();
 
+	/**
+	 * Get the display name of the user that created this indexed content
+	 */
+	String getCreatorDisplayName();
+
+	/**
+	 * Get the display name of the user that created this indexed content
+	 */
+	String getCreatorId();
+
+	/**
+	 * Get the username of the user that created this indexed content
+	 */
+	String getCreatorUserName();
+
 	void toXMLString(StringBuilder sb);
 	
 	

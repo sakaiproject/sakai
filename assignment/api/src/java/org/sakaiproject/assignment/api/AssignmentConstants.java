@@ -45,6 +45,12 @@ public final class AssignmentConstants {
      */
     public static final String EVENT_ADD_ASSIGNMENT = "asn.new.assignment";
 
+
+    /**
+     *  Event for delayed assignment
+     */
+    public static final String EVENT_AVAILABLE_ASSIGNMENT = "asn.available.assignment";
+
     /**********************************************************************************************************************************************************************************************************************************************************
      * EVENT STRINGS
      *********************************************************************************************************************************************************************************************************************************************************/
@@ -165,6 +171,8 @@ public final class AssignmentConstants {
      * Ungraded grade type string
      */
     public static final String UNGRADED_GRADE_TYPE_STRING = "Ungraded";
+
+    public static final String UNGRADED_GRADE_STRING = "ungraded";
 
     /** Grade type not set */
     // public static final int GRADE_TYPE_NOT_SET = -1; change to 0
@@ -291,7 +299,8 @@ public final class AssignmentConstants {
         UNGRADED,
         RETURNED,
         COMMENTED,
-        GRADED
+        GRADED,
+        RETURNED_PENDING_RESUBMIT
     }
 
 	// IMS Score Publishing Service - states
@@ -353,7 +362,7 @@ public final class AssignmentConstants {
     public static final String ALLOW_EXTENSION_CLOSEYEAR = "allow_extension_closeYear";
     public static final String ALLOW_EXTENSION_CLOSEHOUR = "allow_extension_closeHour";
     public static final String ALLOW_EXTENSION_CLOSEMIN = "allow_extension_closeMin";
-
+    public static final String ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS = "allow_extension_close_epoch_millis";
     public static final String GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS = "grade_submission_dont_clear_current_attachments";
 
     public static final String GRADEBOOK_INTEGRATION_NO = "no";

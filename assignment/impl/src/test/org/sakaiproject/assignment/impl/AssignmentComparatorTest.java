@@ -25,11 +25,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.when;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -45,6 +49,7 @@ public class AssignmentComparatorTest {
 	private Comparator<String> sortNameComparator;
 	private Comparator<AssignmentSubmission> submitterNameComparator;
 	private AssignmentSubmission assignmentSubmission1, assignmentSubmission2, assignmentSubmission3, assignmentSubmission4;
+	private AssignmentSubmission[] namesWithSpaceSubmissions = new AssignmentSubmission[7];
 
 	@Before
 	public void setUp() throws Exception {
@@ -89,8 +94,47 @@ public class AssignmentComparatorTest {
 		Mockito.when(userDirectoryService.getUser("user4")).thenReturn(user4);
 		Mockito.when(userDirectoryService.getUser("usernull")).thenReturn(null);
 
+		// Adapted from UserSortNameComparatorTest in kernel
+		final String USERS_WITH_SPACE_PREFIX = "usersWithSpace";
+		User[] usersWithSpace = new User[7];
+		for (int i = 0; i < usersWithSpace.length; i++) {
+			usersWithSpace[i] = Mockito.mock(User.class);
+			when(userDirectoryService.getUser(USERS_WITH_SPACE_PREFIX + i)).thenReturn(usersWithSpace[i]);
+		}
+		when(usersWithSpace[0].getSortName()).thenReturn("Dekfort, Apple");
+		when(usersWithSpace[1].getSortName()).thenReturn("Del Fintino, Pear");
+		when(usersWithSpace[2].getSortName()).thenReturn("Dekford", "Orange");
+		when(usersWithSpace[3].getSortName()).thenReturn("De'Leon", "Cactus");
+		when(usersWithSpace[4].getSortName()).thenReturn("Deleverde", "Mango");
+		when(usersWithSpace[5].getSortName()).thenReturn("Martinez Torcal, Apple");
+		when(usersWithSpace[6].getSortName()).thenReturn("Martin Troncoso, X");
+		for (int i = 0; i < namesWithSpaceSubmissions.length; i++) {
+			namesWithSpaceSubmissions[i] = createSubmissionForUserID(USERS_WITH_SPACE_PREFIX + i);
+		}
+
 		sortNameComparator = new UserIdComparator(userDirectoryService);
 		submitterNameComparator = new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService);
+	}
+
+	/**
+	 * Create a submission object, as well as its assignment and submitters.
+	 * The assignment will not be a group assignment, and the specified userID will be the only submitter.
+	 */
+	public static AssignmentSubmission createSubmissionForUserID(String userID)
+	{
+		AssignmentSubmission submission = new AssignmentSubmission();
+
+		Assignment assignment = new Assignment();
+		assignment.setIsGroup(false);
+		submission.setAssignment(assignment);
+
+		Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>(1);
+		AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
+		submitter.setSubmitter(userID);
+		submitters.add(submitter);
+		submission.setSubmitters(submitters);
+
+		return submission;
 	}
 
 	@Test
@@ -157,6 +201,17 @@ public class AssignmentComparatorTest {
 			&& submitterNameComparator.compare(assignmentSubmission1,assignmentSubmission3) == -1
 			&& submitterNameComparator.compare(assignmentSubmission2,assignmentSubmission3) == -1
 			&& submitterNameComparator.compare(assignmentSubmission4,assignmentSubmission3) == -1);
+	}
+
+	@Test
+	public void testSubmitterNamesWithSpaces() {
+		// Adapted from UserSortNameComparatorTest in kernel
+		assertEquals(-1, submitterNameComparator.compare(namesWithSpaceSubmissions[0], namesWithSpaceSubmissions[1]));
+		assertEquals(1, submitterNameComparator.compare(namesWithSpaceSubmissions[1], namesWithSpaceSubmissions[0]));
+		assertEquals(0, submitterNameComparator.compare(namesWithSpaceSubmissions[1], namesWithSpaceSubmissions[1]));
+		assertEquals(-1, submitterNameComparator.compare(namesWithSpaceSubmissions[3], namesWithSpaceSubmissions[2]));
+		assertEquals(-1, submitterNameComparator.compare(namesWithSpaceSubmissions[3], namesWithSpaceSubmissions[4]));
+		assertEquals(1, submitterNameComparator.compare(namesWithSpaceSubmissions[5], namesWithSpaceSubmissions[6]));
 	}
 
 }

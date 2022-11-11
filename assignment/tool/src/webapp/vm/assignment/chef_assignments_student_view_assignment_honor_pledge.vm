@@ -9,8 +9,8 @@
     #else
         <h3>
             $tlang.getString('assignment.title')
-            #assignmentTitleIcon($assignment)
             $formattedText.escapeHtml($!assignment.Title)
+            #assignmentIcons($assignment)
         </h3>
 
         #progressBar($statusMap)

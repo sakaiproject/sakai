@@ -60,7 +60,17 @@
 	    <groupId>org.springframework.security.extensions</groupId>
 	    <artifactId>spring-security-saml2-core</artifactId>
 	    <version>1.0.10.RELEASE</version>
-	</dependency>
+        <exclusions>
+            <exclusion>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
       <dependency>
           <groupId>org.jasig.cas.client</groupId>
           <artifactId>cas-client-core</artifactId>

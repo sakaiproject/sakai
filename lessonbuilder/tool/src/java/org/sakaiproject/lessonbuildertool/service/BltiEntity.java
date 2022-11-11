@@ -410,7 +410,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	}
 	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0, bean.getCurrentSiteId());
 	for ( Map<String,Object> tool : tools ) {
-		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&flow=lessons&tool_id="
+		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=ContentConfig&flow=lessons&tool_id="
 			+ tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(returnUrl);
 		String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
 		Long ls = getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
@@ -419,7 +419,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE), (String) tool.get(LTIService.LTI_DESCRIPTION), fa_icon, selector));
 	}
 
-	String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=Main" + 
+	String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=Main" + 
 		"&returnUrl=" + URLEncoder.encode(returnUrl);
 	list.add(new UrlItem(url, messageLocator.getMessage("simplepage.create_blti")));
 	return list;
@@ -452,7 +452,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	loadContent();
 	if (content == null)
 	    return null;
-	String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&flow=lessons&id=" +
+	String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=ContentConfig&flow=lessons&id=" +
 		content.get(LTIService.LTI_ID);
 	if ( returnUrl != null ) {
 		url = url + "&returnUrl=" + URLEncoder.encode(returnUrl);

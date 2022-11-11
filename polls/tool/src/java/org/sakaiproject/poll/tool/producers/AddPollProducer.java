@@ -294,12 +294,9 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			newPoll.remove(accessPublic);
 			newPoll.remove(newPollAccessPublicLabel);
 		}
-		
-		String[] minVotes = new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
-		String[] maxVotes = new String[]{"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
-		UISelect min = UISelect.make(newPoll,"min-votes",minVotes,"#{poll.minOptions}",Integer.toString(poll.getMinOptions()));
-		UISelect max = UISelect.make(newPoll,"max-votes",maxVotes,"#{poll.maxOptions}",Integer.toString(poll.getMaxOptions()));
-	
+
+		UIInput min = UIInput.make(newPoll, "min-votes", "#{poll.minOptions}", Integer.toString(poll.getMinOptions()));
+		UIInput max = UIInput.make(newPoll, "max-votes", "#{poll.maxOptions}", Integer.toString(poll.getMaxOptions()));
 
 		/*
 		 * 	open - can be viewd at any time

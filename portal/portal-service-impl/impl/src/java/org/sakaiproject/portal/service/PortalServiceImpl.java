@@ -567,7 +567,7 @@ public class PortalServiceImpl implements PortalService
 		*/
 
 		// Now we are in good shape, make the URL
-		String helper_url = "/portal/tool/"+toolConfig.getId()+"/sakai.basiclti.admin.helper.helper?panel=CKEditor";
+		String helper_url = "/portal/tool/"+toolConfig.getId()+"/sakai.lti.admin.helper.helper?panel=CKEditor";
 		return helper_url;
 	}
 

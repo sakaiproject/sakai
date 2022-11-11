@@ -60,7 +60,7 @@ import org.json.simple.JSONArray;
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.getString;
 
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -1397,6 +1397,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			if (siteLinkTool != null) {
 				context.put(LTIService.LTI_PLACEMENT, plstr);
 			}
+			// Hide content secret unless it is incomplete
+			if (content.get(LTIService.LTI_SECRET) != null) {
+				content.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
+			}	
 		}
 
 		// We will handle the tool_id field ourselves in the Velocity code
@@ -1452,6 +1456,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String id = reqProps.getProperty(LTIService.LTI_ID);
 		String toolId = reqProps.getProperty(LTIService.LTI_TOOL_ID);
 
+		// Encrypt the lti_content secret(SAK-46566)
+		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
+		if (LTIService.SECRET_HIDDEN.equals(newSecret)) {
+			reqProps.remove(LTIService.LTI_SECRET);
+		} else if (StringUtils.isNotBlank(newSecret)) {
+			newSecret = SakaiBLTIUtil.encryptSecret(newSecret);
+			reqProps.put(LTIService.LTI_SECRET, newSecret);
+		}		
 		// Does an insert when id is null and update when is is not null
 		Object retval = ltiService.insertToolContent(id, toolId, reqProps, getSiteId(state));
 
@@ -2511,7 +2523,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// In this flow we are only asking for one CI/DL Response
 		Placement placement = toolManager.getCurrentPlacement();
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-				+ "/sakai.basiclti.admin.helper.helper"
+				+ "/sakai.lti.admin.helper.helper"
 				+ "?eventSubmit_doSingleContentItemResponse=Save"
 				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)
@@ -2570,6 +2582,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Check if we are supposed to let the tool configure itself
 		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
 		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_PL_LAUNCH));
+		// SAK-47867 - If both are set, prefer DeepLink / Content Item
+		if ( allowLinkSelection > 0 ) allowLaunch = 0L;
 
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("doAction", BUTTON + "doContentPut");
@@ -2697,7 +2711,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			Long isCI = foorm.getLong(lt.get(LTIService.LTI_PL_LINKSELECTION));
 			if ( isCI > 0 ) {
 				toolsCI.add(lt);
-			} else {
+			}
+
+			if (foorm.getLong(lt.get(LTIService.LTI_PL_CONTENTEDITOR)) > 0) {
 				toolsLaunch.add(lt);
 			}
 		}
@@ -2766,13 +2782,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// will go to afterwards, passing along the flow parameter
 		if (!doContent) {
 			String returnUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-					+ "/sakai.basiclti.admin.helper.helper"
+					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=PostContentConfig"
 					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix);
 
 			String configUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-					+ "/sakai.basiclti.admin.helper.helper"
+					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=ContentConfig"
 					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "&returnUrl=" + URLEncoder.encode(returnUrl)
@@ -2785,7 +2801,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// If this is a CI/DL producer, we proceed with launching the external tool
 		// to start the CI/DL flow
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-				+ "/sakai.basiclti.admin.helper.helper"
+				+ "/sakai.lti.admin.helper.helper"
 				+ "?eventSubmit_doMultipleContentItemResponse=Save"
 				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)

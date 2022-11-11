@@ -373,7 +373,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                     // INDICATES that the channel is NOT currently enabled so no messages can be received
                 	String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
                     String messageNumber = me.getMessage().replaceAll("(\\d+).+", "$1");
-                    String errMsg = rb.getString("mail.support." + messageNumber);
+                    String errMsg = rb.getString("mail.support." + messageNumber, null);
                     if (StringUtils.isNotBlank(errMsg)) {
                         // BOUNCE REPLY - send a message back to the user to let them know their email failed
                         errMsg = errMsg + "\n\n";

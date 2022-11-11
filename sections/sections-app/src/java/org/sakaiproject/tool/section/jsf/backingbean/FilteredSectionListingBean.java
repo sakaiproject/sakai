@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.faces.model.SelectItem;
 
@@ -100,8 +101,8 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 			int totalEnrollments = sectionSize.containsKey(section.getUuid()) ? 
 					(Integer) sectionSize.get(section.getUuid()) : 0;
 
-			SectionDecorator decoratedSection = new SectionDecorator(
-					section, catName, taNames, totalEnrollments, true);
+			SectionDecorator decoratedSection = new SectionDecorator(section, catName, taNames, totalEnrollments, true,
+					(taUids.contains(getUserUid()) || (canManageAnySection())));
 			sections.add(decoratedSection);
 		}
 

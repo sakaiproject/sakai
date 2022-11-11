@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -47,6 +48,32 @@
 
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true"  styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  
+  <!-- NOTIFICATION -->
+  <h:panelGroup>
+    <div class="row" style="margin-top:15px; margin-bottom:15px;">
+      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.notification}" for="number" />
+      <div class="col-md-10">
+        <h:panelGrid>
+          <h:selectOneMenu id="number" value="1" onchange="document.getElementById('publishAssessmentForm').submit();">
+            <f:selectItems value="#{publishRepublishNotification.notificationLevelChoices}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishRepublishNotificationListener" />
+          </h:selectOneMenu>
+	      <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && not empty assessmentSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
+		    <h:selectBooleanCheckbox id="calendarDueDate" value="true"/>
+		    <h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
+	      </h:panelGroup>
+	      <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && not empty publishedSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
+		    <h:selectBooleanCheckbox id="calendarDueDate2" value="true"/>
+		    <h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
+	      </h:panelGroup>
+        </h:panelGrid>
+      </div>
+    </div>
+  </h:panelGroup>
+  
+  
+  
 <h:panelGrid border="0" width="100%">
   <h:outputText value=" " />
   <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
@@ -111,23 +138,7 @@
 
 	<h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" action="publishAssessment">
 		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
-	</h:commandButton>
-
-<h:panelGrid columns="1" border="0">
-	<h:selectOneMenu id="number" value="1" onchange="document.forms[0].submit();">
-          <f:selectItems value="#{publishRepublishNotification.notificationLevelChoices}" />
-          <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishRepublishNotificationListener" />
-    </h:selectOneMenu>
-	<h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && not empty assessmentSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
-		<h:selectBooleanCheckbox id="calendarDueDate" value="true"/>
-		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
-	</h:panelGroup>
-	<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && not empty publishedSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
-		<h:selectBooleanCheckbox id="calendarDueDate2" value="true"/>
-		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
-	</h:panelGroup>
-</h:panelGrid>
-	
+	</h:commandButton>	
 
   </h:panelGrid>
 
@@ -220,6 +231,33 @@
 		</h:outputFormat>
 	</h:panelGroup>
 
+	<f:verbatim><br/></f:verbatim>
+
+	<%-- Autosubmit information --%>
+	<h:panelGroup rendered="#{assessmentSettings.autoSubmit}">
+		<%-- Late submissions allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '1'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+				<f:param value="#{assessmentSettings.retractDateString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+
+		<%-- Late submissions not allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '2'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+				<f:param value="#{assessmentSettings.dueDateInClientTimezoneString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+	</h:panelGroup>
+
 	</h:panelGrid>
 
 	<h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{!author.isEditPendingAssessmentFlow}" border="0">
@@ -297,6 +335,33 @@
 			<f:param value="#{assessmentSettings.feedbackDateInClientTimezoneString}" />
 			<f:param value="#{assessmentSettings.feedbackEndDateInClientTimezoneString}" />
 		</h:outputFormat>
+	</h:panelGroup>
+
+	<f:verbatim><br/></f:verbatim>
+
+	<%-- Autosubmit information --%>
+	<h:panelGroup rendered="#{assessmentSettings.autoSubmit}">
+		<%-- Late submissions allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '1'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+				<f:param value="#{assessmentSettings.retractDateString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+
+		<%-- Late submissions not allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '2'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+				<f:param value="#{assessmentSettings.dueDateInClientTimezoneString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
 	</h:panelGroup>
 
 </h:panelGrid>

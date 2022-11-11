@@ -13,7 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.beans;
 
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +25,7 @@ public class GradeRestBean {
     private Long id;
     private String name;
     private double averageScore;
+    private boolean noneGradedYet;
     private int ungraded;
     private String url;
     private String siteTitle;

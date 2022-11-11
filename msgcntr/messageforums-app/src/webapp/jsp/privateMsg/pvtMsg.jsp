@@ -50,6 +50,7 @@
             if (notEmptyTableTd > 0) {
                 var table = $("#prefs_pvt_form\\:pvtmsgs").DataTable({
                     "paging": false,
+                    "info": false,
                     "aaSorting": [[4, "desc"]],
                     "columns": [
                         {"bSortable": false, "bSearchable": false},
@@ -57,8 +58,9 @@
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         {"bSortable": true, "bSearchable": false},
+                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received'}" />
                         {"bSortable": true, "bSearchable": true},
-                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }"/>
+                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }"/>
                         {"bSortable": true, "bSearchable": true}
                     ],
                     "language": {
@@ -84,14 +86,16 @@
                 var tableThread = $("#prefs_pvt_form\\:threaded_pvtmsgs").DataTable({
                     "paging": false,
                     "aaSorting": [[4, "desc"]],
+                    "info": false,
                     "columns": [
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": false},
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         {"bSortable": true, "bSearchable": false},
+                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{ PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' }" />
                         {"bSortable": true, "bSearchable": true},
-                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }"/>
+                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }"/>
                         {"bSortable": true, "bSearchable": true}
                     ],
                     "language": {
@@ -125,7 +129,7 @@
 
   		<%@ include file="msgHeader.jsp"%>
 		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>
-	  <h:panelGroup layout="block" styleClass="table-responsive">
+	  <h:panelGroup layout="block" styleClass="table">
 	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
@@ -190,6 +194,25 @@
 			   <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
 			 </h:outputText>
 		  </h:column>
+		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received'}">
+		    <f:facet name="header">
+				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_date_scheduler}"/></h:outputLink>
+		    </f:facet>
+			 <%-- This hidden date is for sorting purposes using datetables --%>
+		     <h:outputText value="#{rcvdItems.msg.scheduledDate}" rendered="#{rcvdItems.hasRead}" styleClass="hidden">
+			     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+		     <h:outputText value="#{rcvdItems.msg.scheduledDate}" rendered="#{rcvdItems.hasRead}">
+			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+			 <%-- This hidden date is for sorting purposes using datetables --%>
+			 <h:outputText value="#{rcvdItems.msg.scheduledDate}" rendered="#{!rcvdItems.hasRead}" styleClass="hidden">
+			     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+		   <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.scheduledDate}" rendered="#{!rcvdItems.hasRead}">
+			   <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
 				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_authby}"/></h:outputLink>
@@ -199,7 +222,8 @@
 		  </h:column>
 		  		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && 
 		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' &&
-		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }">
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' &&
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }">
 		    <f:facet name="header">
 				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_to}"/></h:outputLink>
 		    </f:facet>
@@ -214,7 +238,7 @@
 		  </h:column>
 		</h:dataTable>
 	  </h:panelGroup>
-	  <h:panelGroup layout="block" styleClass="table-responsive">
+	  <h:panelGroup layout="block" styleClass="table">
 	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
@@ -248,7 +272,7 @@
 		  	</h:column>
 			<h:column id="_msg_subject">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_subject}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_subject}"/></h:outputLink>
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true" title=" #{rcvdItems.msg.title}">
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
@@ -258,7 +282,7 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_date}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_date}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
 			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
@@ -267,25 +291,45 @@
 			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
 			 </h:outputText>
 		  </h:column>
+		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received'}">
+		    <f:facet name="header">
+				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_date_scheduler}"/></h:outputLink>
+		    </f:facet>
+			 <%-- This hidden date is for sorting purposes using datetables --%>
+		     <h:outputText value="#{rcvdItems.msg.scheduledDate}" rendered="#{rcvdItems.hasRead}" styleClass="hidden">
+			     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+		     <h:outputText value="#{rcvdItems.msg.scheduledDate}" rendered="#{rcvdItems.hasRead}">
+			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+			 <%-- This hidden date is for sorting purposes using datetables --%>
+			 <h:outputText value="#{rcvdItems.msg.scheduledDate}" rendered="#{!rcvdItems.hasRead}" styleClass="hidden">
+			     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+		   <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.scheduledDate}" rendered="#{!rcvdItems.hasRead}">
+			   <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_authby}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_authby}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && 
 		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' &&
-		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }">
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' &&
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }">
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_to}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_to}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_label}"/>
+		       <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_label}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>

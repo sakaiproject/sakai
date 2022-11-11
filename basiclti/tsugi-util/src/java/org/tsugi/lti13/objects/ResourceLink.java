@@ -1,12 +1,9 @@
 package org.tsugi.lti13.objects;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 
 /*
     "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
@@ -15,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
         "description": ""
     },
  */
-public class ResourceLink {
+public class ResourceLink extends org.tsugi.jackson.objects.JacksonBase {
 
 	@JsonProperty("id")
 	public String id;

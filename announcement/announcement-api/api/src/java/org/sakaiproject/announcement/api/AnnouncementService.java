@@ -122,8 +122,11 @@ public interface AnnouncementService extends MessageService
     /** Event for updating announcement availability **/
     public static final String EVENT_ANNC_UPDATE_AVAILABILITY = SECURE_ANNC_ROOT + "revise.availability";
 
-    public static final String MOTD_TOOL_ID = "sakai.motd";
-    
+	public static final String MOTD_TOOL_ID = "sakai.motd";
+
+	/** Event for delayed announcement **/
+	public static final String EVENT_AVAILABLE_ANNC = SECURE_ANNC_ROOT + "available.announcement";
+
 	/**
 	 * A (AnnouncementChannel) cover for getChannel() to return a specific announcement channel.
 	 * 
@@ -186,7 +189,7 @@ public interface AnnouncementService extends MessageService
 	 *        Channel's reference String
 	 * @param filter
 	 *        A filtering object to accept messages, or null if no filtering is desired.
-	 * @param order
+	 * @param ascending
 	 *        Order of messages, ascending if true, descending if false
 	 * @param merged
 	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
@@ -197,7 +200,7 @@ public interface AnnouncementService extends MessageService
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference, Filter filter, boolean order, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
+	public List getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
 
-	public Map<String, List<AnnouncementMessage>> getAllViewableAnnouncementsForCurrentUser();
+	public Map<String, List<AnnouncementMessage>> getViewableAnnouncementsForCurrentUser(Integer maxAgeInDays);
 }

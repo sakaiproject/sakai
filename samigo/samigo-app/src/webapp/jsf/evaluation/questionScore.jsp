@@ -36,6 +36,7 @@ $Id$
       <title><h:outputText value="#{evaluationMessages.title_question}" /></title>
       <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
       <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
+      <script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -449,7 +450,7 @@ $Id$
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<div class="table-responsive">
+<div class="table">
   <h:dataTable id="questionScoreTable" value="#{questionScores.agents}" var="description" styleClass="table table-bordered table-striped" columnClasses="textTable">
 
     <!-- NAME/SUBMISSION ID -->
@@ -465,6 +466,7 @@ $Id$
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
      </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -504,6 +506,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -545,6 +548,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -818,10 +822,19 @@ $Id$
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore" styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}" required="false" onchange="toPoint(this.id);">
+      <h:inputText value="#{description.roundedTotalAutoScore}"
+                    size="5"
+                    id="qscore"
+                    styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
+                    required="false"
+                    onchange="toPoint(this.id);">
       </h:inputText>
       <h:message for="qscore" style="color:red"/>
-       <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >
+       <h:outputLink title="#{evaluationMessages.saverubricgrading}"
+                        rendered="#{questionScores.hasAssociatedRubric}"
+                        value="#"
+                        onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
+                        onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
         <h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon1" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
       </h:outputLink>
       <%@ include file="/jsf/evaluation/rubricModal.jsp" %> 
@@ -840,10 +853,19 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore2" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);">
+	  <h:inputText value="#{description.roundedTotalAutoScore}"
+                    size="5"
+                    id="qscore2"
+                    styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
+                    required="false"
+                    onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
-	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >
+	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
+                    rendered="#{questionScores.hasAssociatedRubric}"
+                    value="#"
+                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
 	  	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon2" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
 	  <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
@@ -861,10 +883,19 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.roundedTotalAutoScore}" size="5" id="qscore3" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);">
+	  <h:inputText value="#{description.roundedTotalAutoScore}"
+                    size="5"
+                    id="qscore3"
+                    styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
+                    required="false"
+                    onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
-	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >
+	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
+                    rendered="#{questionScores.hasAssociatedRubric}"
+                    value="#"
+                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
 	  	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon3" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
        <%@ include file="/jsf/evaluation/rubricModal.jsp" %>

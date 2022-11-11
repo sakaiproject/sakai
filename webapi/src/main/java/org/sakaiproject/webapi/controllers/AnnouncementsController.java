@@ -38,6 +38,7 @@ import javax.annotation.Resource;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -71,8 +72,8 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	@GetMapping(value = "/users/{userId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getUserAnnouncements(@PathVariable String userId) throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
-        return announcementService.getAllViewableAnnouncementsForCurrentUser().entrySet()
+        Session session = checkSakaiSession();
+        return announcementService.getViewableAnnouncementsForCurrentUser(10).entrySet()
             .stream()
             .map(e -> {
 
@@ -86,7 +87,9 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                     return null;
                 }
             })
-            .flatMap(Collection::stream).collect(Collectors.toList());
+            .flatMap(Collection::stream)
+            .sorted(Comparator.comparingLong(AnnouncementRestBean::getDate).reversed())
+            .collect(Collectors.toList());
 	}
 
 	@GetMapping(value = "/sites/{siteId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,7 +100,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
         try {
             Site site = siteService.getSite(siteId);
             String channelRef = announcementService.channelReference(siteId, "main");
-            return ((List<AnnouncementMessage>)announcementService.getMessages(channelRef, null, true, true))
+            return ((List<AnnouncementMessage>) announcementService.getMessages(channelRef, null, false, true))
                 .stream()
                 .map(am -> {
                     Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);

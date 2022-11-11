@@ -1,12 +1,9 @@
 package org.tsugi.lti13.objects;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 
 /*
     "https:\/\/purl.imsglobal.org\/spec\/lti\/claim\/tool_platform": {
@@ -18,8 +15,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
         "version": "1.0"
     },
  */
-public class ToolPlatform {
+public class ToolPlatform extends org.tsugi.jackson.objects.JacksonBase {
 
+	@JsonProperty("guid")
+	public String guid;
 	@JsonProperty("name")
 	public String name;
 	@JsonProperty("contact_email")

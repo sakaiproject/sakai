@@ -49,7 +49,8 @@ PASystemBannerAlerts.prototype.renderBannerAlerts = function(forceShowAllBanners
 
   if (typeof self.$container == "undefined") {
     self.$container = $("<div>").addClass("pasystem-banner-alerts");
-    $(document.body).prepend(self.$container);
+    self.$container.attr('role', 'status');
+    $(".portal-pasystem").prepend(self.$container);
   } else {
     self.$container.empty();
   }

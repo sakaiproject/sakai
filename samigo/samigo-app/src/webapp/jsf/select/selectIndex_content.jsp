@@ -74,6 +74,7 @@
 
             var notEmptySelectTableTd = $("#selectIndexForm\\:selectTable td:not(:empty)").length;
             if (notEmptySelectTableTd > 0) {
+              $.fn.dataTable.ext.classes.sLengthSelect = 'form-control';
               var table = $("#selectIndexForm\\:selectTable").DataTable({
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]],
@@ -205,7 +206,7 @@
                     <t:column headerstyleClass="assessmentTitleHeader">
                         <f:facet name="header">
                             <h:panelGroup>
-                                <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                                <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                     <h:outputText value="#{selectIndexMessages.title}" />
                                 <f:verbatim></a></f:verbatim>
                             </h:panelGroup>
@@ -232,7 +233,7 @@
                     <t:column headerstyleClass="assessmentTimeLimitHeader">
                         <f:facet name="header">
                             <h:panelGroup>
-                                <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                                <f:verbatim><a href="#" tabindex="-1""></f:verbatim>
                                     <h:outputText value="#{selectIndexMessages.t_time_limit}" />
                                 <f:verbatim></a></f:verbatim>
                             </h:panelGroup>
@@ -247,7 +248,7 @@
                     <t:column headerstyleClass="assessmentDueDateHeader">
                         <f:facet name="header">
                             <h:panelGroup>
-                                <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                                <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                     <h:outputText value="#{selectIndexMessages.date_due}" />
                                 <f:verbatim></a></f:verbatim>
                             </h:panelGroup>
@@ -301,7 +302,7 @@
                 </t:div>
 
                 <!-- REVIEW TABLE -->
-                <div class="table-responsive table-sent-assessments">
+                <div class="table table-sent-assessments">
                     <t:dataTable styleClass="table table-hover table-striped table-bordered table-assessments" id="reviewTable" value="#{select.reviewableAssessments}" var="reviewable" summary="#{selectIndexMessages.sum_submittedAssessment}">
                         <%-- TITLE --%>
                         <t:column>

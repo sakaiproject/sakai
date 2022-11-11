@@ -1,0 +1,40 @@
+.#{$namespace}sakai-delegatedaccess {
+    .control-label {
+        font-weight: 700;
+    }
+    .form-control.hasDatepicker {
+        width: calc(100% - 55px);
+        display: inline-block;
+        margin-right: calc(#{$standard-spacing} / 2);
+    }
+    .table.col-sm-6 {
+        width:50%;
+    }
+    input[name="addAddSites"] {
+        margin-top:calc(#{$standard-spacing} / 2)
+    }
+
+   	.colDiv{
+		display: inline-block;
+	}
+		
+	.headerText{
+		font-weight: bold;
+	}
+		
+	.inputForm{
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background: none repeat scroll 0 0 var(--sakai-background-color-2);
+		padding: 0.3em;
+	}
+	
+	.odd{
+    	background: var(--sakai-background-color-2);
+	}
+		
+	.even{
+        background: transparent;
+	}
+}

@@ -1046,7 +1046,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 *        Channel's reference String
 	 * @param filter
 	 *        A filtering object to accept messages, or null if no filtering is desired.
-	 * @param order
+	 * @param ascending
 	 *        Order of messages, ascending if true, descending if false
 	 * @param merged
 	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
@@ -1057,7 +1057,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference,Filter filter, boolean order, boolean merged) throws IdUnusedException, PermissionException, NullPointerException
+	public List getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException
 	{
 		List<Message> messageList = new Vector();	
 		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see
@@ -1089,14 +1089,14 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						//merged flag = true then add all channel's messages
 						//merged flag = false only add the calling channel's messages
 						if(merged || siteChannel.getContext().equals(site.getId()))
-								messageList.addAll(siteChannel.getMessages(filter,order));
+								messageList.addAll(siteChannel.getMessages(filter, ascending));
 					}
 				}
 			}
 			
 			//sort messages
 			Collections.sort(messageList);
-			if (!order)
+			if (!ascending)
 			{
 				Collections.reverse(messageList);
 			}			

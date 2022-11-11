@@ -241,4 +241,11 @@ public interface ProfileImageLogic {
 	 * @return The ProfileImage object, populated with either a url or binary data.
 	 */
 	public ProfileImage getProfileAvatarInitials(final String userUuid);
+
+	/**
+	 * Find out if the user is allowed to change his profile picture
+	 * based on the related properties
+	 * @return
+	 */
+	public boolean isPicEditorEnabled();
 }

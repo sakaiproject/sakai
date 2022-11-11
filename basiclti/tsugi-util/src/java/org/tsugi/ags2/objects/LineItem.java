@@ -3,15 +3,14 @@ package org.tsugi.ags2.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import org.tsugi.shared.objects.DateRange;
+
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Generated("com.googlecode.jsonschema2pojo")
 
 /*  https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
     application/vnd.ims.lis.v2.lineitem+json
@@ -37,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 	}
  */
 // TODO: Where did the scoreUrl and resultUrl end up?
-public class LineItem extends org.tsugi.jackson.objects.JacksonBase {
+public class LineItem extends DateRange {
 
 	public static final String MIME_TYPE = "application/vnd.ims.lis.v2.lineitem+json";
 	public static final String MIME_TYPE_CONTAINER = "application/vnd.ims.lis.v2.lineitemcontainer+json";
@@ -47,24 +46,22 @@ public class LineItem extends org.tsugi.jackson.objects.JacksonBase {
 
 	@JsonProperty("scoreMaximum")
 	public Double scoreMaximum;
+
 	@JsonProperty("label")
 	public String label;
+
 	@JsonProperty("resourceId")
 	public String resourceId;
+
 	@JsonProperty("tag")
 	public String tag;
-
-	@JsonProperty("startDateTime")
-	public String startDateTime;
-
-	@JsonProperty("endDateTime")
-	public String endDateTime;
 
 	@JsonProperty("submissionReview")
 	public SubmissionReview submissionReview;
 
 	@JsonProperty("id")
 	public String id;			// Output only
+
 	@JsonProperty("resourceLinkId")
 	public String resourceLinkId;  // Output only
 }

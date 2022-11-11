@@ -42,7 +42,6 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -102,34 +101,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry) {
-        if (existsSubmissionSubmitter(submissionSubmitter.getId()) && !existsTimeSheetEntry(timeSheetEntry.getId())) {
-            timeSheetEntry.setAssignmentSubmissionSubmitter(submissionSubmitter);
-            submissionSubmitter.getTimeSheetEntries().add(timeSheetEntry);
-            geCurrentSession().merge(submissionSubmitter);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void deleteTimeSheetEntry(Long timeSheetId) {
-        TimeSheetEntry timeSheetEntry = geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
-        if (timeSheetEntry != null) {
-            log.info("Deleting time sheet entry: {}", timeSheetEntry);
-            AssignmentSubmissionSubmitter submissionSubmitter = timeSheetEntry.getAssignmentSubmissionSubmitter();
-            submissionSubmitter.getTimeSheetEntries().remove(timeSheetEntry);
-            geCurrentSession().merge(submissionSubmitter);
-        }
-    }
-
-    @Override
-    @Transactional
-    public boolean existsTimeSheetEntry(Long timeSheetId) {
-        return timeSheetId != null && geCurrentSession().get(TimeSheetEntry.class, timeSheetId) != null;
-    }
-
-    @Override
-    @Transactional
     public boolean existsAssignment(String assignmentId) {
         if (assignmentId != null && exists(assignmentId)) {
             return true;
@@ -163,6 +134,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public void softDeleteAssignment(String assignmentId) {
         Assignment assignment = findOne(assignmentId);
         assignment.setDeleted(Boolean.TRUE);
+        assignment.setSoftRemovedDate(Instant.now());
         update(assignment);
     }
 
@@ -171,11 +143,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         return geCurrentSession().get(AssignmentSubmission.class, submissionId);
     }
 
-    @Override
-    public TimeSheetEntry findTimeSheetEntry(Long timeSheetId) {
-        return geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
-    }
-    
     @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {
@@ -329,14 +296,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public String findAssignmentIdForGradebookLink(String context, String linkId) {
-        return String.valueOf(startCriteriaQuery()
+    public Optional<String> findAssignmentIdForGradebookLink(String context, String linkId) {
+        Object result = startCriteriaQuery()
                 .createAlias("properties", "p")
                 .add(Restrictions.eq("context", context))
                 .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
                 .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_ELEMENTS, linkId))
                 .setProjection(Projections.property("id"))
-                .uniqueResult());
+                .uniqueResult();
+        return result == null ? Optional.empty() : Optional.of(String.valueOf(result));
     }
 
     @Override

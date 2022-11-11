@@ -90,6 +90,7 @@ public class PublishedAssessmentData
   private Date lastNeedResubmitDate;
   private Integer timeLimit;
   private Long categoryId;
+  @Setter @Getter private String reference;
 
   
   public PublishedAssessmentData() {}

@@ -377,7 +377,7 @@ ul.alertMessage{
 /*highlight certain texts*/
 /*see: assignment due date in list*/
 .highlight{
-	color: var(--sakai-hightlight-color);
+	color: var(--sakai-highlight-color);
 	font-weight:bold;
 }
 
@@ -479,10 +479,25 @@ h3.textPanelHeader,h4.textPanelHeader,h5.textPanelHeader, h6.textPanelHeader{
 	background: var(--sakai-background-color-2);
 }
 
+#attachmentspanel table .attachList {
+  margin-bottom: 0.5em;
+  margin-top: 0;
+}
+
 /*to highlight info or controls in some high threshhold situations*/
 /*do an assignment that requires honor code check as a student*/
 .highlightPanel {
-	margin: 1em 0;
+  margin: 1em 0;
+}
+
+.highlightPanel h3 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.highlightPanel table .listHier {
+  width: auto;
+  margin: 0;
 }
 
 /*to isolate blocks of data in low threshhold situations*/
@@ -890,4 +905,20 @@ blockquote p {
 	background: var(--sakai-background-color-1);
 	opacity: 1;
 	border-color: var(--sakai-background-color-1);
+}
+.ui-datepicker-trigger {
+	margin-left: -2px;
+    border-top-left-radius: 0!important;
+    border: none;
+    border-bottom-left-radius: 0!important;
+    font-size: 1rem;
+    font-weight: 400;
+    /* line-height: 1.5; */
+    color: #212529;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    border-left: none;
 }

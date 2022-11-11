@@ -96,8 +96,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	@Setter private EntityManager entityManager;
 	@Setter private SecurityService securityService;
 
-	public static final String MIME_TYPE_BLTI="ims/basiclti";
-	public static final String REFERENCE_ROOT="/basiclti";
+	public static final String REFERENCE_ROOT="/lti";
+	public static final String REFERENCE_ROOT_LEGACY="/basiclti";
 	public static final String APPLICATION_ID = "sakai:basiclti";
 	public static final String TOOL_REGISTRATION = "sakai.basiclti";
 	public static final String EVENT_BASICLTI_LAUNCH = "basiclti.launch";
@@ -169,12 +169,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		log.info("{}.init()", this);
 
 		if (ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY, null) == null) {
-			log.error("BasicLTI secrets in database unencrypted, please set {}", SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY);
+			log.error("LTI secrets in database unencrypted, please set {}", SakaiBLTIUtil.BASICLTI_ENCRYPTION_KEY);
 		}
 		try
 		{
 			// register as an entity producer
 			entityManager.registerEntityProducer(this,REFERENCE_ROOT);
+			entityManager.registerEntityProducer(this,REFERENCE_ROOT_LEGACY);
 		}
 		catch (Throwable t)
 		{
@@ -213,14 +214,14 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 	/**
 	 * {@inheritDoc}
-	 /access/basiclti/site/12-siteid-456/98-placement-id
-	 /access/basiclti/content/ --- content path ---- (Future)
+	 /access/lti/site/12-siteid-456/98-placement-id
+	 /access/lti/content/ --- content path ---- (Future)
 	 */
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
-		if (reference.startsWith(REFERENCE_ROOT))
+		if (reference.startsWith(REFERENCE_ROOT) || reference.startsWith(REFERENCE_ROOT_LEGACY) )
 		{
-			// we will get null, simplelti, site, <context>, <placement>
+			// we will get null, lti, site, <context>, <placement>
 			// we will store the context, and the ContentHosting reference in our id field.
 			String id = null;
 			String context = null;
@@ -242,37 +243,10 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		return false;
 	}
 
-	private void sendHTMLPage(HttpServletResponse res, String body)
-	{
-		try
-		{
-			res.setContentType("text/html; charset=UTF-8");
-			res.setCharacterEncoding("utf-8");
-			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-			res.addDateHeader("Last-Modified", System.currentTimeMillis());
-			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-			res.addHeader("Pragma", "no-cache");
-			java.io.PrintWriter out = res.getWriter();
-
-			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-			out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
-			out.println("<html>\n<head>");
-			out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
-			out.println("</head>\n<body>\n");
-			out.println(body);
-			out.println("\n</body>\n</html>");
-		}
-		catch (Exception e)
-		{
-			log.warn("Failed to send HTML page.", e);
-		}
-
-	}
-
 	private void doSplash(HttpServletRequest req, HttpServletResponse res, String splash, ResourceLoader rb)
 	{
-		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+		// req.getRequestURL()=http://localhost:8080/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+		// req.getRequestURI()=/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String acceptPath = req.getRequestURI().toString() + "?splash=bypass";
 		String body = "<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\">";
 		String txt = rb.getString("launch.button", "Press to continue to external tool.");
@@ -280,7 +254,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		body += rb.getString("launch.button", "Press to continue to proceed to external tool.");
 		body += "\"></form></p>\n";
 		body += splash+"</div><p>";
-		sendHTMLPage(res, body);
+		org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, body);
 	}
 
 	// Do a redirect in HTML + JavaScript instead of with a 302 so we have some recovery options inside an iframe
@@ -302,7 +276,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		body.append("window.location='"+redirectUrl+"';\n");
 		body.append("</script>\n");
 		body.append("</div>");
-		sendHTMLPage(res, body.toString());
+		org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, body.toString());
 	}
 
 	/*
@@ -314,8 +288,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	private void redirectOIDC(HttpServletRequest req, HttpServletResponse res,
 		Map<String, Object> content, Map<String, Object> tool, String oidc_endpoint, ResourceLoader rb)
 	{
-		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+		// req.getRequestURL()=http://localhost:8080/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+		// req.getRequestURI()=/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String login_hint = req.getRequestURI();
 		String query_string = req.getQueryString();
 		String messageTypeParm = req.getParameter(SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER);
@@ -380,8 +354,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 			String tool_state = req.getParameter("tool_state");
 			if ( StringUtils.isEmpty(tool_state) ) {
-				// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-				// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+				// req.getRequestURL()=http://localhost:8080/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+				// req.getRequestURI()=/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 				String platform_state = req.getRequestURI();
 				String query_string = req.getQueryString();
 				if ( StringUtils.isNotEmpty(query_string) ) {
@@ -406,7 +380,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
 		if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
 			String errorMessage = "<p>" + SakaiBLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
-			sendHTMLPage(res, errorMessage);
+			org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, errorMessage);
 			return false;
 		}
 
@@ -678,7 +652,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				try
 				{
 					if (retval != null) {
-						sendHTMLPage(res, retval[0]);
+						org.tsugi.basiclti.BasicLTIUtil.sendHTMLPage(res, retval[0]);
 					}
 					String refstring = ref.getReference();
 					if ( retval != null && retval.length > 1 ) refstring = retval[1];
@@ -768,7 +742,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				for(int i=0; i < nodeList.getLength(); i++)
 				{
 					BasicLTIArchiveBean basicLTI = new BasicLTIArchiveBean(nodeList.item(i));
-					log.info("BASIC LTI: {}", basicLTI);
+					log.info("LTI: {}", basicLTI);
 					results.append(", merging basicLTI tool " + basicLTI.getPageTitle());
 
 					SitePage sitePage = site.addPage();
@@ -803,11 +777,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			StringBuilder results = new StringBuilder("archiving basiclti "+siteId+"\n");
 
 			int count = 0;
+			int contentCount = 0;
 			try {
 				Site site = siteService.getSite(siteId);
 				log.info("SITE: {} : {}", site.getId(), site.getTitle());
 				Element basicLtiList = doc.createElement("org.sakaiproject.basiclti.service.BasicLTISecurityService");
 
+				// Export the LTI tools
 				for (SitePage sitePage : site.getPages()) {
 					for (ToolConfiguration toolConfiguration : sitePage.getTools()) {
 						if ( toolConfiguration.getTool() == null ) continue;
@@ -827,20 +803,30 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					}
 				}
 
+				// Export the LTI Content Items
+				List<Map<String,Object>> contents = ltiService.getContentsDao(null, null, 0, 0, siteId, false);
+				for (Map<String,Object> contentItem : contents) {
+					LTIContentArchiveBean ltiContentArchiveBean = new LTIContentArchiveBean(contentItem);
+					Node newNode = ltiContentArchiveBean.toNode(doc);
+					basicLtiList.appendChild(newNode);
+					contentCount++;
+				}
+
+				// Finish
 				((Element) stack.peek()).appendChild(basicLtiList);
 				stack.push(basicLtiList);
 				stack.pop();
 			}
 			catch (IdUnusedException iue) {
 				log.info("SITE ID {} DOES NOT EXIST.", siteId);
-				results.append("Basic LTI Site does not exist\n");
+				results.append("LTI Site does not exist\n");
 			}
 			// Something we did not expect
 			catch (Exception e) {
 				log.warn("Failed to archive: {}, error: {}", siteId, e);
 				results.append("basiclti exception:"+e.getClass().getName()+"\n");
 			}
-			results.append("archiving basiclti ("+count+") tools archived\n");
+			results.append("archiving basiclti: "+count+" tools and " + contentCount + " content items archived\n");
 
 			return results.toString();
 		}

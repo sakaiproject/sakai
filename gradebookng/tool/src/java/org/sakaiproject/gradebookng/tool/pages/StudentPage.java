@@ -18,7 +18,6 @@ package org.sakaiproject.gradebookng.tool.pages;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
@@ -29,7 +28,7 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.tool.panels.StudentGradeSummaryGradesPanel;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -72,10 +71,6 @@ public class StudentPage extends BasePage {
 		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.bootstrap.min.css')", null));
 
 		// GradebookNG Grade specific styles and behaviour
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css%s", version)));
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades-comparison.css%s", version)));
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-gbgrade-table.css%s", version)));
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-print.css%s", version), "print"));
 		response.render(
 				JavaScriptHeaderItem.forUrl(
 						String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js%s", version)));

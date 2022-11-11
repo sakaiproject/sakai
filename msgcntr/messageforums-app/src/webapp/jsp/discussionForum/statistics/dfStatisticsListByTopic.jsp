@@ -233,7 +233,7 @@
 			Use cahcedTopicStatistics - value is cached from #{!empty mfStatisticsBean.groupForStatisticsByTopic} above.
 			Retrieve the topic statistics, then clear the cache since dfStatisticsBean is scoped to the session, and we don't want this data to persist for future requests
 		--%>
-		<div class="table-responsive">
+		<div class="table">
   		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members" value="#{mfStatisticsBean.gradeStatisticsForStatsListByTopic}" var="stat" rendered="true"
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
@@ -251,6 +251,21 @@
 					<f:param value="dialogFrame" name="frameId"/>
 					<h:outputText rendered="#{!stat.useAnonId}" value="#{stat.siteUser}" />
 					<h:outputText rendered="#{stat.useAnonId}" value="#{stat.siteAnonId}" styleClass="anonymousAuthor"/>
+				</h:outputLink>
+			</h:column>
+			<h:column rendered="#{!mfStatisticsBean.pureAnon}">
+				<f:facet name="header">
+					<h:commandLink action="#{mfStatisticsBean.toggleTopicIdSort}" title="#{msgs.stat_eid}">
+						<h:outputText value="#{msgs.stat_eid}" />
+						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.idSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_eid}"/>
+						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.idSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_eid}"/>
+					</h:commandLink>
+				</f:facet>
+				<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser" target="dialogFrame" onclick="dialogLinkClick(this);">
+					<f:param value="#{stat.siteUserId}" name="siteUserId"/>
+					<f:param value="dialogDiv" name="dialogDivId"/>
+					<f:param value="dialogFrame" name="frameId"/>
+					<h:outputText value="#{stat.siteUserDisplayId}" />
 				</h:outputLink>
 			</h:column>
 			<h:column>

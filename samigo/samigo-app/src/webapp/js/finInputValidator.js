@@ -25,7 +25,7 @@ includeWebjarLibrary('mathjs');
 $( document ).ready(function() {
 
   $('.fillInNumericInput').each( function() {
-    $(this).attr('data-toggle', 'popover'); 
+    $(this).attr('data-bs-toggle', 'popover'); 
     $(this).attr('data-content', finFormatError);
     $(this).attr('data-trigger', 'focus');
   });

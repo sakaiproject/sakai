@@ -21,8 +21,8 @@ import lombok.Data;
 public class JoinableSetForm {
     private String joinableSetId;
     private String groupTitle;
-    private int groupNumber;
-    private int groupMaxMembers;
+    private int groupNumber = 1;
+    private int groupMaxMembers = 1;
     private boolean allowPreviewMembership;
     private boolean allowViewMembership;
     private boolean allowUnjoin;

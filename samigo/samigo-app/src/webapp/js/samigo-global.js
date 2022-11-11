@@ -105,9 +105,12 @@ function returnToHostUrl(url) {
 
 function initRubricDialog(gradingId, doneText, cancelText, titleText) {
 
-  var modalId = "modal" + gradingId;
-  var previousScore =  $('.adjustedScore' + gradingId).val();
-  $("#" + modalId).dialog({
+  gradingId = ("" + gradingId).replace(".", "\\.");
+
+  const input = document.querySelector(`.adjustedScore${gradingId}`);
+  const previousScore = input.value;
+
+  $(`#modal${gradingId}`).dialog({
     modal: true,
     buttons: [
       {
@@ -120,11 +123,9 @@ function initRubricDialog(gradingId, doneText, cancelText, titleText) {
         text: cancelText,
         click: function () {
 
-          const rubric = this.querySelector(`sakai-rubric-grading`);
-          rubric.cancel();
-
+          this.querySelector(`sakai-rubric-grading`).cancel();
           $(this).dialog("close");
-          $('.adjustedScore' + gradingId).val(previousScore);
+          input.value = previousScore;
         }
       }
     ],
@@ -144,7 +145,10 @@ $(function () {
     // handles point changes for assignments, updating the grade field if it exists.
     var gradeField = $('.adjustedScore' + e.detail.evaluatedItemId.replace("\.", "\\."));
     if (gradeField) {
-      gradeField.val(e.detail.value);
+      let score = e.detail.value;
+      // In some locales Rubrics may set comma instead of dot as decimal separator.
+      score = score.replace(",", ".");
+      gradeField.val(score);
     }
   });
 

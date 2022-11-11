@@ -23,18 +23,24 @@ public interface StatsAuthz {
 	/** Permissions */
 	public static final String	PERMISSION_SITESTATS_VIEW		= "sitestats.view";
 	public static final String	PERMISSION_SITESTATS_ADMIN_VIEW	= "sitestats.admin.view";
+	public static final String	PERMISSION_SITESTATS_ALL		= "sitestats.all";
 	public static final String	PERMISSION_SITESTATS_OWN		= "sitestats.own";
 	public static final String	PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED = "sitestats.usertracking.be.tracked";
 	public static final String	PERMISSION_SITESTATS_USER_TRACKING_CAN_TRACK = "sitestats.usertracking.track";
 
-	// ################################################################
-	// Public methods
-	// ################################################################
 	/**
-	 * Check if current user has permission to access SiteStats tool.
+	 * Check if current user has permission to access SiteStats tool at all
+	 *
 	 * @param siteId The site id to check against.
 	 */
 	public boolean isUserAbleToViewSiteStats(String siteId);
+
+	/**
+	 * Check if current user has permission to access stats for all users
+	 *
+	 * @param siteId The site id to check against.
+	 */
+	public boolean isUserAbleToViewSiteStatsAll(String siteId);
 
 	/**
 	 * Check if current user has permission to access SiteStats Admin tool.

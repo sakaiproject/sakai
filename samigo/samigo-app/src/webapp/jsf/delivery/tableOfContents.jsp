@@ -119,9 +119,9 @@ function saveTime()
 
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'&& delivery.hasTimeLimit}" >
-  <f:verbatim><div style="margin:10px 0px 0px 0px;"><span style="background-color:#bab5b5; padding:5px"></f:verbatim>
+  <f:verbatim><div class="sak-banner-info"></f:verbatim>
   <h:outputText value="#{deliveryMessages.timer_preview_not_available}"/>
-  <f:verbatim></div></span></f:verbatim>
+  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
 <f:verbatim><br/></span></f:verbatim>

@@ -294,6 +294,10 @@ public class MockAuthzGroupService implements AuthzGroupService {
         return null;
     }
 
+    public String getGroupReference(String siteId, String groupId) {
+        return null;
+    }
+
 	public Set<String> getAdditionalRoles() {
 		// TODO Auto-generated method stub
 		return null;

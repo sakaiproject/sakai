@@ -18,7 +18,7 @@
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 	<div class="sak-banner-warn">$tlang.getString("del.areyou")</div>
 	<form name="forNotLetDeleteSelectedOnLoad"></form>
-		<div class="table-responsive">
+		<div class="table">
 			<table class="table table-bordered table-striped table-hover" cellspacing="0">
 				<tr>
 					<th>$tlang.getString("gen.subject")</th>

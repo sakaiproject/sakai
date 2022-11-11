@@ -1,3 +1,5 @@
+import { post2 } from "./post2.js";
+
 export const post1 = `
 {
   "id": "post1",
@@ -15,14 +17,19 @@ export const post1 = `
   "canComment": true,
   "canView": true,
   "canVerify": true,
+  "formattedCreatedDate": "1 day ago",
   "isInstructor": true,
   "verified": true,
   "upvoted": false,
+  "posts": [
+    ${post2}
+  ],
   "topic": "topic3",
   "links": [
     { "href": "/api/sites/playpen/topics/topic3/posts/post1/hidden", "rel": "hidden" },
     { "href": "/api/sites/playpen/topics/topic3/posts/post1/locked", "rel": "locked" },
-    { "href": "/api/sites/playpen/topics/topic3/posts/post1/reactions", "rel": "reactions" }
+    { "href": "/api/sites/playpen/topics/topic3/posts/post1/reactions", "rel": "react" },
+    { "href": "/api/sites/playpen/topics/topic3/posts", "rel": "reply" }
   ],
   "myReactions": {
     "LOVE_IT": true,

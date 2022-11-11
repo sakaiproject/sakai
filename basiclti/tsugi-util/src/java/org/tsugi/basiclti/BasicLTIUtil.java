@@ -48,6 +48,7 @@ import java.util.regex.Pattern;
 import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
@@ -126,6 +127,7 @@ public class BasicLTIUtil {
 	public static final String EXTRA_ERROR_TIMEOUT = "error_timeout";
 	public static final String EXTRA_HTTP_POPUP = "http_popup";
 	public static final String EXTRA_HTTP_POPUP_FALSE = "false";
+	public static final String EXTRA_JAVASCRIPT = "extra_javascript";
 
 	/** To turn on really verbose debugging */
 	private static boolean verbosePrint = false;
@@ -135,7 +137,7 @@ public class BasicLTIUtil {
 
 	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
-	// Returns true if this is a Basic LTI message with minimum values to meet the protocol
+	// Returns true if this is a LTI message with minimum values to meet the protocol
 	public static boolean isRequest(HttpServletRequest request) {
 
 		String message_type = request.getParameter(LTI_MESSAGE_TYPE);
@@ -180,7 +182,7 @@ public class BasicLTIUtil {
 		try {
 			base_string = OAuthSignatureMethod.getBaseString(oam);
 		} catch (Exception e) {
-            return "Unable to find base string";
+			return "Unable to find base string";
 		}
 
 		try {
@@ -646,10 +648,10 @@ public class BasicLTIUtil {
 			text.append("<pre id=\"ltiLaunchDebug_");
 			text.append(submit_uuid);
 			text.append("\" style=\"display: none\">\n");
-			text.append("<b>BasicLTI Endpoint</b>\n");
+			text.append("<b>LTI Endpoint</b>\n");
 			text.append(endpoint);
 			text.append("\n\n");
-			text.append("<b>BasicLTI Parameters:</b>\n");
+			text.append("<b>LTI Parameters:</b>\n");
 			for (Entry<String, String> entry : newMap.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
@@ -681,6 +683,13 @@ public class BasicLTIUtil {
 			text.append("if ( ! open_in_new_window ) {\n");
 			text.append("   setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
 			text.append("}\n");
+			text.append("</script> \n");
+		}
+
+		String extraJavaScript = extra.get(EXTRA_JAVASCRIPT);
+		if ( extraJavaScript != null ) {
+			text.append("<script> \n");
+			text.append(extraJavaScript);
 			text.append("</script> \n");
 		}
 
@@ -734,7 +743,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * getOAuthURL - Form a GET request signed by OAuth
+		 * getOAuthURL - Form a GET request signed by OAuth
 	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
@@ -772,7 +781,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * getResponseCode - Read the HTTP Response
+		 * getResponseCode - Read the HTTP Response
 	 * @param connection
 	 */
 	public static int getResponseCode(HttpURLConnection connection)
@@ -786,7 +795,7 @@ public class BasicLTIUtil {
 
 
 	/**
-         * readHttpResponse - Read the HTTP Response
+		 * readHttpResponse - Read the HTTP Response
 	 * @param connection
 	 */
 	public static String readHttpResponse(HttpURLConnection connection)
@@ -1050,36 +1059,36 @@ public class BasicLTIUtil {
 
 	/**
 	 * Simple utility method deal with a request that has the wrong URL when behind
-     * a proxy.
+	 * a proxy.
 	 *
 	 * @param servletUrl
-     * @param extUrl
-     *   The url that the external world sees us as responding to.  This needs to be
-     *   up to but not including the last slash like and not include any path information
-     *   https://www.sakailms.org/ - although we do compensate for extra stuff at the end.
+	 * @param extUrl
+	 *   The url that the external world sees us as responding to.  This needs to be
+	 *   up to but not including the last slash like and not include any path information
+	 *   https://www.sakailms.org/ - although we do compensate for extra stuff at the end.
 	 * @return
-     *   The full path of the request with extUrl in place of whatever the request
-     *   thinks is the current URL.
+	 *   The full path of the request with extUrl in place of whatever the request
+	 *   thinks is the current URL.
 	 */
-    static public String getRealPath(String servletUrl, String extUrl)
-    {
-        Pattern pat = Pattern.compile("^https??://[^/]*");
-        // Deal with potential bad extUrl formats
-        Matcher m = pat.matcher(extUrl);
-        if (m.find()) {
-            extUrl = m.group(0);
-        }
+	static public String getRealPath(String servletUrl, String extUrl)
+	{
+		Pattern pat = Pattern.compile("^https??://[^/]*");
+		// Deal with potential bad extUrl formats
+		Matcher m = pat.matcher(extUrl);
+		if (m.find()) {
+			extUrl = m.group(0);
+		}
 
-        String retval = pat.matcher(servletUrl).replaceFirst(extUrl);
-        return retval;
-    }
+		String retval = pat.matcher(servletUrl).replaceFirst(extUrl);
+		return retval;
+	}
 
 	static public String getRealPath(HttpServletRequest request, String extUrl)
-    {
-        String URLstr = request.getRequestURL().toString();
-        String retval = getRealPath(URLstr, extUrl);
-        return retval;
-    }
+	{
+		String URLstr = request.getRequestURL().toString();
+		String retval = getRealPath(URLstr, extUrl);
+		return retval;
+	}
 
 	/**
 	 * Simple utility method to help with the migration from Properties to
@@ -1228,24 +1237,97 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * Return a ISO 8601 formatted date
+	 * Return a ISO 8601 formatted date
 	 */
 	public static String getISO8601() {
 		return getISO8601(null);
 	}
 
 	/**
-         * Return a ISO 8601 formatted date
+	 * Return a ISO 8601 formatted date
 	 */
 	public static String getISO8601(Date date) {
 		if ( date == null ) {
 			date = new Date();
 		}
 		SimpleDateFormat isoFormat = new SimpleDateFormat(ISO_8601_FORMAT);
-		isoFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String timestamp = isoFormat.format(date);
-		timestamp = timestamp.replace("GMT", "Z");
+		timestamp = timestamp.replace("UTC", "Z");
 		return timestamp;
+	}
+
+	/**
+	 * Parse an IMS 8601 date the strict ISO8601 but at the same time be flexible about it...
+	 *
+	 * We keep this in our own litte corner in case special adjustments are needed as
+	 * we gain experience with the variatios in date formats in actual LTI Advantage tool practice.
+	 *
+	 * All the IMS examples  use the most common ISO8601/UTC format as in:
+	 *
+	 *   "startDateTime": "2018-03-06T20:05:02Z",
+	 *   "endDateTime": "2018-04-06T22:05:03Z"
+	 *
+	 * So we make particular effort to make sure this works and gives the right kind of date.  And then
+	 * for any other reasonable format, we try our best.
+	 */
+	// https://www.imsglobal.org/spec/lti-ags/v2p0/#startdatetime
+	// https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
+	// https://stackoverflow.com/questions/4024544/how-to-parse-dates-in-multiple-formats-using-simpledateformat
+	public static Date parseIMS8601(String timestamp) {
+
+		if ( timestamp == null ) return null;
+
+		// Make sure that ISO8601 Z format dates are *perfect*
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		df.setTimeZone(TimeZone.getTimeZone("UTC"));
+		try {
+			Date result =  df.parse(timestamp);
+			return result;
+		} catch(java.text.ParseException e) {
+			// Ignore
+		}
+
+        String[] possibleDateFormats =
+              {
+                    "yyyy.MM.dd G 'at' HH:mm:ss z",
+                    "EEE, MMM d, ''yy",
+                    "h:mm a",
+                    "hh 'o''clock' a, zzzz",
+                    "K:mm a, z",
+                    "yyyyy.MMMMM.dd GGG hh:mm aaa",
+                    "EEE, d MMM yyyy HH:mm:ss Z",
+                    "yyMMddHHmmssZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+                    "YYYY-'W'ww-u",
+                    "EEE, dd MMM yyyy HH:mm:ss z",
+                    "EEE, dd MMM yyyy HH:mm zzzz",
+                    "yyyy-MM-dd'T'HH:mm:ssX",
+                    "yyyy-MM-dd'T'HH:mm:ssZ",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSzzzz",
+                    "yyyy-MM-dd'T'HH:mm:sszzzz",
+                    "yyyy-MM-dd'T'HH:mm:ss z",
+                    "yyyy-MM-dd'T'HH:mm:ssz",
+                    "yyyy-MM-dd'T'HH:mm:ss",
+                    "yyyy-MM-dd'T'HHmmss.SSSz",
+                    "yyyy-MM-dd",
+                    "yyyyMMdd",
+                    "dd/MM/yy",
+                    "dd/MM/yyyy",
+                    "MM/dd/yyyy",
+              };
+
+		for( int i = 0; i<possibleDateFormats.length; i++) {
+			df = new SimpleDateFormat(possibleDateFormats[i]);
+			try {
+				Date result =  df.parse(timestamp);
+				return result;
+			} catch(java.text.ParseException e) {
+				continue;
+			}
+		}
+		return null;
 	}
 
 	// Parse and return a JSONObject (empty if necessary)
@@ -1353,5 +1435,48 @@ public class BasicLTIUtil {
 		}
 		return null;
 	}
+
+	public static String getBrowserSignature(HttpServletRequest request) {
+		String [] look_at = { "x-forwarded-proto", "x-forwarded-port", "host",
+			"accept-encoding", "cf-ipcountry", "user-agent", "accept", "accept-language"};
+		StringBuilder text = new StringBuilder();
+		for (String s: look_at) {
+			String value = request.getHeader(s);
+			if ( isBlank(value) ) continue;
+			text.append(":::");
+			text.append(s);
+			text.append("=");
+			text.append(value);
+		}
+		return text.toString();
+	}
+
+	public static void sendHTMLPage(HttpServletResponse res, String body)
+	{
+		try
+		{
+			res.setContentType("text/html; charset=UTF-8");
+			res.setCharacterEncoding("utf-8");
+			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+			res.addDateHeader("Last-Modified", System.currentTimeMillis());
+			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+			res.addHeader("Pragma", "no-cache");
+			java.io.PrintWriter out = res.getWriter();
+
+			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+			out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+			out.println("<html>\n<head>");
+			out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
+			out.println("</head>\n<body>\n");
+			out.println(body);
+			out.println("\n</body>\n</html>");
+		}
+		catch (Exception e)
+		{
+			log.warn("Failed to send HTML page.", e);
+		}
+
+	}
+
 
 }

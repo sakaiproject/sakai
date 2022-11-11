@@ -1,6 +1,8 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-revise.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $ 
-<script type="text/javascript" src="/library/js/spinner.js$!{portalCdnQuery}"></script>
-<script type="text/javascript">
+<script src="/library/js/spinner.js$!{portalCdnQuery}"></script>
+<script>includeLatestJQuery('announcements');</script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
+<script>
   focus_path = ["subject"];
   
 function resizeFrame(){
@@ -15,8 +17,7 @@ function resizeFrame(){
     }
 }
 </script>
-<script type="text/javascript">includeLatestJQuery('announcements');</script>
-<script type="text/javascript">
+<script>
 	$(document).ready(function() {
 		$('#notiHistoryToggle').click(function(e){
 			e.preventDefault();
@@ -130,7 +131,7 @@ function resizeFrame(){
 
 			<div class="form-group row">
 				<div class="col-md-12">
-					<label for="body" class="block">
+					<label for="body" class="form-control-label">
 						<span class="reqStar">* </span>
 						$tlang.getString("revise.announcement.body")
 					</label>
@@ -328,10 +329,9 @@ function resizeFrame(){
 		        </div>
 		    </div>
             
-            #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
             #set( $H = '-' )
-            <script type="text/javascript">
+            <script>
                 localDatePicker({
                     input:'#opendate',
                     useTime:1,
@@ -435,7 +435,7 @@ function resizeFrame(){
 		
 		#if ($notiHistory)
 			<div class="specialLink act act-outer"><a href="#" class="indnt2 specialLink" id="notiHistoryToggle">$tlang.getString("revise.notify.ver_link")</a></div>
-			<div class="table-responsive">
+			<div class="table">
 			<table class="table table-hover table-striped table-bordered" id="notiHistory" style="display:none" summary="$tlang.getString("revise.notify.ver_summary")">
 				<thead>
 					<tr><th scope="col">$tlang.getString("revise.notify.ver_daterevisedtitle")</th><th scope="col">$tlang.getString("revise.notify.ver_typetitle")</th><th scope="col">$tlang.getString("revise.notify.ver_datereleasedtitle")</th></tr>
@@ -472,7 +472,7 @@ function resizeFrame(){
 									<td>
 										#if($notiEventType == 0)
 											$tlang.getFormattedMessage("revise.notify.ver.dated_future.date", $notiEventItem)
-										#elseif($notiEventType == 1 || $notiEventType == 2)
+										#elseif(($notiEventType == 1 || $notiEventType == 2) && $notiEventItem != "")
 											$tlang.getFormattedMessage("revise.notify.ver.dateds_future.date", $notiEventItem)
 										#end
 									</td>
@@ -499,7 +499,7 @@ function resizeFrame(){
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
-<script type="text/JavaScript">
+<script>
 	<!--
 		function toggleSelectAll(caller, elementName)
 		{

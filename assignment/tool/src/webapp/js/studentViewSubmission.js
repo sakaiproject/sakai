@@ -37,6 +37,7 @@ ASN_SVS.undoCancel = function()
 };
 
 ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
+    var messages = [];
     const endpoint = "/direct/assignment/addTimeSheet.json";
     const params = {
         "tsAssignmentId" : document.getElementById("assignmentId").value,
@@ -46,28 +47,35 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
         "new_ts_record_year" : document.getElementById("new_ts_record_year").value,
         "new_ts_record_hour" : document.getElementById("new_ts_record_hour").value,
         "new_ts_record_minute" : document.getElementById("new_ts_record_minute").value,
-
         "tsComment" : document.getElementById("comment").value,
         "tsDuration" : document.getElementById("duration").value,
     };
-
+    if(!document.getElementById("comment").value){ messages.push("ts.add.err.comment"); }
+    if(!document.getElementById("duration").value){ messages.push("ts.add.err.duration"); }
     button.classList.add("spinButton");
     button.disabled = true;
-
-    ASN_TS_API._POST(endpoint, params, onSuccess, onError);
+    if(messages.length === 0){
+        ASN_TS_API._POST(endpoint, params, onSuccess, onError);
+    } else {
+        onError(null, messages);
+    }
 };
 
 ASN_TS_API.removeTimeSheet = function (button, onSuccess, onError) {
+    var messages = [];
     const endpoint = "/direct/assignment/removeTimeSheet.json";
     const params = {
         "selectedTimeSheets" : [...document.getElementsByName("selectedTimesheet")].filter((el) => el.checked).map((el) => el.value),
         "tsAssignmentId" : document.getElementById("assignmentId").value,
     };
-
+    if(!params.selectedTimeSheets || params.selectedTimeSheets.length === 0){messages.push("ts.rem.err.empty"); }
     button.classList.add("spinButton");
     button.disabled = true;
-
-    ASN_TS_API._POST(endpoint, params, onSuccess, onError);
+    if(messages.length === 0){
+        ASN_TS_API._POST(endpoint, params, onSuccess, onError);
+    } else {
+        onError(null, messages);
+    }
 };
 
 ASN_TS_API._GET = function (url, data, onSuccess, onError, onComplete) {
@@ -107,45 +115,65 @@ ASN.switchTimesheetTab = function (source) {
 };
 
 ASN.tsHandleAjaxAddSuccess = function (data) {
-    if (data.error && data.error.message) {
-        const button = document.getElementById("btnTimesheetAdd");
-        button.classList.remove("spinButton");
-        button.disabled = false;
-        const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
-        alertTsheetAddRecord.classList.toggle('hidden');
-        alertTsheetAddRecord.innerHTML= window.i18nWlogTab[data.error.message];
-    } else {
-        ASN.submitForm( 'addSubmissionForm', 'view', null, null );
-    }
+    ASN.submitForm( 'addSubmissionForm', 'view', null, null );
 };
 
 ASN.tsHandleAjaxRemoveSuccess = function (data) {
-    if (data.error && data.error.message) {
-        const button = document.getElementById("btnTimesheetDelete");
-        button.classList.remove("spinButton");
-        button.disabled = false;
-        const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
-        alertTsheetDelRecord.classList.toggle('hidden');
-        alertTsheetDelRecord.innerHTML= window.i18nWlogTab[data.error.message];
-    } else {
-        ASN.submitForm( 'addSubmissionForm', 'view', null, null );
-    }
+    ASN.submitForm( 'addSubmissionForm', 'view', null, null );
 };
 
-ASN.tsAddHandleAjaxError = function (xhr) {
+ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
+    const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
+    if(xhr && xhr.status){
+      switch(xhr.status){
+        case 400: messages.push("ts.add.err.duration");
+                  break;
+        case 401: messages.push("ts.add.err.permission");
+                  break;
+        case 403: messages.push("ts.add.err.userId");
+                  break;
+        case 404: messages.push("ts.add.err.assignmentId");
+      }
+    }
+
     const button = document.getElementById("btnTimesheetAdd");
     button.classList.remove("spinButton");
     button.disabled = false;
-    alert('Error: ' + xhr.status);
-    console.error("Ajax call error when add time sheet register.");
+
+    const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
+    alertTsheetAddRecord.classList.remove("hidden");
+    // Object.keys(window.i18nWlogTab).find((key) => key.includes('ts.add.err.permission'))
+    let messageArray = [];
+    for (const [index, key] of Object.entries(messages)) {
+      messageArray.push(window.i18nWlogTab[key]);
+    }
+    alertTsheetAddRecord.innerHTML= messageArray.join('<br>');
 };
 
-ASN.tsRemoveHandleAjaxError = function (xhr) {
+ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
+    const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
+    if(xhr && xhr.status){
+      switch(xhr.status){
+        case 400: messages.push("ts.add.err.assignmentId");
+                  break;
+        case 401: messages.push("ts.add.err.permission");
+                  break;
+        case 403: messages.push("ts.rem.err.userId");
+      }
+    }
+
     const button = document.getElementById("btnTimesheetDelete");
     button.classList.remove("spinButton");
     button.disabled = false;
-    alert('Error: ' + xhr.status);
-    console.error("Ajax call error when remove time sheet register.");
+
+    const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
+    alertTsheetDelRecord.classList.remove("hidden");
+    // Object.keys(window.i18nWlogTab).find((key) => key.includes('ts.add.err.permission'))
+    let messageArray = [];
+    for (const [index, key] of Object.entries(messages)) {
+      messageArray.push(window.i18nWlogTab[key]);
+    }
+    alertTsheetDelRecord.innerHTML= messageArray.join('<br>');
 };
 
 ASN.checkTimesheetRecord = function () {

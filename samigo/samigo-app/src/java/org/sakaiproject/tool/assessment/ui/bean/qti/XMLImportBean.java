@@ -44,7 +44,6 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -170,7 +169,7 @@ public class XMLImportBean implements Serializable {
 	if (isCP) {
 		ImportService importService = new ImportService();
 		unzipLocation = importService.unzipImportFile(uploadFile);
-		filename = unzipLocation + "/" + importService.getQTIFilename();
+		filename = unzipLocation + "/" + importService.getQtiFilename();
 	}
     try
     {
@@ -312,10 +311,10 @@ public class XMLImportBean implements Serializable {
     
     // change grading book settings if there is no gradebook in the site
     boolean hasGradebook = false;
-    GradebookExternalAssessmentService g = null;
+    org.sakaiproject.grading.api.GradingService g = null;
    if (integrated){
-     g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-          getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+     g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+          getBean("org.sakaiproject.grading.api.GradingService");
    }
    try{
      if (gbsHelper.isAssignmentDefined(assessment.getTitle(), g)){

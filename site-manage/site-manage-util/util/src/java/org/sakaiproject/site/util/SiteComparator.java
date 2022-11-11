@@ -150,18 +150,16 @@ public class SiteComparator implements Comparator {
 			boolean b2 = ((Site) o2).isJoinable();
 			result = compareBoolean(b1, b2);
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_NAME)) {
-			// sort by whether the site is joinable or not
-			String s1 = null;
-			if (o1.getClass().equals(Participant.class)) {
-				s1 = ((Participant) o1).getName();
+			// Defer to the UserSortNameComparator if possible
+			if (o1.getClass().equals(Participant.class) && o2.getClass().equals(Participant.class)) {
+				result = ((Participant) o1).compareTo((Participant) o2);
+			} else if (o1.getClass().equals(Participant.class)) {
+				result = compareString(((Participant) o1).getName(), null);
+			} else if (o2.getClass().equals(Participant.class)) {
+				result = compareString(null, ((Participant) o2).getName());
+			} else {
+				result = 0;
 			}
-
-			String s2 = null;
-			if (o2.getClass().equals(Participant.class)) {
-				s2 = ((Participant) o2).getName();
-			}
-			
-			result = compareString(s1, s2);
 
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_UNIQNAME)) {
 			// sort by whether the site is joinable or not

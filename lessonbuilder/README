@@ -280,7 +280,7 @@ patch, which should be applied to the file
 portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/handlers/PDAHandler.java
 in your source tree.
 
-MNEME, YAFT, ASSIGNMENT2,  BASIC LTI AND JFORUM DEPENDENCIES
+MNEME, YAFT, ASSIGNMENT2,  LTI AND JFORUM DEPENDENCIES
 
 LessonBuilder will support quizes from Mneme, topics from JForum or
 YAFT, assignments from Assignment 2 and external tools using Basic

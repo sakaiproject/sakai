@@ -21,17 +21,6 @@
            title="${rlb.jsp_worksite_search}" />
     ${includeLatestJQuery}
     <script type="text/javascript">includeLatestJQuery('search');</script>
-
-    <script type="text/javascript" >
-        function searchLocalAddSherlock() {
-        	addSherlockButton(
-        	    "${searchModel.siteTitle}",
-        		"${rlb.jsp_sakai_search}",
-        		"${searchModel.sherlockUpdateUrl}",
-        		"${searchModel.sherlockIconUrl}");
-        }
-        appendLoader(searchLocalAddSherlock);
-    </script>
 #end
     </head>
     <body 

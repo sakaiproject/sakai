@@ -241,7 +241,7 @@ function mySetMainFrameHeightViewCell(id)
 		  		</div>
 		  	</f:verbatim>
 			
-			<t:div styleClass="table-responsive" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}" style="margin-top:1em;">
+			<t:div styleClass="table" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}" style="margin-top:1em;">
 				<t:dataTable id="myWorkspaceTable" value="#{mfSynopticBeanLite.contents}" var="eachSite" 
 						styleClass="table table-striped table-bordered table-hover tablesorter workspaceTable">
 
@@ -280,7 +280,7 @@ function mySetMainFrameHeightViewCell(id)
 							
 							<h:outputText value="  " rendered="#{eachSite.newMessagesCount > 0}" />
 		
-				 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newMessagesCount > 0}" />
+				 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newMessagesCount > 0}" role="none" />
 							<%--<h:outputText value="  "/>	
 									
 							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{eachSite.messagesFormattedDate}"/> --%>
@@ -296,7 +296,7 @@ function mySetMainFrameHeightViewCell(id)
 							<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newMessagesCount == 0}"/>
 							<h:outputText value="#{eachSite.newMessagesCount}" rendered="#{eachSite.newMessagesCount > 0}"/>
 							<h:outputText value="  " rendered="#{eachSite.newMessagesCount > 0}" />
-				 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newMessagesCount > 0}" />
+				 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newMessagesCount > 0}" role="none" />
 						</h:panelGroup>
 					</t:column>
 					<t:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableForums}" headerstyleClass="forumsHeader">
@@ -317,7 +317,7 @@ function mySetMainFrameHeightViewCell(id)
 
 							<h:outputText value="  " rendered="#{eachSite.newForumCount > 0}" />
 
-							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" />
+							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" role="none" />
 							<%--<h:outputText value="  "/>
 							<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/sakai/information_sm.png" title="#{msgs.syn_date_heading}: #{eachSite.forumFormattedDate}"/> --%>
 						</h:panelGroup>
@@ -331,7 +331,7 @@ function mySetMainFrameHeightViewCell(id)
 							<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.newForumCount == 0}"/>
 							<h:outputText value="#{eachSite.newForumCount}" rendered="#{eachSite.newForumCount > 0}"/>
 							<h:outputText value="  " rendered="#{eachSite.newForumCount > 0}" />
-			 				<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" />
+			 				<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.newForumCount > 0}" role="none" />
 						</h:panelGroup>
 					</t:column>
 					<t:column headerstyleClass="siteHeader">
@@ -365,7 +365,7 @@ function mySetMainFrameHeightViewCell(id)
 
 
 		<!-- Site Home Page -->
-		<t:div styleClass="table-responsive" rendered="#{!mfSynopticBeanLite.myWorkspace && mfSynopticBeanLite.anyMFToolInSite}">
+		<t:div styleClass="table" rendered="#{!mfSynopticBeanLite.myWorkspace && mfSynopticBeanLite.anyMFToolInSite}">
 			<h:panelGrid columns="2" styleClass="table table-bordered table-hover table-striped">
 		
 				<h:panelGroup rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.messagesPageInSite}">
@@ -381,7 +381,7 @@ function mySetMainFrameHeightViewCell(id)
 							escape="false" title="#{msgs.syn_goto_messages}" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
 					<h:outputText value="  " rendered="true" />
 					<h:outputText value="  " rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
-		 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" />
+		 			<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBeanLite.siteHomepageContent.newMessagesCount > 0}" role="none" />
 					</h:panelGroup>
 
 					<%--<h:outputText value="  "/>
@@ -401,7 +401,7 @@ function mySetMainFrameHeightViewCell(id)
 			
 					<h:outputText value="  " rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}" />
 
-					<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}" />
+					<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBeanLite.siteHomepageContent.newForumCount > 0}" role="none" />
 					
 					<%--			<h:outputText value="  "/>
 					

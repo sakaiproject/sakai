@@ -46,7 +46,7 @@
 				#set($i = $i + 1)
 				#set($next = $i + 1)
 				
-				<div id="contentDiv${DOT}$i" class="well">
+				<div id="contentDiv${DOT}$i" class="card text-dark bg-light mb-3 p-3">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<input type="hidden" name="extension${DOT}$i" id="extension${DOT}$i" value=".URL" />
 					<div class="form-group">

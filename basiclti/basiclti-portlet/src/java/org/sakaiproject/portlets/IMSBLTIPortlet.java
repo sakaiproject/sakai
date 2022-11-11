@@ -67,10 +67,9 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portlet.util.PortletHelper;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -189,7 +188,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			// Check to see if our launch will be successful
 			String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
 			if ( retval.length > 1 ) {
-				String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
+				String iframeUrl = "/access/lti/site/"+context+"/"+placement.getId();
 				String frameHeight =  getCorrectProperty(request, "frameheight", null);
 				log.debug("fh={}", frameHeight);
 				String newPage =  getCorrectProperty(request, "newpage", null);
@@ -215,13 +214,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				log.debug("Setting sakai:maximized-url={}", iframeUrl);
 
 				if ( BASICLTI_PORTLET_ON.equals(newPage) || forcePopup ) {
-					String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
+					String windowOpen = "window.open('"+iframeUrl+"','LTI');"; 			
 					String siteName = ServerConfigurationService.getString(SITE_NAME, SAKAI);
 					title = title!=null ? title : rb.getString("tool.name", "your tool");
 					String newPageLaunchText = rb.getFormattedMessage("new.page.launch", new Object[]{ComponentManager.get(FormattedText.class).escapeHtml(title, false), ComponentManager.get(FormattedText.class).escapeHtml(siteName, false)});
 					text.append(newPageLaunchText);
 					text.append("</p>\n");
-					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"BasicLTI\" value=\"Launch " + title + "\"/>");
+					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"LTI\" value=\"Launch " + title + "\"/>");
 				} else {
 					if ( BASICLTI_PORTLET_ON.equals(maximize) ) {
 						text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
@@ -876,10 +875,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	{
 		try
 		{
-			GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			GradingService g = (GradingService)  ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
 			String gradebookUid = getContext();
-			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
+			if ( ! ((g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
 
 			// add assignment to gradebook
 			Assignment asn = new Assignment();
@@ -897,7 +896,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		}
 		catch (Exception e)
 		{
-			log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
+			log.warn("Exception (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
 			setErrorMessage(request, rb.getString("error.gradable.badcreate") + ":" + e.getMessage() );
 			log.warn("{}:addGradeItem {}", this, e.getMessage());
 		}
@@ -908,29 +907,21 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	protected List<String> getGradeBookAssignments()
 	{
 		List<String> retval = new ArrayList<String>();
-		try
-		{
-			GradebookService g = (GradebookService)  ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+        GradingService g = (GradingService)  ComponentManager
+            .get("org.sakaiproject.grading.api.GradingService");
 
-			String gradebookUid = getContext();
-			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
-			List gradebookAssignments = g.getAssignments(gradebookUid);
+        String gradebookUid = getContext();
+        if ( ! ((g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
+        List gradebookAssignments = g.getAssignments(gradebookUid);
 
-			// filtering out anything externally provided
-			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
-			{
-				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-				if ( gAssignment.isExternallyMaintained() ) continue;
-				retval.add(gAssignment.getName());
-			}
-			return retval;
-		}
-		catch (GradebookNotFoundException e)
-		{
-			log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
-			return null;
-		}
+        // filtering out anything externally provided
+        for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
+        {
+            org.sakaiproject.grading.api.Assignment gAssignment = (org.sakaiproject.grading.api.Assignment) i.next();
+            if ( gAssignment.getExternallyMaintained() ) continue;
+            retval.add(gAssignment.getName());
+        }
+        return retval;
 	}
 
 }

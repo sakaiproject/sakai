@@ -6,9 +6,9 @@
     </div>
 #elseif (${sitePages} && !${sitePages.pageNavPublished})
 
-    <div id="siteStatus" class="Mrphs-siteStatus Mrphs-messagePanel__information is-unpublished">
-        <h4>${rloader.sit_unpublished}</h4>
-        <button class="Mrphs-button--active" #if($publishSiteDialogEnabled) data-toggle="modal" data-target="#publishSiteConfirmModal" #else onclick="publishSite('${sitePages.siteId}');" #end>${rloader.sit_publish_now}</button>
+    <div id="siteStatus" class="Mrphs-siteStatus sak-banner-warn">
+        <strong id="unpublished-label">${rloader.sit_unpublished}</strong>
+        <button class="Mrphs-button--active" aria-describedby="unpublished-label" #if($publishSiteDialogEnabled) data-bs-toggle="modal" data-target="#publishSiteConfirmModal" #else onclick="publishSite('${sitePages.siteId}');" #end>${rloader.sit_publish_now}</button>
     </div>
 
     <div id="publishSiteConfirmModal" class="modal" role="dialog" tabindex="-1" aria-hidden="true">
@@ -16,7 +16,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">${rloader.sit_unpublished}</h4>
+                    <strong class="modal-title title-size">${rloader.sit_unpublished}</strong>
                 </div>
                 <div class="modal-body">
                     <p>${rloader.sit_publish_confirmation}</p>

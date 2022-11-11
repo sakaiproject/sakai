@@ -50,7 +50,7 @@
             </h1>
         </div>
 
-        <div class="samigo-container">
+        <div class="samigo-container d-flex align-items-center justify-content-evenly">
             <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}">
                 <h:messages rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
             </h:panelGroup>

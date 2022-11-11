@@ -1,0 +1,11 @@
+{
+        "https://purl.imsglobal.org/spec/lti/claim/message_type" : "LtiResourceLinkRequest",
+        "https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome" : {
+          "lis_result_sourcedid": "example.edu:71ee7e42-f6d2-414a-80db-b69ac2defd4",
+          "lis_outcome_service_url": "https://www.example.com/2344"
+        },
+        "https://purl.imsglobal.org/spec/lti/claim/custom": {
+          "country" : "Canada",
+          "user_mobile" : "123-456-7890"
+        }
+}

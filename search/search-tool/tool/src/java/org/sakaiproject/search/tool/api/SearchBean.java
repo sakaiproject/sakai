@@ -177,16 +177,6 @@ public interface SearchBean
 	/**
 	 * @return
 	 */
-	String getSherlockIconUrl();
-
-	/**
-	 * @return
-	 */
-	String getSherlockUpdateUrl();
-
-	/**
-	 * @return
-	 */
 	String getPortalBaseUrl();
 
 	boolean isScope(String scope);

@@ -2,13 +2,18 @@
     <div class="roster-member-card">
         {{#if ../viewPicture}}
         <div class="roster-picture-card">
-            {{#if ../viewProfile}}
-            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
-            {{/if}}
-            <img class="roster-picture" src="{{profileImageUrl}}" title="{{tr 'profile_picture_alt'}} {{displayName}}" alt="{{tr 'profile_picture_alt'}} {{displayName}}" />
-            {{#if ../viewProfile}}
-            </a>
-            {{/if}}
+            <sakai-user-photo user-id="{{userId}}"
+                label="{{tr 'profile_picture_alt'}} {{displayName}}"
+                site-id="{{siteId}}"
+                classes="roster-photo"
+                {{#if official}}
+                official
+                {{/if}}
+                {{#if ../printMode}}
+                print
+                {{/if}}
+            >
+            </sakai-user-photo>
         </div> <!-- /roster-picture-card -->
         {{/if}}
 
@@ -129,6 +134,44 @@
                         {{/each}}
                     </ul>
                 </div>
+                {{/if}}
+            {{/if}}
+
+            {{#if ../viewCandidateDetails}}
+                {{#if studentNumber}}
+                <div class="roster-card-label">{{tr 'facet_studentNumber'}}</div>
+                <div class="roster-card-value">{{studentNumber}}</div>
+                {{/if}}
+                {{#if hasAdditionalInfo}}
+                    {{#if ../printMode}}
+                        {{#if hasSpecialNeeds}}
+                        <div class="roster-card-label-row">{{tr 'facet_specialNeeds'}}</div>
+                        <div class="roster-card-value-row">
+                            <ul class="roster-special-needs">
+                                {{#each specialNeeds}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                        {{/if}}
+                        {{#if hasAdditionalNotes}}
+                        <div class="roster-card-label-row">{{tr 'facet_additionalNotes'}}</div>
+                        <div class="roster-card-value-row">
+                            <ul class="roster-additional-notes">
+                                {{#each additionalNotes}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                        {{/if}}
+                    {{else}}
+                    <div class="roster-card-label-row">
+                        <button class="roster-card-button additional-info" data-user-id="{{userId}}">
+                            <span class="roster-card-button-icon fa fa-info-circle"></span>
+                            <span>{{tr 'additionalInfo_button_text'}}</span>
+                        </button>
+                    </div>
+                    {{/if}}
                 {{/if}}
             {{/if}}
         </div> <!-- /roster-info-card -->

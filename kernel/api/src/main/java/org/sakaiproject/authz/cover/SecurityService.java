@@ -22,6 +22,7 @@
 package org.sakaiproject.authz.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -156,26 +157,22 @@ public class SecurityService
 		return service.setUserEffectiveRole(param0, param1);
 	}
 	
-	public static String getUserEffectiveRole(java.lang.String param0) {
+	public static String getUserEffectiveRole() {
 		org.sakaiproject.authz.api.SecurityService service = getInstance();
 		if (service == null) return null;
 
-		return service.getUserEffectiveRole(param0);
+		return service.getUserEffectiveRole();
 	}
 	
-	public static void clearUserEffectiveRole(java.lang.String param0)
-	{
+	public static boolean isUserRoleSwapped() {
 		org.sakaiproject.authz.api.SecurityService service = getInstance();
-		if (service == null) return;
+		if (service == null) return false;
 
-		service.clearUserEffectiveRole(param0);
+		try {
+			return service.isUserRoleSwapped();
+		} catch (IdUnusedException e) {
+			return false;
+		}
 	}
 	
-	public static void clearUserEffectiveRoles()
-	{
-		org.sakaiproject.authz.api.SecurityService service = getInstance();
-		if (service == null) return;
-
-		service.clearUserEffectiveRoles();
-	}
 }

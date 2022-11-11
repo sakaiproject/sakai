@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tasks.impl.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -46,5 +47,17 @@ public class TaskRepositoryImpl extends SpringCrudRepositoryImpl<Task, Long> imp
         cq.where(cb.equal(root.get("reference"), reference));
 
         return Optional.ofNullable(session.createQuery(cq).uniqueResult());
+    }
+
+    public List<Task> findByGroupsContaining(String groupId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Task> cq = cb.createQuery(Task.class);
+        Root<Task> root = cq.from(Task.class);
+        cq.select(root).where(cb.isMember(groupId, root.get("groups")));
+
+        return session.createQuery(cq).list();
     }
 }

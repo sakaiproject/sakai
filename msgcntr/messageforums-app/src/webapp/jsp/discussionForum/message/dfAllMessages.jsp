@@ -198,7 +198,7 @@
 					<%-- Rubrics marker --%>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" >
 					  <sakai-rubric-student-preview-button
-						  token="<h:outputText value="#{ForumTool.rbcsToken}" />"
+						  site-id='<h:outputText value="#{ForumTool.siteId}" />'
 						  display="icon"
 						  tool-id="sakai.gradebookng"
 						  entity-id="<h:outputText value="#{ForumTool.selectedTopic.gradeAssign}" />">
@@ -242,7 +242,7 @@
 						<div>
 							<h:outputText escape="false" value="#{ForumTool.selectedTopic.topic.extendedDescription}" />
 						</div>
-						<div class="table-responsive">
+						<div class="table">
 						<h:dataTable styleClass="table table-hover table-striped table-bordered" value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
 					  <h:column>
 						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
@@ -399,20 +399,12 @@
 				</h:panelGroup>
 			</h:column>
 				<%-- author column --%>
-			<h:column>
-				<f:facet name="header">
-						<h:outputText value="&nbsp;" escape="false"/>
-					</f:facet>
-               	
-					<h:graphicImage value="/images/trans.gif" rendered="#{message.read}" style="margin-left:.5em" alt="" />
-					<h:outputLink value="javascript:void(0);"
-								  title="#{msgs.cdfm_mark_as_read}"
-								  rendered="#{!message.read}"
-								  styleClass="markAsReadIcon button"
-								  onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
-						<h:graphicImage value="/images/trans.gif"/>
-						<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
-					</h:outputLink>
+			<h:column rendered="#{ForumTool.selectedTopic.isMarkAsRead}">
+				<f:facet name="header"><h:outputText value="#{msgs.cdfm_mark_as_read}" escape="false"/></f:facet>
+				<h:outputLink rendered="#{!message.read}" value="javascript:void(0);" title="#{msgs.cdfm_mark_as_read}" styleClass="markAsReadIcon button"
+							  onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
+					<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
+				</h:outputLink>
 			</h:column>
 			<h:column>
 				<f:facet name="header">

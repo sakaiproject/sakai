@@ -29,6 +29,10 @@ public interface OpenForum extends BaseForum {
 
     public void setLocked(Boolean locked);
 
+    public Boolean getLockedAfterClosed();
+
+    public void setLockedAfterClosed(Boolean lockedAfterClosed);
+
     public Boolean getDraft();
     
     public void setDraft(Boolean draft);
@@ -52,5 +56,17 @@ public interface OpenForum extends BaseForum {
 	public Boolean getAvailability();
     
     public void setAvailability(Boolean restricted);
+
+    public String getCalendarEndId();
+
+    public void setCalendarEndId(String calendarEndId);
+
+    public String getCalendarBeginId();
+
+    public void setCalendarBeginId(String calendarBeginId);
+
+    public Boolean getSendOpenCloseToCalendar();
+
+    public void setSendOpenCloseToCalendar(Boolean sendOpenCloseToCalendar);
 
 }

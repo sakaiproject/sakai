@@ -103,6 +103,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.event.api.Event;
 
 /**
  * AnnouncementAction is an implementation of Announcement service, which provides the complete function of announcements. User could check the announcements, create own new and manage all the announcement items, under certain permission check.
@@ -142,6 +143,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	private static final String ADD_STATUS = "new";
 
 	private static final String EDIT_STATUS = "goToReviseAnnouncement";
+
+	private static final String BACK_TO_EDIT_STATUS = "backToReviseAnnouncement";
 
 	private static final String DELETE_STATUS = "deleteAnnouncement";
 
@@ -840,6 +843,9 @@ public class AnnouncementAction extends PagedResourceActionII
 			case EDIT_STATUS:
 				activeTab = ActiveTab.EDIT;
 				break;
+			case BACK_TO_EDIT_STATUS:
+				activeTab = ActiveTab.EDIT;
+				break;
 			case DELETE_STATUS:
 				activeTab = ActiveTab.DELETE;
 				break;
@@ -1002,8 +1008,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			template = buildShowMetadataContext(portlet, context, rundata, state, sstate);
 		}
-		else if ((statusName.equals("goToReviseAnnouncement")) || (statusName.equals("backToReviseAnnouncement"))
-				|| (ADD_STATUS.equals(statusName)) || ("stayAtRevise".equals(statusName)))
+		else if (StringUtils.equalsAnyIgnoreCase(statusName, EDIT_STATUS, BACK_TO_EDIT_STATUS, ADD_STATUS, "stayAtRevise"))
 		{
 			template = buildReviseAnnouncementContext(portlet, context, rundata, state, sstate);
 		}
@@ -1193,6 +1198,8 @@ public class AnnouncementAction extends PagedResourceActionII
 								}
 							} catch(IdUnusedException e) {
 								log.debug("No announcement channel for ID: {}", channeIDD);
+							} catch(PermissionException e) {
+								log.debug("Permission exception for channelID: {}", channeIDD, e);
 							} catch(Exception e) {
 								log.warn("ChannelID: {}", channeIDD, e);
 							}
@@ -1855,11 +1862,15 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 			//output notification history
 			if (state.getEdit()!= null){
-				List notiHistory= state.getEdit().getProperties().getPropertyList("noti_history");
+				List<String> notiHistory= state.getEdit().getProperties().getPropertyList("noti_history");
 				if (notiHistory!=null){
-					List noti_history=new ArrayList();
-					for(Iterator it = notiHistory.iterator(); it.hasNext();){
-						noti_history.add(it.next().toString().split("_"));
+					List<Collection<String>> noti_history = new ArrayList<>();
+					for(String notification: notiHistory){
+						ArrayList<String> splittedNoti = new ArrayList<>(Arrays.asList(notification.split("_")));
+						if (splittedNoti.size() == 2) {
+							splittedNoti.add("");
+						}
+						noti_history.add(splittedNoti);
 					}			
 					context.put("notiHistory", noti_history);
 				}
@@ -2855,7 +2866,28 @@ public class AnnouncementAction extends PagedResourceActionII
 					{
 						// availablity changed
 						eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY, msg.getReference(), true));
+
+
+						//check if an delay might exist
+						if ((StringUtils.isNotEmpty(oReleaseDate) && releaseDate == null) || (StringUtils.isNotEmpty(oReleaseDate) && releaseDate != null && !oReleaseDate.equals(releaseDate.toString()))) {
+
+							eventTrackingService.cancelDelays(msg.getReference(), AnnouncementService.EVENT_AVAILABLE_ANNC);
+
+							//check if new date has passed already
+							if(msg.getHeader().getInstant().isAfter(Instant.now())){
+								Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
+								eventTrackingService.delay(event,msg.getHeader().getInstant());
+							}
+						}
 					}
+				}
+
+				//Create delay
+				Instant date = msg.getHeader().getInstant();
+				if (date.isAfter(Instant.now())) {
+					// track event
+					Event event = eventTrackingService.newEvent(org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC, msg.getReference(), true);
+					eventTrackingService.delay(event,date);
 				}
 			}
 			catch (IdUnusedException e)
@@ -2923,7 +2955,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		String peid = ((JetspeedRunData) rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
 
-		state.setStatus("backToReviseAnnouncement");
+		state.setStatus(BACK_TO_EDIT_STATUS);
 
 	} // doPreviewrevise
 
@@ -2959,6 +2991,12 @@ public class AnnouncementAction extends PagedResourceActionII
 					//AnnouncementMessageEdit edit = channel.editAnnouncementMessage(message.getId());
 					//channel.removeMessage(edit); 
 					channel.removeAnnouncementMessage(message.getId());
+
+
+					//Delete possible delay
+					if (message.getHeader().getInstant().isAfter(Instant.now())) {
+						eventTrackingService.cancelDelays(message.getReference(), org.sakaiproject.announcement.api.AnnouncementService.EVENT_AVAILABLE_ANNC);
+					}
 				}
 				else
 				{
@@ -3363,7 +3401,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, myState.getAttachments());
 
-		myState.setStatus("backToReviseAnnouncement");
+		myState.setStatus(BACK_TO_EDIT_STATUS);
 	} // doAttachments
 
 	/**

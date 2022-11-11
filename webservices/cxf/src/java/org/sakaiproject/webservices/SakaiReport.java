@@ -44,9 +44,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import com.opencsv.CSVWriter;
+import com.sun.org.apache.xml.internal.utils.XMLChar;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.xml.serializer.utils.XMLChar;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

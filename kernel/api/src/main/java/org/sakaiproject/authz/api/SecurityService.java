@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.SakaiException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -169,25 +171,10 @@ public interface SecurityService
 	/**
 	 * Get the current user's effective role in this authz group for security lookups in this session.
 	 * 
-	 * @param azGroupId
-	 *        The authz group id
 	 * @return The user's effective role if set, otherwise null
 	 */
-	String getUserEffectiveRole(String azGroupId);
+	String getUserEffectiveRole();
 
-	/**
-	 * Clear the current user's effective role in this authz group.
-	 * 
-	 * @param azGroupId
-	 *        The authz group id
-	 */
-	void clearUserEffectiveRole(String azGroupId);
-
-	/**
-	 * Clear all effective roles for this user. Should be called on logout.
-	 */
-	void clearUserEffectiveRoles();
-	
 	/**
 	 * Check if the current user is roleswapped in the current site (pass the site in the other version if current site cannot be
 	 * determind in this context)
@@ -195,13 +182,14 @@ public interface SecurityService
 	 * @return true if roleswapped, false if not.
 	 */
 	public boolean isUserRoleSwapped() throws IdUnusedException;
-
+	
 	/**
-	 * Check if the current user is roleswapped
-	 *
-	 * @param siteId siteId to check
-	 * @return true if roleswapped, false if not.
+	 * Change to a new role view with a mockup student logged in
+	 * 
+	 * @param site
+	 * @param role
+	 * @throws SakaiException
 	 */
-	public boolean isUserRoleSwapped(String siteId) throws IdUnusedException;
+	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException;
 
 }

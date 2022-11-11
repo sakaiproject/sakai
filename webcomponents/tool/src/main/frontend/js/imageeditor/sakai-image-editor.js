@@ -27,7 +27,7 @@ export class SakaiImageEditor extends SakaiDialogContent {
     const image = this.shadowRoot.getElementById('image');
     this.cropper = new Cropper(image, {
       //aspectRatio: 1,
-      aspectRatio: 509/293,
+      aspectRatio: 509 / 293,
       checkCrossOrigin: false,
       minContainerWidth: 300,
       minContainerHeight: 300,

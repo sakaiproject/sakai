@@ -283,7 +283,12 @@ ASN.setupAssignNew = function(){
             $(this).children('.countDisplay').text($(this).find('.countHolder').text());
         }
     });
-    
+
+    const isEstimate = document.getElementById('new_assignment_check_add_estimate');
+    if (isEstimate && isEstimate.checked) {
+        document.getElementById('checkestimaterequired').classList.remove('hidden');
+        document.getElementById('inputtimestimate').classList.remove('hidden');
+    }
 };
 
 ASN.resizeFrame = function(updown)
@@ -325,7 +330,7 @@ ASN.setupToggleAreas = function(toggler, togglee, openInit, speed){
     }
     else {
         $('.' + togglee).hide();
-        $('.collapse').hide();
+        $('.Mrphs-sakai-assignment-grades .collapse').hide();
         ASN.resizeFrame();
     }
     $('.' + toggler).click(function(){
@@ -471,24 +476,6 @@ ASN.toggleElements = function( elements, disabled )
     for( i = 0; i < elements.length; i++ )
     {
         elements[i].disabled = disabled;
-    }
-};
-
-ASN.enableLinks = function()
-{
-    var links = [
-        document.getElementById( "downloadAll" ),
-        document.getElementById( "uploadAll" ),
-        document.getElementById( "releaseGrades" ),
-        document.getElementById( "helpItems" )
-    ];
-
-    for( i = 0; i < links.length; i++ )
-    {
-        if( links[i] !== null )
-        {
-            links[i].className = "";
-        }
     }
 };
 
@@ -852,12 +839,17 @@ ASN.toggleAutoAnnounceEstimate = function(checked){
     const timeEstimate = document.getElementById('inputtimestimate');
     const timeEstimateInput = document.getElementById('new_assignment_input_add_time_estimate');
     const estimateRequiredCheck = document.getElementById('new_assignment_check_add_estimate_required');
-    
-    const display = checked ? 'block': 'none';
+
     const resizeState = checked ? 'grow': 'shrink';
-    
-    estimateRequired && (estimateRequired.style.display = display);
-    timeEstimate && (timeEstimate.style.display = display);
+
+    if (checked) {
+        estimateRequired.classList.remove('hidden');
+        timeEstimate.classList.remove('hidden');
+    } else {
+        estimateRequired.classList.add('hidden');
+        timeEstimate.classList.add('hidden');
+    }
+
     ASN.resizeFrame(resizeState);
     if (!checked) {
         timeEstimateInput && (timeEstimateInput.value = '');
@@ -992,7 +984,8 @@ ASN.disableTimesheetSetupSection = function()
 
 $(document).ready(() => {
 
-  $("#infoImg").popover({html : true});
+  const infoLink = document.getElementById("infoImg");
+  infoLink && (new bootstrap.Popover(document.getElementById("infoImg")));
 
   const saveRubric = e => {
     [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
@@ -1015,6 +1008,13 @@ $(document).ready(() => {
     [...document.getElementsByTagName("sakai-rubric-student-button")].forEach(b => promises.push(b.releaseEvaluation()));
     Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
   });
+
+  // If grade is released, rubric must be released too
+  const gradeIsReleasedInput = document.getElementById("grade-is-released");
+  if (gradeIsReleasedInput && gradeIsReleasedInput.value === 'true') {
+    const buttons = document.querySelectorAll(".prevsubmission, .prevUngraded, .nextsubmission, .nextUngraded");
+    buttons && buttons.forEach(button => button.addEventListener("click", releaseRubric));
+  }
 });
 
 ASN.cancelGradeSubmission = function () {

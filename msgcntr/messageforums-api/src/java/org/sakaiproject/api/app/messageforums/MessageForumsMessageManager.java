@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface MessageForumsMessageManager {
 
@@ -117,6 +118,8 @@ public interface MessageForumsMessageManager {
     public List<Object[]> findMessageCountTotal();
     
     public int findViewableMessageCountByTopicIdByUserId(Long topicId, String userId);
+
+    public Map<String, Integer> findViewableMessageCountByTopicIdByUserIds(Long id, Set<String> usersAllowed);
     
     public int findViewableMessageCountByTopicId(Long topicId);
 
@@ -142,6 +145,10 @@ public interface MessageForumsMessageManager {
      * to the number of messages that student has authored in the site.
      */
     public List<Object[]> findAuthoredMessageCountForAllStudents();
+    public List<Object[]> findAuthoredNewMessageCountForAllStudents();
+
+    public List<Object[]> findAuthoredRepliesMessageCountForAllStudents();
+
     public List<Object[]> findAuthoredMessageCountForAllStudentsByTopicId(final Long topicId);
     public List<Object[]> findAuthoredMessageCountForAllStudentsByForumId(final Long forumId);
     public List<Object[]> findAuthoredNewMessageCountForAllStudentsByTopicId(final Long topicId);
