@@ -42,8 +42,6 @@ import org.sakaiproject.datemanager.api.DateManagerConstants;
 import org.sakaiproject.datemanager.api.DateManagerService;
 import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.PreferencesService;
 
 /**
  * MainController
@@ -56,18 +54,11 @@ import org.sakaiproject.user.api.PreferencesService;
 public class MainController {
 
     @Inject private DateManagerService dateManagerService;
-	
-    @Autowired
-    private SessionManager sessionManager;
-    
-    @Autowired
-    private PreferencesService preferencesService;
 
     @GetMapping(value = {"/", "/index"})
     public String showIndex(@RequestParam(required=false) String code, Model model, HttpServletRequest request, HttpServletResponse response) {
 
-        String userId = sessionManager.getCurrentSessionUserId();
-        final Locale loc = StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+        final Locale loc = dateManagerService.getLocaleForCurrentSiteAndUser();
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
         localeResolver.setLocale(request, response, loc);
 

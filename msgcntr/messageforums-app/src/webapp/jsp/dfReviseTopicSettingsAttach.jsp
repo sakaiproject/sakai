@@ -32,11 +32,17 @@
 		function resize() {
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
-	</script> 
-	<script>
-		function setDatesEnabled(radioButton) {
+	</script>
+	<script type="text/javascript">
+		function setDatesEnabled(radioButton){
 			$(".calWidget").fadeToggle('slow');
+			$(".lockForumAfterCloseDateSpan").fadeToggle('slow');
 		}
+
+		window.onload = function(){
+			const sendCheckbox = document.getElementById("revise:sendOpenCloseDateToCalendar");
+			sendCheckbox?.disabled && (sendCheckbox.checked = false);	//make sure that Calendar sending is not checked when it's disabled/when the site has no calendar
+		};
 
 		function openDateCal() {
 			NewCal('revise:openDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
@@ -192,7 +198,7 @@
 				</h:column>
 				<h:column rendered="#{!empty ForumTool.attachments}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_attsize}" /></f:facet>
-					<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
+					<h:outputText value="#{ForumTool.getAttachmentReadableSize(eachAttach.attachment.attachmentSize)}"/>
 				</h:column>
 				<h:column rendered="#{!empty ForumTool.attachments}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_atttype}" /></f:facet>
@@ -280,6 +286,20 @@
 			<h:panelGroup id="closeDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
 				<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
 				<h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
+			</h:panelGroup>
+			<p class="checkbox">
+				<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
+							  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
+							  style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+					<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar"
+											 disabled="#{not ForumTool.doesSiteHaveCalendar}"
+											 value="#{ForumTool.selectedTopic.topic.sendOpenCloseToCalendar}"/>
+					<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
+				</h:panelGroup>
+			</p>
+			<h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+				<h:selectBooleanCheckbox id="lockForumAfterCloseDate" value="#{ForumTool.selectedTopic.topic.lockedAfterClosed}"/>
+				<h:outputLabel for="lockForumAfterCloseDate" value="#{msgs.lockForumAfterCloseDate}" />
 			</h:panelGroup>
 		</div>
 

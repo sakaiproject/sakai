@@ -7,10 +7,9 @@
         <artifactId>master</artifactId>
         <version>23-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
-        <!-- <version>2.8.3</version> -->
     </parent>
     
-    <name>BasicLTI base pom (basiclti)</name>
+    <name>Sakai LTI base pom (basiclti)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti</artifactId>
     <packaging>pom</packaging>
@@ -38,7 +37,6 @@
             <properties>
                 <sakai.velocity.groupId>org.sakaiproject.velocity</sakai.velocity.groupId>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                <jjwt.versions>0.11.5</jjwt.versions> 
             </properties>
         </profile>
         <profile>
@@ -135,8 +133,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>basiclti-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -151,7 +147,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>basiclti-util</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -163,26 +158,6 @@
                 <artifactId>profile2-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-	    <dependency>
-		    <groupId>com.nimbusds</groupId>
-		    <artifactId>nimbus-jose-jwt</artifactId>
-		    <version>8.2</version>
-	    </dependency>
-	    <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>${jjwt.versions}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>${jjwt.versions}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>${jjwt.versions}</version>
-        </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

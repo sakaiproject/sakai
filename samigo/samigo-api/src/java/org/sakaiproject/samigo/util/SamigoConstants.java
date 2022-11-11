@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.samigo.util;
 
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.NotificationService;
 
 /**
@@ -104,6 +105,7 @@ public final class SamigoConstants {
      */
     public static final     String      NOTI_PREFS_TYPE_SAMIGO                              = "sakai:samigo";
     public static final     String      NOTI_PREFS_TYPE_SAMIGO_OPEN                         = "sakai:samigoOpen";
+    public static final     String      TOOL_ID                                             = "sakai.samigo";
 
     /*
      * Notification Defaults
@@ -147,6 +149,8 @@ public final class SamigoConstants {
      */
     public static final     String      EVAL_BUNDLE                                         = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
     public static final     String      AUTHOR_BUNDLE                                       = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
+
+    public static final     String      REFERENCE_ROOT                                      = Entity.SEPARATOR + "samigo";
 
     private SamigoConstants() {
     	throw new AssertionError();

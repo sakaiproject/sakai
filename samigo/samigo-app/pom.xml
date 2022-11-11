@@ -90,10 +90,10 @@
             <artifactId>search-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch</artifactId>
             <scope>provided</scope>
-            <version>${sakai.elasticsearch.version}</version>
+            <version>${sakai.opensearch.version}</version>
         </dependency>
         <dependency>
             <groupId>net.htmlparser.jericho</groupId>
@@ -168,6 +168,12 @@
             <groupId>org.apache.myfaces.tomahawk</groupId>
             <artifactId>tomahawk21</artifactId>
             <version>1.1.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>

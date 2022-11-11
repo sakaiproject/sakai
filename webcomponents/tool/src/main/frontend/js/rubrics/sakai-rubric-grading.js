@@ -18,6 +18,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this.criteria = [];
     this.totalPoints = 0;
 
+    this.instanceSalt = Math.floor(Math.random() * Date.now());
+
     SakaiRubricsLanguage.loadTranslations().then(r => this.i18n = r);
   }
 
@@ -88,28 +90,25 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
         </h3>
         <div class="rubrics-tab-row">
           <a href="javascript:void(0);"
-              id="rubric-grading-or-preview-button"
               class="rubrics-tab-button rubrics-tab-selected"
               @keypress=${this.openGradePreviewTab}
               @click=${this.openGradePreviewTab}>
             <sr-lang key="grading_rubric">gradingrubric</sr-lang>
           </a>
           <a href="javascript:void(0);"
-              id="rubric-student-summary-button"
               class="rubrics-tab-button"
               @keypress=${this.makeStudentSummary}
               @click=${this.makeStudentSummary}>
             <sr-lang key="student_summary">studentsummary</sr-lang>
           </a>
           <a href="javascript:void(0);"
-              id="rubric-criteria-summary-button"
               class="rubrics-tab-button"
               @keypress=${this.makeCriteriaSummary}
               @click=${this.makeCriteriaSummary}>
             <sr-lang key="criteria_summary">criteriasummary</sr-lang>
           </a>
         </div>
-        <div id="rubric-grading-or-preview" class="rubric-tab-content rubrics-visible">
+        <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible">
           ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
           <div class="sak-banner-warn">
             ${tr('draft_evaluation', [tr(`draft_evaluation_${this.toolId}`)])}
@@ -206,15 +205,15 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           </div>
         </div>
       </div>
-      <div id="rubric-student-summary" class="rubric-tab-content"></div>
-      <div id="rubric-criteria-summary" class="rubric-tab-content"></div>
+      <div id="rubric-student-summary-${this.instanceSalt}" class="rubric-tab-content"></div>
+      <div id="rubric-criteria-summary-${this.instanceSalt}" class="rubric-tab-content"></div>
     `;
   }
 
   openGradePreviewTab(e) {
 
     e.stopPropagation();
-    this.openRubricsTab("rubric-grading-or-preview");
+    this.openRubricsTab(`rubric-grading-or-preview-${this.instanceSalt}`);
   }
 
   makeStudentSummary(e) {

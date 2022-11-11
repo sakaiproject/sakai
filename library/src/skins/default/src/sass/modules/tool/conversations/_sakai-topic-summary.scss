@@ -1,0 +1,175 @@
+.#{$namespace}sakai-conversations {
+
+  .topic-summary-link {
+    display: block;
+    color: inherit;
+    /*&:focus {
+        outline: solid;
+    }*/
+  }
+
+  .topic-summary {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 25px 1fr 70px;
+    grid-gap: 6px;
+    padding: 8px;
+    justify-content: space-around;
+    align-items: center;
+    border: 1px solid var(--sakai-border-color);
+    border-radius: 4px;
+
+    .topic-summary-duedate {
+      font-style: italic;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--sakai-text-color);
+      > span:first-child {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .topic-summary .topic-status {
+      margin-left: 4px;
+  }
+
+  .topic-summary-title-wrapper {
+    display: flex;
+    color: var(--sakai-text-color);
+    font-size: 15px;
+    align-items: center;
+  }
+
+  .topic-summary-title {
+    color: var(--sakai-text-color);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .unanswered {
+    background: #F1F2F3;
+  }
+
+  .unread {
+    border-color: #6CBBEB;
+  }
+
+  .unread-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    sakai-icon {
+      color: #176EA3;
+    }
+  }
+
+
+  .answered-icon {
+    color: green;
+  }
+
+  .unanswered-icon {
+    color: white;
+  }
+
+  .question-icon {
+    color: #D97008;
+  }
+
+  .discussion-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #7335C4;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+  }
+
+  .topic-summary > div:nth-child(3n) {
+    display: flex;
+    //justify-content: center;
+    justify-content: end;
+  }
+
+  .type-and-read-icons > div {
+    display: inline-block;
+  }
+
+  .topic-summary-creator-block {
+    font-size: 12px;
+    color: var(--sakai-text-color);
+    display: flex;
+    .conv-date-separator {
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+  }
+
+  .topic-summary-posts-indicator {
+    display: flex;
+    justify-content: end;
+
+    div:nth-child(2) {
+        margin-left: 4px;
+    }
+  }
+
+  .post-numbers span:nth-child(2) {
+    white-space: nowrap;
+  }
+
+  .post-number {
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .new-posts-number {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--sakai-text-color);
+  }
+
+  .selected {
+    background: var(--sakai-background-color-4);
+    border: 1px solid var(--sakai-border-color);
+
+    .discussion-icon {
+      color: var(--sakai-text-color-inverse);
+    }
+
+    .question-icon {
+      color: #D97008;
+    }
+
+    .tag {
+      background: var(--sakai-background-color-1);
+      color: var(--sakai-text-color-inverse);
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .conv-date-separator {
+      display: none;
+    }
+    .topic-summary-creator-block {
+      display: block;
+    }
+  }
+
+
+}
+
+:root.sakaiUserTheme-dark {
+  .#{$namespace}sakai-conversations {
+
+    .selected {
+      .tag {
+        background: var(--sakai-background-color-1);
+      }
+    }
+  }
+}

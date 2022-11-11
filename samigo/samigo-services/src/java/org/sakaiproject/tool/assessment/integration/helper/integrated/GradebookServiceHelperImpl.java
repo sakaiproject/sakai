@@ -83,7 +83,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     }
 
   public boolean isAssignmentDefined(String assessmentTitle,
-		  org.sakaiproject.grading.api.GradingService g) throws Exception
+		  org.sakaiproject.grading.api.GradingService g)
   {
     String gradebookUId = GradebookFacade.getGradebookUId();
     return g.isAssignmentDefined(gradebookUId, assessmentTitle);
@@ -124,7 +124,8 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
               getAppName(), // Use the app name from sakai
               null,
               false,
-              categoryId);
+              categoryId,
+              publishedAssessment.getReference());
       added = true;
     }
     return added;

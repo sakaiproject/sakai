@@ -44,6 +44,7 @@ import lombok.NoArgsConstructor;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -147,7 +148,11 @@ public class RestoreAssessmentsBean implements Serializable {
                 evaluation.setAssessmentBase(assessment.getData());
             }
             if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-                gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), assessment.getData().getCategoryId(), g);
+                PublishedAssessmentData data = (PublishedAssessmentData) assessment.getData();
+                String ref = SamigoReferenceReckoner.reckoner().site(AgentFacade.getCurrentSiteId()).subtype("p")
+                        .id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
+                data.setReference(ref);
+                gbsHelper.addToGradebook(data, data.getCategoryId(), g);
             }
         } catch (Exception e1) {
             log.warn("RestoreAssessmentsBean - Exception thrown in updateGB():" + e1.getMessage());

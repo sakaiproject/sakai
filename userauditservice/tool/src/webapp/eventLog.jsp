@@ -20,7 +20,7 @@ response.setContentType("text/html; charset=UTF-8");
 				pageSize="#{eventLog.pageSize}"
 				accesskeys="true"
 				immediate="true" />
-			<div class="table-responsive">
+			<div class="table">
 			<t:dataTable    id="userauditTable"
 	                        value="#{eventLog.eventLog}"
 	                        var="audit"
@@ -28,7 +28,7 @@ response.setContentType("text/html; charset=UTF-8");
 	                        sortAscending="#{eventLog.sortAscending}"
 	                        first="#{eventLog.firstItem}"
 	                        rows="#{eventLog.rowsNumber}"
-	                        styleClass="table table-responsive table-hover table-striped">
+	                        styleClass="table table table-hover table-striped">
 	               <h:column>
 	                   <f:facet name="header">
 	                       <t:commandSortHeader columnName="userId" immediate="true" arrow="true">

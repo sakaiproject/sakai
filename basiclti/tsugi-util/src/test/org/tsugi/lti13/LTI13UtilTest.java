@@ -361,4 +361,16 @@ public class LTI13UtilTest {
 		assertFalse(good);
 	}
 
+	@Test
+	public void textScoresUrl() {
+		assertNull(LTI13Util.getScoreUrlForLineItem(null));
+		assertEquals(LTI13Util.getScoreUrlForLineItem(""), "/scores");
+		assertEquals(LTI13Util.getScoreUrlForLineItem("tsugi"), "tsugi/scores");
+		assertEquals(LTI13Util.getScoreUrlForLineItem("tsugi?x=2"), "tsugi/scores?x=2");
+		assertEquals(LTI13Util.getScoreUrlForLineItem("tsugi?"), "tsugi/scores?");
+		assertEquals(LTI13Util.getScoreUrlForLineItem("?"), "/scores?");
+		assertEquals(LTI13Util.getScoreUrlForLineItem("?x=2"), "/scores?x=2");
+	}
+
+
 }

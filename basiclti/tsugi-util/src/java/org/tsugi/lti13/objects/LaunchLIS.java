@@ -1,14 +1,11 @@
 package org.tsugi.lti13.objects;
 
-import javax.annotation.Generated;
-
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 
 /*
     "https://purl.imsglobal.org/spec/lti/claim/lis": {
@@ -17,9 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
       "course_section_sourcedid": "example.edu:SI182-001-F16"
     }
  */
-public class LaunchLIS {
-
-	public static final String SCOPE_NAMES_AND_ROLES = "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly";
+public class LaunchLIS extends org.tsugi.jackson.objects.JacksonBase {
 
 	@JsonProperty("person_sourcedid")
 	public String person_sourcedid;

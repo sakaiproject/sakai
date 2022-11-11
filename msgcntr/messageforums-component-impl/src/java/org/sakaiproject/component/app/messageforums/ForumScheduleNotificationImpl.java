@@ -70,20 +70,20 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 
 	public void scheduleAvailability(Area area) {
 		scheduleAvailability(AREA_PREFIX + area.getContextId(), area.getAvailabilityRestricted(), area.getOpenDate(),
-				area.getCloseDate());
+				area.getCloseDate(), false);
 	}
 
 	public void scheduleAvailability(DiscussionForum forum) {
 		scheduleAvailability(FORUM_PREFIX + forum.getId().toString(), forum.getAvailabilityRestricted(),
-				forum.getOpenDate(), forum.getCloseDate());
+				forum.getOpenDate(), forum.getCloseDate(), forum.getLockedAfterClosed());
 	}
 
 	public void scheduleAvailability(DiscussionTopic topic) {
 		scheduleAvailability(TOPIC_PREFIX + topic.getId().toString(), topic.getAvailabilityRestricted(),
-				topic.getOpenDate(), topic.getCloseDate());
+				topic.getOpenDate(), topic.getCloseDate(), topic.getLockedAfterClosed());
 	}
 
-	private void scheduleAvailability(String id, boolean availabilityRestricted, Date openDate, Date closeDate) {
+	private void scheduleAvailability(String id, boolean availabilityRestricted, Date openDate, Date closeDate, boolean lockedAfterClosed) {
 		// Remove any existing notifications for this area
 		scheduledInvocationManager
 				.deleteDelayedInvocation("org.sakaiproject.api.app.messageforums.ForumScheduleNotification", id);
@@ -100,7 +100,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			if (openTime != null && openTime.isAfter(Instant.now())) {
 				scheduledInvocationManager.createDelayedInvocation(openTime,
 						"org.sakaiproject.api.app.messageforums.ForumScheduleNotification", id);
-			} else if (closeTime != null && closeTime.isAfter(Instant.now())) {
+			} else if (!lockedAfterClosed && closeTime != null && closeTime.isAfter(Instant.now())) {
 				scheduledInvocationManager.createDelayedInvocation(closeTime,
 						"org.sakaiproject.api.app.messageforums.ForumScheduleNotification", id);
 			}
@@ -113,7 +113,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			String siteId = opaqueContext.substring(AREA_PREFIX.length());
 			Area area = areaManager.getAreaByContextIdAndTypeId(siteId, typeManager.getDiscussionForumType());
 			boolean makeAvailable = makeAvailableHelper(area.getAvailabilityRestricted(), area.getOpenDate(),
-					area.getCloseDate());
+					area.getCloseDate(), false);
 
 			boolean madeChange = false;
 			if (area.getAvailability()) {
@@ -138,7 +138,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			Long forumId = Long.parseLong(opaqueContext.substring(FORUM_PREFIX.length()));
 			DiscussionForum forum = forumManager.getForumById(forumId);
 			boolean makeAvailable = makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(),
-					forum.getCloseDate());
+					forum.getCloseDate(), forum.getLockedAfterClosed());
 			boolean madeChange = false;
 			if (forum.getAvailability()) {
 				if (!makeAvailable) {
@@ -168,7 +168,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			DiscussionTopic topic = forumManager.getTopicById(topicId);
 
 			boolean makeAvailable = makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(),
-					topic.getCloseDate());
+					topic.getCloseDate(), topic.getLockedAfterClosed());
 			boolean madeChange = false;
 			if (topic.getAvailability()) {
 				if (!makeAvailable) {
@@ -196,7 +196,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 		}
 	}
 
-	public boolean makeAvailableHelper(boolean availabilityRestricted, Date openDate, Date closeDate) {
+	public boolean makeAvailableHelper(boolean availabilityRestricted, Date openDate, Date closeDate, Boolean lockedAfterClosed) {
 		boolean makeAvailable = true;
 		if (availabilityRestricted) {
 			// availability is being restricted:
@@ -204,6 +204,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 
 			boolean afterOpen = false;
 			boolean beforeClose = false;
+			boolean afterClose = false;
 			Instant openTime = null;
 			Instant closeTime = null;
 			if (openDate != null) {
@@ -229,6 +230,10 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			}
 
 			if (afterOpen && beforeClose) {
+				makeAvailable = true;
+			}
+
+			if(lockedAfterClosed && !beforeClose) {
 				makeAvailable = true;
 			}
 		}

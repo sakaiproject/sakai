@@ -8,7 +8,7 @@
         <version>23-SNAPSHOT</version>
     </parent>
     
-    <name>Basic LTI Admin Tool (basiclti-tool)</name>
+    <name>LTI Admin Tool (basiclti-tool)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-admin-tool</artifactId>
     <packaging>war</packaging>
@@ -20,7 +20,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>basiclti-api</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-util</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -63,17 +66,12 @@
             <artifactId>jjwt-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.10.5</version>
         </dependency>
         <dependency>
             <groupId>com.nimbusds</groupId>

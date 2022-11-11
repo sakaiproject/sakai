@@ -302,7 +302,7 @@
                 </t:div>
 
                 <!-- REVIEW TABLE -->
-                <div class="table-responsive table-sent-assessments">
+                <div class="table table-sent-assessments">
                     <t:dataTable styleClass="table table-hover table-striped table-bordered table-assessments" id="reviewTable" value="#{select.reviewableAssessments}" var="reviewable" summary="#{selectIndexMessages.sum_submittedAssessment}">
                         <%-- TITLE --%>
                         <t:column>

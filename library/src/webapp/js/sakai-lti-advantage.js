@@ -59,9 +59,9 @@ w.addEventListener('message', function (event) {
         case 'org.sakailms.lti.prelaunch':
             if ( same_origin ) {
                 _Sakai_LTI_Iframes.push(frame_id);
-                console.log('org.imsglobal.lti.prelaunch from same origin', origin, 'frame approved', frame_id);
+                console.log('org.sakailms.lti.prelaunch from same origin', origin, 'frame approved', frame_id);
             } else {
-                console.log('org.imsglobal.lti.prelaunch must come from same origin, not', origin);
+                console.log('org.sakailms.lti.prelaunch must come from same origin, not', origin);
             }
             break;
         case 'org.imsglobal.lti.capabilities':

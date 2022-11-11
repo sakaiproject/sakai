@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- This is a stub to test the override feature. We will load the defaults and then check for replacement. -->
+    <!-- Note that this is not a valid properties bean; we only test its definition for the stub property. -->
+    <bean id="org.sakaiproject.component.SakaiProperties">
+        <property name="testprop">
+            <value>is set</value>
+        </property>
+    </bean>
+</beans>

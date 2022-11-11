@@ -42,6 +42,7 @@
                 viewPronouns: ${viewPronouns},
                 viewUserNamePronunciation: ${viewUserNamePronunciation},
                 viewUserProperty: ${viewUserProperty},
+                viewCandidateDetails: ${viewCandidateDetails},
                 officialPictureMode: ${officialPicturesByDefault},
                 viewEmail: ${viewEmail},
                 viewConnections: ${viewConnections},

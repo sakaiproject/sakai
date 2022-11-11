@@ -28,7 +28,7 @@
     <sakai.commons.lang3.version>3.12.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.9</sakai.commons-text.version>
+    <sakai.commons-text.version>1.10.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
@@ -36,27 +36,28 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.elasticsearch.version>7.17.1</sakai.elasticsearch.version>
+    <sakai.opensearch.version>1.3.6</sakai.opensearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.15</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.13</sakai.httpmime.version>
-    <sakai.httpclient5.version>5.1.3</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.1.4</sakai.httpcore5.version>
-    <sakai.ignite.version>2.12.0</sakai.ignite.version>
+    <sakai.httpclient5.version>5.2</sakai.httpclient5.version>
+    <sakai.httpcore5.version>5.2</sakai.httpcore5.version>
+    <sakai.ignite.version>2.14.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
-    <sakai.gridgain.version>8.8.7</sakai.gridgain.version>
-    <sakai.jackson.version>2.13.3</sakai.jackson.version>
+    <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
+    <sakai.jackson.version>2.13.4</sakai.jackson.version>
     <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
-    <sakai.woodstox.version>6.2.8</sakai.woodstox.version>
+    <sakai.woodstox.version>6.3.1</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
+    <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.24</sakai.lombok.version>
-    <sakai.lucene.version>8.11.1</sakai.lucene.version>
-    <sakai.netty.version>4.1.71.Final</sakai.netty.version>
+    <sakai.lucene.version>8.10.1</sakai.lucene.version>
+    <sakai.netty.version>4.1.77.Final</sakai.netty.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
@@ -71,19 +72,19 @@
     <sakai.spring.security.version>5.5.7</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.3.3</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
-    <sakai.tika.version>1.28.4</sakai.tika.version>
-    <sakai.tomcat.version>9.0.65</sakai.tomcat.version>
+    <sakai.tika.version>1.28.5</sakai.tika.version>
+    <sakai.tomcat.version>9.0.68</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.log4j.version>2.18.0</sakai.log4j.version>
+    <sakai.log4j.version>2.19.0</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.2.2</sakai.poi.version>
+    <sakai.poi.version>5.2.3</sakai.poi.version>
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.11.0</joda.time.version>
+    <joda.time.version>2.12.1</joda.time.version>
     <sakai.weld.shaded.version>3.1.8.Final</sakai.weld.shaded.version>
-    <jayway.jsonpath.version>2.6.0</jayway.jsonpath.version>
+    <jayway.jsonpath.version>2.7.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
     <sakai.genericdao.version>0.12.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
@@ -93,6 +94,8 @@
     <handlebars4.version>4.0.6</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
     <junit.version>4.13.2</junit.version>
+    <sakai.nimbus.jose.jwt.version>8.2</sakai.nimbus.jose.jwt.version>
+    <sakai.io.jsonwebtoken.version>0.10.5</sakai.io.jsonwebtoken.version>
 
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -305,17 +308,6 @@
       </snapshots>
     </repository>
     <repository>
-      <id>gridgain</id>
-      <name>Gridgain Systems</name>
-      <url>https://gridgainsystems.com/nexus/content/repositories/external</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-    <repository>
       <id>shib-release</id>
       <url>https://build.shibboleth.net/nexus/content/groups/public</url>
       <snapshots>
@@ -383,13 +375,6 @@
         <version>3.0.11</version>
         <scope>provided</scope>
       </dependency>
-      <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.7.2</version>
-        <scope>provided</scope>
-      </dependency>
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
@@ -448,13 +433,17 @@
         <groupId>org.apache.ignite</groupId>
         <artifactId>ignite-spring</artifactId>
         <version>${sakai.ignite.version}</version>
+        <scope>provided</scope>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
         </exclusions>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.ignite</groupId>
@@ -482,14 +471,8 @@
       </dependency>
       <dependency>
         <groupId>org.apache.ignite</groupId>
-        <artifactId>ignite-hibernate-core</artifactId>
-        <version>${sakai.ignite.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.gridgain</groupId>
-        <artifactId>ignite-hibernate_5.3</artifactId>
-        <version>${sakai.gridgain.version}</version>
+        <artifactId>ignite-hibernate-ext</artifactId>
+        <version>${sakai.ignite.hibernate.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -794,17 +777,35 @@
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
         <version>1.10</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-configuration2</artifactId>
         <version>2.8.0</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-dbcp</groupId>
         <artifactId>commons-dbcp</artifactId>
         <version>1.4</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <scope>provided</scope>
+        <version>${sakai.tomcat.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.tomcat</groupId>
@@ -823,6 +824,12 @@
         <artifactId>commons-httpclient</artifactId>
         <version>${sakai.commons-httpclient.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -859,18 +866,36 @@
         <artifactId>commons-beanutils</artifactId>
         <version>1.9.4</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-digester</groupId>
         <artifactId>commons-digester</artifactId>
         <version>2.1</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
         <version>${sakai.commons-validator.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
             <groupId>commons-net</groupId>
@@ -964,23 +989,6 @@
         <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>1.2.17</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- JCL (commons-logging) is declared here as provided, it is important to
-           know that this jar is never deployed. The contrary would be to remove this
-           declaration and find every transitive dependency and exclude jcl.
-           It also provides protection if someone included a new dependency that
-           required jcl of which there are a lot. -->
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>[1.0,1.2]</version>
-        <scope>provided</scope>
-      </dependency>
       <!-- Logging Dependencies End -->
       <dependency>
         <groupId>org.hibernate</groupId>
@@ -1029,6 +1037,12 @@
         <artifactId>httpclient</artifactId>
         <version>${sakai.httpclient.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
@@ -1041,6 +1055,12 @@
         <artifactId>httpasyncclient</artifactId>
         <version>4.1.5</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- httpcore5 & httpclient5 -->
       <dependency>
@@ -1250,6 +1270,16 @@
         <artifactId>castor</artifactId>
         <version>1.1.2.1</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>javax.portlet</groupId>
@@ -1268,6 +1298,12 @@
         <artifactId>pluto-container</artifactId>
         <version>${sakai.pluto.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.pluto</groupId>
@@ -1306,47 +1342,41 @@
         <version>${sakai.openpdf.version}</version>
         <scope>provided</scope>
       </dependency>
-      <!-- elasticsearch -->
+      <!-- opensearch -->
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-core</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-core</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-cli</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-cli</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-secure-sm</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-secure-sm</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-x-content</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-x-content</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-geo</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-lz4</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-geo</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1356,51 +1386,57 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch.client</groupId>
+        <artifactId>opensearch-rest-high-level-client</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <groupId>org.opensearch.client</groupId>
+        <artifactId>opensearch-rest-client</artifactId>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>transport-netty4-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.codelibs.elasticsearch.module</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>analysis-common</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>parent-join-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>aggs-matrix-stats-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>rank-eval-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
+        <groupId>org.opensearch.plugin</groupId>
         <artifactId>lang-mustache-client</artifactId>
-        <version>${sakai.elasticsearch.version}</version>
+        <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- netty -->
@@ -1543,7 +1579,7 @@
         <version>5.10.0</version>
         <scope>provided</scope>
       </dependency>
-      <!-- elasticsearch 3rd party libs -->
+      <!-- opensearch 3rd party libs -->
       <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
@@ -1553,7 +1589,7 @@
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
-        <version>1.29</version>
+        <version>1.31</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1762,13 +1798,43 @@
         <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>basiclti-util</artifactId>
         <version>${sakai.version}</version>
-        <!-- soon to be provided -->
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>basiclti-common</artifactId>
         <version>${sakai.version}</version>
-        <!-- soon to be provided -->
+        <!-- Depends on ResourceLoader so must be in each webapp -->
+      </dependency>
+      <dependency>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+        <version>${sakai.nimbus.jose.jwt.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>${sakai.io.jsonwebtoken.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>${sakai.io.jsonwebtoken.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>${sakai.io.jsonwebtoken.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.plus</groupId>
+        <artifactId>sakai-plus-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.taggable</groupId>
@@ -1845,12 +1911,6 @@
         <groupId>org.sakaiproject.entitybroker</groupId>
         <artifactId>entitybroker-utils</artifactId>
         <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-        <artifactId>gradebook-service-hibernate</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.grading</groupId>
@@ -2565,7 +2625,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.5.3.0</version>
+          <version>4.7.1.1</version>
          <configuration>
             <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -2576,7 +2636,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>4.5.3</version>
+               <version>4.7.2</version>
              </dependency>
           </dependencies>
         </plugin>
@@ -2696,6 +2756,24 @@
                   </rules>
                   <fail>true</fail>
               </configuration>
+          </execution>
+          <execution>
+            <id>enforce-banned-dependencies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>commons-logging:commons-logging</exclude>
+                    <exclude>log4j:log4j</exclude>
+                    <exclude>xalan:xalan</exclude>
+                  </excludes>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
+            </configuration>
           </execution>
         </executions>
         <dependencies>

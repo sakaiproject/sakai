@@ -43,7 +43,7 @@ This section contains the options for grading this assignment, including rubrics
 		</select>
 	</div>
 
-	<div id="assignmentGradingPointsPanel" class="well" #if($value_GradeType != 3 && $value_GradeType != 1)style="display:none;"#end >
+	<div id="assignmentGradingPointsPanel" class="card text-dark bg-light mb-3 p-3" #if($value_GradeType != 3 && $value_GradeType != 1)style="display:none;"#end >
 		## enable the maxfield when it is points grade type
 		<div class="form-group form-required">
 			<label for="$name_GradePoints" class="control-label">$tlang.getString("gen.forpoi")</label>
@@ -156,24 +156,14 @@ This section contains the options for grading this assignment, including rubrics
 
 					<div id="peerperiod-finish">
 						<label for="new_assignment_peerperiod">$tlang.getString("peerassessment.periodfinishes")</label>
-						<input type="text" id="new_assignment_peerperiod" name="new_assignment_peerperiod" class="datepicker" value="">
+						<sakai-date-picker
+							id="new_assignment_peerperiod"
+							label="$tlang.getString("peerassessment.periodfinishes")"
+							hidden-prefix="new_assignment_peerperiod"
+							iso-date="$value_PeerPeriodYear$H$value_PeerPeriodMonth$H$value_PeerPeriodDay$T$value_PeerPeriodHour:$value_PeerPeriodMin"
+							add-hidden-fields>
+						</sakai-date-picker>
 					</div>
-
-					<script type="text/javascript">
-						localDatePicker({
-							input:'#new_assignment_peerperiod',
-							useTime:1,
-							val:"$value_PeerPeriodYear$H$value_PeerPeriodMonth$H$value_PeerPeriodDay $value_PeerPeriodHour:$value_PeerPeriodMin",
-							parseFormat: 'YYYY-MM-DD HH:mm',
-							ashidden:{
-								month:"$name_PeerPeriodMonth",
-								day:"$name_PeerPeriodDay",
-								year:"$name_PeerPeriodYear",
-								hour:"$name_PeerPeriodHour",
-								minute:"$name_PeerPeriodMin"
-							}
-						});
-					</script>
 					##Anonymous Eval
 					#if ($!value_PeerAssessmentAnonEval)
 						<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true" checked="checked"/>

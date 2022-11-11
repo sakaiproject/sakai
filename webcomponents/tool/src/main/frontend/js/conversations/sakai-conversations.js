@@ -429,7 +429,7 @@ export class SakaiConversations extends SakaiElement {
   renderTopbar(renderBackButton, mobile) {
 
     return html`
-      <div class="conv-topbar">
+      <div class="conv-topbar" style="${renderBackButton ? "grid-template-columns: min-content 1fr min-content;" : "grid-template-columns: 1fr min-content;"}">
 
         ${renderBackButton ? html`
         <div id="conv-back-button-block">
@@ -440,13 +440,15 @@ export class SakaiConversations extends SakaiElement {
           </div>
         </div>
         ` : ""}
-        <sakai-search id="conv-search"
-            style="width: 400px;"
-            @showing-search-results="${this._dimBackground}"
-            @hiding-search-results="${this._undimBackground}"
-            site-id="${this.siteId}"
-            tool="sakai.conversations">
-        </sakai-search>
+
+        <div>
+          <sakai-search id="conv-search"
+              @showing-search-results="${this._dimBackground}"
+              @hiding-search-results="${this._undimBackground}"
+              site-id="${this.siteId}"
+              tool="sakai.conversations">
+          </sakai-search>
+        </div>
               
         <div class="conv-settings-and-create">
           ${this.data.canUpdatePermissions ? html`

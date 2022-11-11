@@ -34,6 +34,7 @@ import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import static org.sakaiproject.messaging.api.MessageMedium.*;
@@ -125,6 +126,8 @@ public class UserMessagingServiceImpl implements UserMessagingService {
                 } else {
                     log.debug("No preferences tool on user {}'s site", userId);
                 }
+            } catch (IdUnusedException iue) {
+                log.warn("User id {} doesn't have a home site yet. We can't add the preferences link until they've logged in a least once", userId);
             } catch (Exception e) {
                 log.error("Failed to add preferences link to email message body: {}", e.toString());
             }

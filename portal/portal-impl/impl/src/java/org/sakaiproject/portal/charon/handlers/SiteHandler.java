@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -99,8 +100,9 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final String INCLUDE_TABS = "include-tabs";
 
-	private static final String URL_FRAGMENT = "site";
-	
+	// Cannot be static to allow for this class to be extended at a different fragment
+	protected String URL_FRAGMENT = "site";
+
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -142,7 +144,11 @@ public class SiteHandler extends WorksiteHandler
 
 	public SiteHandler()
 	{
-		setUrlFragment(SiteHandler.URL_FRAGMENT);
+		// Allow any sub-classes to register their own URL_FRAGMENT
+		// https://stackoverflow.com/questions/41566202/possible-to-avoid-default-call-to-super-in-java
+		if(this.getClass() == SiteHandler.class) {
+			setUrlFragment(URL_FRAGMENT);
+		}
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 		imageLogic = ComponentManager.get(ProfileImageLogic.class);
@@ -152,7 +158,7 @@ public class SiteHandler extends WorksiteHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals(SiteHandler.URL_FRAGMENT)))
+		if ((parts.length >= 2) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			// This is part of the main portal so we simply remove the attribute
 			session.setAttribute(PortalService.SAKAI_CONTROLLING_PORTAL, null);
@@ -685,6 +691,13 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
+			ResourceProperties resourceProperties = PreferencesService.getPreferences(session.getUserId())
+				.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			
+
+			rcontext.put("currentSiteId", siteId);
+			rcontext.put("sidebarSites", portal.getSiteHelper().getContextSitesWithPages(req, siteId, null, null, loggedIn));
+
 			try
 			{
 				if (loggedIn)
@@ -739,10 +752,6 @@ public class SiteHandler extends WorksiteHandler
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
 			rcontext.put("logoSkinRepo", skinRepo);
-			String siteType = portal.calcSiteType(siteId);
-			String cssClass = (siteType != null) ? siteType : "undeterminedSiteType";
-			rcontext.put("logoSiteType", siteType);
-			rcontext.put("logoSiteClass", cssClass);
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
@@ -898,6 +907,7 @@ public class SiteHandler extends WorksiteHandler
 			
 			int tabDisplayLabel = 1;
 			boolean toolsCollapsed = false;
+			String selectedPage = "";
 			boolean toolMaximised = false;
 
 			if (loggedIn) 
@@ -916,7 +926,10 @@ public class SiteHandler extends WorksiteHandler
 
 				try {
 					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
-				} catch (Exception any) {}
+					selectedPage = props.getProperty("selectedPage");
+				} catch (Exception any) {
+					log.warn("Exception caught whilst getting toolsCollapsed and selectedPage properties: {}", any.toString());
+				}
 
 				try {
 					toolMaximised = props.getBooleanProperty("toolMaximised");
@@ -924,7 +937,8 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("sidebarCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("selectedPage", selectedPage);
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(

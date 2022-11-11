@@ -90,7 +90,7 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 	private static final String BATCH_ARCHIVE_CONFIRM_MODE = "batch-archive-confirm";
 	private static final String SINGLE_MODE = "single";
 	private static final String DOWNLOAD_MODE = "download";
-
+	private static final String STATE_SUCCESS_MESSAGE = "successMessage";
 	
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("archive");
@@ -178,6 +178,10 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 			template = buildDownloadContext(portlet, context, rundata, state);
 		}
 		
+		// put successMessage into context and remove from state
+		context.put("successMessage", state.getAttribute(STATE_SUCCESS_MESSAGE));
+		state.removeAttribute(STATE_SUCCESS_MESSAGE);
+
 		return (String)getContext(rundata).get("template") + template;
 		
 	}	// buildMainPanelContext
@@ -325,12 +329,19 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		if (StringUtils.isNotBlank(id))
 		{
 			String msg;
-			if(zip) {
-				msg = archiveService.archiveAndZip(id.trim());
-			} else {
-				msg = archiveService.archive(id.trim());
+			try {
+				if(zip) {
+					msg = archiveService.archiveAndZip(id.trim());
+				} else {
+					msg = archiveService.archive(id.trim());
+				}
+
+				// Succeeded
+				state.setAttribute(STATE_SUCCESS_MESSAGE, rb.getFormattedMessage("archive", new Object[]{id}) + "\n\nSUCCEEDED:\n " + msg);
+			} catch (Exception e) {
+				// Failed
+				addAlert(state, rb.getFormattedMessage("archive", new Object[]{id}) + "\n\nFAILED: " + e.getMessage());
 			}
-			addAlert(state, rb.getFormattedMessage("archive", new Object[]{id}) + " \n " + msg);
 		}
 		else
 		{

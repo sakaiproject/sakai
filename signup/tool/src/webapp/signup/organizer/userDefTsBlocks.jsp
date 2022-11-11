@@ -167,7 +167,7 @@
 
 					<h:outputText value="#{msgs.warn_reschedule_event}" styleClass="alertMessage" style="width:85%" escape="false" rendered="#{UserDefineTimeslotBean.someoneSignedUp}"/>
 					
-						<div class="table-responsive">
+						<div class="table">
 					    <t:dataTable id="userDefinedTS" value="#{UserDefineTimeslotBean.timeSlotWrpList}" 
 					    	var="tsWrapper"
 					    	binding="#{UserDefineTimeslotBean.tsTable}"

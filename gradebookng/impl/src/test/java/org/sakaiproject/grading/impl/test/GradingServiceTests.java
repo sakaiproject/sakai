@@ -23,10 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CategoryDefinition;
@@ -47,10 +50,12 @@ import org.sakaiproject.grading.api.repository.LetterGradePercentMappingReposito
 import org.sakaiproject.grading.impl.GradingServiceImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,11 +79,13 @@ import org.junit.runner.RunWith;
 public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private CourseGradeRepository courseGradeRepository;
+    @Autowired private EntityManager entityManager;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
+    @Autowired private PlusService plusService;
     @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;
@@ -604,6 +611,44 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(instructor, defs.get(0).getGraderUid());
         assertEquals(GradeType.POINTS, defs.get(0).getGradeEntryType());
         assertNull(defs.get(0).getGradeComment());
+    }
+
+    @Test
+    public void getUrlForAssignment() {
+
+        Gradebook gradebook = createGradebook();
+
+        ToolConfiguration tc = mock(ToolConfiguration.class);
+        when(tc.getId()).thenReturn("123456");
+
+
+        Site site = mock(Site.class);
+        when(site.getToolForCommonId("sakai.gradebookng")).thenReturn(tc);
+
+        try {
+            when(siteService.getSite(gradebook.getUid())).thenReturn(site);
+        } catch (Exception e) {
+        }
+
+        String externalId = "bf3eeca2-1b97-4ead-b605-a8b50a0c6950";
+        String reference = "/ref/" + externalId;
+        String url = "http://localhost/portal/directtool/xhelkdh";
+        when(entityManager.getUrl(reference, Entity.UrlType.PORTAL)).thenReturn(Optional.of(url));
+        String title = "External One";
+        Double points = 55.3D;
+        Date dueDate = new Date();
+        String description = "The Sakai assignments tool";
+
+        gradingService.addExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", title, points, dueDate, description, "data", false, null, reference);
+        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        assertEquals(url, gradingService.getUrlForAssignment(assignment));
+
+        // If the gradable reference hasn't been supplied, we should get the gradebook tool url
+        String gradebookUrl = "/portal/directtool/" + tc.getId();
+        title = "External Two";
+        gradingService.addExternalAssessment(gradebook.getUid(), "blah", "http://ham.com", title, points, dueDate, description, "data", false, null);
+        assignment = gradingService.getExternalAssignment(gradebook.getUid(), "blah");
+        assertEquals(gradebookUrl, gradingService.getUrlForAssignment(assignment));
     }
 
     private Long createAssignment1(Gradebook gradebook) {

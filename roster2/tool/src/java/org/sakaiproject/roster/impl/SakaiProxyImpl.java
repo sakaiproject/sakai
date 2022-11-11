@@ -111,9 +111,13 @@ import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -138,6 +142,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 	@Resource(name = "org.sakaiproject.authz.api.GroupProvider")
 	private GroupProvider groupProvider;
+	
+	@Qualifier("org.sakaiproject.user.api.CandidateDetailProvider")
+	@Autowired(required = false)
+	private CandidateDetailProvider candidateDetailProvider;
 
 	@Resource private PrivacyManager privacyManager;
 	@Resource private MemoryService memoryService;
@@ -205,10 +213,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, true);
         }
 
+        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWCANDIDATEDETAILS)) {
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWCANDIDATEDETAILS, true);
+        }
+
         eventTrackingService.addObserver(this);
 
         memberComparator = new RosterMemberComparator(getFirstNameLastName());
-        userPropsRegex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$"));
+        userPropsRegex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$|additionalInfo|specialNeeds|studentNumber"));
 	}
 	
 	/**
@@ -378,6 +390,19 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	public Boolean getViewUserProperty(String siteId) {
 		if(serverConfigurationService.getBoolean("roster_view_user_properties", DEFAULT_VIEW_USER_PROPERTIES)) {
 			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, siteId);
+		}
+		return false;
+	}
+
+	@Override
+	public Boolean getViewCandidateDetails() {
+		return getViewCandidateDetails(getCurrentSiteId());
+	}
+
+	@Override
+	public Boolean getViewCandidateDetails(String siteId) {
+		if(serverConfigurationService.getBoolean("roster_view_candidate_details", DEFAULT_VIEW_CANDIDATE_DETAILS)) {
+			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWCANDIDATEDETAILS, siteId);
 		}
 		return false;
 	}
@@ -779,6 +804,18 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 		// remove null values from map
 		userPropertiesMap.values().removeIf(Objects::isNull);
+
+		if (candidateDetailProvider != null && candidateDetailProvider.isSpecialNeedsEnabled(site)) {
+			rosterMember.setSpecialNeeds(candidateDetailProvider.getSpecialNeeds(user, site).orElse(null));
+		}
+
+		if (candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(site)) {
+			rosterMember.setAdditionalNotes(candidateDetailProvider.getAdditionalNotes(user, site).orElse(null));
+		}
+
+		if (candidateDetailProvider != null && candidateDetailProvider.isInstitutionalNumericIdEnabled(site)) {
+			rosterMember.setStudentNumber(candidateDetailProvider.getInstitutionalNumericId(user, site).orElse(null));
+		}
 
 		// filter values that are configured to be removed
 		Set<String> keysToRemove = userPropertiesMap.keySet().stream().filter(this.userPropsRegex.asPredicate()).collect(Collectors.toSet());

@@ -384,16 +384,6 @@ public interface AssignmentService extends EntityProducer {
     public Assignment getAssignment(String assignmentId) throws IdUnusedException, PermissionException;
 
     /**
-     * Access the Assignment with the specified id, returning just the submissions that the user
-     * is able to see.
-     * @param assignmentId - The id of the Assignment.
-     * @return The assignment corresponding to the id and the filtered submissions, null if it does not exists.
-     * @throws IdUnusedException if the is no assignment with the passed id.
-     * @throws PermissionException if the current user is not allowed to read the assignment.
-     */
-    public Collection<AssignmentSubmission> getGradeableSubmissions(Assignment assignment);
-
-    /**
      * Retrieves the current status of the specified assignment.
      *
      * @return

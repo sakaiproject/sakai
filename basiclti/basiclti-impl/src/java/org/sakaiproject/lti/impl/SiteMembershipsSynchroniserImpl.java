@@ -116,7 +116,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
     private final void synchronizeLTI1SiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, boolean isEmailTrustedConsumer) {
 
         // Lookup the secret
-        final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
+        final String configPrefix = "lti.provider." + oauth_consumer_key + ".";
         final String oauth_secret = serverConfigurationService.getString(configPrefix+ "secret", null);
         if (oauth_secret == null) {
             log.error("launch.key.notfound {}. This site's memberships will NOT be synchronised.", oauth_consumer_key);
@@ -160,7 +160,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
     private final void synchronizeMoodleExtSiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, boolean isEmailTrustedConsumer) {
 
         // Lookup the secret
-        final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
+        final String configPrefix = "lti.provider." + oauth_consumer_key + ".";
         final String oauth_secret = serverConfigurationService.getString(configPrefix+ "secret", null);
         if (oauth_secret == null) {
             log.error("launch.key.notfound {}. This site's memberships will NOT be synchronised.", oauth_consumer_key);

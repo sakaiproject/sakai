@@ -20,7 +20,7 @@
 				<form name = "removeSectionForm" id="removeSectionForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 					<input type="hidden" name="option" value="remove" />
-					<div class="table-responsive course-section">
+					<div class="table course-section">
 						<table class="table table-bordered table-hover table-striped" summary="">
 							#foreach($item in $!selectedProviderCourseTitles.keySet())
 								<tr>

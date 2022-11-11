@@ -4,6 +4,8 @@
       });
 
       var hideMessage;
+      var timeWarning;
+      var timeWarningClose;
       var minReqScale;
       var pleaseWait;
       var savedMessage;
@@ -20,6 +22,8 @@
       var headerHeight;
       var routePrefix = "../delivery/";
       var routeSuffix = "";
+      var showWarning = false;
+      var disableWarning;
       var ajaxQuery = {
           "ajax": true
       };
@@ -37,6 +41,8 @@
           async: false,
           success(data) {
               hideMessage = data.hideMessage;
+              timeWarning = data.timeWarning;
+              timeWarningClose = data.timeWarningClose;
               minReqScale = data.minReqScale;
               pleaseWait = data.pleaseWait;
               savedMessage = data.savedMessage;
@@ -61,6 +67,12 @@
                       <div id='progressbar' class="progress-bar"></div>
                   </div>
               </div>
+              <div class="warn-banner">
+                <div class="sak-banner-warn">
+                    ${ timeWarning }
+                    <a href="#" class="warn-banner-dismiss">${ timeWarningClose }</a>
+                </div>
+              </div>
               <button id='showHide'>
                   <span class='showHideSym'>▲</span>
                   <span id='showHideText'>${ hideMessage }"</span>
@@ -76,6 +88,8 @@
       `);
       var timeoutDialog = $("#dialog-timeout");
       var timerBlock = $("#timerBlock");
+      var warnBanner = $(".warn-banner").hide();
+      var warnBannerDismiss = $(".warn-banner-dismiss");
 
       function setScrolling() {
           headerHeight = $("header").height();
@@ -161,15 +175,26 @@
           e.preventDefault();
           if (progressbar.is(":visible")) {
               progressWrapper.slideUp();
+              if (showWarning) {
+                warnBanner.slideDown();
+              }
               showHide.find("#showHideText").text(showMessage);
               showHide.find(".showHideSym").text("▼");
               showTimer.val(false);
           } else {
               progressWrapper.slideDown();
+              warnBanner.slideUp();
               showHide.find("#showHideText").text(hideMessage);
               showHide.find(".showHideSym").text("▲");
               showTimer.val(true);
           }
+      });
+
+      warnBannerDismiss.click(function(e) {
+          e.preventDefault();
+          warnBanner.slideUp();
+          showWarning = false;
+          disableWarning = true;
       });
 
       function startTimeFinish() {
@@ -213,7 +238,12 @@
       var readerAnnounce = true;
 
       function readTime() {
-          document.getElementById("timerReader").innerText = getRemainingTimeString(remain).concat(" ", srRemaining);
+          const alertEl = document.getElementById("timerReader");
+          //Clear alert, so it's read later
+          alertEl.innerText = "";
+          setTimeout(() => {
+              alertEl.innerText = getRemainingTimeString(remain).concat(" ", srRemaining);
+          }, 250);
       }
 
       function getColorString(progValue) {
@@ -291,6 +321,14 @@
           progressLabel.text(("00" + hours.toString()).substr(-2) + ":" + ("00" + minutes.toString()).substr(-2) + ":" + ("00" + seconds.toString()).substr(-2));
 
           progressbar.width(progValue + "%");
+
+          if (!disableWarning && !showWarning && progValue < 10) {
+            //Only show banner if the progressbar is hidden
+            if(progressbar.is(":hidden")) {
+                warnBanner.slideDown();
+            }
+            showWarning = true;
+          }
       }
 
       function leaveAssessment() {
@@ -323,6 +361,8 @@
           if (currentAid && lastAid && currentAid > 0 && lastAid > 0 && currentAid !== lastAid) {
               $("#multiple-tabs-warning").show();
           }
+
+          disableWarning = (100 - Math.floor(((totalTime - remain) / totalTime) * 100)) < 10; 
           remain = data[0] - data[1];
           setProgressBar();
           var requestScale = (data[0] / 100) * 1000;

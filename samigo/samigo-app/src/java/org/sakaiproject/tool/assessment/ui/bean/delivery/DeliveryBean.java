@@ -211,8 +211,6 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private String feedbackComponentOption;
   @Getter @Setter
-  private boolean onlyShowingIncorrect = false;
-  @Getter @Setter
   private boolean feedbackOnDate;
   @Getter @Setter
   private String errorMessage;
@@ -2639,7 +2637,7 @@ public class DeliveryBean implements Serializable {
     }
     public String getMathJaxHeader(){
       Document headMJ = new Document("");
-      headMJ.appendElement("script").attr("src", "/library/js/mathjax-config.js");
+      headMJ.appendElement("script").attr("src", "/library/js/mathjax-config.js"+PortalUtils.getCDNQuery());
       headMJ.appendElement("script").attr("type", "text/javascript").attr("src", MATHJAX_SRC_PATH);
       return headMJ.toString();
     }
