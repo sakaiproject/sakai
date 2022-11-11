@@ -4318,6 +4318,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		GeneralViewParameters params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
 		params.setReturnView("reorder"); // flag to pagepicker that it needs to come back
+		params.setSource("anotherPage");	//flag that shows what link was clicked
 		createStandardToolBarLink(viewID, tofill, ID, message, params, tooltip);
 		return params;
 	}

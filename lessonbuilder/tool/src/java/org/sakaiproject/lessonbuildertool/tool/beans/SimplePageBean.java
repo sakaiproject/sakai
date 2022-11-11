@@ -230,6 +230,7 @@ public class SimplePageBean {
     // generic entity stuff. selectedEntity is the string
     // coming from the picker. We'll use the same variable for any entity type
 	public String selectedEntity = null;
+	public String selectedSite = null;
 	public String[] selectedEntities = new String[] {};
 	public String[] selectedGroups = new String[] {};
 	public String[] studentSelectedGroups = new String[] {};
@@ -2941,6 +2942,13 @@ public class SimplePageBean {
 		return "selectpage";
 	}
 
+	public String selectSite(){
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute("lessonbuilder.selectedsite", selectedSite);
+		toolSession.setAttribute("lessonbuilder.loadFromSite", "loadFromSite");	//indicate that Load Pages From This Site has been clicked
+		return "selectsite";
+	}
+
     // called from "add subpage" dialog
     // create if itemId == null or -1, else update existing
 	public String createSubpage()   {
@@ -3419,6 +3427,10 @@ public class SimplePageBean {
 
 	public void setSelectedAssignment(String selectedAssignment) {
 		this.selectedAssignment = selectedAssignment;
+	}
+
+	public void setSelectedSite(String siteid){
+		this.selectedSite = siteid;
 	}
 
 	public void setSelectedEntity(String selectedEntity) {
@@ -5176,11 +5188,13 @@ public class SimplePageBean {
 		}
 
 		List <SimplePageItem> secondItems = null;
+		String otherSiteId = "";
 		if (selectedEntity != null && !selectedEntity.equals("")) {
 		    // second page is involved
 		    Long secondPageId = Long.parseLong(selectedEntity);
 		    SimplePage secondPage = getPage(secondPageId);
-		    if (secondPage != null && secondPage.getSiteId().equals(getCurrentPage().getSiteId())) {
+			otherSiteId = secondPage.getSiteId();	//we need this populated to check on inter-site copying later on.
+		    if (secondPage != null) {
 			secondItems = getItemsOnPage(secondPageId);
 			if (secondItems.isEmpty())
 			    secondItems = null;
@@ -5220,6 +5234,35 @@ public class SimplePageBean {
 			    // item from second page. add copy
 			    SimplePageItem oldItem = secondItems.get(Integer.parseInt(split[i].substring(1)) - 1);
 			    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
+				if (newItem.getType() == SimplePageItem.PAGE){	//if the new item is a page link, we need to see if that page is in another site.
+					SimplePage p = simplePageToolDao.getPage(Long.valueOf(newItem.getSakaiId()));
+					boolean fromOtherSite = !StringUtils.equals(getCurrentSiteId(), otherSiteId);	//identifies if the page is from another site
+					if (fromOtherSite){	//if the page is from another site, we will re-link to a new blank one for this site instead.
+						Long parent = getCurrentPage().getPageId();
+						Long topParent = getCurrentPage().getTopParent();
+						String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
+						SimplePage newPage = simplePageToolDao.makePage(toolId, getCurrentSiteId(), p.getTitle(), parent, topParent);
+						saveItem(newPage);
+						newItem.setSakaiId(Long.valueOf(newPage.getPageId()).toString());
+					}
+				} else if (newItem.getType()==SimplePageItem.MULTIMEDIA || newItem.getType()==SimplePageItem.RESOURCE){	//resource/multimedia links from other sites will reference their original site unless we change it
+					boolean fromOtherSite = !StringUtils.contains(newItem.getSakaiId(), getCurrentSiteId());
+					if (fromOtherSite){	//replace any reference to the other site with this site's ID.
+						String newSakaiId = newItem.getSakaiId().replace(otherSiteId, getCurrentSiteId());
+						newItem.setSakaiId(newSakaiId);
+					}
+				} else if (newItem.getType() == SimplePageItem.RESOURCE_FOLDER){	//links to Resource folders from other sites will have their site IDs in the attributes; we must change them
+					boolean fromOtherSite = !StringUtils.contains(newItem.getSakaiId(), getCurrentSiteId());
+					if (fromOtherSite){	//replace any reference to the other site with this site's ID.
+						String newSiteId = newItem.getAttribute("dataDirectory").replace(otherSiteId, getCurrentSiteId());
+						newItem.setAttribute("dataDirectory", newSiteId);
+					}
+				} else if (newItem.getType() == SimplePageItem.TEXT){	//look for the old site ID in text and replace it.
+					if (!StringUtils.isBlank(otherSiteId)){
+						String newText = newItem.getHtml().replace(otherSiteId, getCurrentSiteId());
+						newItem.setHtml(newText);
+					}
+				}
 			    newItem.setPageId(getCurrentPageId());
 			    newItem.setSequence(i + 1);
 			    saveItem(newItem);
