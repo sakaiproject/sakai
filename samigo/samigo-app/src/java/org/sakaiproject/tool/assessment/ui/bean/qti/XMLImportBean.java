@@ -170,7 +170,7 @@ public class XMLImportBean implements Serializable {
 	if (isCP) {
 		ImportService importService = new ImportService();
 		unzipLocation = importService.unzipImportFile(uploadFile);
-		filename = unzipLocation + "/" + importService.getQTIFilename();
+		filename = unzipLocation + "/" + importService.getQtiFilename();
 	}
     try
     {
