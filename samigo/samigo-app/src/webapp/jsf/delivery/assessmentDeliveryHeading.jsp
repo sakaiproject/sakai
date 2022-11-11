@@ -23,6 +23,10 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 --%>
 -->
 
+<h:panelGroup rendered="#{delivery.actionString!='previewAssessment' && delivery.hasTimeLimit}" >
+  <f:verbatim><div style="height:60px;">&nbsp;&nbsp;</div></f:verbatim>
+</h:panelGroup>
+
 <%-- TITLE --%>
 <h1>
    <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
