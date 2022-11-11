@@ -15,10 +15,10 @@
  */
 package org.sakaiproject.user.detail;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +27,10 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -50,17 +52,22 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private final static String PROP_DISPLAY_SPECIAL_NEEDS = "displaySpecialNeeds";
 	private final static String PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	private final static String PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
+	private final static String PROP_ENCRYPT_CANDIDATE_DETAILS = "encryptCandidateDetails";
 
+	private PreferencesService preferencesService;
 	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
 	private SiteService siteService;
 	private SecurityService secServ;
 	private ToolManager toolManager;
 	private ValueEncryptionUtilities encryptionUtilities;
 	
 	public void init() {
+		Objects.requireNonNull(preferencesService, "ServerConfigurationService must be set");
 		Objects.requireNonNull(siteService, "SiteService must be set");
 		Objects.requireNonNull(toolManager, "ToolManager must be set");
 		Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set");
+		Objects.requireNonNull(sessionManager, "SessionManager must be set");
 		Objects.requireNonNull(encryptionUtilities, "ValueEncryptionUtilities must be set");
 		Objects.requireNonNull(secServ, "SecurityService must be set");
 	}
@@ -93,21 +100,47 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 		return false;
 	}
 
+	private List<String> getI18nPropertyList(String propName, User user, Site site) {
+
+		String siteLanguage = site.getProperties().getProperty(Site.PROP_SITE_LANGUAGE);
+
+		if (StringUtils.isNotEmpty(siteLanguage)) {
+			siteLanguage = "_" + StringUtils.substring(siteLanguage, 0, 2);
+			List<String> propList = user.getProperties().getPropertyList(propName + siteLanguage);
+			if (propList != null) {
+				return propList; 
+			}
+		}
+
+		String userLanguage = preferencesService.getLocale(sessionManager.getCurrentSession().getUserId()).getLanguage();
+
+		if (StringUtils.isNotEmpty(userLanguage)) {
+			userLanguage = "_" + userLanguage;
+			List<String> propList = user.getProperties().getPropertyList(propName + userLanguage);
+			if (propList != null) {
+				return propList; 
+			}
+		}
+
+		return user.getProperties().getPropertyList(propName);
+	}
+
 	public Optional<List<String>> getAdditionalNotes(User user, Site site) {
 		try {
-			if(user != null) {
-				//check if additional notes is enabled (system-wide or site-based)
-				if(isAdditionalNotesEnabled(site)) {
-					if(user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO) != null) {
-						List<String> ret = new ArrayList<>();
-						for(String s : user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO)) {
-							//this property is encrypted, so we need to decrypt it
-							String decrypt = encryptionUtilities.decrypt(s);
-							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(decrypt)){
-								ret.add(decrypt);
-							}
-						}
-						return Optional.ofNullable(ret);
+			//check if additional notes are enabled (system-wide or site-based)
+			if(user != null && isAdditionalNotesEnabled(site) && user.getProperties() != null) {
+				List<String> additionalNotesList = getI18nPropertyList(USER_PROP_ADDITIONAL_INFO, user, site);
+				if (additionalNotesList != null) {
+					if (serverConfigurationService.getBoolean(PROP_ENCRYPT_CANDIDATE_DETAILS, true)) {
+						 return Optional.of(additionalNotesList.stream()
+								.filter(StringUtils::isNotBlank)
+								.map(encryptionUtilities::decrypt)
+								.filter(StringUtils::isNotBlank)
+							.collect(Collectors.toList()));
+					} else {
+						 return Optional.of(additionalNotesList.stream()
+								.filter(StringUtils::isNotBlank)
+							.collect(Collectors.toList()));
 					}
 				}
 			}
@@ -128,18 +161,20 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	public Optional<List<String>> getSpecialNeeds(User user, Site site) {
 		try {
 			//check if special needs info is enabled (system-wide or site-based)
-			if (user != null && isSpecialNeedsEnabled(site)) {
-				if (user.getProperties().getPropertyList(USER_PROP_SPECIAL_NEEDS) != null) {
-					List<String> ret = new ArrayList<>();
-					for (String s : user.getProperties().getPropertyList(USER_PROP_SPECIAL_NEEDS)) {
-						//this property is encrypted, so we need to decrypt it
-						//String decrypt = encryptionUtilities.decrypt(s);
-						String decrypt = s;
-						if (StringUtils.isNotBlank(s) && StringUtils.isNotBlank(decrypt)) {
-							ret.add(decrypt);
-						}
+			if (user != null && isSpecialNeedsEnabled(site) && user.getProperties() != null ) {
+				List<String> specialNeedsList = getI18nPropertyList(USER_PROP_SPECIAL_NEEDS, user, site);
+				if (specialNeedsList != null) {
+					if (serverConfigurationService.getBoolean(PROP_ENCRYPT_CANDIDATE_DETAILS, true)) {
+						 return Optional.of(specialNeedsList.stream()
+								.filter(StringUtils::isNotBlank)
+								.map(encryptionUtilities::decrypt)
+								.filter(StringUtils::isNotBlank)
+							.collect(Collectors.toList()));
+					} else {
+						 return Optional.of(specialNeedsList.stream()
+								.filter(StringUtils::isNotBlank)
+							.collect(Collectors.toList()));
 					}
-					return Optional.ofNullable(ret);
 				}
 			}
 		} catch (Exception e) {
@@ -175,7 +210,9 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 
 		try {
 			String studentNumber = user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER);
-			if (serverConfigurationService.getBoolean(PROP_ENCRYPT_NUMERIC_ID, true)) {
+			if (serverConfigurationService.getBoolean(PROP_ENCRYPT_NUMERIC_ID,
+				serverConfigurationService.getBoolean(PROP_ENCRYPT_CANDIDATE_DETAILS, true)))
+			{
 				studentNumber = encryptionUtilities.decrypt(studentNumber);
 			}
 				
