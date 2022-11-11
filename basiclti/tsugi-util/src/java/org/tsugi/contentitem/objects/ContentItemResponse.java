@@ -4,8 +4,6 @@ package org.tsugi.contentitem.objects;
 import java.util.List;
 import java.util.ArrayList;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -13,7 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.tsugi.jackson.objects.JacksonBase;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "@context",
     "@graph"

@@ -66,13 +66,13 @@ public class OIDCServlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		// /imsoidc/lti13/oidc_auth?state=42&login_hint=/access/basiclti/site/92e..e8e67/content:6
+		// /imsoidc/lti13/oidc_auth?state=42&login_hint=/access/lti/site/92e..e8e67/content:6
 		if (parts.length == 4 && "oidc_auth".equals(parts[3])) {
 			handleOIDCAuthorization(request, response);
 			return;
 		}
 
-		// /imsoidc/lti13/lti112?tool_state=42&platform_state=/access/basiclti/site/92e..e8e67/content:6
+		// /imsoidc/lti13/lti112?tool_state=42&platform_state=/access/lti/site/92e..e8e67/content:6
 		if (parts.length == 4 && "lti112".equals(parts[3])) {
 			handleLTI112Authorization(request, response);
 			return;
@@ -119,7 +119,9 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if (!login_hint.startsWith(LTIService.LAUNCH_PREFIX)
+		// /access/lti/site/477ded8b-2d67-4897-9e00-0afc4eb8ae20/content:7
+		// /access/basiclti/site/477ded8b-2d67-4897-9e00-0afc4eb8ae20/content:7
+		if (!(login_hint.startsWith(LTIService.LAUNCH_PREFIX) || login_hint.startsWith(LTIService.LAUNCH_PREFIX_LEGACY))
 				|| login_hint.contains("\"") || login_hint.contains("'")
 				|| login_hint.contains("<") || login_hint.contains(">")
 				|| login_hint.contains(" ") || login_hint.contains(";")) {
@@ -158,7 +160,7 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if (!platform_state.startsWith(LTIService.LAUNCH_PREFIX)
+		if (!(platform_state.startsWith(LTIService.LAUNCH_PREFIX) || platform_state.startsWith(LTIService.LAUNCH_PREFIX_LEGACY))
 				|| platform_state.contains("\"") || platform_state.contains("'")
 				|| platform_state.contains("<") || platform_state.contains(">")
 				|| platform_state.contains(" ") || platform_state.contains(";")) {

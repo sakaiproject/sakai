@@ -4,7 +4,8 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="org.sakaiproject.util.ResourceLoader.grading"
-          class="org.sakaiproject.util.ResourceLoader">
+        class="org.sakaiproject.util.ResourceLoader">
+        <constructor-arg value="gradebookng"/>
     </bean>
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.grading"

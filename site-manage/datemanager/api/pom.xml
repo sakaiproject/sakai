@@ -21,6 +21,10 @@
 
 	<dependencies>
 		<!-- Sakai dependencies -->
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
 		<!-- Third dependencies -->
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>

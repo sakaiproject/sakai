@@ -229,7 +229,7 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
 
 
 GradebookGradeSummary.prototype.setupPopovers = function() {
-  this.$content.find('[data-toggle="popover"]').popover();
+  this.$content.find('[data-bs-toggle="popover"]').popover();
 };
 
 
@@ -294,7 +294,7 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
 
   $table.tablesorter({
     theme : "bootstrap",
-    widthFixed: true,
+    widthFixed: false,
     headerTemplate : '{content} {icon}',
     widgets : [ "uitheme", "zebra", "stickyHeaders" ],
     widgetOptions : {

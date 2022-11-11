@@ -79,7 +79,7 @@ import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.BASICLTI_PORTLET_ASSI
 /**
  * Notes:
  *
- * This program is directly exposed as a URL to receive IMS Basic LTI messages
+ * This program is directly exposed as a URL to receive IMS LTI messages
  * so it must be carefully reviewed and any changes must be looked at carefully.
  * Here are some issues:
  *
@@ -150,7 +150,7 @@ public class ServiceServlet extends HttpServlet {
 	protected void doPostForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String ipAddress = request.getRemoteAddr();
 
-		log.debug("Basic LTI Service Form request from IP={}", ipAddress);
+		log.debug("LTI Service Form request from IP={}", ipAddress);
 
 		String allowOutcomes = ServerConfigurationService.getString(
 				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);

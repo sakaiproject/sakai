@@ -25,6 +25,7 @@ public class GradeRestBean {
     private Long id;
     private String name;
     private double averageScore;
+    private boolean noneGradedYet;
     private int ungraded;
     private String url;
     private String siteTitle;

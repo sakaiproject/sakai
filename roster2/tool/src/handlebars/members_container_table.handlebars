@@ -37,6 +37,14 @@
             {{#if viewUserProperty}}
             <th>{{tr 'facet_userProperties'}}</th>
             {{/if}}
+            {{#if viewCandidateDetails}}
+                {{#if anyStudentNumberPresent}}
+                <th>{{tr 'facet_studentNumber'}}</th>
+                {{/if}}
+                {{#if anyAdditionalInfoPresent}}
+                <th>{{tr 'facet_additionalInfo'}}</th>
+                {{/if}}
+            {{/if}}
         </tr>
     </tbody>
     <tbody id="roster-members"></tbody>

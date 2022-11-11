@@ -80,7 +80,7 @@
 
   <!-- controller buttons for invisible pager control -->
   <!-- samigo:pagerButtonControl controlId="templates" formId="editOrRemoveTemplateForm" / -->
-  <div class="table-responsive">
+  <div class="table">
   <h:dataTable cellpadding="0" cellspacing="0" id="editDataTable" value="#{templateIndex.sortTemplateList}"
     var="templateListItem" styleClass="table table-hover table-bordered table-striped">
     <h:column>

@@ -283,8 +283,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 					ret.add(new DecoratedUserItem(item.getId(), item.getName(), s.getId(), s.getTitle(), baseURL + item.getId()));
 				}
 
-			}catch(EntityNotFoundException e) { //if there is no lessonbuilder tool in that site, just skip it		
-			}catch(SecurityException e) { //if current user can not access to the lessonbuilder tool on that site, just skip it				
+				//if current user can not access to the lessonbuilder tool on that site, just skip it
+				//if there is no lessonbuilder tool in that site, just skip it
+			}catch(EntityNotFoundException | SecurityException | NullPointerException e) {
 			}
 		}
 		

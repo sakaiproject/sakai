@@ -168,6 +168,7 @@ public class LessonsSubNavBuilder {
         translations.put("open_top_level_page", rb.getString("lessons_subnav.open_top_level_page"));
         translations.put("hidden", rb.getString("lessons_subnav.hidden"));
         translations.put("hidden_with_release_date", rb.getString("lessons_subnav.hidden_with_release_date"));
+        translations.put("main_link_name", rb.getString("lessons_subnav.main_link_name"));
         translations.put("prerequisite", rb.getString("lessons_subnav.prerequisite"));
         translations.put("prerequisite_and_disabled", rb.getString("lessons_subnav.prerequisite_and_disabled"));
 

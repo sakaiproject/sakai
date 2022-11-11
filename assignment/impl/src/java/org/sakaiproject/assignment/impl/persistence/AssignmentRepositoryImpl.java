@@ -134,6 +134,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public void softDeleteAssignment(String assignmentId) {
         Assignment assignment = findOne(assignmentId);
         assignment.setDeleted(Boolean.TRUE);
+        assignment.setSoftRemovedDate(Instant.now());
         update(assignment);
     }
 

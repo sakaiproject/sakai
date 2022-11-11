@@ -355,9 +355,9 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 
   var $gradeRubricOption = $(td).find(".gb-grade-rubric").parent();
   if (hasAssociatedRubric) {
-    $gradeRubricOption.removeClass("hidden");
+    $gradeRubricOption.removeClass("invisible");
   } else {
-    $gradeRubricOption.addClass("hidden");
+    $gradeRubricOption.addClass("invisible");
   }
 
   if (!valueCell) {
@@ -994,69 +994,52 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
   // append all dropdown menus to body to avoid overflows on table
-  var $dropdownMenu;
-  var $link;
-  $(window).on('show.bs.dropdown', function (event) {
-    $link = $(event.target);
+  let link;
+  let dropdownMenu;
+  window.addEventListener('show.bs.dropdown', function (event) {
 
-    if ($link.closest("#gradeTable").length == 0) {
+    link = event.target;
+
+    if (!link.closest("#gradeTable")) {
       return true;
     }
 
-    $dropdownMenu = $(event.target).find('.dropdown-menu');
+    dropdownMenu = link.nextElementSibling;
 
-    $dropdownMenu.addClass("gb-dropdown-menu");
+    dropdownMenu.classList.add("gb-dropdown-menu");
 
-    $dropdownMenu.data("cell", $link.closest("td, th"));
+    $(dropdownMenu).data("cell", $(link.closest("td, th")));
 
-    $dropdownMenu.width($dropdownMenu.outerWidth());
-
-    $('body').append($dropdownMenu.detach());
+    dropdownMenu.remove();
+    document.body.append(dropdownMenu);
 
     // Remove "Move left" menu option for the leftmost item and "Move right" for the rightmost item.
-    var $header = $link.closest("th.gb-item");
-    if ($header.length) {
-      var menuOption;
-      // Retrieve JQuery <a> element
-      if (!$header.prev("th.gb-item").length || $header.prev("th").hasClass("gb-item-category")) {
-        menuOption = $dropdownMenu.find(".gb-move-left");
+    const header = link.closest("th.gb-item");
+    if (header) {
+      let menuOption;
+      const previous = header.previousElementSibling;
+      if (!previous.classList.contains("gb-item") || previous.classList.contains("gb-item-category")) {
+        menuOption = dropdownMenu.querySelector(".gb-move-left");
       }
-      if (!$header.next("th.gb-item").length || $header.next("th").hasClass("gb-item-category")) {
-        menuOption = $dropdownMenu.find(".gb-move-right"); 
+      const next = header.nextElementSibling;
+      if (!next || next.classList.contains("gb-item-category")) {
+        menuOption = dropdownMenu.querySelector(".gb-move-right"); 
       }
-      // Remove DOM <li> element
-      if (menuOption != null && menuOption.length > 0) {
-        menuOption[0].parentElement.remove();
-      }
+      menuOption && menuOption.parentElement.remove();
     }
-
-    var linkOffset = $link.offset();
-
-    $dropdownMenu.css({
-        'display': 'block',
-        'top': linkOffset.top + $link.outerHeight(),
-        'left': linkOffset.left - $dropdownMenu.outerWidth() + $link.outerWidth()
-    });
   });
-  $(window).on('hide.bs.dropdown', function (event) {
-    if ($link.closest("#gradeTable").length == 0) {
-      return true;
-    }
-    $link.append($dropdownMenu.detach());
-    $dropdownMenu.hide();
-    $dropdownMenu = null;
-  });
-  $(".wtHolder").on('scroll', function (event) {
-    if ($dropdownMenu && $dropdownMenu.length > 0) {
-      var linkOffset = $link.offset();
 
-      $dropdownMenu.css({
-          'top': linkOffset.top + $link.outerHeight(),
-          'left': linkOffset.left - $dropdownMenu.outerWidth() + $link.outerWidth()
+  document.querySelector(".wtHolder")?.addEventListener("scroll", function (event) {
+
+    if (dropdownMenu) {
+      const linkOffset = $(link).offset();
+
+      Object.assign(dropdownMenu.style, {
+        top: linkOffset.top + $(link).outerHeight(),
+        left: linkOffset.left - $(dropdownMenu).outerWidth() + $(link).outerWidth(),
       });
     }
   });
-
 
   var filterTimeout;
   $("#studentFilterInput").on("keyup", function(event) {
@@ -1191,6 +1174,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     GbGradeTable.ajax({
       action: 'viewCourseGradeLog',
       studentId: $.data($cell[0], "studentid")
+    });
+  }).
+  on("click", ".gb-dropdown-menu .gb-quick-entry", function() { // go to this item's Quick Entry
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    GbGradeTable.ajax({
+      action: 'quickEntry',
+      assignmentId: $.data($cell[0], "assignmentid")
     });
   }).
   // Delete Grade Item
@@ -3356,16 +3347,16 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
             
             var $selectedField = $('.current.highlight .relative');
           
-            $selectedField.attr('data-toggle','popover');
+            $selectedField.attr('data-bs-toggle','popover');
             $selectedField.attr('data-placement','top');
             $selectedField.attr('data-container','body');
             $selectedField.attr('data-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
             $selectedField.attr('data-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
 
             $('body, button').on('click keyup touchend', function (e) {
-              if ($(e.target).data('toggle') !== 'popover'
+              if ($(e.target).data("bs-toggle") !== 'popover'
                   && $(e.target).parents('.popover.in').length === 0) { 
-                  $('[data-toggle="popover"]').popover('hide');
+                  $('[data-bs-toggle="popover"]').popover('hide');
               }
             });
             $selectedField.popover();

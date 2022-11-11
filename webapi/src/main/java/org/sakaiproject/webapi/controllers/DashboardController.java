@@ -241,8 +241,9 @@ public class DashboardController extends AbstractSakaiApiController {
             bean.setDefaultWidgetLayouts(defaultWidgetLayouts);
             String dashboardConfigJson = site.getProperties().getProperty("dashboard-config");
             if (dashboardConfigJson == null) {
-                bean.setLayout(defaultWidgetLayouts.get("2"));
-                bean.setTemplate(2);
+                int defaultCourseLayout = serverConfigurationService.getInt("dashoard.course.layout", 2);
+                bean.setLayout(defaultWidgetLayouts.get(Integer.toString(defaultCourseLayout)));
+                bean.setTemplate(defaultCourseLayout);
             } else {
                 Map<String, Object> dashboardConfig = (new ObjectMapper()).readValue(dashboardConfigJson, HashMap.class);
                 bean.setLayout((List<String>) dashboardConfig.get("layout"));

@@ -31,7 +31,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -55,6 +54,7 @@ import org.sakaiproject.gradebookng.tool.actions.GradeUpdateAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentLeftAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentRightAction;
 import org.sakaiproject.gradebookng.tool.actions.OverrideCourseGradeAction;
+import org.sakaiproject.gradebookng.tool.actions.QuickEntryAction;
 import org.sakaiproject.gradebookng.tool.actions.SetScoreForUngradedAction;
 import org.sakaiproject.gradebookng.tool.actions.SetStudentNameOrderAction;
 import org.sakaiproject.gradebookng.tool.actions.SetZeroScoreAction;
@@ -305,6 +305,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
 		this.gradeTable.addEventListener("setZeroScore", new SetZeroScoreAction());
 		this.gradeTable.addEventListener("viewCourseGradeLog", new ViewCourseGradeLogAction());
+		this.gradeTable.addEventListener("quickEntry", new QuickEntryAction());
 		this.gradeTable.addEventListener("deleteAssignment", new DeleteAssignmentAction());
 		this.gradeTable.addEventListener("setUngraded", new SetScoreForUngradedAction());
 		this.gradeTable.addEventListener("setStudentNameOrder", new SetStudentNameOrderAction());
@@ -604,15 +605,7 @@ public class GradebookPage extends BasePage {
 		response.render(
 				JavaScriptHeaderItem.forScript("includeWebjarLibrary('awesomplete')", null));
 
-		// GradebookNG Grade specific styles and behaviour
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css%s", version)));
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-gbgrade-table.css%s", version)));
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-sorter.css%s", version)));
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-print.css%s", version), "print"));
+		// GradebookNG Grade specific behaviour
 		response.render(JavaScriptHeaderItem
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js%s", version)));
 		response.render(JavaScriptHeaderItem

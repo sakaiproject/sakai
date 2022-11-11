@@ -31,4 +31,7 @@ public interface OpenTopic extends Topic {
     
     public void setDraft(Boolean draft);
 
+    public Boolean getLockedAfterClosed();
+
+    public void setLockedAfterClosed(Boolean lockedAfterClosed);
 }

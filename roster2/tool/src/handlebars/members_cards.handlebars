@@ -136,6 +136,44 @@
                 </div>
                 {{/if}}
             {{/if}}
+
+            {{#if ../viewCandidateDetails}}
+                {{#if studentNumber}}
+                <div class="roster-card-label">{{tr 'facet_studentNumber'}}</div>
+                <div class="roster-card-value">{{studentNumber}}</div>
+                {{/if}}
+                {{#if hasAdditionalInfo}}
+                    {{#if ../printMode}}
+                        {{#if hasSpecialNeeds}}
+                        <div class="roster-card-label-row">{{tr 'facet_specialNeeds'}}</div>
+                        <div class="roster-card-value-row">
+                            <ul class="roster-special-needs">
+                                {{#each specialNeeds}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                        {{/if}}
+                        {{#if hasAdditionalNotes}}
+                        <div class="roster-card-label-row">{{tr 'facet_additionalNotes'}}</div>
+                        <div class="roster-card-value-row">
+                            <ul class="roster-additional-notes">
+                                {{#each additionalNotes}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                        {{/if}}
+                    {{else}}
+                    <div class="roster-card-label-row">
+                        <button class="roster-card-button additional-info" data-user-id="{{userId}}">
+                            <span class="roster-card-button-icon fa fa-info-circle"></span>
+                            <span>{{tr 'additionalInfo_button_text'}}</span>
+                        </button>
+                    </div>
+                    {{/if}}
+                {{/if}}
+            {{/if}}
         </div> <!-- /roster-info-card -->
     </div> <!-- /roster-member-card -->
 {{/each}}

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.plus"
+		title="Plus"
+		description="Sakai Plus Configuration">
+
+        <category name="admin" />
+
+    </tool>
+</registration>
+

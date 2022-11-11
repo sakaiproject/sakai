@@ -47,7 +47,6 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.time.Instant;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -172,7 +171,7 @@ public class GradingService
     } catch (Exception e) {
       log.warn("Could not retrieve total scores for published assessment {}", publishedId, e);
     }
-    return Collections.<AssessmentGradingData>emptyList();
+    return Collections.emptyList();
   }
   
  /**
@@ -498,19 +497,15 @@ public class GradingService
   /**
    * Get the last submission for a student per assessment
    */
-  public Map getSubmitData(String publishedId, String agentId, Integer scoringoption, String assessmentGradingId) {
-
-    boolean onlyIncorrect = true;
+  public Map getSubmitData(String publishedId, String agentId, Integer scoringoption, String assessmentGradingId)
+  {
     try {
       Long gradingId = null;
-      if (assessmentGradingId != null) {
-        gradingId = Long.valueOf(assessmentGradingId);
-      }
-      //return (Map) PersistenceService.getInstance().
+      if (assessmentGradingId != null) gradingId = Long.valueOf(assessmentGradingId);
       return PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries().getSubmitData(Long.valueOf(publishedId), agentId, scoringoption, gradingId);
     } catch (Exception e) {
-      log.error("Exception whilst getting submit data: {}", e.toString());
+      log.error(e.getMessage(), e);
       return new HashMap();
     }
   }
@@ -785,7 +780,7 @@ public class GradingService
 	  return getHighestSubmittedAssessmentGrading(publishedAssessmentId, agentId, null);
   }
   
-  public Set<ItemGradingData> getItemGradingSet(String assessmentGradingId){
+  public Set getItemGradingSet(String assessmentGradingId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
                getItemGradingSet(Long.valueOf(assessmentGradingId));
@@ -1607,8 +1602,6 @@ public class GradingService
 
     	answer.setPartialCredit(score);
     	return score;
-    } else {
-      data.setIsCorrect(Boolean.TRUE);
     }
     return answer.getScore();
   }
@@ -2316,8 +2309,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  BigDecimal answerDiff = (correctAnswer.subtract(userAnswer));
 	  boolean closeEnough = (answerDiff.abs().compareTo(acceptableVariance.abs()) <= 0);
 	  if (closeEnough){
-		  totalScore += itemdata.getScore();
-		  data.setIsCorrect(Boolean.TRUE);
+		  totalScore += itemdata.getScore(); 
 	  }	
 	  return totalScore;
 	  
@@ -3737,16 +3729,16 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public double getAnswerScoreMCQ(ItemGradingData data, Map publishedAnswerHash) {
-
-    AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
-    if (answer == null || answer.getScore() == null) {
-      return 0d;
-    } else if (answer.getIsCorrect()) { // instead of using answer score Item score needs to be used here
-      data.setIsCorrect(Boolean.TRUE);
-      return (answer.getItem().getScore()); //--mustansar
-    }
-    return (answer.getItem().getScore() * answer.getPartialCredit()) / 100d;
+  public double getAnswerScoreMCQ(ItemGradingData data, Map publishedAnswerHash)
+  {
+	  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+	  if (answer == null || answer.getScore() == null) {
+		  return 0d;
+	  }
+	  else if (answer.getIsCorrect()){ // instead of using answer score Item score needs to be used here 
+		  return (answer.getItem().getScore()); //--mustansar 
+	  }
+	  return (answer.getItem().getScore()*answer.getPartialCredit())/100d;
   }
   
   /**

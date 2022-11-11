@@ -169,7 +169,7 @@
 					</div>
 				</div> ##end navPanel
 				<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
-				<div class="table-responsive">
+				<div class="table">
 					<table class="table table-hover table-striped table-bordered" summary="$tlang.getString('gen.tablecaptionworksp')">
 						<tr>
 							<th id ="subject" scope="col">
@@ -443,7 +443,7 @@
 
 					#if ($messageListVector.iterator().hasNext())
 						<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
-						<div class="table-responsive">
+						<div class="table">
 							<table class="table table-hover table-striped table-bordered" summary="$tlang.getString('gen.tablecaptionsite')">
 								<tr>
 								 <th id="subject" scope="col">

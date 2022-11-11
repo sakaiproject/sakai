@@ -221,7 +221,7 @@
 					<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription display-none">
 						<h:outputText escape="false" value="#{topic.topic.extendedDescription}" />
 
-						<div class="table-responsive">
+						<div class="table">
 							<h:panelGroup rendered="#{!empty topic.attachList}">
 								<h:dataTable styleClass="table table-hover table-striped table-bordered attachListTable" value="#{topic.attachList}" var="eachAttach" border="0" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
 									<h:column>

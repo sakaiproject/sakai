@@ -25,8 +25,8 @@
         </div>
 
         <form action="#toolForm( "$action" )" method="post">
-            <div class="table-responsive">
-                <table id="enrolments" class="table table-responsive table-bordered table-striped table-hover" summary="$summary" >
+            <div class="table">
+                <table id="enrolments" class="table table table-bordered table-striped table-hover" summary="$summary" >
                     <thead>
                         <tr>
                             <th id="term">

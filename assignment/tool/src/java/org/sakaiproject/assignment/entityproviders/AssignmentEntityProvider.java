@@ -691,7 +691,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         // A list of mappings of submission id to student id list
         List<SimpleSubmission> submissions
-            = assignmentService.getGradeableSubmissions(assignment).stream().map(as -> {
+            = assignment.getSubmissions().stream().map(as -> {
                 try {
                     SimpleSubmission simple = new SimpleSubmission(as, simpleAssignment, activeSubmitters);
                     simple.setProperties(addOriginalityProperties(as));
@@ -707,7 +707,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Integer contentKey = assignment.getContentId();
         if ( contentKey != null ) {
             // Fall back launch for SimpleAssignments without any user-submission
-            simpleAssignment.ltiGradableLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey;
+            simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
             Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
             String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
@@ -716,7 +716,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 String ltiSubmissionLaunch = null;
                 for ( SimpleSubmitter submitter: submission.submitters ) {
                     if ( submitter.id != null ) {
-                        ltiSubmissionLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
+                        ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
 
                         // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
                         // Delegate the complex understanding of the launch to SakaiBLTIUtil
@@ -1554,7 +1554,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(a.getContext(), gradebookAssignmentProp);
                     if (isExternalAssignmentDefined) {
                         // since the gradebook item is externally defined, the item is named after the external object's title
-                        gAssignment = gradingService.getAssignment(a.getContext(), a.getTitle());
+                        gAssignment = gradingService.getExternalAssignment(a.getContext(), gradebookAssignmentProp);
                         if (gAssignment != null) {
                             this.gradebookItemId = gAssignment.getId();
                             this.gradebookItemName = gAssignment.getName();

@@ -1003,7 +1003,7 @@ public class BaseSite implements Site
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getGroups()
+	public Collection<Group> getGroups()
 	{
 		// Default to loading the groups if lazy
 		return getGroups(true);
@@ -1022,7 +1022,7 @@ public class BaseSite implements Site
 	 * @return The Site's list of Groups.
 	 *
 	 */
-	public Collection getGroups(boolean allowFetch)
+	public Collection<Group> getGroups(boolean allowFetch)
 	{
 		// Avoid fetching if requested (as for copy constructor)
 		if (allowFetch && m_groupsLazy)
@@ -1490,7 +1490,14 @@ public class BaseSite implements Site
 		}
 		stack.pop();
 
-		// TODO: site groups
+		// site groups
+		Element groupNode = doc.createElement("groups");
+		site.appendChild(groupNode);
+		stack.push(groupNode);
+		for (Group group : getGroups()) {
+			group.toXml(doc, stack);
+		}
+		stack.pop();
 
 		return site;
 	}

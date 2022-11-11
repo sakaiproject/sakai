@@ -38,11 +38,12 @@
 				background-color: #f1f1f1;
 			}
 		</style>
-      <script src="/library/js/spinner.js"></script>
+      <script src='/library/js/spinner.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
 <%@ include file="/js/delivery.js" %>
 
       <script>includeWebjarLibrary('awesomplete')</script>
-      <script src="/library/js/sakai-reminder.js"></script>
+      <script src='/library/js/sakai-reminder.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
+      <script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
 
 <script>
 function toPoint(id)
@@ -257,7 +258,7 @@ $(document).ready(function(){
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<div class="table-responsive">
+<div class="table">
   <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
 
 	<!-- Add Submission Attempt Deleter-->
@@ -298,7 +299,8 @@ $(document).ready(function(){
         <f:param name="sortAscending" value="true"/>        
         </h:commandLink>
      </f:facet>
-     <h:panelGroup> <span class="tier2">
+      <sakai-user-photo user-id='<h:outputText value="#{description.agentId}"/>' profile-popup="on"></sakai-user-photo>
+     <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
@@ -331,7 +333,6 @@ $(document).ready(function(){
          <h:outputText value="<a target=\"blank\" href=\"#{description.alternativeInstructorReviewUrl}\"><span class=\"fa fa-video-camera\" aria-hidden=\"true\"></span><span class=\"sr-only\">#{evaluationMessages.instructor_review}</span></a>" escape="false" />
        </h:panelGroup>
      </span>
-    </span>
     </h:column>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && totalScores.sortAscending}">
@@ -344,7 +345,8 @@ $(document).ready(function(){
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-     <h:panelGroup> <span class="tier2">
+      <sakai-user-photo user-id='<h:outputText value="#{description.agentId}"/>' profile-popup="on"></sakai-user-photo>
+     <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
@@ -376,8 +378,7 @@ $(document).ready(function(){
        <h:panelGroup rendered="#{not empty description.alternativeInstructorReviewUrl}">
          <h:outputText value="<a target=\"_blank\" href=\"#{description.alternativeInstructorReviewUrl}\"><span class=\"fa fa-video-camera\" aria-hidden=\"true\"></span><span class=\"sr-only\">#{evaluationMessages.instructor_review}</span></a>" escape="false" />
        </h:panelGroup>
-    </span>
-   </span>
+	 </span>
 
     </h:column>
 
@@ -391,7 +392,8 @@ $(document).ready(function(){
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-            <h:panelGroup> <span class="tier2">
+      <sakai-user-photo user-id='<h:outputText value="#{description.agentId}"/>' profile-popup="on"></sakai-user-photo>
+            <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
@@ -427,8 +429,7 @@ $(document).ready(function(){
          <h:outputText value="  #{evaluationMessages.email}" escape="false"/>
          <h:outputText value="</a>" escape="false" />
 	   </h:panelGroup>
-	  </span>
-   	</span>
+	 </span>
 	</h:column>
     
 

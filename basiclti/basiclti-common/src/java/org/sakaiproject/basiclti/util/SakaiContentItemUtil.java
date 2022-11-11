@@ -42,11 +42,11 @@ public class SakaiContentItemUtil {
 		Tool theTool = ToolManager.getTool(toolRegistration);
 		if ( theTool == null ) return null;
 
-                Icon icon = new Icon("https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
-                icon.setHeight(64);
-                icon.setWidth(64);
+		Icon icon = new Icon("https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
+		icon.setHeight(64);
+		icon.setWidth(64);
 
-                PlacementAdvice placementAdvice = new PlacementAdvice();
+		PlacementAdvice placementAdvice = new PlacementAdvice();
 
 		// If we are http, lets go in a new window
 		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
@@ -56,14 +56,14 @@ public class SakaiContentItemUtil {
 			placementAdvice.setPresentationDocumentTarget(placementAdvice.WINDOW);
 		}
 
-                LtiLinkItem item = new LtiLinkItem(toolRegistration, placementAdvice, icon);
-                item.setUrl(SakaiLTIProviderUtil.getProviderLaunchUrl(toolRegistration));
-                item.setTitle(theTool.getTitle());
+		LtiLinkItem item = new LtiLinkItem(toolRegistration, placementAdvice, icon);
+		item.setUrl(SakaiLTIProviderUtil.getProviderLaunchUrl(toolRegistration));
+		item.setTitle(theTool.getTitle());
 
 		// Because of weirdness in the CI Implementations and unclear semantics
 		// between text and title, we send title twice
-                // item.setText(theTool.getDescription());
-                item.setText(theTool.getTitle());
+		// item.setText(theTool.getDescription());
+		item.setText(theTool.getTitle());
 
 		return item;
 	}
@@ -73,9 +73,11 @@ public class SakaiContentItemUtil {
 		LtiLinkItem item = getLtiLinkItem(toolRegistration);
 		if ( item == null ) return null;
 		
-                ContentItemResponse resp = new ContentItemResponse();
-                resp.addGraph(item);
+		ContentItemResponse resp = new ContentItemResponse();
+		resp.addGraph(item);
 		return resp;
 	}
+
+	// vim: tabstop=4 noet
 
 }

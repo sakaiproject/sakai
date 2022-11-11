@@ -34,7 +34,6 @@ public class CalendarEventRestBean {
     private String siteId;
     private String siteTitle;
     private String creator;
-    private String creatorDisplayName;
     private String viewText;
     private String title;
     private String tool;

@@ -318,7 +318,13 @@ public class EntityManagerComponent implements EntityManager
 
 		Reference r = newReference(ref);
 		EntityProducer ep = r.getEntityProducer();
-		return ep.getEntityUrl(r, urlType);
+
+		if (ep != null) {
+			return ep.getEntityUrl(r, urlType);
+		} else {
+			log.debug("No entity producer for reference {}", ref);
+			return Optional.<String>empty();
+		}
 	}
 
 	public EntityProducer getEntityProducer(String reference, Reference target)

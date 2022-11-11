@@ -306,20 +306,35 @@ var chatscript = {
 		}
 	},
 	updatePresentUsers : function (users) {
-		$("#presence").empty();
-		$("#topForm\\:chatList li .chatUserOnline").removeClass("is-online");
-		for (var i=0; i<users.length; i++) {
-			var ownerId = users[i].id;
-			var userId = ownerId;
+
+		const presence = document.getElementById("presence");
+		presence && (presence.textContent = "");
+
+		document.querySelectorAll("sakai-user-photo").forEach(el => el.online = false);
+
+		users.forEach(user => {
+
+			const ownerId = user.id;
+			let userId = ownerId;
 			if(ownerId.indexOf(':') > -1) {
 				userId = ownerId.substring(ownerId.indexOf(":") + 1)
 			}
-			var userElement = document.createElement("li");
+			const userElement = document.createElement("li");
+
 			userElement.setAttribute("data-user-id", ownerId);
-			userElement.innerHTML = users[i].name;
-			$("#presence").append(userElement);
-			$("#topForm\\:chatList li[data-owner-id=" + userId + "] .chatUserOnline").addClass("is-online");
-		}
+
+			const userHtml = `
+				<div class="chat-presence-row">
+					<div>
+						<sakai-user-photo user-id="${ownerId}" profile-popup="on"></sakai-user-photo>
+					</div>
+					<div>${user.name}</div>
+				</div>`;
+
+			userElement.innerHTML = userHtml;
+			presence && presence.appendChild(userElement);
+			document.querySelectorAll(`.chatList sakai-user-photo[user-id='${userId}']`).forEach(el => el.online = true);
+		});
 	},
 	showRemoveModal : function(messageId, ownerDisplayName, date, messageBody) {
 		var removeModal = $("#removemodal");

@@ -20,7 +20,7 @@
 --%>
 -->
 
-<div class="table-responsive">
+<div class="table">
   <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped tablesorter" id="questionpool-questions" rowIndexVar="row">
 
 <h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" >

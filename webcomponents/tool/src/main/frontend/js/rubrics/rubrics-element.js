@@ -56,28 +56,28 @@ export class RubricsElement extends SakaiElement {
     return criterion.ratings.length === 0;
   }
 
-  openRubricsTab(tabname) {
+  openRubricsTab(tabId) {
 
     this.querySelectorAll('.rubric-tab-content').forEach(tab => {
 
       // put all tabs' styling back to default [invisible]
       tab.setAttribute("class", "rubric-tab-content");
-      if (tab.getAttribute("id").indexOf("summary") !== -1 && tab.getAttribute("id").indexOf(tabname) === -1) { //remove any summary in this tab; only one should exist at a time
+      if (tab.getAttribute("id").indexOf("summary") !== -1 && tab.getAttribute("id").indexOf(tabId) === -1) { //remove any summary in this tab; only one should exist at a time
         tab.innerHTML = "";
       }
     });
 
-    const tabNow = document.getElementById(tabname);
+    const tabNow = document.getElementById(tabId);
     tabNow && tabNow.setAttribute("class", "rubric-tab-content rubrics-visible"); // style the clicked tab to be visible
     this.querySelectorAll(".rubrics-tab-button").forEach(tb => tb.setAttribute("class", "rubrics-tab-button"));
-    const tabButtonNow = this.querySelector(`#${tabname}-button`);
+    const tabButtonNow = this.querySelector(`#${tabId}-button`);
     tabButtonNow && tabButtonNow.setAttribute("class", "rubrics-tab-button rubrics-tab-selected"); //select styling on current tab button
   }
 
   makeASummary(type, siteId) {
 
     if (this.querySelector(`${type}-summary`)) { //avoid adding an extra summary by accident
-      this.openRubricsTab(`rubric-${type}-summary`);
+      this.openRubricsTab(`rubric-${type}-summary-${this.instanceSalt}`);
     }
     const summary = document.createElement('sakai-rubric-summary');
     summary.setAttribute('id', `${type}-summary`);
@@ -89,8 +89,8 @@ export class RubricsElement extends SakaiElement {
     }
     summary.setAttribute('evaluated-item-owner-id', this.evaluatedItemOwnerId);
     summary.setAttribute('summary-type', type);
-    const div = document.getElementById(`rubric-${type}-summary`);
+    const div = document.getElementById(`rubric-${type}-summary-${this.instanceSalt}`);
     div && div.appendChild(summary);
-    this.openRubricsTab(`rubric-${type}-summary`);
+    this.openRubricsTab(`rubric-${type}-summary-${this.instanceSalt}`);
   }
 }

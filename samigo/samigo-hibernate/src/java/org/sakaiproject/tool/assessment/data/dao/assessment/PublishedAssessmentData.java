@@ -80,7 +80,6 @@ public class PublishedAssessmentData
   private Integer submissionsAllowed;
   private Integer feedbackDelivery;
   private Integer feedbackComponentOption;
-  @Setter @Getter private Integer correctAnswerOption;
   private Integer feedbackAuthoring;
   private Date feedbackDate;
   @Setter @Getter private Date feedbackEndDate;
@@ -91,6 +90,7 @@ public class PublishedAssessmentData
   private Date lastNeedResubmitDate;
   private Integer timeLimit;
   private Long categoryId;
+  @Setter @Getter private String reference;
 
   
   public PublishedAssessmentData() {}
@@ -223,46 +223,46 @@ public class PublishedAssessmentData
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption,  Integer correctAnswerOption, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption,  Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption,  correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null, feedbackEndDate, feedbackScoreThreshold);
+			  feedbackDelivery,feedbackComponentOption,  feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null, feedbackEndDate, feedbackScoreThreshold);
   }
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null, feedbackEndDate, feedbackScoreThreshold);
+			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null, feedbackEndDate, feedbackScoreThreshold);
   }
 
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType, Integer status, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null, feedbackEndDate, feedbackScoreThreshold);
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null, feedbackEndDate, feedbackScoreThreshold);
   }
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null, feedbackEndDate, feedbackScoreThreshold);
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null, feedbackEndDate, feedbackScoreThreshold);
   }
   public PublishedAssessmentData(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
-                                 Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer correctAnswerOption, Integer feedbackAuthoring,
+                                 Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
                                  Integer lateHandling,
                                  Boolean unlimitedSubmissions,
                                  Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Integer timeLimit, Date feedbackEndDate, Double feedbackScoreThreshold) {
@@ -274,7 +274,6 @@ public class PublishedAssessmentData
     this.retractDate = retractDate;
     this.feedbackDelivery = feedbackDelivery; //=publishedFeedback.feedbackDelivery
     this.feedbackComponentOption = feedbackComponentOption;
-    this.correctAnswerOption = correctAnswerOption;
     this.feedbackAuthoring = feedbackAuthoring; //=publishedFeedback.feedbackAuthoring
     this.feedbackDate = feedbackDate;
     this.lateHandling = lateHandling;

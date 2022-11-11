@@ -15,14 +15,7 @@
  */
 package org.sakaiproject.messaging.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -48,7 +41,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,13 +52,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MessagingServiceImpl implements MessagingService, Observer {
 
-    private static final List<String> HANDLED_EVENTS = new ArrayList<>();
+    private static final Set<String> HANDLED_EVENTS = new HashSet<>();
 
     @Resource
-    private EagerIgniteSpringBean ignite;
+    /* package */ EagerIgniteSpringBean ignite;
 
     @Resource
-    private EventTrackingService eventTrackingService;
+    /* package */ EventTrackingService eventTrackingService;
     @Resource
     private MemoryService memoryService;
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
@@ -76,7 +68,7 @@ public class MessagingServiceImpl implements MessagingService, Observer {
     @Resource
     private SecurityService securityService;
     @Resource
-    private ServerConfigurationService serverConfigurationService;
+    /* package */ ServerConfigurationService serverConfigurationService;
     @Resource
     private SiteService siteService;
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
@@ -86,32 +78,48 @@ public class MessagingServiceImpl implements MessagingService, Observer {
 
     private IgniteMessaging messaging;
 
-    @Autowired
-    private List<BullhornHandler> handlers;
+    private List<BullhornHandler> handlers = new ArrayList<>();
 
     private Map<String, BullhornHandler> handlerMap = new HashMap<>();
 
     public void init() {
 
         if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
+            // Site publish is handled specially. It should probably be extracted from the logic below, but for now,
+            // we fake it in the list of handled events to get it into the if branch.
             HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
-
-            handlers.forEach(h -> {
-                h.getHandledEvents().forEach(he -> {
-
-                    HANDLED_EVENTS.add(he);
-                    handlerMap.put(he, h);
-                });
-            });
-
-            if (log.isDebugEnabled()) {
-                HANDLED_EVENTS.forEach(e -> log.debug("BH EVENT: {}", e));
-            }
-
             eventTrackingService.addLocalObserver(this);
         }
 
         messaging = ignite.message(ignite.cluster().forLocal());
+    }
+
+    @Override
+    public void registerHandler(BullhornHandler handler) {
+        handler.getHandledEvents().forEach(eventName -> {
+            if (HANDLED_EVENTS.contains(eventName))
+                log.info("Replacing bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+
+            HANDLED_EVENTS.add(eventName);
+            handlerMap.put(eventName, handler);
+            log.debug("Registered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+        });
+    }
+
+    @Override
+    public void unregisterHandler(BullhornHandler handler) {
+        handler.getHandledEvents().forEach(eventName -> {
+            if (!HANDLED_EVENTS.contains(eventName))
+                log.info("Attempting to unregister for unhandled bullhorn event: {}", eventName);
+
+            BullhornHandler current = handlerMap.get(eventName);
+
+            if (handler == current) {
+                HANDLED_EVENTS.remove(eventName);
+                handlerMap.remove(eventName);
+                log.debug("Unregistered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+            }
+        });
     }
 
     public void update(Observable o, final Object arg) {

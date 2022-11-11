@@ -79,23 +79,17 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 
 		List<CourseSection> all= getAllSiteSections();
 
-		// Get the Instructors for the site
-		List<String> intructorUids = getSiteInstructors().stream().map(s -> s.getUser().getUserUid())
-				.collect(Collectors.toList());
-
 		// Build the list of items for the left-side box
 		List available;
-		if ((StringUtils.trimToNull(availableSectionUuid) == null) && (intructorUids.contains(currentUserUuid))) {
+		if ((StringUtils.trimToNull(availableSectionUuid) == null) && (canManageAnySection())) {
 			available = getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(),
 					currentSection.getCategory());
 		} else if (StringUtils.trimToNull(availableSectionUuid) == null) {
 			// Add users from other TA's sections
 			List<String> sectionsCurrentUserIsTA = new ArrayList<String>();
 			for (CourseSection section : all) {
-				String sectionUid = section.getUuid();
-				if (sectionTAMap.get(sectionUid).stream()
-						.anyMatch(s -> s.getUser().getUserUid().equals(currentUserUuid))) {
-					sectionsCurrentUserIsTA.add(sectionUid);
+				if (canManageSection(section.getUuid())) {
+					sectionsCurrentUserIsTA.add(section.getUuid());
 				}
 			}
 			List<EnrollmentRecord> availableAll = getSectionManager()
@@ -162,10 +156,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 
 		List sectionsReadOnly = new ArrayList<CourseSection>();
 		for (CourseSection section : all) {
-			String sectionUid = section.getUuid();
-			if ((this.isFromCategoryReadOnly(sectionUid)) && ((sectionTAMap.get(sectionUid).stream()
-					.anyMatch(s -> s.getUser().getUserUid().equals(currentUserUuid)))
-					|| (intructorUids.contains(currentUserUuid)))) {
+			if ((this.isFromCategoryReadOnly(section.getUuid())) && (canManageSection(section.getUuid()))) {
 				sectionsReadOnly.add(section);
 			}
 		}
@@ -181,9 +172,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		for (Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection) iter.next();
 			// Don't include the current section and section where currentUser is not a TA
-			if (!(section.getUuid().equals(currentSection.getUuid())) && ((sectionTAMap.get(section.getUuid()).stream()
-					.anyMatch(s -> s.getUser().getUserUid().equals(currentUserUuid)))
-					|| (intructorUids.contains(currentUserUuid)))) {
+			if (!(section.getUuid().equals(currentSection.getUuid())) && (canManageSection(currentSection.getUuid()))) {
 				if (section.getUuid().equals(availableSectionUuid)) {
 					availableSectionTitle = section.getTitle();
 					availableSectionMax = section.getMaxEnrollments();

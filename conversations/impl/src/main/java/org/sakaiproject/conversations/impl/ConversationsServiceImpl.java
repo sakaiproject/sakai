@@ -263,6 +263,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     public boolean currentUserCanViewTopic(ConversationsTopic topic) {
 
+        if (topic == null) return false;
+
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
         if (StringUtils.isBlank(currentUserId)) return false;
@@ -313,7 +315,6 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         Settings settings = getSettingsForSite(siteId);
 
         List<ConversationsTopic> topics = topicRepository.findBySiteId(siteId).stream()
-            //.map(this::setupDateState)
             .map(this::showIfAfterShowDate)
             .map(this::lockIfAfterLockDate)
             .map(this::hideIfAfterHideDate)
@@ -557,7 +558,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                 }
             })).start();
         } else {
-            if ((isNew || wasDraft) && !topic.getDraft()) {
+            if (!topic.getDraft()) {
                 topicShowDateMessager.message(topic, isNew);
             }
         }
@@ -568,7 +569,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         long start = topic.getDueDate().toEpochMilli();
         calEdit.setRange(timeService.newTimeRange(timeService.newTime(start), timeService.newTime(start), true, false));
         calEdit.setDisplayName(resourceLoader.getString("topic_due") + " " + topic.getTitle());
-        calEdit.setDescription(topic.getMessage());
+        calEdit.setDescriptionFormatted(topic.getMessage());
         calEdit.setType(CalendarEventType.DEADLINE.getType());
         calEdit.setEventUrl(getTopicPortalUrl(topic.getId()).orElse(""));
         return calEdit;
@@ -947,6 +948,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
     public boolean currentUserCanViewPost(ConversationsPost post) {
 
+        if (post == null) return false;
+
         String currentUserId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isBlank(currentUserId)) return false;
 
@@ -954,6 +957,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
     }
 
     public boolean currentUserCanViewComment(ConversationsComment comment) {
+
+        if (comment == null) return false;
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isBlank(currentUserId)) return false;
