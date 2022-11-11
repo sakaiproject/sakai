@@ -205,7 +205,7 @@ public class GroupController {
             if (StringUtils.isNotBlank(joinableSet)) {
                 groupJoinableSet.add(joinableSet);
                 // Remove from selectable users the ones that are currently in any group from the joinable set
-                if (!groupForm.isGroupJoinableShowAllUsers()) {
+                if (!groupForm.isGroupJoinableShowAllUsers() && joinableSet.equals(groupForm.getJoinableSetName())) {
                     joinableMemberSet.addAll(group.getUsers());
                     if (StringUtils.isNotBlank(groupForm.getGroupId()) && !groupForm.getGroupId().equals(group.getId())) {
                         selectableMemberList = selectableMemberList.stream().filter(user -> {

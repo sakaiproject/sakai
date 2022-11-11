@@ -17,16 +17,32 @@ package org.sakaiproject.messaging.api.bullhornhandlers;
 
 import java.util.Arrays;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.messaging.api.BullhornHandler;
+import org.sakaiproject.messaging.api.SelfRegisteringBullhornHandler;
+import org.sakaiproject.messaging.api.MessagingService;
 
-public abstract class AbstractBullhornHandler implements BullhornHandler {
+public abstract class AbstractBullhornHandler implements SelfRegisteringBullhornHandler {
 
     @Resource
     protected SecurityService securityService;
+
+    @Resource
+    protected MessagingService messagingService;
+
+    @PostConstruct
+    protected void registerForEvents() {
+        messagingService.registerHandler(this);
+    }
+
+    @PreDestroy
+    protected void unregisterForEvents() {
+        messagingService.unregisterHandler(this);
+    }
 
     protected SecurityAdvisor unlock(final String[] functions) {
 

@@ -65,6 +65,11 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_SITE_PORTAL_NEOCHAT = "portal.neochat";
 
 	/**
+	 * property name for locale_string
+	 */
+	public final static String PROP_SITE_LANGUAGE = "locale_string";
+
+	/**
 	 * property name for mathjax
 	 */
 	public final static String PROP_SITE_MATHJAX_ALLOWED = "mathJaxAllowed";

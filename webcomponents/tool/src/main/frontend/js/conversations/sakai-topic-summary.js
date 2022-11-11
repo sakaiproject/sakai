@@ -111,8 +111,8 @@ export class SakaiTopicSummary extends SakaiElement {
           ${this.topic.numberOfUnreadPosts > 0 ? html`
             <sakai-icon type="circle"
                 size="small"
-                aria-label="${this.i18n.read_tooltip}"
-                title="${this.i18n.read_tooltip}">
+                aria-label="${this.i18n.unread_tooltip}"
+                title="${this.i18n.unread_tooltip}">
             </sakai-icon>
           ` : ""}
           </div>

@@ -1,0 +1,5 @@
+#if ($loggedIn)
+  <script type="module" src="/webcomponents/sui-picture-changer/sui-picture-changer.js$!{portalCDNQuery}"></script>
+  <sui-picture-changer dialog-title="$rloader.sit_edit_profile_image"></sui-picture-changer>
+#end
+

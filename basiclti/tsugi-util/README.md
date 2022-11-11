@@ -3,7 +3,7 @@ What is it?
 -----------
 
 Tsugi-util contains a set of utility classes to aid  in the development
-of BasicLTI consumers and providers. They deal with much of the heavy lifting
+of LTI consumers and providers. They deal with much of the heavy lifting
 and make the process more opaque to the developer.
 
 There is no Sakai-specific code but the code is developed and maintained in the 

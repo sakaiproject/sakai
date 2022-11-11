@@ -54,6 +54,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
@@ -1312,5 +1313,4 @@ public class ChatTool {
 	   sb.append("</span>");
 	   return sb.toString();
    }
-   
 }

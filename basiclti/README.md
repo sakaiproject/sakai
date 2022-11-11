@@ -65,9 +65,9 @@ BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doSearch&f
 
 New URLs used in export service :
 --------------------------------------------------------------------------------
-- CSV : BASE_URL/access/basiclti/site/SITE_ID/export:CSV
-- Excel : BASE_URL/access/basiclti/site/SITE_ID/export:EXCEL
+- CSV : BASE_URL/access/lti/site/SITE_ID/export:CSV
+- Excel : BASE_URL/access/lti/site/SITE_ID/export:EXCEL
 
 You can also specify a filter with a TOOL_ID
-- CSV : BASE_URL/access/basiclti/site/SITE_ID/export:CSV:TOOL_ID
-- Excel : BASE_URL/access/basiclti/site/SITE_ID/export:EXCEL:TOOL_ID
+- CSV : BASE_URL/access/lti/site/SITE_ID/export:CSV:TOOL_ID
+- Excel : BASE_URL/access/lti/site/SITE_ID/export:EXCEL:TOOL_ID

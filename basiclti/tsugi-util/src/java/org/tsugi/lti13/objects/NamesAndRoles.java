@@ -3,13 +3,10 @@ package org.tsugi.lti13.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 
 /*
 	"https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice": {
@@ -17,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 		"service_versions" : ["2.0"]
 	}
  */
-public class NamesAndRoles {
+public class NamesAndRoles extends org.tsugi.jackson.objects.JacksonBase {
 
 	// TODO: What do these mean?
 	public static String SERVICE_VERSION_LTI13 = "2.0";  // Like WTF?  But tis true.

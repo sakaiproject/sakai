@@ -38,7 +38,7 @@ class SakaiRubricStudentButton extends RubricsElement {
   render() {
 
     return html`
-      <a @click=${this.showRubric} href="javascript:;" title="${tr("preview_rubric")}"><span class="fa icon-sakai--sakai-rubrics" /></a>
+      <a @click=${this.showRubric} href="javascript:;" title="${tr("preview_rubric")}"><span class="si si-sakai-rubrics" /></a>
     `;
   }
 

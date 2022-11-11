@@ -500,7 +500,7 @@ public class AssignmentToolUtils {
                         // add assignment into gradebook
                         try {
                             // add assignment to gradebook
-                            gradingService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null);
+                            gradingService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null, assignmentRef);
                         } catch (AssignmentHasIllegalPointsException e) {
                             alerts.add(rb.getString("addtogradebook.illegalPoints"));
                             log.warn("integrateGradebook: {}", e.toString());

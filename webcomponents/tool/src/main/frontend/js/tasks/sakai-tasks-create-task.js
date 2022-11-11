@@ -403,6 +403,9 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       sakai-editor {
         width: 100%;
       }
+      .global-overlays {
+        z-index: 1200;
+      }
     `];
   }
 }

@@ -1052,6 +1052,21 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
     /**
      * INTERNAL
+     * Processes two-way mapping from legacy property prefixes / names to modern prefixes / names
+     *
+     * @param name the key name for the config value
+     * @return the alternate property name for this name.
+     */
+    protected String getAlternateName(String name)
+    {
+        if ( StringUtils.isBlank(name) ) return null;
+        if ( name.startsWith("lti.") ) return name.replaceFirst("^lti.", "basiclti.");
+        if ( name.startsWith("basiclti.") ) return name.replaceFirst("^basiclti.", "lti.");
+        return null;
+    }
+
+    /**
+     * INTERNAL
      * Finds a config item by name, use this whenever retrieving the item for lookup
      * 
      * @param name the key name for the config value
@@ -1061,6 +1076,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         ConfigItemImpl ci = null;
         if (name != null && !"".equals(name)) {
             ci = configurationItems.get(name);
+            if ( ci == null ) {
+                String alternateName = getAlternateName(name);
+                if ( alternateName != null ) ci = configurationItems.get(alternateName);
+            }
             if (ci == null) {
                 // add unregistered when not found for tracking later
                 ConfigItemImpl configItemImpl = new ConfigItemImpl(name);

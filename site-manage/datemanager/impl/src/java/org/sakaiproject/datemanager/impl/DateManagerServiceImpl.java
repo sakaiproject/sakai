@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -143,6 +144,21 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Optional<Site> getCurrentSite() {
+		String siteId = getCurrentSiteId();
+
+		try {
+			return Optional.of(siteService.getSite(siteId));
+		} catch (Exception ex) {
+			log.error("Unable to find the site with Id {}.", siteId);
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
 	}
@@ -154,6 +170,30 @@ public class DateManagerServiceImpl implements DateManagerService {
 	public Locale getUserLocale() {
 		Locale locale = prefService.getLocale(getCurrentUserId());
 		if (locale == null) locale = Locale.US;
+		return locale;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Locale getLocaleForCurrentSiteAndUser() {
+		Locale locale = null;
+
+		// First try to get site locale
+		Optional<Site> currentSite = getCurrentSite();
+		if (currentSite.isPresent()) {
+			ResourceProperties siteProperties = currentSite.get().getProperties();
+			String siteLocale = (String) siteProperties.get("locale_string");
+			if (StringUtils.isNotBlank(siteLocale)) {
+				locale = serverConfigurationService.getLocaleFromString(siteLocale);
+			}
+		}
+
+		// If there is not site locale defined, get user default locale
+		if (locale == null) {
+			locale = getUserLocale();
+		}
+
 		return locale;
 	}
 
@@ -470,7 +510,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				boolean errored = false;
 
 				if (openDate == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.not.found"), "assessments", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.assessments.open.date.not.found"), "assessments", toolTitle, idx));
 				}
 				if (acceptUntil != null) {
 					if (dueDate == null) {
@@ -512,7 +552,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				update.setFeedbackEndDate(feedbackEnd);
 
 				if (dueDate != null && !update.openDate.isBefore(update.dueDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.before.due.date"), "assessments", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.assessments.open.date.before.due.date"), "assessments", toolTitle, idx));
 					continue;
 				}
 

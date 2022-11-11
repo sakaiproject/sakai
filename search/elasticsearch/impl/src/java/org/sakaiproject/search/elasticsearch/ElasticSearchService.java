@@ -43,31 +43,31 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpHost;
 import org.apache.lucene.search.TotalHits;
-import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.ShardSearchFailure;
-import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.cluster.node.DiscoveryNodeRole;
-import org.elasticsearch.common.network.InetAddresses;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.util.set.Sets;
-import org.elasticsearch.node.InternalSettingsPreparer;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeValidationException;
-import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.InternalAggregations;
-import org.elasticsearch.search.internal.InternalSearchResponse;
-import org.elasticsearch.search.suggest.Suggest;
-import org.elasticsearch.transport.Netty4Plugin;
+import org.opensearch.action.admin.cluster.node.info.NodeInfo;
+import org.opensearch.action.admin.cluster.node.info.NodesInfoRequest;
+import org.opensearch.action.admin.cluster.node.info.NodesInfoResponse;
+import org.opensearch.action.admin.cluster.node.stats.NodeStats;
+import org.opensearch.action.admin.cluster.node.stats.NodesStatsRequest;
+import org.opensearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.ShardSearchFailure;
+import org.opensearch.analysis.common.CommonAnalysisPlugin;
+import org.opensearch.client.RestClient;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.cluster.node.DiscoveryNodeRole;
+import org.opensearch.common.network.InetAddresses;
+import org.opensearch.common.settings.Settings;
+import org.opensearch.common.util.set.Sets;
+import org.opensearch.node.InternalSettingsPreparer;
+import org.opensearch.node.Node;
+import org.opensearch.node.NodeValidationException;
+import org.opensearch.plugins.Plugin;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.SearchHits;
+import org.opensearch.search.aggregations.InternalAggregations;
+import org.opensearch.search.internal.InternalSearchResponse;
+import org.opensearch.search.suggest.Suggest;
+import org.opensearch.transport.Netty4Plugin;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -408,46 +408,46 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
-        return search(searchTerms, siteIds, start, end);
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
+        return search(searchTerms, siteIds, toolIds, start, end);
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, null, siteIds, searchStart, searchEnd, null, null, new ArrayList<>());
+                search(searchTerms, null, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>());
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>());
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>());
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchResponse searchResponse(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    public SearchResponse searchResponse(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
         return result.getLeft();
     }
 
-    SearchResponse search(String searchTerms, List<String> siteIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
-        return search(searchTerms, indexBuilderName, siteIds, start, end, null, null, references).getLeft();
+    SearchResponse search(String searchTerms, List<String> siteIds, List<String> toolIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
+        return search(searchTerms, indexBuilderName, siteIds, toolIds, start, end, null, null, references).getLeft();
     }
 
-    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
+    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
         if (references == null) {
             references = new ArrayList();
         }
@@ -456,11 +456,11 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
-        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, start, end);
+        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, toolIds, start, end);
         return new ImmutablePair<>(response, indexBuilder);
     }
 
-    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName, List<String> references, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         if (references == null) {
             references = new ArrayList();
         }
@@ -469,7 +469,7 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
-        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, start, end, additionalSearchInformation);
+        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, toolIds, start, end, additionalSearchInformation);
         return new ImmutablePair<>(response, indexBuilder);
     }
 
@@ -558,7 +558,7 @@ import lombok.extern.slf4j.Slf4j;
             sessionManager.setCurrentSession(s);
             try {
 
-                SearchList sl = search(searchTerms, ctx, searchStart, searchEnd);
+                SearchList sl = search(searchTerms, ctx, null, searchStart, searchEnd);
                 sb.append("<results "); //$NON-NLS-1$
                 sb.append(" fullsize=\"").append(sl.getFullSize()) //$NON-NLS-1$
                         .append("\" "); //$NON-NLS-1$
@@ -987,12 +987,12 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         @Override
-        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
-            return search(searchTerms,references,siteIds,start,end, new HashMap<String,String>());
+        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
+            return search(searchTerms,references,siteIds,toolIds,start,end, new HashMap<String,String>());
         }
 
         @Override
-        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInfromation) {
+        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInfromation) {
             return new SearchResponse(
                     new InternalSearchResponse(new SearchHits(new SearchHit[0], new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0.0f), InternalAggregations.EMPTY, new Suggest(Collections.emptyList()), null, false, false, 1),
                     "no-op",

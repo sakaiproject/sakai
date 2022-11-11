@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 
@@ -39,6 +40,12 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -69,6 +76,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     
     @Getter @Setter protected EntityManager entityManager;
     @Getter @Setter protected ServerConfigurationService serverConfigService;
+    @Getter @Setter protected SiteService siteService;
     @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
 
 	public void init() {
@@ -178,6 +186,23 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			}
 		} 
 		return null;
+	}
+
+	public Optional<String> getEntityUrl(Reference ref, Entity.UrlType urlType) {
+
+        SamigoReferenceReckoner.SamigoReference samigoRef
+            = SamigoReferenceReckoner.reckoner().reference(ref.getReference()).reckon();
+        Long id = Long.parseLong(samigoRef.getId());
+        try {
+            Site site = siteService.getSite(samigoRef.getSite());
+            ToolConfiguration tc = site.getToolForCommonId(SamigoConstants.TOOL_ID);
+            if (tc != null) {
+                return Optional.of("/portal/site/" + samigoRef.getSite() + "/tool/" + tc.getId() + "/jsf/evaluation/totalScores?publishedId=" + id);
+            }
+        } catch (IdUnusedException idue) {
+            log.error("No site for id {}", samigoRef.getSite());
+        }
+		return Optional.of("balls");
 	}
 
 	public HttpAccess getHttpAccess() {

@@ -24,6 +24,7 @@ export class SakaiRubricCriteria extends RubricsElement {
       maxPoints: { attribute: "max-points", type: String },
       minPoints: { attribute: "min-points", type: String },
       isLocked: { attribute: "is-locked", type: Boolean },
+      isDraft: { attribute: "is-draft", type: Boolean },
     };
   }
 
@@ -87,7 +88,7 @@ export class SakaiRubricCriteria extends RubricsElement {
             <div class="criterion-actions">
               ${!this.isLocked ? html`
                 <a @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" aria-label="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @click="${this.cloneCriterion}" href="#"></a>
-                <sakai-item-delete criterion-id="${c.id}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>`
+                <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>`
                 : ""
               }
             </div>
@@ -217,11 +218,16 @@ export class SakaiRubricCriteria extends RubricsElement {
               <span>${tr('min_max_points', [this.minPoints, this.maxPoints])}</span>
             </div>
           </div>
-          <div class="sak-banner-success hidden save-success has-success fade">
-            <sr-lang key="saved_successfully">%</sr-lang>
-          </div>
-          <div class="sak-banner-error ${this.validWeight ? "hidden" : ""}">
-            <sr-lang key="total_weight_wrong">%</sr-lang>
+          <div class="banner-container">
+            <div class="sak-banner-success hidden save-success has-success fade">
+              <sr-lang key="saved_successfully">%</sr-lang>
+            </div>
+            <div class="sak-banner-warn ${!this.validWeight && this.isDraft ? "" : "hidden"}">
+            <sr-lang key="draft_save_invalid_weights">%</sr-lang>
+            </div>
+            <div class="sak-banner-error ${!this.validWeight && !this.isDraft ? "" : "hidden"}">
+              <sr-lang key="total_weight_wrong">%</sr-lang>
+            </div>
           </div>
         </div>`
         : ""
@@ -229,23 +235,29 @@ export class SakaiRubricCriteria extends RubricsElement {
       ${!this.isLocked ? html`
         <div class="action-butons">
           ${this.weighted ? html`
-            <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight}">
+            <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
               <span class="add fa fa-save"></span>
               <sr-lang key="save_weights">Save Weights</sr-lang>
             </button>`
             : ""
           }
-          <button class="add-criterion" @click="${this.createCriterion}">
+          <button class="btn-link add-criterion" @click="${this.createCriterion}">
             <span class="add fa fa-plus"></span>
             <sr-lang key="add_criterion">Add Criterion</sr-lang>
           </button>
-          <button class="add-empty-criterion" @click="${(event) => this.createCriterion(event, true)}">
+          <button class="btn-link add-empty-criterion" @click="${(event) => this.createCriterion(event, true)}">
             <span class="add fa fa-plus"></span>
             <sr-lang key="add_criterion_group">Add Criterion Group</sr-lang>
           </button>
         </div>
+        ${this.isDraft ? html`
+        <div class="sak-banner-warn margin-bottom">
+          <sr-lang key="draft_info">%</sr-lang>
+        </div>`
+          : ""
+        }
       ` : html`
-        <div class="sak-banner-warn margin-cero">
+        <div class="sak-banner-warn margin-bottom">
           <sr-lang key="locked_warning">%</sr-lang>
         </div>`
       }

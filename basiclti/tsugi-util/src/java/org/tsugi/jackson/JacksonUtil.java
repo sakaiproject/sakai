@@ -18,6 +18,7 @@ package org.tsugi.jackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,16 @@ public class JacksonUtil {
 			log.error(e.getMessage(), e);
 			return null;
 		}
+	}
+
+	public static ObjectMapper getLaxObjectMapper()
+	{
+		ObjectMapper mapper = new ObjectMapper()
+			.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
+			.configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false)
+			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return mapper;
 	}
 
 }

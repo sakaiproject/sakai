@@ -335,31 +335,31 @@ public class RubricsRestController extends AbstractSakaiApiController {
     }
 
     @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/default", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<RatingTransferBean>> getDefaultRating(@PathVariable String siteId, @PathVariable Long criterionId, @RequestParam Integer position) {
+    ResponseEntity<EntityModel<RatingTransferBean>> getDefaultRating(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId, @RequestParam Integer position) {
 
         checkSakaiSession();
 
-        return rubricsService.createDefaultRating(siteId, criterionId, position)
+        return rubricsService.createDefaultRating(siteId, rubricId, criterionId, position)
             .map(rating -> ResponseEntity.ok(entityModelForRatingBean(rating)))
             .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     //@PreAuthorize("canCopy(#sourceId, 'Rating')")
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}")
-    ResponseEntity saveRating(@PathVariable String siteId, @RequestBody RatingTransferBean ratingBean) {
+    ResponseEntity saveRating(@PathVariable String siteId, @PathVariable Long rubricId, @RequestBody RatingTransferBean ratingBean) {
 
         checkSakaiSession();
 
-        rubricsService.saveRating(ratingBean, siteId);
+        rubricsService.saveRating(ratingBean, siteId, rubricId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<CriterionTransferBean>> deleteRating(@PathVariable String siteId, @PathVariable Long criterionId, @PathVariable Long ratingId) throws Exception {
+    ResponseEntity<EntityModel<CriterionTransferBean>> deleteRating(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId, @PathVariable Long ratingId) throws Exception {
 
         checkSakaiSession();
 
-        return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.deleteRating(ratingId, criterionId, siteId)));
+        return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.deleteRating(ratingId, criterionId, siteId, rubricId)));
     }
 
     @ResponseBody

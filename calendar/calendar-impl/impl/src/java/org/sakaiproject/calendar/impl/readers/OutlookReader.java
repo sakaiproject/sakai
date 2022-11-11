@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.util.ResourceLoader;
@@ -156,14 +158,14 @@ public class OutlookReader extends CSVReader
 	 * depends on the Outlook's language 
 	 */
 	protected BufferedReader getReader(InputStream stream) {
-		InputStreamReader inStreamReader = null;
-		try {
-			inStreamReader = new InputStreamReader(stream, rb.getString("import.outlook.charset"));
-			
-		} catch (UnsupportedEncodingException e) {
-			inStreamReader = new InputStreamReader(stream);
-		}
-		BufferedReader bufferedReader = new BufferedReader(inStreamReader);
+		//Detect and exclude all BOM
+		BOMInputStream bomIn = new BOMInputStream(stream, false, ByteOrderMark.UTF_8,
+				ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE,
+				ByteOrderMark.UTF_32BE);
+
+		InputStreamReader inputStream = new InputStreamReader(bomIn);
+		BufferedReader bufferedReader = new BufferedReader(inputStream);
+
 		return bufferedReader;
 	}
 

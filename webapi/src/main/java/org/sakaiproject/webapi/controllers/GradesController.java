@@ -73,12 +73,8 @@ public class GradesController extends AbstractSakaiApiController {
     private Function<Site, List<GradeRestBean>> convert = (s) -> {
 
         try {
-            String gbUrl = "";
             ToolConfiguration tc = s.getToolForCommonId("sakai.gradebookng");
-            if (tc != null) {
-                gbUrl = "/portal/directtool/" + tc.getId();
-            }
-            final String url = gbUrl;
+            String gbUrl = tc != null ? "/portal/directtool/" + tc.getId() : "";
             return gradingService.getAssignments(s.getId()).stream()
                 .map(a -> {
 
@@ -86,7 +82,6 @@ public class GradesController extends AbstractSakaiApiController {
                         GradeRestBean gtb = new GradeRestBean(a);
 
                         gtb.setSiteTitle(s.getTitle());
-                        gtb.setUrl(url);
 
                         List<String> students = new ArrayList<>(s.getUsers());
                         List<GradeDefinition> grades
@@ -105,8 +100,10 @@ public class GradesController extends AbstractSakaiApiController {
                         int count = grades.size();
                         gtb.setAverageScore(total > 0 && count > 0 ? total / count : 0);
                         gtb.setUngraded(students.size() - count);
+                        gtb.setNoneGradedYet(count == 0);
 
                         if (a.getExternallyMaintained()) {
+                            gtb.setUrl(gradingService.getUrlForAssignment(a));
                             int submitted = 0, graded = 0;
                             switch (a.getExternalAppName()) {
                                 case "Assignments":
@@ -135,6 +132,8 @@ public class GradesController extends AbstractSakaiApiController {
                                 default:
                             }
                             gtb.setUngraded(submitted - graded);
+                        } else {
+                            gtb.setUrl(gbUrl);
                         }
                         return gtb;
                     } catch (Exception e) {

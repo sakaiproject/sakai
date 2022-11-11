@@ -1193,32 +1193,34 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return max;
 	}
 
-	public void addPeerEvalRow(SimplePageItem question, Long id, String text) {
-		// no need to check security. that happens when item is saved
-		
-		List rows = (List)question.getJsonAttribute("rows");
-		if (rows == null) {
-		  	rows = new JSONArray();
-		    question.setJsonAttribute("rows", rows);
-		    if(id <= 0L) 
-		    	id = 1L;
-		    }else if (id <= 0L) {
-		    	Long max = 0L;
-		    	for (Object r: rows) {
-		    		Map row =(Map) r;
-		    		Long i = (Long)row.get("id");
-		    		if(i > max)
-		    			max = i;
-		    	}
-		    	id = max +1; 
-		    }
-		Map newRow = new JSONObject();
-		newRow.put("id", id);
-		newRow.put("rowText",text);
-		rows.add(newRow);
+    public void addPeerEvalRow(SimplePageItem question, Long id, String text) {
 
-	}
-	
+        // no need to check security. that happens when item is saved
+
+        List rows = (List) question.getJsonAttribute("rows");
+        if (rows == null) {
+            rows = new JSONArray();
+            question.setJsonAttribute("rows", rows);
+            if (id <= 0L) {
+                id = 1L;
+            }
+        } else if (id <= 0L) {
+            Long max = 0L;
+            for (Object r: rows) {
+                Map row =(Map) r;
+                Long i = (Long)row.get("id");
+                if (i > max) {
+                    max = i;
+                }
+            }
+            id = max +1;
+        }
+        Map newRow = new JSONObject();
+        newRow.put("id", id);
+        newRow.put("rowText",text);
+        rows.add(newRow);
+    }
+
 	public SimplePageItem copyItem(SimplePageItem old) {
 		SimplePageItem item =  new SimplePageItemImpl();
 		item.setPageId(old.getPageId());

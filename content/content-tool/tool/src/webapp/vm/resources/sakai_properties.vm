@@ -289,14 +289,14 @@ button.btn.btn-default.multiselect-clear-filter{
 <div id="properties-accordion" class="panel-group">
 	######### Begin Access Panel ##########
 	#if(!$model.isDropbox())
-	<div id="access-panel" class="panel panel-default">
+	<div id="access-panel" class="card">
 		<div class="panel-heading container-fluid">
-			<a data-toggle="collapse" data-target="#collapseAccess" href="#collapseAccess">
+			<a data-bs-toggle="collapse" data-bs-target="#collapseAccess" href="#collapseAccess">
 				<h4 class="panel-title">$tlang.getString("props.access")</h4>
             </a>
 		</div>
 		<div id="collapseAccess" class="panel-collapse collapse in">
-			<div class="panel-body">
+			<div class="card-body">
 				#if($availability_is_enabled && !$model.isUserSite())
 					<p class="instruction">
 						#if($model.isCollection())
@@ -592,9 +592,9 @@ button.btn.btn-default.multiselect-clear-filter{
 	######### End Access Panel ##########
 	#if($showItemSummary)
 		######### Begin Summary Panel ##########
-		<div id="summary-panel" class="panel panel-default">
+		<div id="summary-panel" class="card">
 			<div class="panel-heading container-fluid">
-                <a data-toggle="collapse" data-target="#collapseSummary" href="#collapseSummary">
+                <a data-bs-toggle="collapse" data-bs-target="#collapseSummary" href="#collapseSummary">
 					<h4 class="panel-title">
 						#if($item.isCollection())
 							$tlang.getString("props.fldr")
@@ -605,7 +605,7 @@ button.btn.btn-default.multiselect-clear-filter{
                 </a>
 			</div>
 			<div id="collapseSummary" class="panel-collapse collapse">
-				<div class="panel-body">
+				<div class="card-body">
 					<table class="itemSummary" border="0" style="clear:both;">
 						#if (!($dropboxMode && $collectionId==$homeCollectionId))
 							<tr>

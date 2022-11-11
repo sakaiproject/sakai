@@ -54,7 +54,7 @@ import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.parseIMS8601;
 
 /**
- * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
+ * Some Sakai Utility code for IMS LTI This is mostly code to support the
  * Sakai conventions for making and launching BLTI resources within Sakai.
  */
 @SuppressWarnings("deprecation")
@@ -199,10 +199,14 @@ public class LineItemUtil {
 					assignmentObject.setUngraded(false);
 					Date endDateTime = parseIMS8601(lineItem.endDateTime);
 					assignmentObject.setDueDate(endDateTime);
-					// NOTE: addAssignment does *not* set the external values - Update *does* store them
+
 					assignmentId = g.addAssignment(context_id, assignmentObject);
 					assignmentObject.setId(assignmentId);
+
+					/*  Removed when GradingSerivceImpl fixed - 2202-08-21 - Chuck S.
+					// NOTE: addAssignment does *not* set the external values - Update *does*
 					g.updateAssignment(context_id, assignmentId, assignmentObject);
+					*/
 					log.info("Added assignment: {} with Id: {}", lineItem.label, assignmentId);
 				} catch (ConflictingAssignmentNameException e) {
 					failure = "ConflictingAssignmentNameException while adding assignment " + e.getMessage();

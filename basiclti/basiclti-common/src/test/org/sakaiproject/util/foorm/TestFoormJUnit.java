@@ -66,7 +66,7 @@ import lombok.extern.slf4j.Slf4j;
  * later from scratch.
  *
  * There will need to be some code refactoring to make it possible to
- * fully unit test the basic lti code.
+ * fully unit test the LTI code.
  *
  */
 @Slf4j

@@ -24,13 +24,11 @@ export class SakaiAddTopic extends SakaiElement {
       disableDiscussions: { attribute: "disable-discussions", type: Boolean },
       canEditTags: { attribute: "can-edit-tags", type: Boolean },
       topic: { type: Object },
-      titleError: { attribute: false, type: Boolean },
       showShowDatePicker: { attribute: false, type: Boolean },
       showHideDatePicker: { attribute: false, type: Boolean },
       showLockDatePicker: { attribute: false, type: Boolean },
       showDue: { attribute: false, type: Boolean },
       showAcceptUntil: { attribute: false, type: Boolean },
-      errorDisplay: { attribute: false, type: String },
     };
   }
 
@@ -102,9 +100,7 @@ export class SakaiAddTopic extends SakaiElement {
   save(draft) {
 
     if (this.topic.title.length < 4) {
-      this.titleError = true;
-      this.errorDisplay = this.i18n.min_title_characters_info;
-      setTimeout(() => this.errorDisplay = undefined, 4000);
+      this.querySelector("#summary").focus();
       return;
     }
 
@@ -334,7 +330,7 @@ export class SakaiAddTopic extends SakaiElement {
 
   firstUpdated() {
 
-    this.querySelector(".summary-input").focus();
+    this.querySelector("#summary").focus();
     /*
     let url = `addTopic`;
     history.pushState({ state: STATE_ADDING_TOPIC }, "", url);
@@ -387,9 +383,7 @@ export class SakaiAddTopic extends SakaiElement {
         <div class="add-topic-block">
           <div id="summary-label" class="add-topic-label">${this.i18n.summary} *</div>
           <input id="summary"
-            class="summary-input ${this.titleError ? "error" : ""}"
             @change=${this.updateSummary}
-            @focus="${this._resetTitle}"
             .value="${this.topic.title}" />
           <div class="required">
             <span>* ${this.i18n.required}</span>
@@ -680,9 +674,6 @@ export class SakaiAddTopic extends SakaiElement {
           <input type="button" @click=${this.saveAsDraft} value="${this.i18n.save_as_draft}">
           <input type="button" @click=${this.cancel} value="${this.i18n.cancel}">
         </div>
-        ${this.errorDisplay ? html`
-          <div id="conv-add-topic-error" class="sak-banner-error">${this.errorDisplay}</div>
-        ` : ""}
 
       </div>
     `;

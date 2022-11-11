@@ -629,11 +629,8 @@
                 <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
             </t:selectOneRadio>
             <div class="respChoice indent1" style="display:none;">
-                <h:panelGroup styleClass="" layout="block">
-                    <t:selectOneRadio id="correctAnswerOption" value="#{assessmentSettings.correctAnswerOption}" layout="pageDirection">
-                        <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_all_questions}"/>
-                        <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_incorrect_questions_only}"/>
-                    </t:selectOneRadio>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:outputLabel value="#{assessmentSettingsMessages.feedback_subheading_answers}" />
                 </h:panelGroup>
                 <h:panelGroup styleClass="" layout="block">
                     <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"/>

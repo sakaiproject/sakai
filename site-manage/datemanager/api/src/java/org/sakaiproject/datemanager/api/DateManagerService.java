@@ -16,9 +16,11 @@
 package org.sakaiproject.datemanager.api;
 
 import java.util.Locale;
+import java.util.Optional;
 
 import org.json.simple.JSONArray;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
+import org.sakaiproject.site.api.Site;
 
 public interface DateManagerService {
 
@@ -27,7 +29,9 @@ public interface DateManagerService {
 	// Global methods
 	public String getCurrentUserId();
 	public String getCurrentSiteId();
+	public Optional<Site> getCurrentSite();
 	public Locale getUserLocale();
+        public Locale getLocaleForCurrentSiteAndUser();
 	public String getMessage(String messageId);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);

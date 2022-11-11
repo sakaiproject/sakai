@@ -136,5 +136,32 @@
         </td>
     {{/if}}
 
+    {{#if ../viewCandidateDetails}}
+        {{#if ../anyStudentNumberPresent}}
+        <td class="roster-student-number-cell">
+            <span>{{studentNumber}}</span>
+        </td>
+        {{/if}}
+        {{#if ../anyAdditionalInfoPresent}}
+        <td class="roster-additional-info-cell">
+            {{#if hasSpecialNeeds}}
+                <div>{{tr 'facet_specialNeeds'}}</div>
+                <ul class="roster-special-needs">
+                {{#each specialNeeds}}
+                    <li>{{this}}</li>
+                {{/each}}
+                </ul>
+            {{/if}}
+            {{#if hasAdditionalNotes}}
+                <div>{{tr 'facet_additionalNotes'}}</div>
+                <ul class="roster-special-needs">
+                {{#each additionalNotes}}
+                    <li>{{this}}</li>
+                {{/each}}
+                </ul>
+            {{/if}}
+        </td>
+        {{/if}}
+    {{/if}}
     </tr> <!-- /roster-table-row -->
 {{/each}}

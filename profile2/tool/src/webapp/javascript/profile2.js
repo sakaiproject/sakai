@@ -39,7 +39,7 @@ function fixWindowVertical() {
 function resizeFrame(updown){
 
     if (top.location != self.location) {
-        //PRFL-672 check context, ie if we are in a remote iframe (Basic LTI)
+        //PRFL-672 check context, ie if we are in a remote iframe (LTI)
         try {
             if(parent.document){
                 var frame = parent.document.getElementById(window.name);

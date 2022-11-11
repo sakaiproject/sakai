@@ -33,11 +33,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.jsoup.nodes.Element;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ErrorReporter;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
@@ -233,6 +236,7 @@ public class ToolPortal extends HttpServlet
 		}
 
 		// prepare for the forward
+		setupForward(req, res, siteTool, siteTool.getSkin());
 		req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 
 		// let the tool do the the work (forward)
@@ -264,4 +268,76 @@ public class ToolPortal extends HttpServlet
 		doGet(req, res);
 	}
 
+	/**
+	 * Setup the request attributes with information used by the tools in their
+	 * response.
+	 * 
+	 * @param req
+	 * @param res
+	 * @param p
+	 * @param skin
+	 * @throws ToolException
+	 */
+	// NOTE: This code is duplicated in SkinnableCharonPortal.java
+	// make sure to change code both places
+	protected void setupForward(HttpServletRequest req, HttpServletResponse res,
+		Placement p, String skin) throws ToolException
+	{
+		boolean isInlineReq = ToolUtils.isInlineRequest(req);
+		// setup html information that the tool might need (skin, body on load, js includes, etc).
+		String headCss = CSSUtils.getCssHead(skin, isInlineReq);
+		StringBuilder headJs = new StringBuilder();
+		headJs.append("<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n");
+
+		Site site = null;
+		// SAK-22384
+		if (p != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
+		{
+			ToolConfiguration toolConfig = SiteService.findTool(p.getId());
+			if (toolConfig != null) {
+				String siteId = toolConfig.getSiteId();
+				try {
+					site = SiteService.getSiteVisit(siteId);
+				}
+				catch (IdUnusedException e) {
+					site = null;
+				}
+				catch (PermissionException e) {
+					site = null;
+				}
+
+				if (site != null)
+				{
+					String strMathJaxEnabledForSite = site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
+
+					if (StringUtils.isNotBlank(strMathJaxEnabledForSite) && Boolean.valueOf(strMathJaxEnabledForSite))
+					{
+						// In order to get MathJax to work on the site, the config and source has to be added to the header.
+						Element config = new Element("script");
+						Element srcPath = new Element("script");
+
+						config.attr("src", "/library/js/mathjax-config.js"+PortalUtils.getCDNQuery());
+						srcPath.attr("type", "text/javascript").attr("src", MATHJAX_SRC_PATH);
+						headJs.append(config.toString()).append(srcPath.toString());
+					}
+				}
+			}
+		}
+
+		String head = headCss + headJs.toString();
+		StringBuilder bodyonload = new StringBuilder();
+		if (p != null)
+		{
+			String element = Web.escapeJavascript("Main" + p.getId());
+			bodyonload.append("setMainFrameHeight('" + element + "');");
+		}
+		bodyonload.append("setFocus(focus_path);");
+
+		req.setAttribute("sakai.html.head", head);
+		req.setAttribute("sakai.html.head.css", headCss);
+		req.setAttribute("sakai.html.head.css.base", CSSUtils.getCssToolBaseLink(CSSUtils.getSkinFromSite(site), isInlineReq));
+		req.setAttribute("sakai.html.head.css.skin", CSSUtils.getCssToolSkinLink(CSSUtils.getSkinFromSite(site), isInlineReq));
+		req.setAttribute("sakai.html.head.js", headJs.toString());
+		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
+	}
 }

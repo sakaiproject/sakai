@@ -26,10 +26,13 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.Component;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.basic.Label;
+
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -75,6 +78,18 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		super(id);
 
 		setDefaultModel(model);
+
+		final String version = PortalUtils.getCDNQuery();
+
+		Label messagerLabel = new Label("messagerScript", "");
+		messagerLabel.add(new AttributeAppender("type", "module"));
+		messagerLabel.add(new AttributeAppender("src", String.format("/webcomponents/sakai-submission-messager.js%s", version)));
+		add(messagerLabel);
+
+		Label photoScriptLabel = new Label("userPhotoScript", "");
+		photoScriptLabel.add(new AttributeAppender("type", "module"));
+		photoScriptLabel.add(new AttributeAppender("src", String.format("/webcomponents/sakai-user-photo.js%s", version)));
+		add(photoScriptLabel);
 
 		component = new WebMarkupContainer("gradeTable").setOutputMarkupId(true);
 

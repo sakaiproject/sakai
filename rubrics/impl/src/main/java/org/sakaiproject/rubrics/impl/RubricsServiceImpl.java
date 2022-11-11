@@ -217,7 +217,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         rubric.setCreated(now);
         rubric.setModified(now);
 
-        rubric = rubricRepository.save(rubric);
+        rubric = rubricRepository.save(updateRubricMaxPoints(rubric));
         return decorateRubricBean(RubricTransferBean.of(rubric), rubric);
     }
 
@@ -295,7 +295,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         newCriterion.setTitle(newCriterion.getTitle() + " " + resourceLoader.getString("copy"));
         newCriterion = criterionRepository.save(newCriterion);
         rubric.getCriteria().add(newCriterion);
-        rubricRepository.save(rubric);
+        rubricRepository.save(updateRubricMaxPoints(rubric));
         return CriterionTransferBean.of(newCriterion);
     }
 
@@ -363,7 +363,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             //criterion.setRubric(rubric);
             int length = rubric.getCriteria().size();
             rubric.getCriteria().add(criterion);
-            rubric = rubricRepository.save(rubric);
+            rubric = rubricRepository.save(updateRubricMaxPoints(rubric));
 
             CriterionTransferBean bean = CriterionTransferBean.of(rubric.getCriteria().get(length));
             bean.isNew = true;
@@ -394,7 +394,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         });
     }
 
-    public Optional<RatingTransferBean> createDefaultRating(String siteId, Long criterionId, int position) {
+    public Optional<RatingTransferBean> createDefaultRating(String siteId, Long rubricId, Long criterionId, int position) {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
@@ -402,7 +402,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             throw new SecurityException("You must be a rubrics editor to create/edit ratings");
         }
 
-        return criterionRepository.findById(criterionId).map(criterion -> {
+        Rubric rubric = rubricRepository.findById(rubricId)
+            .orElseThrow(() -> new IllegalArgumentException("No rubric with id " + rubricId));
+
+        Optional<RatingTransferBean> bean = criterionRepository.findById(criterionId).map(criterion -> {
 
             Rating rating = new Rating();
             rating.setTitle(resourceLoader.getString("default_rating_title"));
@@ -416,6 +419,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             return RatingTransferBean.of(criterion.getRatings().get(position));
         });
+
+        rubricRepository.save(updateRubricMaxPoints(rubric));
+
+        return bean;
     }
 
     public RubricTransferBean saveRubric(RubricTransferBean bean) {
@@ -426,7 +433,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             throw new SecurityException("You must be a rubrics editor to create/edit rubrics");
         }
 
-        return RubricTransferBean.of(rubricRepository.save(bean.toRubric()));
+        return RubricTransferBean.of(rubricRepository.save(updateRubricMaxPoints(bean.toRubric())));
     }
 
     public CriterionTransferBean saveCriterion(CriterionTransferBean bean, String siteId) {
@@ -451,10 +458,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         rubric.getCriteria().removeIf(c -> c.getId().equals(criterionId));
 
-        rubricRepository.save(rubric);
+        rubricRepository.save(updateRubricMaxPoints(rubric));
     }
 
-    public RatingTransferBean saveRating(RatingTransferBean bean, String siteId) {
+    public RatingTransferBean saveRating(RatingTransferBean bean, String siteId, Long rubricId) {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
@@ -462,10 +469,16 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             throw new SecurityException("You must be a rubrics editor to create/edit ratings");
         }
 
-        return RatingTransferBean.of(ratingRepository.save(bean.toRating()));
+        bean = RatingTransferBean.of(ratingRepository.save(bean.toRating()));
+
+        Rubric rubric = rubricRepository.findById(rubricId)
+            .orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
+        rubricRepository.save(updateRubricMaxPoints(rubric));
+
+        return bean;
     }
 
-    public CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId) {
+    public CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId, Long rubricId) {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
@@ -473,11 +486,21 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             throw new SecurityException("You must be a rubrics editor to create/edit ratings");
         }
 
-        return criterionRepository.findById(criterionId).map(criterion -> {
+        CriterionTransferBean bean = criterionRepository.findById(criterionId).map(criterion -> {
 
             criterion.getRatings().removeIf(r -> r.getId().equals(ratingId));
             return CriterionTransferBean.of(criterionRepository.save(criterion));
         }).orElseThrow(() -> new IllegalArgumentException());
+
+        System.out.println(bean.ratings);
+
+        Rubric rubric = rubricRepository.findById(rubricId)
+            .orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
+        System.out.println("Max before: " + rubric.getMaxPoints());
+        rubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+        System.out.println("Max after: " + rubric.getMaxPoints());
+
+        return bean;
     }
 
     @Transactional(readOnly = true)
@@ -1271,5 +1294,24 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
 
         return false;
+    }
+
+    private Rubric updateRubricMaxPoints(Rubric rubric) {
+
+        Double maxPoints = rubric.getCriteria().stream().filter(c -> c.getRatings().size() > 0).reduce(0D, (m, c) -> {
+
+            // Get the highest possible score for this criterion
+            Double highest
+                = c.getRatings().stream().reduce(0D, (h, r) -> r.getPoints() > h ? r.getPoints() : h, Double::sum);
+
+            // Add it to the total, checking if it is weighted first
+            if (rubric.getWeighted() && highest > 0) {
+                return m + (highest * (c.getWeight() / 100D));
+            } else {
+                return m + highest;
+            }
+        }, Double::sum);
+        rubric.setMaxPoints(maxPoints);
+        return rubric;
     }
 }

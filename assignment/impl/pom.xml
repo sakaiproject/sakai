@@ -187,8 +187,8 @@
             <artifactId>elasticsearch-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
@@ -219,7 +219,6 @@
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-util</artifactId>
-            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>

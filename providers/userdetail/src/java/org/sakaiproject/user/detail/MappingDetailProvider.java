@@ -62,6 +62,19 @@ public class MappingDetailProvider implements CandidateDetailProvider {
     public boolean isAdditionalNotesEnabled(Site site) {
         return wrapped.isAdditionalNotesEnabled(site);
     }
+
+    @Override
+    public boolean isSpecialNeedsEnabled(Site site) {
+        return wrapped.isSpecialNeedsEnabled(site);
+    }
+
+    @Override
+    public Optional<List<String>> getSpecialNeeds(User user, Site site) {
+        // Map our known special needs info.
+        return wrapped.getSpecialNeeds(user, site).map(
+                l -> l.stream().map(v -> map.containsKey(v)?map.get(v):v).collect(Collectors.toList())
+        );
+    }
 	
 	@Override
 	public Optional<String> getInstitutionalNumericId(User user, Site site)

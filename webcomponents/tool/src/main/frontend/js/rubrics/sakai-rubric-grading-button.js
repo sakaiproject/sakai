@@ -34,7 +34,7 @@ class SakaiRubricGradingButton extends RubricsElement {
 
     return html`
       <a href="javascript:;">
-        <span class="icon-sakai--sakai-rubrics ${this.hasEvaluation ? "rubric-active" : ""}"></span>
+        <span class="si si-sakai-rubrics ${this.hasEvaluation ? "rubric-active" : ""}"></span>
       </a>
     `;
   }

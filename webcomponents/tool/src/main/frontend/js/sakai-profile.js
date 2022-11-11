@@ -106,6 +106,7 @@ class SakaiProfile extends LitElement {
     return css`
       .container {
         padding: 14px;
+        color: var(--sakai-text-color-1);
       }
       .header {
         display: flex;
@@ -129,18 +130,15 @@ class SakaiProfile extends LitElement {
       .name {
         font-weight: var(--sakai-profile-name-weight, 700);
         font-size: var(--sakai-profile-name-size, 16px);
-        color: var(--sakai-text-color);
         margin-bottom: var(--sakai-profile-name-margin-bottom, 8px);
       }
       .role, .pronouns {
         font-weight: var(--sakai-profile-header-weight, 400);
         font-size: var(--sakai-profile-header-size, 12px);
-        color: var(--sakai-text-color);
       }
       .label {
         font-weight: var(--sakai-profile-label-weight, 700);
         font-size: var(--sakai-profile-label-size, 12px);
-        color: var(--sakai-text-color);
         margin-bottom: var(--sakai-profile-label-margin-bottom, 4px);
       }
       .url {

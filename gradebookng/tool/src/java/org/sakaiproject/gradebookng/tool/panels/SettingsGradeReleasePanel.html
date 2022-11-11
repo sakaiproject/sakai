@@ -4,16 +4,18 @@
 <body>
 <wicket:panel>
 
-	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="settingsGradeReleaseHeader">
-			<h3 class="panel-title">
-				<a role="button" data-toggle="collapse" href="#settingsGradeRelease" aria-expanded="false" aria-controls="settingsGradeRelease">
-					<wicket:message key="settingspage.graderelease.heading">Grade Release Rules</wicket:message>
-				</a>
+	<div class="card">
+		<div class="text-center gb-settings-header" id="settingsGradeReleaseHeader">
+			<h3 class="panel-title"
+				data-bs-toggle="collapse"
+				data-bs-target="#settingsGradeRelease"
+				aria-expanded="false"
+				aria-controls="settingsGradeRelease">
+				<wicket:message key="settingspage.graderelease.heading">Grade Release Rules</wicket:message>
 			</h3>
 		</div>
-		<div wicket:id="settingsGradeReleasePanel" id="settingsGradeRelease" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradeReleaseHeader">
-			<div class="panel-body">
+		<div wicket:id="settingsGradeReleasePanel" id="settingsGradeRelease" class="panel-collapse collapse" aria-labelledby="settingsGradeReleaseHeader">
+			<div class="card-body">
 				<div class="checkbox">
 					<label>
 						<input wicket:id="displayReleased" type="checkbox" />

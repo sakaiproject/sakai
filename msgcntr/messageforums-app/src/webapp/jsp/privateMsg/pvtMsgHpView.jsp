@@ -76,7 +76,7 @@
  			  <h:outputText value="#{msgs.pvt_hlprpgerror}" styleClass="sak-banner-error" />
 			</h:panelGroup>
 
-			<div class="table-responsive">
+			<div class="table">
 			
 			<h:dataTable value="#{PrivateMessagesTool.decoratedForum}"
 				var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}"

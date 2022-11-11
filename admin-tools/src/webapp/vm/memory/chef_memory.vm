@@ -9,7 +9,7 @@
 			</div>
 		#end
 	#if ($status)
-		<button data-toggle="collapse" data-target="#status">Status</button>
+		<button data-bs-toggle="collapse" data-target="#status">Status</button>
 		<div id="status" class="collapse">
 			$formattedText.escapeHtml($status)
 		</div>

@@ -32,6 +32,7 @@ import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -98,9 +99,30 @@ public class SakaiService  {
         return Optional.empty();
     }
 
+    public Locale getLocaleForCurrentSiteAndUser() {
+        Locale locale = null;
+
+        // First try to get site locale
+        Optional<Site> currentSite = getCurrentSite();
+        if (currentSite.isPresent()) {
+            ResourceProperties siteProperties = currentSite.get().getProperties();
+            String siteLocale = (String) siteProperties.get("locale_string");
+            if (StringUtils.isNotBlank(siteLocale)) {
+                locale = serverConfigurationService.getLocaleFromString(siteLocale);
+            }
+        }
+
+        // If there is not site locale defined, get user default locale
+        if (locale == null) {
+            locale = getCurrentUserLocale();
+        }
+
+        return locale;
+    }
+
     public Locale getCurrentUserLocale() {
         String userId = sessionManager.getCurrentSessionUserId();
-        return preferencesService.getLocale(userId);
+        return StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
     }
 
     public String getCurrentUserId() {

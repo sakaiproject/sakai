@@ -78,6 +78,11 @@
 .roster-member-card .roster-info-card .roster-card-value {
     word-wrap: break-word;
 }
+
+.roster-card-value-row,
+.roster-card-label-row {
+    grid-column: 1 / 3;
+}
 /* CARDS AND PHOTOGRID END */
 
 /* PHOTOGRID START */

@@ -28,8 +28,9 @@ import org.sakaiproject.api.app.messageforums.OpenTopic;
 public class OpenTopicImpl extends TopicImpl implements OpenTopic {
 
     private Boolean locked;
-    private Boolean draft; 
-    
+    private Boolean draft;
+    private Boolean lockedAfterClosed = false;
+
     public Boolean getLocked() {
         return locked;
     }
@@ -46,4 +47,11 @@ public class OpenTopicImpl extends TopicImpl implements OpenTopic {
         this.draft = draft;
     }
 
+    public Boolean getLockedAfterClosed() {
+        return this.lockedAfterClosed;
+    }
+
+    public void setLockedAfterClosed(Boolean lockedAfterClosed) {
+        this.lockedAfterClosed = lockedAfterClosed;
+    }
 }

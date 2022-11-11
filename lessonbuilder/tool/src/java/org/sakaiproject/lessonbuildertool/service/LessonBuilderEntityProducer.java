@@ -767,7 +767,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 			} else if (type == SimplePageItem.TEXT) {
 			String html = itemElement.getAttribute("html");
-			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/basiclti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
+			// TODO: SAK-46983 - Check carefully
+			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/[basic]*lti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
 			Matcher matcher = idPattern.matcher(html);
 			StringBuffer sb = new StringBuffer();
 			boolean foundLtiLink = false;

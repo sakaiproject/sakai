@@ -806,7 +806,7 @@ public abstract class BaseLTIService implements LTIService {
 			catch (PermissionException ee)
 			{
 				retval = new String("0" + rb.getFormattedMessage("error.link.placement.update", new Object[]{id}));
-				log.warn("Cannot add page and basic lti tool to site {}", siteId);
+				log.warn("Cannot add page and LTI tool to site {}", siteId);
 			}
 		}
 		catch (IdUnusedException e)

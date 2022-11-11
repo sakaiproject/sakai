@@ -14,9 +14,15 @@
 
   <dependencies>
       <dependency>
-          <groupId>taglibs</groupId>
-          <artifactId>standard</artifactId>
-          <version>1.1.2</version>
+        <groupId>taglibs</groupId>
+        <artifactId>standard</artifactId>
+        <version>1.1.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -63,6 +69,12 @@
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk21</artifactId>
       <version>1.1.14</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>
