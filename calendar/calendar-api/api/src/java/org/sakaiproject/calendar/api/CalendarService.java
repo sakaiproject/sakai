@@ -29,6 +29,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 
 import java.util.List;
+import java.util.Map;
 
 /**
 * <p>CalendarService is the interface for the Calendar service.</p>
@@ -367,6 +368,25 @@ public interface CalendarService
 	 * @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
 	 */
 	public CalendarEventVector getEvents(List references, TimeRange range, boolean reverseOrder);
+
+	/**
+	 * Retrieves a list of events for the current user, filtered by the supplied options. This method
+	 * queries the calendars on course sites in the current academic sessions, and project sites for
+	 * all time. The number of upcoming days queried will be limited to a default of 60 days,
+	 * configurable by the sakai property <code>calendar.upcoming_days_limit</code>. You can
+	 * limit the number of events returned per calendar by supplying an options key of "limit" and an
+	 * Integer value.
+	 *
+	 * @param options Control the filter with these. Currently, only "limit" and "siteId" are
+	 *					supported.
+	 * @return A list of CalendarEvent objects
+	 */
+	public List<CalendarEvent> getFilteredEvents(Map<EventFilterKey, Object> options);
+
+	/**
+	 * Get the limit on upcoming days that will be queried for events in the getFilteredEvents call.
+	 */
+	public int getUpcomingDaysLimit();
 
 	/**
 	 * Construct a new recurrence rule who's frequency description matches the frequency parameter.

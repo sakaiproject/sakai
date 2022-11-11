@@ -22,6 +22,7 @@
 package org.sakaiproject.calendar.api;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
@@ -85,13 +86,28 @@ public interface Calendar
 	/**
 	* Return a List of all or filtered events in the calendar.
 	* The order in which the events will be found in the iteration is by event start date.
+	*
 	* @param range A time range to limit the iterated events.  May be null; all events will be returned.
 	* @param filter A filtering object to accept events into the iterator, or null if no filtering is desired.
 	* @return a List of all or filtered CalendarEvents in the calendar (may be empty).
 	* @exception PermissionException if the user does not have read permission to the calendar.
 	*/
-	public List getEvents(TimeRange range, Filter filter)
+	public List<CalendarEvent> getEvents(TimeRange range, Filter filter)
 		throws PermissionException;
+
+	/**
+	 * Return a List of all or filtered events in the calendar.
+	 * The order in which the events will be found in the iteration is by event start date.
+	 *
+	 * @param range A time range to limit the iterated events.  May be null; all events will be returned.
+	 * @param filter A filtering object to accept events into the iterator, or null if no filtering is desired.
+	 * @param limit A limit on how many events get returned for this calendar
+	 * @return a List of all or filtered CalendarEvents in the calendar (may be empty).
+	 * @exception PermissionException if the user does not have read permission to the calendar.
+	 */
+	default List<CalendarEvent> getEvents(TimeRange range, Filter filter, Integer limit) throws PermissionException {
+		return Collections.<CalendarEvent>emptyList();
+	}
 
 	/**
 	* Return a specific calendar event, as specified by event name.
