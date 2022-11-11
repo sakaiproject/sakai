@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -58,13 +59,14 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 	private final static String SITE_PROP_DISPLAY_SPECIAL_NEEDS = "displaySpecialNeeds";
+	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 	private final static String SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 	private final static String SYSTEM_PROP_DISPLAY_SPECIAL_NEEDS = "displaySpecialNeeds";
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
-	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
+	private final static String SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS = "encryptCandidateDetails";
 	
 	private static final String[] SAMPLE_SPECIAL_NEEDS = {
 		"Anticipate the material to work on, for example upload the teaching material ahead of time.",
@@ -191,17 +193,20 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 			if(user != null) {
 				//check if additional notes is enabled (system-wide or site-based)
 				if (isAdditionalNotesEnabled(site) && user.getProperties() != null) {
-					List<String> encryptedAdditionalNotesList = getI18nPropertyList(USER_PROP_ADDITIONAL_INFO, user, site);
-					if (encryptedAdditionalNotesList != null) {
+					List<String> additionalNotesList = getI18nPropertyList(USER_PROP_ADDITIONAL_INFO, user, site);
+					if (additionalNotesList != null) {
 						log.debug("Showing additional notes for user {}", user.getId());
-						List<String> ret = new ArrayList<String>();
-						for(String s : encryptedAdditionalNotesList) {
-							//this property is encrypted, so we need to decrypt it
-							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(encryptionUtilities.decrypt(s))){
-								ret.add(encryptionUtilities.decrypt(s));
-							}
+						if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS, true)) {
+							 return Optional.of(additionalNotesList.stream()
+									.filter(StringUtils::isNotBlank)
+									.map(encryptionUtilities::decrypt)
+									.filter(StringUtils::isNotBlank)
+								.collect(Collectors.toList()));
+						} else {
+							 return Optional.of(additionalNotesList.stream()
+									.filter(StringUtils::isNotBlank)
+								.collect(Collectors.toList()));
 						}
-						return Optional.ofNullable(ret);
 					} else {
 						List<String> ret = new ArrayList<String>();
 						int hashInt = user.getId().hashCode();
@@ -246,17 +251,20 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 		try {
 			//check if special needs info is enabled (system-wide or site-based)
 			if (user != null && isSpecialNeedsEnabled(site) && user.getProperties() != null ) {
-				List<String> encryptedSecialNeedsList = getI18nPropertyList(USER_PROP_SPECIAL_NEEDS, user, site);
-				if (encryptedSecialNeedsList != null) {
+				List<String> specialNeedsList = getI18nPropertyList(USER_PROP_SPECIAL_NEEDS, user, site);
+				if (specialNeedsList != null) {
 					log.debug("Showing special needs info for user {}", user.getId());
-					List<String> decryptedSpecialNeedsList = new ArrayList<String>();
-					for (String encryptedValue : encryptedSecialNeedsList) {
-						//this property is encrypted, so we need to decrypt it
-						if(StringUtils.isNotBlank(encryptedValue) && StringUtils.isNotBlank(encryptionUtilities.decrypt(encryptedValue))) {
-							decryptedSpecialNeedsList.add(encryptionUtilities.decrypt(encryptedValue));
-						}
+					if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS, true)) {
+						 return Optional.of(specialNeedsList.stream()
+								.filter(StringUtils::isNotBlank)
+								.map(encryptionUtilities::decrypt)
+								.filter(StringUtils::isNotBlank)
+							.collect(Collectors.toList()));
+					} else {
+						 return Optional.of(specialNeedsList.stream()
+								.filter(StringUtils::isNotBlank)
+							.collect(Collectors.toList()));
 					}
-					return Optional.of(decryptedSpecialNeedsList);
 				} else {
 					List<String> sampleSpecialNeeds = new ArrayList<String>();
 					int hashInt = user.getId().hashCode();
@@ -303,7 +311,7 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 			}
 		}
 
-		return null;
+		return user.getProperties().getPropertyList(propName);
 	}
 
 	public boolean isSpecialNeedsEnabled(Site site) {
@@ -325,7 +333,8 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER))) {
 						log.debug("Using user candidateID property for user {}", user.getId());
 						String studentNumber = user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER);
-						if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_NUMERIC_ID, true))
+						if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_NUMERIC_ID,
+							serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS, true)))
 						{
 							studentNumber = encryptionUtilities.decrypt(studentNumber);
 						}
