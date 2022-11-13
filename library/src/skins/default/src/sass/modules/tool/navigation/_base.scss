@@ -922,6 +922,25 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 		}
 	}
 
+	&.is-unpublished{
+		color: var(--siteUnpublish-color);
+		background-color: var(--siteUnpublish-background);
+		border: $siteUnpublish-border;
+		border-color: var(--siteUnpublish-border-color);
+		text-align: center;
+		display: block;
+
+		h4{
+			display: inline-block;
+			margin: 0;
+			padding: 0;
+		}
+		button{
+			@extend .button;
+			margin: 0 0 0 $standard-spacing;
+		}
+	}
+
 	button{
 		@extend .button;
 		margin: 0 0 0 $standard-spacing;

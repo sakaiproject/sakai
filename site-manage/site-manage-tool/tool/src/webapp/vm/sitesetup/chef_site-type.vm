@@ -148,10 +148,6 @@
                             <input type="checkbox" name="lockedContent" id="lockedContent" checked="checked" disabled="disabled" style="display:none" />                            
                             <label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
                         </span>
-                        <span id="publishSiteWrapper">
-                            <input type="checkbox" name="publishSite" id="publishSite" value="true"/>
-                            <label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
-                        </span>
                         <span id="fromTemplateSettingsContainer_instruction">
                             <a href="#" id="fromTemplateSettingsContainer_instruction_control" class="itemAction">$tlang.getString("sitetype.template.get.info")</a>
                             <div id="fromTemplateSettingsContainer_instruction_body" style="display:none;" title="$tlang.getString("sitetype.template.close.info")">
@@ -160,9 +156,6 @@
                                 </p>
                                 <p id="fromTemplateSettingsContainer_instruction_body_copyContent" style="display: none">
                                     $tlang.getString("sitetype.template.copy.content.info")
-                                </p>
-                                <p id="fromTemplateSettingsContainer_instruction_body_publishSite">
-                                    $tlang.getString("sitetype.template.publish.now") 
                                 </p>
                                 </div>
                             </span>
@@ -310,8 +303,8 @@
              it should be set style="display:none" if user is coming back
              ot this template from building own flow
              *#
-            <input type="submit" accesskey="s" id="submitFromTemplate" disabled="disabled" style="display:none" class="active" name="submitFromTemplate" value="$tlang.getString('sitetype.done')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
-            <input type="submit" accesskey="s" id="submitFromTemplateCourse" disabled="disabled" style="display:none" class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
+            <input type="submit" accesskey="s" id="submitFromTemplate" #if(!$templateSiteTitle) disabled="disabled" style="display:none;" #end class="active" name="submitFromTemplate" value="$tlang.getString('gen.continue')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
+            <input type="submit" accesskey="s" id="submitFromTemplateCourse" #if(!$templateSiteTitle) disabled="disabled" style="display:none;" #end class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
             <input type="submit" accesskey="s" id="submitFromArchive" style="display:none" class="active" name="submitFromArchive" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null );  document.typeform.option.value='createFromArchive'; document.typeform.submit(); return false;" />
             ## this submit should be ther normal one
             <input type="submit" accesskey="s" id="submitBuildOwn" disabled="disabled" class="active" name="submitBuildOwn" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='siteType'; document.typeform.submit(); return false;" />
