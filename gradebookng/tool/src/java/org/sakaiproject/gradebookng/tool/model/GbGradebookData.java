@@ -65,6 +65,8 @@ public class GbGradebookData {
 
 	private final List<StudentDefinition> students;
 	private final List<ColumnDefinition> columns;
+	private final Long courseGradeId;
+	private final Long gradebookId;
 	private final List<GbStudentGradeInfo> studentGradeInfoList;
 	private final List<CategoryDefinition> categories;
 	private final GradebookInformation settings;
@@ -92,7 +94,7 @@ public class GbGradebookData {
 		private String hasConcurrentEdit;
 		private String readonly;
 		private String hasExcuse;
-
+		private String hasCourseGradeComment;
 		private String studentNumber;
 		private String hasDroppedScores;
 		private List<String> sections;
@@ -200,7 +202,8 @@ public class GbGradebookData {
 		private List<String[]> courseGrades;
 		private String serializedGrades;
 		private Map<String, Object> settings;
-
+		private Long courseGradeId;
+		private Long gradebookId;
 		private int rowCount;
 		private int columnCount;
 
@@ -208,13 +211,16 @@ public class GbGradebookData {
 				final List<ColumnDefinition> columns,
 				final List<String[]> courseGrades,
 				final String serializedGrades,
-				final Map<String, Object> settings) {
+				final Map<String, Object> settings,
+				final Long courseGradeId,
+				final Long gradebookId) {
 			this.students = students;
 			this.columns = columns;
 			this.courseGrades = courseGrades;
 			this.serializedGrades = serializedGrades;
 			this.settings = settings;
-
+			this.courseGradeId = courseGradeId;
+			this.gradebookId = gradebookId;
 			this.rowCount = students.size();
 			this.columnCount = columns.size();
 		}
@@ -231,7 +237,8 @@ public class GbGradebookData {
 		this.isUserAbleToEditAssessments = gbGradeTableData.isUserAbleToEditAssessments();
 
 		this.courseGradeMap = gbGradeTableData.getCourseGradeMap();
-
+		this.courseGradeId = gbGradeTableData.getCourseGradeId();
+		this.gradebookId = gbGradeTableData.getGradebookId();
 		this.isStudentNumberVisible = gbGradeTableData.isStudentNumberVisible();
 		this.isSectionsVisible = gbGradeTableData.isSectionsVisible();
 
@@ -279,7 +286,9 @@ public class GbGradebookData {
 				GbGradebookData.this.columns,
 				courseGrades(),
 				serializeGrades(grades),
-				serializeSettings());
+				serializeSettings(),
+				GbGradebookData.this.courseGradeId,
+				GbGradebookData.this.gradebookId);
 
 		try {
             // TODO: Can we serialize Booleans without the get prefix?
@@ -493,7 +502,7 @@ public class GbGradebookData {
 			studentDefinition.setHasComments(formatColumnFlags(student, g -> StringUtils.isNotBlank(g.getGradeComment())));
 			studentDefinition.setHasDroppedScores(formatColumnFlags(student, g -> g.isDroppedFromCategoryScore()));
 			studentDefinition.setHasExcuse(formatColumnFlags(student, g -> g.isExcused()));
-
+			studentDefinition.setHasCourseGradeComment(student.isHasCourseGradeComment() ? "1" : "0");
 			if (this.isStudentNumberVisible) {
 				studentDefinition.setStudentNumber(student.getStudentNumber());
 			}

@@ -699,6 +699,14 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 * Get the student's course grade's GradableObject ID.
+	 * @return coursegrade's GradableObject ID.
+	 */
+	public Long getCourseGradeId(Long gradebookId){
+		return this.gradingService.getCourseGradeId(gradebookId);
+	}
+
+	/**
 	 * Save the grade and comment for a student's assignment and do concurrency checking
 	 *
 	 * @param assignmentId id of the gradebook assignment
@@ -1283,7 +1291,7 @@ public class GradebookNgBusinessService {
 			final CourseGradeTransferBean gbCourseGrade = courseGrades.get(uid);
 			gbCourseGrade.setDisplayString(courseGradeFormatter.format(courseGrade));
 			sg.setCourseGrade(gbCourseGrade);
-
+			sg.setHasCourseGradeComment(StringUtils.isNotBlank(getAssignmentGradeComment(getCurrentSiteId(),courseGrade.getId(),uid)));
 			// Add to map so we can build on it later
 			matrix.put(uid, sg);
 		}

@@ -95,6 +95,10 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final String userId = (String) modelData.get("studentUuid");
 
 		final Gradebook gradebook = getGradebook();
+		String studentCourseGradeComment = this.businessService.getAssignmentGradeComment(businessService.getCurrentSiteId(), this.businessService.getCourseGradeId(gradebook.getId()), userId);
+		if (StringUtils.isEmpty(studentCourseGradeComment)){
+			studentCourseGradeComment = " -";
+		}
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				GbRole.STUDENT,
@@ -224,7 +228,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		};
 
 		courseGradePanel.add(courseGradeStatsLink);
-
+		courseGradePanel.addOrReplace(new Label("studentCourseGradeComment", studentCourseGradeComment));
 		add(new AttributeModifier("data-studentid", userId));
 	}
 

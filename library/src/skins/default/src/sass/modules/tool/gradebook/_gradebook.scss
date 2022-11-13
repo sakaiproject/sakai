@@ -234,7 +234,7 @@
     right: 0;
     bottom: 2px;
   }
-  #gradeTableWrapper .gb-comment-notification {
+  #gradeTableWrapper .gb-comment-notification, #gradeTableWrapper .gb-course-comment-notification {
     position: absolute;
     top: 4px;
     right: 8px;
@@ -244,6 +244,7 @@
     color: var(--sakai-text-color-dimmed);
   }
   #gradeTableWrapper .gb-comment-notification:before,
+  #gradeTableWrapper .gb-course-comment-notification:before,
   .gb-flag-comment:before {
     font-family: "bootstrap-icons";
     content: '\F24B';

@@ -242,6 +242,23 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		return formattedText.escapeHtml(businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid));
 	}
 
+	@SuppressWarnings("unused")
+	@EntityCustomAction(action = "courseGradeComment", viewKey = EntityView.VIEW_LIST)
+	public String getCourseGradeComment(final EntityView view, final Map<String, Object> params) {
+		// get params
+		final String siteId = (String) params.get("siteId");
+		final long courseGradeId = NumberUtils.toLong((String) params.get("courseGradeId"));
+		final String studentUuid = (String) params.get("studentUuid");
+		final long gradebookId = NumberUtils.toLong((String) params.get("gradebookId"));
+		// check params supplied are valid
+		if (StringUtils.isBlank(siteId) || gradebookId==0 || courseGradeId == 0 || StringUtils.isBlank(studentUuid)) {
+			throw new IllegalArgumentException("Request data was missing / invalid");
+		}
+		checkValidSite(siteId);
+		checkInstructorOrTA(siteId);
+		return this.businessService.getAssignmentGradeComment(siteId, courseGradeId, studentUuid);
+	}
+
 	private Set<String> getRecipients(Map<String, Object> params) {
 
 		final String siteId = (String) params.get("siteId");

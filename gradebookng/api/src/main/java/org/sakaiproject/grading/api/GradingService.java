@@ -733,6 +733,8 @@ public interface GradingService extends EntityProducer {
      */
     public String getAverageCourseGrade(String gradebookUid);
 
+    public Long getCourseGradeId(final Long gradebookId);
+
     /**
      * Update the ordering of an assignment. This can be performed on internal and external assignments.
      * @param gradebookUid uid of the gradebook
