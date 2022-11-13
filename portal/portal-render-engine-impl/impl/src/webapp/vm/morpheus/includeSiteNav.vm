@@ -45,15 +45,7 @@
                 #else
                     #set ($pageUrl = $page.url)
                 #end
-                #pageListItem ($page.id, $page.title, $pageUrl, "si ${page.icon}", 4)
-                #*
-                <li class="nav-item">
-                    <a class="btn btn-nav rounded-end ps-4" href="${pageUrl}">
-                        <i class="me-1 si $!{page.icon}" aria-hidden="true"></i>
-                        <span>${page.title}</span>
-                    </a>
-                </li>
-                *#
+                #pageListItem ($page.id, $page.title, $pageUrl, "si ${page.icon}", 4, $page.hidden, $page.locked)
             #end
             #if ($site.subSites)
                 <li class="nav-item">
@@ -77,11 +69,24 @@
     </li>
 #end
 
-#macro( pageListItem $id $title $url $icon $indentation)
+#macro( pageListItem $id $title $url $icon $indentation $hidden $locked)
+    
     <li class="nav-item">
-        <a class="btn btn-nav rounded-end ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}" href="$!{url}">
-            <i class="me-1 $!{icon}" aria-hidden="true"></i>
-            <span class="pe-none">${title}</span>
+        <a class="btn btn-nav rounded-end me-1 ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}" href="$!{url}">
+            <div class="d-flex align-items-center pe-none">
+                <div class="me-auto rounded-end">
+                    <i class="me-1 $!{icon}" aria-hidden="true"></i>
+                    <span class="pe-none">${title}</span>
+                </div>
+                <div class="me-1">
+                #if ($hidden)
+                    <i class="si si-hidden"></i>
+                #end
+                #if ($locked)
+                    <i class="si si-locked"></i>
+                #end
+                </div>
+            </div>
         </a>
     </li>
 #end
