@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Task;
@@ -67,10 +68,12 @@ public class RemovePublishedAssessmentListener
   private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
   private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
   private TaskService taskService;
+  private SamigoAvailableNotificationService samigoAvailableNotificationService;
   
   public RemovePublishedAssessmentListener()
   {
     taskService = ComponentManager.get(TaskService.class);
+    samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
@@ -146,6 +149,8 @@ public class RemovePublishedAssessmentListener
 	  else {
 		  author.setIsAnyAssessmentRetractForEdit(false);
 	  }
+	  // Remove the schedule notification
+      samigoAvailableNotificationService.removeScheduledAssessmentNotification(assessmentId);
     }
     else {
     	log.warn("Could not remove published assessment - assessment id is null");
