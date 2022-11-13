@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+<wicket:panel>
+
+    <div id="itemsPage">
+        <div class="row">
+            <div class="skip">
+                <span wicket:id="items-feedback" />
+            </div>
+        </div>
+        <div wicket:id="item-list-container">
+            <table class="itemsTable table table-responsive table-bordered table-hover table-condensed">
+                <thead>
+                <tr>
+                    <th><span><wicket:message key="breakdown.item" /></span></th>
+                    <th class="text-center"><span><wicket:message key="breakdown.points" /></span></th>
+                    <th class="text-center"><span><wicket:message key="breakdown.students" /></span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr wicket:id="items">
+                    <td class="nameColumn">
+                        <div class="gb-title">
+                            <span wicket:id="externalAppFlag"></span>
+                            <span wicket:id="name-label" />
+                            <span wicket:id="extraCreditFlag" class="gb-flag-extra-credit pull-right"></span>
+                            <span wicket:id="notReleasedFlag" class="gb-flag-not-released pull-right"></span>
+                            <span wicket:id="notCountedFlag" class="gb-flag-not-counted pull-right"></span>
+                            <span wicket:id="extraCreditCategoryFlag" class="gb-category-extra-credit pull-right"></span>
+                            <span wicket:id="dropLowestCategoryFlag" class="gb-category-drop-lowest pull-right"></span>
+                            <span wicket:id="dropHighestCategoryFlag" class="gb-category-drop-highest pull-right"></span>
+                            <span wicket:id="keepHighestCategoryFlag" class="gb-category-keep-highest pull-right"></span>
+                        </div>
+                    </td>
+                    <td class="text-center totalColumn">
+                        <span wicket:id="out-of-label" />
+                    </td>
+                    <td wicket:id="number-graded" class="text-center">
+                        <span wicket:id="number-graded-label" />
+                    </td>
+                </tr>
+
+                <!-- Total Points Row -->
+                <tr wicket:id="total-points-container">
+                    <td class="text-right totalPoints">
+                        <strong><wicket:message key="breakdown.total" /></strong>
+                    </td>
+                    <td class="text-center totalPoints">
+                        <strong><span wicket:id="total-points" /></strong>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <span class="col-sm-6">
+                <input type="button" class="button_color" wicket:id="done" wicket:message="value:button.done" />
+            </span>
+        </div>
+    </div>
+</wicket:panel>
+</body>
+</html>

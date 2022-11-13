@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -508,6 +509,24 @@ public class GradebookNgBusinessService {
 		}
         log.debug("Retrieved {} assignments", assignments.size());
 		return assignments;
+	}
+
+	public List<Assignment> getGradebookAssignmentsForCategory(final Long categoryId, final SortType sortBy) {
+		return getGradebookAssignmentsForCategory(this.getCurrentSiteId(), categoryId, sortBy);
+	}
+
+	public List<Assignment> getGradebookAssignmentsForCategory(final String siteId, final Long categoryId, final SortType sortBy) {
+		final List<Assignment> returnList = new ArrayList<>();
+		final Gradebook gradebook = getGradebook(siteId);
+		if (gradebook != null) {	// applies permissions (both student and TA) and default sort is SORT_BY_SORTING
+			final List<Assignment> assignments = this.gradingService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy);
+			for (Assignment assignment : assignments) {
+				if (Objects.equals(assignment.getCategoryId(), categoryId)) {
+					returnList.add(assignment);
+				}
+			}
+		}
+		return returnList;
 	}
 
 	/**
@@ -3109,6 +3128,51 @@ public class GradebookNgBusinessService {
 
 	private String getAttendanceIconClass() {
 		return ICON_SAKAI + "sakai-attendance";
+	}
+
+	/**
+	 * Gets a list of assignment averages for a category.
+	 * @param category category
+	 * @param group group of students
+	 * @return allAssignmentGrades list of assignment averages for a specific group
+	 */
+	public List<Double> getCategoryAssignmentTotals(CategoryDefinition category, GbGroup group){
+		final List<Double> allAssignmentGrades = new ArrayList<>();
+		final List<String> groupUsers = getGradeableUsers(group);
+		final List<String> studentUUIDs = new ArrayList<>();
+		studentUUIDs.addAll(groupUsers);
+		final List<Assignment> assignments = category.getAssignmentList();
+		final List<GbStudentGradeInfo> grades = buildGradeMatrix(assignments, studentUUIDs);
+		for (final Assignment assignment : assignments) {
+			if (assignment != null) {
+				final List<Double> allGrades = new ArrayList<>();
+				for (int j = 0; j < grades.size(); j++) {
+					final GbStudentGradeInfo studentGradeInfo = grades.get(j);
+					final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
+					final GbGradeInfo grade = studentGrades.get(assignment.getId());
+					if (grade != null && grade.getGrade() != null) {
+						allGrades.add(Double.valueOf(grade.getGrade()));
+					}
+				}
+				if (grades.size() > 0) {
+					if (!assignment.getExtraCredit()) {
+						if (allGrades.size() > 0) {
+							allAssignmentGrades.add((calculateAverage(allGrades) / assignment.getPoints()) * 100);
+						}
+					}
+				}
+			}
+		}
+		return allAssignmentGrades;
+	}
+
+	/**
+	 * Calculates the average grade for an assignment
+	 * @param allGrades list of grades
+	 * @return the average of the grades
+	 */
+	public double calculateAverage(final List<Double> allGrades) {
+		return allGrades.stream().reduce(0D, (sub, el) -> sub + el.doubleValue()) / allGrades.size();
 	}
 
 	// Return a CandidateDetailProvider or null if it's not enabled
