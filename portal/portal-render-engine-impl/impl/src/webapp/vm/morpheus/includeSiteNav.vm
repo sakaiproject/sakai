@@ -38,7 +38,7 @@
             #if ($site.shortDescription)
                 <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">${site.shortDescription}</p>
             #end
-            <ul class="site-page-list nav flex-column py-1">
+            <ul class="site-page-list nav flex-column py-1 mb-2">
             #foreach ( $page in $site.pages )
                 #if ($isCurrentSite)
                     #set ($pageUrl = $page.resetUrl)
