@@ -316,10 +316,6 @@ nav#subSites{
 		margin:  0;
 		list-style: none;
 		
-		@media #{$nonPhone}	{
-			margin-bottom: calc(#{$tool-menu-collapseButton-height} + 1em); // space at the bottom of the list to avoid the collapse button overlapping tools
-		}
-		
 		li{
 			border-bottom: 1px solid var(--tool-menu-item-separator-color);
 
