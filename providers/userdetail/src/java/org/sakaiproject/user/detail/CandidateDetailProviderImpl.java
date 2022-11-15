@@ -21,6 +21,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;
@@ -55,13 +57,13 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private final static String PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 	private final static String PROP_ENCRYPT_CANDIDATE_DETAILS = "encryptCandidateDetails";
 
-	private PreferencesService preferencesService;
-	private ServerConfigurationService serverConfigurationService;
-	private SessionManager sessionManager;
-	private SiteService siteService;
-	private SecurityService secServ;
-	private ToolManager toolManager;
-	private ValueEncryptionUtilities encryptionUtilities;
+	@Setter private PreferencesService preferencesService;
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SessionManager sessionManager;
+	@Setter private SiteService siteService;
+	@Setter private SecurityService securityService;
+	@Setter private ToolManager toolManager;
+	@Setter private ValueEncryptionUtilities encryptionUtilities;
 	
 	public void init() {
 		Objects.requireNonNull(preferencesService, "ServerConfigurationService must be set");
@@ -70,7 +72,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 		Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set");
 		Objects.requireNonNull(sessionManager, "SessionManager must be set");
 		Objects.requireNonNull(encryptionUtilities, "ValueEncryptionUtilities must be set");
-		Objects.requireNonNull(secServ, "SecurityService must be set");
+		Objects.requireNonNull(securityService, "SecurityService must be set");
 	}
 	
 	public Optional<String> getCandidateID(User user, Site site) {
@@ -230,7 +232,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private Optional<String> getNumericId(User user, Site site, boolean checkVisibilityPermission)
 	{
 		if (user == null || site == null || !isInstitutionalNumericIdEnabled(site)
-				|| (checkVisibilityPermission && !secServ.unlock(user, USER_PERM_STUDENT_NUMBER_VISIBLE, site.getReference())))
+				|| (checkVisibilityPermission && !securityService.unlock(user, USER_PERM_STUDENT_NUMBER_VISIBLE, site.getReference())))
 		{
 			return Optional.empty();
 		}
@@ -265,7 +267,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	
 	public void setSecurityService(SecurityService value)
 	{
-		secServ = value;
+		securityService = value;
 	}
 
 	public void setToolManager(ToolManager toolManager) {
