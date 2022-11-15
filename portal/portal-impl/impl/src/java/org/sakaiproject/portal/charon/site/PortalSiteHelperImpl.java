@@ -349,7 +349,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				String recentStr = props.getProperty(PROP_RECENT_SITES);
 
 				// Insert or move the current site to the front of the most recent list
-				ArrayList<String> recents = new ArrayList<String>(StringUtils.isBlank(recentStr) ? Collections.emptyList() : Arrays.asList(recentStr.split("::")));
+				List<String> recents = StringUtils.isBlank(recentStr) ? Collections.<String>emptyList() : Arrays.asList(recentStr.split("::")));
 				recents.remove(currentSiteId);
 
 				// Need ArrayList for positional add()
