@@ -368,7 +368,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			    return retval;
 			}
 			catch (PermissionException | InUseException | IdUnusedException e) {
-				log.info("Exception editing user preferences", e);
+				log.info("Exception editing user preferences: {}", e.toString());
 				PreferencesService.cancel(edit);
 			}
 		}
