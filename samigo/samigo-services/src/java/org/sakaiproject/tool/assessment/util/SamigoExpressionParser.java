@@ -84,7 +84,9 @@ public class SamigoExpressionParser
       try {
           e = new Expression(expr);
           if (expr.contains("E")) {
+              mXparser.disableCanonicalRounding();
               mXparser.disableUlpRounding();
+              mXparser.disableAlmostIntRounding();
           }
           double d = e.calculate();
           ans = new BigDecimal(d, MathContext.DECIMAL64);
@@ -94,7 +96,9 @@ public class SamigoExpressionParser
           throw new SamigoExpressionError(401, errorMessage);
       }
       finally {
+          mXparser.enableCanonicalRounding();
           mXparser.enableUlpRounding();
+          mXparser.enableAlmostIntRounding();
       }
 
       GradingService service = new GradingService();
