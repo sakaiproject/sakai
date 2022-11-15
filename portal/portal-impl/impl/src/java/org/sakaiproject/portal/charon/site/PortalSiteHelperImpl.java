@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -38,6 +39,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import static java.lang.Math.min;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -55,9 +58,11 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.api.PageFilter;
@@ -78,6 +83,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -106,6 +112,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private static final String PAGE_ALIAS = Entity.SEPARATOR+ "pagealias"+ Entity.SEPARATOR;
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
+
+	private final String PROP_RECENT_SITES = "portal:recent-sites";
 
 	private static final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
 
@@ -315,25 +323,57 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		.getPropertyList("order");
 	}
 
-	private List<String> getRecentSiteIds() {
+	private List<String> getRecentSiteIds(Site currentSite) {
 
+		if ( currentSite == null || currentSite.getId() == null ) return Collections.emptyList();
+		String currentSiteId = currentSite.getId();
 		Session session = SessionManager.getCurrentSession();
+		if ( session == null ) return Collections.emptyList();
 		String userId = session.getUserId();
+		if ( userId == null ) return Collections.emptyList();
+
 		int maxRecentSites = ServerConfigurationService.getInt("portalPath", 3);
 
-		//Get list of last visited site ids ingoring users home site
-		String sql = String.format("SELECT DISTINCT se.CONTEXT FROM SAKAI_EVENT se, SAKAI_SESSION ss " +
-		"WHERE se.EVENT = 'pres.begin' AND se.SESSION_ID = ss.SESSION_ID " +
-		"AND ss.SESSION_USER = '%s' AND se.CONTEXT != '~%s' " +
-		"AND se.context != '!error' ORDER BY se.EVENT_DATE DESC LIMIT %d;", userId, userId, maxRecentSites);
+		if ( currentSiteId.startsWith("~") || "!gateway".equals(currentSiteId) ) {
+			Preferences prefs = PreferencesService.getPreferences(session.getUserId());
+			ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
-		List<String> siteIds = sqlService.dbRead(sql);
-
-		if (siteIds != null) {
-			return siteIds;
+			String recentStr = props.getProperty(PROP_RECENT_SITES);
+			ArrayList<String> recents = new ArrayList<String>(StringUtils.isBlank(recentStr) ? Collections.emptyList() : Arrays.asList(recentStr.split("::")));
+			return recents;
 		} else {
-			return Collections.emptyList(); 
+			PreferencesEdit edit = null;
+			try {
+				edit = PreferencesService.edit(userId);
+				ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+				String recentStr = props.getProperty(PROP_RECENT_SITES);
+
+				// Insert or move the current site to the front of the most recent list
+				ArrayList<String> recents = new ArrayList<String>(StringUtils.isBlank(recentStr) ? Collections.emptyList() : Arrays.asList(recentStr.split("::")));
+				recents.remove(currentSiteId);
+
+				// Need ArrayList for positional add()
+				recents.add(0, currentSiteId);
+				List<String> retval = recents.subList(0,min(recents.size(),maxRecentSites));
+				String newRecents = StringUtils.join(retval, "::");
+				if (newRecents == null || newRecents.equals(recentStr) ) {
+					PreferencesService.cancel(edit);
+					return recents;
+				}
+
+				props.removeProperty(PROP_RECENT_SITES);
+				props.addProperty(PROP_RECENT_SITES, newRecents);
+
+				PreferencesService.commit(edit);
+			return retval;
+			}
+			catch (PermissionException | InUseException | IdUnusedException e) {
+				log.info("Exception editing user preferences", e);
+				PreferencesService.cancel(edit);
+			}
 		}
+
+		return Collections.emptyList();
 	}
 
 	private boolean isSitePinned(String siteId) {
@@ -438,7 +478,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 
 			//Get most recent sites
-			List<Site> recentSites = getSites(getRecentSiteIds()); 
+			List<Site> recentSites = getSites(getRecentSiteIds(currentSite));
 			if (!recentSites.isEmpty()) {
 				contextSites.put("recentSites", getSiteMaps(recentSites, true, true));
 			}
