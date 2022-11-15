@@ -125,6 +125,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private static final String SAK_PROP_FORCE_OVERVIEW_TO_TOP = "portal.forceOverviewToTop";
 	private static final boolean SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT = false;
 
+	public static final String PORTAL_MAX_RECENT_SITES = "portal.max.recent.sites";
+	public static final int PORTAL_MAX_RECENT_SITES_DEFAULT = 3;
+
 	private Portal portal;
 
 	private AliasService aliasService;
@@ -332,14 +335,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String userId = session.getUserId();
 		if ( userId == null ) return Collections.emptyList();
 
-		int maxRecentSites = ServerConfigurationService.getInt("portalPath", 3);
+		int maxRecentSites = ServerConfigurationService.getInt(PORTAL_MAX_RECENT_SITES, PORTAL_MAX_RECENT_SITES_DEFAULT);
 
 		if ( currentSiteId.startsWith("~") || currentSiteId.startsWith("!") ) {
 			Preferences prefs = PreferencesService.getPreferences(session.getUserId());
 			ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
 			String recentStr = props.getProperty(PROP_RECENT_SITES);
-			List<String> recents = StringUtils.isBlank(recentStr) ? Collections.<String>emptyList() : Arrays.asList(recentStr.split("::")));
+			ArrayList<String> recents = new ArrayList<String>(StringUtils.isBlank(recentStr) ? Collections.emptyList() : Arrays.asList(recentStr.split("::")));
 			return recents;
 		} else {
 			PreferencesEdit edit = null;
@@ -349,7 +352,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				String recentStr = props.getProperty(PROP_RECENT_SITES);
 
 				// Insert or move the current site to the front of the most recent list
-				List<String> recents = StringUtils.isBlank(recentStr) ? Collections.<String>emptyList() : Arrays.asList(recentStr.split("::")));
+				ArrayList<String> recents = new ArrayList<String>(StringUtils.isBlank(recentStr) ? Collections.emptyList() : Arrays.asList(recentStr.split("::")));
 				recents.remove(currentSiteId);
 
 				// Need ArrayList for positional add()
