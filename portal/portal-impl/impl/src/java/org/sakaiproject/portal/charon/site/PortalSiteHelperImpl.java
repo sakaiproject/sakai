@@ -334,7 +334,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		int maxRecentSites = ServerConfigurationService.getInt("portalPath", 3);
 
-		if ( currentSiteId.startsWith("~") || "!gateway".equals(currentSiteId) ) {
+		if ( currentSiteId.startsWith("~") || currentSiteId.startsWith("!") ) {
 			Preferences prefs = PreferencesService.getPreferences(session.getUserId());
 			ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
