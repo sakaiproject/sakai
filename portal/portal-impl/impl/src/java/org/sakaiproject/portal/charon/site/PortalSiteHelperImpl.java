@@ -365,7 +365,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				props.addProperty(PROP_RECENT_SITES, newRecents);
 
 				PreferencesService.commit(edit);
-			return retval;
+			    return retval;
 			}
 			catch (PermissionException | InUseException | IdUnusedException e) {
 				log.info("Exception editing user preferences", e);
