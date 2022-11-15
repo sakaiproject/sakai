@@ -339,7 +339,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
 			String recentStr = props.getProperty(PROP_RECENT_SITES);
-			ArrayList<String> recents = new ArrayList<String>(StringUtils.isBlank(recentStr) ? Collections.emptyList() : Arrays.asList(recentStr.split("::")));
+			List<String> recents = StringUtils.isBlank(recentStr) ? Collections.<String>emptyList() : Arrays.asList(recentStr.split("::")));
 			return recents;
 		} else {
 			PreferencesEdit edit = null;
