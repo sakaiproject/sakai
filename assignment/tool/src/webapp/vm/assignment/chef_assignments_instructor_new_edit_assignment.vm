@@ -702,7 +702,7 @@ function showExternalIframe(title, doreload) {
 			<div class="col-sm-6 form-inline">
 				<sakai-date-picker
 					label="$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")"
-					hidden-prefix="new_assignment_close"
+					hidden-prefix="allow_resubmit_close"
 					iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
 					add-hidden-fields>
 				</sakai-date-picker>
