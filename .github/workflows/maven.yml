@@ -26,6 +26,12 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+      - name: Search for bad unicode translations
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][g-zG-Z]' {} \;
+          contains: =
+          expected_result: FAILED
       - name: Build with Maven
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
