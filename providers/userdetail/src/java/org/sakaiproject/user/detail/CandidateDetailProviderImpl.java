@@ -39,6 +39,7 @@ import org.sakaiproject.user.api.User;
  * user object.
  */
 @Slf4j
+@Setter 
 public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
