@@ -30,7 +30,7 @@ jobs:
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
           command_line: find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][g-zG-Z]' {} \;
-          contains: =
+          contains: u
           expected_result: FAILED
       - name: Build with Maven
         env:
