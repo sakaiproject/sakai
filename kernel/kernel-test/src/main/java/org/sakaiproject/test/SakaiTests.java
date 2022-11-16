@@ -40,9 +40,9 @@ import org.junit.Before;
 @Slf4j
 public class SakaiTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-    @Autowired private AuthzGroupService authzGroupService;
-    @Autowired private UserDirectoryService userDirectoryService;
-    @Autowired private SiteService siteService;
+    @Autowired public AuthzGroupService authzGroupService;
+    @Autowired public UserDirectoryService userDirectoryService;
+    @Autowired public SiteService siteService;
 
     public String instructor = "instructor";
     public User instructorUser = null;

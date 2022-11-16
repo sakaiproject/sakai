@@ -181,4 +181,13 @@ public interface EntityProducer
 	default HttpAccess getHttpAccess() {
 		return null;
 	}
+
+    /**
+     * Get the common id of the tool responsible for these entities
+     *
+	 * @return An optional of the tool's common id
+     */
+    default Optional<String> getTool() {
+        return Optional.<String>empty();
+    }
 }

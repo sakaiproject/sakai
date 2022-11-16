@@ -17,7 +17,7 @@ package org.sakaiproject.messaging.api.repository;
 
 import java.util.List;
 
-import org.sakaiproject.messaging.api.UserNotification;
+import org.sakaiproject.messaging.api.model.UserNotification;
 
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
