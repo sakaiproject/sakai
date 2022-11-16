@@ -41,6 +41,7 @@ import org.sakaiproject.user.api.User;
  * user object.
  */
 @Slf4j
+@Setter 
 public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
@@ -56,13 +57,13 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private final static String PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 	private final static String PROP_ENCRYPT_CANDIDATE_DETAILS = "encryptCandidateDetails";
 
-	@Setter private PreferencesService preferencesService;
-	@Setter private ServerConfigurationService serverConfigurationService;
-	@Setter private SessionManager sessionManager;
-	@Setter private SiteService siteService;
-	@Setter private SecurityService securityService;
-	@Setter private ToolManager toolManager;
-	@Setter private ValueEncryptionUtilities encryptionUtilities;
+	private PreferencesService preferencesService;
+	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
+	private SiteService siteService;
+	private SecurityService securityService;
+	private ToolManager toolManager;
+	private ValueEncryptionUtilities encryptionUtilities;
 	
 	public void init() {
 		Objects.requireNonNull(preferencesService, "ServerConfigurationService must be set");
