@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -36,12 +37,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import static java.lang.Math.min;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.ObjectUtils.Null;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
@@ -55,9 +56,11 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.api.PageFilter;
@@ -78,8 +81,9 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
@@ -107,6 +111,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
+	private final String PROP_RECENT_SITES = "portal:recent-sites";
+
 	private static final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
 
 	private static final String PROP_MENU_CLASS = "sakai:menuClass";
@@ -120,7 +126,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private Portal portal;
 
 	private AliasService aliasService;
-
+	private PreferencesService preferencesService;
 	private SqlService sqlService;
 
 	private boolean lookForPageAliases;
@@ -171,6 +177,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		this.portal = portal;
 		this.lookForPageAliases = lookForPageAliases;
 		aliasService = ComponentManager.get(AliasService.class);
+		preferencesService = ComponentManager.get(PreferencesService.class);
 		sqlService = ComponentManager.get(SqlService.class);
 	}
 
@@ -276,7 +283,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return mySites;
 	}
 
-	public Site getSite(String siteId) { 
+	public Site getSite(String siteId) {
+
 		if (siteId != null) {
 			try {
 				return SiteService.getSite(siteId);
@@ -287,8 +295,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					Reference ref = EntityManager.newReference(reference);
 					try {
 						return SiteService.getSite(ref.getId());
-					}
-					catch (IdUnusedException e2) {
+					} catch (IdUnusedException e2) {
 						log.error("Site with Id {} not found: {}", siteId, e.toString());
 					}
 				}
@@ -297,52 +304,83 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return null;
 	}
 
-	public List<Site> getSites(Collection<String> siteIds) {
+	private Collection<Site> getSites(Collection<String> siteIds) {
+
 		if (siteIds != null) {
 			return siteIds.stream()
-			.map(this::getSite)
-			.filter(Objects::nonNull)
-			.collect(Collectors.toList());
+				.map(this::getSite)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 		} else {
 			return Collections.emptyList();
 		}
 	}
 
 	private List<String> getPinnedSiteIds() {
+
 		Session session = SessionManager.getCurrentSession();
-		return PreferencesService.getPreferences(session.getUserId())
-		.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY)
-		.getPropertyList("order");
+		return preferencesService.getPreferences(session.getUserId())
+			.getProperties(PreferencesService.SITENAV_PREFS_KEY)
+			.getPropertyList("order");
 	}
 
-	private List<String> getRecentSiteIds() {
+	private List<String> getRecentSiteIds(Site currentSite) {
 
+		if (currentSite == null || currentSite.getId() == null) return Collections.emptyList();
+		String currentSiteId = currentSite.getId();
 		Session session = SessionManager.getCurrentSession();
+		if (session == null) return Collections.emptyList();
 		String userId = session.getUserId();
-		int maxRecentSites = ServerConfigurationService.getInt("portalPath", 3);
+		if (userId == null) return Collections.emptyList();
 
-		//Get list of last visited site ids ingoring users home site
-		String sql = String.format("SELECT DISTINCT se.CONTEXT FROM SAKAI_EVENT se, SAKAI_SESSION ss " +
-		"WHERE se.EVENT = 'pres.begin' AND se.SESSION_ID = ss.SESSION_ID " +
-		"AND ss.SESSION_USER = '%s' AND se.CONTEXT != '~%s' " +
-		"AND se.context != '!error' ORDER BY se.EVENT_DATE DESC LIMIT %d;", userId, userId, maxRecentSites);
+		int maxRecentSites = ServerConfigurationService.getInt("portal.max.recent.sites", 3);
 
-		List<String> siteIds = sqlService.dbRead(sql);
-
-		if (siteIds != null) {
-			return siteIds;
+		if (currentSiteId.startsWith("~") || currentSiteId.startsWith("!")) {
+			Preferences prefs = preferencesService.getPreferences(session.getUserId());
+			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+			String recentStr = props.getProperty(PROP_RECENT_SITES);
+			return StringUtils.isBlank(recentStr) ? new ArrayList<>() : new ArrayList<>(Arrays.<String>asList(recentStr.split("::")));
 		} else {
-			return Collections.emptyList(); 
+			PreferencesEdit edit = null;
+			try {
+				edit = preferencesService.edit(userId);
+				ResourcePropertiesEdit props = edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
+				String currentRecentsStr = props.getProperty(PROP_RECENT_SITES);
+
+				// Insert or move the current site to the front of the most recent list, then trim
+				// the list down to maxRecentSites length
+				List<String> updatedRecents
+					= StringUtils.isBlank(currentRecentsStr) ? new ArrayList<>() : new ArrayList<>(Arrays.<String>asList(currentRecentsStr.split("::")));
+				updatedRecents.remove(currentSiteId);
+				updatedRecents.add(0, currentSiteId);
+				updatedRecents = updatedRecents.subList(0, min(updatedRecents.size(), maxRecentSites));
+
+				String updatedRecentsStr = String.join("::", updatedRecents);
+				if (updatedRecentsStr == null || updatedRecentsStr.equals(currentRecentsStr) ) {
+					// No change, just return the list but don't persist the property.
+					preferencesService.cancel(edit);
+					return updatedRecents;
+				}
+
+				props.removeProperty(PROP_RECENT_SITES);
+				props.addProperty(PROP_RECENT_SITES, updatedRecentsStr);
+
+				preferencesService.commit(edit);
+				return updatedRecents;
+			}
+			catch (PermissionException | InUseException | IdUnusedException e) {
+				log.info("Exception editing user preferences: {}", e.toString());
+                if (edit != null) preferencesService.cancel(edit);
+			}
 		}
+
+		return Collections.emptyList();
 	}
 
 	private boolean isSitePinned(String siteId) {
+
 		List<String> pinnedSiteIds = getPinnedSiteIds();
-		if (pinnedSiteIds == null || pinnedSiteIds.isEmpty()) {
-			return false;
-		} else {
-			return pinnedSiteIds.contains(siteId);
-		}
+		return pinnedSiteIds != null && pinnedSiteIds.contains(siteId);
 	}
 
 	private String getLessonsSubpages(String userId, Boolean updatePermisson, String siteId, List<SitePage> pageList) {
@@ -360,6 +398,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	private Map<String, Object> getSiteMap(Site site, boolean includePages, boolean includeSubSites) {
+
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
 		siteMap.put("title", site.getTitle());
@@ -384,11 +423,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	private List<Map<String, Object>> getSiteMaps(Collection<Site> sites, boolean includePages, boolean includeSubSites) {
+
 		return sites.stream().map(site -> getSiteMap(site, includePages, includeSubSites))
-		.collect(Collectors.toList());
+			.collect(Collectors.toList());
 	}
 
 	private Map<String, Object> getPageMap(SitePage page) {
+
 		Map<String, Object> pageMap = new HashMap<>();
 		List<ToolConfiguration> toolList = page.getTools();
 		if (toolList != null && toolList.size() != 0) {
@@ -423,6 +464,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	public Map<String, Object> getContextSitesWithPages(HttpServletRequest req, String currentSiteId, String myWorkspaceSiteId, String toolContextPath, boolean loggedIn) {
+
 		Map<String, Object> contextSites = new HashMap<>();
 		if (loggedIn) {
 			//Get current site
@@ -432,13 +474,23 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 
 			//Get pinned sites
-			List<Site> pinnedSites = getSites(getPinnedSiteIds()); 
-			if (!pinnedSites.isEmpty()) {
-				contextSites.put("pinnedSites", getSiteMaps(pinnedSites, true, true));
+			List<String> pinnedSiteIds = getPinnedSiteIds();
+			if (pinnedSiteIds != null) {
+				// We don't want to show a site twice. Remvove the current site from the pinned.
+				pinnedSiteIds.remove(currentSiteId);
+				Collection<Site> pinnedSites = getSites(pinnedSiteIds);
+				if (!pinnedSites.isEmpty()) {
+					contextSites.put("pinnedSites", getSiteMaps(pinnedSites, true, true));
+				}
 			}
 
 			//Get most recent sites
-			List<Site> recentSites = getSites(getRecentSiteIds()); 
+			List<String> recentSiteIds = getRecentSiteIds(currentSite);
+			// We don't want to see a site twice. Removed any pinned sites from the recents.
+			if (pinnedSiteIds != null) {
+				recentSiteIds.removeAll(pinnedSiteIds);
+			}
+			Collection<Site> recentSites = getSites(recentSiteIds);
 			if (!recentSites.isEmpty()) {
 				contextSites.put("recentSites", getSiteMaps(recentSites, true, true));
 			}
@@ -483,8 +535,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		List favorites = Collections.emptyList();
 
 		if ( session != null ) { 
-			Preferences prefs = PreferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			Preferences prefs = preferencesService.getPreferences(session.getUserId());
+			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 
 			List propList = props.getPropertyList("order");
 			if (propList != null)
@@ -1551,19 +1603,19 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			case CURRENT_SITE_VIEW:
 			return new CurrentSiteViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 			.getInstance(), ServerConfigurationService.getInstance(),
-			PreferencesService.getInstance());
+			preferencesService);
 			case ALL_SITES_VIEW:
 			return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 			.getInstance(), ServerConfigurationService.getInstance(),
-			PreferencesService.getInstance());
+			preferencesService);
 			case DHTML_MORE_VIEW:
 			return new MoreSiteViewImpl(this,portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 			.getInstance(), ServerConfigurationService.getInstance(),
-			PreferencesService.getInstance());
+			preferencesService);
 			case SUB_SITES_VIEW:
 			return new SubSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 			.getInstance(), ServerConfigurationService.getInstance(),
-			PreferencesService.getInstance());
+			preferencesService);
 		}
 		return null;
 	}
