@@ -44,7 +44,7 @@ function removeOptionalAttributeBlock(elem) {
 		</h3>
 		
 		#if ($alertMessage)<div class="sak-banner-error" id="alertMsg">$tlang.getString("useconrem.alert") $formattedText.escapeHtml($alertMessage)</div>#end
-		<form class="form-horizontal" name="$form-name" id="useredit" action="#toolForm("$action")" method="post" autocomplete="on">
+		<form name="$form-name" id="useredit" action="#toolForm("$action")" method="post" autocomplete="on">
 			<fieldset>
 				<legend>
  					#if($user) $tlang.getString("useedi.edit") #else $tlang.getString("usecre.creaco")#end 
@@ -152,29 +152,30 @@ function removeOptionalAttributeBlock(elem) {
 								<label class="col-sm-2 col-form-label" for="strengthBarMeter">
 									 <span class="red">*</span> $tlang.getString("pw.strength")
 								</label>
-								<div class="status-display col-sm-3">
+								<div id="status-display" class="col-sm-3">
 									<div class="sak-banner-success" id="strongMsg" style="display:none">
-										<strong>$tlang.getString("pw.strong")</strong>
+										<span>$tlang.getString("pw.strong")</span>
 										<i class="fa fa-question-circle" aria-hidden="true"></i>
 									</div>
 									<div class="sak-banner-warn" id="moderateMsg" style="display:none">
-										<strong>$tlang.getString("pw.moderate")</strong>
+										<span>$tlang.getString("pw.moderate")</span>
 										<i class="fa fa-question-circle" aria-hidden="true"></i>
 									</div>
 									<div class="sak-banner-error" id="weakMsg" style="display:none">
-										<strong>$tlang.getString("pw.weak")</strong>
+										<span>$tlang.getString("pw.weak")</span>
 										<i class="fa fa-question-circle" aria-hidden="true"></i>
 									</div>
 									<div class="sak-banner-error" id="failMsg" style="display:none;">
-										<strong>$tlang.getString("pw.fail")</strong>
+										<span>$tlang.getString("pw.fail")</span>
 										<i class="fa fa-question-circle" aria-hidden="true"></i>
 									</div>
 								</div>
 							</div>
 							<div class="row status-row">
 								<script>
-									$(document).ready(function(){
-										$('.status-display').popover({
+									window.addEventListener("DOMContentLoaded", () => {
+										
+										new bootstrap.Popover(document.getElementById("status-display"), {
 											placement:"bottom",
 											container: ".forPopover",
 											content: "$tlang.getString("pw.strengthInfo")"
@@ -185,7 +186,7 @@ function removeOptionalAttributeBlock(elem) {
 							</div>
 							<div class="col-sm-3">
 								<div class="progress" style="height:3rem; margin:0;">
-									<div class="progress-bar" id="strengthBarMeter" role="progressbar" style="width:0%;background-color:#900;">
+									<div class="progress-bar" id="strengthBarMeter" role="progressbar" style="width:50%;background-color:#900;">
 									</div>
 								</div> 
 							</div>
@@ -223,11 +224,11 @@ function removeOptionalAttributeBlock(elem) {
 						<div class="col-sm-3">
 							#if ($service.allowUpdateUserType($user.Id) || !$user)
 								#if($userTypes)
-									<select name="type" id="type">
+									<select class="form-control" name="type" id="type">
 									#foreach ( $userType in $userTypes )
 										<option value="$formattedText.escapeHtml($userType)" #if($user.Type==$userType)selected#end>$formattedText.escapeHtml($userType)</option>
 									#end
-								</select>
+									</select>
 								#else
 									<input class="form-control sakai-glow" type="text" name="type" id="type" #if($user)value="$formattedText.escapeHtml($user.Type)"#elseif($valueType)value="$formattedText.escapeHtml($valueType)"#end />
 								#end
@@ -246,14 +247,14 @@ function removeOptionalAttributeBlock(elem) {
 					<div class="col-sm-3">
 						#if(!$!superUser)
 							#if ($disabled != 'true')$tlang.getString("false") #else $tlang.getString("true") #end 
-						 #else
-							<input class="form-control sakai-glow" type="checkbox" name="disabled" id="disabled" #if($disabled == 'true')CHECKED#end>$tlang.getString("disable")</>
-						 #end
+				 		#else
+							<input class="form-check-input" type="checkbox" name="disabled" id="disabled" #if($disabled == 'true')CHECKED#end></input>
+					 	#end
 					</div>
 				</div>
 
 #if ($user)
-	<table class="table table-striped table-hover table-bordered">
+	<table class="table table-striped table-hover table-bordered ms-0">
 		<tbody>
 			<tr>
 				<td><label>$tlang.getString("useedi.creby")</label></td>
@@ -323,8 +324,8 @@ function removeOptionalAttributeBlock(elem) {
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			<input type="hidden" name="alert_message" id="alert_message" value="$alertMessage" />
-                </fieldset>
-		</form>
+		</fieldset>
+	</form>
 </div>
 
 
