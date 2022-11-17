@@ -191,17 +191,12 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 			searchString = defaultSearchString;
 		}
 
-		// Get allAgents only at the first time
-		if (allAgents == null) {
-			allAgents = getAllAgents();
-		}
-		
 		List matchingAgents;
 		if (isFilteredSearch()) {
 			matchingAgents = findMatchingAgents(searchString);
 		}
 		else {
-			matchingAgents = allAgents;
+			matchingAgents = getAllAgents();
 		}
 		dataRows = matchingAgents.size();
 		List newAgents = new ArrayList();
@@ -552,7 +547,7 @@ public void clear(ActionEvent event) {
 		StringBuilder name1;
 		// name2 example: Doe, John
 		StringBuilder name2;
-		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
+		for(Iterator iter = getAllAgents().iterator(); iter.hasNext();) {
 			AgentResults result = (AgentResults)iter.next();
 			// name1 example: John Doe
 			name1 = new StringBuilder(result.getFirstName());
