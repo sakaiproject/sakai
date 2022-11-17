@@ -81,6 +81,7 @@ jobs:
           export QUERIES=$(grep ProtocolLoggingProxy tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
       - name: Upload Tomcat log for review
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: tomcat-log
