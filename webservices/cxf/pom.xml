@@ -16,7 +16,7 @@
     </parent>
 
     <properties>
-        <cxf.version>3.4.3</cxf.version>
+        <cxf.version>3.4.9</cxf.version>
     </properties>
 
     <dependencies>
