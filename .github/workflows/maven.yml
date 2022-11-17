@@ -37,9 +37,3 @@ jobs:
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
         run: mvn --batch-mode -PskipBrokenTests test
-      - name: Publish Test Report
-        if: always()
-        uses: mikepenz/action-junit-report@v3
-        with:
-          report_paths: '**/surefire-reports/TEST-*.xml'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
