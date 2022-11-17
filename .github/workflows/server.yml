@@ -70,7 +70,6 @@ jobs:
           wait-on: 'http://localhost:8080/portal/'
           wait-on-timeout: 1800
           record: true
-          headless: true
         env:
           CYPRESS_RECORD_KEY: f2049235-3f10-4142-a26c-fc017211a776
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
