@@ -1664,6 +1664,7 @@ public class UserPrefsTool
 		return term;
 	}
 	
+	@Getter @Setter
 	public class DecoratedNotificationPreference {
 		
 		private String key = "";
@@ -1692,78 +1693,6 @@ public class UserPrefsTool
 			}
 		}
 
-		public void setKey(String key) {
-			this.key = key;
-		}
-
-		public String getKey() {
-			return key;
-		}
-
-		public void setUserNotificationPreferencesRegistration(UserNotificationPreferencesRegistration userNotificationPreferencesRegistration) {
-			this.userNotificationPreferencesRegistration = userNotificationPreferencesRegistration;
-		}
-
-		public UserNotificationPreferencesRegistration getUserNotificationPreferencesRegistration() {
-			return userNotificationPreferencesRegistration;
-		}
-
-		public void setSelectedOption(String selectedOption) {
-			this.selectedOption = selectedOption;
-		}
-
-		public String getSelectedOption() {
-			return selectedOption;
-		}
-
-		public void setOptionSelectItems(List<SelectItem> optionSelectItems) {
-			this.optionSelectItems = optionSelectItems;
-		}
-
-		public List<SelectItem> getOptionSelectItems() {
-			return optionSelectItems;
-		}
-
-		public void setSiteOverrides(List<SiteOverrideBean> siteOverrides) {
-			this.siteOverrides = siteOverrides;
-		}
-
-		public List<SiteOverrideBean> getSiteOverrides() {
-			return siteOverrides;
-		}
-		
-		public List<DecoratedSiteTypeBean> getSiteList() {
-			return siteList;
-		}
-
-		public void setSiteList(List<DecoratedSiteTypeBean> siteList) {
-			this.siteList = siteList;
-		}
-
-		public Integer getSortOrder() {
-			return sortOrder;
-		}
-
-		public void setSortOrder(Integer sortOrder) {
-			this.sortOrder = sortOrder;
-		}
-
-		public boolean isHidden() {
-			return hidden;
-		}
-
-		public void setHidden(boolean hidden) {
-			this.hidden = hidden;
-		}
-		
-		public Boolean getExpandOverride() {
-			return expandOverride;
-		}
-
-		public void setExpandOverride(Boolean expandOverride) {
-			this.expandOverride = expandOverride;
-		}
-		
 		public boolean getExpand() {
 			Boolean override = getExpandOverride();
 			if (override != null)
