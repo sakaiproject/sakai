@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: JDK 11
         uses: actions/setup-java@v3
         with:
@@ -57,7 +57,7 @@ jobs:
           sudo dpkg -i cloudflared.deb
           cloudflared tunnel --url http://localhost:8443 &
       - name: Cypress Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: sakaicontrib/cypress-sakai
           path: './cypress-sakai'
