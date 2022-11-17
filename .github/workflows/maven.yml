@@ -18,14 +18,9 @@ jobs:
         uses: actions/setup-java@v3.6.0
         with:
           java-version: 11
+          distribution: temurin
           architecture: x64
-      - name: Cache local Maven repository
-        uses: actions/cache@v3.0.11
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          cache: maven
       - name: Search for bad unicode translations
         run: |
           find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][g-zG-Z]' {} \; &> grep.txt
