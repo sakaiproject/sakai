@@ -3,6 +3,12 @@
 
 name: Maven Tests
 
+permissions:
+  checks: write
+  contents: read
+  issues: read
+  pull-requests: write
+
 on:
   pull_request:
 
