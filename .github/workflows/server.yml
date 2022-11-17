@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Sakai Server for Cypress
+name: Cypress E2E Browser Tests
 
 on:
   pull_request:
@@ -78,7 +78,7 @@ jobs:
       - name: Check number of MySQL statements
         if: always()
         run: |
-          export QUERIES=$(grep ProtocolLoggingProxy tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
+          export QUERIES=$(grep ProtocolLoggingProxy.info tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
       - name: Upload Tomcat log for review
         if: always()
