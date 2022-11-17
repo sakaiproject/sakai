@@ -80,6 +80,11 @@ jobs:
         run: |
           export QUERIES=$(grep ProtocolLoggingProxy tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
+      - name: Upload Tomcat log for review
+        uses: actions/upload-artifact@v3
+          with:
+            name: tomcat-log
+            path: tomcat/logs/catalina.out
 #      - name: Sleep fifteen minutes to allow testing
 #          if: ${{ always() }}
 #          run: sleep 15m
