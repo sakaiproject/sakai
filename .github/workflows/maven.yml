@@ -29,7 +29,10 @@ jobs:
           cache: maven
       - name: Search for bad unicode translations
         run: |
-          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][g-zG-Z]' {} \; &> grep.txt
+          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F]' {} \; &> grep.txt
+          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
+          find . -name \*.properties -exec grep '\\u[0-9a-fA-F][^0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
+          find . -name \*.properties -exec grep '\\u[^0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]' {} \; &>> grep.txt
           if [ -s grep.txt ]; then
             exit 1
           fi
