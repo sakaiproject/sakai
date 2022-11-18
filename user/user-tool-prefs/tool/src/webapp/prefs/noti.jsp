@@ -12,12 +12,11 @@
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-    <link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 <f:verbatim>
-	<script type="text/javascript">
+	<script>
 		function removeOverride(cur) {
 			//set to true
 			cur.nextSibling.value=true;
@@ -31,9 +30,9 @@
 	
 		<h:form id="options_form">
 
-		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
-		<script type="text/javascript" src="/library/js/spinner.js"></script>
-		<script type="text/javascript">
+		<script src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script src="/library/js/spinner.js"></script>
+		<script>
 			$PBJQ(document).ready(function(){
 				fixImplicitLabeling();
 			})
