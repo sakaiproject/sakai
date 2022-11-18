@@ -611,10 +611,10 @@
 }
 .wtHolder::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background-color: var(--sakai-background-color-4);
+  background-color: var(--sakai-background-color-5);
 }
 .wtHolder::-webkit-scrollbar-thumb:hover {
-  background-color: var(--sakai-background-color-3);
+  background-color: var(--sakai-background-color-7);
 }
 /* drop z-index so they don't interfere with site menu dropdowns */
 .ht_clone_top {
