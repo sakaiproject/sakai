@@ -97,14 +97,26 @@
     // Used in hover effects of --sakai-background-color-1, alternating table rows
     --sakai-background-color-2: var(--sakai-color-gray--lighter-7);
 
-    // Default: A slightly darker shade of --sakai-primary-color-2
+    // Default: A slightly darker shade of --sakai-background-color-2
     // Used for active, focus, selected effects of --sakai-background-color-1
     // and hover effects of --sakai-background-color-2
     --sakai-background-color-3: var(--sakai-color-gray--lighter-6);
 
-    // Default: A slightly darker shade of --sakai-primary-color-2
+    // Default: A slightly darker shade of --sakai-background-color-3
     // Used for active, focus, selected effects of --sakai-background-color-3
     --sakai-background-color-4: var(--sakai-color-gray--lighter-5);
+
+    // Default: A slightly darker shade of --sakai-background-color-4
+    // Used for active, focus, selected effects of --sakai-background-color-3
+    --sakai-background-color-5: var(--sakai-color-gray--lighter-4);
+
+    // Default: A slightly darker shade of --sakai-background-color-5
+    // Used for active, focus, selected effects of --sakai-background-color-3
+    --sakai-background-color-6: var(--sakai-color-gray--lighter-3);
+
+    // Default: A slightly darker shade of --sakai-background-color-6
+    // Used for active, focus, selected effects of --sakai-background-color-3
+    --sakai-background-color-7: var(--sakai-color-gray--lighter-2);
 
     // Secondary color. 
     // Suggested: An alterate branding color distinct from
