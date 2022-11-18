@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +46,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -79,6 +79,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -144,6 +145,7 @@ public class SiteHandler extends WorksiteHandler
 	private static final boolean SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT = true;
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
+	private static final String SELECTED_PAGE_PROP = "selectedPage";
 
 	protected ProfileImageLogic imageLogic;
 	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
@@ -577,6 +579,15 @@ public class SiteHandler extends WorksiteHandler
 		addLocale(rcontext, site, session.getUserId());
 
 		addTimeInfo(rcontext);
+
+		try {
+			PreferencesEdit prefs = PreferencesService.edit(session.getUserId());
+			ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			props.addProperty(SELECTED_PAGE_PROP, page.getId());
+			PreferencesService.commit(prefs);
+		} catch (Exception any) {
+			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
+		}
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
@@ -652,6 +663,7 @@ public class SiteHandler extends WorksiteHandler
 				rcontext.put("quickLinks", quickLinks);
 			}
 		}
+
 		doSendResponse(rcontext, res, null);
 
 		StoredState ss = portalService.getStoredState();
@@ -660,7 +672,6 @@ public class SiteHandler extends WorksiteHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
-
 	}
 
 	/*
@@ -967,9 +978,9 @@ public class SiteHandler extends WorksiteHandler
 
 				try {
 					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
-					selectedPage = props.getProperty("selectedPage");
+					selectedPage = props.getProperty(SELECTED_PAGE_PROP);
 				} catch (Exception any) {
-					log.warn("Exception caught whilst getting toolsCollapsed and selectedPage properties: {}", any.toString());
+					log.warn("Exception caught whilst getting toolsCollapsed and {} properties: {}", SELECTED_PAGE_PROP, any.toString());
 				}
 
 				try {
@@ -979,7 +990,7 @@ public class SiteHandler extends WorksiteHandler
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put("sidebarCollapsed", Boolean.valueOf(toolsCollapsed));
-			rcontext.put("selectedPage", selectedPage);
+			rcontext.put(SELECTED_PAGE_PROP, selectedPage);
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
