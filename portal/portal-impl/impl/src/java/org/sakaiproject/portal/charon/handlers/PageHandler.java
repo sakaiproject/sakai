@@ -174,7 +174,6 @@ public class PageHandler extends BasePortalHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
-
 	}
 
 	/**
