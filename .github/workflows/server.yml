@@ -44,7 +44,7 @@ jobs:
           mvn --batch-mode -DskipTests install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
-          sleep 300s
+          sleep 500s
           grep "Server startup in" logs/catalina.out
 #      - name: Start cloudflared
 #        run: |
