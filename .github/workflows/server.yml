@@ -36,18 +36,10 @@ jobs:
           curl -s -o tomcat.tar.gz https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.69/bin/apache-tomcat-9.0.69.tar.gz
           tar --strip-components=1 -xzf tomcat.tar.gz
           git clone https://github.com/sakaiproject/nightly-config.git sakai
-          cp sakai/master.properties sakai/sakai.properties
+          cp sakai/cypress.properties sakai/sakai.properties
           sed -i 's:<Context>:<Context><JarScanner><JarScanFilter defaultPluggabilityScan="false" /></JarScanner>:g' conf/context.xml
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai"; 
-          echo "url@javax.sql.BaseDataSource=jdbc:mysql://127.0.0.1:3306/sakai?useUnicode=true&characterEncoding=UTF-8&log=true&profileSQL=true" >> sakai/local.properties
-          echo "vendor@org.sakaiproject.db.api.SqlService=mysql" >> sakai/local.properties
-          echo "username@javax.sql.BaseDataSource=root" >> sakai/local.properties
-          echo "password@javax.sql.BaseDataSource=root" >> sakai/local.properties
-          echo "driverClassName@javax.sql.BaseDataSource=org.mariadb.jdbc.Driver"  >> sakai/local.properties
-          echo "hibernate.dialect=org.hibernate.dialect.MySQL57InnoDBDialect"  >> sakai/local.properties
-          echo "log.config=DEBUG.org.mariadb.jdbc" >> sakai/local.properties
-          echo "quartz.seedsites.autorun=false" >> sakai/local.properties
           cd ..
           mvn --batch-mode -DskipTests install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
