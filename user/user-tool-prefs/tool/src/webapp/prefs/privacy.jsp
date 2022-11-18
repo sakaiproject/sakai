@@ -10,12 +10,11 @@
 
 <f:view> 
 	<sakai:view_container title="#{msgs.privacy_title}">
-    <link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
     <h:form>
       <!--SAK-18566 -->
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 
 	<!-- *********** Tool rendering top of page if on MyWorkspace home page *********** --> 
    	<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
@@ -118,7 +117,7 @@
       <f:verbatim></tr></table></f:verbatim>
 	--%>
 	  <h:outputText escape="false" rendered="#{privacyBean.displayPopup}"
-	  	value="<script type=\"text/javascript\">parent.privacy_show_popup();</script>" />
+		value="<script>parent.privacy_show_popup();</script>" />
 
   	</h:panelGroup>
    		<h:panelGroup rendered="#{privacyBean.myWorkspace && not privacyBean.sitesEmpty}" >
