@@ -3,12 +3,6 @@
 
 name: Maven Build
 
-permissions:
-  checks: write
-  contents: read
-  issues: read
-  pull-requests: write
-
 on:
   pull_request:
 
