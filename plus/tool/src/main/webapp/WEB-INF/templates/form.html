@@ -15,14 +15,12 @@
         <input th:if="${doUpdate}" type="hidden" th:field="*{id}" />
         <div id="title-group" class="form-group required">
           <label for="title" class="form-control-label" th:text="#{plus.tool.title}">Value</label>
-          <i class="bi bi-asterisk" style="color:red;"></i>
           <div>
             <input type="text" class="form-control" id="title" th:value="${tenant.title}" th:field="*{title}" required />
           </div>
         </div>
         <div id="issuer-group" class="form-group required">
           <label for="issuer" class="form-control-label" th:text="#{plus.tool.issuer}">Value</label>
-          <i class="bi bi-asterisk" style="color:red;"></i>
           <div>
             <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" required />
           </div>
@@ -44,9 +42,8 @@
             <input type="text" class="form-control" id="deploymentid" th:value="${tenant.deploymentId}" th:field="*{deploymentId}" />
           </div>
         </div>
-        <div id="allowedtools-group" class="form-group">
+        <div id="allowedtools-group" class="form-group required">
           <label for="allowedtools" class="form-control-label" th:text="#{plus.tool.allowedtools}">Value</label>
-          <i class="bi bi-asterisk" style="color:red;"></i>
           <div>
             <input type="text" class="form-control" id="allowedtools" th:value="${tenant.allowedTools}" th:field="*{allowedTools}" required  />
           </div>
