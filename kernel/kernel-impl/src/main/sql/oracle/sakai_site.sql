@@ -448,7 +448,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-1010', '!worksite-1000', '!worksit
 
 -- Create the !plussite site.
 
-INSERT INTO SAKAI_SITE VALUES('!plussite', 'plussite', null, 'SakaiPlus Template', 'Default template used when SakaiPlus creates a new site', '', '', null, 0, 0, 0, 'access', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
+INSERT INTO SAKAI_SITE VALUES('!plussite', 'plussite', null, 'SakaiPlus Template', 'Default template used when SakaiPlus creates a new site', null, null, null, 0, 0, 0, 'access', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
 UPDATE SAKAI_SITE SET CREATEDBY='admin' WHERE SITE_ID = '!plussite';
 UPDATE SAKAI_SITE SET MODIFIEDBY='admin' WHERE SITE_ID = '!plussite';
 UPDATE SAKAI_SITE SET MODIFIEDON=TO_TIMESTAMP('20221105120001000','YYYYMMDDHHMISSFF3') WHERE SITE_ID = '!plussite';

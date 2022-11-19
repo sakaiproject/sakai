@@ -108,16 +108,20 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 				log.debug("No match, falling back to determine role");
 
 				String maintainRole = site.getMaintainRole();
-
 				if (maintainRole == null) {
 					maintainRole = serverConfigurationService.getString("lti.role.mapping.Instructor", null);
+				}
+
+				String joinRole = site.getJoinerRole();
+				if (joinRole == null) {
+					joinRole = serverConfigurationService.getString("lti.role.mapping.Student", null);
 				}
 
 				boolean isInstructor = ltiRole.indexOf("instructor") >= 0;
 				if (isInstructor && maintainRole != null) {
 					newRole = maintainRole;
-				} else {
-					newRole=serverConfigurationService.getString("lti.role.mapping.Student", null);
+				} else if ( joinRole != null ) {
+					newRole = joinRole;
 				}
 
 				log.debug("Determined newRole as: {}", newRole);
