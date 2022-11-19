@@ -13,16 +13,21 @@
         <p><a th:href="@{/}" th:text="#{plus.tool.all.tenants}" class="btn btn-secondary">All Tenants</a></p>
         <form class="form-horizontal" action="#" th:action="@{/tenant}" method="post" th:object="${tenant}">
         <input th:if="${doUpdate}" type="hidden" th:field="*{id}" />
-        <div id="title-group" class="form-group">
+        <div id="title-group" class="form-group required">
           <label for="title" class="form-control-label" th:text="#{plus.tool.title}">Value</label>
           <div>
-            <input type="text" class="form-control" id="title" th:value="${tenant.title}" th:field="*{title}" />
+            <input type="text" class="form-control" id="title" th:value="${tenant.title}" th:field="*{title}" required />
           </div>
         </div>
-        <div id="issuer-group" class="form-group">
+        <div id="issuer-group" class="form-group required">
           <label for="issuer" class="form-control-label" th:text="#{plus.tool.issuer}">Value</label>
           <div>
-            <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" />
+            <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" required />
+          </div>
+          <div th:text="#{plus.tool.issuer.detail}">
+              This is different for each LMS, but it is usually a URL like "https://plus.sakalms.org" - with no trailing slash.
+              Sometimes this will be the domain where the LMS is hosted.  For some cloud-hosted providers, they use one issuer
+              across all customers.  This field is required.
           </div>
         </div>
         <div id="clientid-group" class="form-group">
@@ -37,16 +42,25 @@
             <input type="text" class="form-control" id="deploymentid" th:value="${tenant.deploymentId}" th:field="*{deploymentId}" />
           </div>
         </div>
-        <div id="allowedtools-group" class="form-group">
+        <div id="allowedtools-group" class="form-group required">
           <label for="allowedtools" class="form-control-label" th:text="#{plus.tool.allowedtools}">Value</label>
           <div>
-            <input type="text" class="form-control" id="allowedtools" placeholder="sakai.site:sakai.resources" th:value="${tenant.allowedTools}" th:field="*{allowedTools}" />
+            <input type="text" class="form-control" id="allowedtools" th:value="${tenant.allowedTools}" th:field="*{allowedTools}" required  />
+          </div>
+          <div th:text="#{plus.tool.allowedtools.detail}">
+              This field is a colon-separated list of Sakai tool ids like "sakai.resources" there is a special "sakai.site"
+              tool id which controls the availability of the "entire site" launch".  See the documentation for more detail.  A simple default
+              for this is "sakai.site".
           </div>
         </div>
         <div id="newwindowtools-group" class="form-group">
           <label for="newwindowtools" class="form-control-label" th:text="#{plus.tool.newwindowtools}">Value</label>
           <div>
             <input type="text" class="form-control" id="newwindowtools" th:value="${tenant.newWindowTools}" th:field="*{newWindowTools}" />
+          </div>
+          <div th:text="#{plus.tool.newwindowtools.detail}">
+              This field is a colon-separated list of Sakai tool ids which will be forced to always open
+              in a new window. The "sakai.site" is always launched in a new window.  This is typically left blank.
           </div>
         </div>
         <div id="trustemail-group" class="form-group form-switch">
@@ -92,7 +106,11 @@
         <div id="oidcregistrationlock-group" class="form-group">
           <label for="oidcregistrationlock" class="form-control-label" th:text="#{plus.tool.oidcregistrationlock}">Value</label>
           <div>
-            <input type="text" class="form-control" id="oidcregistrationlock" placeholder="42" th:value="${tenant.oidcRegistrationLock}" th:field="*{oidcRegistrationLock}" />
+            <input type="text" class="form-control" id="oidcregistrationlock" th:value="${tenant.oidcRegistrationLock}" th:field="*{oidcRegistrationLock}" />
+          </div>
+          <div th:text="#{plus.tool.oidcregistrationlock.detail}">
+              You set this field to "unlock" 1EdTech dynamic registration for this tenant.  It should only be set while performing dynamic registration
+              and shoule be cleared after dynamic registration is complete.
           </div>
         </div>
         <div id="edit-group" class="form-group">

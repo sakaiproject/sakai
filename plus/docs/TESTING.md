@@ -11,20 +11,28 @@ from the "Plus Site" and track grade flow back to the "Main Site".
 Follow the instructions in [Installing in Sakai](INSTALL-SAKAI.md) to set up a Sakai talking to Sakai.
 
 Create an instructor account and student account.  Make sure both accounts have email addresses.
-This allows Sakai to keep you logged into both sites at the same time.  Don't use SakaiPlus
-as 'admin' unless you add an email address to the admin account.
+This allows Sakai to keep you logged into both sites at the same time.  Don't use SakaiPlus Launch
+as 'admin' unless you add an email address to the admin account.  SakaiPlus works best when incoming
+accounts have email addresses so each user gets only one "user record" in SakaiPlus.
 
-Create a Sakai Site as the instructor and add the student account to the site - we will call
-this the "Main Site" - this site will serve as a proxy for the launch, roster, gradebook,
-and plus launch as if it were in in Canvas/D2L/Blackboard, etc.
+Create a Sakai Site as the instructor we will call this the "Main Site" - this site will serve as
+a proxy for the launch, roster, gradebook, and plus launch as if it were in Canvas/D2L/Blackboard, etc.
+Whilst creating the site, add the Gradebook, Lessons, and Plus Launch tools to you under-construction
+the Main Site.  If you have installed the Plus Launch to correctly it should be available at the bottom
+of the tool list under "External Tools".
 
-Don't log into the student yet - they should just be in the roster in the main site.
+After the site has been created, add the student account to the site.  Don't log into the student yet - they
+should just be in the roster in the main site.
 
-As instructor, add the Gradebook, Lessons, and Plus Launch to the Main Site.
+As Instructor, Launch the Plus Launch link from the Main Site. You should now have two
+tabs - one on the Main Site and one on the Plus Site.  The instructor can change the Site Description in
+and site title.  It is nice to change the site title of the Plus Site to help you keep the two sites
+straight whilst testing.
 
-Launch the Plus Launch link from the Main Site. You should now have two tabs - one on the
-Main Site and one on the Plus Site.  The instructor can change the Site Description in
-and site title.  sites straight whilst testing.
+The default configuration is to construct the Plus Site from a `!plus.site` template.  This template
+site has a number of Sakai tools and the "Sakai Plus" tool that lets a teacher monitor how SakaiPlus
+is functioning.  The Sakai Plus tool in the Plus Site is quite different from the Sakai Launch tool
+in the Main Site.
 
 From the Plus site, look at Site Info and verify that the roster has both the instructor and
 student (i.e. before the student has even launched SakaiPlus).
