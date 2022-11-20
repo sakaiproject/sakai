@@ -23,7 +23,7 @@
 // Validate the password from the form
 USER.validatePassword = function () {
 
-  const username = (USER.get("user_eid") || USER.get("email")).trim(username.value);
+  const username = USER.trim((USER.get("user_eid") || USER.get("email")).value);
   const pwField = USER.get("user_pw");
   if (!pwField) {
     // There's no password field to validate; consider the password valid.
