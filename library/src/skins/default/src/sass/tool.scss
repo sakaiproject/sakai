@@ -220,9 +220,9 @@ label {
 	margin-bottom: 15px;
 }
 
-.form-group.required .form-control-label::after {
+.form-control-required .form-control-label::after {
     content: ' *';
-    color: var(--bs-danger);
+    color: var(--sakai-highlight-color);
 }
 
 table {
