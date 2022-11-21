@@ -5,7 +5,7 @@
 <%@ page import="org.sakaiproject.portal.util.PortalUtils" %>
 <%@ page import="org.sakaiproject.portal.util.CSSUtils" %>
 <%@ page import="org.sakaiproject.portal.util.ToolUtils" %>
-<title>IMS ContentItem Experimental Support</title>
+<title>LTI ContentItem Experimental Support</title>
 <%= CSSUtils.getCssToolSkinLink((String) null, ToolUtils.isInlineRequest(request)) %>
 <script src="<%= PortalUtils.getScriptPath() %>headscripts.js<%= PortalUtils.getCDNQuery() %>"></script>
 <style>

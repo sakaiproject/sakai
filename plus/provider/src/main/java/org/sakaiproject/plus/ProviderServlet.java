@@ -187,9 +187,12 @@ public class ProviderServlet extends HttpServlet {
 		}
 		log.info("{}: {}", rb.getString(s), message);
 		PrintWriter out = response.getWriter();
+		out.println("<html>");
+		out.println("<body style=\"color: black; background-color: Pink;\">");
 		out.println(rb.getString(s));
 		out.println(htmlEscape(message));
 		if ( e != null ) out.println(e.getMessage());
+		out.println("</body></html>");
 	}
 
 	// TODO: Make this a *lot* prettier and add forward to knowledge base feature :)
@@ -250,7 +253,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		// /plus/sakai/dynamic/44guid44?reg_token=..&openid_configuration=https:..
-		// https://github.com/IMSGlobal/lti-dynamic-registration/blob/develop/docs/lti-dynamic-registration.md
+		// https://www.imsglobal.org/spec/lti-dr/v1p0
 		if (parts.length >= 3 && "dynamic".equals(parts[1])) {
 			if ( parts.length == 3 && isNotBlank(parts[2])) {
 				handleDynamicRegistration(request, response, parts[2]);
@@ -679,6 +682,11 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		PrintWriter out = response.getWriter();
+		out.println("<html>");
+		out.println("<body style=\"color: black; background-color: Azure;\">");
+		out.println("<h1>");
+		out.println(rb.getString("plus.dynamic.welcome"));
+		out.println("</h1>");
 		out.print("<p><strong>");
 		out.println(rb.getString("plus.dynamic.starting"));
 		out.println(htmlEscape(tenant_guid));
@@ -803,7 +811,7 @@ public class ProviderServlet extends HttpServlet {
 					LTI13ConstantsUtil.SCOPE_RESULT_READONLY + " " +
 					LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES;
 
-		// NOTE: IMS Issue #53 - Define placements...
+		// NOTE: 1EdTech Issue #53 - Define placements...
 		// NOTE: ContextPlacementLaunch
 
 		LTIToolConfiguration ltitc = new LTIToolConfiguration();
@@ -845,7 +853,7 @@ public class ProviderServlet extends HttpServlet {
 		// but LMS's with better placement options, have options
 		} else {
 
-			// NOTE: IMS Issue #59 - Message parsing order - Sakai takes first, Moodle takes last
+			// NOTE: 1EdTech Issue #59 - Message parsing order - Sakai takes first, Moodle takes last
 			// Tell LMS's that know about and handle multiple message types to just go to the base URL
 			LTILaunchMessage lm = new LTILaunchMessage();
 			lm.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
@@ -950,6 +958,8 @@ public class ProviderServlet extends HttpServlet {
 		tenant.setOidcToken(openIDConfig.token_endpoint);
 		tenant.setOidcKeySet(openIDConfig.jwks_uri);
 		tenant.setOidcRegistrationEndpoint(openIDConfig.registration_endpoint);
+		// Clear the registration key
+		tenant.setOidcRegistrationLock(null);
 
 		tenant.setClientId(platformResponse.client_id);
 		if ( ! isBlank(deployment_id) ) {
@@ -963,7 +973,9 @@ public class ProviderServlet extends HttpServlet {
 		tenantRepository.save(tenant);
 		log.info(tenant.getStatus());
 
-
+		out.println("<p>");
+		out.println(rb.getString("plus.dynamic.lock.cleared"));
+		out.println("</p>");
 
 		out.println("<p><strong>");
 		out.println(tenant.getStatus());
@@ -972,6 +984,8 @@ public class ProviderServlet extends HttpServlet {
 		out.print(rb.getString("plus.dynamic.continue"));
 		out.println("</button></p>\n<hr/>\n");
 		out.println(togglePre(rb.getString("plus.dynamic.debug"), dbs.toString()));
+		out.println("</body>");
+		out.println("</html>");
 	}
 
 	protected void handleRepost(HttpServletRequest request, HttpServletResponse response, boolean forceNewWindow) throws ServletException, IOException {
