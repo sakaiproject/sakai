@@ -13,13 +13,13 @@
         <p><a th:href="@{/}" th:text="#{plus.tool.all.tenants}" class="btn btn-secondary">All Tenants</a></p>
         <form class="form-horizontal" action="#" th:action="@{/tenant}" method="post" th:object="${tenant}">
         <input th:if="${doUpdate}" type="hidden" th:field="*{id}" />
-        <div id="title-group" class="form-group required">
+        <div id="title-group" class="form-control-required">
           <label for="title" class="form-control-label" th:text="#{plus.tool.title}">Value</label>
           <div>
             <input type="text" class="form-control" id="title" th:value="${tenant.title}" th:field="*{title}" required />
           </div>
         </div>
-        <div id="issuer-group" class="form-group required">
+        <div id="issuer-group" class="form-control-required">
           <label for="issuer" class="form-control-label" th:text="#{plus.tool.issuer}">Value</label>
           <div>
             <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" required />
@@ -42,7 +42,7 @@
             <input type="text" class="form-control" id="deploymentid" th:value="${tenant.deploymentId}" th:field="*{deploymentId}" />
           </div>
         </div>
-        <div id="allowedtools-group" class="form-group required">
+        <div id="allowedtools-group" class="form-control-required">
           <label for="allowedtools" class="form-control-label" th:text="#{plus.tool.allowedtools}">Value</label>
           <div>
             <input type="text" class="form-control" id="allowedtools" th:value="${tenant.allowedTools}" th:field="*{allowedTools}" required  />
