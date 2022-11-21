@@ -58,7 +58,7 @@ public interface PlusService {
 	public static final String PLUS_NEW_SITE_TYPE = "plus.new.site.type";
 	public static final String PLUS_NEW_SITE_TYPE_DEFAULT = "project";
 
-	// Used in IMS Dynamic Registration, Deep Link, or Canvas Configuration responses when there is
+	// Used in LTI Dynamic Registration, Deep Link, or Canvas Configuration responses when there is
 	// a need to describe the current server.  Generic translatable defaults come from from plus.properties
 	// unless they are overridden here.
 	// Default from plus.properties: Sakai Plus
@@ -66,8 +66,8 @@ public interface PlusService {
 	// Default from plus.properties: Open source LMS and tools
 	public static final String PLUS_SERVER_DESCRIPTION = "plus.server.description";
 
-	// Used to set fields when IMS Dynamic registration is used - defaults are null
-	// and not to provide these values in IMS Dynamic Registraiton responses
+	// Used to set fields when LTI Dynamic registration is used - defaults are null
+	// and not to provide these values in LTI Dynamic Registration responses
 	public static final String PLUS_SERVER_POLICY_URI = "plus.server.policy.uri";
 	public static final String PLUS_SERVER_TOS_URI = "plus.server.tos.uri";
 	public static final String PLUS_SERVER_LOGO_URI = "plus.server.logo.uri";
@@ -81,7 +81,7 @@ public interface PlusService {
 	public static final String SAKAI_SITE_DESCRIPTION = "sakai.site.description";
 
 	// Canvas specific values - these mostly are used to configure the non-standard Canvas
-	// tool registration since Canvas does not support the IMS Dynamic Registration process
+	// tool registration since Canvas does not support the LTI Dynamic Registration process
 	// as of 2022 - and does not seem to be in a rush to implement it.
 	public static final String PLUS_CANVAS_ENABLED = "plus.canvas.enabled";
 	public static final boolean PLUS_CANVAS_ENABLED_DEFAULT = true;
@@ -121,7 +121,7 @@ public interface PlusService {
 	String getOidcKeySet();
 	String getOidcLogin(Tenant tenant);
 	String getOidcLaunch();
-	String getIMSDynamicRegistration(Tenant tenant);
+	String getLTIDynamicRegistration(Tenant tenant);
 	String getCanvasConfig(Tenant tenant);
 
 	/*

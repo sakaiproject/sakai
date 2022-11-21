@@ -161,7 +161,7 @@ public class PlusServiceImpl implements PlusService {
 	}
 
 	@Override
-	public String getIMSDynamicRegistration(Tenant tenant) {
+	public String getLTIDynamicRegistration(Tenant tenant) {
 		if ( StringUtils.isEmpty(tenant.getOidcRegistrationLock()) ) return null;
 		return getPlusServletPath() + "/dynamic/" + tenant.getId() + "?unlock_token=" + tenant.getOidcRegistrationLock();
 	}

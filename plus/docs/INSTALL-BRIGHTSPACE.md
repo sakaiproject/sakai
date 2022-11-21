@@ -1,9 +1,9 @@
 D2L BrightSpace
 ---------------
 
-BrightSpace supports IMS Dynamic Configuration.  Create a Tenant with a title,
-issuer, and registration unlock code.   Then go to the SakaiPlus Tenant detail page and find the IMS
-Dynamic configuration URL and use that in the auto-provisioning screen of BrightSpace.
+BrightSpace supports LTI Dynamic Registration.  Create a Tenant with a title,
+issuer, and registration unlock code.   Then go to the SakaiPlus Tenant detail page and find the LTI
+Dynamic Registration URL and use that in the auto-provisioning screen of BrightSpace.
 
 The issuer for a D2L system is the base URL of the system without a trailing slash:
 
@@ -38,7 +38,7 @@ use the "subject" as the logical key for user accounts.   SakaiPlus can function
 without email - but it makes it a lot harder to re-connect user accounts later.
 
 For Dynamic Registration to work, Sakai Plus demands that the issuer in Sakai Plus
-match the issuer provided by the LMS during the IMS Dynamic Configuration process.
+match the issuer provided by the LMS during the LTI Dynamic Registration process.
 The registration lock is single use and must be reset in Sakai Plus to re-run the Dynamic
 Registration process.
 

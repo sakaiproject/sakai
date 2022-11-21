@@ -174,7 +174,7 @@ public class MainController {
 		model.addAttribute("oidcLaunch", plusService.getOidcLaunch());
 
 		// http://localhost:8080/plus/sakai/dynamic/123?unlock_token=42
-		model.addAttribute("imsURL", plusService.getIMSDynamicRegistration(tenant));
+		model.addAttribute("imsURL", plusService.getLTIDynamicRegistration(tenant));
 
 		// https://dev1.sakaicloud.com/plus/sakai/canvas-config.json?guid=123456
 		model.addAttribute("canvasURL", plusService.getCanvasConfig(tenant));

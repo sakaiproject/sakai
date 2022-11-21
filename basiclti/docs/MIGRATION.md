@@ -21,7 +21,7 @@ You should *not* make a new key in Tsugi.  Look in the details for your Tsugi ke
 be an autoconfiguration URL that will add LTI Advantage to the Tsugi key.
 
 Go into Sakai -> Admininstration Workspace -> External Tools and *edit* the existing
-LTI 1.1 entry.  It will have a button titled "LTI Advantage Auto Provision" - press 
+LTI 1.1 entry.  It will have a button titled "LTI Dynamic Registration" - press
 it and enter the Tsugi URL and follow the normal registration process.
 
 It will convert that tool to LTI Advantage, and when launching users include the migration

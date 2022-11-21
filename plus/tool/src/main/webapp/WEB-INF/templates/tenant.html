@@ -20,10 +20,12 @@
         <p><b th:text="#{plus.tool.lms.oidtoken}">LMS Token URL:</b> <span th:text="${tenant.oidcToken}">oidcToken</span></p>
         <p><b th:text="#{plus.tool.lms.oidaudience}">LMS Token Audience:</b> <span th:text="${tenant.oidcAudience}">oidcAudience</span></p>
         <div th:if="*{imsURL==null or #strings.length(imsURL)==0}">
-            <p th:text="#{plus.tool.error.missing.unlock}">Missing unlock code</a>
+            <p><b th:text="#{plus.tool.imsurl}">LTI Dynamic Provisioning URL:</b>
+            <b class="text-info" th:text="#{plus.tool.error.missing.unlock}">Missing unlock code</b>
+            </p>
         </div>
         <div th:if="*{imsURL!=null and #strings.length(imsURL)>0}">
-        <p><b th:text="#{plus.tool.imsurl}">IMS Dynamic Provisioning URL:</b>
+        <p><b th:text="#{plus.tool.imsurl}">LTI Dynamic Provisioning URL:</b>
         <a href="#" onclick="$('#imsURL').toggle();return false;">Hide/Show</a> <br/>
             <span id="imsURL" style="display:none;" th:text="${imsURL}">imsURL</span> </p>
         </div>
