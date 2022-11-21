@@ -9,7 +9,7 @@
   <launch_url>http://developers.imsglobal.org/BLTI/tool.php</launch_url>
   <vendor>
     <code>www.imsglobal.org</code>
-    <name>IMS Global Learning Consortium</name>
+    <name>LTI Global Learning Consortium</name>
     <description>
       A simple validity checker. Takes key=lmsng.school.edu secret=secret.
     </description>

@@ -1,7 +1,7 @@
 Canvas
 ------
 
-Canvas does not support IMS Dynamic Registration but has their own JSON-based
+Canvas does not support LTI Dynamic Registration but has their own JSON-based
 automatic Registration process that is supported by Sakai Plus.
 
     https://canvas.instructure.com/doc/api/file.lti_dev_key_config.html

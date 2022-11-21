@@ -769,7 +769,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return retval;
 	}
 
-	// Make a tool with a title and sent to tool_insert (update) to provision
+	// Make a tool with a title and sent to tool_insert (update) to dynamic register
 	public void doAutoInsert(RunData data, Context context)
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
@@ -793,7 +793,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Map<String, Object> tool = new HashMap<String, Object>();
 		tool.put(LTIService.LTI_TITLE, title);
 		tool.put(LTIService.LTI_PAGETITLE, title);
-		tool.put(LTIService.LTI_LAUNCH, "https://example.com/auto-provision-will-replace");
+		tool.put(LTIService.LTI_LAUNCH, "https://example.com/dynamic-registration-will-replace");
 		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
 
 		minimalLTI13(tool);

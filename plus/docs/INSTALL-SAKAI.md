@@ -28,7 +28,7 @@ Add a tennant, give it a title and set the issuer, set "Trust Email", set "Verbo
 Allowed Tools to `sakai.resources:sakai.site`, and Registration Lock to 42.
 
 Save the Tenant - it is "draft" because it is missing a lot of fields that will be set when
-IMS Dynamic Provisioning runs.
+LTI Dynamic Provisioning runs.
 
 If you don't set "trust email", each plus launch will log you out of the window you launched from.
 This is only weird when we run both the main site and the plus

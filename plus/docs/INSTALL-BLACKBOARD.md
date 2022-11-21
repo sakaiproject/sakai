@@ -1,7 +1,7 @@
 Blackboard
 ----------
 
-Blackboard is planning on supporting IMS Dynamic Configuration, but until they do,
+Blackboard is planning on supporting LTI Dynamic Registration, but until they do,
 you need to do a bit of cutting and pasting of URLs between the systems.
 
 To use this process, create a Tenant in Administration Workspace -> Plus Admin, with
