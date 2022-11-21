@@ -108,8 +108,8 @@
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 
-    <div id="modal-iframe-div" class="modal fade" tabindex="-1" aria-labelledby="bltiModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+    <div id="modal-iframe-div" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bltiModalLabel" aria-hidden="true">
+      <div id="blti-dialog" class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="bltiModalLabel">Modal title</h5>
@@ -131,22 +131,21 @@
   <script>
     //<![CDATA[
     function showIframe(title, doreload) {
+      const el = document.getElementById("modal-iframe-div");
+      const modal = bootstrap.Modal.getOrCreateInstance(el);
 
-      const el = document.getElementById("modal-iframe-div")
-      const modal = bootstrap.Modal.getOrCreateInstance(el)
-      modal.addEventListener("shown.bs.modal", e => {
-
+      el.addEventListener("shown.bs.modal", e => {
         $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
         $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
       });
-      modal.addEventListener("hidden.bs.modal", e => {
 
+      el.addEventListener("hidden.bs.modal", e => {
         if ( doreload ) {
           location.reload();
         } else {
           $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
         }
-      });
+      });   
       modal.show();
 
       $(window).resize(function() {

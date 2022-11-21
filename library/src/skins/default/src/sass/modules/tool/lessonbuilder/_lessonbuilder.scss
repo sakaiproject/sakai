@@ -2924,6 +2924,11 @@
     width: 60%;
   }
 
+  #blti-dialog {
+    @media #{$desktop} {
+      min-width: 900px;
+    }	
+  }
 }
 
 .#{$namespace}multipleTools {
