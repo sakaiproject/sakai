@@ -127,6 +127,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradeType;
@@ -4470,13 +4471,36 @@ public class DiscussionForumTool {
       selectedForum.setGradeAssign(forumDefaultAssignment);
     }
 
-    if (selAssignmentName != null) {
-      setUpGradeInformation(gradebookUid, selAssignmentName, userId);
-    } else {
-      // this is the "Select a gradebook item" selection
-      allowedToGradeItem = false;
-      selGBItemRestricted = true;
-    }
+
+
+    try {
+    	if (selAssignmentName != null) {
+    		setUpGradeInformation(gradebookUid, selAssignmentName, userId);
+    	} else {
+    		// this is the "Select a gradebook item" selection
+    		allowedToGradeItem = false;
+    		selGBItemRestricted = true;
+    	}
+    	}catch (AssessmentNotFoundException e) {
+    		if (msgAssignmentName !=null && msgAssignmentName.trim().length()>0) {
+    			Message msg = selectedMessage.getMessage();
+    			msg.setGradeAssignmentName(null);
+    			msg = forumManager.saveMessage(msg);
+    			selectedMessage.setMessage(msg);
+    		} else if (topicDefaultAssignment != null && topicDefaultAssignment.trim().length() > 0) {
+    			DiscussionTopic dt = selectedTopic.getTopic();
+    			dt.setDefaultAssignName(null);
+    			dt = forumManager.saveTopic(dt);
+    			selectedTopic.setTopic(dt);
+    		} else if (forumDefaultAssignment != null && forumDefaultAssignment.trim().length() > 0) {
+    			DiscussionForum df = selectedForum.getForum();
+    			df.setDefaultAssignName(null);
+    			df = forumManager.saveForum(df);
+    			selectedForum.setForum(df);
+    		}
+    		allowedToGradeItem = false;
+    		selGBItemRestricted = true;
+    	}
 
     return GRADE_MESSAGE;
   }
