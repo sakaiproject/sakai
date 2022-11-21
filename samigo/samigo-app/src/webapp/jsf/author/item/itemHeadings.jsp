@@ -19,9 +19,20 @@ jQuery(document).ready(function() {
 	if ( itemType == 2 || itemType == 12 ) {
 		$('#itemFormHeading\\:changeQType2').find('option[value=1]').attr('selected', true);
 	}
-	var itemAuthorTarget = "${itemauthor.target}";
-	if(itemAuthorTarget == 'questionpool') {
-		$('#itemFormHeading\\:changeQType2').find('option:last').remove();
+
+	const itemAuthorTarget = "${itemauthor.target}";
+	const isEditPendingAssessmentFlow = ${author.isEditPendingAssessmentFlow};
+	const changeQTypeSelect = document.getElementById('itemFormHeading:changeQType2');
+	switch (itemAuthorTarget) {
+		case 'questionpool':
+			changeQTypeSelect.options[changeQTypeSelect.options.length - 1].remove();
+			break;
+
+		case 'assessment':
+			if (!isEditPendingAssessmentFlow) {
+				changeQTypeSelect.remove();
+			}
+			break;
 	}
 });
 
