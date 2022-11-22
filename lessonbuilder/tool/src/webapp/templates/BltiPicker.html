@@ -27,7 +27,7 @@
 			</div>
 		</div>
 
-		<a role="menuitem" class="usebutton" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, true);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a>
+		<a role="menuitem" class="usebutton" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, true);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a>
 
 		<h2 rsf:id="mainhead" id="mainhead"></h2>
 
@@ -35,10 +35,10 @@
 
 		<div rsf:id="app-store-shortcut:" class="col-md-11 col-md-offset-1">
 			<div rsf:id="blti-create:">
-				<a rsf:id="blti-create-link" id="blti-shortcut-link" href="#" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, true);">
+				<a rsf:id="blti-create-link" id="blti-shortcut-link" href="#" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, true);">
 					<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
 					<i class="" rsf:id="blti-create-icon"></i>
-					<span rsf:id="blti-create-text"></span>
+					<span rsf:id="blti-create-text" class="blti-create-text"></span>
 				</a>
 			</div>
 		</div>
@@ -53,10 +53,10 @@
 				</thead>
 				<tbody>
 				<tr rsf:id="blti-create:">
-					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, false);">
+					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, false);">
 						<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
 						<i class="" rsf:id="blti-create-icon"></i>
-						<span rsf:id="blti-create-text"></span>
+						<span rsf:id="blti-create-text" class="blti-create-text"></span>
 					</a></td>
 					<td><span rsf:id="blti-create-description"></span></td>
 				</tr>
@@ -74,10 +74,10 @@
 				</thead>
 				<tbody>
 				<tr rsf:id="blti-create:">
-					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, false);">
+					<td><a rsf:id="blti-create-link" href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this, false);">
 						<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
 						<i class="" rsf:id="blti-create-icon"></i>
-						<span rsf:id="blti-create-text"></span>
+						<span rsf:id="blti-create-text" class="blti-create-text"></span>
 					</a></td>
 					<td><span rsf:id="blti-create-description"></span></td>
 				</tr>
@@ -130,13 +130,19 @@
 
   <script>
     //<![CDATA[
-    function showIframe(title, doreload) {
+    function showIframe(elem, doreload) {
+      let title = elem;
+      if ( typeof elem != 'string' ) title = $(elem).children('.blti-create-text').html();
+      const mainhead = document.getElementById("mainhead").innerHTML;
+      const newTitle =  mainhead + ': ' + title;
+      document.getElementById("bltiModalLabel").innerHTML = newTitle;
+
       const el = document.getElementById("modal-iframe-div");
       const modal = bootstrap.Modal.getOrCreateInstance(el);
 
       el.addEventListener("shown.bs.modal", e => {
         $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
+        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
       });
 
       el.addEventListener("hidden.bs.modal", e => {
@@ -152,7 +158,7 @@
 
         // Note that width() gives the content width, taking into consideration the border, padding, etc.
         $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
-        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
+        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
       });
     }
 
