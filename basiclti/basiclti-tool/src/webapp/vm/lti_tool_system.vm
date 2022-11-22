@@ -111,7 +111,7 @@ ${includeLatestJQuery}
         #if ($configMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($configMessage)</div>#end
 	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right" style="padding:10px"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a>#if ($isAdmin )<br/><a href="" title="$tlang.getString("add.auto")" onclick="location = '$sakai_ActionURL.setPanel("AutoInsert")';return false;"> $tlang.getString("add.auto")</a>#end</div>#end
 	<br/>
-        <div style="padding: 10px">
+        <div class="p-2">
 	#if ($!ltiTools && $ltiTools.size() > 0 )
 		$tlang.getString("tool.description.system")
 		<br/>
