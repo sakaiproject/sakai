@@ -73,8 +73,8 @@
     
     <li class="nav-item">
         <a class="btn btn-nav rounded-end me-1 ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}" href="$!{url}">
-            <div class="d-flex align-items-center">
-                <div class="me-auto rounded-end">
+            <div class="d-flex text-start align-items-center">
+                <div class="d-flex me-auto rounded-end">
                     <i class="me-1 $!{icon}" aria-hidden="true"></i>
                     <span>${title}</span>
                 </div>
