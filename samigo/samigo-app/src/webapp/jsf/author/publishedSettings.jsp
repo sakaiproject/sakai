@@ -536,7 +536,7 @@
   <!-- *** GRADING *** -->
   <!-- RECORDED SCORE AND MULTIPLES -->
     <div class="samigo-subheading">
-      <h:outputLabel value="Scoring and Grading"/>
+      <h:outputLabel value="#{assessmentSettingsMessages.grading_scoring_title" />
     </div>
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.recordedScore_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.recorded_score} " />
