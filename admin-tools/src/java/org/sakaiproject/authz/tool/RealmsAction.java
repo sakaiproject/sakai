@@ -1472,7 +1472,7 @@ public class RealmsAction extends PagedResourceActionII
 		return userAuditList;
 	}
 	
-	private void addToAuditLogList(SessionState state, AuthzGroup realm, String userEid, String userRole)
+	private void addToAuditLogList(SessionState state, AuthzGroup realm, String userId, String userRole)
 	{
 		List<String[]> userAuditList = retrieveAuditLogList(state);
 		
@@ -1496,7 +1496,7 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			userAuditAction = userAuditService.USER_AUDIT_ACTION_ADD;
 		}
-		String[] userAuditString = {siteId,userEid,userRole,userAuditAction,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getEid()};
+		String[] userAuditString = {siteId,userId,userRole,userAuditAction,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()};
 		userAuditList.add(userAuditString);
 		
 		state.setAttribute("userAuditList", userAuditList);
