@@ -11,7 +11,7 @@
                 <a class="gb-title">
                     <wicket:message key="column.header.coursegrade"/>
                 </a>
-                <div class="gb-grade-item-flags">
+                <div class="gb-title gb-grade-item-flags">
                     {if settings.isCourseGradeReleased}
                     <span class="gb-flag-released" wicket:message="title:label.coursegrade.released">
                         {if settings.isUserAbleToEditAssessments}
@@ -36,7 +36,7 @@
                 </div>
                 {if settings.isUserAbleToEditAssessments}
                     <div class="btn-group">
-                        <a class="btn btn-sm btn-default dropdown-toggle"
+                        <a class="gb-header-dropdown-toggle btn btn-sm btn-default dropdown-toggle"
                            data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                            wicket:message="title:coursegrade.header.menulabel"
                            tabindex="-1">
@@ -116,7 +116,7 @@
                     <wicket:message key="label.due"/> 
                     <span>${dueDate}</span>
                 </div>
-                <div class="gb-grade-item-flags">
+                <div class="gb-title gb-grade-item-flags">
                     {if released}
                         <span class="gb-flag-released" wicket:message="title:label.gradeitem.released"></span>
                     {else}

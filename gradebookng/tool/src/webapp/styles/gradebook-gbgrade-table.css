@@ -145,7 +145,6 @@
   line-height: 1.2em;
   display: inline-block;
   cursor: pointer;
-  width: calc(100% - 16px);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -190,9 +189,7 @@
   line-height: 1.3em;
 }
 #gradeTableWrapper .gb-grade-item-flags {
-  position: absolute;
-  bottom: 0;
-  left: 5px;
+  display: inline-block;
 }
 #gradeTableWrapper th .btn-group,
 #gradeTableWrapper td .btn-group {
@@ -281,11 +278,9 @@
 .gb-flag-not-counted:before {
   content: '\e600';
 }
-.gb-flag-not-released:before {
-  content: '\e601';
-}
-.gb-flag-not-released:before {
-  content: '\e601';
+.gb-flag-not-released::before {
+  font-family: 'FontAwesome';
+  content: '\f070';
 }
 .gb-flag-counted,
 .gb-flag-released {
