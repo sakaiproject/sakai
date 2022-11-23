@@ -23,11 +23,13 @@ import static org.mockito.Mockito.withSettings;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Test;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.User;
 import org.junit.rules.ExpectedException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,12 +64,16 @@ public class SakaiScriptChangeSiteMemberStatusTest extends AbstractCXFTest {
 		User mockUser2 = mock(User.class);
 		AuthzGroup mockAuthzGroup = mock(AuthzGroup.class);
 		Member mockMember = mock(Member.class);
+		Site mockSite = mock(Site.class);
+		Role mockRole = mock(Role.class);
 
 
 		try {
+			when(service.siteService.getSite("siteid")).thenReturn(mockSite);
 			when(service.userDirectoryService.getUserByEid("userEid")).thenReturn(mockUser);
 			when(service.userDirectoryService.getUserByEid("nouser")).thenReturn(null);
 			when(service.userDirectoryService.getUserByEid("userEidNoPerm")).thenReturn(mockUser2);
+			when(service.userDirectoryService.getCurrentUser()).thenReturn(mockUser);
 			when(service.siteService.siteReference("siteid")).thenReturn("realmId");
 			when(service.authzGroupService.allowUpdate("realmId")).thenReturn(true);
 			when(service.siteService.allowUpdateSiteMembership("siteid")).thenReturn(true);
@@ -76,6 +82,8 @@ public class SakaiScriptChangeSiteMemberStatusTest extends AbstractCXFTest {
 			when(mockUser2.getId()).thenReturn("userEidNoPerm");
 			when(mockAuthzGroup.getMember("userId")).thenReturn(mockMember);
 			when(mockAuthzGroup.getMember("userIdNoPerm")).thenReturn(null);
+			when(mockSite.getUserRole("userId")).thenReturn(mockRole);
+			when(mockRole.getId()).thenReturn("role");
 		} catch (Exception e) {
 
 		}
