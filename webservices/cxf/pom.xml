@@ -94,6 +94,10 @@
             <artifactId>archive-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.userauditservice</groupId>
+            <artifactId>userauditservice-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-api</artifactId>
         </dependency>

@@ -70,6 +70,7 @@ public class SakaiScriptAddMemberToSiteWithRoleBatchTest extends AbstractCXFTest
 			when(service.userDirectoryService.getUserByEid("user1")).thenReturn(mockUser1);
 			when(service.userDirectoryService.getUserByEid("user2")).thenReturn(mockUser2);
 			when(service.userDirectoryService.getUserByEid("nouser")).thenReturn(null);
+			when(service.userDirectoryService.getCurrentUser()).thenReturn(mockUser1);
 			when(mockUser1.getId()).thenReturn("user1");
 			when(mockUser2.getId()).thenReturn("user2");
 		} catch (Exception e) {

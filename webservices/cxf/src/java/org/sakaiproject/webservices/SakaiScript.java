@@ -75,6 +75,7 @@ import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
@@ -1241,6 +1242,9 @@ public class SakaiScript extends AbstractWebService {
             String userid = userDirectoryService.getUserByEid(eid).getId();
             site.addMember(userid, roleid, true, false);
             siteService.saveSiteMembership(site);
+
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteid,userid,roleid,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()});
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
             log.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -1279,11 +1283,18 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             List<String> eidsList = Arrays.asList(eids.split(","));
+            List<String[]> userAuditList = new ArrayList<String[]>();
             for (String eid : eidsList) {
                 String userid = userDirectoryService.getUserByEid(eid).getId();
                 site.addMember(userid,roleid,true,false);
+                String[] userAuditString = {siteid,userid,roleid,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()};
+                userAuditList.add(userAuditString);
             }
             siteService.save(site);
+            if (!userAuditList.isEmpty())
+            {
+                userAuditRegistration.addToUserAuditing(userAuditList);
+            }
         }
         catch (Exception e) {
             log.error("WS addMemberToSiteWithRoleBatch(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -2660,8 +2671,10 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             String userid = userDirectoryService.getUserByEid(eid).getId();
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteid,userid,site.getUserRole(userid).getId(),UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()});
             site.removeMember(userid);
             siteService.saveSiteMembership(site);
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
             log.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -2698,11 +2711,15 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             List<String> eidsList = Arrays.asList(eids.split(","));
+            List<String[]> userAuditList = new ArrayList<String[]>();
             for (String eid : eidsList) {
                 String userid = userDirectoryService.getUserByEid(eid).getId();
+                String[] userAuditString = {siteid,userid,site.getUserRole(userid).getId(),UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()};
                 site.removeMember(userid);
+                userAuditList.add(userAuditString);
             }
             siteService.save(site);
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
             log.error("WS removeMemberFromSiteBatch(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -5199,6 +5216,10 @@ public class SakaiScript extends AbstractWebService {
             }
             userMember.setActive(active);
             authzGroupService.save(realmEdit);
+
+            siteService.getSite(siteid).getUserRole(user.getId()).getId();
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteid,user.getId(),"s",UserAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()});
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
             log.error("WS changeSiteMemberStatus(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return e.getClass().getName() + " : " + e.getMessage();
