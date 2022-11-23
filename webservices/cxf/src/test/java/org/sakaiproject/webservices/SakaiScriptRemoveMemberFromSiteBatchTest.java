@@ -23,6 +23,7 @@ import static org.mockito.Mockito.withSettings;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Test;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.user.api.User;
@@ -61,6 +62,8 @@ public class SakaiScriptRemoveMemberFromSiteBatchTest extends AbstractCXFTest {
 		User mockUser1 = mock(User.class);
 		User mockUser2 = mock(User.class);
 		Site mockSite = mock(Site.class);
+		Role mockRole1 = mock(Role.class);
+		Role mockRole2 = mock(Role.class);
 
 		when(service.securityService.isSuperUser("admin")).thenReturn(true);
 
@@ -70,8 +73,13 @@ public class SakaiScriptRemoveMemberFromSiteBatchTest extends AbstractCXFTest {
 			when(service.userDirectoryService.getUserByEid("user1")).thenReturn(mockUser1);
 			when(service.userDirectoryService.getUserByEid("user2")).thenReturn(mockUser2);
 			when(service.userDirectoryService.getUserByEid("nouser")).thenReturn(null);
+			when(service.userDirectoryService.getCurrentUser()).thenReturn(mockUser1);
 			when(mockUser1.getId()).thenReturn("user1");
 			when(mockUser2.getId()).thenReturn("user2");
+			when(mockSite.getUserRole("user1")).thenReturn(mockRole1);
+			when(mockSite.getUserRole("user2")).thenReturn(mockRole2);
+			when(mockRole1.getId()).thenReturn("role1");
+			when(mockRole2.getId()).thenReturn("role2");
 		} catch (Exception e) {
 		}
 

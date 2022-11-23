@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -99,6 +100,7 @@ public class AbstractWebService {
     protected ArchiveService archiveService;
     protected FormattedText formattedText;
     protected SqlService sqlService;
+    protected UserAuditRegistration userAuditRegistration;
 
     /**
      * Get the Session related to the given sessionid
@@ -302,5 +304,10 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setArchiveService(ArchiveService archiveService) {
         this.archiveService = archiveService;
+    }
+
+    @WebMethod(exclude = true)
+    public void setUserAuditRegistration(UserAuditRegistration userAuditRegistration) {
+        this.userAuditRegistration = userAuditRegistration;
     }
 }
