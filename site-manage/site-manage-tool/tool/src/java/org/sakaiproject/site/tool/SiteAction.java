@@ -1108,7 +1108,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		// store current userId in state
 		User user = userDirectoryService.getCurrentUser();
-		String userId = user.getEid();
+		String userId = user.getId();
 		state.setAttribute(STATE_CM_CURRENT_USERID, userId);
 		PortletConfig config = portlet.getPortletConfig();
 
@@ -9162,7 +9162,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								realmEdit.addMember(id, roleId, activeGrant,
 									fromProvider);
 							String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
-							String[] userAuditString = {s.getId(),participant.getEid(),roleId,userAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+							String[] userAuditString = {s.getId(),id,roleId,userAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
 							userAuditList.add(userAuditString);
 							
 								// construct the event string
@@ -9213,7 +9213,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									realmEdit.removeMember(userId);
 									usersDeleted.add("uid=" + userId);
 									String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
-									String[] userAuditString = {s.getId(),user.getEid(),role.getId(),userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+									String[] userAuditString = {s.getId(),userId,role.getId(),userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
 									userAuditList.add(userAuditString);
 								}
 							}
