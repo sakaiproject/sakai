@@ -139,7 +139,6 @@
     line-height: 1.2em;
     display: inline-block;
     cursor: pointer;
-    width: calc(100% - 16px);
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -177,10 +176,7 @@
     line-height: 1.3em;
   }
   #gradeTableWrapper .gb-grade-item-flags {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 16px;
+    display: inline;
   }
   #gradeTableWrapper th .dropdown,
   #gradeTableWrapper td .dropdown {
@@ -272,8 +268,7 @@
     text-decoration-line: line-through;
   }
   .gb-flag-not-released:before {
-    content: '\F33E';
-    text-decoration-line: line-through;
+    content: '\F33F';
   }
   .gb-flag-counted,
   .gb-flag-released {
