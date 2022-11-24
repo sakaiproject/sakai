@@ -249,9 +249,9 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			if (params.showAllComments || params.showNewComments || (!params.filter && newItems <= 5)) {
 			    if (log != null) {
 				simplePageBean.update(log);
-			    } else {
-				log = simplePageToolDao.makeLogEntry(currentUserId, params.itemId, null);
-				simplePageBean.saveItem(log);
+			    } else if (currentUserId != null) {
+			    	log = simplePageToolDao.makeLogEntry(currentUserId, params.itemId, null);
+			    	simplePageBean.saveItem(log);
 			    }
 			}
 
