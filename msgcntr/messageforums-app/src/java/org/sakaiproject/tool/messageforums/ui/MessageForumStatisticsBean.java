@@ -2575,7 +2575,7 @@ public class MessageForumStatisticsBean {
 				    Assignment assignment = getGradebookService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
 					setDefaultSelectedAssign(assignment.getName());
 				} catch (Exception ex) {
-					log.error("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
+					log.warn("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
 				}
 			}
 		}

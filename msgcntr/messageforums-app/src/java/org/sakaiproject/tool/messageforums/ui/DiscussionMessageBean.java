@@ -624,4 +624,8 @@ log.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
 	public int getWordCount() {
 		return new StringTokenizer(message.getBody()).countTokens();
 	}
+
+	public void setMessage(Message message) {
+		this.message = message;
+	}
 }
