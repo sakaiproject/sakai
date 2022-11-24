@@ -208,7 +208,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn("sakaiuser");
 
-        // You can't create a topic without TOPIC_CREATE.
+        // You can't create a topic without QUESTION_CREATE or DISCUSSION_CREATE.
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
     }
 
@@ -218,10 +218,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getBlankTopic(siteId));
 
         switchToUser1();
-
-        when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(false);
-        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getBlankTopic(siteId));
-        when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
 
         try {
             TopicTransferBean blankTopic = conversationsService.getBlankTopic(siteId);
@@ -297,8 +293,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
 
-            when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
-
             TopicTransferBean savedBean = conversationsService.saveTopic(topicBean, true);
             when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
@@ -317,6 +311,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
             topics = conversationsService.getTopicsForSite(siteId);
             assertEquals(1, topics.size());
+
+            topicBean.type = TopicType.DISCUSSION.name();
+            when(securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
+            when(securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef)).thenReturn(true);
+            conversationsService.saveTopic(topicBean, true);
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(2, topics.size());
         } catch (ConversationsPermissionsException cpe) {
             cpe.printStackTrace();
             fail("Unexpected exception when saving topic");
@@ -726,6 +728,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         try {
             switchToUser1();
+            when(securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef)).thenReturn(true);
             topicBean = createTopic(true);
 
             postBean.topic = topicBean.id;
@@ -1346,6 +1349,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     public void savePost() {
 
         switchToUser1();
+        when(securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef)).thenReturn(true);
         TopicTransferBean topicBean = createTopic(true);
         topicBean.type = TopicType.DISCUSSION.name();
 
@@ -1750,7 +1754,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         when(securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)).thenReturn(false);
         when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
-        when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.QUESTION_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)).thenReturn(false);
         when(securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef)).thenReturn(true);
@@ -1784,7 +1789,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         when(securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)).thenReturn(true);
         when(securityService.unlock(instructor, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
-        when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.QUESTION_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef)).thenReturn(true);

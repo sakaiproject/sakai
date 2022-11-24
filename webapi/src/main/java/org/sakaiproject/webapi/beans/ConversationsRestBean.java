@@ -27,6 +27,8 @@ public class ConversationsRestBean {
     public String siteId;
     public List<SimpleGroup> groups;
     public List<EntityModel> topics;
+    public boolean canCreateQuestion;
+    public boolean canCreateDiscussion;
     public boolean canCreateTopic;
     public boolean canUpdatePermissions;
     public boolean canEditTags;
