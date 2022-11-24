@@ -408,19 +408,19 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <div class=${ifDefined(this.state === STATE_SETTINGS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click="${this._setStateSettings}"></a>
+        <button class="btn btn-transparent" @click="${this._setStateSettings}">${this.i18n.general_settings}</button>
       </div>
       <div class=${ifDefined(this.state === STATE_PERMISSIONS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click="${this._setStatePermissions}">${this.i18n.permissions}</a>
+        <button class="btn btn-transparent" @click="${this._setStatePermissions}">${this.i18n.permissions}</button>
       </div>
       ${this.data.canEditTags ? html`
       <div class=${ifDefined(this.state === STATE_MANAGING_TAGS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click="${this._setStateManagingTags}">${this.i18n.manage_tags}</a>
+        <button class="btn btn-transparent" @click="${this._setStateManagingTags}">${this.i18n.manage_tags}</button>
       </div>
       ` : ""}
       ${this.data.canViewSiteStatistics ? html`
       <div class=${ifDefined(this.state === STATE_STATISTICS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click="${this._setStateStatistics}">${this.i18n.statistics}</a>
+        <button class="btn btn-transparent" @click="${this._setStateStatistics}">${this.i18n.statistics}</button>
       </div>
       ` : ""}
     `;
