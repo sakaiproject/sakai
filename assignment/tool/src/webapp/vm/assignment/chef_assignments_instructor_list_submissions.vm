@@ -65,10 +65,10 @@ function printView(url) {
 							##for non-point-based grading, choose the default grade from drop-down
 						<div class="form-group">
 							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")&nbsp;
+								<input type="checkbox" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")&nbsp;
 							</label>
 							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notSubmit" value="true"/> $tlang.getString("defaultGrade.notSubmit")<br/>
+								<input type="checkbox" name="notSubmit" value="true"/> $tlang.getString("defaultGrade.notSubmit")<br/>
 							</label>
 						</div>
 						<div class="flex-wrap">
