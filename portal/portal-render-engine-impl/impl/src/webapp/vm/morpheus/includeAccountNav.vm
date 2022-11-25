@@ -59,6 +59,7 @@ For opening help sidebar
           data-bs-target="#sakai-quickLinksPanel"
           aria-controls="sakai-quickLinksPanel"
           aria-label="$rloader.sit_quick_links"
+          aria-expanded="false"
           title="$rloader.sit_quick_links">
         <i class="bi-link-45deg"></i>
       </button>
