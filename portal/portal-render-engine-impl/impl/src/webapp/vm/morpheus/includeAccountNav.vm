@@ -61,7 +61,7 @@ For opening help sidebar
           aria-label="$rloader.sit_quick_links"
           aria-expanded="false"
           title="$rloader.sit_quick_links">
-        <i class="bi-link-45deg"></i>
+        <i class="si si-link"></i>
       </button>
     </li>
   #end
