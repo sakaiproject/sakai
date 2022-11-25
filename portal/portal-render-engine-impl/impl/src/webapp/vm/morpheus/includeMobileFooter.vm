@@ -54,6 +54,7 @@
       </button>
     </li>
     #end
+
   #if ($quickLinks)
     <li>
       <button class="btn icon-button"
@@ -66,6 +67,7 @@
       </button>
     </li>
   #end
+
     #if ($pageColumn0Tools && !$pageColumn0Tools.isEmpty())
         #set ($helpLink = $pageColumn0Tools.get(0).toolHelpActionUrl)
     #elseif ($pageColumn1Tools && !$pageColumn1Tools.isEmpty())
