@@ -55,6 +55,20 @@
     </li>
     #end
 
+  #if ($quickLinks)
+    <li>
+      <button class="btn icon-button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-quickLinksPanel"
+          aria-controls="sakai-quickLinksPanel"
+          aria-label="$rloader.sit_quick_links"
+          aria-expanded="false"
+          title="$rloader.sit_quick_links">
+        <i class="si si-link"></i>
+      </button>
+    </li>
+  #end
+
     #if ($pageColumn0Tools && !$pageColumn0Tools.isEmpty())
         #set ($helpLink = $pageColumn0Tools.get(0).toolHelpActionUrl)
     #elseif ($pageColumn1Tools && !$pageColumn1Tools.isEmpty())
