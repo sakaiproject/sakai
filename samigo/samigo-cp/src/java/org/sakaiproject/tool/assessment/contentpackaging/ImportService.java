@@ -79,7 +79,7 @@ public class ImportService {
 	    	if (!dir.exists()) {
 	    		if (!dir.mkdirs()) {
                     log.warn("Unable to mkdir {}", dir.getPath());
-                }
+	    		}
 	    	}
 
 	    	Set<String> dirsMade = new TreeSet<>();
@@ -90,19 +90,19 @@ public class ImportService {
 	    		qtiFilename = "exportAssessment.xml";
 	    		List<String> xmlFilenames = new ArrayList<>();
 	    		while (entry != null) {
-                    String entryName = entry.getName();
-                    String entryNameTrimmed = entryName.trim();
-                    int ix = entryName.lastIndexOf('/');
-                    if (ix > 0) {
-                        String dirName = entryName.substring(0, ix);
-                        if (!dirsMade.contains(dirName)) {
+	    			String entryName = entry.getName();
+	    			String entryNameTrimmed = entryName.trim();
+	    			int ix = entryName.lastIndexOf('/');
+	    			if (ix > 0) {
+	    				String dirName = entryName.substring(0, ix);
+	    				if (!dirsMade.contains(dirName)) {
 	    					File d = new File(dir.getPath() + "/" + dirName);
 	    					// If it already exists as a dir, don't do anything
 	    					if (!(d.exists() && d.isDirectory())) {
 	    						// Try to create the directory, warn if it fails
 	    						if (!d.mkdirs()) {
-                                    log.warn("Unable to mkdir {}/{}", dir.getPath(), dirName);
-                                }
+	    							log.warn("unable to mkdir {}/{}", dir.getPath(), dirName);
+	    						}
 	    						dirsMade.add(dirName);
 	    					}
 	    				}
@@ -131,24 +131,26 @@ public class ImportService {
 	    					NamedNodeMap namedNodeMap = fstNode.getAttributes();
 	    					qtiFilename = namedNodeMap.getNamedItem("href").getNodeValue();
 	    				} catch (Exception e) {
-							log.warn("Could not parse imsmanifest.xml: {}", e.toString());
+	    					log.warn("Could not parse imsmanifest.xml: {}", e.toString());
 	    				}
-                    } else if (entryNameTrimmed.endsWith(".xml")) {
-                        xmlFilenames.add(entryNameTrimmed);
+	    			} else if (entryNameTrimmed.endsWith(".xml")) {
+	    				xmlFilenames.add(entryNameTrimmed);
+	    				// If the QTI file doesn't exist in the zip,
+	    				// we guess the name might be either exportAssessment.xml or the same as the zip or other
+	    				// file name
+	    				if (!xmlFilenames.contains(qtiFilename.trim())) {
+	    					if (xmlFilenames.contains("exportAssessment.xml")) {
+	    						qtiFilename = "exportAssessment.xml";
+	    					} else if (xmlFilenames.contains(tmpName.substring(0, tmpName.lastIndexOf("_")) + ".xml")) {
+	    						qtiFilename = tmpName.substring(0, tmpName.lastIndexOf("_")) + ".xml";
+	    					} else {
+	    						qtiFilename = entryNameTrimmed;
+	    					}
+	    				}
 	    			}
 
 	    			zipStream.closeEntry();
 	    			entry = zipStream.getNextEntry();
-	    		}
-	    		// If the QTI file doesn't exist in the zip,
-	    		// we guess the name might be either exportAssessment.xml or the same as the zip
-	    		// file name
-	    		if (!xmlFilenames.contains(qtiFilename.trim())) {
-	    			if (xmlFilenames.contains("exportAssessment.xml")) {
-	    				qtiFilename = "exportAssessment.xml";
-	    			} else {
-	    				qtiFilename = tmpName.substring(0, tmpName.lastIndexOf("_")) + ".xml";
-	    			}
 	    		}
 	    	}
 	    } catch (IOException e) {
@@ -165,4 +167,5 @@ public class ImportService {
 	public void setQtiFilename(String qtiFilename) {
 		this.qtiFilename = qtiFilename;
 	}
+	
 }
