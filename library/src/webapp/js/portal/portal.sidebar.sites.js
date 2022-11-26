@@ -12,6 +12,8 @@ class SitesSidebar {
     const pinButtonElements = element.querySelectorAll(".site-opt-pin");
     pinButtonElements.forEach((buttonEl) => new PinButton(buttonEl, { i18n: this._i18n?.pinButtons}));
 
+    element.querySelectorAll(".site-description-button").forEach(buttonEl => new bootstrap.Popover(buttonEl));
+
     document.addEventListener("site-pin-change", this.#handlePinChange);
 
     element.querySelectorAll(".site-list-item-collapse").forEach(btn => {
@@ -118,7 +120,6 @@ class PinButton {
 
   set title(newValue) {
     this._element.setAttribute("title", newValue);
-    this._tooltip.setContent({'.tooltip-inner': newValue});
   }
 
   get pinned() {
@@ -134,7 +135,6 @@ class PinButton {
     this._element = element;
     this._i18n = config?.i18n;
     this._site = element.getAttribute("data-pin-site");
-    this._tooltip = bootstrap.Tooltip.getOrCreateInstance(this._element);
     element.addEventListener("click", this.#toggle.bind(this));
   }
 

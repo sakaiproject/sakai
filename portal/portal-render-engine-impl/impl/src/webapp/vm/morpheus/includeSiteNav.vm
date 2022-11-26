@@ -17,27 +17,33 @@
     #end
 
     <li class="site-list-item py-1 $!{currentSiteClass}">
-        <div class="site-list-item-head d-flex align-items-stretch pe-2">
-            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 d-flex flex-grow-1 #if (!$isCurrentSite)collapsed#end"
+        <div class="site-list-item-head d-flex align-items-center pe-2">
+            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 #if (!$isCurrentSite)collapsed#end"
                     data-bs-toggle="collapse"
                     data-bs-target="#site-${index}-pages"
                     aria-expanded="${isExpanded}"
                     aria-controls="site-${index}-pages">
                 <i class="bi bi-chevron-right" aria-hidden="true"></i>
-                <span>${site.title}</span>
+                <span class="text-break">${site.title}</span>
             </button>
             #if ($loggedIn)
-                <button class="site-opt-pin btn btn-site-opt bi $!{pinIconClass}"
+                <button class="d-inline-block p-1 site-opt-pin btn btn-site-opt bi $!{pinIconClass}"
                     data-pin-site="${site.id}"
                     data-pinned="$!{site.isPinned}"
                     title="${pinTitle}">
                 </button>
+                #if ($site.description)
+                <button class="d-inline-block p-1 btn bi bi-info-circle btn-site-opt site-description-button"
+                    data-bs-toggle="popover"
+                    data-bs-html="true"
+                    data-bs-content="${site.description}"
+                    aria-label="Click for the full site description"
+                    aria-expanded="false">
+                </button>
+                #end
             #end
         </div>
         <div id="site-${index}-pages" class="site-list-item-collapse collapse #if ($isCurrentSite)show#end">
-            #if ($site.shortDescription)
-                <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">${site.shortDescription}</p>
-            #end
             <ul class="site-page-list nav flex-column py-1 mb-2">
             #foreach ( $page in $site.pages )
                 #if ($isCurrentSite)
