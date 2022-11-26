@@ -1,6 +1,6 @@
 ## Adds $viewAsStudentLink options
 
-<div id="roleSwitch" class="Mrphs-roleSwitch Mrphs-toolsNav__menuitem">
+<div id="roleSwitch" class="role-switcher">
     #if ($roleSwitchState)
     	<span>$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
     	<a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor Mrphs-roleSwitch__exit">
@@ -8,7 +8,6 @@
         </a>
     #else
         <div id="roleSwitchDropDown">
-            <i class="fa fa-user-secret" aria-hidden="true"></i>
             #if ($roleswapdropdown)
             <div class="Mrphs-roleSwitch__anchor">
                 <select id="roleSwitchSelect" class="Mrphs-roleSwitch__dropdown" aria-label="${rloader.rs_menuExplanation}">
