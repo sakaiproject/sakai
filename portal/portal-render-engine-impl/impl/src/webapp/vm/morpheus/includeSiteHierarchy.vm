@@ -117,7 +117,7 @@
         #end
     #end
 
-#*  Role Switcher  *#
+    #*  Role Switcher  *#
   #if ($viewAsStudentLink)
       #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
   #end
