@@ -19,9 +19,7 @@
     </svg>
     <span class="d-none d-md-inline">View System Alert</span>
   </a>
-  #if ($viewAsStudentLink)
-      #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-  #end
+
   #if (${loginTopLogin})
     #parse("/vm/morpheus/includeLoginNav.vm")
   #else
