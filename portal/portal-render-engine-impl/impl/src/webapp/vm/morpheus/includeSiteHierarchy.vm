@@ -116,5 +116,10 @@
 *#
         #end
     #end
-    </ul>
+
+#*  Role Switcher  *#
+  #if ($viewAsStudentLink)
+      #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+  #end
+    </ol>
 </nav>

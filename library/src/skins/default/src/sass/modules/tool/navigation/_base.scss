@@ -260,127 +260,6 @@ body.is-logged-out{
 			margin-right: $standard-space-2x;
 		}
 
-		#roleSwitch {
-			@include display-flex;
-			@include align-items( center );
-			margin-left: $top-header-item-spacing;
-			padding-left: $top-header-item-spacing;
-			border-left: $top-header-separators-thickness solid var(--topNav-border-color);
-			white-space: nowrap;
-
-				@media #{$phone} {
-					&.menu-not-setup {
-						display: none;
-					}
-				}
-
-			// Show as a menu on mobile
-			#roleSwitchDropDownToggle {
-				display: none;
-
-				@media #{$phone} {
-					display: block;
-				}
-
-				vertical-align: middle;
-				text-decoration: none;
-
-				i {
-					font-size: 1.33333em;
-					vertical-align: -15%;
-				}
-
-				&:hover {
-					text-decoration: none;
-					color: var(--sakai-text-color-inverted);
-						background: rgba(0,0,0,.2);
-						border-radius:50%;
-				}
-			}
-
-			#roleSwitchDropDown {
-				@media #{$phone} {
-					position: absolute;
-					left: -100000000px;
-					height: 1px;
-					width: 1px;
-					overflow: hidden;
-
-					> i {
-						display: none;
-					}
-				}
-
-				@media #{$nonPhone} {
-					> i {
-						display: inline-block;
-						vertical-align: middle;
-					}
-					.#{$namespace}roleSwitch__anchor {
-						display: inline-block;
-					}
-				}
-
-				line-height: 1em;
-				display: inline-block;
-
-				@media #{$phone} {
-					&.open {
-						top: calc((#{$banner-height} / 2) + #{$default-font-size} + 4px); 	// half of the height of the banner plus the height of the line plus half the height of the arrow tip border (because it is a triangle)
-						left: auto;
-						height: auto;
-						width: auto;
-						background: var(--sakai-background-color-2);
-						box-shadow: var(--elevation-4dp);
-						padding: 1em;
-						z-index: 50;
-						overflow: visible;
-
-						&:after {
-							bottom: 100%;
-							right: 21px;
-							border: solid transparent;
-							content: " ";
-							height: 0;
-							width: 0;
-							position: absolute;
-							pointer-events: none;
-							border-color: transparent;
-							border-bottom-color: var(--sakai-background-color-2);
-							border-width: 7px;
-							margin-left: -7px;
-							outline: 0;
-						}
-
-						a {
-							display: inline-block;
-						}
-					}
-				}
-			}
-
-			#roleSwitchAnchor {
-				text-decoration: none;
-				@media #{$phone} {
-					color: var(--sakai-primary-color-1);
-				}
-
-				@media #{$nonPhone} {
-					color: var(--topNav-text-color);
-					display: inline-block;
-				}
-
-				&:hover, &:active {
-					span {
-						text-decoration: underline;
-					}
-				}
-
-				&.#{$namespace}roleSwitch__exit {
-					color: var(--topNav-text-color);
-				}
-			}
-		}
 	}
 
 	@media #{$phone}{
@@ -1051,4 +930,13 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 	@media #{$phone} {
 		visibility: hidden;
 	}
+}
+
+// styles for the role switcher
+.role-switcher {
+	margin-inline-start: auto;
+}
+
+#roleSwitchSelect {
+	font-weight: bold;
 }
