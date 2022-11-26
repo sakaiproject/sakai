@@ -404,6 +404,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		siteMap.put("title", site.getTitle());
 		siteMap.put("url", site.getUrl());
 		siteMap.put("type", site.getType());
+		siteMap.put("description", site.getDescription());
 		siteMap.put("shortDescription", site.getShortDescription());
 		siteMap.put("isPinned", isSitePinned(site.getId()));
 		if (includePages) {
