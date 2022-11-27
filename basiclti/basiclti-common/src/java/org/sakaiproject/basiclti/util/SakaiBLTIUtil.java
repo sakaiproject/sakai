@@ -122,7 +122,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.oauth.OAuth;
 
 /**
- * Some Sakai Utility code for IMS LTI This is mostly code to support the
+ * Some Sakai Utility code for LTI This is mostly code to support the
  * Sakai conventions for making and launching BLTI resources within Sakai.
  */
 @SuppressWarnings("deprecation")
@@ -190,6 +190,83 @@ public class SakaiBLTIUtil {
 	public static final String MESSAGE_TYPE_PARAMETER_PRIVACY = "privacy";
 	public static final String MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW = "content_review";
 
+	// Default Outbound Role Mapping - Sakai role to a comma-separated list of LTI Roles
+	// https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
+	public static final String LTI_OUTBOUND_ROLE_MAP = "lti.outbound.role.map";
+	public static final String LTI_OUTBOUND_ROLE_MAP_DEFAULT =
+		// Admin is weird - tools that are simple see them as Instructors, more complex tools know both roles
+		// And we send legacy LTI 1.0 roles as well
+		"admin:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor," +
+			"http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor," +
+			"Administrator," +
+			"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator," +
+			"http://purl.imsglobal.org/vocab/lis/v2/system/person#Administrator;" +
+		// !site.template roles
+		"access:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
+		"maintain:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;" +
+		// !site.template.course roles
+		"Instructor:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;" +
+		"Student:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
+		// A blank *is* part of the Sakai role and *is not* part of the LTI role
+		"Teaching Assistant:TeachingAssistant,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant;" +
+		// !site.template.lti roles - The simplest mapping :)
+		"Faculty:Faculty,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty;" +
+		"Member:Member,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Member;" +
+		"Learner:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
+		"Mentor:Mentor,http://purl.imsglobal.org/vocab/lis/v2/membership#Mentor;" +
+		"Staff:Staff,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff;" +
+		"Alumni:Alumni,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Alumni;" +
+		"ProspectiveStudent:ProspectiveStudent,http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent;" +
+		"ContentDeveloper:ContentDeveloper,http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper;" +
+		"Guest:Guest,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest;" +
+		"Other:Other,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Other;" +
+		"Administrator:Administrator,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;" +
+		"Observer:Observer,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer;"
+	;
+
+	public static final String LTI_INBOUND_ROLE_MAP = "lti.inbound.role.map";
+	public static final String LTI_INBOUND_ROLE_MAP_DEFAULT =
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Administrator=Instructor,maintain;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper=ContentDeveloper,Instructor,maintain;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant=Teaching Assistant,Instructor,maintain;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor=Instructor,maintain;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Learner=Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Mentor=Mentor,Teaching Assistant,Learner,Student,access;" +
+
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Manager=Manager,Guest,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Member=Member,Guest,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Officer=Officer,Guest,Student,access;" +
+
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator=Instructor,maintain;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty=Faculty,Instructor,maintain;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest=Guest,Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#None=None,Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Other=Other,Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff=Staff,Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student=Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Alumni=Alumni,Guest,Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor=Instructor,maintain;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner=Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Member=Member,Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Mentor=Mentor,Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer=Observer,Guest,Learner,Student,access;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent=ProspectiveStudent,Guest,Learner,Student,access;"
+	;
+
+	public static final String LTI_LEGACY_ROLE_MAP = "lti.legacy.role.map";
+	public static final String LTI_LEGACY_ROLE_MAP_DEFAULT =
+		"Learner=http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
+		"learner=http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
+		"Instructor=http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;" +
+		"instructor=http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;" +
+		"TeachingAssistant=http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant;" +
+		"Mentor=http://purl.imsglobal.org/vocab/lis/v2/membership#Mentor;" +
+		"ContentDeveloper=http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper;" +
+		"Administrator=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;" +
+		"urn:lti:sysrole:ims/lis/Administrator=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;" +
+		"urn:lti:instrole:ims/lis/Administrator=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;"
+	;
+
 		public static boolean rosterEnabled() {
 			String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
 			return "true".equals(allowRoster);
@@ -225,7 +302,7 @@ public class SakaiBLTIUtil {
 			// Check for explicit setting in properties
 			String propertyName = placement.getToolId() + "." + propName;
 			String propValue = ServerConfigurationService.getString(propertyName, null);
-			if (propValue != null && propValue.trim().length() > 0) {
+			if (StringUtils.isNotBlank(propValue)) {
 				log.debug("Sakai.home {}={}", propName, propValue);
 				return propValue;
 			}
@@ -254,7 +331,7 @@ public class SakaiBLTIUtil {
 			// BLTI-195 - Compatibility mode for old-style encrypted secrets
 			if (secret == null || secret.trim().length() < 1) {
 				String eSecret = getCorrectProperty(config, "encryptedsecret", placement);
-				if (eSecret != null && eSecret.trim().length() > 0) {
+				if (StringUtils.isNotBlank(eSecret) ) {
 					secret = eSecret.trim() + ":" + SimpleEncryption.CIPHER;
 				}
 			}
@@ -338,7 +415,7 @@ public class SakaiBLTIUtil {
 				return customstr;
 			}
 			String trim = customstr.trim();
-			if (trim.length() == 0) {
+			if (StringUtils.isBlank(trim)) {
 				return customstr;
 			}
 
@@ -528,13 +605,11 @@ public class SakaiBLTIUtil {
 		}
 
 		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
-
 	}
 
-	public static void addUserInfo(Properties ltiProps, Properties lti13subst, Map<String, Object> tool) {
+	public static void addUserInfo(Properties ltiProps, Properties lti13subst, User user, Map<String, Object> tool) {
 		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
-		User user = UserDirectoryService.getCurrentUser();
 		if (user != null) {
 			setProperty(ltiProps, BasicLTIConstants.USER_ID, user.getId());
 			setProperty(lti13subst, LTICustomVars.USER_ID, user.getId());
@@ -568,77 +643,60 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-	public static String upgradeRoleString(String roleString)
-	{
-		if ( StringUtils.isEmpty(roleString) ) return roleString;
-
-		String[] pieces = roleString.split(",");
-		StringBuffer sb = new StringBuffer();
-		for (String s : pieces) {
-			s = s.trim();
-			if ( s.length() == 0 ) continue;
-			if ( sb.length() > 0 ) sb.append(",");
-			if ( s.startsWith("http://") || s.startsWith("https://") ) {
-				sb.append(s);
-				continue;
-			}
-			// http://www.imsglobal.org/spec/lti/v1p3/
-			if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER) ) sb.append(LTI13ConstantsUtil.ROLE_LEARNER);
-			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR) ) sb.append(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
-			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN);
-			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN);
-			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_INSTITUTION_ADMIN);
-			else sb.append(s);
-		}
-		return sb.toString();
-	}
-
-	public static String getRoleString(String context) {
-        String theRole = BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER;
-		if (SecurityService.isSuperUser()) {
-			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR +
-				"," + BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
-				"," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
-				"," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN;
-		} else if (SiteService.allowUpdateSite(context)) {
-			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR;
-		}
-		return theRole;
-	}
-
-	public static void addRoleInfo(Properties props, Properties lti13subst, String context, String roleMapProp) {
-		String theRole = getRoleString(context);
-
-		setProperty(props, BasicLTIConstants.ROLES, theRole);
-		setProperty(lti13subst, LTICustomVars.MEMBERSHIP_ROLE, theRole);
+	public static String getCurrentUserSakaiRole(User user, String context, String roleMapProp) {
 
 		String realmId = SiteService.siteReference(context);
-		User user = null;
-		Map<String, String> roleMap = convertRoleMapPropToMap(roleMapProp);
+		Map<String, String> toolRoleMap = convertOutboundRoleMapPropToMap(roleMapProp);
+		Map<String, String> propRoleMap = convertOutboundRoleMapPropToMap(
+			ServerConfigurationService.getString(LTI_OUTBOUND_ROLE_MAP)
+		);
+		Map<String, String> defaultRoleMap = convertOutboundRoleMapPropToMap(LTI_OUTBOUND_ROLE_MAP_DEFAULT);
+
 		try {
-			user = UserDirectoryService.getCurrentUser();
 			if (user != null) {
 				Role role = null;
-				String roleId = null;
+				String sakaiRole = null;
 				AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(realmId);
 				if (realm != null) {
 					role = realm.getUserRole(user.getId());
 				}
 				if (role != null) {
-					roleId = role.getId();
+					sakaiRole = role.getId();
 				}
-				if (roleId != null && roleId.length() > 0) {
-					setProperty(props, "ext_sakai_role", roleId);
-					setProperty(lti13subst, "Sakai.ext.role", roleId);
-				}
-				if (roleMap.containsKey(roleId)) {
-					setProperty(props, BasicLTIConstants.ROLES, roleMap.get(roleId));
-					setProperty(lti13subst, LTICustomVars.MEMBERSHIP_ROLE, upgradeRoleString(roleMap.get(roleId)));
-				}
+				if (StringUtils.isNotBlank(sakaiRole)) return sakaiRole;
 			}
 		} catch (GroupNotDefinedException e) {
 			log.error("SiteParticipantHelper.getExternalRealmId: site realm not found {}", e.getMessage());
 		}
+		return null;
+	}
+
+	public static String getFallBackRole(String context) {
+		if (SecurityService.isSuperUser()) {
+			return LTI13ConstantsUtil.ROLE_INSTRUCTOR + "," 
+				+ LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN + ","
+				+ LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN;
+		} else if (SiteService.allowUpdateSite(context)) {
+			return LTI13ConstantsUtil.ROLE_INSTRUCTOR;
+		}
+		return LTI13ConstantsUtil.ROLE_LEARNER;
+	}
+
+	public static void addRoleInfo(Properties props, Properties lti13subst, User user, String context, String roleMapProp) {
+
+		String sakaiRole = SecurityService.isSuperUser() ? "admin" : getCurrentUserSakaiRole(user, context, roleMapProp);
+
+		String outboundRole = null;
+		if (StringUtils.isNotBlank(sakaiRole)) {
+			setProperty(props, "ext_sakai_role", sakaiRole);
+			setProperty(lti13subst, "Sakai.ext.role", sakaiRole);
+			outboundRole = mapOutboundRole(sakaiRole, roleMapProp);
+		}
+
+		if ( outboundRole == null ) outboundRole = getFallBackRole(context);
+
+		setProperty(props, BasicLTIConstants.ROLES, outboundRole);
+		setProperty(lti13subst, LTICustomVars.MEMBERSHIP_ROLE, outboundRole);
 
 		// Check if there are sections the user is part of (may be more than one)
 		String courseRoster = getExternalRealmId(context);
@@ -664,6 +722,143 @@ public class SakaiBLTIUtil {
 		}
 	}
 
+	/**
+	 * Go through a role string and upgrade legacy roles to modern roles
+	 */
+	public static String fixLegacyRoles(String roleString)
+	{
+		if ( StringUtils.isEmpty(roleString) ) return roleString;
+
+		Map<String, String> propLegacyMap = convertLegacyRoleMapPropToMap(ServerConfigurationService.getString(LTI_LEGACY_ROLE_MAP));
+		Map<String, String> defaultLegacyMap = convertLegacyRoleMapPropToMap(LTI_LEGACY_ROLE_MAP_DEFAULT);
+
+		return fixLegacyRoles(roleString, propLegacyMap, defaultLegacyMap);
+	}
+
+	/**
+	 * Go through a role string and upgrade legacy roles to modern roles
+	 */
+	public static String fixLegacyRoles(String roleString, Map<String, String> propLegacyMap, Map<String, String> defaultLegacyMap)
+	{
+		if ( StringUtils.isEmpty(roleString) ) return roleString;
+
+		String[] pieces = roleString.split(",");
+		StringBuffer sb = new StringBuffer();
+		for (String s : pieces) {
+			s = s.trim();
+			if ( StringUtils.isBlank(s) ) continue;
+			if ( sb.length() > 0 ) sb.append(",");
+			if ( s.startsWith("http://") || s.startsWith("https://") ) {
+				sb.append(s);
+				continue;
+			}
+			if ( propLegacyMap != null && propLegacyMap.containsKey(s) ) sb.append(propLegacyMap.get(s));
+			else if ( defaultLegacyMap != null && defaultLegacyMap.containsKey(s) ) sb.append(defaultLegacyMap.get(s));
+			else sb.append(s);
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Take an inbound IMS Role String (comma separated with multiple roles) and use to to choose one
+	 * of the roles in a site.  This is a pretty complex process.   A role map can be associated with
+	 * a tenant, provided by a property and then mapped through a default in that order.  The role
+	 * mappings are consulted in priority order.  A role map looks like:
+	 *
+	 * "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner=Learner,Student,access;" +
+	 *
+	 * If the inbound role matches this entry, then the we check if the Sakai site has any of
+	 * the roles in the comma-separated list, choosing the first we encounter.
+	 *
+	 */
+	public static String mapInboundRole(String incomingRoles, Set<String> siteRoles, String tenantInboundMapStr)
+	{
+		// Helps upgrade legacy roles like Instructor or urn:lti:sysrole:ims/lis/Administrator
+		Map<String, String> propLegacyMap = convertLegacyRoleMapPropToMap(ServerConfigurationService.getString(LTI_LEGACY_ROLE_MAP));
+		Map<String, String> defaultLegacyMap = convertLegacyRoleMapPropToMap(LTI_LEGACY_ROLE_MAP_DEFAULT);
+
+		Map<String, List<String>> tenantInboundMap = convertInboundRoleMapPropToMap(tenantInboundMapStr);
+		Map<String, List<String>> propInboundMap = convertInboundRoleMapPropToMap(LTI_INBOUND_ROLE_MAP_DEFAULT);
+		Map<String, List<String>> defaultInboundMap = convertInboundRoleMapPropToMap(
+			ServerConfigurationService.getString(LTI_INBOUND_ROLE_MAP)
+		);
+
+		return mapInboundRole(incomingRoles, siteRoles, tenantInboundMap, propInboundMap, defaultInboundMap, propLegacyMap, defaultLegacyMap);
+	}
+
+	/**
+	 * Take an inbund IMS Role String (comma separated with multiple roles) and use to to choose one
+	 * of the roles in a site.  This is a pretty complex process.   A role map can be associated with
+	 * a tenant, provided by a property and then mapped through a default in that order.  The role
+	 * mappings are consulted in priority order.  A role map looks like:
+	 *
+	 * "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner=Learner,Student,access;" +
+	 *
+	 * If the inbound role matches this entry, then the we check if the Sakai site has any of
+	 * the roles in the comma-separated list, choosing the first we encounter.
+	 *
+	 */
+	public static String mapInboundRole(String incomingRoles, Set<String> siteRoles,
+		Map<String, List<String>> tenantInboundMap, Map<String, List<String>> propInboundMap, Map<String, List<String>> defaultInboundMap,
+		Map<String, String> propLegacyMap, Map<String, String> defaultLegacyMap)
+	{
+		if ( StringUtils.isEmpty(incomingRoles) ) return null;
+
+		// Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner,...
+		// Loop through all the LTI roles in the string after we modernise the roles
+		String[] ltiRolePiecess = fixLegacyRoles(incomingRoles, propLegacyMap, defaultLegacyMap).split(",");
+		for (String s : ltiRolePiecess) {
+			s = s.trim();
+			if ( StringUtils.isBlank(s) ) continue;
+
+			List<String> sakaiRoleList = null;
+			if ( tenantInboundMap != null && tenantInboundMap.containsKey(s) ) sakaiRoleList = tenantInboundMap.get(s);
+			else if ( propInboundMap != null && propInboundMap.containsKey(s) ) sakaiRoleList = propInboundMap.get(s);
+			else if ( defaultInboundMap != null && defaultInboundMap.containsKey(s) ) sakaiRoleList = defaultInboundMap.get(s);
+
+			if ( sakaiRoleList == null ) continue;
+
+			// Loop through Learner,Student,access
+			for (String sakaiRole : sakaiRoleList) {
+				if ( siteRoles.contains(sakaiRole) ) return sakaiRole;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Take a Sakai role and choose the appropriate IMS Role String to send out.
+	 */
+	public static String mapOutboundRole(String sakaiRole, String toolOutboundMapStr)
+	{
+		Map<String, String> propLegacyMap = convertLegacyRoleMapPropToMap(ServerConfigurationService.getString(LTI_LEGACY_ROLE_MAP));
+		Map<String, String> defaultLegacyMap = convertLegacyRoleMapPropToMap(LTI_LEGACY_ROLE_MAP_DEFAULT);
+
+		Map<String, String> toolRoleMap = convertOutboundRoleMapPropToMap(toolOutboundMapStr);
+
+		Map<String, String> propRoleMap = convertOutboundRoleMapPropToMap(ServerConfigurationService.getString(LTI_OUTBOUND_ROLE_MAP));
+		Map<String, String> defaultRoleMap = convertOutboundRoleMapPropToMap(LTI_OUTBOUND_ROLE_MAP_DEFAULT);
+
+		return mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
+	}
+
+	public static String mapOutboundRole(String sakaiRole, Map<String, String> toolRoleMap,
+		Map<String, String> propRoleMap, Map<String, String> defaultRoleMap,
+		Map<String, String> propLegacyMap, Map<String, String> defaultLegacyMap)
+	{
+		String imsRole = null;
+		if ( toolRoleMap.containsKey(sakaiRole) ) {
+			// User-entered Tool Role Map may have legacy roles
+			imsRole = fixLegacyRoles(toolRoleMap.get(sakaiRole), propLegacyMap, defaultLegacyMap);
+		} else if ( propRoleMap.containsKey(sakaiRole) ) {
+			imsRole = propRoleMap.get(sakaiRole);
+		} else if ( defaultRoleMap.containsKey(sakaiRole) ) {
+			imsRole = defaultRoleMap.get(sakaiRole);
+		}
+		log.debug("sakaiRole={} imsRole={}", sakaiRole, imsRole);
+		return imsRole;
+	}
+
 	// Retrieve the Sakai information about users, etc.
 	public static boolean sakaiInfo(Properties props, String context, String placementId, ResourceLoader rb) {
 
@@ -675,12 +870,14 @@ public class SakaiBLTIUtil {
 			return false;
 		}
 
+		User user = UserDirectoryService.getCurrentUser();
+
 		// Add the generic information
 		addGlobalData(site, props, null, rb);
 		ToolConfiguration placement = SiteService.findTool(placementId);
 		Properties config = placement.getConfig();
 		String roleMapProp = toNull(getCorrectProperty(config, LTIService.LTI_ROLEMAP, placement));
-		addRoleInfo(props, null, context, roleMapProp);
+		addRoleInfo(props, null, user, context, roleMapProp);
 		addSiteInfo(props, null, site);
 
 		// Add Placement Information
@@ -773,9 +970,7 @@ public class SakaiBLTIUtil {
 
 			String result_sourcedid = getSourceDID(user, placement, config);
 
-			String theRole = getRoleString(context);
-
-			// if ( result_sourcedid != null && theRole.indexOf(LTICustomVars.MEMBERSHIP_ROLE_LEARNER) >= 0 ) {
+			String theRole = props.getProperty(BasicLTIConstants.ROLES);
 			if (result_sourcedid != null) {
 
 				if ("true".equals(allowOutcomes) && gradebookColumn != null) {
@@ -1039,6 +1234,8 @@ public class SakaiBLTIUtil {
 
 			log.debug("isLTI13={}", isLTI13);
 
+			User user = UserDirectoryService.getCurrentUser();
+
 			// Start building up the properties
 			Properties ltiProps = new Properties();
 			Properties toolProps = new Properties();
@@ -1046,8 +1243,8 @@ public class SakaiBLTIUtil {
 			setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
-			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get(LTIService.LTI_ROLEMAP));
-			addUserInfo(ltiProps, lti13subst, tool);
+			addRoleInfo(ltiProps, lti13subst, user, context, (String) tool.get(LTIService.LTI_ROLEMAP));
+			addUserInfo(ltiProps, lti13subst, user, tool);
 
 			String resource_link_id = getResourceLinkId(content);
 			setProperty(ltiProps, BasicLTIConstants.RESOURCE_LINK_ID, resource_link_id);
@@ -1136,8 +1333,6 @@ public class SakaiBLTIUtil {
 				setProperty(lti13subst, subKey, value);
 			}
 
-			User user = UserDirectoryService.getCurrentUser();
-
 			int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
 			int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
@@ -1148,7 +1343,7 @@ public class SakaiBLTIUtil {
 					allowoutcomes, allowroster, allowsettings, result_sourcedid);
 
 			if (result_sourcedid != null) {
-				String theRole = getRoleString(context);
+				String theRole = ltiProps.getProperty(BasicLTIConstants.ROLES);
 				log.debug("theRole={}", theRole);
 				if (allowoutcomes == 1) {
 					setProperty(ltiProps, "ext_outcome_data_values_accepted", "text");  // SAK-25696
@@ -1455,14 +1650,16 @@ public class SakaiBLTIUtil {
 			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
 
+			User user = UserDirectoryService.getCurrentUser();
+
 			Properties lti13subst = new Properties();
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
-			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get(LTIService.LTI_ROLEMAP));
+			addRoleInfo(ltiProps, lti13subst, user, context, (String) tool.get(LTIService.LTI_ROLEMAP));
 
 			int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 			int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
-			addUserInfo(ltiProps, lti13subst, tool);
+			addUserInfo(ltiProps, lti13subst, user, tool);
 
 			// Don't sent the normal return URL when we are doing ContentItem launch
 			// Certification Issue
@@ -1800,7 +1997,7 @@ public class SakaiBLTIUtil {
 			lj.expires = lj.issued + 3600L;
 			lj.deployment_id = getDeploymentId(context_id);
 
-			String lti1_roles = upgradeRoleString(ltiProps.getProperty("roles"));
+			String lti1_roles = fixLegacyRoles(ltiProps.getProperty("roles"));
 			if (lti1_roles != null ) {
 				Set<String> roleSet = new HashSet<String>();
 				roleSet.addAll(Arrays.asList(lti1_roles.split(",")));
@@ -2444,7 +2641,7 @@ public class SakaiBLTIUtil {
 			if (isRead) {
 				String actualGrade = g.getAssignmentScoreString(siteId, gradebookColumn.getId(), user_id);
 				Double dGrade = null;
-				if (actualGrade != null && actualGrade.length() > 0) {
+				if (StringUtils.isNotBlank(actualGrade)) {
 					dGrade = new Double(actualGrade);
 					dGrade = dGrade / gradebookColumn.getPoints();
 				}
@@ -2674,7 +2871,7 @@ public class SakaiBLTIUtil {
 				logEntry.append(scoreObj.comment);
 			}
 
-			// From IMS:
+			// From LTI:
 			// ACTIVITY_INITIALIZED ACTIVITY_STARTED ACTIVITY_INPROGRESS ACTIVITY_SUBMITTED ACTIVITY_COMPLETED
 			// GRADING_PENDING GRADING_PENDINGMANUAL GRADING_FAILED GRADING_NOTREADY GRADING_FULLYGRADED
 
@@ -3367,13 +3564,17 @@ public class SakaiBLTIUtil {
 	}
 
 	/**
-	 * Converts a string from a comma-separated list of role maps to a
+	 * Converts a string from a comma-separated list of outbound role maps to a
 	 * Map<String, String>. Each role mapping in the string should be of the
 	 * form sakairole1:ltirole1,sakairole2:ltirole2
 	 * or sakairole4:ltirole4,ltirole5;sakairole6:ltirole6
-	 * Using semicolon as the delimiter allows you to indicate more than one IMS role.
+	 * Using semicolon as the delimiter allows you to indicate more than one LTI role.
+	 *
+	 * You might wonder why the inbound, outbound, and legacy maps have different
+	 * formats.   The outbound maps were created in 2010 so we have to hang with the
+	 * legacy stuff.   The inbound and legacy are modern and share conventions.
 	 */
-	public static Map<String, String> convertRoleMapPropToMap(String roleMapProp) {
+	public static Map<String, String> convertOutboundRoleMapPropToMap(String roleMapProp) {
 		Map<String, String> roleMap = new HashMap<>();
 		if (roleMapProp == null) {
 			return roleMap;
@@ -3389,6 +3590,63 @@ public class SakaiBLTIUtil {
 			roleMap.put(roleMapPair[0].trim(), roleMapPair[1].trim());
 		}
 		return roleMap;
+	}
+
+	/**
+	 * Converts a string from a list of inbound role maps to a
+	 * Map<String, List<String>>. Each role mapping in the string should be of the form
+	 * http://purl.imsglobal.org/vocab/lis/v2/membership#Administrator=Instructor,maintain
+	 * The Sakai roles are checked in order from left to right until one matches
+	 * for a particular incoming LTI role.
+	 */
+	public static Map<String, List<String>> convertInboundRoleMapPropToMap(String roleMapProp) {
+		Map<String, List<String>> roleMap = new HashMap<>();
+		if (roleMapProp == null) {
+			return roleMap;
+		}
+
+		String delim = ";";
+		String[] roleMapPairs = roleMapProp.split(delim);
+		for (String s : roleMapPairs) {
+			if ( s.trim().length() < 1 ) continue;
+			String[] roleMapPair = s.split("=", 2);
+			if (roleMapPair.length != 2) continue;
+			String[] sakaiRoles = roleMapPair[1].trim().split(",");
+			roleMap.put(roleMapPair[0].trim(), List.of(sakaiRoles));
+		}
+		return roleMap;
+	}
+
+	/**
+	 * Deserialize a Map from a string with each entry ended by a
+	 * semicolon and the key anf value separated by equals sign and return a
+	 * Map<String, String>. Each role mapping should be of the form:
+	 * key=value;
+	 */
+	public static Map<String, String> deserializeMap(String mapSer) {
+		Map<String, String> retval = new HashMap<>();
+		if (mapSer == null) {
+			return retval;
+		}
+
+		String delim = ";";
+		String[] pairs = mapSer.split(delim);
+		for (String s : pairs) {
+			if ( s.trim().length() < 1 ) continue;
+			String[] pair = s.split("=", 2);
+			if (pair.length != 2) continue;
+			retval.put(pair[0].trim(), pair[1].trim());
+		}
+		return retval;
+	}
+
+	/**
+	 * Converts a string from a semicolon-separated list of legacy lti roles mapped ot a modern LTI role to a
+	 * Map<String, String>. Each role mapping should be of the form:
+	 * Learner=http://purl.imsglobal.org/vocab/lis/v2/membership#Learner
+	 */
+	public static Map<String, String> convertLegacyRoleMapPropToMap(String roleMapProp) {
+		return deserializeMap(roleMapProp);
 	}
 
 	/**

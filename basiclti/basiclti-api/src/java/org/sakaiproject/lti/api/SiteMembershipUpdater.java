@@ -37,5 +37,7 @@ public interface SiteMembershipUpdater {
      *  @param site The updated site who's membership we are updating.
      *  @return The updated site.
      */
+
     public Site addOrUpdateSiteMembership(Map payload, boolean trustedConsumer, User user, Site site) throws LTIException;
+
 }

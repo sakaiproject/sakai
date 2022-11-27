@@ -54,24 +54,26 @@ public class SiteMembershipUpdaterImpl implements SiteMembershipUpdater {
         this.siteService = siteService;
     }
 
-	private void pushAdvisor() {
+    private void pushAdvisor() {
 
-		// setup a security advisor
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
-			public SecurityAdvice isAllowed(String userId, String function,
-					String reference) {
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-	}
+        // setup a security advisor
+        SecurityService.pushAdvisor(new SecurityAdvisor() {
+            public SecurityAdvice isAllowed(String userId, String function,
+                    String reference) {
+                return SecurityAdvice.ALLOWED;
+            }
+        });
+    }
 
-	private void popAdvisor() {
-		SecurityService.popAdvisor();
-	}
+    private void popAdvisor() {
+        SecurityService.popAdvisor();
+    }
 
     public Site addOrUpdateSiteMembership(Map payload, boolean trustedConsumer, User user, Site site) throws LTIException {
 
-        Map.Entry<String, String> roleTuple = roleMapper.mapLTIRole(payload, user, site, trustedConsumer);
+        String inboundMapStr =  site.getProperties().getProperty(Site.PROP_LTI_INBOUND_ROLE_MAP);
+
+        Map.Entry<String, String> roleTuple = roleMapper.mapLTIRole(payload, user, site, trustedConsumer, inboundMapStr);
         String userrole = roleTuple.getKey();
         String newRole = roleTuple.getValue();
 
