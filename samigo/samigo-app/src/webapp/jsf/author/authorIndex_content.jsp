@@ -43,6 +43,16 @@
     <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
     <script>
         $(document).ready(function() {
+
+            function getPageLength() {
+                const pageLength = localStorage.getItem(`samigo-pageLength-\${portal.user.id}`);
+                return pageLength === null ? 20 : parseInt(pageLength);
+            }
+
+            function setPageLength(pageLength) {
+                localStorage.setItem(`samigo-pageLength-\${portal.user.id}`, pageLength);
+            }
+
             var notEmptyTableTd = $("#authorIndexForm\\:coreAssessments td:not(:empty)").length;
             var assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
 
@@ -51,7 +61,7 @@
                 var table = $("#authorIndexForm\\:coreAssessments").DataTable({
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
-                    "pageLength": 20,
+                    "pageLength": getPageLength(),
                     "aaSorting": [[parseInt(assessmentSortingColumn), "desc"]],
                     "columns": [
                         {"bSortable": true, "bSearchable": true, "type": "span"},
@@ -138,6 +148,10 @@
                         }
                     );
                     updateRemoveButton();
+                });
+
+                table.on('length.dt', function (e, settings, len) {
+                    setPageLength(len);
                 });
 
                 $("#authorIndexForm\\:filter-type").change(function() {
