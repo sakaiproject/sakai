@@ -1,7 +1,7 @@
 #if (${userIsLoggedIn})
 <aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-accountPanel" aria-labelledby="sakai-accountPanelLabel">
   <div class="offcanvas-header">
-    <div class="offcanvas-title" id="sakai-accountPanelLabel">Account Menu</div>
+    <h2 class="offcanvas-title" id="sakai-accountPanelLabel">${rloader.mainnav_btn_account}</h2>
     <span>&nbsp;</span>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this account menu"></button>
   </div>
@@ -19,11 +19,11 @@
       <ul class="nav flex-column">
         #foreach ( $site in $tabsSites.tabsSites )
           #if (${site.isMyWorkspace})
-        <li class="nav-item"><a href="${prefsToolUrl}" class="nav-link">Manage Preferences</a></li>
-        <li class="nav-item"><a href="${profileToolUrl}" class="nav-link">View Profile</a></li>
+        <li class="nav-item"><a href="${prefsToolUrl}" class="nav-link">${rloader.sit_preferences}</a></li>
+        <li class="nav-item"><a href="${profileToolUrl}" class="nav-link">${rloader.sit_profile}</a></li>
           #end
         #end
-        <li class="nav-item py-2 d-none"><button type="button" class="btn btn-primary">Log Out</button></li>
+        <li class="nav-item py-2 d-none"><button type="button" class="btn btn-primary">${rloader.sit_log}</button></li>
         <li class="nav-item py-2"><a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-primary" data-warning="${logoutWarningMessage}"><span class="Mrphs-login-Message">${loginMessage}</span></a></li>
       </ul>
     </div>
@@ -32,7 +32,7 @@
       <div class="accordion-item">
         <div class="accordion-header" id="sakai-accountPanelWidgets-headingOne">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseOne" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseOne">
-            My Tasks
+            ${rloader.sit_mytasks}
           </button>
         </div>
         <div id="sakai-accountPanelWidgets-collapseOne" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingOne">
@@ -45,7 +45,7 @@
       <div class="accordion-item">
         <div class="accordion-header" id="sakai-accountPanelWidgets-headingTwo">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseTwo" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseTwo">
-            My Calendar
+            ${rloader.sit_mycalendar}
           </button>
         </div>
         <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
@@ -58,7 +58,7 @@
       <div class="accordion-item">
         <div class="accordion-header" id="sakai-accountPanelWidgets-headingThree">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseThree" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseThree">
-            My Grades
+            ${rloader.sit_mygrades}
           </button>
         </div>
         <div id="sakai-accountPanelWidgets-collapseThree" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingThree">
