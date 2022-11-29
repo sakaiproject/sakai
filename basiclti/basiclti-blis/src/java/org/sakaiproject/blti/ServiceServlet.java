@@ -39,6 +39,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthMessage;
@@ -51,6 +53,7 @@ import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.XMLMap;
 import org.tsugi.pox.IMSPOXRequest;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -563,7 +566,22 @@ public class ServiceServlet extends HttpServlet {
 		boolean success = false;
 		try {
 			List<Map<String,Object>> lm = new ArrayList<Map<String,Object>>();
-			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+			Map<String, String> toolRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
+
+			// Hoist these out of the loop for performance..
+			Map<String, String> propRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP)
+			);
+			Map<String, String> defaultRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
+				SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT
+			);
+
+			Map<String, String> propLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP)
+			);
+			Map<String, String> defaultLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
+				SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT
+			);
 
 			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
 			Set<Member> members = site.getMembers();
@@ -581,15 +599,20 @@ public class ServiceServlet extends HttpServlet {
 				Role role = member.getRole();
 				String ims_user_id = member.getUserId();
 				mm.put("/user_id",ims_user_id);
-				String ims_role = "Learner";
+				String ims_role = null;
+				String sakaiRole = role.getId();
 
-				// If there is a role mapping, it has precedence over site.update
-				if ( roleMap.containsKey(role.getId()) ) {
-					ims_role = roleMap.get(role.getId());
+				if (StringUtils.isNotBlank(sakaiRole)) {
+					ims_role = SakaiBLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
+					log.debug("SakaiBLTIUtil.mapOutboundRole sakaiRole={} ims_role={}", sakaiRole, ims_role);
 				}
-				else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + siteId))
-				{
-					ims_role = "Instructor";
+
+				if ( StringUtils.isNotBlank(ims_role) ) {
+					// All good
+				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
+					ims_role = LTI13ConstantsUtil.ROLE_INSTRUCTOR;
+				} else {
+					ims_role = LTI13ConstantsUtil.ROLE_LEARNER;
 				}
 
 				// Using "/role" is inconsistent with to

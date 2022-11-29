@@ -38,6 +38,7 @@ import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
@@ -1388,7 +1389,22 @@ public class LTI13Servlet extends HttpServlet {
 			boolean first = true;
 
 			String roleMapProp = (String) tool.get(LTIService.LTI_ROLEMAP);
-			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+			Map<String, String> toolRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
+
+			// Hoist these out of the loop
+			Map<String, String> propRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP)
+			);
+			Map<String, String> defaultRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
+				SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT
+			);
+
+			Map<String, String> propLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP)
+			);
+			Map<String, String> defaultLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
+				SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT
+			);
 
 			for (User user : users) {
 				JSONObject jo = new JSONObject();
@@ -1412,18 +1428,23 @@ public class LTI13Servlet extends HttpServlet {
 				Map<String, Object> mm = new TreeMap<>();
 				Role role = member.getRole();
 				String ims_user_id = member.getUserId();
+				String outboundRole = null;
+				String sakaiRole = role.getId();
+
+				if (StringUtils.isNotBlank(sakaiRole)) {
+					outboundRole = SakaiBLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
+					log.debug("SakaiBLTIUtil.mapOutboundRole sakaiRole={} outboundRole={}", sakaiRole, outboundRole);
+				}
 
 				JSONArray roles = new JSONArray();
-
-				// If there is a role mapping, it has precedence over site.update
-				String sakai_role = role.getId();
-				if ( roleMap.containsKey(sakai_role) ) {
-					roles.add(SakaiBLTIUtil.upgradeRoleString(roleMap.get(sakai_role)));
+				if ( StringUtils.isNotBlank(outboundRole) ) {
+					roles.add(outboundRole);
 				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
 					roles.add(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 				} else {
 					roles.add(LTI13ConstantsUtil.ROLE_LEARNER);
 				}
+
 				jo.put("roles", roles);
 
 				JSONObject sakai_ext = new JSONObject();
@@ -1436,7 +1457,7 @@ public class LTI13Servlet extends HttpServlet {
 					if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
 				}
 				*/
-				sakai_ext.put("sakai_role", sakai_role);
+				sakai_ext.put("sakai_role", sakaiRole);
 
 				Collection groups = site.getGroupsWithMember(ims_user_id);
 
