@@ -24,7 +24,7 @@
 <h:outputText value="#{msgs.searching}" />
 </div>  
 
-<h:form id="helpSearchForm" class="p-2">
+<h:form id="helpSearchForm" styleClass="p-2">
       <%--<h:commandButton value="#{msgs.back}" onclick="history.back()" />
       <h:commandButton value="#{msgs.forward}" onclick="history.forward()" />      
       --%>
