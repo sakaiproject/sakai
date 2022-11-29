@@ -59,7 +59,7 @@
                 #end"mathJaxConfig" : {
                     "format" : [#foreach( $format in $mathJaxFormat )"${format}",#end]
                 },
-
+                toolTitles : {#foreach ($entry in $toolTitles.entrySet())"$entry.key": "$entry.value",#end},
             };
         </script>
 

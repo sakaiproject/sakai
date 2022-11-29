@@ -131,7 +131,19 @@
   color: var(--sakak-breadcrumb-color);
 }
 
-text-decoration-line-throughh
+.search-results a {
+  text-decoration: none;
+
+  &:focus, &:hover {
+    background-color: var(--button-primary-active-background);
+    color: var(--button-primary-active-text-color);
+  }
+}
+
+.search-results a[href]:not(.btn):hover {
+  background-color: var(--button-primary-active-background);
+  color: var(--button-primary-active-text-color);
+}
 
 .portal-footer {
   grid-area: footer;
