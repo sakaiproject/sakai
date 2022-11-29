@@ -80,6 +80,11 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_CUSTOM_OVERVIEW = "custom_overview";
 
 	/**
+	 * property name for custom lti inbound role mapping
+	 */
+	public final static String PROP_LTI_INBOUND_ROLE_MAP = "lti_inbound_role_map";
+
+	/**
 	 * @return the user who created this.
 	 */
 	User getCreatedBy();

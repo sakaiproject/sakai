@@ -18,11 +18,15 @@ package org.sakaiproject.lti.impl;
 import java.util.Map;
 import java.util.AbstractMap;
 import java.util.Set;
+import java.util.HashSet;
+
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -32,6 +36,7 @@ import org.sakaiproject.lti.api.LTIRoleMapper;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.exception.IdUnusedException;
 
 import lombok.Setter;
 
@@ -47,111 +52,89 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 
 	@Setter private ServerConfigurationService serverConfigurationService;
 
-	public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer) throws LTIException {
+	public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer, String inboundMapStr) throws LTIException {
 
-		// Check if the user is a member of the site already
-		boolean userExistsInSite = false;
-		try {
-			Member member = site.getMember(user.getId());
-			if (member != null && BasicLTIUtil.equals(member.getUserEid(), user.getEid())) {
-				userExistsInSite = true;
-				return new AbstractMap.SimpleImmutableEntry(userRole(payload), member.getRole().getId());
-			}
-		} catch (Exception e) {
-			log.warn(e.getLocalizedMessage(), e);
-			throw new LTIException( "launch.site.invalid", "siteId="+site.getId(), e);
-		}
+		// Remember payload is ether an LTI 1.1 launch or simulated data from an LTI 1.1 launch
+		String ltiRole = (String) payload.get(BasicLTIConstants.ROLES);
+		if ( StringUtils.isBlank(ltiRole) ) ltiRole = BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER;
 
-		if (log.isDebugEnabled()) {
-			log.debug("userExistsInSite={}", userExistsInSite);
-		}
+		String extSakaiRole = (String) payload.get("ext_sakai_role");
 
-		// If not a member of the site, and we are a trusted consumer, error
-		// Otherwise, add them to the site
-		if (!userExistsInSite && trustedConsumer) {
-			throw new LTIException( "launch.site.user.missing", "user_id="+user.getId()+ ", siteId="+site.getId(), null);
-		}
-
-		String ltiRole = null;
-
-		if (trustedConsumer) {
-			// If the launch is from a trusted consumer, just return the user's
-			// role in the site. No need to map.
-			Member member = site.getMember(user.getId());
-			return new AbstractMap.SimpleImmutableEntry(ltiRole, member.getRole().getId());
-		} else {
-			ltiRole = userRole(payload);
-		}
-
-		log.debug("ltiRole={}", ltiRole);
+		// Get the roles from the site
+		Set<Role> roles = null;
+		Set<String> siteRoles = new HashSet<String> ();
 
 		try {
 			site = siteService.getSite(site.getId());
-			Set<Role> roles = site.getRoles();
+			roles = site.getRoles();
 
-			//BLTI-151 see if we can directly map the incoming role to the list of site roles
-			String newRole = null;
-			log.debug("Incoming ltiRole: {}", ltiRole);
 			for (Role r : roles) {
 				String roleId = r.getId();
-
-				if (BasicLTIUtil.equalsIgnoreCase(roleId, ltiRole)) {
-					newRole = roleId;
-					log.debug("Matched incoming role to role in site: {}", roleId);
-					break;
-				}
+				siteRoles.add(roleId);
 			}
-
-			//if we haven't mapped a role, check against the standard roles and fallback
-			if (BasicLTIUtil.isBlank(newRole)) {
-
-				log.debug("No match, falling back to determine role");
-
-				String maintainRole = site.getMaintainRole();
-				if (maintainRole == null) {
-					maintainRole = serverConfigurationService.getString("lti.role.mapping.Instructor", null);
-				}
-
-				String joinRole = site.getJoinerRole();
-				if (joinRole == null) {
-					joinRole = serverConfigurationService.getString("lti.role.mapping.Student", null);
-				}
-
-				boolean isInstructor = ltiRole.indexOf("instructor") >= 0;
-				if (isInstructor && maintainRole != null) {
-					newRole = maintainRole;
-				} else if ( joinRole != null ) {
-					newRole = joinRole;
-				}
-
-				log.debug("Determined newRole as: {}", newRole);
-			}
-
-			if (newRole == null) {
-				log.warn("Could not find Sakai role, role={} user={} site={}", ltiRole, user.getId(), site.getId());
-				throw new LTIException( "launch.role.missing", "siteId="+site.getId(), null);
-
-			}
-
-			return new AbstractMap.SimpleImmutableEntry(ltiRole, newRole);
-		} catch (Exception e) {
+		} catch (IdUnusedException e) {
 			log.warn("Could not map role role={} user={} site={}", ltiRole, user.getId(), site.getId());
 			log.warn(e.getLocalizedMessage(), e);
 			throw new LTIException( "map.role", "siteId="+site.getId(), e);
 		}
-	}
 
-	private String userRole(Map payload) {
-		String ltiRole;
-		ltiRole = (String) payload.get(BasicLTIConstants.ROLES);
-		if (ltiRole == null) {
-			ltiRole = "";
-		} else {
-			ltiRole = ltiRole.toLowerCase();
+		log.debug("ltiRole={} extSakaiRole={} site={} siteRoles={}", ltiRole, extSakaiRole, site.getId(), siteRoles);
+
+		// See if we can take the role from the calling Sakai site...
+		if (trustedConsumer && StringUtils.isNotBlank(extSakaiRole) && siteRoles.contains(extSakaiRole) ) {
+			log.debug("Trusted Consumer selected sakaiExtRole={}", extSakaiRole);
+			return new AbstractMap.SimpleImmutableEntry(ltiRole, extSakaiRole);
 		}
-		return ltiRole;
-	}
 
-	// vim: tabstop=4 noet
+		// Check if inbound mapping will find a role
+		String sakaiRole = SakaiBLTIUtil.mapInboundRole(ltiRole, siteRoles, inboundMapStr);
+		if (BasicLTIUtil.isNotBlank(sakaiRole)) {
+			log.debug("sakaiRole from SakaiBLTIUtil.mapInboundRole={}", sakaiRole);
+			return new AbstractMap.SimpleImmutableEntry(ltiRole, sakaiRole);
+		}
+
+		// Check if the incoming IMS Role matches a role in the site (not likely)
+		for (String matchRole : siteRoles) {
+			if (BasicLTIUtil.equalsIgnoreCase(matchRole, ltiRole)) {
+				log.debug("Matched incoming role={} to role in site: {}", ltiRole, matchRole);
+				return new AbstractMap.SimpleImmutableEntry(ltiRole, matchRole);
+			}
+
+			// http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant
+			for(String piece : ltiRole.split("#") ) {
+				if ( piece.startsWith("http://") || piece.startsWith("https://") ) continue;
+				if (BasicLTIUtil.equalsIgnoreCase(sakaiRole, piece)) {
+					log.debug("Matched incoming role={} to site role: {}", piece, sakaiRole);
+					return new AbstractMap.SimpleImmutableEntry(ltiRole, sakaiRole);
+				}
+			}
+		}
+
+		// Begin fallback checks...
+		String maintainRole = site.getMaintainRole();
+		if (maintainRole == null) {
+			maintainRole = serverConfigurationService.getString("lti.role.mapping.Instructor", null);
+		}
+
+		String joinRole = site.getJoinerRole();
+		if (joinRole == null) {
+			joinRole = serverConfigurationService.getString("lti.role.mapping.Student", null);
+		}
+
+		boolean isInstructor = ltiRole.toLowerCase().indexOf("instructor") >= 0;
+		if (isInstructor && maintainRole != null) {
+			sakaiRole = maintainRole;
+		} else if ( joinRole != null ) {
+			sakaiRole = joinRole;
+		}
+
+		if ( StringUtils.isNotBlank(sakaiRole) ) {
+			log.debug("Fallback ltiRole={} to sakaiRole=", ltiRole, sakaiRole);
+			return new AbstractMap.SimpleImmutableEntry(ltiRole, sakaiRole);
+		}
+
+		log.warn("Could not find Sakai role, role={} user={} site={}", ltiRole, user.getId(), site.getId());
+		throw new LTIException( "launch.role.missing", "siteId="+site.getId(), null);
+	}
 
 }
