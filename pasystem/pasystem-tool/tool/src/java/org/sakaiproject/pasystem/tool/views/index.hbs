@@ -7,9 +7,7 @@
 <section class="pasystem-section">
   <header class="pasystem-section-header">
     <h3>{{{t this "Banners"}}}</h3>
-    <div class="btn-toolbar">
-        <a href="{{{newURL this 'banners' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Banner"}}}</a>
-    </div>
+        <a href="{{{newURL this 'banners' 'new'}}}" ><button type="button" class="btn btn-primary btn-sm pull-right">{{{t this "Create Banner"}}}</button></a>
   </header>
 
   <table class="pasystem-table table table-striped table-hover table-condensed">
@@ -32,8 +30,8 @@
         <td>{{show-time this this.startTime}}</td>
         <td>{{show-time this this.endTime}}</td>    
         <td class="actions">
-            <a href="{{{actionURL this 'banners' this.uuid "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>
-            <a href="{{{actionURL this 'banners' this.uuid "delete"}}}" class="btn btn-danger btn-xs pasystem-delete-btn" data-record-type="banner"><span class="glyphicon glyphicon-trash"></span></a>
+            <a href="{{{actionURL this 'banners' this.uuid "edit"}}}"><button type="button" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</button></a>
+            <a href="{{{actionURL this 'banners' this.uuid "delete"}}}" class="pasystem-delete-btn" data-record-type="banner"><button type="button" class="btn btn-danger btn-xs"><i class="si si-trash"></i></button></a>
         </td>
       </tr>
       {{/each}}
@@ -44,11 +42,8 @@
 <section class="pasystem-section">
   <header class="pasystem-section-header">
     <h3>{{{t this "Popups"}}}</h3>
-
-    <div class="btn-toolbar">
-        <a href="{{{newURL this 'popups' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Popup"}}}</a>
-        <a title="{{{t this "Download ToolTip"}}}" href="/pasystem-tool/pasystem-samples.zip" class="btn btn-default btn-sm pull-right">{{{t this "Download Templates"}}}</a>
-    </div>
+    <a href="{{{newURL this 'popups' 'new'}}}" ><button type="button" class="btn btn-primary btn-sm pull-right">{{{t this "Create Popup"}}}</button></a>
+    <a title="{{{t this "Download ToolTip"}}}" href="/pasystem-tool/pasystem-samples.zip" ><button class="btn btn-default btn-sm btn-link pull-right">{{{t this "Download Templates"}}}</button></a>
   </header>
 
   <table class="pasystem-table table table-striped table-hover table-condensed">
@@ -69,9 +64,9 @@
         <td>{{show-time this this.startTime}}</td>
         <td>{{show-time this this.endTime}}</td>    
         <td class="actions">
-            <a href="{{{actionURL this 'popups' this.uuid "preview"}}}" class="btn btn-default btn-xs preview-btn">{{{t this "Preview"}}}</a>
-            <a href="{{{actionURL this 'popups' this.uuid "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>
-            <a href="{{{actionURL this 'popups' this.uuid "delete"}}}" class="btn btn-danger btn-xs pasystem-delete-btn" data-record-type="popup"><span class="glyphicon glyphicon-trash"></span></a>
+            <a href="{{{actionURL this 'popups' this.uuid "preview"}}}" class="preview-btn"><button type="button" class="btn btn-default btn-xs btn-link">{{{t this "Preview"}}}</button></a>
+            <a href="{{{actionURL this 'popups' this.uuid "edit"}}}" ><button type="button" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</button></a>
+            <a href="{{{actionURL this 'popups' this.uuid "delete"}}}" data-record-type="popup" class="pasystem-delete-btn"><button type="button" class="btn btn-danger btn-xs"><i class="si si-trash"></i></button></a>
         </td>
       </tr>
       {{/each}}
@@ -96,7 +91,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="{{{t this "Close"}}}"><span aria-hidden="true">&times;</span></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="{{{t this "Close"}}}"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">
             {if recordType == "banner"}
               {{{t this "Delete Banner"}}}
@@ -116,7 +111,7 @@
         </div>
         <div class="modal-footer">
           <form action="${deleteURL}" method="POST">
-            <button type="button" class="btn btn-default" data-dismiss="modal">{{{t this "Close"}}}</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{{t this "Close"}}}</button>
             <button type="submit" class="btn btn-danger">
               {if recordType == "banner"}
                 {{{t this "Delete Banner"}}}
