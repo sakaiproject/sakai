@@ -219,13 +219,13 @@ export class SakaiRubricCriteria extends RubricsElement {
             </div>
           </div>
           <div class="banner-container">
-            <div class="sak-banner-success hidden save-success has-success fade">
+            <div class="sak-banner-success d-none save-success has-success fade">
               <sr-lang key="saved_successfully">%</sr-lang>
             </div>
-            <div class="sak-banner-warn ${!this.validWeight && this.isDraft ? "" : "hidden"}">
+            <div class="sak-banner-warn ${!this.validWeight && this.isDraft ? "" : "d-none"}">
             <sr-lang key="draft_save_invalid_weights">%</sr-lang>
             </div>
-            <div class="sak-banner-error ${!this.validWeight && !this.isDraft ? "" : "hidden"}">
+            <div class="sak-banner-error ${!this.validWeight && !this.isDraft ? "" : "d-none"}">
               <sr-lang key="total_weight_wrong">%</sr-lang>
             </div>
           </div>
