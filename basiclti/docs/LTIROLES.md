@@ -122,8 +122,7 @@ Per-Tool Outbound Role Mapping
 There are special situations where a particular tool needs some very particular role
 mapping or your Sakai sites have additional roles beyond the out-of-the-box roles.
 When you are installing an LTI tool into Sakai, you have an option for mapping a particular
-Sakai role to a particular LTI role using a set of mapping strings that specify a Sakai
-role and the corresponding LTI role:
+Sakai role to a particular LTI role using a set of mapping strings, like this:
 
 Teaching Assistant:Instructor;Librarian:Learner
 
