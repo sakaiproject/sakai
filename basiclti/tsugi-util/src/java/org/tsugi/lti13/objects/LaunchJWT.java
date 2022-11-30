@@ -91,7 +91,7 @@ public class LaunchJWT extends BaseJWT {
 
 	// This is in LaunchJWTs
 	@JsonProperty("nonce")
-    public String nonce;
+	public String nonce;
 
 	// Constructor
 	public LaunchJWT() {
@@ -131,6 +131,18 @@ public class LaunchJWT extends BaseJWT {
 	public boolean isInstructor() {
 		if ( roles == null ) return false;
 		return roles.contains(ROLE_INSTRUCTOR);
+	}
+
+	@JsonIgnore
+	public String getLTI11Roles() {
+		if ( roles == null ) return null;
+
+		StringBuilder roleStr = new StringBuilder();
+		for (String role : roles) {
+			if ( roleStr.length() > 0 ) roleStr.append(',');
+			roleStr.append(role);
+		}
+		return roleStr.toString();
 	}
 
 }

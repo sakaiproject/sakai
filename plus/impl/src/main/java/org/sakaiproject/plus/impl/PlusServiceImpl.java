@@ -300,11 +300,8 @@ public class PlusServiceImpl implements PlusService {
 			membership = new Membership();
 			membership.setSubject(subject);
 			membership.setContext(context);
-			if (launchJWT.isInstructor() ) {
-				membership.setRole(Membership.ROLE_INSTRUCTOR);
-			} else {
-				membership.setRole(Membership.ROLE_LEARNER);
-			}
+			String ltiRoles = launchJWT.getLTI11Roles();
+			if ( StringUtils.isNotBlank(ltiRoles) ) membership.setLtiRoles(ltiRoles);
 			membership = membershipRepository.upsert(membership);
 		}
 
@@ -399,14 +396,8 @@ public class PlusServiceImpl implements PlusService {
 		payload.put(BasicLTIConstants.LIS_PERSON_NAME_FAMILY, launchJWT.family_name);
 		// payload.put(BasicLTIConstants.LIS_PERSON_NAME_MIDDLE, launchJWT.middle_name);
 
-		if ( launchJWT.roles != null ) {
-			StringBuilder roles = new StringBuilder();
-			for (String role : launchJWT.roles) {
-				if ( roles.length() > 0 ) roles.append(',');
-				roles.append(role);
-			}
-			if ( roles.length() > 0 ) payload.put(BasicLTIConstants.ROLES, roles.toString());
-		}
+		String ltiRoles = launchJWT.getLTI11Roles();
+		if ( StringUtils.isNotBlank(ltiRoles) ) payload.put(BasicLTIConstants.ROLES, ltiRoles);
 
 		// TODO: Ask for this in custom...
 		// payload.put(BasicLTIConstants.USER_IMAGE, );
@@ -703,11 +694,8 @@ public class PlusServiceImpl implements PlusService {
 				Membership membership = new Membership();
 				membership.setSubject(subject);
 				membership.setContext(context);
-				if (launchJWT.isInstructor() ) {
-					membership.setRole(Membership.ROLE_INSTRUCTOR);
-				} else {
-					membership.setRole(Membership.ROLE_LEARNER);
-				}
+				String ltiRoles = launchJWT.getLTI11Roles();
+				if ( StringUtils.isNotBlank(ltiRoles) ) membership.setLtiRoles(ltiRoles);
 				membership = membershipRepository.upsert(membership);
 
 				Map<String, String> payload = getPayloadFromLaunchJWT(tenant, launchJWT);
