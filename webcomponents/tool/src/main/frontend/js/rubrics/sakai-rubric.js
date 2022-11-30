@@ -124,9 +124,9 @@ export class SakaiRubric extends RubricsElement {
           }
         </div>
 
-        <div class="hidden-xs rubric-site-title">${this.rubric.siteTitle}</div>
-        <div class="hidden-xs rubric-creator-name">${this.rubric.creatorDisplayName}</div>
-        <div class="hidden-xs">${this.rubric.formattedModifiedDate}</div>
+        <div class="d-none d-sm-block rubric-site-title">${this.rubric.siteTitle}</div>
+        <div class="d-none d-sm-block rubric-creator-name">${this.rubric.creatorDisplayName}</div>
+        <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
           ${!this.rubric.locked ? html`
@@ -288,7 +288,7 @@ export class SakaiRubric extends RubricsElement {
         if (r.ok) {
 
           if (saveSuccessLbl) {
-            saveSuccessLbl.classList.remove('hidden');
+            saveSuccessLbl.classList.remove('d-none');
             saveSuccessLbl.classList.add('in');
           }
 
@@ -299,7 +299,7 @@ export class SakaiRubric extends RubricsElement {
           setTimeout(() => {
             if (saveSuccessLbl) {
               saveSuccessLbl.classList.remove('in');
-              saveSuccessLbl.classList.add('hidden');
+              saveSuccessLbl.classList.add('d-none');
             }
           }, 5000);
 

@@ -38,8 +38,8 @@ export class SakaiRubricsList extends RubricsElement {
 
     this.querySelectorAll("sakai-rubric, sakai-rubric-readonly").forEach(rubric => {
 
-      rubric.classList.remove("hidden");
-      rubric.classList.toggle("hidden", !rubric.matches(search));
+      rubric.classList.remove("d-none");
+      rubric.classList.toggle("d-none", !rubric.matches(search));
     });
   }
 
