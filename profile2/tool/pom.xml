@@ -166,6 +166,7 @@
 						<exclude>**/*.properties</exclude>
 						<exclude>**/*.min.js</exclude>
 						<exclude>**/*-min.js</exclude>
+						<exclude>**/*.js</exclude>
 					</excludes>
 				</configuration> 
 			</plugin>

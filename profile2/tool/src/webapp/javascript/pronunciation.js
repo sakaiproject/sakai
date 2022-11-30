@@ -20,11 +20,11 @@ pronounsSelect && pronounsSelect.addEventListener("change", function (e) {
 
   const text = pronounsSelect.options[e.target.value].text;
 
-  var pronounsInput = document.getElementById("pronouns-input");
+  const pronounsInput = document.getElementById("pronouns-input");
   if (text === pronounsSelect.dataset.entermyown) {
-    pronounsInput.classList.remove("hidden");
+    pronounsInput.classList.remove("d-none");
   } else {
-    pronounsInput.classList.add("hidden");
+    pronounsInput.classList.add("d-none");
     pronounsInput && (pronounsInput.value = "");
   }
 });
