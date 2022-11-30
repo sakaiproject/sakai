@@ -6,8 +6,12 @@
   </head>
   <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
     <div class="portletBody">
-        <h1 th:text="#{plus.tool.title.tenants}">Tenants</h1>
+        <h1 th:text="#{plus.tool.title.tenants}">About SakaiPlus</h1>
         <p th:unless="${enabled}" th:text="#{plus.tool.not.enabled}" class="sak-banner-error">Not Enabled</p>
+        <p th:text="#{plus.tool.tenants.detail}">Tenants</p>
+        <p>
+        (<a href="https://github.com/sakaiproject/sakai/blob/master/plus/README.md" target="_blank" th:text="#{plus.tool.documentation.url}">SakaiPlus Documentation</a>)
+        </p>
         <p><a class="btn btn-primary" th:href="@{/create}" th:text="#{plus.tool.addtenant}">Add Tenant</a></p>
         <ul>
         <li th:each="tenant: ${tenants}">

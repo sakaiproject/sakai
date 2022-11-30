@@ -54,24 +54,6 @@ and the roles that Sakai provides via its Names and Roles Provisioning Service.
 When we reference "inbound" roles, we are referring to roles that are provided to
 Sakai when it is acting as an LTI provider.
 
-Per-Tool Outbound Role Mapping
-------------------------------
-
-There are special situations where a particular tool needs some very particular role
-mapping or your Sakai sites have additional roles beyond the out-of-the-box roles.
-When you are installing an LTI tool into Sakai, you have an option for mapping particular
-Sakai role to a particular LTI role using a set of mapping strings that specify a Sakai
-role and the corresponding LTI role:
-
-Teaching Assistant:Instructor;Librarian:Learner
-
-These examples are using the LTI 1.1 "short form" for the LTI roles.
-But you can also specify the full length roles as well, and you can specify more than one LTI
-role be the result of the role mapping.  (blanks and linebreaks added for readablility):
-
-    Instructor:Instructor,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty;
-        Teaching Assistant:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper
-
 Outbound LTI Role Mapping
 -------------------------
 
@@ -133,6 +115,23 @@ In general, it should be pretty rare when you need to override the default mappi
 cases or new roles arise in LTI and see common use, we can add them to the default mapping
 over time.   The overrides allow for a quick response when it might take a little while before
 we can fix Sakai and you get an upgraded version.
+
+Per-Tool Outbound Role Mapping
+------------------------------
+
+There are special situations where a particular tool needs some very particular role
+mapping or your Sakai sites have additional roles beyond the out-of-the-box roles.
+When you are installing an LTI tool into Sakai, you have an option for mapping a particular
+Sakai role to a particular LTI role using a set of mapping strings, like this:
+
+Teaching Assistant:Instructor;Librarian:Learner
+
+These examples are using the LTI 1.1 "short form" for the LTI roles.
+But you can also specify the full length roles as well, and you can specify more than one LTI
+role be the result of the role mapping.  (blanks and linebreaks added for readablility):
+
+    Instructor:Instructor,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty;
+        Teaching Assistant:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper
 
 Inbound LTI Role Mapping
 ------------------------
