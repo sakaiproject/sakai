@@ -108,8 +108,6 @@ import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import org.apache.http.client.utils.URIBuilder;
 
 import org.tsugi.deeplink.objects.LtiResourceLink;
@@ -248,7 +246,7 @@ public class ProviderServlet extends HttpServlet {
 
 		// /plus/sakai/oidc_login/44guid44
 		if (parts.length >= 3 && "oidc_login".equals(parts[1])) {
-			if ( parts.length == 3 && isNotBlank(parts[2])) {
+			if ( parts.length == 3 && StringUtils.isNotBlank(parts[2])) {
 				handleOIDCLogin(request, response, parts[2]);
 				return;
 			}
@@ -259,7 +257,7 @@ public class ProviderServlet extends HttpServlet {
 		// /plus/sakai/dynamic/44guid44?reg_token=..&openid_configuration=https:..
 		// https://www.imsglobal.org/spec/lti-dr/v1p0
 		if (parts.length >= 3 && "dynamic".equals(parts[1])) {
-			if ( parts.length == 3 && isNotBlank(parts[2])) {
+			if ( parts.length == 3 && StringUtils.isNotBlank(parts[2])) {
 				handleDynamicRegistration(request, response, parts[2]);
 				return;
 			}
@@ -308,13 +306,13 @@ public class ProviderServlet extends HttpServlet {
 		String clientId = launchJWT.audience;
 		String deploymentId = launchJWT.deployment_id;
 
-		if ( isBlank(issuer) || isBlank(clientId) || isBlank(deploymentId) ) {
+		if ( StringUtils.isBlank(issuer) || StringUtils.isBlank(clientId) || StringUtils.isBlank(deploymentId) ) {
 			doError(request, response, "plus.launch.id_token.missing.data", null, null);
 			return;
 		}
 
 		// Check if we are in the install-phase of a DeepLink process (i.e. payloadStr is defined)
-		if ( LaunchJWT.MESSAGE_TYPE_DEEP_LINK.equals(launchJWT.message_type) && isNotBlank(payloadStr)) {
+		if ( LaunchJWT.MESSAGE_TYPE_DEEP_LINK.equals(launchJWT.message_type) && StringUtils.isNotBlank(payloadStr)) {
 			if ( ! serverConfigurationService.getBoolean(PlusService.PLUS_DEEPLINK_ENABLED, PlusService.PLUS_DEEPLINK_ENABLED_DEFAULT)) {
 
 				log.warn("DeepLink is Disabled IP={}", ipAddress);
@@ -399,7 +397,7 @@ public class ProviderServlet extends HttpServlet {
 		} else if ( LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) ) {
 			// For a normal launch, the target_link_uri is our guide to what is next
 			String target_link_uri = launchJWT.target_link_uri;
-			if (  LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) && isBlank(target_link_uri) ) {
+			if (  LaunchJWT.MESSAGE_TYPE_LAUNCH.equals(launchJWT.message_type) && StringUtils.isBlank(target_link_uri) ) {
 				doError(request, response, "plus.target_link_uri.missing", target_link_uri, null);
 				return;
 			}
@@ -409,7 +407,7 @@ public class ProviderServlet extends HttpServlet {
 			//   0  1        2        3     4       5
 			String [] pieces = target_link_uri.split("/");
 			List<String> allowedToolsList = getAllowedTools(tenant);
-			if ( pieces.length == 6 && isNotBlank(pieces[5]) ) {
+			if ( pieces.length == 6 && StringUtils.isNotBlank(pieces[5]) ) {
 				if ( allowedToolsList.contains(pieces[5])) {
 					tool_id = pieces[5];
 				} else {
@@ -458,7 +456,7 @@ public class ProviderServlet extends HttpServlet {
 		// Sometimes for a browser like Safari - we can't set a cookie so we need to launch in
 		// a new window even if it is not the ideal or requested UX
 		String repost = request.getParameter("repost");
-		if ( isBlank(repost) ) {
+		if ( StringUtils.isBlank(repost) ) {
 			List<String> newWindowTools = getNewWindowTools(tenant);
 			boolean forceNewWindow = SAKAI_SITE_LAUNCH.equals(tool_id) || newWindowTools.contains(tool_id);
 			handleRepost(request, response, forceNewWindow);
@@ -661,8 +659,8 @@ public class ProviderServlet extends HttpServlet {
 
 		// registration_token is optional
 		String missing = "";
-		if (isBlank(openid_configuration) ) missing = missing + " openid_configuration";
-		if (isBlank(unlock_token_request) ) missing = missing + " unlock_token";
+		if (StringUtils.isBlank(openid_configuration) ) missing = missing + " openid_configuration";
+		if (StringUtils.isBlank(unlock_token_request) ) missing = missing + " unlock_token";
 
 		if ( ! missing.equals("") ) {
 			doError(request, response, "plus.dynamic.request.missing", missing, null);
@@ -759,11 +757,11 @@ public class ProviderServlet extends HttpServlet {
 
 		// Check for required items
 		missing = "";
-		if (isBlank(issuer) ) missing = missing + " issuer";
-		if (isBlank(authorization_endpoint) ) missing = missing + " authorization_endpoint";
-		if (isBlank(token_endpoint) ) missing = missing + " token_endpoint";
-		if (isBlank(jwks_uri) ) missing = missing + " jwks_uri";
-		if (isBlank(registration_endpoint) ) missing = missing + " registration_endpoint";
+		if (StringUtils.isBlank(issuer) ) missing = missing + " issuer";
+		if (StringUtils.isBlank(authorization_endpoint) ) missing = missing + " authorization_endpoint";
+		if (StringUtils.isBlank(token_endpoint) ) missing = missing + " token_endpoint";
+		if (StringUtils.isBlank(jwks_uri) ) missing = missing + " jwks_uri";
+		if (StringUtils.isBlank(registration_endpoint) ) missing = missing + " registration_endpoint";
 
 		if ( ! missing.equals("") ) {
 			addError(out, "plus.dynamic.missing", missing, null);
@@ -792,11 +790,11 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		String title = tenant.getTitle();
-		if ( isBlank(title) ) {
+		if ( StringUtils.isBlank(title) ) {
 			title = serverConfigurationService.getString(PlusService.PLUS_SERVER_TITLE, rb.getString(PlusService.PLUS_SERVER_TITLE));
 		}
 		String description = tenant.getDescription();
-		if ( isBlank(description) ) {
+		if ( StringUtils.isBlank(description) ) {
 			description = serverConfigurationService.getString(PlusService.PLUS_SERVER_DESCRIPTION, rb.getString(PlusService.PLUS_SERVER_DESCRIPTION));
 		}
 
@@ -900,7 +898,7 @@ public class ProviderServlet extends HttpServlet {
 		reg.lti_tool_configuration = ltitc;
 
 		Map<String, String> headers = new HashMap<String, String>();
-		if (! isBlank(registration_token) ) headers.put("Authorization", "Bearer "+registration_token);
+		if (! StringUtils.isBlank(registration_token) ) headers.put("Authorization", "Bearer "+registration_token);
 		headers.put("Content-type", "application/json");
 
 		String regs = reg.prettyPrintLog();
@@ -909,7 +907,7 @@ public class ProviderServlet extends HttpServlet {
 		try {
 			HttpResponse<String> registrationResponse = HttpClientUtil.sendPost(registration_endpoint, regs, headers, dbs);
 			body = registrationResponse.body();
-			if ( isBlank(body) ) {
+			if ( StringUtils.isBlank(body) ) {
 				addError(out, "plus.dynamic.registration.post", null, null);
 			}
 		} catch (Exception e) {
@@ -923,7 +921,7 @@ public class ProviderServlet extends HttpServlet {
 		// Remember the registration
 		tenant.setOidcRegistration(body);
 
-		if ( isBlank(body) ) {
+		if ( StringUtils.isBlank(body) ) {
 			tenant.setStatus("Error posting client registration "+registration_endpoint);
 			tenant.setDebugLog(dbs.toString());
 			log.error(dbs.toString());
@@ -966,7 +964,7 @@ public class ProviderServlet extends HttpServlet {
 		tenant.setOidcRegistrationLock(null);
 
 		tenant.setClientId(platformResponse.client_id);
-		if ( ! isBlank(deployment_id) ) {
+		if ( ! StringUtils.isBlank(deployment_id) ) {
 			tenant.setDeploymentId(deployment_id);
 			tenant.setStatus("Registration "+tenant_guid+" complete with deployment_id "+deployment_id);
 		} else {
@@ -1354,10 +1352,10 @@ public class ProviderServlet extends HttpServlet {
 				log.debug("Creating siteId={} autoSiteTemplate={} autoRealmTemplateID={}", siteId, autoSiteTemplate.getId(), autoRealmTemplateId);
 			}
 
-			if (BasicLTIUtil.isNotBlank(context_title)) {
+			if (StringUtils.isNotBlank(context_title)) {
 				site.setTitle(context_title);
 			}
-			if (BasicLTIUtil.isNotBlank(context_label)) {
+			if (StringUtils.isNotBlank(context_label)) {
 				site.setShortDescription(context_label);
 			}
 			site.setJoinable(false);
@@ -1399,13 +1397,13 @@ public class ProviderServlet extends HttpServlet {
 		boolean changed = false;
 
 		// Only copy title once
-		if (BasicLTIUtil.isNotBlank(context_title) && BasicLTIUtil.isBlank(site.getTitle()) ) {
+		if (StringUtils.isNotBlank(context_title) && BasicLTIUtil.isBlank(site.getTitle()) ) {
 			site.setTitle(context_title);
 			changed = true;
 		}
 
 		// Only copy description once
-		if (BasicLTIUtil.isNotBlank(context_label) && BasicLTIUtil.isBlank(site.getShortDescription()) ) {
+		if (StringUtils.isNotBlank(context_label) && BasicLTIUtil.isBlank(site.getShortDescription()) ) {
 			site.setShortDescription(context_label);
 			changed = true;
 		}
@@ -1494,7 +1492,7 @@ public class ProviderServlet extends HttpServlet {
 		ltiResourceLink.url = tool_launch;
 		ltiResourceLink.setWindowTarget("_blank");
 		dlr.content_items.add(ltiResourceLink);
-		if ( launchJWT.deep_link != null && isNotBlank(launchJWT.deep_link.data) ) {
+		if ( launchJWT.deep_link != null && StringUtils.isNotBlank(launchJWT.deep_link.data) ) {
 			dlr.data = launchJWT.deep_link.data;
 		}
 		dlr.deployment_id = launchJWT.deployment_id;
@@ -1529,9 +1527,9 @@ public class ProviderServlet extends HttpServlet {
 	public List<String> getAllowedTools(Tenant tenant)
 	{
 		String allowedToolsConfig = tenant.getAllowedTools();
-		if ( isBlank(allowedToolsConfig) ) allowedToolsConfig =
+		if ( StringUtils.isBlank(allowedToolsConfig) ) allowedToolsConfig =
 			serverConfigurationService.getString(PlusService.PLUS_TOOLS_ALLOWED, PlusService.PLUS_TOOLS_ALLOWED_DEFAULT);
-		if ( isBlank(allowedToolsConfig) ) return new ArrayList<String>();
+		if ( StringUtils.isBlank(allowedToolsConfig) ) return new ArrayList<String>();
 		String[] allowedTools = allowedToolsConfig.split(":");
 		return Arrays.asList(allowedTools);
 	}
@@ -1539,9 +1537,9 @@ public class ProviderServlet extends HttpServlet {
 	public List<String> getNewWindowTools(Tenant tenant)
 	{
 		String newWindowToolsConfig = tenant.getNewWindowTools();
-		if ( isBlank(newWindowToolsConfig) ) newWindowToolsConfig =
+		if ( StringUtils.isBlank(newWindowToolsConfig) ) newWindowToolsConfig =
 			serverConfigurationService.getString(PlusService.PLUS_TOOLS_NEW_WINDOW, PlusService.PLUS_TOOLS_NEW_WINDOW_DEFAULT);
-		if ( isBlank(newWindowToolsConfig) ) return new ArrayList<String>();
+		if ( StringUtils.isBlank(newWindowToolsConfig) ) return new ArrayList<String>();
 		String[] newWindowTools = newWindowToolsConfig.split(":");
 		return Arrays.asList(newWindowTools);
 	}
@@ -1632,11 +1630,11 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		String title = tenant.getTitle();
-		if ( isBlank(title) ) {
+		if ( StringUtils.isBlank(title) ) {
 			title = serverConfigurationService.getString(PlusService.PLUS_CANVAS_TITLE, rb.getString(PlusService.PLUS_CANVAS_TITLE));
 		}
 		String description = tenant.getDescription();
-		if ( isBlank(description) ) {
+		if ( StringUtils.isBlank(description) ) {
 			description = serverConfigurationService.getString(PlusService.PLUS_CANVAS_DESCRIPTION, rb.getString(PlusService.PLUS_CANVAS_DESCRIPTION));
 		}
 		canvas.put("title", title);
