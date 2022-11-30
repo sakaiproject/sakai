@@ -121,7 +121,7 @@ SakaiPlus Tenants
 A SakaiPlus server can support many "tenants".  Each Learning System that you are plugging SakaiPlus into
 should have its own tenant.  In SakaiPlus, all data within a tenant is isolated (each tenant is a 'silo').
 This way you can have a multi-tenant SakaiPlus server to serve many different learning systems.  However
-it is also a quite typical use case to have one Enterprise LMS - say Canvas and one SakaiPlus servier
+it is also a quite typical use case to have one Enterprise LMS - say Canvas and one SakaiPlus server
 for the same school and to have a single Tenant entry in SakaiPlus for the Canvas system.
 
 You can create a "draft" tenant with a Title and Issuer and optionally a Registration Lock.  Once you have created
