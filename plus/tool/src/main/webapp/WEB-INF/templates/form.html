@@ -17,9 +17,9 @@
         <form class="form-horizontal" action="#" th:action="@{/tenant}" method="post" th:object="${tenant}">
         <input th:if="${doUpdate}" type="hidden" th:field="*{id}" />
         <div id="title-group" class="form-group form-control-required">
-          <label for="title" class="form-control-label" th:text="#{plus.tool.title}">Value</label>
+          <label for="plus-title" class="form-control-label" th:text="#{plus.tool.title}">Value</label>
           <div>
-            <input type="text" class="form-control" id="title" th:value="${tenant.title}" th:field="*{title}" required />
+            <input type="text" class="form-control" id="plus-title" th:value="${tenant.title}" th:field="*{title}" required />
           </div>
         </div>
         <div id="issuer-group" class="form-group form-control-required">

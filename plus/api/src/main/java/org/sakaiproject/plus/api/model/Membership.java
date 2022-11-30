@@ -26,6 +26,9 @@ import javax.persistence.UniqueConstraint;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Lob;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -40,9 +43,6 @@ import lombok.ToString;
 )
 @Data
 public class Membership extends BaseLTI implements PersistableEntity<Long> {
-
-	public static final Integer ROLE_LEARNER = 0;
-	public static final Integer ROLE_INSTRUCTOR = 1000;
 
 	@Id @GeneratedValue
 	@Column(name = "MEMBERSHIP_ID")
@@ -60,9 +60,16 @@ public class Membership extends BaseLTI implements PersistableEntity<Long> {
 	@ToString.Exclude
 	private Context context;
 
-	@Column(name = "ROLE", nullable = true)
-	private Integer role;
+	@Lob
+	@Column(name = "LTI_ROLES", nullable = true)
+	private String ltiRoles;
 
-	@Column(name = "ROLE_OVERRIDE", nullable = true)
-	private Integer roleOverride;
+	@Lob
+	@Column(name = "LTI_ROLES_OVERRIDE", nullable = true)
+	private String ltiRolesOverride;
+
+	public boolean isInstructor() {
+        if ( ltiRoles == null ) return false;
+        return StringUtils.containsIgnoreCase(ltiRoles, "instructor") || StringUtils.containsIgnoreCase(ltiRolesOverride, "instructor");
+    }
 }

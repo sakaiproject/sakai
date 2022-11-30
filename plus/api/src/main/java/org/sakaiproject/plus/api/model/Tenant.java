@@ -91,10 +91,10 @@ public class Tenant extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "VERBOSE")
 	private Boolean verbose = Boolean.FALSE;
 
-	@Column(name = "SITE_TEMPLATE", length = 500, nullable = true)
+	@Column(name = "SITE_TEMPLATE", length = LENGTH_SAKAI_ID, nullable = true)
 	private String siteTemplate;
 
-	@Column(name = "REALM_TEMPLATE", length = 500, nullable = true)
+	@Column(name = "REALM_TEMPLATE", length = LENGTH_SAKAI_ID, nullable = true)
 	private String realmTemplate;
 
 	@Lob

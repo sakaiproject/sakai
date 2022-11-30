@@ -66,15 +66,16 @@ public class MembershipRepositoryImpl extends SpringCrudRepositoryImpl<Membershi
 		if ( newEntity == null ) return save(entity);
 
 		boolean unchanged =
-			Objects.equals(entity.getRole(), newEntity.getRole())
-			&& Objects.equals(entity.getRoleOverride(), newEntity.getRoleOverride())
+			Objects.equals(entity.getLtiRoles(), newEntity.getLtiRoles())
+			&& Objects.equals(entity.getLtiRolesOverride(), newEntity.getLtiRolesOverride())
 		;
 
 		if ( unchanged ) return newEntity;
 
 		// Do the UPDATE variant of UPSERT
-		newEntity.setRole(entity.getRole());
-		newEntity.setRoleOverride(entity.getRoleOverride());
+		newEntity.setLtiRoles(entity.getLtiRoles());
+		newEntity.setLtiRolesOverride(entity.getLtiRolesOverride());
+		newEntity.setLtiRoles(entity.getLtiRoles());
 		return save(newEntity);
 	}
 

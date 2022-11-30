@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.sakaiproject.lti13.util.SakaiLaunchJWT;
 
 import org.tsugi.lti13.LTI13JwtUtil;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -210,7 +211,20 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		Membership ms = new Membership();
 		ms.setSubject(subject);
 		ms.setContext(context);
-		ms.setRole(Membership.ROLE_INSTRUCTOR);
+		assertFalse(ms.isInstructor());
+		ms.setLtiRoles(LTI13ConstantsUtil.ROLE_LEARNER);
+		assertFalse(ms.isInstructor());
+		ms.setLtiRolesOverride(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
+		assertTrue(ms.isInstructor());
+		ms.setLtiRolesOverride(null);
+		assertFalse(ms.isInstructor());
+		ms.setLtiRoles(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
+		assertTrue(ms.isInstructor());
+
+		ms = new Membership();
+		ms.setSubject(subject);
+		ms.setContext(context);
+		ms.setLtiRoles(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 		ms = membershipRepository.upsert(ms);
 		// Save should do the same
 		// ms = membershipRepository.save(ms);
@@ -220,29 +234,29 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		Membership dms = new Membership();
 		dms.setSubject(subject);
 		dms.setContext(context);
-		dms.setRole(Membership.ROLE_INSTRUCTOR);
+		dms.setLtiRoles(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 		dms = membershipRepository.upsert(dms);
 		// Save should do the same - but lets test all upsert() use cases
 		// ms = membershipRepository.save(ms);
 		assertNotNull(dms.getId());
 		assertEquals(ms.getId(), dms.getId());
-		assertEquals(ms.getRole(),dms.getRole());
-		assertEquals(ms.getRoleOverride(), dms.getRoleOverride());
+		assertEquals(ms.getLtiRoles(),dms.getLtiRoles());
+		assertEquals(ms.getLtiRolesOverride(), dms.getLtiRolesOverride());
 
 		// Is this a save/update operation?
 		// Does the unique contraint work at all?
 		Membership nms = new Membership();
 		nms.setSubject(subject);
 		nms.setContext(context);
-		nms.setRole(Membership.ROLE_LEARNER);
+		nms.setLtiRoles(LTI13ConstantsUtil.ROLE_LEARNER);
 		nms = membershipRepository.upsert(nms);
 		assertNotNull(nms.getId());
 		assertEquals(ms.getId(), nms.getId());
 
 		Membership lms = membershipRepository.findBySubjectAndContext(subject, context);
 		assertEquals(lms.getId(), nms.getId());
-		assertEquals(lms.getRole(), nms.getRole());
-		assertEquals(lms.getRoleOverride(), nms.getRoleOverride());
+		assertEquals(lms.getLtiRoles(), nms.getLtiRoles());
+		assertEquals(lms.getLtiRolesOverride(), nms.getLtiRolesOverride());
 
 		newContext = contextRepository.findByContextAndTenant("SI364", tenant);
 
