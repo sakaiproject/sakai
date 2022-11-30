@@ -26,17 +26,22 @@
 <body>
 <wicket:extend>
 
-	<div id="pageWrapper" class="container-fluid">
+	<div id="pageWrapper" class="container pt-2">
 		<div class="row">
 
 			<div id="leftPanel" class="col-md-3">
-				<div id="photoContainer">
-					<div class="btn-holder">
+				<div id="photoContainer" class="d-flex flex-column align-items-center">
+					<div>
 						<img id="myPhoto" wicket:id="photo" />
-						<button wicket:id="changePicButton" class="edit-image-button call-pic-editor">
-							<span wicket:id="changePictureLabel">Change picture</span>
-						</button>
 					</div>
+					<button wicket:id="changePicButton"
+							class="btn btn-link ms-auto me-auto mb-1 b edit-image-button"
+							data-bs-toggle="modal"
+							data-bs-target="#profile-image-upload"
+							aria-controls="profile-image-upload">
+						<i class="si si-edit"></i>
+						<span wicket:id="changePictureLabel">Change picture</span>
+					</button>
 				</div>
 
 				<ul id="sideLink" wicket:id="sideLinks">

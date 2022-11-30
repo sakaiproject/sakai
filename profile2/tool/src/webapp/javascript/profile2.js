@@ -65,3 +65,16 @@ function doUpdateCK(){
         CKEDITOR.instances[instance].updateElement();
     }
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  document.querySelectorAll("#photoContainer > div").forEach(el => {
+
+    el.addEventListener("keyup", e => {
+
+      if (e.keyCode === 13) {
+        el.querySelector("button").click();
+      }
+    });
+  });
+});

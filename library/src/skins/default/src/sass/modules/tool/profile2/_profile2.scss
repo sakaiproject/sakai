@@ -23,15 +23,14 @@
 		margin-bottom: 12px;
 	}
 
-	.btn-holder {
-		display: block;	
-		position: relative;
-		width: 200px;
-		margin: 0 auto 0 auto;
-	}
-
 	#photoContainer img {
 		border-radius: 4px;
+	}
+
+	#photoContainer > div:focus, #photoContainer > div:hover {
+		button {
+			display: block;
+		}
 	}
 
 	.sakai-wicket-iconwithtooltip {
@@ -42,6 +41,10 @@
 		font-size: 1.2em;
 	}
 
+	.editable > .edit-button {
+		display: none;
+	}
+
 	.editable:hover > .edit-button, .edit-button:focus {
 		@include sakai_secondary_button();
 		margin: 3px 0 0 0;
@@ -49,35 +52,18 @@
 		clear: none;
 		display: block;
 		clip: unset;
-		right: 15px;
-
-		&:before {
-			@extend .fa;
-			@extend .fa-pencil;
-			margin-right: $standard-space-2x;
-		}
 	}
 
-	.edit-button, .edit-image-button {
-		position: absolute;
-		clip: rect(1px, 1px, 1px, 1px);
-	}
-
-	.btn-holder:hover > .edit-image-button,
-	.edit-image-button:focus > .edit-image-button:focus-visible,
-	.edit-image-button:focus-visible {
+	.edit-image-button {
 		@include sakai_secondary_button();
 		margin: 3px 3px 0 0;
-		clip: unset;
-		right: 0;
-		top: 0;
-
-		&:before {
-			@extend .fa;
-			@extend .fa-pencil;
-			margin-right: $standard-space-2x;
-		}
 	}
+
+    #photoContainer > div:focus {
+        button {
+            display: block;
+        }
+    }
 
 	.new-items-count {
 		padding-left: 4px !important;
