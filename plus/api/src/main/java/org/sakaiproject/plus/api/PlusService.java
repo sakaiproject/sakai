@@ -54,7 +54,7 @@ public interface PlusService {
 	public static final String PLUS_NEW_SITE_TEMPLATE_DEFAULT = "!plussite";
 	public static final String PLUS_NEW_SITE_TEMPLATE_BACKUP = "!worksite";
 	public static final String PLUS_NEW_SITE_REALM = "plus.new.site.realm";
-	public static final String PLUS_NEW_SITE_REALM_DEFAULT = "!site.template";
+	public static final String PLUS_NEW_SITE_REALM_DEFAULT = "!site.template.lti";
 	public static final String PLUS_NEW_SITE_TYPE = "plus.new.site.type";
 	public static final String PLUS_NEW_SITE_TYPE_DEFAULT = "project";
 

@@ -138,6 +138,9 @@ public class MainController {
 			editTenant.setClientId(tenant.getClientId());
 			editTenant.setDeploymentId(tenant.getDeploymentId());
 			editTenant.setTrustEmail(tenant.getTrustEmail());
+			editTenant.setSiteTemplate(tenant.getSiteTemplate());
+			editTenant.setRealmTemplate(tenant.getRealmTemplate());
+			editTenant.setInboundRoleMap(tenant.getInboundRoleMap());
 			editTenant.setTimeZone(tenant.getTimeZone());
 			editTenant.setAllowedTools(tenant.getAllowedTools());
 			editTenant.setNewWindowTools(tenant.getNewWindowTools());

@@ -65,6 +65,8 @@ import org.tsugi.http.HttpClientUtil;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
@@ -84,6 +86,7 @@ import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
 import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.SessionManager;
@@ -152,6 +155,7 @@ public class ProviderServlet extends HttpServlet {
 	@Autowired private SecurityService securityService;
 	@Autowired private UsageSessionService usageSessionService;
 	@Autowired private SiteService siteService;
+	@Autowired private AuthzGroupService authzGroupService;
 	@Autowired private SessionManager sessionManager;
 	@Autowired private ToolManager toolManager;
 	@Autowired private FormattedText formattedText;
@@ -515,7 +519,7 @@ public class ProviderServlet extends HttpServlet {
 				payload.put("nrps_token", launch.getContext().getNrpsToken());
 			}
 
-			Site site = findOrCreateSite(payload);
+			Site site = findOrCreateSite(payload, tenant);
 			if ( plusService.verbose() ) {
 				log.info("site={}", site);
 			} else {
@@ -1211,7 +1215,7 @@ public class ProviderServlet extends HttpServlet {
 		return toolPlacementId;
 	}
 
-	protected Site findOrCreateSite(Map payload) throws LTIException {
+	protected Site findOrCreateSite(Map payload, Tenant tenant) throws LTIException {
 
 		String context_guid = (String) payload.get("context_guid");
 		String siteId = context_guid;
@@ -1259,11 +1263,29 @@ public class ProviderServlet extends HttpServlet {
 		pushAdvisor();
 		try {
 			String sakai_type = PlusService.PLUS_NEW_SITE_TYPE_DEFAULT;
+			boolean templateSiteExists = false;
+			String autoSiteTemplateId = tenant.getSiteTemplate();
+			if ( StringUtils.isNotBlank(autoSiteTemplateId) ) {
+				templateSiteExists = siteService.siteExists(autoSiteTemplateId);
+				if ( !templateSiteExists ) log.warn("Could not find tenant-specified template site ({}).", autoSiteTemplateId);
+			}
 
-			String autoSiteTemplateId =
-				serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_TEMPLATE, PlusService.PLUS_NEW_SITE_TEMPLATE_DEFAULT);
+			if ( !templateSiteExists ) {
+				autoSiteTemplateId = serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_TEMPLATE);
+				if ( StringUtils.isNotBlank(autoSiteTemplateId) ) {
+					templateSiteExists = siteService.siteExists(autoSiteTemplateId);
+					if ( !templateSiteExists ) log.warn("Could not find site template from sakai.properties {}={}.", PlusService.PLUS_NEW_SITE_TEMPLATE, autoSiteTemplateId);
+				}
+			}
 
-			boolean templateSiteExists = siteService.siteExists(autoSiteTemplateId);
+			if ( !templateSiteExists ) {
+				autoSiteTemplateId = PlusService.PLUS_NEW_SITE_TEMPLATE_DEFAULT;
+				if ( StringUtils.isNotBlank(autoSiteTemplateId) ) {
+					templateSiteExists = siteService.siteExists(autoSiteTemplateId);
+					if ( !templateSiteExists ) log.warn("Could not find default site template={}.", autoSiteTemplateId);
+				}
+			}
+
 			if (!templateSiteExists) {
 				log.warn("Could not find template site ({}) falling back to ({}) instead.", autoSiteTemplateId, PlusService.PLUS_NEW_SITE_TEMPLATE_BACKUP);
 				autoSiteTemplateId = PlusService.PLUS_NEW_SITE_TEMPLATE_BACKUP;
@@ -1274,8 +1296,45 @@ public class ProviderServlet extends HttpServlet {
 				log.warn("Template site ({}) was not found. A site will be created with the default template.", autoSiteTemplateId);
 			}
 
-			if(autoSiteTemplateId == null || !templateSiteExists) {
-				//BLTI-151 If the new site type has been specified in sakai.properties, use it.
+			boolean templateRealmExists = false;
+			AuthzGroup azg = null;
+			String autoRealmTemplateId = tenant.getRealmTemplate();
+			if ( StringUtils.isNotBlank(autoRealmTemplateId) ) {
+				try {
+					azg = authzGroupService.getAuthzGroup(autoRealmTemplateId);
+					templateRealmExists = true;
+				} catch ( GroupNotDefinedException e ) {
+					log.warn("Could not find tenant-specified realm template ({}).", autoRealmTemplateId);
+				}
+			}
+
+			if ( ! templateRealmExists ) autoRealmTemplateId = serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_REALM);
+
+			if ( ! templateRealmExists && StringUtils.isNotBlank(autoRealmTemplateId) ) {
+				try {
+					azg = authzGroupService.getAuthzGroup(autoRealmTemplateId);
+					templateRealmExists = true;
+				} catch ( GroupNotDefinedException e ) {
+					log.warn("Could not find sakai.properties realm template {}={}.", PlusService.PLUS_NEW_SITE_REALM, autoRealmTemplateId);
+				}
+			}
+
+			if ( ! templateRealmExists ) autoRealmTemplateId = PlusService.PLUS_NEW_SITE_REALM_DEFAULT;
+
+			if ( ! templateRealmExists && StringUtils.isNotBlank(autoRealmTemplateId) ) {
+				try {
+					azg = authzGroupService.getAuthzGroup(autoRealmTemplateId);
+					templateRealmExists = true;
+				} catch ( GroupNotDefinedException e ) {
+					log.warn("Could not find default realm template {}={}.", PlusService.PLUS_NEW_SITE_REALM, autoRealmTemplateId);
+				}
+			}
+
+			// Null might be just fine - it means use the realm from the site
+			if ( ! templateRealmExists ) autoRealmTemplateId = null;
+
+			if(StringUtils.isBlank(autoSiteTemplateId) || !templateSiteExists) {
+
 				sakai_type = serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_TYPE, PlusService.PLUS_NEW_SITE_TYPE_DEFAULT);
 				if(StringUtils.isBlank(sakai_type)) {
 					// It wasn't specced in the props. Test for the ims course context type.
@@ -1288,10 +1347,11 @@ public class ProviderServlet extends HttpServlet {
 				}
 				site = siteService.addSite(siteId, sakai_type);
 				site.setType(sakai_type);
+				log.debug("Creating siteId={} type={}", siteId, sakai_type);
 			} else {
 				Site autoSiteTemplate = siteService.getSite(autoSiteTemplateId);
-				String realmTemplate = serverConfigurationService.getString(PlusService.PLUS_NEW_SITE_REALM, PlusService.PLUS_NEW_SITE_REALM_DEFAULT);
-				site = siteService.addSite(siteId, autoSiteTemplate, realmTemplate);
+				site = siteService.addSite(siteId, autoSiteTemplate, autoRealmTemplateId);
+				log.debug("Creating siteId={} autoSiteTemplate={} autoRealmTemplateID={}", siteId, autoSiteTemplate.getId(), autoRealmTemplateId);
 			}
 
 			if (BasicLTIUtil.isNotBlank(context_title)) {
@@ -1305,6 +1365,12 @@ public class ProviderServlet extends HttpServlet {
 			site.setPubView(false);
 
 			site.getPropertiesEdit().addProperty(PlusService.PLUS_PROPERTY, "true");
+
+			String inBoundRoleMap = tenant.getInboundRoleMap();
+			if ( StringUtils.isNotBlank(inBoundRoleMap) ) {
+				log.debug("Custom inbound role mapping={}", inBoundRoleMap);
+				site.getPropertiesEdit().addProperty(Site.PROP_LTI_INBOUND_ROLE_MAP, inBoundRoleMap);
+			}
 
 			try {
 				siteService.save(site);

@@ -91,6 +91,16 @@ public class Tenant extends BaseLTI implements PersistableEntity<String> {
 	@Column(name = "VERBOSE")
 	private Boolean verbose = Boolean.FALSE;
 
+	@Column(name = "SITE_TEMPLATE", length = 500, nullable = true)
+	private String siteTemplate;
+
+	@Column(name = "REALM_TEMPLATE", length = 500, nullable = true)
+	private String realmTemplate;
+
+	@Lob
+	@Column(name = "INBOUND_ROLE_MAP", nullable = true)
+	private String inboundRoleMap;
+
 	@Column(name = "OIDC_AUTH", length = LENGTH_URI, nullable = true)
 	private String oidcAuth;
 
