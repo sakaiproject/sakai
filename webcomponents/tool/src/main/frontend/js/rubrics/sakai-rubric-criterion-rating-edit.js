@@ -55,7 +55,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
                 <label class="label-rubrics" for="rating-title-${this.rating.id}"><sr-lang key="rating_title" /></label>
                 <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
               </div>
-              <div class="form-group points ${this.isLocked ? "hidden" : ""}">
+              <div class="form-group points ${this.isLocked ? "d-none" : ""}">
                 <label class="label-rubrics" for="rating-points-${this.rating.id}"><sr-lang key="points" /></label>
                 <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${ifDefined(this.minpoints)}" max="${ifDefined(this.maxpoints)}" />
               </div>
