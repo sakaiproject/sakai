@@ -12,6 +12,7 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 
 import java.util.Properties;
 import java.util.Set;
+import java.util.HashSet;
 
 /**
  * An adapter to stand in for SpringCompMgr in the static cover as well as be registered
@@ -29,6 +30,10 @@ import java.util.Set;
 @Deprecated
 public class ComponentManagerShim extends SpringCompMgr {
     private final SharedApplicationContext applicationContext;
+
+    private static Set<String> uniqueFailures = new java.util.HashSet<String> ();
+    private static Set<String> missingFailures = new java.util.HashSet<String> ();
+    private static Set<String> nameFailures = new java.util.HashSet<String> ();
 
     /**
      * Create a ComponentManager shim that forwards all meaningful methods to an ApplicationContext.
@@ -102,14 +107,24 @@ public class ComponentManagerShim extends SpringCompMgr {
             return applicationContext.getBean(iface);
         } catch (NoUniqueBeanDefinitionException e) {
             if (lenientLookup) {
-                log.warn("No unique bean found for class: {} -- lenient retrieval enabled, retrying by name", iface.getName());
+                if ( uniqueFailures.contains(iface.getName()) ) {
+                    log.debug("No unique bean found for class: {} -- lenient retrieval enabled, retrying by name", iface.getName());
+                } else {
+                    log.warn("No unique bean found for class: {} -- lenient retrieval enabled, retrying by name - further messages will be log.debug", iface.getName());
+                    uniqueFailures.add(iface.getName());
+                }
                 return (T) get(iface.getName());
             } else {
                 throw e;
             }
         } catch (NoSuchBeanDefinitionException e) {
             if (lenientLookup) {
-                log.warn("Could not locate bean requested by class: {} -- lenient retrieval enabled, returning null", iface.getName());
+                if ( missingFailures.contains(iface.getName()) ) {
+                    log.debug("Could not locate bean requested by class: {} -- lenient retrieval enabled, returning null", iface.getName());
+                } else {
+                    log.warn("Could not locate bean requested by class: {} -- lenient retrieval enabled, returning null - further messages will be log.debug", iface.getName());
+                    missingFailures.add(iface.getName());
+                }
                 return null;
             } else {
                 throw e;
@@ -132,7 +147,12 @@ public class ComponentManagerShim extends SpringCompMgr {
             return applicationContext.getBean(ifaceName);
         } catch (NoSuchBeanDefinitionException e) {
             if (lenientLookup) {
-                log.warn("Could not locate bean requested by name: {} -- lenient retrieval enabled, returning null", ifaceName);
+                if ( nameFailures.contains(ifaceName) ) {
+                    log.debug("Could not locate bean requested by name: {} -- lenient retrieval enabled, returning null", ifaceName);
+                } else {
+                    log.warn("Could not locate bean requested by name: {} -- lenient retrieval enabled, returning null - further messages will be log.debug", ifaceName);
+                    nameFailures.add(ifaceName);
+				}
                 return null;
             } else {
                 throw e;
