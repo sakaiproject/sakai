@@ -540,6 +540,7 @@ public class BaseAuthzGroup implements AuthzGroup
 	 */
 	protected void setAll(AuthzGroup azGroup)
 	{
+		TimeService timeService = baseAuthzGroupService.timeService();
 		if (((BaseAuthzGroup) azGroup).m_lazy)
 			baseAuthzGroupService.m_storage.completeGet(((BaseAuthzGroup) azGroup));
 
@@ -550,8 +551,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		m_createdUserId = ((BaseAuthzGroup) azGroup).m_createdUserId;
 		m_lastModifiedUserId = ((BaseAuthzGroup) azGroup).m_lastModifiedUserId;
-		if (((BaseAuthzGroup) azGroup).m_createdTime != null)
-			m_createdTime =  ((BaseAuthzGroup) azGroup).m_createdTime;
+		m_createdTime = Instant.ofEpochMilli(timeService.newTime().getTime());
 		if (((BaseAuthzGroup) azGroup).m_lastModifiedTime != null)
 			m_lastModifiedTime = ((BaseAuthzGroup) azGroup).m_lastModifiedTime;
 
