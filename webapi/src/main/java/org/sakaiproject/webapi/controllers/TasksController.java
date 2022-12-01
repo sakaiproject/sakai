@@ -20,6 +20,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -145,14 +146,14 @@ public class TasksController extends AbstractSakaiApiController {
     
     @GetMapping(value = "/sites/{siteId}/users/current/isSiteUpdater", produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean isInstructorUser(@PathVariable String siteId) {
-        checkSakaiSession();
+        Session session = checkSakaiSession();
 
         try {
             Site site = siteService.getSite(siteId);
             // Returns a boolean value which depends if an user is an instructor or not
             return securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
         } catch (Exception e) {
-            log.warn("Error retrieving role on site {} for user {} : {}", siteId, e.toString());
+            log.warn("Error retrieving role on site {} for user {} : {}", siteId, session.getUserId(), e.toString());
         }
         return false;
     }
