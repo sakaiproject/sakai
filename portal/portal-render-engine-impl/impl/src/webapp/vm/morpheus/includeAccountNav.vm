@@ -75,7 +75,7 @@ For opening help sidebar
           aria-label="$rloader.sit_notifications"
           title="$rloader.sit_notifications">
         <i class="bi-bell"></i>
-        <span id="portal-notifications-indicator" class="portal-notifications-indicator p-1 bg-danger rounded-circle" style="display: none">
+        <span id="portal-notifications-indicator-account-nav" class="portal-notifications-indicator p-1 bg-danger rounded-circle" style="display: none">
           <span class="visually-hidden">There are new notifications available</span>
         </span>
       </button>
