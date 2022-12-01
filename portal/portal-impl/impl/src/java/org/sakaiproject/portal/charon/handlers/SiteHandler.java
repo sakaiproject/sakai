@@ -978,14 +978,21 @@ public class SiteHandler extends WorksiteHandler
 
 				try {
 					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
-					selectedPage = props.getProperty(SELECTED_PAGE_PROP);
-				} catch (Exception any) {
-					log.warn("Exception caught whilst getting toolsCollapsed and {} properties: {}", SELECTED_PAGE_PROP, any.toString());
+				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
+					toolsCollapsed = false;
+				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
+					log.warn("Exception caught whilst getting toolsCollapsed: {}", any.toString());
 				}
+
+				selectedPage = props.getProperty(SELECTED_PAGE_PROP);
 
 				try {
 					toolMaximised = props.getBooleanProperty("toolMaximised");
-				} catch (Exception any) {}
+				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
+					toolMaximised = false;
+				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
+					log.warn("Exception caught whilst getting toolMaximised: {}", any.toString());
+				}
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
