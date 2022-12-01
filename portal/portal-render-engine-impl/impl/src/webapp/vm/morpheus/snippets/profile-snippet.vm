@@ -38,7 +38,7 @@
         <div id="sakai-accountPanelWidgets-collapseOne" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingOne">
           <div class="accordion-body p-2">
             ## Tasks webcomponent
-            <sakai-tasks></sakai-tasks>
+            <sakai-tasks site-id="$!{siteId}"></sakai-tasks>
           </div>
         </div>
       </div>  
