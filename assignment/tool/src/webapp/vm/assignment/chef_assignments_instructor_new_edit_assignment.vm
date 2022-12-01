@@ -281,7 +281,7 @@
 			    <div class="d-flex align-items-center">
 					<sakai-date-picker
 						id="opendate"
-						label="$tlang.getString("gen.opedat")"
+						label="$tlang.getString("newassig.opedat")"
 						hidden-prefix="new_assignment_open"
 						iso-date="$value_OpenYear$H$value_OpenMonth$H$value_OpenDay$T$value_OpenHour:$value_OpenMin"
 						add-hidden-fields>
