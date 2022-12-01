@@ -19,8 +19,12 @@
       <ul class="nav flex-column">
         #foreach ( $site in $tabsSites.tabsSites )
           #if (${site.isMyWorkspace})
+        #if (${prefsToolUrl})
         <li class="nav-item"><a href="${prefsToolUrl}" class="nav-link">${rloader.sit_preferences}</a></li>
+        #end
+        #if (${profileToolUrl})
         <li class="nav-item"><a href="${profileToolUrl}" class="nav-link">${rloader.sit_profile}</a></li>
+        #end
           #end
         #end
         <li class="nav-item py-2 d-none"><button type="button" class="btn btn-primary">${rloader.sit_log}</button></li>
