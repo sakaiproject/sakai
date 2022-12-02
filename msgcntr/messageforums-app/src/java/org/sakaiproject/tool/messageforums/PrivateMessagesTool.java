@@ -575,52 +575,19 @@ public class PrivateMessagesTool {
     	  
       if (getPvtAreaEnabled() && decoratedForum.getForum() != null){  
     	  
-    	int countForFolderNum = 0;// only three folder 
     	Iterator<PrivateTopic> iterator = pvtTopics.iterator(); 
-    	//MSGCNTR-472 we need the first three but need to guard against there being < 3 elements
-        for (int i = 0;i < 3 && iterator.hasNext(); i++)//only three times
-        {
-          PrivateTopic topic = iterator.next();
-          
-          if (topic != null)
-          {
-          	
-          	/** filter topics by context and type*/
-            if (topic.getTypeUuid() != null
-            		&& topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
-            	  && topic.getContextId() != null && !topic.getContextId().equals(prtMsgManager.getContextId())){
-               continue;
-            }       
-          	
-            PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
-           
-            // folder uuid
-            String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
-             
-            countForFolderNum++;
-            
-            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid, aggregateList));
-
-            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid, aggregateList));
-            totalUnreadMessages += decoTopic.getUnreadNoMessages();
-          
-            decoratedForum.addTopic(decoTopic);
-          }       
-        }
         
-        while(iterator.hasNext())//add more folders 
+        while(iterator.hasNext())
         {
                PrivateTopic topic = iterator.next();
                if (topic != null)
                {
-
-               
                /** filter topics by context and type*/                                                    
                  if (topic.getTypeUuid() != null
                  && topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
                    && topic.getContextId() != null && !topic.getContextId().equals(prtMsgManager.getContextId())){
                     continue;
-                 }       
+                 }
                
                  PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
                 
@@ -630,7 +597,7 @@ public class PrivateMessagesTool {
                  decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid,aggregateList));
                  totalUnreadMessages += decoTopic.getUnreadNoMessages();
                  decoratedForum.addTopic(decoTopic);
-               }          
+               }
         
         }
 
