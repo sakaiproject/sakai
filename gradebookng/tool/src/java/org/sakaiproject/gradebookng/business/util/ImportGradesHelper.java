@@ -39,6 +39,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -899,12 +900,12 @@ public class ImportGradesHelper {
 
 		final String[] s = new String[numCells];
 		
+		DataFormatter formatter = new DataFormatter();
 		Cell cell;
 		for(int i = 0; i < numCells; i++) {
 			cell = row.getCell(i);
 			if(cell != null) {
-				cell.setCellType(CellType.STRING);
-				s[i] = StringUtils.trimToNull(cell.getStringCellValue());
+				s[i] = StringUtils.trimToNull(formatter.formatCellValue(cell));
 			}
 			
 		}
