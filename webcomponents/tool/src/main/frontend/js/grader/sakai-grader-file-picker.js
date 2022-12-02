@@ -28,7 +28,7 @@ class SakaiGraderFilePicker extends SakaiElement {
   render() {
 
     return html`
-      <button title="${this.title}" @click=${this.pickFile}>${this.buttonText}</button>
+      <button class="btn btn-link" title="${this.title}" @click=${this.pickFile}>${this.buttonText}</button>
       <div class="sakai-file-picker-list">
       ${this.files.length > 0 ? html`
         <div class="sakai-file-picker-list-title">${this.i18n.to_be_added}</div>
