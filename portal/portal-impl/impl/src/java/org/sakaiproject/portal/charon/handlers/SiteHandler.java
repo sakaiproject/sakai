@@ -619,12 +619,16 @@ public class SiteHandler extends WorksiteHandler
 
 		//Show a confirm dialog when publishing an unpublished site.
 		rcontext.put("publishSiteDialogEnabled", ServerConfigurationService.getBoolean("portal.publish.site.confirm.enabled", false));
-		for (SitePage pageNow: site.getPages()){	//build Manage link for site access
-			if(pageNow.getTools().get(0).getToolId().equals("sakai.siteinfo")){
+		Map<String, String> toolTitles = new HashMap<>();
+		site.getPages().forEach(pageNow -> {
+
+			ToolConfiguration firstTool = pageNow.getTools().get(0);
+			toolTitles.put(firstTool.getToolId(), firstTool.getTitle());
+			if (firstTool.getToolId().equals("sakai.siteinfo")) {
 				rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
-				break;
 			}
-		}
+		});
+		rcontext.put("toolTitles", toolTitles);
 
 		if (StringUtils.equals(site.getProperties().getProperty("publish_type"), "scheduled")) {	// custom-scheduled availability date
 			Date scheduledDate = userTimeService.parseISODateInUserTimezone(site.getProperties().getProperty("publish_date"));
