@@ -126,10 +126,11 @@ roster.addHideOptionHandlers = function () {
 
 roster.addAdditionalInfoModalHandlers = function () {
 
-  $('button.additional-info').click(function (e) {
+  document.querySelectorAll(".additional-info").forEach(b => {
 
-    const userId = this.getAttribute("data-user-id");
-    roster.renderAdditionalInfoModal(userId)
+    b.addEventListener("click", e => {
+      roster.renderAdditionalInfoModal(e.currentTarget.dataset.userId);
+    });
   });
 };
 
@@ -303,7 +304,7 @@ roster.renderAdditionalInfoModal = function (userId) {
 
   roster.renderModalDialog(title, htmlContent, null);
 
-  $("#roster-modal").modal();
+  (new bootstrap.Modal(document.getElementById("roster-modal"))).show();
 };
 
 roster.renderModalDialog = function (title, htmlContent, htmlFooter) {
@@ -540,7 +541,7 @@ roster.renderMembership = function (options) {
           $('#roster-role-totals').html('');
         }
       } else {
-        console.log('Failed to get membership data. textStatus: ' + textStatus + '. errorThrown: ' + errorThrown);
+        console.error(`Failed to get membership data. textStatus: ${textStatus}. errorThrown: ${errorThrown}`);
       }
     }
   });
