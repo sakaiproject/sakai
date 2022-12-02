@@ -41,10 +41,10 @@ For opening help sidebar
 
   #if (${usePortalSearch})
     <li class="d-none d-md-inline">
-      <button class="btn icon-button"
+      <button class="btn icon-button portal-search-button"
           data-bs-toggle="offcanvas"
-          data-bs-target="#sakai-searchPanel"
-          aria-controls="sakai-searchPanel"
+          data-bs-target="#sakai-search-panel"
+          aria-controls="sakai-search-panel"
           aria-label="$rloader.sit_search_for_content"
           title="$rloader.sit_search_for_content">
         <i class="bi-search"></i>
