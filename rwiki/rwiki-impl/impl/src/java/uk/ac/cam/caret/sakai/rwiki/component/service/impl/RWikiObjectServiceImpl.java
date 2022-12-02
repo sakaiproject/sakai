@@ -555,10 +555,15 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
                        		notiPriority));
             	}
 			}
-			catch (HibernateOptimisticLockingFailureException e)
+			catch (RollbackException e)
 			{
-				throw new VersionException("Version has changed since: " //$NON-NLS-1$
-						+ version, e);
+				throw new VersionException("Version has changed since: " + version, //$NON-NLS-1$
+						e);
+			}
+			catch (HibernateException e)
+			{
+				log.info("Caught hibernate exception, update failed."+e.getMessage());
+				throw new RuntimeException("An update could not be made to this wiki page. A possible cause is that you have too many links.");
 			}
 
 		}
