@@ -2634,7 +2634,7 @@ public class SiteAction extends PagedResourceActionII {
 				try{
 					termPublishDate = new Date(courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getStartDate().getTime() - (ONE_DAY_IN_MS * daysbefore));
 					context.put("termStartDate", termPublishDate.toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
-					context.put("termEndDate", courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
+					context.put("termEndDate", new Date(courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime()).toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
 					context.put("termUnpublishDate", new Date(courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
 					context.put("readableTermStartDate", userTimeService.dateFormat(termPublishDate, rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
 					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(termPublishDate, rb.getLocale(), DateFormat.SHORT));
