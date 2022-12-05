@@ -343,6 +343,17 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         return tool == null ? null : (String) tool.get(LTIService.LTI_DESCRIPTION);
     }
 
+    public String getIcon() {
+	loadContent();
+	if ( content == null ) return null;
+	String result = (String) content.get(LTIService.LTI_FA_ICON);
+	if (result == null) {
+		// Inherit the tool's custom icon if set
+		result = (String) tool.get(LTIService.LTI_FA_ICON);
+	}
+	return result;
+    }
+
     private String getErrorUrl() {
 	return "javascript:document.write('" + messageLocator.getMessage("simplepage.format.item_removed").replace("'", "\\'") + "')";
     }
