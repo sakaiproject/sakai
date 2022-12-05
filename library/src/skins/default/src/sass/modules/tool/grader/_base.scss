@@ -8,42 +8,12 @@ sakai-grader {
     border-bottom: 1px solid var(--sakai-border-color);
     padding: 5px;
 
-    .left-block {
-      flex: 0 0 auto;
-      #grader-settings-wrapper {
-        display: inline-block;
-        margin-left: 20px;
-      }
-    }
-    .assessment-info { display: inline-block; font-weight: bold; }
-    .assessment-title { font-size: larger; }
-
-    .settings {
-      white-space: nowrap;
-      display: none;
-      position: absolute;
-      border: 1px solid var(--sakai-border-color);
-      padding: 7px;
-      background-color: var(--sakai-background-color-1);
-      z-index: 100000;
-      input {
-        margin-right: 8px;
-      }
-    }
-
     .grader-groups {
       margin-top: 10px;
 
       span {
         font-weight: bold;
       }
-    }
-
-    .total-block {
-      flex: 1 1 auto;
-      font-weight: bold;
-      text-align: center;
-      div { display: inline-block; }
     }
 
     .grader-navigator {
