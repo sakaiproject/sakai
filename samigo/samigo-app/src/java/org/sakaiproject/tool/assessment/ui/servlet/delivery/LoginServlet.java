@@ -51,10 +51,12 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener;
+import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -85,14 +87,62 @@ public class LoginServlet
     doPost(req,res);
   }
 
-  public void doPost(HttpServletRequest req, HttpServletResponse res)
+  public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+
+    String alias = req.getParameter("id");
+    if (StringUtils.isEmpty(alias)) {
+      log.warn("The published URL you have entered is missing an id parameter");
+      return;
+    }
+
+    String action = req.getParameter("action");
+    if ("review".equals(action)) {
+      doReviewAssessment(req, res, alias);
+    } else {
+      doTakeAssessment(req, res, alias);
+    }
+  }
+
+  public void doReviewAssessment(HttpServletRequest req, HttpServletResponse res, String alias)
       throws ServletException, IOException
   {
-	String alias = req.getParameter("id");
-	if (StringUtils.isEmpty(alias)) {
-		log.warn("The published URL you have entered is incorrect. id is missing. Please check in Published Settings.");
-		return;
-	}
+    PublishedAssessmentService service = new PublishedAssessmentService();
+    PublishedAssessmentFacade publishedAssessment = service.getPublishedAssessmentIdByAlias(alias);
+
+    String siteId = publishedAssessment.getOwnerSiteId();
+    boolean isInstructor = PersistenceService.getInstance()
+        .getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
+
+    // If this is called by an instructor or user is not authenticated handle redirect in doTakeAssignment
+    if (isInstructor || StringUtils.isEmpty(req.getRemoteUser())) {
+      doTakeAssessment(req, res, alias);
+      return;
+    }
+
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+    delivery.setSiteId(siteId);
+
+    delivery.setAccessByUrlAndAuthorized(true);
+
+    String assessmentId = publishedAssessment.getPublishedAssessmentId().toString();
+
+    SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBeanFromExternalServlet("select", req, res);
+    //Set to 3, to initiate the right view
+    select.setDisplayAllAssessments("3");
+    select.setReviewAssessmentId(assessmentId);
+
+    SelectActionListener listener = new SelectActionListener();
+    listener.processAction(null);
+
+    //Redirect to review-view
+    RequestDispatcher dispatcher = req.getRequestDispatcher("/jsf/review/reviewIndex.faces");
+    dispatcher.forward(req, res);
+  }
+
+  public void doTakeAssessment(HttpServletRequest req, HttpServletResponse res, String alias)
+      throws ServletException, IOException
+  {
 
     HttpSession httpSession = req.getSession(true);
     httpSession.setMaxInactiveInterval(3600); // one hour
@@ -112,7 +162,6 @@ public class LoginServlet
     PublishedAssessmentFacade pub = service.getPublishedAssessmentIdByAlias(alias);
 
     String siteId = pub.getOwnerSiteId();
-
 
     boolean isInstructor = PersistenceService.getInstance()
         .getAuthzQueriesFacade()

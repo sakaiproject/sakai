@@ -41,6 +41,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.impl.BasicConfigurationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
@@ -58,6 +59,7 @@ public class ActiveToolComponentTest {
 	private ThreadLocalComponent threadLocalComponent;
 	private SecurityService securityService;
 	private SessionManager sessionManager;
+	private SiteService siteService;
 	private FunctionManager functionManager;
 	private BasicConfigurationService serverConfigurationService;
 	private ActiveToolManager activeToolManager;
@@ -88,6 +90,11 @@ public class ActiveToolComponentTest {
 			@Override
 			protected SessionManager sessionManager() {
 				return sessionManager;
+			}
+
+			@Override
+			protected SiteService siteService() {
+				return siteService;
 			}
 			
 			@Override

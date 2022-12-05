@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Date;
 
 import javax.faces.application.FacesMessage;
@@ -37,6 +38,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -79,6 +82,7 @@ public class BeginDeliveryActionListener implements ActionListener
 {
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+  private ToolManager toolManager = Objects.requireNonNull(ComponentManager.get(ToolManager.class));
 
   /**
    * ACTION.
@@ -360,7 +364,18 @@ public class BeginDeliveryActionListener implements ActionListener
     else
       delivery.setNavigation(control.getItemNavigation().toString());
 
-    
+    String assessmentId = ContextUtil.lookupParam("assessmentId");
+    String publishedId = ContextUtil.lookupParam("publishedId");
+
+    if (assessmentId != null && publishedId != null) {
+      //Retrieve siteId from assessment
+      String siteId = service.getPublishedAssessmentOwner(
+        getPublishedAssessmentBasedOnAction(delivery.getActionMode(), delivery,
+          assessmentId, publishedId).getPublishedAssessmentId());
+
+      delivery.setToolHidden(toolManager.isToolHidden(siteId, "sakai.samigo"));
+    }
+
     GradingService gradingService = new GradingService ();
     List unSubmittedAssessmentGradingList = gradingService.getUnSubmittedAssessmentGradingDataList(publishedAssessmentId, AgentFacade.getAgentString());
     if (unSubmittedAssessmentGradingList.size() != 0){

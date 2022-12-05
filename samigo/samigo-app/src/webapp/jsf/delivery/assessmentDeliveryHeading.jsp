@@ -83,8 +83,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- RETURN TO ASSESSMENT PAGE LINK FOR REVIEW ASSESSMENT -->
   <h:commandLink action="select" title="#{deliveryMessages.t_returnAssessmentList}"
-     rendered="#{delivery.actionString=='reviewAssessment'&&
-!delivery.anonymousLogin}">
+     rendered="#{delivery.actionString=='reviewAssessment' && !delivery.anonymousLogin && !delivery.toolHidden}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
     <h:outputText value="#{deliveryMessages.button_return_select}" />
   </h:commandLink>

@@ -77,6 +77,7 @@
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
 		<property name="resourceLoader">
 			<bean factory-bean="org.sakaiproject.tool.impl.ToolResourceFactory" factory-method="createInstance"/>
 		</property>

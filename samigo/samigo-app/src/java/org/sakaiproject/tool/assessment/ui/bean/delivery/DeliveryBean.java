@@ -348,6 +348,8 @@ public class DeliveryBean implements Serializable {
   private boolean hasTimeLimit;
   private boolean isMoreThanOneQuestion;
   @Getter @Setter
+  private boolean toolHidden;
+  @Getter @Setter
   private Integer scoringType;
   
   // daisyf added for servlet Login.java, to support anonymous login with publishedUrl
@@ -1957,6 +1959,29 @@ public class DeliveryBean implements Serializable {
         hasAttachment = true;
     }
     return hasAttachment;
+  }
+
+  public boolean getShowFeedbackLink() {
+    return (getActionString() == "takeAssessment"
+            || getActionString() == "takeAssessmentViaUrl"
+            || getActionString() == "previewAssessment"
+           ) && getNavigation() != "1"
+             && getPageContents().getIsNoParts();
+  }
+
+  public boolean getShowTableOfContentLink() {
+    return (getActionString() == "takeAssessment"
+            || getActionString() == "takeAssessmentViaUrl"
+            || getActionString() == "previewAssessment"
+           ) && getNavigation() != "1";
+  }
+
+  public boolean getShowReturnToAssessmentLink() {
+    return getActionString() == "reviewAssessment" && isAnonymousLogin() && isToolHidden();
+  }
+
+  public boolean showTabMenu() {
+    return getShowFeedbackLink() || getShowTableOfContentLink() || getShowReturnToAssessmentLink();
   }
 
   public String checkBeforeProceed(boolean isSubmitForGrade, boolean isFromTimer, boolean isViaUrlLogin){

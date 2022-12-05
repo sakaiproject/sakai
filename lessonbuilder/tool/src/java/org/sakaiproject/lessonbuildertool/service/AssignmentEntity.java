@@ -153,6 +153,10 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     return assignment.getTypeOfGrade().ordinal();
     }
 
+    public boolean showAdditionalLink() {
+	return false;
+    }
+
   // hack for forums. not used for assessments, so always ok
     public boolean isUsable() {
 	return true;
