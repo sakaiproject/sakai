@@ -1494,7 +1494,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						itemicon.decorate(new UIStyleDecorator("icon-sakai--sakai-samigo"));
 						break;
 					    case SimplePageItem.BLTI:
-						itemicon.decorate(new UIStyleDecorator("fa-globe"));
+						String bltiIcon = "fa-globe";
+                                                if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
+							LessonEntity lessonEntity = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
+							String tmp = ((BltiInterface)lessonEntity).getIcon();
+							bltiIcon = (tmp == null) ? bltiIcon : tmp;
+                                                }
+						itemicon.decorate(new UIStyleDecorator(bltiIcon));
 						break;
 					    case SimplePageItem.PAGE:
 						itemicon.decorate(new UIStyleDecorator("fa-folder-open-o"));
