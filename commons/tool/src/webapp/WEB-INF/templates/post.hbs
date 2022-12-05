@@ -6,14 +6,14 @@
         <div class="commons-post-text-container">
             <div class="commons-post-body">
                 <div class="commons-post-content">
-                    <span id="commons-high-priority-{{id}}" class="fa fa-flag commons-high-priority" title={{tr 'priority_icon'}} style="display:none;"></span>
+                    <span id="commons-high-priority-{{id}}" class="si si-flag commons-high-priority" title={{tr 'priority_icon'}} style="display:none;"></span>
                     <a id="commons-author-name-{{id}}" class="commons-post-author-name" data-user-id="{{creatorId}}" href="javascript:;">{{creatorDisplayName}}</a>
                     <span class="commons-post-content" id="commons-post-content-{{id}}">{{{content}}}</span>
                 </div>
                 <div id="commons-post-options-{{id}}" class="commons-post-options">
                     <span id="commons-like-section" >
                         <a href="javascript:;" id="commons-like-link-{{id}}" class="commons-like-link" data-post-id="{{id}}" >
-                            <span id="commons-like-icon-{{id}}" class="fa fa-thumbs-o-up" ></span>
+                            <i id="commons-like-icon-{{id}}" class="si si-like"></i>
                             {{tr 'like'}}
                         </a>
                         <a href="javascript://" data-bs-toggle="popover" data-html="true" data-content="" id="commons-likes-count-{{id}}" class="commons-likes-count" data-post-id="{{id}}" >
@@ -38,8 +38,8 @@
                     {{/if}}
                 </div>
                 <div id="commons-post-edit-buttons-{{id}}" class="commons-post-edit-buttons">
-                    <button id="commons-inplace-post-editor-post-button-{{id}}">{{tr 'post'}}</button>
-                    <button onclick="commons.utils.cancelPostEdit('{{id}}');">{{tr 'cancel'}}</button>
+                    <button id="commons-inplace-post-editor-post-button-{{id}}" class="btn btn-link">{{tr 'post'}}</button>
+                    <button onclick="commons.utils.cancelPostEdit('{{id}}');" class="btn btn-link">{{tr 'cancel'}}</button>
                 </div>
             </div>
         </div> <!-- commons-post-text-container -->

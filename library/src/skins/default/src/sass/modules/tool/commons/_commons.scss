@@ -22,24 +22,6 @@
         display: none;
     }
     .commons-dialog-container {
-    
-        #commons-link-dialog-table {
-            display: table;
-        }
-            .commons-link-dialog-row {
-                display: table-row;
-                padding-bottom: 5px;
-                div {
-                    display: table-cell;
-                    white-space: nowrap;
-                    padding-right: 10px;
-                }
-            }
-        .commons-dialog-container button {
-            border-radius: 0px;
-            font-weight: bold;
-            margin-right: 5px;
-        }
     }
 
     .commons-editor-text-wrapper {
@@ -223,6 +205,9 @@
     font-weight: bold;
     font-size: larger;
     color: var(--errorBanner-color);
+}
+#commons-link-dialog {
+    color: var(--sakai-text-color-1);
 }
 #commons-image-dialog-file {
     margin-bottom: $standard-space-2x;
