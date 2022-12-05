@@ -106,7 +106,7 @@
 													<input type="checkbox" class="siteimport-option" name="import-option-${option}-tool-${toolId}" title="$tlang.getString(${optionPropHelpKey})" value="true"/>
 													$tlang.getString(${optionPropKey})
 												</label>
-												<span class="import-option-help fa fa-question-circle" data-bs-toggle="popover" data-content="$tlang.getString(${optionPropHelpKey})"/>
+												<span class="import-option-help si si-question-circle" data-bs-toggle="popover" data-bs-content="$tlang.getString(${optionPropHelpKey})"/>
 											</div>
 											#end
 										</div>

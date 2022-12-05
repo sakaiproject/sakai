@@ -5,7 +5,7 @@
   <div th:replace="fragments/common :: jQuery" />
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (autogroups)" />
-    <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
+    <div><h1 th:text="#{autogroups.header.wizard}"></h1></div>
     <div th:replace="fragments/wizard :: step (step4)"></div>
     <br/>
     <div class="row">
@@ -28,13 +28,13 @@
           <input type="hidden" th:field="*{groupNumberByUser}" name="groupNumberByUser"/>
           <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers"/>
           <input type="hidden" th:value="${serializedAutoGroupsMap}" name="serializedAutoGroupsMap"/>
-          <div class="form-row">
+          <div class="row">
             <label for="allowViewMembership"><input id="allowViewMembership" type="checkbox" name="allowViewMembership" th:field="*{allowViewMembership}"/><span th:text="#{autogroups.step4.allow.membership}">Allow members to see who else is in their Group.</span></label>
           </div>
           <div class="act">
             <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button-top" th:value="#{autogroups.button.create}" />
-            <button type="button" accesskey="b" id="autogroups-back-button-top" class="btn btn-default" th:text="#{autogroups.button.back}">Back</button>
-            <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button-top" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</button>
+            <button type="button" accesskey="b" id="autogroups-back-button-top" class="btn btn-secondary" th:text="#{autogroups.button.back}">Back</button>
+            <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button-top" class="btn btn-secondary" th:text="#{autogroups.button.cancel}">Cancel</button>
            </div>
            <div th:each="autoGroup : ${autoGroupsMap.entrySet()}">
              <h3 th:text="#{autogroups.step4.group.label(${autoGroup.key}, ${autoGroup.value.size()})}">Group title (X Members)</h3>
@@ -60,8 +60,8 @@
           </div>
           <div class="act">
             <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button" th:value="#{autogroups.button.create}" />
-            <button type="button" accesskey="b" id="autogroups-back-button" class="btn btn-default" th:text="#{autogroups.button.back}">Back</button>
-            <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</button>
+            <button type="button" accesskey="b" id="autogroups-back-button" class="btn btn-secondary" th:text="#{autogroups.button.back}">Back</button>
+            <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-secondary" th:text="#{autogroups.button.cancel}">Cancel</button>
           </div>
         </form>
       </div>
