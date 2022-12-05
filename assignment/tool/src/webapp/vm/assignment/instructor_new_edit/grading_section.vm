@@ -43,7 +43,7 @@ This section contains the options for grading this assignment, including rubrics
 		</select>
 	</div>
 
-	<div id="assignmentGradingPointsPanel" class="card text-dark bg-light mb-3 p-3" #if($value_GradeType != 3 && $value_GradeType != 1)style="display:none;"#end >
+	<div id="assignmentGradingPointsPanel" class="card mb-3 p-3" #if($value_GradeType != 3 && $value_GradeType != 1)style="display:none;"#end >
 		## enable the maxfield when it is points grade type
 		<div class="form-group form-required">
 			<label for="$name_GradePoints" class="control-label">$tlang.getString("gen.forpoi")</label>
