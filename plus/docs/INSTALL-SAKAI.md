@@ -24,7 +24,7 @@ For fresh installs, Plus Admin is automatically added to Administration Workspac
 If this is an upgraded server, you may need to add the Plus Admin (sakai.plus) tool to
 the Administration Workspace using the Sites tool.
 
-Add a tennant, give it a title and set the issuer, set "Trust Email", set "Verbose Logging", set
+Add a tenant, give it a title and set the issuer, set "Trust Email", set "Verbose Logging", set
 Allowed Tools to `sakai.resources:sakai.site`, and Registration Lock to 42.
 
 Save the Tenant - it is "draft" because it is missing a lot of fields that will be set when
@@ -69,5 +69,5 @@ Testing SakaiPlus
 
 We have a simple outline of how to [testing SakaiPlus from Sakai](TESTING.md).  It is a little weird
 because you end up with two tabs - one tab from the "main site" and another tab for the "plus site".
-The easiest way to keep them seaprate it has different tools in the sites or edit the Overview message.
+The easiest way to keep them separate it has different tools in the sites or edit the Overview message.
 

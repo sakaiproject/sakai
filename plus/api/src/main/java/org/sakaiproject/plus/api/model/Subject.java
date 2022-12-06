@@ -41,7 +41,7 @@ import lombok.ToString;
  */
 @Entity
 @Table(name = "PLUS_SUBJECT",
-  indexes = @Index(columnList = "SUBJECT, TENNANT_GUID, SAKAI_USER_ID, EMAIL")
+  indexes = @Index(columnList = "SUBJECT, TENANT_GUID, SAKAI_USER_ID, EMAIL")
 )
 @Data
 public class Subject extends BaseLTI implements PersistableEntity<String> {
@@ -61,7 +61,7 @@ public class Subject extends BaseLTI implements PersistableEntity<String> {
 	private String subject;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "TENNANT_GUID", nullable = false)
+	@JoinColumn(name = "TENANT_GUID", nullable = false)
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private Tenant tenant;
