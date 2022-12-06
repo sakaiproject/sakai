@@ -44,6 +44,17 @@
               for this is "sakai.site".
           </div>
         </div>
+        <div id="trustemail-group" class="form-group form-switch">
+          <div>
+            <input type="hidden" class="form-control" id="trustemail-boolean" th:value="${tenant.trustEmail}" th:field="*{trustEmail}" />
+            <input th:if="${tenant.trustEmail}" checked class="form-check-input" type="checkbox" id="trustemail" role="switch" onclick="booleanClick(event);"/>
+            <input th:if="${!tenant.trustEmail}" class="form-check-input" type="checkbox" id="trustemail" role="switch" onclick="booleanClick(event);"/>
+            <label for="trustemail" class="form-control-label" th:text="#{plus.tool.trustemail}">Value</label>
+          </div>
+        </div>
+        <p th:text="#{plus.tool.trustemail.detail}">
+            plus.tool.trustemail.detail
+        </p>
         <div id="oidcregistrationlock-group" class="form-group">
           <label for="oidcregistrationlock" class="form-control-label" th:text="#{plus.tool.oidcregistrationlock}">Value</label>
           <div>
@@ -75,17 +86,6 @@
               plus.tool.newwindowtools.detail
           </div>
         </div>
-        <div id="trustemail-group" class="form-group form-switch">
-          <div>
-            <input type="hidden" class="form-control" id="trustemail-boolean" th:value="${tenant.trustEmail}" th:field="*{trustEmail}" />
-            <input th:if="${tenant.trustEmail}" checked class="form-check-input" type="checkbox" id="trustemail" role="switch" onclick="booleanClick(event);"/>
-            <input th:if="${!tenant.trustEmail}" class="form-check-input" type="checkbox" id="trustemail" role="switch" onclick="booleanClick(event);"/>
-            <label for="trustemail" class="form-control-label" th:text="#{plus.tool.trustemail}">Value</label>
-          </div>
-        </div>
-        <p th:text="#{plus.tool.trustemail.detail}">
-            plus.tool.trustemail.detail
-        </p>
         <div id="sitetemplate-group" class="form-group">
           <label for="sitetemplate" class="form-control-label" th:text="#{plus.tool.sitetemplate}">Value</label>
           <div>
