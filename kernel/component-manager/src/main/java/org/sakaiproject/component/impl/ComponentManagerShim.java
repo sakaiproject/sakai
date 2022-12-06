@@ -31,9 +31,9 @@ import java.util.HashSet;
 public class ComponentManagerShim extends SpringCompMgr {
     private final SharedApplicationContext applicationContext;
 
-    private static Set<String> uniqueFailures = new java.util.HashSet<String> ();
-    private static Set<String> missingFailures = new java.util.HashSet<String> ();
-    private static Set<String> nameFailures = new java.util.HashSet<String> ();
+    private Set<String> nonuniqueFailures = new java.util.HashSet<String> ();
+    private Set<String> missingFailures = new java.util.HashSet<String> ();
+    private Set<String> nameFailures = new java.util.HashSet<String> ();
 
     /**
      * Create a ComponentManager shim that forwards all meaningful methods to an ApplicationContext.
@@ -107,24 +107,14 @@ public class ComponentManagerShim extends SpringCompMgr {
             return applicationContext.getBean(iface);
         } catch (NoUniqueBeanDefinitionException e) {
             if (lenientLookup) {
-                if ( uniqueFailures.contains(iface.getName()) ) {
-                    log.debug("No unique bean found for class: {} -- lenient retrieval enabled, retrying by name", iface.getName());
-                } else {
-                    log.warn("No unique bean found for class: {} -- lenient retrieval enabled, retrying by name - further messages will be log.debug", iface.getName());
-                    uniqueFailures.add(iface.getName());
-                }
+                logLenientLookup("No unique bean found for class: {} -- lenient retrieval enabled, retrying by name", iface.getName(), nonuniqueFailures);
                 return (T) get(iface.getName());
             } else {
                 throw e;
             }
         } catch (NoSuchBeanDefinitionException e) {
             if (lenientLookup) {
-                if ( missingFailures.contains(iface.getName()) ) {
-                    log.debug("Could not locate bean requested by class: {} -- lenient retrieval enabled, returning null", iface.getName());
-                } else {
-                    log.warn("Could not locate bean requested by class: {} -- lenient retrieval enabled, returning null - further messages will be log.debug", iface.getName());
-                    missingFailures.add(iface.getName());
-                }
+                logLenientLookup("Could not locate bean requested by class: {} -- lenient retrieval enabled, returning null", iface.getName(), missingFailures);
                 return null;
             } else {
                 throw e;
@@ -147,16 +137,28 @@ public class ComponentManagerShim extends SpringCompMgr {
             return applicationContext.getBean(ifaceName);
         } catch (NoSuchBeanDefinitionException e) {
             if (lenientLookup) {
-                if ( nameFailures.contains(ifaceName) ) {
-                    log.debug("Could not locate bean requested by name: {} -- lenient retrieval enabled, returning null", ifaceName);
-                } else {
-                    log.warn("Could not locate bean requested by name: {} -- lenient retrieval enabled, returning null - further messages will be log.debug", ifaceName);
-                    nameFailures.add(ifaceName);
-				}
+                logLenientLookup("Could not locate bean requested by name: {} -- lenient retrieval enabled, returning null", ifaceName, nameFailures);
                 return null;
             } else {
                 throw e;
             }
+        }
+    }
+
+    /**
+     * Log lookup misses as warn once, then switch to debug
+     *
+     * @param msg The log message string
+     * @param name The lookup that failed
+     * @param alreadyLogged A set used to track once we have issued a warning for a lookup
+     *
+     */
+    private void logLenientLookup(String msg, String name, Set<String> alreadyLogged) {
+        if (alreadyLogged.contains(name)) {
+            log.debug(msg, name);
+        } else {
+            log.warn(msg + " (further messages will be log.debug)", name);
+            alreadyLogged.add(name);
         }
     }
 
