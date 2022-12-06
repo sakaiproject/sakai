@@ -48,7 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 public class Tenant extends BaseLTI implements PersistableEntity<String> {
 
 	@Id
-	@Column(name = "TENNANT_GUID", length = LENGTH_GUID, nullable = false)
+	@Column(name = "TENANT_GUID", length = LENGTH_GUID, nullable = false)
 	@GeneratedValue(generator = "uuid")
 	@GenericGenerator(name = "uuid", strategy = "uuid2")
 	private String id;

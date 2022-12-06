@@ -4,7 +4,7 @@ How LTI Roles work in Sakai
 
 The documentation for LTI Roles is at:
 
-[LTI Role Vocabilaries](https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies)
+[LTI Role Vocabularies](https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies)
 
 Sakai has a set of roles that are very flexible and user-defined.  These roles
 are generally unaware that LTI exists and so we need to define a mapping
@@ -23,7 +23,7 @@ seccurity functions.
 
 The only thing that is universal across all realms is that one (or more) roles
 is the "most powerful role" (a.k.a. the "Maintain role").  The maintain role
-an edit things change site configuration, add and remove members etc.
+can edit things, change site configuration, add and remove members, etc.
 
 Keeping it Simple
 -----------------
@@ -42,7 +42,7 @@ Some tools want to know if a "super user" / "Sakai administrator" is doing the l
 These users are more powerful than instructors so Sakai sends both the Instructor
 and Administrator roles.  This way if a tool does not want to differentiate admins
 they function like instructors.  In LTI 1.1, Sakai sends both the 'Instructor' and
-'Administrator roles so tools that want to cal identify an admin - but if a tool
+'Administrator roles so tools that want to identify an admin - but if a tool
 does not check, admins are treated as Instructors.
 
 Advanced Role Mapping
@@ -63,7 +63,7 @@ cover most common cases.
 
 The full default mappings are documented in
 [SakaiBLTIUtil.java](https://github.com/sakaiproject/sakai/blob/master/basiclti/basiclti-common/src/java/org/sakaiproject/basiclti/util/SakaiBLTIUtil.java)
-But here is a copy (may be out of date) so that we can talk about the.
+But here is a copy (may be out of date) so that we can talk about them.
 
     admin:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor,
             http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor,
@@ -191,7 +191,7 @@ Legacy Role Mapping
 
 As the LTI versions evolved over more than a decade, the role strings evolved as well.  Some
 old role strings ended up in our code and others ended up Sakai production databases in the definition
-of LTI Tools.  In order to modernise these older role strings Sakai provides a legacy role map.
+of LTI Tools.  In order to modernize these older role strings Sakai provides a legacy role map.
 
     Learner=http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;
     learner=http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;

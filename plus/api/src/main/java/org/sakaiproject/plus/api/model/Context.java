@@ -39,8 +39,8 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "PLUS_CONTEXT",
-  indexes = { @Index(columnList = "CONTEXT, TENNANT_GUID, SAKAI_SITE_ID") },
-  uniqueConstraints = { @UniqueConstraint(columnNames = { "CONTEXT", "TENNANT_GUID" }) }
+  indexes = { @Index(columnList = "CONTEXT, TENANT_GUID, SAKAI_SITE_ID") },
+  uniqueConstraints = { @UniqueConstraint(columnNames = { "CONTEXT", "TENANT_GUID" }) }
 )
 @Data
 public class Context extends BaseLTI implements PersistableEntity<String> {
@@ -56,7 +56,7 @@ public class Context extends BaseLTI implements PersistableEntity<String> {
 	private String context;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "TENNANT_GUID", nullable = false)
+	@JoinColumn(name = "TENANT_GUID", nullable = false)
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private Tenant tenant;
