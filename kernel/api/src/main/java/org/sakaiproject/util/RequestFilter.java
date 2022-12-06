@@ -493,10 +493,14 @@ public class RequestFilter implements Filter
 						}
 					} else {
 						// Pass control on to the next filter or the servlet
-						chain.doFilter(req, resp);
+						try {
+							chain.doFilter(req, resp);
 
-						// post-process response
-						postProcessResponse(s, req, resp);
+							// post-process response
+							postProcessResponse(s, req, resp);
+						} catch (Exception e) {
+							if (log.isDebugEnabled()) throw e;
+						}
 					}
 
 					// Output client cookie if requested to do so
