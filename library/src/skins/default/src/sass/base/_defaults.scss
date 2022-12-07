@@ -185,7 +185,7 @@ input[type="checkbox"]{
   &:checked{
     background-image: url(#{$skin-path}images/check.svg);
     background-size: 12px;
-    background-color: var(--button-primary-background);
+    background-color: var(--checkbox-background);
     background-repeat: no-repeat;
     background-position: 1px 1px;
   }
@@ -193,8 +193,8 @@ input[type="checkbox"]{
 input[type="radio"]{
   @include border-radius(24px);
   &:checked{
-    background: var(--button-primary-background); // fallback support
-    background: radial-gradient(circle at center, var(--button-primary-background) 0%, var(--button-primary-background) 48%, var(--sakai-background-color-1) 58%);
+    background: var(--radio-button-background); // fallback support
+    background: radial-gradient(circle at center, var(--radio-button-background) 0%, var(--radio-button-background) 48%, var(--sakai-background-color-1) 58%);
   }
 }
 

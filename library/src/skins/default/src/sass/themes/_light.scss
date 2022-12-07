@@ -239,6 +239,10 @@
     --button-primary-active-background: var(--sakai-primary-color-3);
     --button-primary-active-border-color: var(--button-primary-active-background);
     --button-primary-active-shadow: var(--elevation-4dp);
+    // actve state for radio button:
+    --radio-button-background: var(--button-primary-background);
+    // actve state for checkbox:
+    --checkbox-background: var(--button-primary-background);
 
     --instruction-color: var(--sakai-text-color-disabled);
 
