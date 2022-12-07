@@ -191,6 +191,7 @@ public class OIDCServlet extends HttpServlet {
 			PrintWriter out = null;
 			try {
 				out = response.getWriter();
+				response.setContentType("text/html");
 				out.println("<script>window.location.href=\"" + redirect + "\";</script>");
 				out.println("<p>...</p>");
 				out.print("<p><a href=\"" + redirect + "\" style=\"display: none;\" id=\"linker\">");
