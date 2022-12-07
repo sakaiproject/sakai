@@ -58,6 +58,10 @@ public class OIDCServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+
+		if (System.getProperty(SAKAI_COOKIE_PROP) != null) {
+			cookieName = System.getProperty(SAKAI_COOKIE_PROP);
+		}
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
