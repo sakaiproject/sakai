@@ -38,6 +38,7 @@ import org.tsugi.lti13.LTI13Util;
 import org.apache.commons.lang3.StringUtils;
 import org.tsugi.http.HttpUtil;
 
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -59,8 +60,8 @@ public class OIDCServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		if (System.getProperty(SAKAI_COOKIE_PROP) != null) {
-			cookieName = System.getProperty(SAKAI_COOKIE_PROP);
+		if (System.getProperty(RequestFilter.SAKAI_COOKIE_PROP) != null) {
+			cookieName = System.getProperty(RequestFilter.SAKAI_COOKIE_PROP);
 		}
 	}
 
