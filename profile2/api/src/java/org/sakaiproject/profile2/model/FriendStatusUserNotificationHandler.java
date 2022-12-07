@@ -23,8 +23,8 @@ import java.util.Optional;
 import javax.annotation.Resource;
 
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class FriendStatusBullhornHandler extends AbstractBullhornHandler {
+public class FriendStatusUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource
     private ProfileConnectionsLogic profileConnectionsLogic;
@@ -50,21 +50,21 @@ public class FriendStatusBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
         String ref = e.getResource();
         String[] pathParts = ref.split("/");
 
-        List<BullhornData> bhEvents = new ArrayList<>();
+        List<UserNotificationData> bhEvents = new ArrayList<>();
 
         // Get all the posters friends
         List<User> connections = profileConnectionsLogic.getConnectedUsersForUserInsecurely(from);
         for (User connection : connections) {
             String to = connection.getId();
             String url = profileLinkLogic.getInternalDirectUrlToUserProfile(to, from);
-            bhEvents.add(new BullhornData(from, to, "", "", url));
+            bhEvents.add(new UserNotificationData(from, to, "", "", url));
         }
 
         return Optional.of(bhEvents);

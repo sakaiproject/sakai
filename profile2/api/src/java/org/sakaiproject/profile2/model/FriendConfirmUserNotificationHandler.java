@@ -16,14 +16,16 @@
 package org.sakaiproject.profile2.model;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Resource;
 
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
+import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 import org.hibernate.SessionFactory;
@@ -36,7 +38,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class FriendIgnoreBullhornHandler extends AbstractBullhornHandler {
+public class FriendConfirmUserNotificationHandler extends AbstractUserNotificationHandler {
+
+    @Resource
+    private ProfileLinkLogic profileLinkLogic;
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
@@ -46,11 +51,11 @@ public class FriendIgnoreBullhornHandler extends AbstractBullhornHandler {
 
     @Override
     public List<String> getHandledEvents() {
-        return Arrays.asList(ProfileConstants.EVENT_FRIEND_IGNORE);
+        return Arrays.asList(ProfileConstants.EVENT_FRIEND_CONFIRM);
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
@@ -62,14 +67,15 @@ public class FriendIgnoreBullhornHandler extends AbstractBullhornHandler {
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(status -> {
 
-                    sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and fromUser = :fromUser")
-                        .setParameter("event", ProfileConstants.EVENT_FRIEND_REQUEST)
-                        .setParameter("fromUser", to).executeUpdate();
-                    return null;
-                });
+                sessionFactory.getCurrentSession().createQuery("delete UserNotification where event = :event and fromUser = :fromUser")
+                    .setParameter("event", ProfileConstants.EVENT_FRIEND_REQUEST)
+                    .setParameter("fromUser", to).executeUpdate();
+                return null;
+            });
         } catch (Exception e1) {
-            log.error("Failed to delete bullhorn request event", e1);
+            log.error("Failed to delete request notification: {}", e1.toString());
         }
-        return Optional.empty();
+        String url = profileLinkLogic.getInternalDirectUrlToUserConnections(to);
+        return Optional.of(Collections.singletonList(new UserNotificationData(from, to, "", "", url)));
     }
 }

@@ -28,9 +28,9 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.BullhornAlert;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotification;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
+public class AnnouncementsUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource
     private AnnouncementService announcementService;
@@ -77,7 +77,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
@@ -107,19 +107,19 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
                             // Grab the alerts we'll be deleting. We'll need to clear the count caches
                             // for the recipients
-                            final List<BullhornAlert> alerts
-                                = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
+                            final List<UserNotification> alerts
+                                = sessionFactory.getCurrentSession().createCriteria(UserNotification.class)
                                     .add(Restrictions.eq("event", AnnouncementService.SECURE_ANNC_ADD))
                                     .add(Restrictions.eq("ref", ref)).list();
 
 
-                            sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref = :ref")
+                            sessionFactory.getCurrentSession().createQuery("delete UserNotification where event = :event and ref = :ref")
                                 .setString("event", AnnouncementService.SECURE_ANNC_ADD)
                                 .setString("ref", ref).executeUpdate();
                         }
                     });
                 } catch (Exception e1) {
-                    log.error("Failed to delete bullhorn add announcement event", e1);
+                    log.error("Failed to delete user notification add announcement event", e1);
                 }
                 return Optional.empty();
             }
@@ -136,7 +136,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                     String title
                         = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
 
-                    List<BullhornData> bhEvents = new ArrayList<>();
+                    List<UserNotificationData> bhEvents = new ArrayList<>();
                     Set<String> usersList = new HashSet<>();
 
                     if (message.getHeader().getGroups().isEmpty()) {
@@ -152,7 +152,7 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
                     for (String  to : usersList) {
                         if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                            bhEvents.add(new BullhornData(from, to, siteId, title, url));
+                            bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
                         }
                     }
                     return Optional.of(bhEvents);

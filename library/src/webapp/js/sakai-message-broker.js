@@ -1,23 +1,40 @@
 portal = portal || {};
+portal.notifications = portal.notifications || {};
+portal.notifications.sseCallbacks = new Map();
+
+portal.notifications.debug = false;
 
 if (portal?.user?.id) {
-  portal.sseCallbacks = new Map();
 
-  portal.setupServiceWorkerListener = () => {
+  portal.notifications.setupServiceWorkerListener = () => {
+
+    if (portal.notifications.debug) console.debug("setupServiceWorkerListener");
 
     // When the worker's EventSource receives an event it will message us (the client). This
     // code looks up the matching callback and calls it.
     navigator.serviceWorker.addEventListener('message', e => {
-      portal.sseCallbacks.has(e.data.type) && portal.sseCallbacks.get(e.data.type)(e.data.data);
+
+      if (e.data.type) {
+
+        if (portal.notifications.debug) {
+          console.debug(`SSE MESSAGE RECEIVED FOR TYPE: ${e.data.type}`);
+          console.debug(e.data.data);
+        }
+
+        portal.notifications.sseCallbacks.has(e.data.type) && portal.notifications.sseCallbacks.get(e.data.type)(e.data.data);
+      }
     });
   };
 
-  portal.setupRegisterForMessages = worker => {
+  portal.notifications.setupRegisterForMessages = worker => {
 
-    portal.registerForMessages = (sakaiEvent, callback) => {
+    portal.notifications.registerForMessages = (sakaiEvent, callback) => {
 
-      portal.sseCallbacks.set(sakaiEvent, callback);
+      if (portal.notifications.debug) console.debug(`Registering callback on ${sakaiEvent} ...`);
+      portal.notifications.sseCallbacks.set(sakaiEvent, callback);
+
       // Tell the worker we want to listen for this event on the EventSource
+      if (portal.notifications.debug) console.debug(`Telling the worker we want an SSE event for ${sakaiEvent} ...`);
       worker.postMessage(sakaiEvent);
     };
   };
@@ -26,9 +43,11 @@ if (portal?.user?.id) {
    * Create a promise which will setup the service worker and message registration
    * functions before fulfilling. Consumers can wait on this promise and then register
    * the push event they want to listen for. For an example of this, checkout
-   * sakai.morpheus.bullhorns.js.
+   * sui-notifications.js in webcomponents
    */
-  portal.registerForMessagesPromise = new Promise((resolve, reject) => {
+  portal.notifications.setup = new Promise((resolve, reject) => {
+
+    if (portal.notifications.debug) console.debug("Registering worker ...");
 
     navigator.serviceWorker.register("/api/sakai-sse-service-worker.js")
       .then(registration => {
@@ -36,20 +55,37 @@ if (portal?.user?.id) {
         const worker = registration.active;
 
         if (worker) {
-          portal.setupServiceWorkerListener();
-          portal.setupRegisterForMessages(worker);
+
+          // The serivce worker is already active, setup the listener and register function.
+
+          portal.notifications.setupServiceWorkerListener();
+          portal.notifications.setupRegisterForMessages(worker);
+          if (portal.notifications.debug) console.debug("Worker registered and setup");
           resolve();
         } else {
+          if (portal.notifications.debug) console.debug("No active worker. Waiting for update ...");
+
+          // Not active. We'll listen for an update then hook things up.
+
           registration.addEventListener("updatefound", () => {
+
+            if (portal.notifications.debug) console.debug("Worker updated. Waiting for state change ...");
 
             const installingWorker = registration.installing;
 
             installingWorker.addEventListener("statechange", e => {
 
+              if (portal.notifications.debug) console.debug("Worker state changed");
+
               if (e.target.state === "activated") {
 
-                portal.setupServiceWorkerListener();
-                portal.setupRegisterForMessages(installingWorker);
+                if (portal.notifications.debug) console.debug("Worker activated. Setting up ...");
+
+                // The service worker has been updated, setup the listener and register function.
+
+                portal.notifications.setupServiceWorkerListener();
+                portal.notifications.setupRegisterForMessages(installingWorker);
+                if (portal.notifications.debug) console.debug("Worker registered and setup");
                 resolve();
               }
             });
@@ -58,16 +94,18 @@ if (portal?.user?.id) {
       })
       .catch (error => {
 
-        console.error("Failed to register my shit");
+        console.error(`Failed to register service worker ${error}`);
         reject();
       });
   });
-} else {
-  navigator.serviceWorker.register("/api/sakai-sse-service-worker.js")
-    .then(registration => {
 
-      // Logged out. Tell the worker to close the EventSource.
-      const worker = registration.active;
-      worker && worker.postMessage("close");
-    });
+  portal.notifications.setup.then(() => console.debug("Notifications setup complete"));
+} else {
+  // Logged out. Tell the worker to close the EventSource.
+  navigator.serviceWorker.register("/api/sakai-sse-service-worker.js").then(registration => {
+
+    const worker = registration.active;
+    if (portal.notifications.debug) console.debug("Logged out. Sending close event source signal to worker ...");
+    worker && worker.postMessage({ signal: "closeEventSource" });
+  });
 }

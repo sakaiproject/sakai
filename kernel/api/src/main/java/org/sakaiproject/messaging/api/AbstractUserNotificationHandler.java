@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.messaging.api.bullhornhandlers;
+package org.sakaiproject.messaging.api;
 
 import java.util.Arrays;
 
@@ -23,25 +23,25 @@ import javax.annotation.Resource;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.messaging.api.SelfRegisteringBullhornHandler;
-import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.messaging.api.SelfRegisteringUserNotificationHandler;
+import org.sakaiproject.messaging.api.UserMessagingService;
 
-public abstract class AbstractBullhornHandler implements SelfRegisteringBullhornHandler {
+public abstract class AbstractUserNotificationHandler implements SelfRegisteringUserNotificationHandler {
 
     @Resource
     protected SecurityService securityService;
 
     @Resource
-    protected MessagingService messagingService;
+    protected UserMessagingService userMessagingService;
 
     @PostConstruct
     protected void registerForEvents() {
-        messagingService.registerHandler(this);
+        userMessagingService.registerHandler(this);
     }
 
     @PreDestroy
     protected void unregisterForEvents() {
-        messagingService.unregisterHandler(this);
+        userMessagingService.unregisterHandler(this);
     }
 
     protected SecurityAdvisor unlock(final String[] functions) {

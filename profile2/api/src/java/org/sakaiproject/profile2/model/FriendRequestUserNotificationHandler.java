@@ -25,8 +25,8 @@ import javax.annotation.Resource;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class FriendRequestBullhornHandler extends AbstractBullhornHandler {
+public class FriendRequestUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource
     private ServerConfigurationService serverConfigurationService;
@@ -51,7 +51,7 @@ public class FriendRequestBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
@@ -65,7 +65,7 @@ public class FriendRequestBullhornHandler extends AbstractBullhornHandler {
             String toolId = site.getToolForCommonId("sakai.profile2").getId();
             String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
                                                                         + "/tool/" + toolId + "/connections";
-            return Optional.of(Collections.singletonList(new BullhornData(from, to, siteId, "", url)));
+            return Optional.of(Collections.singletonList(new UserNotificationData(from, to, siteId, "", url)));
         } catch (IdUnusedException idue) {
             log.error("No site for id: " + siteId);
         }

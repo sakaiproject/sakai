@@ -1538,7 +1538,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.isAfter(dateSubmitted) || dateSubmitted.isAfter(dateReturned) && submission.getDateModified().isAfter(dateSubmitted))) {
             if (submission.getGraded()) {
-                // Send a non LRS event for other listeners to handle, bullhorns for instance.
+                // Send a non LRS event for other listeners to handle, user notifications for instance.
                 Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_NONE, true);
                 eventTrackingService.post(event);
 
