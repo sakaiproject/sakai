@@ -83,7 +83,7 @@
 		#set($maxLevel = $cmLevels.size() - 1)
 		
 		#foreach ($level in $cmLevels)
-			<div class="form-group row ">
+			<div class="row">
 				
 					#set($fieldName="idField_$i")
 					<label for="id-$fieldName" class="col-sm-3 form-control-label">
@@ -169,7 +169,7 @@
 		#if ($requireAuthorizer)
 			<div id="sectionInfo" #if ($selectedCourse && !($!authGroupSet && !$!authGroupSet.isEmpty())) style="display:block;clear:both" #else style="display:none" #end>
 
-					<div class="shorttext required form-group row ">						
+					<div class="shorttext required row">
 						<label for="uniqname" class="col-sm-3 form-control-label">		
 							<span class="reqStar">*</span>						
 						   $tlang.getString("man.authoriz")
@@ -181,7 +181,7 @@
 					<p class="labelindnt">
 					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
 					</p>
-					<div class="shorttext  form-group row">
+					<div class="shorttext row">
 						<label for="additional" class="col-sm-3 form-control-label">
 							$tlang.getString("man.spec")
 						</label>

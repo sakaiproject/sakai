@@ -6,7 +6,7 @@
 <div class="portletBody">
     #if($menu)#toolbar($menu)#end
     ## header for manage tools page
-    <div class="page-header">
+    <div>
         <h1>$tlang.getString("java.edittools")</h1>
     </div>
 

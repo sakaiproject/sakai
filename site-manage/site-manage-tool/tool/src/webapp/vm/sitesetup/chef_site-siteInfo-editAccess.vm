@@ -7,7 +7,7 @@
 	#javascript("/sakai-site-manage-tool/js/jquery.asmselect.js")
 	#css("/sakai-site-manage-tool/css/jquery.asmselect.css" 'media="screen"')
 #end
-<script type="text/javascript">
+<script>
 <!-- hide from non-JS browsers
 	function checkPublish(checked)
 	{
@@ -122,13 +122,13 @@
 	function useExistingStatus(status){
 		if(status === 'Published'){
 			document.getElementById('publishStatusLabel').classList.add('alert-success');
-			document.getElementById('statusicon').className = 'fa fa-check';
+			document.getElementById('statusicon').className = 'si si-check';
 		} else if(status === 'Scheduled'){
 			document.getElementById('publishStatusLabel').classList.add('alert-info');
-			document.getElementById('statusicon').className ='fa fa-calendar-check-o';
+			document.getElementById('statusicon').className ='si si-sakai-signup';
 		} else {
 			document.getElementById('publishStatusLabel').classList.add('alert-warning');
-			document.getElementById('statusicon').className = 'fa fa-eye-slash';
+			document.getElementById('statusicon').className = 'si si-hidden';
 		}
 	}
 
@@ -146,7 +146,7 @@
 	#if($menu)#toolbar($menu)#end
 
     ##  header for manage access page
-	<div class="page-header">
+	<div>
 		#if (!$!site)
 			<h1>$tlang.getString("ediacc.other.setsitacc")</h1>
 		#else
@@ -165,7 +165,7 @@
 		#if($!site)
 			<h4>$tlang.getString("ediacc.sitsta")</h4>
 				<div class="publishStatusLabel alert" id="publishStatusLabel">
-					<span class="fa fa-calendar-check-o" id="statusicon" aria-hidden="true"></span>
+					<span class="si si-sakai-signup" id="statusicon" aria-hidden="true"></span>
 					$tlang.getString("ediacc.currently")
 					$statusLabel
 				</div>

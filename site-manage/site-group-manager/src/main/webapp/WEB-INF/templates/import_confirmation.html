@@ -5,7 +5,7 @@
   <div th:replace="fragments/common :: jQuery" />
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (import)" />
-    <div class="page-header"><h1 th:text="#{import.confirmation.header}"></h1></div>
+    <div><h1 th:text="#{import.confirmation.header}"></h1></div>
     <p th:text="#{import.confirmation.instructions}"></p>
     <div class="sak-banner-error" th:text="#{import.confirmation.error}" th:if="${membershipErrors}"></div>
     <div th:each="importedGroup : ${importedGroups}">

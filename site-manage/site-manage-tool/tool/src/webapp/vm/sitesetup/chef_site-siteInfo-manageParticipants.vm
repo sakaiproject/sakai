@@ -9,7 +9,7 @@
     #if($menu)#toolbar($menu)#end
 
     ## header for manage participants page
-    <div class="page-header">
+    <div>
         <h1>$tlang.getString("java.manageParticipants")</h1>
     </div>
     <div class="participantsHeader">
