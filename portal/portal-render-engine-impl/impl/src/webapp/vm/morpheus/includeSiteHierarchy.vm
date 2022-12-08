@@ -54,7 +54,7 @@
     
     #set($index = 0)
     #foreach( $page in $sitePages.pageNavTools )
-        #if ( $index == 0 )
+        #if ( ( $index == 0 ) && ! ${isUserSite} )
             <li class="Mrphs-hierarchy--siteName breadcrumb-item" title="${siteTitle}">
                 <a class="text-decoration-none" href="${page.pageResetUrl}">
                     <small>${siteTitleTruncated}</small>
