@@ -17,6 +17,8 @@ package org.sakaiproject.plus.tool;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
+import java.time.Instant;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,6 +36,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.context.MessageSource;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
@@ -85,6 +89,9 @@ public class MainController {
 	@Autowired
 	private PlusService plusService;
 
+	@Autowired
+	private MessageSource messageSource;
+
 	@GetMapping(value = {"/", "/index"})
 	public String pageIndex(Model model, HttpServletRequest request) {
 
@@ -116,15 +123,21 @@ public class MainController {
 		if ( ! isAdmin() ) return "notallow";
 		loadModel(model, request);
 
-		Tenant tenant = new Tenant();
-		model.addAttribute("tenant", tenant);
+		if (!model.containsAttribute("tenant")) {
+			Tenant tenant = new Tenant();
+			model.addAttribute("tenant", tenant);
+		}
+
 		model.addAttribute("doUpdate", Boolean.FALSE);
 		return "form";
 	}
 
 
 	@PostMapping("/tenant")
-	public String submitForm(@ModelAttribute("tenant") Tenant tenant) {
+	public String submitForm(@ModelAttribute("tenant") Tenant tenant, RedirectAttributes redirectAttrs) {
+
+		// TODO: Maybe not use null??
+		Locale locale = null;
 
 		String oldTenantId = tenant.getId();
 		if ( oldTenantId != null ) {
@@ -150,13 +163,31 @@ public class MainController {
 			editTenant.setOidcToken(tenant.getOidcToken());
 			editTenant.setOidcAudience(tenant.getOidcAudience());
 			editTenant.setOidcRegistrationLock(tenant.getOidcRegistrationLock());
-			tenantRepository.save(editTenant);
-			log.info("Updating Plus Tenant id={}", oldTenantId);
-
+			try {
+				tenantRepository.save(editTenant);
+				log.info("Updating Plus Tenant id={}", oldTenantId);
+			} catch(Exception e) {
+				redirectAttrs.addFlashAttribute("flashError", messageSource.getMessage("plus.tool.error.save", null, "Error saving tenant:", locale)+" "+e.getMessage());
+				log.info("Error Updating Plus Tenant id={} {}", oldTenantId, e.getMessage());
+				return "redirect:/";
+			}
 		} else {
-			tenantRepository.save(tenant);
-			log.info("Created Plus Tenant id={}", tenant.getId());
+			// Because of uniqueness constraint, put in a dummy ClientID
+			if ( StringUtils.isBlank(tenant.getClientId()) ) {
+				tenant.setClientId("TmpCID-"+Instant.now().toString());
+			}
+			try {
+				tenantRepository.save(tenant);
+				log.info("Created Plus Tenant id={}", tenant.getId());
+			} catch(Exception e) {
+				redirectAttrs.addFlashAttribute("flashError", messageSource.getMessage("plus.tool.error.save", null, "Error saving tenant:", locale)+" "+e.getMessage());
+				log.info("Error Creating Plus Tenant {}", e.getMessage());
+				redirectAttrs.addFlashAttribute("tenant", tenant);
+				return "redirect:/create";
+			}
 		}
+
+		redirectAttrs.addFlashAttribute("flashSuccess", messageSource.getMessage("plus.tool.success.saved", null, "Tenant saved", locale));
 		return "redirect:/";
 	}
 
@@ -214,9 +245,11 @@ public class MainController {
 	}
 
 	@PostMapping(value = "/delete/{tenantId}")
-	public String tenantDeletePost(Model model, @PathVariable String tenantId, HttpServletRequest request) {
-
+	public String tenantDeletePost(Model model, @PathVariable String tenantId, RedirectAttributes redirectAttrs) {
 		if ( ! isAdmin() ) return "notallow";
+
+		// TODO: Maybe not use null??
+		Locale locale = null;
 
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantId);
 		if ( ! optTenant.isPresent() ) return "notfound";
@@ -224,6 +257,7 @@ public class MainController {
 		log.info("Deleteing Plus Tenant id={}", tenantId);
 
 		tenantRepository.deleteById(tenantId);
+		redirectAttrs.addFlashAttribute("flashSuccess", messageSource.getMessage("plus.tool.success.deleted", null, "Tenant deleted", locale));
 		return "redirect:/";
 	}
 
