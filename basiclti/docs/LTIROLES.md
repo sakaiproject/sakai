@@ -18,8 +18,8 @@ and start over.
 There is also a realm called `!site.template.lti` that has a number of additional roles
 beyond a Sakai Course site that match the LTI roles.  This template is used to create
 sites in the LTI providers in Sakai.  Sinces these sites are coming from "LTI" sources
-it is good to capture these incoming LTI roles in a realm so a school can customise the
-seccurity functions.
+it is good to capture these incoming LTI roles in a realm so a school can customize the
+security functions.
 
 The only thing that is universal across all realms is that one (or more) roles
 is the "most powerful role" (a.k.a. the "Maintain role").  The maintain role

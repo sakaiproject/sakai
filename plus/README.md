@@ -168,7 +168,7 @@ up a single tool server and want it to always be in a new window.
 *Trust Email*
 
 If the Learning system that is calling SakaiPlus for this tenant sends email, you *should* trust the
-email address to avoid creating multiple user records for each user in each site. Of you mark this tenant
+email address to avoid creating multiple user records for each user in each site. If you mark this tenant
 as 'trust email', and the calling system provides the email address of the user, multiple launches from
 multiple contexts will all be linked to the same user within this Tenant in SakaiPlus.
 
