@@ -14,7 +14,7 @@
 						$tlang.getString("sitdup.dupaclanoncourse")
 					#end
 				</p>
-				<div class="form-group row">					
+				<div class="row">
 					<label for="title" class="col-sm-2 form-control-label">
 						<span class ="reqStar">*</span>
 						$tlang.getString("sitdup.sitti")
@@ -24,7 +24,7 @@
 					</div>
 				</div>
 				#if ($hasEmailArchive)
-					<div class="form-group row">
+					<div class="row">
 						<label for="emailAddress" class="col-sm-2 form-control-label">
 							<span class="reqStar">*</span>
 							$tlang.getString("multipleTools.site")
@@ -35,7 +35,7 @@
 					</div>
 				#end
 				#if ($!isAdmin)
-				    <div class="form-group row">
+				    <div class="row">
 				        <label for="newSIteId" class="col-sm-2 form-control-label">
 				            $tlang.getString("sitdup.newsitid")
 				        </label>
@@ -64,7 +64,7 @@
 				#end
 				#end
 				#if ($!isCourseSite)
-						<div class="form-group row">										
+						<div class="row">
 									<label for="selectTerm" class="col-sm-2 form-control-label">
 										<span class ="reqStar"> *</span>
 										$tlang.getString("sitetype.acater")

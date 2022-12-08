@@ -2,7 +2,7 @@
 <div class="portletBody container-fluid">
 	#if($menu)#toolbar($menu)#end
 ## header for edit class roster's editing course/section info
-	<div class="page-header">
+	<div>
 		#if (!$!site)
 			<h1>$tlang.getString("nscourse.creating")</h1>
 			<p class="step">
@@ -22,7 +22,7 @@
 	</p>
 	<form name = "addCourseForm" method="post" action="#toolForm($action)">
 		#if ($site)
-			<div class="form-group row ">				
+			<div class="row ">
 				<label for="selectTerm" class="col-sm-3 form-control-label">
 					<span class ="reqStar">*</span>
 					$tlang.getString("nscourse.acad2")
@@ -182,7 +182,7 @@
 
 		#if ($authorizationRequired)
 			#if ($termCourseList && $currentUserId != $userId)
-					<div class="shorttext required form-group row ">											
+					<div class="shorttext required row ">
 						<label for="uniqname" class="col-sm-3 form-control-label">		
 						   <span class="reqStar">*</span>	
 						   $tlang.getString("man.authoriz")
@@ -194,7 +194,7 @@
 					<p class="labelindnt">
 					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
 					</p>
-					<div class="shorttext form-group row">
+					<div class="shorttext row">
 						<label for="additional" class="col-sm-3 form-control-label">
 							$tlang.getString("man.spec")
 						</label>

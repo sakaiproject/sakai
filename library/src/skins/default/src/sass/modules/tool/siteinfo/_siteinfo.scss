@@ -91,12 +91,6 @@
 					min-width: initial !important;
 				}
 
-				.ui-datepicker-trigger {
-					position: absolute;
-					top: 0;
-					right: 0;
-				}
-
 				.day-of-week {
 					text-transform: capitalize;
 				}
@@ -109,7 +103,7 @@
 			.table-datemanager {
 				min-width: 1000px;
 			}
-			.panel-collapse > .panel-body {
+			.collapse > .card-body {
 				overflow-x: auto;
 			}
 		}

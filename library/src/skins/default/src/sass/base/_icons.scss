@@ -114,7 +114,7 @@ $fa-font-path: "./fonts";
     sakai-scorm-singlepackage-tool : bi-file-zip,
     sakai-scorm-tool : bi-file-zip,
     // other icons
-    //add-tool : bi-plus,
+    add : bi-plus,
     check : bi-check,
     //clip : bi-paperclip,
     //delete : bi-x,
@@ -149,6 +149,12 @@ $fa-font-path: "./fonts";
     liked: bi-hand-thumbs-up-fill,
     image: bi-card-image,
     flag: bi-flag-fill,
+    print: bi-printer,
+    up: bi-arrow-up,
+    down: bi-arrow-down,
+    left: bi-arrow-left,
+    right: bi-arrow-right,
+    ban: fa-ban,
   );
 
 

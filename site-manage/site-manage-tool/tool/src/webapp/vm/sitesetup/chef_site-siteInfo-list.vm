@@ -24,7 +24,7 @@
 			e.preventDefault();
 			copyToClipboardNoScroll(this, $(this).attr('href'));
 		});
-		$('#publicInfoPopover').popover();
+		(new bootstrap.Popover(document.getElementById("publicInfoPopover")));
 	});
 </script>
 
@@ -33,7 +33,7 @@
 	<div id="group-modal"></div>
 	#if($menu)#toolbar($menu)#end
 	## header for site info page
-	<div class="page-header">
+	<div>
 		<h1>$tlang.getString("sinfo.other")</h1>
 	</div>
 
@@ -228,8 +228,8 @@
 					#else
 						$tlang.getString("sitegen.siteinfolist.no")
 					#end
-					<button id="publicInfoPopover" class="info-icon" data-trigger="hover focus" data-content='$tlang.getString("ediacc.dismysit.h")' aria-label='$tlang.getString("feat.more.info")'>
-						<span class="fa fa-info-circle"></span>
+					<button id="publicInfoPopover" class="info-icon" data-bs-trigger="hover focus" data-bs-content='$tlang.getString("ediacc.dismysit.h")' aria-label='$tlang.getString("feat.more.info")'>
+						<i class="si si-info-circle"></i>
 					</button>
 				</td>
 			</tr>
@@ -372,7 +372,7 @@
 							#end
 							#if ($ujgMember)
 								#if ($ujgLocked)
-									<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
+									<span class="si si-locked" aria-hidden="true"></span>
 									<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
 								#else
 									<form name="unjoinableSectionForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
@@ -444,7 +444,7 @@
 								#end
 								#if($ujgMember)
 									#if ($ujgLocked)
-										<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
+										<span class="si si-locked" aria-hidden="true"></span>
 										<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
 									#else
 										<form name="unjoinableGroupForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
@@ -510,7 +510,7 @@
 
 							<td>
 								#if ($g.locked)
-								<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
+								<span class="si si-locked" aria-hidden="true"></span>
 								<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
 								#elseif ($g.full)
 								<span>$tlang.getString("sinfo.list.joinable.full")</span>
