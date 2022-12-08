@@ -150,7 +150,6 @@ input[type="submit"],input[type="button"],input[type="reset"] {
 }
 
 input[type="checkbox"], input[type="radio"]{
-  background-color: var(--sakai-background-color-1);
   border: 1px solid var(--sakai-text-color-1);
   color: var(--sakai-text-color-1);
   display: inline-block;
