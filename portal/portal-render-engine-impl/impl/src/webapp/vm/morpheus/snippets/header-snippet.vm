@@ -20,8 +20,12 @@
     <span class="d-none d-md-inline">View System Alert</span>
   </a>
 
-  #if (${loginTopLogin})
-    #parse("/vm/morpheus/includeLoginNav.vm")
+  #if (!${userIsLoggedIn})
+    #if (${loginTopLogin})
+      #parse("/vm/morpheus/includeLoginNav.vm")
+    #else
+      #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+    #end
   #else
     #parse("/vm/morpheus/includeAccountNav.vm")
   #end
