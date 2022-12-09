@@ -17,7 +17,6 @@ package org.sakaiproject.plus.tool;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Locale;
 import java.time.Instant;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +28,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.plus.tool.exception.MissingSessionException;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -64,6 +64,8 @@ public class MainController {
 
 	// The number of days to retain log entries
 	static int CONTEXT_LOG_EXPIRE = 14;
+
+	protected static ResourceLoader rb = new ResourceLoader("Messages");
 
 	@Resource
 	private SessionManager sessionManager;
@@ -136,9 +138,6 @@ public class MainController {
 	@PostMapping("/tenant")
 	public String submitForm(@ModelAttribute("tenant") Tenant tenant, RedirectAttributes redirectAttrs) {
 
-		// TODO: Maybe not use null??
-		Locale locale = null;
-
 		String oldTenantId = tenant.getId();
 		if ( oldTenantId != null ) {
 			Optional<Tenant> optTenant = tenantRepository.findById(oldTenantId);
@@ -167,7 +166,7 @@ public class MainController {
 				tenantRepository.save(editTenant);
 				log.info("Updating Plus Tenant id={}", oldTenantId);
 			} catch(Exception e) {
-				redirectAttrs.addFlashAttribute("flashError", messageSource.getMessage("plus.tool.error.save", null, "Error saving tenant:", locale)+" "+e.getMessage());
+				redirectAttrs.addFlashAttribute("flashError", rb.getString("plus.tool.error.save")+" "+e.getMessage());
 				log.info("Error Updating Plus Tenant id={} {}", oldTenantId, e.getMessage());
 				return "redirect:/";
 			}
@@ -180,14 +179,14 @@ public class MainController {
 				tenantRepository.save(tenant);
 				log.info("Created Plus Tenant id={}", tenant.getId());
 			} catch(Exception e) {
-				redirectAttrs.addFlashAttribute("flashError", messageSource.getMessage("plus.tool.error.save", null, "Error saving tenant:", locale)+" "+e.getMessage());
+				redirectAttrs.addFlashAttribute("flashError", rb.getString("plus.tool.error.save")+" "+e.getMessage());
 				log.info("Error Creating Plus Tenant {}", e.getMessage());
 				redirectAttrs.addFlashAttribute("tenant", tenant);
 				return "redirect:/create";
 			}
 		}
 
-		redirectAttrs.addFlashAttribute("flashSuccess", messageSource.getMessage("plus.tool.success.saved", null, "Tenant saved", locale));
+		redirectAttrs.addFlashAttribute("flashSuccess", rb.getString("plus.tool.success.saved"));
 		return "redirect:/";
 	}
 
@@ -248,16 +247,13 @@ public class MainController {
 	public String tenantDeletePost(Model model, @PathVariable String tenantId, RedirectAttributes redirectAttrs) {
 		if ( ! isAdmin() ) return "notallow";
 
-		// TODO: Maybe not use null??
-		Locale locale = null;
-
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantId);
 		if ( ! optTenant.isPresent() ) return "notfound";
 
 		log.info("Deleteing Plus Tenant id={}", tenantId);
 
 		tenantRepository.deleteById(tenantId);
-		redirectAttrs.addFlashAttribute("flashSuccess", messageSource.getMessage("plus.tool.success.deleted", null, "Tenant deleted", locale));
+		redirectAttrs.addFlashAttribute("flashSuccess", rb.getString("plus.tool.success.deleted"));
 		return "redirect:/";
 	}
 
