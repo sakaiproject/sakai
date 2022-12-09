@@ -15,11 +15,11 @@
         <p><a class="btn btn-primary" th:href="@{/create}" th:text="#{plus.tool.addtenant}">Add Tenant</a></p>
         <div th:if="${flashError}" class="alert alert-danger alert-dismissible fade show">
             <p th:text="${flashError}" >Placeholder</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" th:attr="aria-label=#{plus.tool.alert.close}"></button>
         </div>
         <div th:if="${flashSuccess}" class="alert alert-success alert-dismissible fade show">
             <p th:text="${flashSuccess}">Placeholder</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" th:attr="aria-label=#{plus.tool.alert.close}"></button>
         </div>
         <ul>
         <li th:each="tenant: ${tenants}">

@@ -13,7 +13,7 @@
         <p><a th:href="@{/}" th:text="#{plus.tool.all.tenants}" class="btn btn-secondary">All Tenants</a></p>
         <div th:if="${flashError}" class="alert alert-danger alert-dismissible fade show">
             <p th:text="${flashError}">Placeholder</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" th:attr="aria-label=#{plus.tool.alert.close}"></button>
         </div>
         <p>
         (<a href="https://github.com/sakaiproject/sakai/blob/master/plus/README.md#sakaiplus-tenants" target="_blank" th:text="#{plus.tenant.documentation.url}">SakaiPlus Tenant Documentation</a>)
