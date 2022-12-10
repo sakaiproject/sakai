@@ -53,7 +53,7 @@
 					<groupId>xml-apis</groupId>
 					<artifactId>xmlParserAPIs</artifactId>
 				</exclusion>
-            </exclusions>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.weld.servlet</groupId>
