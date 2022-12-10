@@ -1,9 +1,0 @@
-{
-    "jQuery": {
-        "name": "jQuery",
-        "description": "The jQuery core JavaScript library, used as the foundation for Infusion.",
-        "files": [
-            "./js/jquery.js"
-        ]
-    }
-}
