@@ -847,6 +847,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		String toolConfigUrl = data.getParameters().getString("toolConfigUrl");
+		if ( StringUtils.isNotBlank(toolConfigUrl) ) toolConfigUrl = toolConfigUrl.trim();
 
 		// Retrieve the tool
 		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
