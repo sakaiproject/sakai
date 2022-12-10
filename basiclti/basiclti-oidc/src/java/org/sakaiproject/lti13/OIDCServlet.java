@@ -21,8 +21,13 @@ package org.sakaiproject.lti13;
        But this also means that no work that should be in a session should be done in this servlet.
        In particular, never use ThreadLocal in this servlet.
  */
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Properties;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
+
 import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.ServletConfig;
@@ -33,9 +38,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.basiclti.ContentItem;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 import org.tsugi.lti13.LTI13Util;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.tsugi.http.HttpUtil;
 
 import org.sakaiproject.util.RequestFilter;
@@ -83,6 +94,12 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
+		// /imsoidc/lti13/resigncontentitem?forward=http://localhost:8080/...
+		if (parts.length == 4 && "resigncontentitem".equals(parts[3])) {
+			handleResignContentItemResponse(request, response);
+			return;
+		}
+
 		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
 
 		LTI13Util.return400(response, "Unrecognized GET request parts=" + parts.length + " request=" + uri);
@@ -127,9 +144,7 @@ public class OIDCServlet extends HttpServlet {
 		// /access/lti/site/477ded8b-2d67-4897-9e00-0afc4eb8ae20/content:7
 		// /access/basiclti/site/477ded8b-2d67-4897-9e00-0afc4eb8ae20/content:7
 		if (!(login_hint.startsWith(LTIService.LAUNCH_PREFIX) || login_hint.startsWith(LTIService.LAUNCH_PREFIX_LEGACY))
-				|| login_hint.contains("\"") || login_hint.contains("'")
-				|| login_hint.contains("<") || login_hint.contains(">")
-				|| login_hint.contains(" ") || login_hint.contains(";")) {
+				|| dangerousCharacters(login_hint) ) {
 			LTI13Util.return400(response, "Bad format for login_hint");
 			log.error("Bad format for login_hint");
 			return;
@@ -166,9 +181,7 @@ public class OIDCServlet extends HttpServlet {
 		}
 
 		if (!(platform_state.startsWith(LTIService.LAUNCH_PREFIX) || platform_state.startsWith(LTIService.LAUNCH_PREFIX_LEGACY))
-				|| platform_state.contains("\"") || platform_state.contains("'")
-				|| platform_state.contains("<") || platform_state.contains(">")
-				|| platform_state.contains(" ") || platform_state.contains(";")) {
+				|| dangerousCharacters(platform_state)) {
 			LTI13Util.return400(response, "Bad format for platform_state");
 			log.error("Bad format for platform_state");
 			return;
@@ -180,6 +193,15 @@ public class OIDCServlet extends HttpServlet {
 		log.debug("redirect={}", redirect);
 
 		fancyRedirect(request, response, redirect);
+	}
+
+	/**
+	 * Determine if a url contains dangerous characters
+	 */
+	private boolean dangerousCharacters(String url)
+	{
+		return ( url.contains("\"") || url.contains("'") || url.contains("<") || url.contains(">")
+				|| url.contains(" ") || url.contains(";") || url.contains("\n") );
 	}
 
 	/**
@@ -215,6 +237,142 @@ public class OIDCServlet extends HttpServlet {
 			log.error("failed redirect {}", unlikely.getMessage());
 			LTI13Util.return400(response, "Redirect failed " + unlikely.getMessage());
 
+		}
+	}
+
+	/**
+	 * Forward a GET or POST from a page that we generate so the cookie gets re-associated
+	 *
+	 * @param request
+	 * @param response
+	 */
+	private void handleResignContentItemResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String forward = (String) request.getParameter("forward");
+		forward = StringUtils.trimToNull(forward);
+
+		Long toolKey = SakaiBLTIUtil.getLongKey((String) request.getParameter("tool_id"));
+		if ( StringUtils.isBlank(forward) || toolKey == null ) {
+			LTI13Util.return400(response, "Missing forward or tool_id value");
+			log.error("Missing forward or tool_id value");
+			return;
+		}
+
+		String serverUrl = ServerConfigurationService.getServerUrl();
+		if ( ! forward.startsWith(serverUrl) ) {
+			LTI13Util.return400(response, "Must forward internally");
+			log.error("Must forward internally");
+			return;
+		}
+
+		// No tricky business
+		if ( dangerousCharacters(forward) ) {
+			LTI13Util.return400(response, "Bad format for forward");
+			log.error("Bad format for forward");
+			return;
+		}
+
+		// If this is not an LTI 1.1 message, no need to check signature and re-sign
+		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
+		if ( StringUtils.isBlank(oauth_consumer_key) ) {
+			PrintWriter out = null;
+			try {
+				out = response.getWriter();
+				response.setContentType("text/html");
+				out.print("<form method=\"post\" action=\"");
+				out.print(forward);
+				out.print("\">\n");
+
+				Map<String, String[]> parameters = request.getParameterMap();
+				for (Map.Entry<String, String[]> entry : parameters.entrySet())
+				{
+					if ( dangerousCharacters(entry.getKey()) ) continue;
+					if ( StringUtils.equals("forward", entry.getKey()) ) continue;
+					if ( StringUtils.equals("tool_id", entry.getKey()) ) continue;
+					String[] values = entry.getValue();
+					if ( values.length != 1 ) continue;
+					out.print("<input type=\"hidden\" name=\"");
+					out.print(entry.getKey());
+					out.print("\" value=\"");
+					out.print(StringEscapeUtils.escapeHtml4(values[0]));
+					out.print("\">\n");
+				}
+
+				out.print("<input type=\"submit\" style=\"display: none;\" id=\"submitbutton\" value=\"");
+				out.print(rb.getString("forward.continue"));
+				out.print("\">\n");
+				out.println("<script>setTimeout(function(){ document.getElementById('submitbutton').style.display = 'inline'}, 1000);</script>");
+			} catch (IOException e) {
+				LTI13Util.return400(response, "Forward failure "+e.getMessage());
+				log.error(e.getMessage(), e);
+			}
+			return;
+		}
+
+		// For an LTI 1.1 response, check the signature and if it passes, re-sign and forward
+		// to the new URL
+		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		Map<String, Object> tool = ltiService.getToolDao(toolKey, null, true);
+
+		if ( tool == null ) {
+			LTI13Util.return400(response, "Invalid tool_id");
+			log.error("Invalid tool_id");
+			return;
+		}
+
+		ContentItem contentItem = null;
+		try {
+			contentItem = new ContentItem(request);
+		} catch (Exception e) {
+			LTI13Util.return400(response, "Invalid content item: "+e.getMessage());
+			log.error("Invalid content item: {}", e.getMessage());
+			return;
+		}
+
+		String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+		oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+
+		String URL = SakaiBLTIUtil.getOurServletPath(request);
+
+		if (!contentItem.validate(oauth_consumer_key, oauth_secret, URL)) {
+		    log.warn("Provider failed to validate message: {}", contentItem.getErrorMessage());
+			String base_string = contentItem.getBaseString();
+			if (base_string != null) {
+				log.warn("base_string={}", base_string);
+			}
+			LTI13Util.return400(response, "Bad signature");
+			log.error("Bad signature");
+			return;
+		}
+
+		Properties ltiProps = new Properties();
+		Map<String, String[]> parameters = request.getParameterMap();
+		for (Map.Entry<String, String[]> entry : parameters.entrySet())
+		{
+			if ( dangerousCharacters(entry.getKey()) ) continue;
+			if ( StringUtils.equals("forward", entry.getKey()) ) continue;
+			if ( StringUtils.equals("tool_id", entry.getKey()) ) continue;
+			if ( entry.getKey().startsWith("oauth_") ) continue;
+			String[] values = entry.getValue();
+			if ( values.length != 1 ) continue;
+			ltiProps.setProperty(entry.getKey(), values[0]);
+		}
+
+		Map<String, String> extra = new HashMap<>();
+
+		ltiProps = BasicLTIUtil.signProperties(ltiProps, forward, "POST", oauth_consumer_key, oauth_secret, extra);
+
+		String launchtext = "Launchme";
+		boolean dodebug = true;
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, forward, launchtext, dodebug, extra);
+
+		PrintWriter out = null;
+		try {
+			out = response.getWriter();
+			response.setContentType("text/html");
+			out.print(postData);
+		} catch (IOException e) {
+			LTI13Util.return400(response, "Forward failure "+e.getMessage());
+			log.error(e.getMessage(), e);
 		}
 	}
 
