@@ -1,31 +1,3 @@
-#if (${googleAnalyticsId})
-
-    <script type="text/javascript">
-
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', '${googleAnalyticsId}']);
-        _gaq.push(['_setDomainName', '${googleAnalyticsDomain}']);
-
-        #if (${googleAnalyticsDetail})
-
-            if ( window.portal ) {
-            _gaq.push(['_setCustomVar', 1, 'eid', portal.user.eid, 1]);
-            _gaq.push(['_setCustomVar', 2, 'siteId', portal.siteId, 3]);
-            }
-
-        #end ## END of IF (${googleAnalyticsDetail})
-
-      _gaq.push(['_trackPageview']);
-
-        (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-
-    </script>
-#end ## END of IF (${googleAnalyticsId})
-
 #if (${googleUniversalAnalyticsId})
 
     <script>
@@ -40,3 +12,17 @@
     </script>
 
 #end ## END of IF (${googleUniversalAnalyticsId})
+
+#if (${googleGA4Id})
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=${googleGA4Id}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '${googleGA4Id}', {
+      'anonymize_ip': ${googleAnonymizeIp},
+      'user_id': portal.user.id
+  });
+</script>
+#end ## END of IF ($(googleGA4Id))
