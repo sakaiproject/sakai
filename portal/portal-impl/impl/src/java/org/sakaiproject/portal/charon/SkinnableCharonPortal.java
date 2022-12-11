@@ -1033,18 +1033,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("includeExtraHead",includeExtraHead);
 
 		String universalAnalyticsId =  ServerConfigurationService.getString("portal.google.universal_analytics_id", null);
+		rcontext.put("googleAnonymizeIp", ServerConfigurationService.getBoolean("portal.google.anonymize.ip", false));
+
 		if ( universalAnalyticsId != null ) {
 			rcontext.put("googleUniversalAnalyticsId", universalAnalyticsId);
-			rcontext.put("googleAnonymizeIp", ServerConfigurationService.getBoolean("portal.google.anonymize.ip", false));
 		}
 
-		String analyticsId =  ServerConfigurationService.getString("portal.google.analytics_id", null);
-		if ( analyticsId != null ) {
-			rcontext.put("googleAnalyticsId", analyticsId);
-			rcontext.put("googleAnalyticsDomain", 
-				ServerConfigurationService.getString("portal.google.analytics_domain"));
-			rcontext.put("googleAnalyticsDetail", 
-				ServerConfigurationService.getBoolean("portal.google.analytics_detail", false));
+		String googleGA4Id =  ServerConfigurationService.getString("portal.google.ga4_id", null);
+		if ( googleGA4Id != null ) {
+			rcontext.put("googleGA4Id", googleGA4Id);
 		}
 
 		//SAK-29668
