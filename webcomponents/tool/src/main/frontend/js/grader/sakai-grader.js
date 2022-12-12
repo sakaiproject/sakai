@@ -1161,6 +1161,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.modified = false;
 
+    this.savedFeedbackComment = true;
+    this.savedPvtNotes = true;
+    this.saveSucceeded = true; setTimeout(() => this.saveSucceeded = false, 2000);
+
     switch (this.gradeScale) {
       case SCORE_GRADE_TYPE: {
         const input = document.getElementById("score-grade-input");
