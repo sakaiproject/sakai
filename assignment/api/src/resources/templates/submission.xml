@@ -10,7 +10,9 @@
         ${bundle["noti.assignment.duedate"]} ${dueDate}
       &lt;/#if&gt;
 
-      ${bundle["noti.student"]} ${submitterNames} ${submitterIds}
+      &lt;#if submitterIds??&gt;
+        ${bundle["noti.student"]} ${submitterNames} ${submitterIds}
+      &lt;/#if&gt;
 
       ${bundle["submission.id"]} ${submissionId}
 
@@ -39,8 +41,10 @@ ${bundle["assignment.title"]} &lt;a href="${assignmentUrl}"&gt;${assignmentTitle
  &lt;/#if&gt;
 &lt;br&gt;
 
+&lt;#if submitterIds??&gt;
 ${bundle["noti.student"]} ${submitterNames} ${submitterIds}
 &lt;br /&gt;
+&lt;/#if&gt;
 ${bundle["noti.submit.time"]} ${submittedDate}
 &lt;br /&gt;
 
