@@ -78,20 +78,13 @@
 
             // Remove the the error class from the form fields when the user starts typing
             const formFields = document.querySelectorAll(".form-control");
-
-            for (const input of formFields) {
-                input.addEventListener("input", () => {
-                    for (const input of formFields) {
-                        input.classList.remove("is-invalid");
-                    }
-                });
-                input.addEventListener("click", () => {
-                    for (const input of formFields) {
-                        input.classList.remove("is-invalid");
-                    }
-                });
-            }
-
+            const removeInvalid = el => formFields.forEach(el => el.classList.remove("is-invalid"));
+            formFields.forEach(input => {
+            
+                input.addEventListener("input", removeInvalid, {once: true});
+                input.addEventListener("click", removeInvalid, {once: true});
+            });
+            
         </script>
 
         #set ( $d = "$")
