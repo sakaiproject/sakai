@@ -7780,6 +7780,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (!resubmitCloseTime.isAfter(openTime)) {
                     addAlert(state, rb.getString("acesubdea6"));
                 }
+                if (resubmitCloseTime.isBefore(dueTime)) {
+                	addAlert(state, rb.getString("acesubdea7"));
+                }
             }
         } else if (Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION != Assignment.SubmissionType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)]) {
 			/*
