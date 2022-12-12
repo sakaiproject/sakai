@@ -18,8 +18,8 @@
 package org.sakaiproject.lti13;
 
 /* This does not use the request filter because it needs full control of response headers.
-       But this also means that no work that should be in a session should be done in this servlet.
-       In particular, never use ThreadLocal in this servlet.
+	   But this also means that no work that should be in a session should be done in this servlet.
+	   In particular, never use ThreadLocal in this servlet.
  */
 import java.util.Map;
 import java.util.HashMap;
@@ -64,7 +64,6 @@ public class OIDCServlet extends HttpServlet {
 
 	private static ResourceLoader rb = new ResourceLoader("oidc");
 
-	// TODO: Come up with a better way to handle this in RequestFilter
 	protected String cookieName = "JSESSIONID";
 
 	@Override
@@ -100,6 +99,12 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
+		// /imsoidc/lti13/cookiecheck
+		if (parts.length == 4 && "cookiecheck".equals(parts[3])) {
+			handleCookieCheck(request, response);
+			return;
+		}
+
 		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
 
 		LTI13Util.return400(response, "Unrecognized GET request parts=" + parts.length + " request=" + uri);
@@ -125,9 +130,9 @@ public class OIDCServlet extends HttpServlet {
 		String redirect_uri = (String) request.getParameter("redirect_uri");
 		redirect_uri = StringUtils.trimToNull(redirect_uri);
 
-                String encoded_login_hint = (String) request.getParameter("login_hint");
-                byte[] valueDecoded = Base64.decodeBase64(encoded_login_hint);
-                String login_hint = new String(valueDecoded);
+		String encoded_login_hint = (String) request.getParameter("login_hint");
+		byte[] valueDecoded = Base64.decodeBase64(encoded_login_hint);
+		String login_hint = new String(valueDecoded);
 		if (StringUtils.isEmpty(login_hint)) {
 			state = null;
 		}
@@ -278,7 +283,7 @@ public class OIDCServlet extends HttpServlet {
 			try {
 				out = response.getWriter();
 				response.setContentType("text/html");
-				out.print("<form method=\"post\" action=\"");
+				out.print("<form method=\"post\" id=\"forwardform\" action=\"");
 				out.print(forward);
 				out.print("\">\n");
 
@@ -296,11 +301,8 @@ public class OIDCServlet extends HttpServlet {
 					out.print(StringEscapeUtils.escapeHtml4(values[0]));
 					out.print("\">\n");
 				}
-
-				out.print("<input type=\"submit\" style=\"display: none;\" id=\"submitbutton\" value=\"");
-				out.print(rb.getString("forward.continue"));
-				out.print("\">\n");
-				out.println("<script>setTimeout(function(){ document.getElementById('submitbutton').style.display = 'inline'}, 1000);</script>");
+				out.println("</form>");
+				doCookieCheck(out, serverUrl);
 			} catch (IOException e) {
 				LTI13Util.return400(response, "Forward failure "+e.getMessage());
 				log.error(e.getMessage(), e);
@@ -334,7 +336,7 @@ public class OIDCServlet extends HttpServlet {
 		String URL = SakaiBLTIUtil.getOurServletPath(request);
 
 		if (!contentItem.validate(oauth_consumer_key, oauth_secret, URL)) {
-		    log.warn("Provider failed to validate message: {}", contentItem.getErrorMessage());
+			log.warn("Provider failed to validate message: {}", contentItem.getErrorMessage());
 			String base_string = contentItem.getBaseString();
 			if (base_string != null) {
 				log.warn("base_string={}", base_string);
@@ -358,11 +360,14 @@ public class OIDCServlet extends HttpServlet {
 		}
 
 		Map<String, String> extra = new HashMap<>();
+		extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("oidc.continue"));
+		extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
+		extra.put(BasicLTIUtil.EXTRA_FORM_ID, "forwardform");
 
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, forward, "POST", oauth_consumer_key, oauth_secret, extra);
 
 		String launchtext = "Launchme";
-		boolean dodebug = true;
+		boolean dodebug = serverUrl.startsWith("http://localhost");
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, forward, launchtext, dodebug, extra);
 
 		PrintWriter out = null;
@@ -370,10 +375,64 @@ public class OIDCServlet extends HttpServlet {
 			out = response.getWriter();
 			response.setContentType("text/html");
 			out.print(postData);
+			doCookieCheck(out, serverUrl);
 		} catch (IOException e) {
 			LTI13Util.return400(response, "Forward failure "+e.getMessage());
 			log.error(e.getMessage(), e);
 		}
 	}
 
+	/**
+	 * Check if the request came in with a session cookie - we only return a substring so as not to reveal the actual session
+	 *
+	 * @param request
+	 * @param response
+	 */
+	private void handleCookieCheck(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		String sessionCookie = HttpUtil.getCookie(request, cookieName);
+
+		PrintWriter out = null;
+		try {
+			out = response.getWriter();
+			response.setContentType("application/json");
+			if ( StringUtils.isBlank(sessionCookie) || dangerousCharacters(sessionCookie) ) {
+				out.println("{ \"cookie_prefix\" : null }");
+			} else {
+				out.print("{ \"cookie_prefix\" : \"");
+				out.print(sessionCookie.substring(0,4));
+				out.println("\"}");
+			}
+		} catch (IOException e) {
+			LTI13Util.return400(response, "Forward failure "+e.getMessage());
+			log.error(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Add the browser code to check if we have re-established the session cookie
+	 *
+	 * @param out The current PrintWriter
+	 */
+	private void doCookieCheck(PrintWriter out, String serverUrl) {
+		out.print("<button style=\"display: none;\" id=\"submitbutton\" onclick=\"document.getElementById('forwardform').submit();return false;\">");
+		out.print(rb.getString("forward.continue"));
+		out.println("</button>");
+		out.print("<script>fetch('");
+		out.print(serverUrl);
+		out.println("/imsoidc/lti13/cookiecheck', { method: 'POST', credentials: 'same-origin' } ).then((response) => {");
+		out.println("console.log(response);");
+		out.println("return response.json();}).then((data) => {");
+		out.println("console.log(data);");
+		out.println("let cookie_prefix = data.cookie_prefix;");
+		out.println("if ( typeof cookie_prefix == 'string' && cookie_prefix.length > 1 ) {");
+		out.println("  console.log('We seem to have a session cookie in this page...');");
+		out.println("  document.getElementById('forwardform').submit();");
+		out.println("} else {");
+		out.println("   console.log('It seems as though we have no cookie, enable user action...');");
+		out.println("}");
+		out.println("});");
+		out.println("</script>");
+		out.println("<script>setTimeout(function(){ document.getElementById('submitbutton').style.display = 'inline'}, 1000);</script>");
+	}
 }
