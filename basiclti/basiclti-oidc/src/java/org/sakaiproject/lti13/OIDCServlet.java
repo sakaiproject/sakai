@@ -366,9 +366,10 @@ public class OIDCServlet extends HttpServlet {
 
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, forward, "POST", oauth_consumer_key, oauth_secret, extra);
 
-		String launchtext = "Launchme";
+		String launchtext = rb.getString("oidc.continue");
+		boolean autosubmit = false; // We will submit after checking the session cookie
 		boolean dodebug = serverUrl.startsWith("http://localhost");
-		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, forward, launchtext, dodebug, extra);
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, forward, launchtext, autosubmit, dodebug, extra);
 
 		PrintWriter out = null;
 		try {
