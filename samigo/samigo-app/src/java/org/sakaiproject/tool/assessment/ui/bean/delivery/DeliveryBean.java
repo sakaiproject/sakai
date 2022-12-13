@@ -1962,26 +1962,16 @@ public class DeliveryBean implements Serializable {
   }
 
   public boolean getShowFeedbackLink() {
-    return (getActionString() == "takeAssessment"
-            || getActionString() == "takeAssessmentViaUrl"
-            || getActionString() == "previewAssessment"
-           ) && getNavigation() != "1"
-             && getPageContents().getIsNoParts();
-  }
-
-  public boolean getShowTableOfContentLink() {
-    return (getActionString() == "takeAssessment"
-            || getActionString() == "takeAssessmentViaUrl"
-            || getActionString() == "previewAssessment"
-           ) && getNavigation() != "1";
+      return ("reviewAssessment".equals(getActionString())
+              || "takeAssessment".equals(getActionString())
+              || "takeAssessmentViaUrl".equals(getActionString())
+              || "previewAssessment".equals(getActionString())
+             ) && !"1".equals(getNavigation())
+               && getPageContents().getIsNoParts();
   }
 
   public boolean getShowReturnToAssessmentLink() {
-    return getActionString() == "reviewAssessment" && isAnonymousLogin() && isToolHidden();
-  }
-
-  public boolean showTabMenu() {
-    return getShowFeedbackLink() || getShowTableOfContentLink() || getShowReturnToAssessmentLink();
+    return "reviewAssessment".equals(getActionString()) && !isAnonymousLogin() && !isToolHidden();
   }
 
   public String checkBeforeProceed(boolean isSubmitForGrade, boolean isFromTimer, boolean isViaUrlLogin){

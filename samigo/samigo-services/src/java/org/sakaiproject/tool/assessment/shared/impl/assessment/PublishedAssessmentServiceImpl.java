@@ -481,12 +481,12 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
    * Get a map of the feedback
    * @return the map
    */
-  public Map getFeedbackHash()
+  public Map getFeedbackHash(String siteId)
   {
     try
     {
       PublishedAssessmentService service = new PublishedAssessmentService();
-      return service.getFeedbackHash();
+      return service.getFeedbackHash(siteId);
     }
     catch (Exception ex)
     {

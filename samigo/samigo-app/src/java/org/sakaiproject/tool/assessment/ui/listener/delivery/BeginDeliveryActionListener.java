@@ -62,6 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
@@ -367,7 +368,7 @@ public class BeginDeliveryActionListener implements ActionListener
     String assessmentId = ContextUtil.lookupParam("assessmentId");
     String publishedId = ContextUtil.lookupParam("publishedId");
 
-    if (assessmentId != null && publishedId != null) {
+    if (delivery.getActionMode() == DeliveryBean.REVIEW_ASSESSMENT && publishedId != null) {
       //Retrieve siteId from assessment
       String siteId = service.getPublishedAssessmentOwner(
         getPublishedAssessmentBasedOnAction(delivery.getActionMode(), delivery,

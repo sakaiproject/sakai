@@ -203,7 +203,7 @@ public class SelectActionListener implements ActionListener {
 
     boolean hasHighest;
     boolean hasMultipleSubmission;
-    Map feedbackHash = publishedAssessmentService.getFeedbackHash();
+    Map feedbackHash = publishedAssessmentService.getFeedbackHash(siteId);
     Set<Long> recentSubmittedIds = new HashSet<>();
     select.setHasAnyAssessmentRetractForEdit(false);
     for (int k = 0; k < recentSubmittedList.size(); k++) {

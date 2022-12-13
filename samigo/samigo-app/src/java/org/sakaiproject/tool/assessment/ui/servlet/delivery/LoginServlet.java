@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -148,6 +149,9 @@ public class LoginServlet
     httpSession.setMaxInactiveInterval(3600); // one hour
     PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
                         "person", req, res);
+    SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBean("select");
+    List<DeliveryBean> submittedAssessmentGradingList = new ArrayList();
+
     // we are going to use the delivery bean to flag that this access is via url
     // this is the flag that we will use in deliverAssessment.jsp to decide what
     // button to display - daisyf
@@ -246,6 +250,8 @@ public class LoginServlet
         delivery.setAccessByUrlAndAuthorized(isAuthorized);
         person.setAnonymousId(null);
       }
+      submittedAssessmentGradingList.add(delivery);
+      select.setReviewableAssessments(submittedAssessmentGradingList);
 
       log.debug("*** agentIdString: "+agentIdString);
        
