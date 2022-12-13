@@ -115,7 +115,7 @@ public class BeanDateComparator
               i2 = sdf.parse(s2);
               break;
           } catch (ParseException ex) {
-            }
+          }
         // Ignore and log only if all parsers fail
       }
     }
