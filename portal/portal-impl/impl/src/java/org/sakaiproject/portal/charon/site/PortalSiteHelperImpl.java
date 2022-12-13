@@ -445,7 +445,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				pageMap.put("resetUrl", page.getUrl().replaceFirst("page", "page-reset"));
 			}
 			pageMap.put("id", page.getId());
-			pageMap.put("icon", "si-" + toolList.get(0).getToolId().replace('.', '-'));
+
+			ToolConfiguration firstTool = toolList.get(0);
+			String icon = "si si-" + firstTool.getToolId().replace('.', '-');
+			Properties tmp = firstTool.getConfig();
+			if ( tmp != null ) {
+				String fa = tmp.getProperty("imsti.fa_icon");
+				if (StringUtils.isNotBlank(fa)) {
+					icon = "fa fa-tool-menu-icon " + collapseToVariable(fa);
+				}
+			}
+			pageMap.put("icon", icon);
 		} else {
 			pageMap.put("icon", "si-default-tool");
 		}

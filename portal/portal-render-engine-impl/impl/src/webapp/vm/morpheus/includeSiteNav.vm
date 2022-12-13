@@ -51,7 +51,7 @@
                 #else
                     #set ($pageUrl = $page.url)
                 #end
-                #pageListItem ($page.id, $page.title, $pageUrl, "si ${page.icon}", 4, $page.hidden, $page.locked)
+                #pageListItem ($page.id, $page.title, $pageUrl, "${page.icon}", 4, $page.hidden, $page.locked)
             #end
             #if ($site.subSites)
                 <li class="nav-item">
