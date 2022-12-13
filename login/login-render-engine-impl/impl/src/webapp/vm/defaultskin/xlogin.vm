@@ -25,16 +25,17 @@
                     <div class="modal-body">
 
                         #if ($notify)
-                            #set ($hasErrorsClass = "with-errors")
+                            #set ($hasErrorsClass = "is-invalid")
+                            <div class="alert alert-danger" role="alert">${notify}</div>
                         #end
 
-                        <form action="${action}"method="post" class="px-3 $!{hasErrorsClass}">
+                        <form action="${action}"method="post" class="px-3">
                             <label for="eid" class="form-label">${rloader.login_username}</label>
-                            <input id="eid" name="eid" value="${eid}" type="text"  class="form-control mb-2" autocomplete="username">
+                            <input id="eid" name="eid" value="${eid}" type="text" class="form-control mb-2 $!{hasErrorsClass}" autocomplete="username">
                             
                             <label for="pw" class="form-label">${rloader.login_password}</label>
                             <div class="input-group mb-3 password-field">
-                                <input id="pw" name="pw" value="${password}" type="password" class="form-control" autocomplete="current-password"></input>
+                                <input id="pw" name="pw" value="${password}" type="password" class="form-control $!{hasErrorsClass}" autocomplete="current-password"></input>
 
                                 <input type="checkbox" class="btn-check" id="showPw" autocomplete="off">
                                 <label class="btn btn-input-group" for="showPw">
@@ -74,6 +75,16 @@
 
             //Add an on-load listener to focus the password field
             window.addEventListener("load", () => document.querySelector("#eid")?.focus());
+
+            // Remove the the error class from the form fields when the user starts typing
+            const formFields = document.querySelectorAll(".form-control");
+            const removeInvalid = el => formFields.forEach(el => el.classList.remove("is-invalid"));
+            formFields.forEach(input => {
+            
+                input.addEventListener("input", removeInvalid, {once: true});
+                input.addEventListener("click", removeInvalid, {once: true});
+            });
+            
         </script>
 
         #set ( $d = "$")
