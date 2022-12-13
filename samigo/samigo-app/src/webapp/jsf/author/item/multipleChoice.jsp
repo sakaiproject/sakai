@@ -240,9 +240,8 @@
 
 
   <!-- 2 TEXT -->
-  
+  <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-2 form-control-label"/>
    <div class="form-group row ">
-       <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-2 form-control-label"/>
        <div class="col-md-8 row">
        <div class="col-md-12">
             <a id="multiple_show_editor" onclick="javascript:show_multiple_text(this);" href="#">

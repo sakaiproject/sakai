@@ -114,8 +114,8 @@
         <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
 
     <!-- 2 TEXT -->
+    <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>
     <div class="form-group row">
-        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <!-- WYSIWYG -->
         <div class="col-md-8">
             <h:panelGrid>

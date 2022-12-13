@@ -130,8 +130,6 @@ confirmation dialog
 	<%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
 
     <%-- 2 QUESTION TEXT --%>
-    <div class="longtext"> <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" />
-    <br/></div>
 	<div class="tier2">
 	  	<p><h:outputText value="#{authorMessages.calc_question_general_instructions1 }" /></p>
 	  	<label><h:outputText value="#{authorMessages.calc_question_instructions_label}"/></label>
@@ -225,6 +223,9 @@ confirmation dialog
 	  
 	  <!-- WYSIWYG -->
 	  	<h:panelGrid>
+			<div class="longtext"> 
+				<h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" />
+			</div>
 	   		<samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.instruction}" hasToggle="yes" mode="author">
 	     		<f:validateLength maximum="60000"/>
 	   		</samigo:wysiwyg>
