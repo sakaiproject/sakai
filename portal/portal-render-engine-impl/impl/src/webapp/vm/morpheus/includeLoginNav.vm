@@ -17,7 +17,7 @@
     </div>
     <button type="submit" class="btn btn-outline-light p-3 my-1 ">${rloader.login}</button>
 </form>
-<button id="mobileLoginBtn" class="d-sm-none btn btn-dark btn-outline-light mb-1 p-3 my-1">
+<button id="mobileLoginBtn" class="d-sm-none btn btn-dark btn-outline-light mb-1 p-3 my-1 mx-2">
     ${rloader.login}
     <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
 </button>

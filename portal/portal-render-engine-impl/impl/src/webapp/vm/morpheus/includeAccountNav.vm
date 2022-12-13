@@ -80,11 +80,11 @@ For opening help sidebar
         </span>
       </button>
     </li>
+  #end
     <li>
       <a class="sak-sysInd-account nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-accountPanel" role="button" aria-controls="sakai-accountPanel" title="Account">
         <img class="sakai-accountProfileImage rounded-circle" width="50" src="/direct/profile/${loginUserId}/image/thumb" alt="Profile image">
       </a>
       <!--button class="btn only-icon" data-bs-toggle="modal" data-bs-target="#profile-image-upload">balls</button-->
     </li>
-  #end
 </ul>
