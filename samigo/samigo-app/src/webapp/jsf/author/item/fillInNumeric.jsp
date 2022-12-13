@@ -107,9 +107,6 @@
     <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
 
     <%-- 2 QUESTION TEXT --%>
-    <div class="longtext"> 
-        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" /><br/>
-    </div>
     <div>
     <div>
             <h:outputText value="#{authorMessages.defining_answers}<br/>#{authorMessages.note_defining_answers}" escape="false"/>
@@ -132,7 +129,9 @@
                                  #{authorMessages.note_accepted_fin_3}" escape="false"/>
         </div> 
     </div><br/>
-  
+    <div class="longtext"> 
+        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" />
+    </div>
     <h:panelGrid>
         <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
             <f:validateLength maximum="60000"/>
