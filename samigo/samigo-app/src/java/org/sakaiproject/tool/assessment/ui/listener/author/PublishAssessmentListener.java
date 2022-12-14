@@ -409,7 +409,7 @@ public class PublishAssessmentListener
 	  }
 
 	  totalScoresBean.setPublishedId(pub.getPublishedAssessmentId().toString());
-	  Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER); 
+	  Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER, AgentFacade.getCurrentSiteId()); 
 	  AgentFacade agent = null;
 
 	  AgentFacade instructor = new AgentFacade();

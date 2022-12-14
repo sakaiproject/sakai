@@ -268,7 +268,10 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			String currentToolTitle = simplePageBean.getPageTitle();
 			String returnText = messageLocator.getMessage("simplepage.return").replace("{}",currentToolTitle); 
 			UIInternalLink.make(tofill, "return",  returnText, view);  
-			UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));  
+			//Do not display warning in in feedback list view
+			if (!params.getReviewAssessment()) {
+				UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));  
+			}
 
 		    int index = 0;
 		    for (SimplePageBean.PathEntry e : breadcrumbs) {
@@ -296,13 +299,16 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			view.setAddBefore(((GeneralViewParameters) params).getAddBefore());
 			view.setClearAttr(clearAttr);
 			UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view);
-			UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));
+			//Do not display warning in in feedback list view
+			if (!params.getReviewAssessment()) {
+				UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));
+			}
 		    }
 		}
 	    }
 
 	    // see if we can add a next button
-	    if (item != null && (returnView == null || returnView.equals(""))) {
+	    if (item != null && (returnView == null || returnView.equals("")) && !params.getReviewAssessment()) {
 		simplePageBean.addPrevLink(tofill, item);
 		simplePageBean.addNextLink(tofill, item);
 	    }
@@ -377,7 +383,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			source = (lessonEntity==null)?"dummy":lessonEntity.editItemSettingsUrl(simplePageBean);
 		    else if ("SETTINGS".equals(source));
 		    else
-			source = (lessonEntity==null)?"dummy":lessonEntity.getUrl();
+			source = (lessonEntity==null)?"dummy":lessonEntity.getUrl() + (params.getReviewAssessment() ? "&action=review" : "");
 
 			// Notify the Entity they are about to be launched from an item
 			lessonEntity.preShowItem(item);

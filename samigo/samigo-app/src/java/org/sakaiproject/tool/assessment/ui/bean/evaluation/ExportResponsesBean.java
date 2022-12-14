@@ -50,6 +50,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.jsf2.model.PhaseAware;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -142,7 +143,7 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 	
     private List<List<Object>> getSpreadsheetData() {
     	TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-    	Map useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_EXPORT_LISTENER);
+    	Map useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_EXPORT_LISTENER, AgentFacade.getCurrentSiteId());
     	
         HistogramListener histogramListener = new HistogramListener();
   	  	Iterator detailedStats = histogramListener.getDetailedStatisticsSpreadsheetData(assessmentId).iterator(); 

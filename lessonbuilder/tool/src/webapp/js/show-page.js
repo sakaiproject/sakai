@@ -1501,11 +1501,14 @@ $(document).ready(function () {
       var row = $(this).parent().parent().parent();
       var itemid = row.find(".current-item-id2").text();
 
-      var linkTextTag = row.find(".link-text");
-
       // If data-original-name attr is present, use that instead
-      var linkText =  linkTextTag.attr("data-original-name");
-      linkText = linkText || linkTextTag.text();
+      const copyText = (linkTextTag) => {
+        const linkText = linkTextTag.attr("data-original-name");
+        linkText = linkText || linkTextTag.text();
+      };
+
+      copyText(row.find(".link-text"));
+      copyText(row.find(".link-additional-text"));
 
       $("#name").val(linkText);
       $("#description").val(row.find(".rowdescription").text());
