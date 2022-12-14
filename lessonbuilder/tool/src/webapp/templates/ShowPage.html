@@ -72,6 +72,7 @@
   <script src="/library/editor/ckextraplugins/folder-listing/js/file-tree.js"></script>
   <script src="/library/editor/ckextraplugins/folder-listing/js/folder-listing.js"></script>
   <script src="$context/js/show-page.js"></script>
+  <script rsf:id="twitter-library" src="$context/js/twitter.js"></script>
   <script src="$context/js/announcements.js"></script>
   <script src="$context/js/commonGrading.js"></script>
   <script src="$context/js/gradingAjax.js"></script>
@@ -471,12 +472,12 @@
                     <div class="card-body">
                       <ul>
                         <li rsf:id="add-break2" class="addbreak">
-                          <a role="button" href="#" rsf:id="add-break3" class="add-break-section">
+                          <a role="button" href="#" data-bs-dismiss="modal" rsf:id="add-break3" class="add-break-section">
                             <span rsf:id="msg=simplepage.break-items"></span>
                           </a>
                         </li>
                         <li rsf:id="add-break4" class="addbreak">
-                          <a role="button" href="#" rsf:id="add-break5" class="add-break-column">
+                          <a role="button" href="#" data-bs-dismiss="modal" rsf:id="add-break5" class="add-break-column">
                             <span rsf:id="msg=simplepage.break-columns"></span>
                           </a>
                         </li>
@@ -493,19 +494,19 @@
     </div>
 
     <div class="modal fade" id="subpage-dialog" rsf:id="subpage-dialog" tabindex="-1" aria-labelledby="subpageLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="subpageLabel" rsf:id="msg=simplepage.subpage">simplepage.subpageSubpage</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="ui-widget" id="subpage-error-container">
-              <div class="sak-banner-error" id="subpage-error">
-              </div>
+      <form action="#" rsf:id="subpage-form" class="controlsPanel">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="subpageLabel" rsf:id="msg=simplepage.subpage">simplepage.subpageSubpage</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body">
+              <div class="ui-widget" id="subpage-error-container">
+                <div class="sak-banner-error" id="subpage-error">
+                </div>
+              </div>
 
-            <form action="#" rsf:id="subpage-form" class="controlsPanel">
               <input type="hidden" rsf:id="csrf7" />
               <div class="form-group">
                 <label rsf:id="subpage-label" for="subpage-title"></label>
@@ -526,16 +527,16 @@
                 <select rsf:id="subpage-btncolor" id="subpage-btncolor"></select>
               </div>
               <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before" />
-              <div class="act">
-                <input class="active" type="submit" value="Create!" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();" />
-                <a role="button" href="#" id="subpage-choose" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
-                <button class="btn-link" id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
-                <input type="submit" rsf:id="cancel-subpage" onclick="closeSubpageDialog(); return false" />
-              </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-primary" type="submit" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();"></button>
+              <button class="btn btn-secondary" type="button" id="subpage-choose" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></button>
+              <button class="btn btn-secondary" id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
+              <button class="btn btn-secondary" type="submit" data-bs-dismiss="modal" rsf:id="cancel-subpage"></button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
 
     <div id="add-multimedia-dialog" rsf:id="add-multimedia-dialog" class="modal fade" tabindex="-1" aria-labelledby="addMultimediaLabel" aria-hidden="true">
@@ -569,15 +570,15 @@
                   <input type="text" name="mm-name" rsf:id="mm-name" id="mm-name" size="30" maxlength="255" class="edit-form-input" />
                 </p>
               </div>
-              <div id="collapse-bars-parent" class="panel-group">
+              <div id="collapse-bars-parent">
                 <div class="card">
                   <div class="card text-center">
-                    <h4 class="panel-title">
+                    <h4 class="card-title">
                                 <span class="fa fa-upload"> </span>
                                 <a id="new-file-section-collapse" data-bs-toggle="collapse" href="#new-file-section" rsf:id="msg=simplepage.new_file" data-parent="#collapse-bars-parent" />
                             </h4>
                   </div>
-                  <div id="new-file-section" class="panel-collapse collapse in">
+                  <div id="new-file-section" class="collapse in">
                     <div class="card-body">
                       <p class="required">
                         <textarea id="mm-names" rsf:id="mm-names" style="display:none"></textarea>
@@ -598,12 +599,12 @@
                 </div>
                 <div id="new-url-panel" class="card">
                   <div class="card text-center">
-                    <h4 class="panel-title">
+                    <h4 class="card-title">
                                 <span class="fa fa-external-link"> </span>
                                 <a id="new-url-section-collapse" data-bs-toggle="collapse" href="#new-url-section" rsf:id="msg=simplepage.new_url" data-parent="#collapse-bars-parent" />
                             </h4>
                   </div>
-                  <div id="new-url-section" class="panel-collapse collapse">
+                  <div id="new-url-section" class="collapse">
                     <div class="card-body">
                       <p class="required mm-url-section">
                         <label id="addLink_label" rsf:id="msg=simplepage.addLink_label_add_or" for="mm-url">URL</label>
@@ -616,12 +617,12 @@
                 </div>
                 <div id="existing-resource-panel" class="card">
                   <div class="card text-center">
-                    <h4 class="panel-title">
+                    <h4 class="card-title">
                                 <span class="fa fa-folder-open"> </span>
                                 <a id="existing-resource-section-collapse" data-bs-toggle="collapse" href="#existing-resource-section" rsf:id="msg=simplepage.existing_file" data-parent="#collapse-bars-parent" />
                             </h4>
                   </div>
-                  <div id="existing-resource-section" class="panel-collapse collapse">
+                  <div id="existing-resource-section" class="collapse">
                     <div class="card-body">
                       <label id="select-resource-label" rsf:id="msg=simplepage.choose_existing_caption" for="mm-choose">resource</label>
                       <p class="required mm-resources-section" style="">
@@ -678,22 +679,22 @@
     </div>
 
     <div id="edit-item-dialog" rsf:id="edit-item-dialog" class="modal fade" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="editItemModalLabel" rsf:id="msg=simplepage.edititem_header">simplepage.edititem_header</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="ui-widget" id="edit-item-error-container">
-              <div class="sak-banner-error" id="edit-item-error">
-              </div>
+      <form action="#" rsf:id="edit-form" class="controlsPanel">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editItemModalLabel" rsf:id="msg=simplepage.edititem_header">simplepage.edititem_header</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="#" rsf:id="edit-form" class="controlsPanel">
+            <div class="modal-body">
+              <div class="ui-widget" id="edit-item-error-container">
+                <div class="sak-banner-error" id="edit-item-error">
+                </div>
+              </div>
               <input type="hidden" rsf:id="csrf8" id="csrf8" />
-              <div class="panel-group" id="accordion">
-                <div class="panel panel-default dialog-panel displayPanel">
-                  <div class="panel-heading edit-header">
+              <div id="accordion">
+                <div class="card mt-2 displayPanel">
+                  <div class="card-header edit-header">
                     <span rsf:id="msg=simplepage.display"></span>
                   </div>
                   <div class="card-body">
@@ -760,11 +761,11 @@
                 </div>
 
                 <div id="formatstuff">
-                  <div class="panel panel-default dialog-panel">
-                    <div class="panel-heading edit-header">
-                      <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.format.heading" data-bs-toggle="collapse" data-target="#formatstuffbody"></button>
+                  <div class="card mt-2">
+                    <div class="card-header edit-header">
+                      <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.format.heading" data-bs-toggle="collapse" data-bs-target="#formatstuffbody"></button>
                     </div>
-                    <div id="formatstuffbody" class="panel-collapse collapse">
+                    <div id="formatstuffbody" class="collapse">
                       <div class="card-body">
                         <span rsf:id="format-select" />
                         <input rsf:id="format-window" type="radio" name="format" value="window" id="format-window" class="format" />
@@ -787,11 +788,11 @@
                   </div>
                 </div>
 
-                <div id="stylingstuff" class="stylingstuff panel panel-default dialog-panel">
-                  <div class="edit-header panel-heading">
-                    <button type="button" rsf:id="msg=simplepage.layoutstyle" data-bs-toggle="collapse" data-target="#stylingstuffbody" class="collapsed accordionBtn"></button>
+                <div id="stylingstuff" class="stylingstuff card mt-2">
+                  <div class="edit-header card-header">
+                    <button type="button" rsf:id="msg=simplepage.layoutstyle" data-bs-toggle="collapse" data-bs-target="#stylingstuffbody" class="collapsed accordionBtn"></button>
                   </div>
-                  <div id="stylingstuffbody" class="panel-collapse collapse">
+                  <div id="stylingstuffbody" class="collapse">
                     <div class="card-body">
                       <div class="pageItem">
                         <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
@@ -822,12 +823,12 @@
 
                 <input type="hidden" rsf:id="item-id" id="item-id" />
 
-                <div rsf:id="permDiv" class="">
-                  <div id="prereqstuff" class="panel panel-default dialog-panel">
-                    <div class="panel-heading edit-header">
-                      <button type="button" rsf:id="msg=simplepage.prereqs" data-bs-toggle="collapse" data-target="#prereqstuffbody" class="collapsed accordionBtn"></button>
+                <div rsf:id="permDiv">
+                  <div id="prereqstuff" class="card mt-2">
+                    <div class="card-header edit-header">
+                      <button type="button" rsf:id="msg=simplepage.prereqs" data-bs-toggle="collapse" data-bs-target="#prereqstuffbody" class="collapsed accordionBtn"></button>
                     </div>
-                    <div id="prereqstuffbody" class="panel-collapse collapse">
+                    <div id="prereqstuffbody" class="collapse">
                       <div class="card-body">
                         <p class="checkbox">
                           <input type="checkbox" name="item-prerequisites" id="item-prerequisites" rsf:id="item-prerequisites" />
@@ -849,28 +850,28 @@
                         </select>
                         <p class="indnt3">
                           <span class="shorttext">
-                                         <input id="assignment-points" rsf:id="assignment-points" size="5" type="text"/>
-                                     </span>
+                             <input id="assignment-points" rsf:id="assignment-points" size="5" type="text"/>
+                           </span>
                           <label for="assignment-points" id="assignment-points-label"> points on the assignment</label>
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div class="panel panel-default dialog-panel">
-                    <div class="panel-heading edit-header" id="visibility-header">
-                      <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility" data-bs-toggle="collapse" data-target="#visibilitybody">
+                  <div class="card mt-2">
+                    <div class="card-header edit-header" id="visibility-header">
+                      <button type="button" class="collapsed accordionBtn" rsf:id="msg=simplepage.visibility" data-bs-toggle="collapse" data-bs-target="#visibilitybody">
                       </button>
                     </div>
-                    <div id="visibilitybody" class="panel-collapse collapse in">
+                    <div id="visibilitybody" class="collapse">
                       <div class="card-body">
                         <div class="pageItem">
                           <input type="checkbox" id="page-releasedate2" rsf:id="page-releasedate2" />
                           <label for="releaseDate2:1:date-field"><span rsf:id="msg=simplepage.page.releasedate2"></span></label>
                           <div id="releaseDiv2" style="margin-left:3em">
                             <span rsf:id="releaseDate2:" id="releaseDate2">
-                                              <span style="display:none" rsf:id="sbReleaseDate" id="sbReleaseDate"></span>
-                            <input rsf:id="release_date2" type="text" id="release_date2" />
+                              <span style="display:none" rsf:id="sbReleaseDate" id="sbReleaseDate"></span>
+                              <input rsf:id="release_date2" type="text" id="release_date2" />
                             </span>
                           </div>
                         </div>
@@ -888,27 +889,29 @@
                           <p id="select-resource-group" rsf:id="msg=simplepage.select-resource-group"></p>
                           <div rsf:id="select-group-list:">
                             <p class="checkbox">
-                              <input type="checkbox" rsf:id="select-group" /><span rsf:id="select-group-text" class="group-name"></span></p>
+                              <input type="checkbox" rsf:id="select-group" />
+                              <span rsf:id="select-group-text" class="group-name"></span>
+                            </p>
                           </div>
                         </div>
                       </div>
-
                     </div>
                   </div>
                 </div>
               </div>
-              <p class="act">
-                <input class="bold" type="submit" onclick="event.returnValue = checkEditItemForm(); return checkEditItemForm();" id="edit-item" rsf:id="edit-item" />
-                <input type="submit" rsf:id="edit-item-cancel" onclick="closeEditItemDialog(); return false" />
-                <input type="submit" class="deleteButton" rsf:id="delete-item" />
-              </p>
-            </form>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn-primary" onclick="event.returnValue = checkEditItemForm(); return checkEditItemForm();" id="edit-item" rsf:id="edit-item"></button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" rsf:id="edit-item-cancel"></button>
+              <button type="submit" class="btn btn-secondary" rsf:id="delete-item"></button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
 
     <div  id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog" class="modal fade" tabindex="-1" aria-labelledby="editMultimediaLabel" aria-hidden="true">
+      <form action="#" rsf:id="edit-multimedia-form" class="controlsPanel">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -916,11 +919,10 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form action="#" rsf:id="edit-multimedia-form" class="controlsPanel">
               <input type="hidden" rsf:id="csrf10" />
-              <div class="panel-group" id="accordion2">
+              <div id="accordion2">
                 <div class="card">
-                  <div class="panel-heading edit-header">
+                  <div class="card-header edit-header">
                     <span rsf:id="msg=simplepage.display"></span>
                   </div>
                   <div class="card-body">
@@ -961,11 +963,11 @@
                   </div>
                 </div>
 
-                <div class="panel panel-default dialog-panel">
-                  <div class="panel-heading edit-header">
-                    <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.prereqs" data-bs-toggle="collapse" data-target="#mm-prereqbody"></button>
+                <div class="panel panel-default mt-2">
+                  <div class="card-header edit-header">
+                    <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.prereqs" data-bs-toggle="collapse" data-bs-target="#mm-prereqbody"></button>
                   </div>
-                  <div class="panel-collapse collapse" id="mm-prereqbody">
+                  <div class="collapse" id="mm-prereqbody">
                     <div class="card-body">
                       <p rsf:id="multi-prerequisite-section" class="checkbox">
                         <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
@@ -975,11 +977,11 @@
                   </div>
 
                 </div>
-                <div class="panel panel-default dialog-panel">
-                  <div class="panel-heading edit-header">
-                    <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility" data-bs-toggle="collapse" data-target="#mm-visibility"></button>
+                <div class="card mt-2">
+                  <div class="card-header edit-header">
+                    <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility" data-bs-toggle="collapse" data-bs-target="#mm-visibility"></button>
                   </div>
-                  <div class="panel-collapse collapse in" id="mm-visibility">
+                  <div class="collapse in" id="mm-visibility">
                     <div class="card-body">
                       <p id="editgroups-mm" class="edit-group">
                         <a role="button" href="javascript:void(0);"><span rsf:id="msg=simplepage.edit-group"></span></a>
@@ -990,16 +992,15 @@
 
               </div>
               <input type="hidden" rsf:id="multimedia-item-id" id="multimedia-item-id" />
-
-              <div class="act">
-                <input class="active" type="submit" id="edit-multimedia-item" rsf:id="edit-multimedia-item" />
-                <input type="submit" rsf:id="edit-multimedia-cancel" onclick="closeMultimediaEditDialog(); return false" />
-                <input type="submit" class="deleteButton" rsf:id="delete-multimedia-item" />
-              </div>
-            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-primary" type="submit" id="edit-multimedia-item" rsf:id="edit-multimedia-item"></button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" rsf:id="edit-multimedia-cancel"></button>
+            <button type="submit" class="btn btn-secondary deleteButton" rsf:id="delete-multimedia-item"></button>
           </div>
         </div>
       </div>
+      </form>
     </div>
 
     <div id="movie-dialog" rsf:id="movie-dialog" class="modal fade" tabindex="-1" aria-labelledby="movieModalLabel" aria-hidden="true">
@@ -1315,20 +1316,20 @@
     </div>
 
     <div id="question-dialog" rsf:id="question-dialog" class="modal fade" tabindex="-1" aria-labelledby="questionModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="questionModalLabel" rsf:id="msg=simplepage.edit_questionlink">simplepage.edit_questionlink</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-
-            <div class="ui-widget" id="question-error-container">
-              <div class="sak-banner-error" id="question-error">
-              </div>
+      <form action="#" rsf:id="question-form" class="controlsPanel">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="questionModalLabel" rsf:id="msg=simplepage.edit_questionlink">simplepage.edit_questionlink</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body">
 
-            <form action="#" rsf:id="question-form" class="controlsPanel">
+              <div class="ui-widget" id="question-error-container">
+                <div class="sak-banner-error" id="question-error">
+                </div>
+              </div>
+
               <input type="hidden" rsf:id="csrf21" />
 
               <div class="border controlsPanel">
@@ -1420,7 +1421,7 @@
                           </tr>
                         </tbody>
                       </table>
-                      <button onclick="addMultipleChoiceAnswer(); return false;" rsf:id="msg=simplepage.addAnswer" />
+                      <button class="btn btn-secondary" onclick="addMultipleChoiceAnswer(); return false;" rsf:id="msg=simplepage.addAnswer" />
                     </fieldset>
                     <p></p>
                     <p class="checkbox">
@@ -1466,16 +1467,16 @@
               <p id="question-editgroups" class="edit-group">
                 <a role="button" href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
               </p>
-              <p class="act">
-                <input type="hidden" rsf:id="question-addBefore" id="question-addBefore" />
-                <input class="bold" type="submit" onclick="return prepareQuestionDialog();" id="update-question" rsf:id="update-question" />
-                <input type="submit" rsf:id="cancel-question" onclick="closeQuestionDialog(); return false" />
-                <input type="submit" class="deleteButton" rsf:id="delete-question-item" />
-              </p>
-            </form>
+            </div>
+            <div class="modal-footer">
+              <input type="hidden" rsf:id="question-addBefore" id="question-addBefore" />
+              <button class="btn-primary" type="submit" onclick="return prepareQuestionDialog();" id="update-question" rsf:id="update-question"></button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" rsf:id="cancel-question"></button>
+              <button type="submit" class="btn btn-secondary deleteButton" rsf:id="delete-question-item"></button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
 
     <div id="add-forum-summary-dialog" rsf:id="add-forum-summary-dialog" class="modal fade" tabindex="-1" aria-labelledby="forumSummaryLabel" aria-hidden="true">
@@ -1518,82 +1519,78 @@
     </div>
 
     <div id="column-dialog" rsf:id="column-dialog" class="modal fade" tabindex="-1" aria-labelledby="columnModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="columnModalLabel">Modal title</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form rsf:id="column-dialog-form" action="#" method="post" enctype="multipart/form-data">
-              <div class="">
-                <input type="hidden" name="columnitem" id="columnitem" />
-                <input type="hidden" name="isSection" id="isSection" />
-                <div>
-                  <div id="sectionSettings" style="display:none;">
-                    <h3><span rsf:id="msg=simplepage.section.settings"></span></h3>
-                    <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
-                    <input type="text" id="sectionTitle" />
-                    <br />
-
-                    <input type="checkbox" id="collapsible" />
-                    <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label>
-                    <br />
-
-                    <span id="defaultClosedSpan"><input type="checkbox" id="defaultClosed" />
-                <label for="defaultClosed" rsf:id="msg=simplepage.default.closed"></label></span>
-                  </div>
-
-                  <h3><span rsf:id="simplepage.column.settings"></span></h3>
-                  <input type="checkbox" id="columndouble" />
-                  <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label>
+      <form rsf:id="column-dialog-form" action="#" method="post" enctype="multipart/form-data">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="columnModalLabel" rsf:id="msg=simplepage.column.settings">simplepage.column.settings</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" name="columnitem" id="columnitem" />
+              <input type="hidden" name="isSection" id="isSection" />
+              <div>
+                <div id="sectionSettings" style="display:none;">
+                  <h3><span rsf:id="msg=simplepage.section.settings"></span></h3>
+                  <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
+                  <input type="text" id="sectionTitle" />
                   <br />
-                  <input type="checkbox" id="columnsplit" />
-                  <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label>
-
-                  <h3 id="column-styling-header" style="display:none;"><span rsf:id="msg=simplepage.column.styling"></span></h3>
-                  <h3 id="section-styling-header"><span rsf:id="msg=simplepage.section.styling"></span></h3>
-
-                  <label for="columnbackground" rsf:id="msg=simplepage.columnbackground" id="columnColorLabel" style="display:none;"></label>
-                  <label for="columnbackground" rsf:id="msg=simplepage.sectionbackground" id="sectionColorLabel"></label>
-                  <select id="columnbackground">
-                    <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
-                    <option value="ngray" id="columnnewgray"><span rsf:id="msg=simplepage.col.newgray"></span></option>
-                    <option value="nblack" id="columnnewblack"><span rsf:id="msg=simplepage.col.newblack"></span></option>
-                    <option value="nblue" id="columnnewblue"><span rsf:id="msg=simplepage.col.newblue"></span></option>
-                    <option value="nblue2" id="columnnewblue2"><span rsf:id="msg=simplepage.col.newblue2"></span></option>
-                    <option value="nred" id="columnnewred"><span rsf:id="msg=simplepage.col.newred"></span></option>
-                    <option value="nnavy" id="columnnewnavy"><span rsf:id="msg=simplepage.col.newnavy"></span></option>
-                    <option value="nnavy2" id="columnnewnavy2"><span rsf:id="msg=simplepage.col.newnavy2"></span></option>
-                    <option value="norange" id="columnneworange"><span rsf:id="msg=simplepage.col.neworange"></span></option>
-                    <option value="ngreen" id="columnnewgreen"><span rsf:id="msg=simplepage.col.newgreen"></span></option>
-                    <option value="ngold" id="columnnewgold"><span rsf:id="msg=simplepage.col.newgold"></span></option>
-                    <option value="nteal" id="columnnewteal"><span rsf:id="msg=simplepage.col.newteal"></span></option>
-                    <option value="npurple" id="columnnewpurple"><span rsf:id="msg=simplepage.col.newpurple"></span></option>
-                    <option value="gray" id="columngray"><span rsf:id="msg=simplepage.columngray">gray</span></option>
-                    <option value="red" id="columnred"><span rsf:id="msg=simplepage.columnred">red</span></option>
-                    <option value="blue" id="columnblue"><span rsf:id="msg=simplepage.columnblue">blue</span></option>
-                    <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
-                    <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
-                  </select>
+                  <input type="checkbox" id="collapsible" />
+                  <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label>
                   <br />
-
-                  <input type="checkbox" id="force-button-color" />
-                  <label for="force-button-color" rsf:id="msg=simplepage.forcebutton"></label>
-                  <br />
-
-                  <input type="checkbox" id="show-borders" />
-                  <label for="show-borders" rsf:id="msg=simplepage.layout.show.borders"></label>
+                  <span id="defaultClosedSpan">
+                    <input type="checkbox" id="defaultClosed" />
+                    <label for="defaultClosed" rsf:id="msg=simplepage.default.closed"></label>
+                  </span>
                 </div>
-                <p class="act">
-                  <input rsf:id="column-submit" class="bold" type="submit" id="column-submit" />
-                  <input rsf:id="column-cancel" type="submit" id="column-cancel" />
-                </p>
+
+                <h3><span rsf:id="simplepage.column.settings"></span></h3>
+                <input type="checkbox" id="columndouble" />
+                <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label>
+                <br />
+                <input type="checkbox" id="columnsplit" />
+                <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label>
+
+                <h3 id="column-styling-header" style="display:none;"><span rsf:id="msg=simplepage.column.styling"></span></h3>
+                <h3 id="section-styling-header"><span rsf:id="msg=simplepage.section.styling"></span></h3>
+
+                <label for="columnbackground" rsf:id="msg=simplepage.columnbackground" id="columnColorLabel" style="display:none;"></label>
+                <label for="columnbackground" rsf:id="msg=simplepage.sectionbackground" id="sectionColorLabel"></label>
+                <select id="columnbackground">
+                  <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
+                  <option value="ngray" id="columnnewgray"><span rsf:id="msg=simplepage.col.newgray"></span></option>
+                  <option value="nblack" id="columnnewblack"><span rsf:id="msg=simplepage.col.newblack"></span></option>
+                  <option value="nblue" id="columnnewblue"><span rsf:id="msg=simplepage.col.newblue"></span></option>
+                  <option value="nblue2" id="columnnewblue2"><span rsf:id="msg=simplepage.col.newblue2"></span></option>
+                  <option value="nred" id="columnnewred"><span rsf:id="msg=simplepage.col.newred"></span></option>
+                  <option value="nnavy" id="columnnewnavy"><span rsf:id="msg=simplepage.col.newnavy"></span></option>
+                  <option value="nnavy2" id="columnnewnavy2"><span rsf:id="msg=simplepage.col.newnavy2"></span></option>
+                  <option value="norange" id="columnneworange"><span rsf:id="msg=simplepage.col.neworange"></span></option>
+                  <option value="ngreen" id="columnnewgreen"><span rsf:id="msg=simplepage.col.newgreen"></span></option>
+                  <option value="ngold" id="columnnewgold"><span rsf:id="msg=simplepage.col.newgold"></span></option>
+                  <option value="nteal" id="columnnewteal"><span rsf:id="msg=simplepage.col.newteal"></span></option>
+                  <option value="npurple" id="columnnewpurple"><span rsf:id="msg=simplepage.col.newpurple"></span></option>
+                  <option value="gray" id="columngray"><span rsf:id="msg=simplepage.columngray">gray</span></option>
+                  <option value="red" id="columnred"><span rsf:id="msg=simplepage.columnred">red</span></option>
+                  <option value="blue" id="columnblue"><span rsf:id="msg=simplepage.columnblue">blue</span></option>
+                  <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
+                  <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
+                </select>
+                <br />
+                <input type="checkbox" id="force-button-color" />
+                <label for="force-button-color" rsf:id="msg=simplepage.forcebutton"></label>
+                <br />
+                <input type="checkbox" id="show-borders" />
+                <label for="show-borders" rsf:id="msg=simplepage.layout.show.borders"></label>
               </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" rsf:id="column-submit" class="btn-primary" id="column-submit"></button>
+              <button type="button" rsf:id="column-cancel" data-bs-dismiss="modal" class="btn btn-secondary" id="column-cancel"></button>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
 
     <div id="delete-confirm" class="modal fade" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -1714,20 +1711,19 @@
     </div>
 
     <div id="add-twitter-dialog" rsf:id="add-twitter-dialog" class="modal fade" tabindex="-1" aria-labelledby="editTwitterLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="editTwitterLabel">Edit Twitter</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form action="#" rsf:id="add-twitter-form" method="post" enctype="multipart/form-data" class="controlPanel">
+      <form action="#" rsf:id="add-twitter-form" method="post" enctype="multipart/form-data" class="controlPanel">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editTwitterLabel">Edit Twitter</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
               <input type="hidden" rsf:id="csrf13" />
               <input type="hidden" rsf:id="twitterEditId" id="twitterEditId" />
               <input type="hidden" rsf:id="twitter-addBefore" id="twitter-addBefore" />
               <div class="ui-widget" id="twitter-error-container">
-                <div class="sak-banner-error" id="twitter-error">
-                </div>
+                <div class="sak-banner-error" id="twitter-error"></div>
               </div>
               <div class="">
                 <p class="required">
@@ -1743,17 +1739,18 @@
                   <option rsf:id="option:"><span rsf:id="optionText"></span></option>
                 </select>
                 <br/>
-                <p class="act">
-                  <input class="bold" onclick="return confirmAddTwitterTimeline()" type="submit" id="twitter-add-item" rsf:id="twitter-add-item" />
-                  <input type="submit" rsf:id="twitter-cancel" onclick="closeTwitterDialog(); return false" />
-                  <span id="twitter-delete-span" style="display:none"><input type="submit" class="deleteButton" rsf:id="delete-twitter-item" id="delete-twitter-item" /></span>
-                  <br/>
-                </p>
               </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-primary" onclick="return confirmAddTwitterTimeline()" type="submit" id="twitter-add-item" rsf:id="twitter-add-item"></button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" rsf:id="twitter-cancel"></button>
+              <span id="twitter-delete-span" style="display:none">
+                <button type="submit" class="btn btn-secondary deleteButton" rsf:id="delete-twitter-item" id="delete-twitter-item"></button>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
 
     <div class="modal fade" id="moreDiv" rdf:id="moreDiv" tabindex="-1" aria-labelledby="moreDivLabel" aria-hidden="true">
@@ -2433,7 +2430,11 @@
               </span>
             </div>
             <span rsf:id="addbottom" class="sectionedit addbottom">
-              <button type="button add-bottom" rsf:id="addbottom2" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#addContentDiv" aria-controls="addContentDiv" aria-expanded="false">
+              <button type="button add-bottom"
+                  rsf:id="addbottom2"
+                  class="btn btn-link add-bottom"
+                  aria-controls="addContentDiv"
+                  aria-expanded="false">
                 <span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span>
               </button>
             </span>

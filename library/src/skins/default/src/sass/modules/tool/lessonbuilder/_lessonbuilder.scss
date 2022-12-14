@@ -361,15 +361,10 @@
 			}
 		}
 
-		.dialog-panel {
-			margin-top: 10px;
-
-			&.displayPanel {
-				margin-top: 0px;
-				border-bottom: 1px solid var(--sakai-border-color);
-			}
+		.displayPanel {
+			margin-top: 0px;
+			border-bottom: 1px solid var(--sakai-border-color);
 		}
-
 	}
 	/* end dialog stuff */
 
