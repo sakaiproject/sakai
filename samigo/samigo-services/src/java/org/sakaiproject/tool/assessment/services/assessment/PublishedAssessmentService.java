@@ -355,8 +355,8 @@ public class PublishedAssessmentService extends AssessmentService{
         saveOrUpdateMetaData(meta);
   }
 
-  public Map<Long, PublishedFeedback> getFeedbackHash(){
-    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getFeedbackHash();
+  public Map<Long, PublishedFeedback> getFeedbackHash(String siteId){
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getFeedbackHash(siteId);
   }
   public Map<Long, PublishedAssessmentFacade> getAllAssessmentsReleasedToAuthenticatedUsers(){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().

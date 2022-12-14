@@ -128,6 +128,10 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 		return 1;
 	}
 
+	public boolean showAdditionalLink() {
+		return false;
+	}
+
 	public boolean isUsable() {
 		if (type == TYPE_YAFT_TOPIC)
 			return true;

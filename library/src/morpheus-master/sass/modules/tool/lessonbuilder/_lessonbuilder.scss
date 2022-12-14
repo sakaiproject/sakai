@@ -24,6 +24,9 @@
 		list-style: none;
 		padding: 0 0 0 0;
 	}
+    .link-seperator::before {
+        content: ' -';
+    }
 
 	.split {
 		.mainList {

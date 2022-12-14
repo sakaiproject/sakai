@@ -1604,9 +1604,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 	}
 
-	public Map<Long, PublishedFeedback> getFeedbackHash() {
+	public Map<Long, PublishedFeedback> getFeedbackHash(String siteId) {
 		final List listAgentId = new ArrayList();
-		String siteId = AgentFacade.getCurrentSiteId();
 		listAgentId.add(siteId);
 
 		try {

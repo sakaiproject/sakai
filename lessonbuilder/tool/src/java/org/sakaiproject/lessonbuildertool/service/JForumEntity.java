@@ -141,6 +141,10 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	return 1;
     }
 
+    public boolean showAdditionalLink() {
+	return false;
+    }
+
     public boolean isUsable() {
 	if (type == TYPE_JFORUM_TOPIC)
 	    return true;

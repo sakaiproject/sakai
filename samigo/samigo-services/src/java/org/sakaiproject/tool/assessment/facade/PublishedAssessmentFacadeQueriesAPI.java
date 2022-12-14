@@ -234,7 +234,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void saveOrUpdateMetaData(PublishedMetaData meta);
 
-  public Map<Long, PublishedFeedback> getFeedbackHash();
+  public Map<Long, PublishedFeedback> getFeedbackHash(String siteId);
 
   /** this return a HashMap containing
    *  (Long publishedAssessmentId, PublishedAssessmentFacade publishedAssessment)

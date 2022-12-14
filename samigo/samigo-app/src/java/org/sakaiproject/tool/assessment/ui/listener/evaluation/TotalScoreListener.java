@@ -335,7 +335,7 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
       List scores = new ArrayList();
       List students_not_submitted= new ArrayList();
       
-      Map useridMap= bean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER);
+      Map useridMap= bean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER, AgentFacade.getCurrentSiteId());
       List agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);
       if ((scores.size()==0) && (students_not_submitted.size()==0)) 

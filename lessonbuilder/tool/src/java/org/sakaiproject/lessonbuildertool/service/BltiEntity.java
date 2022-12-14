@@ -211,6 +211,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	return 1;
     }
 
+   public boolean showAdditionalLink() {
+		return false;
+   }
+
   // hack for forums. not used for assessments, so always ok
     public boolean isUsable() {
 	return true;

@@ -61,6 +61,8 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public String topicId = "";
 	public String forumId = "";
 
+	public boolean reviewAssessment = false;
+
 	public GeneralViewParameters() {
 		super();
 	}
@@ -226,5 +228,13 @@ public class GeneralViewParameters extends SimpleViewParameters {
 
 	public void setForumId(String forumId) {
 		this.forumId = forumId;
+	}
+	
+	public boolean getReviewAssessment() {
+		return reviewAssessment;
+	}
+	
+	public void setReviewAssessment(boolean reviewAssessment) {
+		this.reviewAssessment = reviewAssessment;
 	}
 }

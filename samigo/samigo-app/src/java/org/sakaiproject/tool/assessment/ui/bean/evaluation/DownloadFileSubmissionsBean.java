@@ -40,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.DownloadFileUtil;
 import org.sakaiproject.util.ResourceLoader;
@@ -229,14 +230,14 @@ public class DownloadFileSubmissionsBean implements Serializable {
 		List<EnrollmentRecord> enrollments = null;
 		ArrayList<String> userUidList = new ArrayList<String>();
 		if (sectionUuid != null) {
-			enrollments = totalScores.getSectionEnrollments(sectionUuid);
+			enrollments = totalScores.getSectionEnrollments(sectionUuid, AgentFacade.getCurrentSiteId());
 			for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
 				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
 				userUidList.add(enr.getUser().getUserUid());
 			}
 		}
 		else {
-			enrollments = totalScores.getAvailableEnrollments(false);
+			enrollments = totalScores.getAvailableEnrollments(false, AgentFacade.getCurrentSiteId());
 			for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
 				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
 				userUidList.add(enr.getUser().getUserUid());

@@ -201,6 +201,7 @@ public class HistogramListener
   public boolean histogramScores(HistogramScoresBean histogramScores, TotalScoresBean totalScores)
   {
     	DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    	String siteId = AgentFacade.getCurrentSiteId() != null ? AgentFacade.getCurrentSiteId() : delivery.getSiteId();
     	String publishedId = totalScores.getPublishedId();
         if (publishedId.equals("0"))
         {
@@ -261,7 +262,7 @@ public class HistogramListener
 			  scores.addAll(allscores);
 		  }
 		  else {
-			  useridMap = totalScores.getUserIdMap(callerName);
+			  useridMap = totalScores.getUserIdMap(callerName, siteId);
 			  Iterator allscores_iter = allscores.iterator();
 			  while (allscores_iter.hasNext())
 			  {
@@ -363,7 +364,7 @@ public class HistogramListener
 			  }
 			  else {
 				  if (useridMap == null) {
-					  useridMap = totalScores.getUserIdMap(callerName);
+					  useridMap = totalScores.getUserIdMap(callerName, siteId);
 				  }
 
 				  for (Iterator it = itemScoresMap.entrySet().iterator(); it.hasNext();) {
