@@ -1485,7 +1485,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		return MessageFormat.format(proterty, num);
 	}
 	
-	public Boolean isShortList(int position, int partOrWait) {
+	public boolean isShortList(int position, int partOrWait) {
 		int num = 0;
 		if(partOrWait == 1) {
 			num = timeslotWrappers.get(position).getParticipants();
