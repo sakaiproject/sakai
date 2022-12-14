@@ -42,6 +42,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.task = { ...this.defaultTask};
     this.assignationType = "user";
     this.mode = "create";
+    this.optionsGroup = [];
     loadProperties("tasks").then(r => this.i18n = r);
   }
 
