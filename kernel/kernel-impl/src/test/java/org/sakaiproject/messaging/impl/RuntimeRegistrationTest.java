@@ -12,7 +12,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.ignite.EagerIgniteSpringBean;
-import org.sakaiproject.messaging.api.BullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationHandler;
 
 import java.util.Date;
 import java.util.List;
@@ -30,14 +30,14 @@ public class RuntimeRegistrationTest {
     @Mock public IgniteMessaging messaging;
     @Mock public ServerConfigurationService serverConfigurationService;
 
-    MessagingServiceImpl messagingService;
+    UserMessagingServiceImpl userMessagingService;
 
     @Before
     public void setup() {
-        messagingService = new MessagingServiceImpl();
-        messagingService.eventTrackingService = eventTrackingService;
-        messagingService.serverConfigurationService = serverConfigurationService;
-        messagingService.ignite = ignite;
+        userMessagingService = new UserMessagingServiceImpl();
+        userMessagingService.eventTrackingService = eventTrackingService;
+        userMessagingService.serverConfigurationService = serverConfigurationService;
+        userMessagingService.ignite = ignite;
         when(serverConfigurationService.getBoolean(eq("portal.bullhorns.enabled"), anyBoolean())).thenReturn(true);
         when(ignite.cluster()).thenReturn(igniteCluster);
         when(igniteCluster.forLocal()).thenReturn(clusterGroup);
@@ -47,21 +47,21 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenNoHandlers_whenInitializing_thenItStartsUp() {
         assertThatNoException().isThrownBy(() -> {
-            messagingService.init();
+            userMessagingService.init();
         });
     }
 
     @Test
     public void givenARegisteredHandler_whenMatchingEventOccurs_thenTheHandlerReceivesIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handler = mock(BullhornHandler.class);
+        userMessagingService.init();
+        UserNotificationHandler handler = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handler.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handler);
+        userMessagingService.registerHandler(handler);
         // WHEN
-        messagingService.update(noop, event);
+        userMessagingService.update(noop, event);
         // THEN
         verify(handler).handleEvent(event);
     }
@@ -69,14 +69,14 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenARegisteredHandler_whenNonMatchingEventOccurs_thenTheHandlerDoesNotReceiveIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handler = mock(BullhornHandler.class);
+        userMessagingService.init();
+        UserNotificationHandler handler = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handler.getHandledEvents()).thenReturn(List.of("other.event"));
-        messagingService.registerHandler(handler);
+        userMessagingService.registerHandler(handler);
         // WHEN
-        messagingService.update(noop, event);
+        userMessagingService.update(noop, event);
         // THEN
         verify(handler, never()).handleEvent(event);
     }
@@ -84,15 +84,15 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenAUnregisteredHandler_whenAMatchingEventOccurs_thenTheHandlerDoesNotReceiveIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handler = mock(BullhornHandler.class);
+        userMessagingService.init();
+        UserNotificationHandler handler = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handler.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handler);
-        messagingService.unregisterHandler(handler);
+        userMessagingService.registerHandler(handler);
+        userMessagingService.unregisterHandler(handler);
         // WHEN
-        messagingService.update(noop, event);
+        userMessagingService.update(noop, event);
         // THEN
         verify(handler, never()).handleEvent(event);
     }
@@ -100,17 +100,17 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenARegisteredHandler_whenWeRegisterForTheSameEvent_thenTheNewHandlerReceivesIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handlerOne = mock(BullhornHandler.class);
-        BullhornHandler handlerTwo = mock(BullhornHandler.class);
+        userMessagingService.init();
+        UserNotificationHandler handlerOne = mock(UserNotificationHandler.class);
+        UserNotificationHandler handlerTwo = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handlerOne.getHandledEvents()).thenReturn(List.of("test.event"));
         when(handlerTwo.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handlerOne);
-        messagingService.registerHandler(handlerTwo);
+        userMessagingService.registerHandler(handlerOne);
+        userMessagingService.registerHandler(handlerTwo);
         // WHEN
-        messagingService.update(noop, event);
+        userMessagingService.update(noop, event);
         // THEN
         verify(handlerTwo).handleEvent(event);
     }
@@ -120,17 +120,17 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenARegisteredHandler_whenWeRegisterForTheSameEvent_thenTheOldHandlerDoesNotReceiveIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handlerOne = mock(BullhornHandler.class);
-        BullhornHandler handlerTwo = mock(BullhornHandler.class);
+        userMessagingService.init();
+        UserNotificationHandler handlerOne = mock(UserNotificationHandler.class);
+        UserNotificationHandler handlerTwo = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handlerOne.getHandledEvents()).thenReturn(List.of("test.event"));
         when(handlerTwo.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handlerOne);
+        userMessagingService.registerHandler(handlerOne);
         // WHEN
-        messagingService.registerHandler(handlerTwo);
-        messagingService.update(noop, event);
+        userMessagingService.registerHandler(handlerTwo);
+        userMessagingService.update(noop, event);
         // THEN
         verify(handlerOne, never()).handleEvent(event);
     }
@@ -138,17 +138,17 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenADifferentHandlerIsRegisteredForAnEvent_whenWeUnregisterForThatEvent_thenTheOldHandlerStillReceivesIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handlerOne = mock(BullhornHandler.class);
-        BullhornHandler handlerTwo = mock(BullhornHandler.class);
+        userMessagingService.init();
+        UserNotificationHandler handlerOne = mock(UserNotificationHandler.class);
+        UserNotificationHandler handlerTwo = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handlerOne.getHandledEvents()).thenReturn(List.of("test.event"));
         when(handlerTwo.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handlerOne);
+        userMessagingService.registerHandler(handlerOne);
         // WHEN
-        messagingService.unregisterHandler(handlerTwo);
-        messagingService.update(noop, event);
+        userMessagingService.unregisterHandler(handlerTwo);
+        userMessagingService.update(noop, event);
         // THEN
         verify(handlerOne).handleEvent(event);
     }

@@ -33,18 +33,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "BULLHORN_ALERTS", indexes = {
-    @Index(name = "IDX_BULLHORN_ALERTS_TO_USER", columnList = "TO_USER"),
-    @Index(name = "IDX_BULLHORN_ALERTS_EVENT_REF", columnList = "EVENT, REF")
+@Table(name = "USER_NOTIFICATIONS", indexes = {
+    @Index(name = "IDX_USER_NOTIFICATIONS_TO_USER", columnList = "TO_USER"),
+    @Index(name = "IDX_USER_NOTIFICATIONS_EVENT_REF", columnList = "EVENT, REF")
 })
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class BullhornAlert {
+public class UserNotification {
 
     @Id
     @Column(name = "ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "bullhorn_alert_id_sequence")
-    @SequenceGenerator(name = "bullhorn_alert_id_sequence", sequenceName = "BULLHORN_ALERTS_S")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_notification_id_sequence")
+    @SequenceGenerator(name = "user_notification_id_sequence", sequenceName = "USER_NOTIFICATIONS_S")
     @EqualsAndHashCode.Include
     private Long id;
 

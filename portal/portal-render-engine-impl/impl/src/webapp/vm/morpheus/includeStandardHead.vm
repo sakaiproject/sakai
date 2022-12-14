@@ -60,8 +60,11 @@
                     "format" : [#foreach( $format in $mathJaxFormat )"${format}",#end]
                 },
                 toolTitles : {#foreach ($entry in $toolTitles.entrySet())"$entry.key": "$entry.value",#end},
+                notifications: { debug: $!debugNotifications },
             };
         </script>
+
+        <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
 
         #parse("/vm/morpheus/snippets/title-snippet.vm")
 
@@ -73,7 +76,6 @@
         <link href="${pageWebjarsPath}qtip2/3.0.3-1/jquery.qtip.min.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}cropper/4.1.0/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
-        <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
         <script src="/library/js/BreakpointManager.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>

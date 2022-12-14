@@ -27,13 +27,13 @@ import java.util.Optional;
 import org.sakaiproject.event.api.Event;
 
 /**
- * A handler of events for the bullhorns service. Produces <code>BullhornData</code> objects for 
- * the service to add to the bullhorn alerts table
+ * A handler of events for the user messaging service. Produces <code>UserNotificationData</code> objects for 
+ * the service to add to the user notifications table
  *
  * @author Adrian Fish <adrian.r.fish@gmail.com>
  */
-public interface BullhornHandler {
+public interface UserNotificationHandler {
 
     public List<String> getHandledEvents();
-    public Optional<List<BullhornData>> handleEvent(Event e);
+    public Optional<List<UserNotificationData>> handleEvent(Event e);
 }

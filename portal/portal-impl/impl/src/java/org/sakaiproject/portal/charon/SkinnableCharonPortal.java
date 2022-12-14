@@ -63,8 +63,8 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
-import org.sakaiproject.messaging.api.BullhornAlert;
-import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.messaging.api.UserNotification;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
@@ -178,7 +178,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private boolean enableDirect = false;
 
-	private MessagingService messagingService;
+	private UserMessagingService userMessagingService;
 
 	private PortalService portalService;
 	
@@ -1117,6 +1117,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String [] mathJaxFormat = ServerConfigurationService.getStrings("mathjax.config.format");
 		rcontext.put("mathJaxFormat", mathJaxFormat);
 
+		boolean debugNotifications = ServerConfigurationService.getBoolean("portal.notifications.debug", false);
+		rcontext.put("debugNotifications", debugNotifications);
+
 		try {
 			Site userSite = SiteService.getSite(SiteService.getUserSiteId(currentUser.getId()));
 			String preferencesToolId = ServerConfigurationService.getString("portal.preferencestool","sakai.preferences");
@@ -1811,7 +1814,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
 			rcontext.put("useBullhornAlerts", useBullhornAlerts);
-			rcontext.put("bullhornAlertCount", useBullhornAlerts ? messagingService.getAlerts(thisUser).size() : 0);
+			rcontext.put("bullhornAlertCount", useBullhornAlerts ? userMessagingService.getAlerts(thisUser).size() : 0);
 
 			String faviconURL = ServerConfigurationService.getString("portal.favicon.url");
 			rcontext.put("faviconURL", faviconURL);
@@ -2023,7 +2026,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
-		messagingService = ComponentManager.get(MessagingService.class);
+		userMessagingService = ComponentManager.get(UserMessagingService.class);
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();

@@ -30,9 +30,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.BullhornAlert;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotification;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
+public class GradeAssignmentUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource
     private AssignmentService assignmentService;
@@ -59,7 +59,7 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
         // Sometimes events are literally fired for LRS purposes. We don't want alerts for those.
         if (e.getLrsStatement() != null) {
@@ -78,13 +78,13 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
             if (submission.getGradeReleased()) {
                 Assignment assignment = submission.getAssignment();
                 String title = assignment.getTitle();
-                List<BullhornData> bhEvents = new ArrayList<>();
+                List<UserNotificationData> bhEvents = new ArrayList<>();
                 submission.getSubmitters().forEach(to -> {
 
                     TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
                     long currentCount = transactionTemplate.execute(status -> {
 
-                            return (Long) sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
+                            return (Long) sessionFactory.getCurrentSession().createCriteria(UserNotification.class)
                                 .add(Restrictions.eq("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION))
                                 .add(Restrictions.eq("ref", ref))
                                 .add(Restrictions.eq("toUser", to.getSubmitter())).setProjection(Projections.rowCount()).uniqueResult();
@@ -94,7 +94,7 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
                         try {
                             String url = assignmentService.getDeepLink(siteId, assignment.getId(), to.getSubmitter());
                             if (StringUtils.isNotBlank(url)) { 
-                                bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, url));
+                                bhEvents.add(new UserNotificationData(from, to.getSubmitter(), siteId, title, url));
                             }
                         } catch(Exception exc) {
                             log.error("Error retrieving deep link for assignment {} and user {} on site {}", assignment.getId(), to.getSubmitter(), siteId, exc);

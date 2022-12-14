@@ -54,4 +54,42 @@ public interface UserMessagingService {
      *          sending messages.
      */
     boolean importTemplateFromResourceXmlFile(String templateResource, String templateRegistrationKey);
+
+    public void listen(String topic, MessageListener listener);
+    public void send(String topic, UserNotification ba);
+
+    /**
+     * @param userId The user to retrieve alerts for
+     * @return the list of current alerts for the specified user
+     */
+    public List<UserNotification> getAlerts(String userId);
+
+    /**
+     * Register a handler for broadcast messages. The most recently registered handler that
+     * handles a given event will receive it exclusively.
+     *
+     * @param handler a broadcast message handler; may handle multiple events
+     */
+    void registerHandler(UserNotificationHandler handler);
+
+    /**
+     * Unregister a handler for broadcast messages from all of the events it handles. If a given event is
+     * handled by a different handler, it will not be unregistered.
+     *
+     * @param handler the broadcast message handler to unregister from events
+     */
+    void unregisterHandler(UserNotificationHandler handler);
+
+    /**
+     * @param userId The user to clear the alert for
+     * @param alertId The alert to clear
+     * @return boolean to indicate success
+     */
+    public boolean clearAlert(String userId, long alertId);
+
+    /**
+     * @param userId The user to clear the alerts for
+     * @return boolean to indicate success
+     */
+    public boolean clearAllAlerts(String userId);
 }

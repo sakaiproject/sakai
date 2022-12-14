@@ -26,8 +26,8 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.user.api.User;
 
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class AddLessonsCommentBullhornHandler extends AbstractBullhornHandler {
+public class AddLessonsCommentUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource(name = "org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
     private SimplePageToolDao simplePageToolDao;
@@ -47,9 +47,9 @@ public class AddLessonsCommentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
-        List<BullhornData> bhEvents = new ArrayList<>();
+        List<UserNotificationData> bhEvents = new ArrayList<>();
 
         String ref = e.getResource();
         String context = e.getContext();
@@ -70,8 +70,7 @@ public class AddLessonsCommentBullhornHandler extends AbstractBullhornHandler {
                 for (User receiver : receivers) {
                     String to = receiver.getId();
                     if (!to.equals(from)) {
-                        //doInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
-                        bhEvents.add(new BullhornData(from, to, context, "title", url));
+                        bhEvents.add(new UserNotificationData(from, to, context, "title", url));
                         done.add(to);
                     }
                 }
@@ -86,8 +85,7 @@ public class AddLessonsCommentBullhornHandler extends AbstractBullhornHandler {
                     for (SimplePageComment c : comments) {
                         String to = c.getAuthor();
                         if (!to.equals(from) && !done.contains(to)) {
-                            //doInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
-                            bhEvents.add(new BullhornData(from, to, context, "title", url));
+                            bhEvents.add(new UserNotificationData(from, to, context, "title", url));
                             done.add(to);
                         }
                     }

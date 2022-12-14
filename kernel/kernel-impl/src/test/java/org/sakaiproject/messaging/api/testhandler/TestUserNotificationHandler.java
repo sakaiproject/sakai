@@ -20,19 +20,19 @@ import java.util.List;
 import java.util.Optional;
 
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.BullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.UserNotificationHandler;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public class TestBullhornHandler implements BullhornHandler {
+public class TestUserNotificationHandler implements UserNotificationHandler {
 
     public List<String> getHandledEvents() {
         return Collections.EMPTY_LIST;
     }
 
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
         return null;
     }
 }

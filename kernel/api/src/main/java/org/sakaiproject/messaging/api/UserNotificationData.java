@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor @Getter
-public class BullhornData {
+public class UserNotificationData {
 
     private String from;
     private String to;

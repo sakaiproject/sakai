@@ -6,15 +6,15 @@
 ${bundle["noti.site.title"]} ${siteTitle}
 ${bundle["noti.site.url"]} ${siteUrl}
 
-${bundle["noti.releasegrade.text"]?replace("{0}", assignmentTitle)?replace("{1}", assignmentUrl)}
+${bundle["noti.releasegrade.text"]?replace("{0}", title)?replace("{1}", url)}
     </message>
     <messagehtml>
 ${bundle["noti.site.title"]} &lt;a href="${siteUrl}"&gt;${siteTitle}&lt;/a&gt;
 &lt;br /&gt;
 &lt;br /&gt;
-${bundle["noti.releasegrade.text"]?replace("{0}", assignmentTitle)} &lt;a href="${assignmentUrl}"&gt;${bundle["noti.here"]}&lt;/a&gt;
+${bundle["noti.releasegrade.text"]?replace("{0}", title)} &lt;a href="${url}"&gt;${bundle["noti.here"]}&lt;/a&gt;
     </messagehtml>
-    <version>1</version>
+    <version>2</version>
     <owner>admin</owner>
     <key>sakai.assignment.grades.releasegrade</key>
     <locale></locale>
