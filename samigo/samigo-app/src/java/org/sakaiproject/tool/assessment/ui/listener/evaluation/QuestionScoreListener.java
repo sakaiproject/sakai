@@ -334,7 +334,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 			// now we need filter by sections selected
 			List scores = new ArrayList(); // filtered list
-			Map useridMap = totalBean.getUserIdMap(TotalScoresBean.CALLED_FROM_QUESTION_SCORE_LISTENER);
+			Map useridMap = totalBean.getUserIdMap(TotalScoresBean.CALLED_FROM_QUESTION_SCORE_LISTENER, AgentFacade.getCurrentSiteId());
 			bean.setUserIdMap(useridMap);
 			log.debug("questionScores(): useridMap.size = " + useridMap.size());
 

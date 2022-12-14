@@ -52,6 +52,8 @@ public class SelectAssessmentBean implements Serializable {
 	private Boolean warnUserOfModification;
 	private boolean hasAnyAssessmentRetractForEdit = false;  // this is used to display the message on the bottom if there is any assessment retracted for edit.
 	private String displayAllAssessments = "2"; // display all
+	private String reviewAssessmentId;
+	private String reviewAssessmentTitle;
 	private boolean hasAverageMultipleSubmissions=false;
 	private String secureDeliveryHTMLFragments;
 	private static final ServerConfigurationService serverConfigurationService= (ServerConfigurationService) ComponentManager.get( ServerConfigurationService.class );
@@ -280,6 +282,22 @@ public class SelectAssessmentBean implements Serializable {
 
 	public void setDisplayAllAssessments(String displayAllAssessments) {
 		this.displayAllAssessments = displayAllAssessments;
+	}
+
+	public String getReviewAssessmentId() {
+		return reviewAssessmentId;
+	}
+
+	public void setReviewAssessmentId(String reviewAssessmentId) {
+		this.reviewAssessmentId = reviewAssessmentId;
+	}
+
+	public String getReviewAssessmentTitle() {
+		return reviewAssessmentTitle;
+	}
+
+	public void setReviewAssessmentTitle(String reviewAssessmentTitle) {
+		this.reviewAssessmentTitle = reviewAssessmentTitle;
 	}
 
 	/**

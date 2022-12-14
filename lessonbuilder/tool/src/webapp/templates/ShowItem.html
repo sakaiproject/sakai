@@ -79,7 +79,8 @@ $(function() {
 	       // inline, resource mode
 	       $(".Mrphs-siteHierarchy").append($(".title .crumb-item a,.title .crumb-item span").slice(1));
 	       // with title at the top, don't need a header for resources
-               if ($(".returnwarning").size() === 0) {
+	       // don't do this to samigo view
+               if ($(".returnwarning, iframe[src*='samigo-app'").size() === 0) {
                    $(".itemHeader").addClass("itemHeader-resource");
 	           $(".title span").text('');
                } else { // for tests, etc need the return warning, but kill the title

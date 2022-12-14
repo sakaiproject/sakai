@@ -3749,6 +3749,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				params.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", params);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+
+				if (lessonEntity.showAdditionalLink()){
+					UIOutput.make(container, "link-seperator", "");
+					GeneralViewParameters reviewParams = (GeneralViewParameters) params.copy();
+					reviewParams.setReviewAssessment(true);
+					UIInternalLink.make(container, "link-additional", reviewParams)
+						.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				}
+
 				if (! available)
 				    fakeDisableLink(link, messageLocator);
 			} else {
@@ -3776,6 +3785,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+
+				if (lessonEntity.showAdditionalLink()) {
+					UIOutput.make(container, "link-seperator", "");
+					GeneralViewParameters reviewParams = (GeneralViewParameters) view.copy();
+					reviewParams.setReviewAssessment(true);
+					UIInternalLink.make(container, "link-additional", reviewParams)
+						.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				}
+
 				if (! available)
 				    fakeDisableLink(link, messageLocator);
 			} else {
@@ -3933,11 +3951,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		} else {
 			String linkText = i.getName();
-			if (i.getType() == SimplePageItem.ASSIGNMENT) {
-				linkText = getLinkText(linkText, i.getSakaiId());
+			String linkAdditionalText = "";
+			LessonEntity lessonEntity = null;
+			switch (i.getType()) {
+				case SimplePageItem.ASSIGNMENT:
+					linkText = getLinkText(linkText, i.getSakaiId());
+				case SimplePageItem.ASSESSMENT:
+					lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
+					linkAdditionalText = messageLocator.getMessage("simplepage.assignment.review_submissions");
+				default:
+					UIOutput.make(container, ID + "-text", linkText)
+						.decorate(new UIFreeAttributeDecorator("data-original-name", i.getName()));
+
+					if (lessonEntity != null && lessonEntity.showAdditionalLink()) {
+						UIOutput.make(container, ID + "-additional-text", linkAdditionalText)
+							.decorate(new UIFreeAttributeDecorator("data-original-name", linkAdditionalText));
+					}
+					break;
 			}
-			UIOutput.make(container, ID + "-text", linkText).decorate
-				(new UIFreeAttributeDecorator("data-original-name", i.getName()));
+
 		}
 
 		if (note != null) {

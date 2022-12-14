@@ -90,7 +90,7 @@ public interface PublishedAssessmentServiceAPI {
 
   public void saveOrUpdateMetaData(ItemMetaDataIfc meta);
 
-  public Map getFeedbackHash();
+  public Map getFeedbackHash(String siteId);
 
   public Map getAllAssessmentsReleasedToAuthenticatedUsers();
 
