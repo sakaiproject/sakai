@@ -6,7 +6,7 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this notifications panel"></button>
   </div>
   <div class="offcanvas-body">
-    <sui-notifications url="/direct/portal/bullhornAlerts.json"></sui-notifications>
+    <sui-notifications url="/direct/portal/notifications.json"></sui-notifications>
   </div>
 </aside>
 #end

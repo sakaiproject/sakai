@@ -27,8 +27,8 @@ import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
+public class CommonsCommentUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource
     private CommonsManager commonsManager;
@@ -55,7 +55,7 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
         String commentCreator = e.getUserId();
 
@@ -88,11 +88,11 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
                 return Optional.empty();
             }
 
-            List<BullhornData> bhEvents = new ArrayList<>();
+            List<UserNotificationData> bhEvents = new ArrayList<>();
 
             // First, send an alert to the post author
             if (!commentCreator.equals(postCreator)) {
-                bhEvents.add(new BullhornData(commentCreator, postCreator, siteId, siteTitle, url));
+                bhEvents.add(new UserNotificationData(commentCreator, postCreator, siteId, siteTitle, url));
             }
 
             List<String> sentAlready = new ArrayList<>();
@@ -108,7 +108,7 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
                 }
 
                 if (!sentAlready.contains(to)) {
-                    bhEvents.add(new BullhornData(commentCreator, to, siteId, siteTitle, url));
+                    bhEvents.add(new UserNotificationData(commentCreator, to, siteId, siteTitle, url));
                     sentAlready.add(to);
                 }
             }

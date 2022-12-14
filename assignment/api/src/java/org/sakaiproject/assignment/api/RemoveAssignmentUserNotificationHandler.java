@@ -25,8 +25,8 @@ import javax.annotation.Resource;
 import org.hibernate.SessionFactory;
 import org.hibernate.type.StringType;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
+public class RemoveAssignmentUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
@@ -49,7 +49,7 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
         List<String> users = new ArrayList<>();
 
@@ -58,30 +58,30 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
         String[] pathParts = ref.split("/");
         String assignmentId = pathParts[pathParts.length - 1];
         try {
-            users = sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref = :ref")
+            users = sessionFactory.getCurrentSession().createQuery("select toUser from UserNotification where event = :event and ref = :ref")
                     .setParameter("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT, StringType.INSTANCE)
                     .setParameter("ref", ref, StringType.INSTANCE).list();
             // every graded user has probably received the addition event too, but it might have been added after creation
-            users.addAll(sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref like :ref")
+            users.addAll(sessionFactory.getCurrentSession().createQuery("select toUser from UserNotification where event = :event and ref like :ref")
                 .setParameter("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, StringType.INSTANCE)
                 .setParameter("ref", ref.replace("/a/","/s/")+"%").list());
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(status -> {
 
-                    sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref = :ref")
+                    sessionFactory.getCurrentSession().createQuery("delete UserNotification where event = :event and ref = :ref")
                         .setParameter("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT, StringType.INSTANCE)
                         .setParameter("ref", ref, StringType.INSTANCE).executeUpdate();
                     return null;
                 });
             transactionTemplate.execute(status -> {
 
-                    sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref like :ref")
+                    sessionFactory.getCurrentSession().createQuery("delete UserNotification where event = :event and ref like :ref")
                         .setParameter("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, StringType.INSTANCE)
                         .setParameter("ref", ref.replace("/a/","/s/")+"%", StringType.INSTANCE).executeUpdate();
                     return null;
                 });
         } catch (Exception e1) {
-            log.error("Failed to delete bullhorn request event", e1);
+            log.error("Failed to delete user notification request event", e1);
         }
 
         return Optional.empty();

@@ -16,7 +16,7 @@ package org.sakaiproject.webapi.controllers;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -58,7 +58,7 @@ public class EventsController extends AbstractSakaiApiController {
 	private UserDirectoryService userDirectoryService;
 
     @Resource
-    private MessagingService messagingService;
+    private UserMessagingService userMessagingService;
 
     @GetMapping("/users/{userId}/events")
     public ResponseEntity<Flux<ServerSentEvent<String>>> streamEvents() {
@@ -77,7 +77,7 @@ public class EventsController extends AbstractSakaiApiController {
         return ResponseEntity.ok().header("X-Accel-Buffering", "no")
                 .body(Flux.merge(ping, Flux.<ServerSentEvent<String>>create(emitter -> {
 
-                    messagingService.listen("USER#" + session.getUserId(), message -> {
+                    userMessagingService.listen("USER#" + session.getUserId(), message -> {
 
                         String event = "notifications";
 
@@ -91,7 +91,7 @@ public class EventsController extends AbstractSakaiApiController {
                         }
                     });
 
-                    messagingService.listen("GENERAL", message -> {
+                    userMessagingService.listen("GENERAL", message -> {
 
                         try {
                             emitter.next(ServerSentEvent.<String> builder()

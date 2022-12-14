@@ -14,7 +14,7 @@ class SuiNotifications extends SakaiElement {
     this.announcementNotifications = [];
     this.assignmentsNotifications = [];
 
-    this.loadTranslations("sui-notifications").then(i18n => this.i18n = i18n);
+    this.loadTranslations("sui-notifications").then(i18n => { this.i18n = i18n; this.requestUpdate(); });
   }
 
   static get properties() {
@@ -59,9 +59,9 @@ class SuiNotifications extends SakaiElement {
 
   registerForNotifications() {
 
-    portal.registerForMessagesPromise.then(() => {
+    portal.notifications.setup.then(() => {
 
-      portal.registerForMessages("notifications", message => {
+      portal.notifications.registerForMessages("notifications", message => {
 
         this.alerts.push(message);
         this.fireLoadedEvent();
@@ -95,7 +95,7 @@ class SuiNotifications extends SakaiElement {
 
     const notificationId = e.target.dataset.notificationId;
 
-    fetch(`/direct/portal/clearBullhornAlert?id=${notificationId}`, { cache: "no-store", credentials: "include" })
+    fetch(`/direct/portal/clearNotification?id=${notificationId}`, { cache: "no-store", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
@@ -104,14 +104,14 @@ class SuiNotifications extends SakaiElement {
           this.fireLoadedEvent();
           this.filterIntoToolNotifications();
         } else {
-          console.error(`Failed to clear bullhorn alert with id ${notificationId}`);
+          console.error(`Failed to clear notification with id ${notificationId}`);
         }
       });
   }
 
   clearAllNotifications() {
 
-    fetch("/direct/portal/clearAllBullhornAlerts", { cache: "no-store", credentials: "include" })
+    fetch("/direct/portal/clearAllNotifications", { cache: "no-store", credentials: "include" })
       .then(r => {
 
         if (r.ok) {
@@ -119,7 +119,7 @@ class SuiNotifications extends SakaiElement {
           this.fireLoadedEvent();
           this.filterIntoToolNotifications();
         } else {
-          console.error("Failed to clear all bullhorn alerts");
+          console.error("Failed to clear all notifications");
         }
       });
   }
@@ -164,6 +164,10 @@ class SuiNotifications extends SakaiElement {
         </div>
       </div>
     `;
+  }
+
+  shouldUpdate() {
+    return this.i18n;
   }
 
   render() {

@@ -17,15 +17,26 @@ package org.sakaiproject.messaging.impl;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ignite.IgniteMessaging;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
@@ -33,44 +44,87 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.ignite.EagerIgniteSpringBean;
+import org.sakaiproject.messaging.api.UserNotification;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.messaging.api.Message;
+import org.sakaiproject.messaging.api.MessageListener;
 import org.sakaiproject.messaging.api.MessageMedium;
 import static org.sakaiproject.messaging.api.MessageMedium.*;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class UserMessagingServiceImpl implements UserMessagingService {
+public class UserMessagingServiceImpl implements UserMessagingService, Observer {
+
+    private static final Set<String> HANDLED_EVENTS = new HashSet<>();
 
     @Autowired private DigestService digestService;
     @Autowired private EmailService emailService;
     @Autowired private EmailTemplateService emailTemplateService;
+    @Autowired EventTrackingService eventTrackingService;
+    @Autowired EagerIgniteSpringBean ignite;
     @Autowired private PreferencesService preferencesService;
-    @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired ServerConfigurationService serverConfigurationService;
+    @Autowired
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    private SessionFactory sessionFactory;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
+    @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired
+    @Qualifier("org.sakaiproject.time.api.UserTimeService")
+    UserTimeService userTimeService;
     @Setter    private ResourceLoader resourceLoader;
+    @Autowired
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    private PlatformTransactionManager transactionManager;
 
+    private IgniteMessaging messaging;
+    private List<UserNotificationHandler> handlers = new ArrayList<>();
+    private Map<String, UserNotificationHandler> handlerMap = new HashMap<>();
     private ExecutorService executor;
 
     public void init() {
+
+        if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
+            // Site publish is handled specially. It should probably be extracted from the logic below, but for now,
+            // we fake it in the list of handled events to get it into the if branch.
+            HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
+            eventTrackingService.addLocalObserver(this);
+        }
+
+        messaging = ignite.message(ignite.cluster().forLocal());
+
         executor = Executors.newFixedThreadPool(20);
     }
 
@@ -252,5 +306,173 @@ public class UserMessagingServiceImpl implements UserMessagingService {
 
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         return emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream(templateResource), templateRegistrationKey);
+    }
+
+    @Override
+    public void registerHandler(UserNotificationHandler handler) {
+
+        handler.getHandledEvents().forEach(eventName -> {
+
+            HANDLED_EVENTS.add(eventName);
+            handlerMap.put(eventName, handler);
+            log.debug("Registered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+        });
+    }
+
+    @Override
+    public void unregisterHandler(UserNotificationHandler handler) {
+
+        handler.getHandledEvents().forEach(eventName -> {
+
+            UserNotificationHandler current = handlerMap.get(eventName);
+
+            if (handler == current) {
+                HANDLED_EVENTS.remove(eventName);
+                handlerMap.remove(eventName);
+                log.debug("Unregistered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+            }
+        });
+    }
+
+    public void update(Observable o, final Object arg) {
+
+        if (arg instanceof Event) {
+            Event e = (Event) arg;
+            String event = e.getEvent();
+            // We add this comparation with UNKNOWN_USER because implementation of BaseEventTrackingService
+            // UNKNOWN_USER is an user in a server without session. 
+            if (HANDLED_EVENTS.contains(event) && !EventTrackingService.UNKNOWN_USER.equals(e.getUserId()) ) {
+                String ref = e.getResource();
+                String context = e.getContext();
+                String[] pathParts = ref.split("/");
+                String from = e.getUserId();
+                long at = e.getEventTime().getTime();
+                try {
+                    UserNotificationHandler handler = handlerMap.get(event);
+                    if (handler != null) {
+                        Optional<List<UserNotificationData>> result = handler.handleEvent(e);
+                        if (result.isPresent()) {
+                            result.get().forEach(bd -> {
+                                doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
+                                                bd.getSiteId(), e.getEventTime(), bd.getUrl());
+                            });
+                        }
+                    } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
+                        final String siteId = pathParts[2];
+
+                        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+
+                        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+                            protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                                final List<UserNotification> deferredAlerts
+                                    = sessionFactory.getCurrentSession().createCriteria(UserNotification.class)
+                                        .add(Restrictions.eq("deferred", true))
+                                        .add(Restrictions.eq("siteId", siteId)).list();
+
+                                for (UserNotification da : deferredAlerts) {
+                                    da.setDeferred(false);
+                                    sessionFactory.getCurrentSession().update(da);
+                                }
+                            }
+                        });
+                    }
+                } catch (Exception ex) {
+                    log.error("Caught exception whilst handling events", ex);
+                }
+            }
+        }
+    }
+
+    private void doInsert(String from, String to, String event, String ref
+                            , String title, String siteId, Date eventDate, String url) {
+
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                UserNotification ba = new UserNotification();
+                ba.setFromUser(from);
+                ba.setToUser(to);
+                ba.setEvent(event);
+                ba.setRef(ref);
+                ba.setTitle(title);
+                ba.setSiteId(siteId);
+                ba.setEventDate(eventDate.toInstant());
+                ba.setUrl(url);
+                try {
+                    ba.setDeferred(!siteService.getSite(siteId).isPublished());
+                } catch (IdUnusedException iue) {
+                    log.warn("Failed to find site with id {} while setting deferred to published", siteId);
+                }
+
+                sessionFactory.getCurrentSession().persist(ba);
+                send("USER#" + to, ba);
+            }
+        });
+    }
+
+    @Transactional  
+    public boolean clearAlert(String userId, long alertId) {
+
+        sessionFactory.getCurrentSession().createQuery("delete UserNotification where id = :id and toUser = :toUser")
+                    .setParameter("id", alertId).setParameter("toUser", userId)
+                    .executeUpdate();
+        return true;
+    }
+
+    @Transactional
+    public List<UserNotification> getAlerts(String userId) {
+
+        List<UserNotification> alerts = sessionFactory.getCurrentSession().createCriteria(UserNotification.class)
+                .add(Restrictions.eq("deferred", false))
+                .add(Restrictions.eq("toUser", userId)).list();
+
+        return alerts.stream().map(this::decorateAlert).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean clearAllAlerts(String userId) {
+
+        sessionFactory.getCurrentSession().createQuery(
+                "delete UserNotification where toUser = :toUser and deferred = :deferred")
+                .setParameter("toUser", userId).setParameter("deferred", false)
+                .executeUpdate();
+        return true;
+    }
+
+    private UserNotification decorateAlert(UserNotification alert) {
+
+        try {
+            User fromUser = userDirectoryService.getUser(alert.getFromUser());
+            alert.setFromDisplayName(fromUser.getDisplayName());
+            alert.setFormattedEventDate(userTimeService.dateTimeFormat(alert.getEventDate(), null, null));
+            if (StringUtils.isNotBlank(alert.getSiteId())) {
+                alert.setSiteTitle(siteService.getSite(alert.getSiteId()).getTitle());
+            }
+        } catch (UserNotDefinedException unde) {
+            alert.setFromDisplayName(alert.getFromUser());
+        } catch (IdUnusedException iue) {
+            alert.setSiteTitle(alert.getSiteId());
+        }
+
+        return alert;
+    }
+
+
+    public void listen(String topic, MessageListener listener) {
+
+        messaging.localListen(topic, (nodeId, message) -> {
+
+            listener.read(decorateAlert((UserNotification) message));
+            return true;
+        });
+    }
+
+    public void send(String topic, UserNotification un) {
+        messaging.send(topic, un);
     }
 }

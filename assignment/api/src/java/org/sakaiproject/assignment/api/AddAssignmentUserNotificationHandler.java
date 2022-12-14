@@ -37,8 +37,8 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_AVAILABL
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.BullhornData;
-import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
+public class AddAssignmentUserNotificationHandler extends AbstractUserNotificationHandler {
 
     @Resource
     private AssignmentService assignmentService;
@@ -73,7 +73,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
     }
 
     @Override
-    public Optional<List<BullhornData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event e) {
 
         String from = e.getUserId();
 
@@ -101,10 +101,10 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
         return Optional.empty();
     }
 
-    private List<BullhornData> handleAdd(String from, String siteId, String assignmentId, Assignment assignment) 
+    private List<UserNotificationData> handleAdd(String from, String siteId, String assignmentId, Assignment assignment) 
         throws Exception {
 
-        List<BullhornData> bhEvents = new ArrayList<>();
+        List<UserNotificationData> bhEvents = new ArrayList<>();
 
         Instant openTime = assignment.getOpenDate();
         if (openTime == null || openTime.isBefore(Instant.now()) && !assignment.getDraft()) {
@@ -118,7 +118,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
                 if (groupIds.size() == 0 || groupsUsers.contains(to)) {
                     if (!from.equals(to) && !securityService.isSuperUser(to)) {
                         String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                        bhEvents.add(new BullhornData(from, to, siteId, title, url));
+                        bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
                     }
                 }
             }
@@ -127,7 +127,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
         return bhEvents;
     }
 
-    private List<BullhornData> handleUpdateAccess(String from, String ref, String siteId, String assignmentId, Assignment assignment)
+    private List<UserNotificationData> handleUpdateAccess(String from, String ref, String siteId, String assignmentId, Assignment assignment)
         throws Exception {
 
         Site site = siteService.getSite(siteId);
@@ -137,14 +137,14 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         transactionTemplate.execute(status -> {
 
-            sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where EVENT in :events and REF = :ref and TO_USER in :toUsers")
+            sessionFactory.getCurrentSession().createQuery("delete UserNotification where EVENT in :events and REF = :ref and TO_USER in :toUsers")
                 .setParameterList("events", new String[] {EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS})
                 .setParameter("ref", ref, StringType.INSTANCE)
                 .setParameterList("toUsers", users).executeUpdate();
             return null;
         });
 
-        List<BullhornData> bhEvents = new ArrayList<>();
+        List<UserNotificationData> bhEvents = new ArrayList<>();
 
         if (assignment.getTypeOfAccess() != Assignment.Access.GROUP) {
             // Access has moved from group to site, notify all the site members. This may result in more than one
@@ -153,7 +153,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
             for (String to : users) {
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                    bhEvents.add(new BullhornData(from, to, siteId, title, url));
+                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
                 }
             }
         } else {
@@ -165,7 +165,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
             for (String to : groupsUsers) {
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                    bhEvents.add(new BullhornData(from, to, siteId, title, url));
+                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
                 }
             }
         }
@@ -179,7 +179,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
         return transactionTemplate.execute(status -> {
 
                 Long bhWithRef = (Long) sessionFactory.getCurrentSession()
-                    .createQuery("select count(*) from BullhornAlert where ref = :ref and event = :event")
+                    .createQuery("select count(*) from UserNotification where ref = :ref and event = :event")
                     .setParameter("ref", ref, StringType.INSTANCE).setParameter("event", EVENT_UPDATE_ASSIGNMENT_ACCESS, StringType.INSTANCE).uniqueResult();
                 return bhWithRef > 0;
             });

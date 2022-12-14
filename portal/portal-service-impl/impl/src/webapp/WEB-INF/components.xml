@@ -7,7 +7,7 @@
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:component-scan base-package="org.sakaiproject.portal.service, org.sakaiproject.portal.beans.bullhornhandlers"/>
+    <context:component-scan base-package="org.sakaiproject.portal.service"/>
     <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
     <bean id="org.sakaiproject.portal.api.PortalService"
