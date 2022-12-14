@@ -1,16 +1,6 @@
 /* **************************************************************** *
  *                      Gradebook Sorter styles                     *
  * **************************************************************** */
-
- /* Fonts */
- @font-face {
-    font-family:"gradebook-icons";
-    src:url(../fonts/gradebook-icons.eot);
-    src:url(../fonts/gradebook-icons.eot?#iefix) format("embedded-opentype"),url(../fonts/gradebook-icons.woff) format("woff"),url(../fonts/gradebook-icons.ttf) format("truetype"),url(../fonts/gradebook-icons.svg#gradebook-icons) format("svg");
-    font-weight:400;
-    font-style:normal
-}
-
 #gradebookSorter {
   padding-top: 10px;
 }
@@ -26,7 +16,7 @@
 }
 
 #gradebookSorter .gb-sorter-sortable:before {
-  font-family: "gradebook-icons";
+  font-family: "bootstrap-icons";
   content: '\f0c9';
 }
 
@@ -43,30 +33,22 @@
 
 #gradebookSorter .gb-sort-up {
   position: absolute;
-  right: -35px;
-  top: -1px;
-  height: 6px;
-  line-height: 3px;
-  padding: 6px 10px;
-}
-
-#gradebookSorter .gb-sort-up:before {
-  font-family: 'gradebook-icons';
-  content: '\f106';
+  right: -42px;
+  bottom: 4px;
+  height: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #gradebookSorter .gb-sort-down {
   position: absolute;
-  right: -35px;
-  bottom: -1px;
-  height: 6px;
-  line-height: 3px;
-  padding: 6px 10px;
-}
-
-#gradebookSorter .gb-sort-down:before {
-  font-family: 'gradebook-icons';
-  content: '\f107';
+  right: -42px;
+  bottom: 4px;
+  height: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #gradebookSorter .gb-sorter-sortable:first-child .gb-sort-up {

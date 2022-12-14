@@ -220,6 +220,10 @@ public class BasePage extends WebPage {
 				new PriorityHeaderItem(
 						JavaScriptHeaderItem
 								.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js%s", version))));
+		response.render(
+				new PriorityHeaderItem(
+						JavaScriptHeaderItem
+								.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js%s", version))));											
 	}
 
 	/**
