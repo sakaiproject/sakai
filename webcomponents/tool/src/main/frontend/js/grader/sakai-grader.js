@@ -890,6 +890,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         document.getElementById("feedback-comment-unsaved-msg").classList.remove("d-none");
         return false;
       }
+    } else {
+      bootstrap.Modal.getInstance(document.getElementById("feedback-modal")).hide();
     }
 
     return true;
@@ -909,9 +911,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         document.getElementById("private-notes-unsaved-msg").classList.remove("d-none");
         return false;
       }
+    } else {
+      bootstrap.Modal.getInstance(document.getElementById("private-notes-modal")).hide();
     }
 
-    this.togglePrivateNotes();
     return true;
   }
 
@@ -1163,7 +1166,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.savedFeedbackComment = true;
     this.savedPvtNotes = true;
-    this.saveSucceeded = true; setTimeout(() => this.saveSucceeded = false, 2000);
 
     switch (this.gradeScale) {
       case SCORE_GRADE_TYPE: {
