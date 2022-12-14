@@ -1806,7 +1806,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		SakaiLineItem item = (SakaiLineItem) getObjectFromPOST(request, response, SakaiLineItem.class);
 		if ( item == null )  {
-			return; // Error alredy handled
+			return; // Error already handled
 		}
 
 		Site site = null;
