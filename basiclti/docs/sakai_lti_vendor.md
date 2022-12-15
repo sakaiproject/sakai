@@ -103,7 +103,6 @@ the LTI Tool and looks as follows.
 
                 <category name="course" />
                 <category name="project" />
-                <category name="portfolio" />
 
                 <!-- Allow this to be set -->
                 <configuration name="functions.require" />
@@ -192,7 +191,6 @@ inserted as indicated above.
 
                 <category name="course" />
                 <category name="project" />
-		        <category name="portfolio" />
 
                 <configuration name="functions.require" />
 

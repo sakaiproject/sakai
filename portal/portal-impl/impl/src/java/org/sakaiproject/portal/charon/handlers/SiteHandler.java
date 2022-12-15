@@ -1025,8 +1025,6 @@ public class SiteHandler extends WorksiteHandler
 			boolean allowAddSite = false;
 			if(SiteService.allowAddCourseSite()) {
 				allowAddSite = true;
-			} else if (SiteService.allowAddPortfolioSite()) {
-				allowAddSite = true;
 			} else if (SiteService.allowAddProjectSite()) {
 				allowAddSite = true;
 			}

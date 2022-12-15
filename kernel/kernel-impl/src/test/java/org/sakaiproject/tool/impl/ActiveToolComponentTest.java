@@ -118,7 +118,7 @@ public class ActiveToolComponentTest {
 		
 		// Got the configuration
 		Properties registeredConfig = tool.getRegisteredConfig();
-		assertEquals("course,project,portfolio", registeredConfig.getProperty("siteTypes"));
+		assertEquals("course,project", registeredConfig.getProperty("siteTypes"));
 		assertEquals("project", registeredConfig.getProperty("defaultSiteType"));
 		assertEquals("project", registeredConfig.getProperty("publicChangeableSiteTypes"));
 		assertEquals("course", registeredConfig.getProperty("publicSiteTypes"));
@@ -131,7 +131,6 @@ public class ActiveToolComponentTest {
 		Set<String> categories = tool.getCategories();
 		assertTrue(categories.contains("course"));
 		assertTrue(categories.contains("project"));
-		assertTrue(categories.contains("portfolio"));
 		assertFalse(categories.contains("other"));
 		
 		// Check the default.

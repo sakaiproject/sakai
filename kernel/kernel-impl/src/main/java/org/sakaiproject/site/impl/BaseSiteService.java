@@ -535,7 +535,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SITE_VISIT_UNPUBLISHED);
 			functionManager().registerFunction(SECURE_ADD_SITE);
 			functionManager().registerFunction(SECURE_ADD_USER_SITE);
-			functionManager().registerFunction(SECURE_ADD_PORTFOLIO_SITE);
 			functionManager().registerFunction(SECURE_REMOVE_SITE);
 			functionManager().registerFunction(SECURE_UPDATE_SITE);
 			functionManager().registerFunction(SECURE_VIEW_ROSTER);
@@ -1178,9 +1177,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		else if (id != null && isCourseSite(id)) {
 			return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(id));
 		}
-		else if (id != null && isPortfolioSite(id)) {
-			return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
-		}
 		else if (id != null && isProjectSite(id)) {
 			return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(id));
 		}
@@ -1255,21 +1251,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return rv;
 	}
 
-	private boolean isPortfolioSite(String siteId) {
-		boolean rv = false;
-		try {
-			Site s = getSite(siteId);
-			List<String> portfolioSiteTypes = getSiteTypeStrings("portfolio");
-			if (portfolioSiteTypes.contains(s.getType())) 
-				return true;
-				
-		} catch (IdUnusedException e) {
-			log.warn("isPortfolioSite(): no site with id: " + siteId);
-		}
-		
-		return rv;
-	}
-	
 	private boolean isProjectSite(String siteId) {
 		boolean rv = false;
 		try {
@@ -1289,10 +1270,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(null));
 	}
 
-	public boolean allowAddPortfolioSite() {
-		return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(null));
-	}
-	
 	public boolean allowAddProjectSite() {
 		return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(null));
 	}
@@ -1335,11 +1312,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
 		}
 
-		// KNL-703
-		if (getSiteTypeStrings("portfolio").contains(type)) {
-			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
-		}
-		
 		// KNL-952
 		if (getSiteTypeStrings("project").contains(type)) {
 			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));
@@ -1394,11 +1366,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));			
 		}
 
-		// KNL-703
-		if ( isPortfolioSite(other.getId()) ) {
-			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));			
-		}
-		
 		// KNL-952
 		if ( isProjectSite(other.getId()) ) {
 			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));			

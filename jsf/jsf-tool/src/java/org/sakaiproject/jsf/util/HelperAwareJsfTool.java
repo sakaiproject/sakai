@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $URL:https://source.sakaiproject.org/svn/osp/trunk/common/tool-lib/src/java/org/theospi/portfolio/shared/control/servlet/HelperAwareJsfTool.java $
+* $URL: $
 * $Id:HelperAwareJsfTool.java 9134 2006-05-08 20:28:42Z chmaurer@iupui.edu $
 ***********************************************************************************
 *

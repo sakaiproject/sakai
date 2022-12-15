@@ -523,7 +523,7 @@ sakai.siteTypeSetup = function(){
     utils.resizeFrame('grow');
   });
 
-  // this handles selections on the site type list (trad course, project, portfolio, etc.)
+  // this handles selections on the site type list (trad course, project, etc.)
   $('#siteTypeList input').click(function(e){
     if ($(this).attr('id') === 'course') {
 

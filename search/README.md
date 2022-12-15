@@ -63,7 +63,7 @@ To only exclude user sites from indexing (this is the default)
 
 To configure an excluded site list which never get indexed (the default follows).  
 
-`ignoredSites@org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder=~admin,!admin,PortfolioAdmin`
+`ignoredSites@org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder=~admin,!admin
 
 To control the size of the batch index thread (default 500).  The larger this is the most likely it is that nodes will end up indexing the same thing wasting cycles.  If it set to low indexing will be slow.  In practice you want your bulk size to not take longer than how often you are running the bulk thread.  
 
@@ -109,7 +109,7 @@ Property | Short Bean Name | Type | Default |
  excludeUserSites | ElasticSearchIndexBuilder | boolean | `true` (code)
  facetName | ElasticSearchIndexBuilder | String | 'tag' (code)
  facetTermSize | ElasticSearchIndexBuilder | int | 10 (code)
- ignoredSites | ElasticSearchIndexBuilder | String | '~admin,!admin,PortfolioAdmin' (code)
+ ignoredSites | ElasticSearchIndexBuilder | String | '~admin,!admin' (code)
  indexName | ElasticSearchIndexBuilder | String | 'sakai_index' (bean config)
  indexSettings | ElasticSearchIndexBuilder | String (JSON) | `null` (code)
  indexedDocumentType | ElasticSearchIndexBuilder | String | 'sakai_doc' (code)
