@@ -5,6 +5,7 @@
     height: 60px;
     width: 60px;
     background-image: url(#{$skin-path}images/jumptotop.svg);
+    filter: var(--sakai-image-invert);
     background-size: 60px;
     border-radius: 30px;
 
