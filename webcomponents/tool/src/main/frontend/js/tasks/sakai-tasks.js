@@ -273,7 +273,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
           <div slot="invoker">
             <a @click=${this.add} href="javascript:;" title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}">
-              <sakai-icon type="add" size="medium">
+              <button type=button" class="add-task-button"><sakai-icon type="add" size="small"></sakai-icon>${this.i18n.add_task}</button>
             </a>
           </div>
 
@@ -404,7 +404,16 @@ export class SakaiTasks extends SakaiPageableElement {
           margin-bottom: 10px;
         }
           sakai-icon[type="add"] {
-            color: #003a6b;
+            padding: 3px 3px 2px 0;
+            vertical-align: middle;
+            color: var(--button-primary-text-color);
+          }
+          .add-task-button {
+            margin-left: 1px;
+            background-color: var(--button-primary-background);
+            color: var(--button-primary-text-color);
+            border: 0px solid var(--button-primary-border-color);
+            border-radius: 2px;
           }
 
         #controls {
