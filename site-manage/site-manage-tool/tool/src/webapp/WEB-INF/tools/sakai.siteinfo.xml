@@ -10,7 +10,6 @@
 
 		<!-- types are seperated by , don't forget to put corresponding type_categories.xml into the reg folder-->
 		<configuration name="siteTypes" value="course,project" />
-<!--		<configuration name="siteTypes" value="course,project,portfolio" /> -->
 
 		<!-- default site type -->
 		<configuration name="defaultSiteType" value="project" />
@@ -25,7 +24,6 @@
 
 		<category name="course" />
 		<category name="project" />
-		<category name="portfolio" />
 
 		<!-- It would be good to separate "site.visit" and "site.read" so site.visit controls
 		     visiting the site and site.read controls the right to read site information.

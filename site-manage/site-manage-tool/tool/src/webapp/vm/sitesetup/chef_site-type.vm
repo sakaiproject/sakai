@@ -56,10 +56,9 @@
         <div id="siteTypeList" class="indnt3">
             #foreach ($type in $siteTypes)
 				#set($courseTypeWithPerm    = (($courseSiteTypeStrings.contains($type) || $type == "course")    && $canAddCourse ))
-				#set($portfolioTypeWithPerm = (($portfolioSiteTypeStrings.contains($type) || $type == "portfolio") && $canAddPortfolio )) 
 				#set($projectTypeWithPerm   = (($projectSiteTypeStrings.contains($type)   || $type == "project")   && $canAddProject )) 
-				#set($otherCustomType = ( (!$courseSiteTypeStrings.contains($type)) && (!$projectSiteTypeStrings.contains($type)) && (!$portfolioSiteTypeStrings.contains($type))))
-				#if (($courseTypeWithPerm) || ($portfolioTypeWithPerm) || ($projectTypeWithPerm) || ($otherCustomType))
+				#set($otherCustomType = ( (!$courseSiteTypeStrings.contains($type)) && (!$projectSiteTypeStrings.contains($type))))
+				#if (($courseTypeWithPerm) || ($projectTypeWithPerm) || ($otherCustomType))
                     <p class="checkbox indnt1">
                         <input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
                         <label for = "$type">
@@ -98,7 +97,7 @@
                         #end
                         </div>  
                     #end ## end of #if ($courseTypeWithPerm)
-                #end ## end of #if (courseTypeWithPerm || portfolioTypeWithPerm || projectTypeWithPerm))
+                #end ## end of #if (courseTypeWithPerm || projectTypeWithPerm))
             #end  ##end of #foreach ($type in $siteTypes)
         </div>
         #if ($templateSites.size() > 0)
@@ -175,8 +174,7 @@
 
                             #if (
                                 ($siteType == $projectSiteType && $canAddProject) || 
-                                ($courseSiteTypeStrings.contains($siteType) && $canAddCourse) ||
-                                ($siteType == $portfolioSiteType && $canAddPortfolio)
+                                ($courseSiteTypeStrings.contains($siteType) && $canAddCourse)
                              )
                             #if($siteTypePrev != $siteType)
 
@@ -243,8 +241,7 @@
                             #foreach ($type in $siteTypes)
                                 #if (
                                         ($type == $projectSiteType && $canAddProject) || 
-                                        ($courseSiteTypeStrings.contains($type) && $canAddCourse) || 
-                                        ($type == $portfolioSiteType && $canAddPortfolio)
+                                        ($courseSiteTypeStrings.contains($type) && $canAddCourse)
                                     )
                                     <option value="$!type">$tlang.getFormattedMessage("sitetype.websit", $type)</option>
                                 #end

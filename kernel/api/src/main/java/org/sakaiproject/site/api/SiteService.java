@@ -78,9 +78,6 @@ public interface SiteService extends EntityProducer
 	/** Name for the event of adding a course site */ 
 	static final String SECURE_ADD_COURSE_SITE = "site.add.course";
 	
-	/** Name for the event of adding a portfolio site */ 
-	static final String SECURE_ADD_PORTFOLIO_SITE = "site.add.portfolio";
-	
 	/** Name for the event of adding a project site */ 
 	static final String SECURE_ADD_PROJECT_SITE = "site.add.project";
 
@@ -554,12 +551,6 @@ public interface SiteService extends EntityProducer
 	 */
 	boolean allowAddCourseSite();
 
-	/**
-	 *  Can the user add sites of type Portfolio as defined by portfolioSiteType in sakai.properties
-	 * @return
-	 */
-	boolean allowAddPortfolioSite();
-	
 	/**
 	 *  Can the user add sites of type Project as defined by projectSiteType in sakai.properties
 	 * @return

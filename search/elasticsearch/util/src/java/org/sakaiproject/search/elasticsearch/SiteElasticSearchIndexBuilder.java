@@ -93,7 +93,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     private boolean excludeUserSites = true;
 
     /**
-     * comma separated list of sites to always ignore when indexing.  Defaults to ~admin, !admin, PortfolioAdmin
+     * comma separated list of sites to always ignore when indexing.  Defaults to ~admin, !admin
      * use injection to set this value.
      */
     private String ignoredSites = null;
@@ -146,7 +146,6 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         } else {
             ignoredSitesList.add("~admin");
             ignoredSitesList.add("!admin");
-            ignoredSitesList.add("PortfolioAdmin");
         }
     }
 

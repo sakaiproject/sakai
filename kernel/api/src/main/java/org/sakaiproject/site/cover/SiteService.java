@@ -233,13 +233,6 @@ public class SiteService
 		return service.allowAddCourseSite();		
 	}
 	
-	public static boolean allowAddPortfolioSite() {
-		org.sakaiproject.site.api.SiteService service = getInstance();
-		if (service == null) return false;
-
-		return service.allowAddPortfolioSite();		
-	}
-
 	public static boolean allowImportArchiveSite() {
 		org.sakaiproject.site.api.SiteService service = getInstance();
 		if (service == null) return false;

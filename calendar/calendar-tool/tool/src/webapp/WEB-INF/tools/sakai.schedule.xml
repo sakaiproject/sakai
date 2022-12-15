@@ -12,7 +12,6 @@
 
 		<category name="course" />
 		<category name="project" />
-		<category name="portfolio" />
 		<category name="myworkspace" />
 
 		<configuration name="functions.require" value="calendar.read" /> 

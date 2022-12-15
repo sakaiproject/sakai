@@ -1645,14 +1645,6 @@ public class UserPrefsTool
 		{
 			term = msgs.getString("moresite_projects");
 		}
-		/*else if ("portfolio".equals(type))
-		{
-			term = msgs.getString("moresite_portfolios");
-		}
-		else if ("scs".equals(type))
-		{
-			term = msgs.getString("moresite_scs");
-		}*/
 		else if ("admin".equals(type))
 		{
 			term = msgs.getString("moresite_administration");
@@ -1729,11 +1721,11 @@ public class UserPrefsTool
 				}
 			}
 			
-			String expandTypeString = ServerConfigurationService.getString("prefs.type.autoExpanded", "portfolio");
+			String expandTypeString = ServerConfigurationService.getString("prefs.type.autoExpanded");
 			
 			String[] sortedTypeList = ServerConfigurationService.getStrings("prefs.type.order");
             if(sortedTypeList == null) {
-                sortedTypeList = new String[] {"portfolio","course","project"};
+                sortedTypeList = new String[] {"course","project"};
             }
 			String[] termOrder = ServerConfigurationService.getStrings("portal.term.order");
 			List<String> myTermOrder = new ArrayList<>();
@@ -2290,8 +2282,6 @@ public class UserPrefsTool
 				return term;
 			} else if (isProjectType(type)) {
 				return msgs.getString("moresite_projects");
-			} else if ("portfolio".equals(type)) {
-				return msgs.getString("moresite_portfolios");
 			} else if ("admin".equals(type)) {
 				return msgs.getString("moresite_administration");
 			} else {
