@@ -166,7 +166,7 @@ public class MenuBuilder
         menu.add( buildMenuEntry( rl.getString( "java.siteList" ), "", true ) );
 
         // SAK-22438 if user can add one of these site types then they can see the link to add a new site
-        if( SS.allowAddCourseSite() || SS.allowAddPortfolioSite() || SS.allowAddProjectSite() )
+        if( SS.allowAddCourseSite() || SS.allowAddProjectSite() )
         {
             menu.add( buildMenuEntry( rl.getString( "java.new" ), "doNew_site", false ) );
         }

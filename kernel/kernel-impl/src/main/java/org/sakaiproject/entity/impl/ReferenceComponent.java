@@ -72,8 +72,6 @@ public class ReferenceComponent implements Reference
 	/** These are some more services known. */
 	public static final String GRADEBOOK_ROOT = "gradebook";
 
-	public static final String GRADTOOLS_ROOT = "dissertation";
-
 	private UserDirectoryService userDirectoryService;
 
 	/**

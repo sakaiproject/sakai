@@ -303,10 +303,6 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			{
 				term = rb.getString("moresite_projects");
 			}
-			else if ("portfolio".equals(type))
-			{
-				term = rb.getString("moresite_portfolios");
-			}
 			else if ("admin".equals(type))
 			{
 				term = rb.getString("moresite_administration");

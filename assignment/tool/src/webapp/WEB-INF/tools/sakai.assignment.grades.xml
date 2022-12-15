@@ -10,7 +10,6 @@
 		
 		<category name="course" />
 		<category name="project" />
-		<category name="portfolio" />
 		
 		<configuration name="pagesize" value="200" />
 		<configuration name="withGrades" value="TRUE" type="final" />

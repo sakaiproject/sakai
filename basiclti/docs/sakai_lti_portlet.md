@@ -211,7 +211,6 @@ External Tool as follows:
 
                 <category name="course" />
                 <category name="project" />
-                <category name="portfolio" />
 
                 <!-- Allow this to be set -->
                 <configuration name="functions.require" />
@@ -297,7 +296,6 @@ is a simple example additional registration:
 
                 <category name="course" />
                 <category name="project" />
-		 <category name="portfolio" />
 
                 <configuration name="functions.require" />
 
