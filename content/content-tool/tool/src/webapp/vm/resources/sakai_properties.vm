@@ -6,13 +6,19 @@
 
     <!-- Initialize the plugin: -->
     $(document).ready(function() {
-        $('#infoTooltip').tooltip();
+
+        const infoTooltipTrigger = document.getElementById('infoTooltip');
+        infoTooltipTrigger && (new bootstrap.Tooltip(infoTooltipTrigger));
+
         $('#access_groups${DOT}$i').multiselect({
             selectAllText: '$tlang.getString("access.edit.selectall")',
             nonSelectedText: '$tlang.getString("access.edit.selectone")',
             allSelectedText: '$tlang.getString("access.edit.allselected")',
             nSelectedText: ' $tlang.getString("access.edit.groupsselected")',
             filterPlaceholder: '$tlang.getString("access.edit.searchgroup")',
+            templates: {
+                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+            },
             enableFiltering: true,
             enableCaseInsensitiveFiltering: true
         });
@@ -24,6 +30,9 @@
                 nonSelectedText: '$tlang.getString("access.edit.selectone")',
                 allSelectedText: '$tlang.getString("access.edit.allselected")',
                 nSelectedText: ' $tlang.getString("access.edit.groupsselected")',
+                templates: {
+                    button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+                },
                 filterPlaceholder: '$tlang.getString("access.edit.searchgroup")',
                 enableFiltering: true,
                 enableCaseInsensitiveFiltering: true
@@ -549,7 +558,7 @@ button.btn.btn-default.multiselect-clear-filter{
 											/>
 											$tlang.getString("access.secured")
 										</label>
-										<span id="infoTooltip" class="fa fa-info-circle" tabindex="0" title="$tlang.getString('access.secured.tooltip')"></span
+										<button id="infoTooltip" class="btn icon-button" data-bs-toggle="tooltip" tabindex="0" title="$tlang.getString('access.secured.tooltip')"><i class="si si-info-circle"></i></button>
 									</div>
 								</div>
 							#end
