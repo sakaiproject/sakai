@@ -246,3 +246,8 @@
 .alertMessage{
 	@extend .bs-callout-danger;
 }
+
+//Remove excessive heading margin for bootstrap modals
+.modal-title {
+  margin-top: 0;
+}
