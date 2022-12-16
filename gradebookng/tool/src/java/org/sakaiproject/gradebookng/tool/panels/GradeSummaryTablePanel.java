@@ -371,7 +371,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							Optional<AssociationTransferBean> optAssociation
 								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
 							if (optAssociation.isPresent()) {
-								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
+								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().getRubricId()));
 								sakaiRubricButton.setVisible(true);
 							}
 
@@ -396,7 +396,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							Optional<AssociationTransferBean> optAssociation
 								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
 							if (optAssociation.isPresent()) {
-								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
+								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().getRubricId()));
 								sakaiRubricButton.setVisible(true);
 							}
 
@@ -434,7 +434,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 	                                        }
 	
 											rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, getCurrentSiteId())
-												.ifPresent(assoc -> sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId)));
+												.ifPresent(assoc -> sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.getRubricId())));
 											
 										} catch (Exception e) {
 											log.error("Failed to configure rubric button for submission: {}", e.toString());

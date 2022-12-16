@@ -29,6 +29,7 @@ import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitia
 import org.hsqldb.jdbcDriver;
 
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.rubrics.api.repository.CriterionRepository;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -37,7 +38,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.rubrics.api.repository.CriterionRepository;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RatingRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;

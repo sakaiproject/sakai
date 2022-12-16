@@ -15,43 +15,26 @@ package org.sakaiproject.rubrics.api.beans;
 
 import org.sakaiproject.rubrics.api.model.CriterionOutcome;
 
-import java.util.Map;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class CriterionOutcomeTransferBean {
 
-    public Long id;
-    public Long criterionId;
-    public Long selectedRatingId;
-    public Boolean pointsAdjusted;
-    public Double points;
-    public String comments;
+    private Long id;
+    private Long criterionId;
+    private Long selectedRatingId;
+    private Boolean pointsAdjusted;
+    private Double points;
+    private String comments;
 
-    public static CriterionOutcomeTransferBean of(CriterionOutcome outcome) {
-
-        CriterionOutcomeTransferBean bean = new CriterionOutcomeTransferBean();
-        bean.id = outcome.getId();
-        bean.criterionId = outcome.getCriterionId();
-        bean.selectedRatingId = outcome.getSelectedRatingId();
-        bean.pointsAdjusted = outcome.getPointsAdjusted();
-        bean.points = outcome.getPoints();
-        bean.comments = outcome.getComments();
-        return bean;
-    }
-
-    public CriterionOutcome toCriterionOutcome() {
-
-        CriterionOutcome outcome = new CriterionOutcome();
-        outcome.setId(id);
-        outcome.setCriterionId(criterionId);
-        outcome.setSelectedRatingId(selectedRatingId);
-        outcome.setPointsAdjusted(pointsAdjusted);
-        outcome.setPoints(points);
-        outcome.setComments(comments);
-        return outcome;
+    public CriterionOutcomeTransferBean(CriterionOutcome outcome) {
+        id = outcome.getId();
+        comments = outcome.getComments();
+        criterionId = outcome.getCriterionId();
+        points = outcome.getPoints();
+        pointsAdjusted = outcome.getPointsAdjusted();
+        selectedRatingId = outcome.getSelectedRatingId();
     }
 }

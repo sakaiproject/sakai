@@ -30,8 +30,11 @@ import org.hibernate.Session;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
+import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
@@ -72,7 +75,7 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<ToolItemRubricAssociation> query = cb.createQuery(ToolItemRubricAssociation.class);
         Root<ToolItemRubricAssociation> ass = query.from(ToolItemRubricAssociation.class);
-        query.where(cb.equal(ass.get("rubricId"), rubricId));
+        query.where(cb.equal(ass.get("rubric"), rubricId));
 
         return session.createQuery(query).list();
     }
@@ -96,9 +99,15 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<ToolItemRubricAssociation> delete = cb.createCriteriaDelete(ToolItemRubricAssociation.class);
-        Root<ToolItemRubricAssociation> ass = delete.from(ToolItemRubricAssociation.class);
-        delete.where(cb.equal(ass.get("siteId"), siteId));
-        
+        Root<ToolItemRubricAssociation> root = delete.from(ToolItemRubricAssociation.class);
+
+        Subquery<ToolItemRubricAssociation> subquery = delete.subquery(ToolItemRubricAssociation.class);
+        Root<ToolItemRubricAssociation> rootSubquery = subquery.from(ToolItemRubricAssociation.class);
+        subquery.select(rootSubquery);
+        Join<ToolItemRubricAssociation, Rubric> join = rootSubquery.join("rubric");
+        subquery.where(cb.equal(join.get("ownerId"), siteId));
+        delete.where(root.in(subquery));
+
         return session.createQuery(delete).executeUpdate();
     }
 
@@ -109,7 +118,7 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<ToolItemRubricAssociation> delete = cb.createCriteriaDelete(ToolItemRubricAssociation.class);
         Root<ToolItemRubricAssociation> ass = delete.from(ToolItemRubricAssociation.class);
-        delete.where(cb.equal(ass.get("rubricId"), rubricId));
+        delete.where(cb.equal(ass.get("rubric"), rubricId));
         
         return session.createQuery(delete).executeUpdate();
     }

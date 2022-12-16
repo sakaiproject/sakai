@@ -15,35 +15,26 @@ package org.sakaiproject.rubrics.api.beans;
 
 import org.sakaiproject.rubrics.api.model.Rating;
 
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class RatingTransferBean {
 
-    public Long id;
-    public String title;
-    public String description;
-    public Double points;
+    private Long id;
+    private Long criterionId;
+    private String description;
+    private Double points;
+    private String title;
 
-    public static RatingTransferBean of(Rating rating) {
-
-        RatingTransferBean bean = new RatingTransferBean();
-        bean.id = rating.getId();
-        bean.title = rating.getTitle();
-        bean.description = rating.getDescription();
-        bean.points = rating.getPoints();
-        return bean;
-    }
-
-    public Rating toRating() {
-
-        Rating rating = new Rating();
-        rating.setId(id);
-        rating.setTitle(title);
-        rating.setDescription(description);
-        rating.setPoints(points);
-        return rating;
+    public RatingTransferBean(Rating rating) {
+        id = rating.getId();
+        criterionId = rating.getCriterion().getId();
+        description = rating.getDescription();
+        points = rating.getPoints();
+        title = rating.getTitle();
     }
 }
