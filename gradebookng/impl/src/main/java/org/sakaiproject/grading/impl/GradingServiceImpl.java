@@ -2847,6 +2847,22 @@ public class GradingServiceImpl implements GradingService {
     }
 
     /**
+     * Post an event to Sakai's event table
+     *
+     * @param gradebookUid
+     * @param assignmentName
+     * @param studentUid
+     * @param pointsEarned
+     * @return
+     */
+    private void postUpdateCommentEvent(String gradebookUid, String assignmentId, String studentUid, Double pointsEarned) {
+
+        log.debug("postUpdateCommentEvent {} {} {} {}", gradebookUid, assignmentId, studentUid, pointsEarned);
+        postEvent("gradebook.updateItemComment",
+                "/gradebook/" + gradebookUid + "/" + assignmentId + "/" + studentUid + "/" + pointsEarned + "/student");
+    }
+
+    /**
      * Get the student's course grade's GradableObject ID.
      *
      * @return coursegrade's GradableObject ID.
@@ -5024,11 +5040,13 @@ public class GradingServiceImpl implements GradingService {
             throw new IllegalArgumentException("gradebookUid, assignmentId, studentUid and commentText must be valid.");
         }
 
+        GradebookAssignment gradebookColumn = getAssignmentWithoutStats(gradebookUid, assignmentId);
+
         final Optional<Comment> optComment = gradingPersistenceManager.getInternalComment(studentUid, gradebookUid, assignmentId);
         Comment comment = null;
         if (optComment.isEmpty()) {
-            comment = new Comment(studentUid, commentText, getAssignmentWithoutStats(gradebookUid, assignmentId));
-            if(getAssignmentWithoutStats(gradebookUid, assignmentId) == null){  //will happen if we are commenting on Course Grade
+            comment = new Comment(studentUid, commentText, gradebookColumn);
+            if(gradebookColumn == null){  //will happen if we are commenting on Course Grade
                 CourseGrade courseGrade = getCourseGrade(getGradebook(gradebookUid).getId());
                 if(courseGrade != null && courseGrade.getId().equals(assignmentId)){   //make sure ID is actually making reference to the course grade
                     comment = new Comment(studentUid, commentText, courseGrade);
@@ -5041,6 +5059,16 @@ public class GradingServiceImpl implements GradingService {
         comment.setGraderId(sessionManager.getCurrentSessionUserId());
         comment.setDateRecorded(new Date());
         gradingPersistenceManager.saveComment(comment);
+
+        // Get score to send with comment event
+        if (gradebookColumn != null ) {
+            Double pointsEarned = 0.0;
+            AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(gradebookColumn, studentUid);
+            if (gradeRecord != null) {
+                pointsEarned = gradeRecord.getPointsEarned();
+            }
+            postUpdateCommentEvent(gradebookUid, assignmentId.toString(), studentUid, pointsEarned);
+        }
     }
 
     public void deleteAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid) throws AssessmentNotFoundException {
