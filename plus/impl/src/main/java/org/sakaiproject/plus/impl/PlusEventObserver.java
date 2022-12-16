@@ -46,8 +46,9 @@ public class PlusEventObserver implements Observer {
      * From the UI:
      * gradebook.updateItemScore@/gradebookng/7/12/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/42/OK/instructor[m, 2]
      *
-     * From web services:
+     * From web services and server side service calls:
      * gradebook.updateItemScore@/gradebook/a77ed1b6-ceea-4339-ad60-8bbe7219f3b5/Trophy/55a0c76a-69e2-4ca7-816b-3c2e8fe38ce0/99.0/student[m, 2]
+     * gradebook.updateItemComment@/gradebook/fd45f02f-1eeb-4478-aee5-d8c5d5f4733b/11/2a2d129e-99ab-4465-82cb-e560bd365a14/0.0/student
      *
      */
     @Override
@@ -57,7 +58,10 @@ public class PlusEventObserver implements Observer {
             if (event.getModify() && StringUtils.isNoneBlank(event.getEvent())) {
                 switch (event.getEvent()) {
                     case "gradebook.updateItemScore": // grade updated in gradebook lets attempt to update the submission
-						plusService.processGradeEvent(event);
+                        plusService.processGradeEvent(event);
+                        break;
+                    case "gradebook.updateItemComment": // comment updated in gradebook lets attempt to update the submission
+                        plusService.processGradeEvent(event);
                         break;
                     default:
                         log.debug("This observer is not interested in event [{}]", event);
