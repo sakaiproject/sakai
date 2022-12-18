@@ -430,24 +430,20 @@
 									&#169;
 								#elseif($item.isCollection())
     								#if($item.isTooBigNav())
-                      <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
-                      <span class="resource-name hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
+                      <span class="resource-name d-inline-block text-truncate">$formattedText.escapeHtml($item.name)</span>
 									#else
 										<a href="#"
     										onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$formattedText.escapeUrl($item.root)';document.getElementById('showForm').submit();"
     										title= "$item.hoverText">
-                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
-                        <span class="resource-name hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name d-inline-block text-truncate">$formattedText.escapeHtml($item.name)</span>
     									</a>
 									#end	
 								#else
 									#if($item.isTooBigNav())
-                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
-                        <span class="resource-name hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name d-inline-block text-truncate">$formattedText.escapeHtml($item.name)</span>
 									#else
 										<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
-                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
-                        <span class="resource-name hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name d-inline-block text-truncate">$formattedText.escapeHtml($item.name)</span>
     									</a>
 									#end
 								#end
