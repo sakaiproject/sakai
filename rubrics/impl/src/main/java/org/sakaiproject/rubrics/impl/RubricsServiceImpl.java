@@ -684,13 +684,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             throw new SecurityException("You must be an evaluator to evaluate rubrics");
         }
 
-        if (evaluationBean.isNew()) {
-            evaluationBean.setCreatorId(userDirectoryService.getCurrentUser().getId());
-            evaluationBean.setCreated(Instant.now());
-        }
-
-        evaluationBean.setModified(Instant.now());
-
         Evaluation evaluation;
         if (evaluationBean.getId() != null) {
             evaluation = evaluationRepository.getById(evaluationBean.getId());
@@ -737,26 +730,28 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 return outcome;
             }).collect(Collectors.toList()));
         }
-        evaluation.setId(evaluationBean.getId());
-        evaluation.setAssociationId(evaluationBean.getAssociationId());
+
+        // only set these once
+        if (StringUtils.isBlank(evaluation.getCreatorId())) evaluation.setCreatorId(userDirectoryService.getCurrentUser().getId());
+        if (evaluation.getCreated() == null) evaluation.setCreated(Instant.now());
+        if (StringUtils.isBlank(evaluation.getOwnerId())) evaluation.setOwnerId(siteId);
+        if (evaluation.getAssociationId() == null) evaluation.setAssociationId(evaluationBean.getAssociationId());
+
+        // set these on each save
         evaluation.setEvaluatorId(evaluationBean.getEvaluatorId());
         evaluation.setEvaluatedItemId(evaluationBean.getEvaluatedItemId());
         evaluation.setEvaluatedItemOwnerId(evaluationBean.getEvaluatedItemOwnerId());
         evaluation.setOverallComment(evaluationBean.getOverallComment());
         evaluation.setStatus(evaluationBean.getStatus());
         evaluation.setEvaluatedItemOwnerType(evaluationBean.getEvaluatedItemOwnerType());
-        evaluation.setCreated(evaluationBean.getCreated());
-        evaluation.setModified(evaluationBean.getModified());
-        evaluation.setCreatorId(evaluationBean.getCreatorId());
-        evaluation.setOwnerId(siteId);
+        evaluation.setModified(Instant.now());
 
         Evaluation savedEvaluation = evaluationRepository.save(evaluation);
 
         // If this evaluation has been returned, back it up.
         if (savedEvaluation.getStatus() == EvaluationStatus.RETURNED) {
 
-            ReturnedEvaluation returnedEvaluation
-                = returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId())
+            ReturnedEvaluation returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId())
                 .map(re -> {
                     re.setOverallComment(savedEvaluation.getOverallComment());
                     Map<Long, CriterionOutcome> outcomes = savedEvaluation.getCriterionOutcomes().stream()
