@@ -696,11 +696,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             evaluation = evaluationRepository.getById(evaluationBean.getId());
 
             List<CriterionOutcome> outcomes = evaluation.getCriterionOutcomes();
-            List<Long> outcomeIds = outcomes.stream().map(CriterionOutcome::getId).collect(Collectors.toList());
+            List<Long> outcomeIds = outcomes.stream().map(CriterionOutcome::getCriterionId).collect(Collectors.toList());
 
             for (CriterionOutcomeTransferBean outcomeBean : evaluationBean.getCriterionOutcomes()) {
-                Long beanId = outcomeBean.getId();
-                if (beanId == null) {
+                Long beanCriterionId = outcomeBean.getCriterionId();
+                if (beanCriterionId == null) {
                     // add
                     CriterionOutcome outcome = new CriterionOutcome();
                     outcome.setCriterionId(outcomeBean.getCriterionId());
@@ -709,25 +709,25 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     outcome.setPointsAdjusted(outcomeBean.getPointsAdjusted());
                     outcome.setSelectedRatingId(outcomeBean.getSelectedRatingId());
                     outcomes.add(outcome);
-                } else if (outcomeIds.contains(beanId)) {
-                    outcomes.stream().filter(i -> i.getId().equals(beanId)).findAny().ifPresent(o -> {
+                } else if (outcomeIds.contains(beanCriterionId)) {
+                    outcomes.stream().filter(i -> i.getCriterionId().equals(beanCriterionId)).findAny().ifPresent(o -> {
                         // update
-                        o.setCriterionId(outcomeBean.getCriterionId());
                         o.setPoints(outcomeBean.getPoints());
                         o.setComments(outcomeBean.getComments());
                         o.setPointsAdjusted(outcomeBean.getPointsAdjusted());
                         o.setSelectedRatingId(outcomeBean.getSelectedRatingId());
                     });
-                    outcomeIds.remove(beanId);
+                    // criterion processed so remove it from the list
+                    outcomeIds.remove(beanCriterionId);
                 } else {
-                    log.warn("An outcome with id: [{}], was not in the original list", beanId);
+                    log.warn("An outcome with id: [{}], was not in the original list", beanCriterionId);
                 }
             }
-            // remove
-            outcomes.stream().filter(o -> outcomeIds.contains(o.getId())).forEach(outcomes::remove);
+            // outcomeIds should be empty, if not the db contained outcomes not reported in the ui so remove them
+            outcomes.stream().filter(o -> outcomeIds.contains(o.getCriterionId())).forEach(outcomes::remove);
         } else {
             evaluation = new Evaluation();
-            evaluation.setCriterionOutcomes(evaluationBean.getCriterionOutcomes().stream().map(o -> {
+            evaluation.getCriterionOutcomes().addAll(evaluationBean.getCriterionOutcomes().stream().map(o -> {
                 CriterionOutcome outcome = new CriterionOutcome();
                 outcome.setCriterionId(o.getCriterionId());
                 outcome.setPoints(o.getPoints());
