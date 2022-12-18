@@ -126,19 +126,6 @@ public class ConfigurationService
 	}
 
   /**
-   * Fetch the site specific Repository OSID package name
-   */
-	public static String getSiteConfigOsidPackageName()
-	{
-		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
-		if (instance == null)
-		{
-			return null;
-		}
-		return instance.getSiteConfigOsidPackageName();
-	}
-
-  /**
    * Fetch the site specific extended Repository ID
    */
 	public static String getSiteConfigExtendedRepositoryId()

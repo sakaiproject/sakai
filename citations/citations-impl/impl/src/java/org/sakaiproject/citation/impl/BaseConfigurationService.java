@@ -127,8 +127,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     protected String m_metasearchPassword;
     protected String m_metasearchBaseUrl;
 
-  // which osid impl to use
-    protected String m_osidImpl;
   // extended repository id (optional, leave as null if not used)
     protected String m_extendedRepositoryId;
 
@@ -301,17 +299,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       return emptyList;
     }
     return siteConfig.getGroupIds();
-  }
-
-  /**
-   * Fetch the site specific Repository OSID package name
-   * @return Repository Package (eg org.sakaibrary.osid.repository.xserver)
-   */
-  public synchronized String getSiteConfigOsidPackageName()
-  {
-    String value = getConfigurationParameter("osid-impl");
-
-    return (value != null) ? value : getOsidImpl();
   }
 
   /**
@@ -1035,21 +1022,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    * Getters/setters for components.xml parameters
    */
 
-  /**
-   * @return the OSID package name
-   */
-  public String getOsidImpl()
-  {
-    return m_osidImpl;
-  }
-
-  /**
-   * @param osidImpl the OSID package name
-   */
-  public void setOsidImpl(String osidImpl)
-  {
-    m_osidImpl = osidImpl;
-  }
   /**
    * @return the extended Repository ID
    */
