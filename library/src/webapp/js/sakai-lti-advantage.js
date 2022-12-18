@@ -63,7 +63,11 @@ w.addEventListener('message', function (event) {
         case 'org.sakailms.lti.prelaunch': {
             if ( same_origin ) {
                 _Sakai_LTI_Iframes.push(frame_id);
-                console.log('org.sakailms.lti.prelaunch from same origin', origin, 'frame approved', frame_id);
+                let send_data = {
+                    subject: 'org.sakailms.lti.prelaunch.response',
+                };
+                console.log('org.sakailms.lti.prelaunch from same origin', origin, 'frame approved', frame_id, 'sending prelaunch.response');
+                event.source.postMessage(send_data, event.origin);
             } else {
                 console.log('org.sakailms.lti.prelaunch must come from same origin, not', origin);
             }

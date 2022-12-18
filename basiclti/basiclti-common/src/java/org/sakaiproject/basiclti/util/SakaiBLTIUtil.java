@@ -1714,17 +1714,21 @@ public class SakaiBLTIUtil {
 			String relaunch_url = (String) tool.get("relaunch_url");
 			if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
 
+			String submit_form_id = java.util.UUID.randomUUID().toString() + "";
+			boolean autosubmit = !dodebug;
+
 			Map<String, String> extra = new HashMap<>();
+			extra.put(BasicLTIUtil.EXTRA_FORM_ID, submit_form_id);
 			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
 			extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
-			extra.put(BasicLTIUtil.EXTRA_JAVASCRIPT, "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending prelaunch request');\n");
-			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
-					consumerkey, secret, extra);
+			extra.put(BasicLTIUtil.EXTRA_JAVASCRIPT, getLaunchJavaScript(submit_form_id, autosubmit));
+			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", consumerkey, secret, extra);
 
 			log.debug("signed ltiProps={}", ltiProps);
 
 			String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
-			String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
+			autosubmit = false;  // We handle this in our JavaScript
+			String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, autosubmit, dodebug, extra);
 
 			String[] retval = {postData, launch_url};
 			return retval;
@@ -1826,9 +1830,20 @@ public class SakaiBLTIUtil {
 			addPropertyExtensionData(ltiProps, null);
 			addConsumerData(ltiProps, null);
 
+			String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
+			boolean dodebug = BASICLTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
+			if (log.isDebugEnabled()) {
+				dodebug = true;
+			}
+
+			String submit_form_id = java.util.UUID.randomUUID().toString() + "";
+			boolean autosubmit = !dodebug;
+
 			Map<String, String> extra = new HashMap<>();
+			extra.put(BasicLTIUtil.EXTRA_FORM_ID, submit_form_id);
 			extra.put(BasicLTIUtil.EXTRA_ERROR_TIMEOUT, rb.getString("error.submit.timeout"));
-			extra.put(BasicLTIUtil.EXTRA_JAVASCRIPT, "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending prelaunch request');\n");
+			extra.put(BasicLTIUtil.EXTRA_HTTP_POPUP, BasicLTIUtil.EXTRA_HTTP_POPUP_FALSE);  // Don't bother opening in new window in protocol mismatch
+			extra.put(BasicLTIUtil.EXTRA_JAVASCRIPT, getLaunchJavaScript(submit_form_id, autosubmit));
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", key, secret, extra);
 
 			if (ltiProps == null) {
@@ -1836,14 +1851,9 @@ public class SakaiBLTIUtil {
 			}
 			log.debug("LAUNCH III={}", ltiProps);
 
-			String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
-			boolean dodebug = BASICLTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
-			if (log.isDebugEnabled()) {
-				dodebug = true;
-			}
-
 			String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
-			String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
+			autosubmit = false;  // We handle this in our JavaScript
+			String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, autosubmit, dodebug, extra);
 
 			String[] retval = {postData, launch_url};
 			return retval;
@@ -2254,39 +2264,42 @@ public class SakaiBLTIUtil {
 
 		public static String getJwsHTMLForm(String launch_url, String form_field, String jwt, String jsonStr, String state, String launch_error, boolean dodebug) {
 
-			Integer form_id = jwt.hashCode();
-			String html = "<form action=\"" + launch_url + "\" id=\"jwt-launch-"+ form_id + "\" method=\"POST\">\n"
-					+ "    <input type=\"hidden\" name=\""+form_field+"\" value=\"" + BasicLTIUtil.htmlspecialchars(jwt) + "\" />\n";
+			String submit_form_id = "jwt-launch-"+jwt.hashCode();
+			StringBuffer sb = new StringBuffer();
+
+			sb.append("<form action=\"" + launch_url + "\" id=\""+ submit_form_id + "\" method=\"POST\">\n");
+			sb.append("    <input type=\"hidden\" name=\""+form_field+"\" value=\"" + BasicLTIUtil.htmlspecialchars(jwt) + "\" />\n");
 
 			if ( state != null ) {
-				html += "    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n";
+				sb.append("    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n");
 			}
 
 			if ( dodebug ) {
-				html += "    <input type=\"submit\" value=\"Proceed with LTI 1.3 Launch\" />\n</form>\n";
+				sb.append("    <input type=\"submit\" value=\"Proceed with LTI 1.3 Launch\" />\n</form>\n");
 			}
-			html += "    </form>\n";
+			sb.append("    </form>\n");
 
-
-			if ( ! dodebug ) {
-				html += "<script>\n";
-				html += "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending prelaunch request');\n";
-				html += "setTimeout(function() { document.getElementById(\"jwt-launch-" + form_id + "\").submit(); }, 200 );\n";
-				html += "setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
-				html += "</script>\n";
+			if ( dodebug ) {
+				sb.append("<p>\n--- Unencoded JWT:<br/><pre>\n");
+				sb.append(BasicLTIUtil.htmlspecialchars(jsonStr));
+				sb.append("</pre>\n</p>\n<p>\n--- State:<br/>");
+				sb.append(BasicLTIUtil.htmlspecialchars(state));
+				sb.append("</p>\n<p>\n--- Encoded JWT:<br/>");
+				sb.append(BasicLTIUtil.htmlspecialchars(jwt));
+				sb.append("</p>\n");
 			} else {
-				html += "<p>\n--- Unencoded JWT:<br/><pre>\n"
-						+ BasicLTIUtil.htmlspecialchars(jsonStr)
-						+ "</pre>\n</p>\n<p>\n--- State:<br/>"
-						+ BasicLTIUtil.htmlspecialchars(state)
-						+ "</p>\n<p>\n--- Encoded JWT:<br/>"
-						+ BasicLTIUtil.htmlspecialchars(jwt)
-						+ "</p>\n";
-				html += "<script>\n";
-				html += "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending debug prelaunch request');\n";
-				html += "</script>\n";
+				sb.append("<script>\n");
+				sb.append("setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n");
+				sb.append("</script>\n");
 			}
-			return html;
+
+			boolean autosubmit = !dodebug;
+			String extraJS = getLaunchJavaScript(submit_form_id, autosubmit);
+
+			sb.append("<script>\n");
+			sb.append(extraJS);
+			sb.append("</script>\n");
+			return sb.toString();
 		}
 
 		public static String getSourceDID(User user, Placement placement, Properties config) {
@@ -3148,6 +3161,35 @@ public class SakaiBLTIUtil {
 			retval.setProperty(BASICLTI_PORTLET_ASSIGNMENT, aTitle.trim());
 		}
 		return retval;
+	}
+
+	/**
+	 * getLaunchJavaScript - Return JavaScript to finish the launch
+	 */
+	public static String getLaunchJavaScript(String submit_form_id, boolean autosubmit) {
+
+		String doSubmit = "document.getElementById('"+submit_form_id+"').submit();\n";
+
+		StringBuffer sb = new StringBuffer();
+		sb.append("window.addEventListener('message', function (event) {\n");
+		sb.append("  var message = event.data;\n");
+		sb.append("  if ( typeof message == 'string' ) message = JSON.parse(message);\n  console.log(message);\n");
+		if ( autosubmit ) {
+			sb.append("  if ( message.subject == 'org.sakailms.lti.prelaunch.response' ) {\n");
+			sb.append("    console.log('submitting based on org.sakailms.lti.prelaunch.response');\n    ");
+			sb.append(doSubmit);
+			sb.append("  }\n");
+		}
+		sb.append("});\n\n");
+
+		sb.append("parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');\nconsole.log('Sending prelaunch request');\n\n");
+
+		if ( autosubmit ) {
+			sb.append("setTimeout(function() {\n  console.warn('Submitting after prelaunch timeout');\n  ");
+			sb.append(doSubmit);
+			sb.append("}, 2000);\n");
+		}
+		return sb.toString();
 	}
 
 	/**

@@ -685,6 +685,65 @@ public class SakaiBLTIUtilTest {
 			assertEquals(roundTrip, sakaiRole);
 		}
 	}
+
+	public String compileJavaScript(String extraJS) {
+		long count = extraJS.chars().filter(ch -> ch == '{').count();
+		long count2 = extraJS.codePoints().filter(ch -> ch == '}').count();
+		if ( count != count2 ) {
+			System.out.println(extraJS);
+			return "{} mismatch";
+		}
+		count = extraJS.chars().filter(ch -> ch == '(').count();
+		count2 = extraJS.codePoints().filter(ch -> ch == '(').count();
+		if ( count != count2 ) {
+			System.out.println(extraJS);
+			return "() mismatch";
+		}
+		count = extraJS.chars().filter(ch -> ch == '"').count();
+		assertEquals(count % 2, 0);
+		if ( count % 2 != 0 ) {
+			System.out.println(extraJS);
+			return " \" mismatch";
+		}
+		count = extraJS.chars().filter(ch -> ch == '\'').count();
+		if ( count % 2 != 0 ) {
+			System.out.println(extraJS);
+			return " ' mismatch";
+		}
+		return "success";
+	}
+
+	@Test
+	public void testFormPost() {
+		boolean autosubmit = true;
+		String submit_form_id = "42";
+		String extraJS = SakaiBLTIUtil.getLaunchJavaScript(submit_form_id, autosubmit);
+		assertTrue(extraJS.contains("document.getElementById"));
+		assertEquals(compileJavaScript(extraJS), "success");
+
+		autosubmit = false;
+		extraJS = SakaiBLTIUtil.getLaunchJavaScript(submit_form_id, autosubmit);
+		assertFalse(extraJS.contains("document.getElementById"));
+		assertEquals(compileJavaScript(extraJS), "success");
+
+		String launch_url = "https://www.tsugicloud.org/lti/store";
+		String jws = "IAMJWS";
+		String ljs = "{ \"key\": \"Value\"} ";
+		String state = "42";
+		String launch_error = "Dude abides";
+
+		boolean dodebug = false;
+		String form = SakaiBLTIUtil.getJwsHTMLForm(launch_url, "id_token", jws, ljs, state, launch_error, dodebug);
+		assertEquals(compileJavaScript(form), "success");
+		assertTrue(form.contains("document.getElementById"));
+
+		dodebug = true;
+		form = SakaiBLTIUtil.getJwsHTMLForm(launch_url, "id_token", jws, ljs, state, launch_error, dodebug);
+		assertEquals(compileJavaScript(form), "success");
+		assertFalse(form.contains("document.getElementById"));
+
+
+	}
 }
 
 
