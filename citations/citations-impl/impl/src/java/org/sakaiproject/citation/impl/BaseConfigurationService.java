@@ -78,7 +78,6 @@ import org.w3c.dom.NodeList;
 
 import com.thoughtworks.xstream.XStream;
 
-import edu.indiana.lib.twinpeaks.util.DomException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -845,7 +844,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   /**
    * Get a DOM Document builder.
    * @return The DocumentBuilder
-   * @throws DomException
    */
   protected DocumentBuilder getXmlDocumentBuilder()
   {

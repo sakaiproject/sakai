@@ -59,7 +59,6 @@ import org.osid.shared.ObjectIterator;
 import org.osid.shared.SharedException;
 import org.osid.shared.Type;
 import org.osid.shared.TypeIterator;
-import org.sakaibrary.xserver.session.MetasearchSessionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.citation.api.ActiveSearch;
@@ -97,7 +96,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import edu.indiana.lib.twinpeaks.util.SessionContext;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -1882,10 +1880,6 @@ public class BaseSearchManager implements SearchManager, Observer
 	@Setter private EventTrackingService eventTrackingService;
 	@Setter private CitationService citationService;
 
-	private Cache sessionContextCache;
-
-	private Cache metasearchSessionManagerCache;
-
 	public void setSessionManager(SessionManager sessionManager)
 	{
 		m_sessionManager = sessionManager;
@@ -2471,15 +2465,6 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	public void init()
 	{
-
-
-
-		sessionContextCache = memoryService.getCache("org.sakaiproject.citation.api.SearchManager.sessionContextCache");
-		SessionContext.setCache(sessionContextCache);
-
-		metasearchSessionManagerCache = memoryService.getCache("org.sakaiproject.citation.api.SearchManager.metasearchSessionManagerCache");
-		MetasearchSessionManager.setCache(metasearchSessionManagerCache);
-
 
 		log.info("BaseSearchManager.init()");
 
