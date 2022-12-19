@@ -635,7 +635,7 @@
 						   					</h:outputLink>
 						   				</h:panelGroup>
 						   				
-								   		<h:panelGroup  id="editAttendeesList" style="display: none;">		
+								   		<h:panelGroup  id="editAttendeesList" style="display: #{OrganizerSignupMBean.isShortList(timeSlotWrapper.positionInTSlist, 1) ? 'block' : 'none'}">		
 							   				<h:dataTable id="availableSpots" value="#{timeSlotWrapper.attendeeWrappers}" var="attendeeWrapper">
 							   					<h:column>
 							   						<h:panelGrid columns="2" columnClasses="editAddImages,attName"  rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" id="editLink">
@@ -812,7 +812,7 @@
 								   					</h:outputLink>
 								   				</h:panelGroup>
 								   				
-									   			<h:panelGroup  id="editWaitingList" style="display: none;">
+									   			<h:panelGroup  id="editWaitingList" style="display: #{OrganizerSignupMBean.isShortList(timeSlotWrapper.positionInTSlist, 2) ? 'block' : 'none'}">
 										   			<h:dataTable id="waiterSpots" value="#{timeSlotWrapper.waitingList}" binding="#{OrganizerSignupMBean.waiterWrapperTable}" var="waiterWrapper">
 										   				<h:column>
 										   					<h:panelGrid columns="2" border="0" columnClasses="editAddImages,attName" rendered="#{waiterWrapper.signupAttendee.attendeeUserId !=null}">
