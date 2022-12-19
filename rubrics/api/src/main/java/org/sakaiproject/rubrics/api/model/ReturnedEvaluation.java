@@ -23,11 +23,13 @@
 package org.sakaiproject.rubrics.api.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -44,6 +46,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.hibernate.annotations.Cache;
@@ -74,7 +77,8 @@ public class ReturnedEvaluation implements PersistableEntity<Long>, Serializable
 
     private String overallComment;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "rbc_returned_criterion_outs",
         joinColumns = @JoinColumn(name = "rbc_returned_evaluation_id", referencedColumnName = "id", nullable = false),
         inverseJoinColumns = @JoinColumn(name = "rbc_returned_criterion_out_id", referencedColumnName = "id", nullable = false),
@@ -83,5 +87,5 @@ public class ReturnedEvaluation implements PersistableEntity<Long>, Serializable
         uniqueConstraints = { @UniqueConstraint(name = "returned_criterion_out_id_key", columnNames = {"rbc_returned_criterion_out_id"}) },
         indexes = { @Index(name = "returned_evaluation_id_key", columnList = "rbc_returned_evaluation_id") }
     )
-    private List<ReturnedCriterionOutcome> criterionOutcomes;
+    private List<ReturnedCriterionOutcome> criterionOutcomes = new ArrayList<>();
 }

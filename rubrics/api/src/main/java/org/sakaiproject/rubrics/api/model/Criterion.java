@@ -29,16 +29,19 @@ import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.hibernate.annotations.Cache;
@@ -71,23 +74,28 @@ public class Criterion implements PersistableEntity<Long>, Serializable {
 
     private Float weight = 0F;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "criterion_id")
-    @OrderColumn(name = "order_index")
+    @EqualsAndHashCode.Exclude
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "criterion")
     private List<Rating> ratings = new ArrayList<>();
 
-    @Column(length = 99)
-    private String ownerId;
+    @EqualsAndHashCode.Exclude
+    @ManyToOne
+    @JoinColumn(name = "rubric_id")
+    private Rubric rubric;
 
     @Override
     public Criterion clone() {
-
         Criterion clonedCriterion = new Criterion();
-        clonedCriterion.setId(null);
         clonedCriterion.setTitle(this.title);
         clonedCriterion.setDescription(this.description);
-        clonedCriterion.setRatings(this.getRatings().stream().map(r -> r.clone())
-            .collect(Collectors.toList()));
+        clonedCriterion.getRatings()
+                .addAll(this.getRatings().stream()
+                        .map(r -> {
+                            Rating clonedRating = r.clone();
+                            clonedRating.setCriterion(clonedCriterion);
+                            return clonedRating;
+                        })
+                        .collect(Collectors.toList()));
         return clonedCriterion;
     }
 }

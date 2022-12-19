@@ -58,10 +58,6 @@ public class ReturnedCriterionOutcome implements PersistableEntity<Long>, Serial
     @Column(name = "criterion_id")
     private Long criterionId;
 
-    @ManyToOne
-    @JoinColumn(name = "criterion_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Criterion criterion;
-
     @Column(name = "selected_rating_id")
     private Long selectedRatingId;
 
@@ -75,13 +71,11 @@ public class ReturnedCriterionOutcome implements PersistableEntity<Long>, Serial
     @Column(length = 65535)
     private String comments;
 
-    public ReturnedCriterionOutcome assign(CriterionOutcome from) {
-
-        this.criterionId = from.getCriterionId();
-        this.selectedRatingId = from.getSelectedRatingId();
-        this.pointsAdjusted = from.getPointsAdjusted();
-        this.points = from.getPoints();
-        this.comments = from.getComments();
-        return this;
+    public ReturnedCriterionOutcome(CriterionOutcome outcome) {
+        criterionId = outcome.getCriterionId();
+        selectedRatingId = outcome.getSelectedRatingId();
+        pointsAdjusted = outcome.getPointsAdjusted();
+        points = outcome.getPoints();
+        comments = outcome.getComments();
     }
 }

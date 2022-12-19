@@ -30,6 +30,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,6 +42,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.hibernate.annotations.Cache;
@@ -81,11 +83,9 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
     private String toolId;
     private String itemId;
 
-    @Column(name = "rubric_id")
-    private Long rubricId;
-
-    @ManyToOne
-    @JoinColumn(name = "rubric_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rubric_id", nullable = false)
     private Rubric rubric;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -102,6 +102,7 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
     @Column(name = "active", nullable = false)
     private Boolean active = Boolean.TRUE;
 
+    @EqualsAndHashCode.Exclude
     @ElementCollection
     @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf",
                         joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"),
@@ -114,7 +115,7 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
 
         Map<String, String> formattedParams = new HashMap<>();
         formattedParams.put(RubricsConstants.RBCS_ASSOCIATE,"1");
-        formattedParams.put(RubricsConstants.RBCS_LIST, String.valueOf(rubricId));
+        formattedParams.put(RubricsConstants.RBCS_LIST, String.valueOf(rubric.getId()));
         parameters.forEach((k, v) -> formattedParams.put(RubricsConstants.RBCS_CONFIG + k, String.valueOf(v ? 1 : 0)));
         return formattedParams;
     }
