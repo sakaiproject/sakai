@@ -35,6 +35,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.hibernate.annotations.Cache;
@@ -55,7 +56,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Table(name = "rbc_rating")
-@ToString(exclude = {"criterion"})
 public class Rating implements PersistableEntity<Long>, Serializable {
 
     @Id
@@ -72,14 +72,14 @@ public class Rating implements PersistableEntity<Long>, Serializable {
     @Column(nullable = false)
     private Double points;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //private Criterion criterion;
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "criterion_id", nullable = false)
+    private Criterion criterion;
 
     @Override
     public Rating clone() {
-
         Rating clonedRating = new Rating();
-        clonedRating.setId(null);
         clonedRating.setTitle(this.title);
         clonedRating.setDescription(this.description);
         clonedRating.setPoints(this.points);

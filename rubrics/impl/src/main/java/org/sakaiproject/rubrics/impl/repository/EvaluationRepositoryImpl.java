@@ -22,6 +22,7 @@
 
 package org.sakaiproject.rubrics.impl.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.sakaiproject.rubrics.api.model.Evaluation;
@@ -90,5 +91,19 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         delete.where(cb.equal(eval.get("associationId"), associationId));
         
         return session.createQuery(delete).executeUpdate();
+    }
+
+    @Override
+    public int deleteByOwnerId(String ownerId) {
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> root = query.from(Evaluation.class);
+        query.where(cb.equal(root.get("ownerId"), ownerId));
+
+        List<Evaluation> evaluations = session.createQuery(query).list();
+        evaluations.forEach(session::delete);
+        return evaluations.size();
     }
 }

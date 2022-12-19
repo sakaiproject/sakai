@@ -69,11 +69,8 @@ public class RubricRepositoryImpl extends SpringCrudRepositoryImpl<Rubric, Long>
 
         Session session = sessionFactory.getCurrentSession();
 
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<Rubric> delete = cb.createCriteriaDelete(Rubric.class);
-        Root<Rubric> rubric = delete.from(Rubric.class);
-        delete.where(cb.equal(rubric.get("ownerId"), ownerId));
-
-        return session.createQuery(delete).executeUpdate();
+        List<Rubric> rubrics = findByOwnerId(ownerId);
+        rubrics.forEach(session::delete);
+        return rubrics.size();
     }
 }

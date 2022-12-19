@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,6 +43,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.hibernate.annotations.Cache;
@@ -60,7 +62,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Table(name = "rbc_rubric")
-@ToString(exclude = {"criterions", "toolItemAssociations"})
+@ToString(exclude = {"criteria", "associations"})
 public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable {
 
     @Id
@@ -72,13 +74,14 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
 
     private Boolean weighted = Boolean.FALSE;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "rubric_id")
+    @EqualsAndHashCode.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rubric")
     @OrderColumn(name = "order_index")
     private List<Criterion> criteria = new ArrayList<>();
 
-    @OneToMany(mappedBy = "rubric")
-    private List<ToolItemRubricAssociation> associations;
+    @EqualsAndHashCode.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rubric")
+    private List<ToolItemRubricAssociation> associations = new ArrayList<>();
 
     private Instant created;
 
@@ -114,15 +117,20 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     public Rubric clone(String siteId) {
 
         Rubric clonedRubric = new Rubric();
-        clonedRubric.setId(null);
-        clonedRubric.setCreatorId(this.creatorId);
+        clonedRubric.setCreatorId(creatorId);
         clonedRubric.setOwnerId(siteId);
-        clonedRubric.setTitle(this.title);
-        clonedRubric.setWeighted(this.weighted);
+        clonedRubric.setTitle(title);
+        clonedRubric.setWeighted(weighted);
         clonedRubric.setLocked(false);
         clonedRubric.setShared(false);
-        clonedRubric.setCriteria(this.getCriteria().stream().map(c -> c.clone())
-            .collect(Collectors.toList()));
+        clonedRubric.getCriteria()
+                .addAll(this.getCriteria().stream()
+                        .map(c -> {
+                            Criterion clonedCriterion = c.clone();
+                            clonedCriterion.setRubric(clonedRubric);
+                            return clonedCriterion;
+                        })
+                        .collect(Collectors.toList()));
         return clonedRubric;
     }
 }

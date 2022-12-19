@@ -13,58 +13,45 @@
  ******************************************************************************/
 package org.sakaiproject.rubrics.api.beans;
 
-import org.sakaiproject.rubrics.api.model.Rubric;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.rubrics.api.model.Rubric;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class RubricTransferBean {
 
-    public Long id = null;
-    public String title;
-    public Boolean weighted;
-    public List<CriterionTransferBean> criteria = new ArrayList<>();
-    public Instant created;
-    public String formattedCreatedDate;
-    public Instant modified;
-    public String formattedModifiedDate;
-    public String ownerId;
-    public String siteTitle;
-    public String creatorId;
-    public String creatorDisplayName;
-    public Boolean shared;
-    public Boolean locked;
+    private Long id;
+    private Instant created;
+    private String creatorDisplayName;
+    private String creatorId;
+    private List<CriterionTransferBean> criteria = new ArrayList<>();
+    private String formattedCreatedDate;
+    private String formattedModifiedDate;
+    private Boolean locked;
+    private Instant modified;
+    private String ownerId;
+    private Boolean shared;
+    private String siteTitle;
+    private String title;
+    private Boolean weighted;
 
-    public static RubricTransferBean of(Rubric rubric) {
-
-        RubricTransferBean bean = new RubricTransferBean();
-        bean.id = rubric.getId();
-        bean.title = rubric.getTitle();
-        bean.weighted = rubric.getWeighted();
-        bean.criteria = rubric.getCriteria().stream().map(CriterionTransferBean::of).collect(Collectors.toList());
-        bean.created = rubric.getCreated();
-        bean.modified = rubric.getModified();
-        bean.ownerId = rubric.getOwnerId();
-        bean.creatorId = rubric.getCreatorId();
-        bean.shared = rubric.getShared();
-        bean.locked = rubric.getLocked();
-        return bean;
-    }
-
-    public Rubric toRubric() {
-
-        Rubric rubric = new Rubric();
-        rubric.setId(id);
-        rubric.setTitle(title);
-        rubric.setWeighted(weighted);
-        rubric.setCriteria(criteria.stream().map(c -> c.toCriterion()).collect(Collectors.toList()));
-        rubric.setCreated(created);
-        rubric.setModified(modified);
-        rubric.setOwnerId(ownerId);
-        rubric.setCreatorId(creatorId);
-        rubric.setShared(shared);
-        return rubric;
+    public RubricTransferBean(Rubric rubric) {
+        id = rubric.getId();
+        created = rubric.getCreated();
+        creatorId = rubric.getCreatorId();
+        criteria = rubric.getCriteria().stream().map(CriterionTransferBean::new).collect(Collectors.toList());
+        locked = rubric.getLocked();
+        modified = rubric.getModified();
+        ownerId = rubric.getOwnerId();
+        shared = rubric.getShared();
+        title = rubric.getTitle();
+        weighted = rubric.getWeighted();
     }
 }

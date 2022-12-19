@@ -13,75 +13,50 @@
  ******************************************************************************/
 package org.sakaiproject.rubrics.api.beans;
 
-import org.sakaiproject.rubrics.api.model.Evaluation;
-
-import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
-import org.sakaiproject.rubrics.api.model.EvaluationStatus;
-
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import java.time.Instant;
+import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
+import org.sakaiproject.rubrics.api.model.Evaluation;
+import org.sakaiproject.rubrics.api.model.EvaluationStatus;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class EvaluationTransferBean {
 
-    public Long id;
-    public String evaluatorId;
-    public Long associationId;
-    public String evaluatedItemId;
-    public String evaluatedItemOwnerId;
-    public String overallComment;
-    public List<CriterionOutcomeTransferBean> criterionOutcomes;
-    public EvaluationStatus status;
-    public EvaluatedItemOwnerType evaluatedItemOwnerType;
-    public Instant created;
-    public Instant modified;
-    public String creatorId;
-    public String ownerId;
+    private Long id;
+    private Long associationId;
+    private Instant created;
+    private String creatorId;
+    private List<CriterionOutcomeTransferBean> criterionOutcomes = new ArrayList<>();
+    private String evaluatedItemId;
+    private String evaluatedItemOwnerId;
+    private EvaluatedItemOwnerType evaluatedItemOwnerType;
+    private String evaluatorId;
+    private boolean isNew;
+    private Instant modified;
+    private String overallComment;
+    private String ownerId;
+    private EvaluationStatus status;
 
-    public boolean isNew;
-
-    public static EvaluationTransferBean of(Evaluation evaluation) {
-
-        EvaluationTransferBean bean = new EvaluationTransferBean();
-        bean.id = evaluation.getId();
-        bean.associationId = evaluation.getAssociationId();
-        bean.evaluatorId = evaluation.getEvaluatorId();
-        bean.evaluatedItemId = evaluation.getEvaluatedItemId();
-        bean.evaluatedItemOwnerId = evaluation.getEvaluatedItemOwnerId();
-        bean.overallComment = evaluation.getOverallComment();
-        bean.criterionOutcomes = evaluation.getCriterionOutcomes().stream().map(CriterionOutcomeTransferBean::of).collect(Collectors.toList());
-        bean.status = evaluation.getStatus();
-        bean.evaluatedItemOwnerType = evaluation.getEvaluatedItemOwnerType();
-        bean.created = evaluation.getCreated();
-        bean.modified = evaluation.getModified();
-        bean.creatorId = evaluation.getCreatorId();
-        bean.ownerId = evaluation.getOwnerId();
-        return bean;
-    }
-
-    public Evaluation toEvaluation() {
-
-        Evaluation evaluation = new Evaluation();
-        evaluation.setId(id);
-        evaluation.setAssociationId(associationId);
-        evaluation.setEvaluatorId(evaluatorId);
-        evaluation.setEvaluatedItemId(evaluatedItemId);
-        evaluation.setEvaluatedItemOwnerId(evaluatedItemOwnerId);
-        evaluation.setOverallComment(overallComment);
-        evaluation.setCriterionOutcomes(criterionOutcomes.stream().map(co -> co.toCriterionOutcome()).collect(Collectors.toList()));
-        evaluation.setStatus(status);
-        evaluation.setEvaluatedItemOwnerType(evaluatedItemOwnerType);
-        evaluation.setCreated(created);
-        evaluation.setModified(modified);
-        evaluation.setCreatorId(creatorId);
-        evaluation.setOwnerId(ownerId);
-        return evaluation;
+    public EvaluationTransferBean(Evaluation evaluation) {
+        id = evaluation.getId();
+        associationId = evaluation.getAssociationId();
+        created = evaluation.getCreated();
+        creatorId = evaluation.getCreatorId();
+        criterionOutcomes = evaluation.getCriterionOutcomes().stream().map(CriterionOutcomeTransferBean::new).collect(Collectors.toList());
+        evaluatedItemId = evaluation.getEvaluatedItemId();
+        evaluatedItemOwnerId = evaluation.getEvaluatedItemOwnerId();
+        evaluatedItemOwnerType = evaluation.getEvaluatedItemOwnerType();
+        evaluatorId = evaluation.getEvaluatorId();
+        modified = evaluation.getModified();
+        overallComment = evaluation.getOverallComment();
+        ownerId = evaluation.getOwnerId();
+        status = evaluation.getStatus();
     }
 }

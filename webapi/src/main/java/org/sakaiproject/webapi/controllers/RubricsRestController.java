@@ -30,7 +30,6 @@ import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -114,9 +113,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return rubricsService.getCriterion(criterionId, siteId).map(criterion -> {
 
-            criterion.title = title;
+            criterion.setTitle(title);
             try {
-                rubricsService.saveCriterion(criterion, siteId);
+                rubricsService.updateCriterion(criterion, siteId);
                 return ResponseEntity.ok().build();
             } catch (SecurityException se) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -225,7 +224,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
     @PostMapping(value = "/sites/{siteId}/rubric-evaluations", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EvaluationTransferBean> createEvaluation(@PathVariable String siteId, @RequestBody EvaluationTransferBean bean) throws Exception {
 
-        bean.isNew = true;
+        bean.setNew(true);
         return ResponseEntity.ok(rubricsService.saveEvaluation(bean, siteId));
     }
 
@@ -319,7 +318,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
             try {
                 JsonNode patched = patch.apply(objectMapper.convertValue(criterion, JsonNode.class));
                 CriterionTransferBean patchedBean  = objectMapper.treeToValue(patched, CriterionTransferBean.class);
-                return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.saveCriterion(patchedBean, siteId)));
+                return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.updateCriterion(patchedBean, siteId)));
             } catch (Exception e) {
                 log.error("Failed to patch criterion", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -343,7 +342,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        rubricsService.saveRating(ratingBean, siteId);
+        rubricsService.updateRating(ratingBean, siteId);
         return ResponseEntity.ok().build();
     }
 
@@ -364,7 +363,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
         checkSakaiSession();
 
         ContentDisposition contentDisposition = rubricsService.getRubric(rubricId).map(rubric -> {
-            String filename = StringUtils.trimToEmpty(rubric.title).replace(".", "_");
+            String filename = StringUtils.trimToEmpty(rubric.getTitle()).replace(".", "_");
             filename = StringUtils.isNotBlank(filename) ? filename : "_";
             return ContentDisposition.builder("attachment").filename(String.format("%s.pdf", filename)).build();
         }).orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));

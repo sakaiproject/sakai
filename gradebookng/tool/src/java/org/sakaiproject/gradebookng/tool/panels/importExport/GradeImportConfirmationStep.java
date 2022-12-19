@@ -425,7 +425,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 						try {
 							Optional<RubricTransferBean> optRubric = rubricsService.getRubric(Long.parseLong(rubricId));
 							if (optRubric.isPresent()) {
-								rubricTitle = optRubric.get().title;
+								rubricTitle = optRubric.get().getTitle();
 							}
 						} catch (Exception e) {
 							log.error("Failed to get rubric for id {}", rubricId, e);

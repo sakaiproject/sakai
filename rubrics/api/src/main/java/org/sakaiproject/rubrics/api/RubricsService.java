@@ -67,9 +67,15 @@ public interface RubricsService {
 
     Optional<RatingTransferBean> createDefaultRating(String siteId, Long criterionId, int position);
 
-    RatingTransferBean copyRating(Long sourceId);
-
-    CriterionTransferBean saveCriterion(CriterionTransferBean bean, String siteId);
+    /**
+     * This method is used for updating a Criterion's values it should not be used to create a new Criterion
+     * as it will not correctly update it's mapped entities
+     *
+     * @param bean who's values are used to update the referenced Criterion
+     * @param siteId
+     * @return a CriterionTransferBean that reflects the changes made to the Criterion, or the same bean if the criterion could not be fetched from persistence
+     */
+    CriterionTransferBean updateCriterion(CriterionTransferBean bean, String siteId);
 
     void deleteCriterion(Long rubricId, Long criterionId, String siteId);
 
@@ -77,7 +83,15 @@ public interface RubricsService {
 
     void sortCriterionRatings(Long criteriaId, List<Long> sortedRatingIds);
 
-    RatingTransferBean saveRating(RatingTransferBean bean, String siteId);
+    /**
+     * This method is used for updating a Criterion's values it should not be used to create a new Criterion
+     * as it will not correctly update it's mapped entities
+     *
+     * @param bean   who's values are used to update the referenced Rating
+     * @param siteId
+     * @return a RatingTransferBean that reflects the changes made to the Rating, or the same bean if the Rating could not be fetched from persistence
+     */
+    RatingTransferBean updateRating(RatingTransferBean bean, String siteId);
 
     CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId);
 

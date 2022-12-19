@@ -31,6 +31,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,6 +44,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.hibernate.annotations.Cache;
@@ -95,9 +97,11 @@ public class Evaluation implements PersistableEntity<Long>, Serializable {
     @Column(name = "association_id", nullable = false)
     private Long associationId;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "rbc_eval_criterion_outcomes",
-            joinColumns = @JoinColumn(name = "rbc_evaluation_id", referencedColumnName = "id", nullable = false))
+            joinColumns = @JoinColumn(name = "rbc_evaluation_id", referencedColumnName = "id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "criterionOutcomes_id", referencedColumnName = "id", nullable = false))
     private List<CriterionOutcome> criterionOutcomes = new ArrayList<>();
 
     @Enumerated

@@ -2828,7 +2828,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 Optional<AssociationTransferBean> optAssociation
                     = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), a.getContext());
                 if (optAssociation.isPresent()) {
-                    rubricMap.put(a.getId(), optAssociation.get().rubricId);
+                    rubricMap.put(a.getId(), optAssociation.get().getRubricId());
                 }
             } catch (Exception e) {
                 log.error("Failed to load rubric map", e);
@@ -4795,7 +4795,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Optional<AssociationTransferBean> optAssociation
                 = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.getId(), assignment.getContext());
             if (optAssociation.isPresent()) {
-                context.put("rubricId", optAssociation.get().rubricId);
+                context.put("rubricId", optAssociation.get().getRubricId());
             }
         } catch (Exception e) {
             log.error("Failed to get association", e);
