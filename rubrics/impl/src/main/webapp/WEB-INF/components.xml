@@ -42,24 +42,24 @@
         class="org.sakaiproject.rubrics.impl.RubricsServiceImpl"
         init-method="init">
         <property name="associationRepository" ref="org.sakaiproject.rubrics.api.repository.AssociationRepository"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="criterionRepository" ref="org.sakaiproject.rubrics.api.repository.CriterionRepository"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="evaluationRepository" ref="org.sakaiproject.rubrics.api.repository.EvaluationRepository"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="ratingRepository" ref="org.sakaiproject.rubrics.api.repository.RatingRepository"/>
+        <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.rubrics"/>
         <property name="returnedEvaluationRepository" ref="org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository"/>
+        <property name="rubricRepository" ref="org.sakaiproject.rubrics.api.repository.RubricRepository"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
-        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
-        <property name="ratingRepository" ref="org.sakaiproject.rubrics.api.repository.RatingRepository"/>
-        <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.rubrics"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
-        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="rubricRepository" ref="org.sakaiproject.rubrics.api.repository.RubricRepository"/>
     </bean>
 
     <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.rubrics"

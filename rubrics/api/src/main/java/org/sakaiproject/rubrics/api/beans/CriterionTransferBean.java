@@ -13,48 +13,33 @@
  ******************************************************************************/
 package org.sakaiproject.rubrics.api.beans;
 
-import org.sakaiproject.rubrics.api.model.Criterion;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.sakaiproject.rubrics.api.model.Criterion;
 
-@Getter
-@Setter
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Data
+@NoArgsConstructor
 public class CriterionTransferBean {
 
-    public Long id;
-    public String title;
-    public String description;
-    public Float weight;
-    public List<RatingTransferBean> ratings = new ArrayList<>();
-    public String ownerId;
-    public boolean isNew;
+    private Long id;
+    private String title;
+    private String description;
+    private Float weight;
+    private List<RatingTransferBean> ratings = new ArrayList<>();
+    private String ownerId;
+    private boolean isNew;
 
-    public static CriterionTransferBean of(Criterion criterion) {
-
-        CriterionTransferBean bean = new CriterionTransferBean();
-        bean.id = criterion.getId();
-        bean.title = criterion.getTitle();
-        bean.description = criterion.getDescription();
-        bean.weight = criterion.getWeight();
-        bean.ratings = criterion.getRatings().stream().map(RatingTransferBean::of).collect(Collectors.toList());
-        bean.ownerId = criterion.getOwnerId();
-        return bean;
-    }
-
-    public Criterion toCriterion() {
-
-        Criterion criterion = new Criterion();
-        criterion.setId(id);
-        criterion.setTitle(title);
-        criterion.setDescription(description);
-        criterion.setWeight(weight);
-        criterion.setRatings(ratings.stream().map(r -> r.toRating()).collect(Collectors.toList()));
-        criterion.setOwnerId(ownerId);
-        return criterion;
+    public CriterionTransferBean(Criterion criterion) {
+        id = criterion.getId();
+        title = criterion.getTitle();
+        description = criterion.getDescription();
+        weight = criterion.getWeight();
+        ratings = criterion.getRatings().stream().map(RatingTransferBean::new).collect(Collectors.toList());
     }
 }

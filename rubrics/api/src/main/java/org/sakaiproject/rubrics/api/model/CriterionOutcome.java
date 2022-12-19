@@ -23,14 +23,13 @@
 package org.sakaiproject.rubrics.api.model;
 
 import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -58,10 +57,6 @@ public class CriterionOutcome implements PersistableEntity<Long>, Serializable {
     @Column(name = "criterion_id")
     private Long criterionId;
 
-    @ManyToOne
-    @JoinColumn(name = "criterion_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Criterion criterion;
-
     @Column(name = "selected_rating_id")
     private Long selectedRatingId;
 
@@ -75,11 +70,4 @@ public class CriterionOutcome implements PersistableEntity<Long>, Serializable {
     @Column(length = 65535)
     private String comments;
 
-    public void assign(ReturnedCriterionOutcome from) {
-
-        this.selectedRatingId = from.getSelectedRatingId();
-        this.pointsAdjusted = from.getPointsAdjusted();
-        this.points = from.getPoints();
-        this.comments = from.getComments();
-    }
 }
