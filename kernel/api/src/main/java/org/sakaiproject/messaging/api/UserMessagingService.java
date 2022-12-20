@@ -59,10 +59,9 @@ public interface UserMessagingService {
     public void send(String topic, UserNotification ba);
 
     /**
-     * @param userId The user to retrieve alerts for
-     * @return the list of current alerts for the specified user
+     * @return the list of notifications for the current user
      */
-    public List<UserNotification> getAlerts(String userId);
+    public List<UserNotification> getNotifications();
 
     /**
      * Register a handler for broadcast messages. The most recently registered handler that
@@ -81,15 +80,20 @@ public interface UserMessagingService {
     void unregisterHandler(UserNotificationHandler handler);
 
     /**
-     * @param userId The user to clear the alert for
-     * @param alertId The alert to clear
+     * @param id The id of the notification to clear
      * @return boolean to indicate success
      */
-    public boolean clearAlert(String userId, long alertId);
+    public boolean clearNotification(long id);
 
     /**
-     * @param userId The user to clear the alerts for
+     * @param userId The user to clear the notifications for
      * @return boolean to indicate success
      */
-    public boolean clearAllAlerts(String userId);
+    public boolean clearAllNotifications();
+
+    /**
+     * @param userId The user whose notifications to mark as viewed
+     * @return boolean to indicate success
+     */
+    public boolean markAllNotificationsViewed();
 }

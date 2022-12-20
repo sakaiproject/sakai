@@ -1814,7 +1814,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
 			rcontext.put("useBullhornAlerts", useBullhornAlerts);
-			rcontext.put("bullhornAlertCount", useBullhornAlerts ? userMessagingService.getAlerts(thisUser).size() : 0);
+			rcontext.put("bullhornAlertCount", useBullhornAlerts ? userMessagingService.getNotifications().size() : 0);
 
 			String faviconURL = ServerConfigurationService.getString("portal.favicon.url");
 			rcontext.put("faviconURL", faviconURL);
