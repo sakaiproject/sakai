@@ -53,8 +53,17 @@ public class IgniteEntityProvider extends AbstractEntityProvider implements Acti
         return new String[] { Formats.XML, Formats.JSON, Formats.HTML };
     }
 
+    //Checks if the current user is an admin and throws a SecurityException if they are not
+    private void requiresAdmin() throws SecurityException {
+        String currentUserRef = developerHelperService.getCurrentUserReference();
+        if (!developerHelperService.isUserAdmin(currentUserRef)) {
+            throw new SecurityException("User [" + currentUserRef + "] doesn't have the authority to perform this action");
+        }
+    }
+    
     @EntityCustomAction(viewKey=EntityView.VIEW_LIST)
     public ActionReturn clusterInfo(EntityView view) {
+        requiresAdmin();
         Map<String, Object> data = new HashMap<>();
         IgniteCluster cluster = ignite.cluster();
         data.put("IgniteInstanceName", ignite.name());
@@ -85,41 +94,40 @@ public class IgniteEntityProvider extends AbstractEntityProvider implements Acti
 
     @EntityCustomAction
     public ActionReturn cacheMetrics(EntityView view) {
+        requiresAdmin();
         String cacheName = view.getEntityReference().getId();
         if (ignite.cacheNames().contains(cacheName)) {
             return new ActionReturn(ignite.cache(cacheName).metrics());
         } else {
-            return new ActionReturn((Object) ("The cache [" + cacheName + "] does not exist please supply a valid cache name"));
+            return new ActionReturn(
+                    (Object) ("The cache [" + cacheName + "] does not exist please supply a valid cache name"));
         }
     }
 
     @EntityCustomAction
     public ActionReturn clearCache(EntityView view) {
-        String currentUserRef = developerHelperService.getCurrentUserReference();
-        if (developerHelperService.isUserAdmin(currentUserRef)) {
-            String cacheName = view.getEntityReference().getId();
-            if (ignite.cacheNames().contains(cacheName)) {
-                IgniteCache cache = ignite.cache(cacheName);
-                long cacheSize = cache.sizeLong(CachePeekMode.ALL);
-                cache.clear();
-                log.info("Cleared cache [{}:{}] by user {}", cacheName, cacheSize, developerHelperService.getCurrentUserId());
-                return new ActionReturn((Object) ("Cleared cache [" + cacheName + ":" + cacheSize + "] at " + LocalDateTime.now()));
-            } else {
-                return new ActionReturn((Object) ("The cache [" + cacheName + "] does not exist please supply a valid cache name"));
-            }
+        requiresAdmin();
+        String cacheName = view.getEntityReference().getId();
+        if (ignite.cacheNames().contains(cacheName)) {
+            IgniteCache cache = ignite.cache(cacheName);
+            long cacheSize = cache.sizeLong(CachePeekMode.ALL);
+            cache.clear();
+            log.info("Cleared cache [{}:{}] by user {}", cacheName, cacheSize, developerHelperService.getCurrentUserId());
+            return new ActionReturn((Object) ("Cleared cache [" + cacheName + ":" + cacheSize + "] at " + LocalDateTime.now()));
         } else {
-            log.warn("User [{}] attempted to clear a cache without the proper authortity", currentUserRef);
-            throw new SecurityException("User [" + currentUserRef + "] doesn't have the authority to perform this action");
+            return new ActionReturn((Object) ("The cache [" + cacheName + "] does not exist please supply a valid cache name"));
         }
     }
 
     @EntityCustomAction(viewKey= EntityView.VIEW_LIST)
     public ActionReturn localNodeMetrics(EntityView view) {
+        requiresAdmin();
         return new ActionReturn(ignite.cluster().localNode().metrics());
     }
 
     @EntityCustomAction(viewKey= EntityView.VIEW_LIST)
     public ActionReturn transactionMetrics(EntityView view) {
+        requiresAdmin();
         return new ActionReturn(ignite.transactions().metrics());
     }
 
