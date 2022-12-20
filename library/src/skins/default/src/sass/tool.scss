@@ -239,3 +239,7 @@ table {
 .iconpicker-popover {
     opacity: 1 !important;
 }
+
+iframe[type="application/pdf"] {
+    width: 100%;
+}
