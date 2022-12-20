@@ -117,6 +117,9 @@ export class SuiPictureChanger extends SakaiElement {
     document.querySelectorAll(`.sakai-user-photo[data-user-id='${getUserId()}']`).forEach(up => {
       up.setAttribute("style", style);
     });
+    // Update the profile image on the page
+    const myPhoto = document.getElementById("myPhoto");
+    myPhoto && (myPhoto.src = imageUrl);
   }
 
   _loadExisting() {
