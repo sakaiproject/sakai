@@ -85,8 +85,6 @@ public class BeanDateComparator
     // Possible patterns only accepts Dates in English format (example: Tue Jun 22 00:43:27 CEST 2021)
     // Dates in Spanish (or any other language) format (example: Mar 22 de Jun 00:43:27 CEST 2021) will be not accepted by SimpleDateFormat
     // Setting Locale in English will do the trick to avoid conversion problems
-    Locale localeDefault = Locale.getDefault();
-    Locale.setDefault(Locale.ENGLISH);
 
     // we do not want to use null values for sorting
     if(s1 == null) s1="";
@@ -95,12 +93,12 @@ public class BeanDateComparator
     // This is one Date string observed: Mon Oct 05 18:48:15 CDT 2020
     // EventLog uses 2021-02-10 13:19:28.0
     List<SimpleDateFormat> possiblePatterns = new ArrayList<>();
-    possiblePatterns.add(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy"));
-    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm.ss'Z'"));
-    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
-    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S"));
-    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd HH:mm"));
+    possiblePatterns.add(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH));
+    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH));
+    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm.ss'Z'", Locale.ENGLISH));
+    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH));
+    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S", Locale.ENGLISH));
+    possiblePatterns.add(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH));
 
     Date i1 = null;
     Date i2 = null;
@@ -114,9 +112,6 @@ public class BeanDateComparator
         // Ignore and log only if all parsers fail
       }
     }
-
-    // Restoring the default environment Locale
-    Locale.setDefault(localeDefault);
 
     if (StringUtils.isNoneBlank(s1, s2) && i1 == null && i2 == null) {
       log.warn("Could not parse date patterns for s1={}, s2={}", s1, s2);
