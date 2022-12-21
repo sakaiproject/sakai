@@ -5,7 +5,7 @@ name: Java CI with Maven
 
 on:
   pull_request:
-    branches: [ master, 19.x, 20.x, 21.x, 22.x, 23.x ]
+    branches: [ master, 19.x, 20.x, 21.x, 22.x, 23.x, s2u-22x ]
 
 jobs:
   build:
