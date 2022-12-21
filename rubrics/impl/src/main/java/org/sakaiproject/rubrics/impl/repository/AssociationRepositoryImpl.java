@@ -25,15 +25,13 @@ package org.sakaiproject.rubrics.impl.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.Session;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 
+import org.hibernate.Session;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
@@ -98,17 +96,15 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<ToolItemRubricAssociation> delete = cb.createCriteriaDelete(ToolItemRubricAssociation.class);
-        Root<ToolItemRubricAssociation> root = delete.from(ToolItemRubricAssociation.class);
+        CriteriaQuery<ToolItemRubricAssociation> query = cb.createQuery(ToolItemRubricAssociation.class);
+        Root<ToolItemRubricAssociation> root = query.from(ToolItemRubricAssociation.class);
+        Join<ToolItemRubricAssociation, Rubric> join = root.join("rubric");
+        query.where(cb.equal(join.get("ownerId"), siteId));
+        List<ToolItemRubricAssociation> associations = session.createQuery(query).list();
 
-        Subquery<ToolItemRubricAssociation> subquery = delete.subquery(ToolItemRubricAssociation.class);
-        Root<ToolItemRubricAssociation> rootSubquery = subquery.from(ToolItemRubricAssociation.class);
-        subquery.select(rootSubquery);
-        Join<ToolItemRubricAssociation, Rubric> join = rootSubquery.join("rubric");
-        subquery.where(cb.equal(join.get("ownerId"), siteId));
-        delete.where(root.in(subquery));
+        associations.forEach(session::delete);
 
-        return session.createQuery(delete).executeUpdate();
+        return associations.size();
     }
 
     public int deleteByRubricId(Long rubricId) {
