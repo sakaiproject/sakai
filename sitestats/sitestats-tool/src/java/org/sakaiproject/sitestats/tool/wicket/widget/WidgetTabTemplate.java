@@ -375,13 +375,12 @@ public abstract class WidgetTabTemplate extends Panel {
 		toolFilter.setOutputMarkupId(true);
 		add(toolFilter);
 		toolFilter.setVisible(filters.contains(FILTER_TOOL));
-		
-		
 		// RESOURCE_ACTION Filter
 		List<String> resactionFilterOptions = Arrays.asList(
 				null,
 				ReportManager.WHAT_RESOURCES_ACTION_NEW, ReportManager.WHAT_RESOURCES_ACTION_READ,
-				ReportManager.WHAT_RESOURCES_ACTION_REVS, ReportManager.WHAT_RESOURCES_ACTION_DEL
+				ReportManager.WHAT_RESOURCES_ACTION_REVS, ReportManager.WHAT_RESOURCES_ACTION_DEL,
+				ReportManager.WHAT_RESOURCES_ACTION_DOW
 		);
 		IChoiceRenderer resactionFilterRenderer = new IChoiceRenderer() {
 			private static final long	serialVersionUID	= 1L;
