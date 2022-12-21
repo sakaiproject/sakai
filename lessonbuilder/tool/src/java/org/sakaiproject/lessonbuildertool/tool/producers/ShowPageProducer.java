@@ -4616,6 +4616,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	// in the edit dialogs
 	private void createAddMultimediaDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-multimedia-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.resource")));
+
+		String max = ServerConfigurationService.getString("content.upload.max", "20");
+		String uploadMax = ServerConfigurationService.getString("content.upload.ceiling", max);
+
+		UIOutput.make(tofill, "mm-add-files-instructions", messageLocator.getMessage("simplepage.add_file_instructions", uploadMax));
+
 		UILink.make(tofill, "mm-additional-instructions", messageLocator.getMessage("simplepage.additional-instructions-label"), 
 			    getLocalizedURL( "multimedia.html", true));
 		UILink.make(tofill, "mm-additional-website-instructions", messageLocator.getMessage("simplepage.additional-website-instructions-label"), 
