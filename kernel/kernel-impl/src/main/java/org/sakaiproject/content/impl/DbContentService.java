@@ -44,6 +44,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -130,12 +133,12 @@ public class DbContentService extends BaseContentService
     /**
      * The extra field(s) to write to the database - resources - when we are doing bodys in files with the context-query conversion.
      */
-    public static final String[] RESOURCE_FIELDS_FILE_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "FILE_PATH"};
+    public static final String[] RESOURCE_FIELDS_FILE_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "FILE_PATH", "RESOURCE_SHA256"};
 
     /**
      * The extra field(s) to write to the database - resources - when we are doing bodys the db with the context-query conversion.
      */
-    protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID"};
+    protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "RESOURCE_SHA256"};
 
     /**
      * The ID that is used in the content_resource table to test UTF8
@@ -157,6 +160,10 @@ public class DbContentService extends BaseContentService
 
     /** Property name used in sakai.properties to turn on/off Content Hosting Handler support */
     private static final String CHH_ENABLE_FLAG = "content.useCHH";
+
+    /** Property name used in sakai.properties to turn on/off Content Hosting Handler support */
+    private static final String PROP_SINGLE_INSTANCE = "content.singleInstanceStore";
+    private static final boolean PROP_SINGLE_INSTANCE_DEFAULT = true;
 
     /*************************************************************************************************************************************************
      * Constructors, Dependencies and their setter methods
@@ -610,6 +617,35 @@ public class DbContentService extends BaseContentService
             return rv;
         }
         throw new IdUnusedException(param);
+    }
+
+    /**
+     *
+     */
+    protected String singleColumnSingleRow(String sql, String param)
+    {
+
+        Object[] fields = new Object[1];
+        fields[0] = param;
+
+        List list = m_sqlService.dbRead(sql, fields, null);
+
+		if ( list == null ) return null;
+
+        Iterator iter = list.iterator();
+        while (iter.hasNext())
+        {
+            try
+            {
+                String val = (String) iter.next();
+                if ( val != null ) return val;
+            }
+            catch (Exception ignore)
+            {
+                continue;
+            }
+        }
+        return null;
     }
 
     public int getCollectionSize(String id) throws IdUnusedException, TypeException, PermissionException
@@ -1758,7 +1794,6 @@ public class DbContentService extends BaseContentService
 		*/
 	   public void commitDeletedResource(ContentResourceEdit edit, String uuid) throws ServerOverloadException
 	   {
-
 		   if (m_bodyPathDeleted == null) { 
 			   return;
 		   }
@@ -1868,10 +1903,25 @@ public class DbContentService extends BaseContentService
 				   {
 					   // if we have been configured to use an external file system
 					   if (removeContent) {
-						   log.info("Removing resource ("+edit.getId()+") content: "+m_bodyPath);
-						   delResourceBodyFilesystem(m_bodyPath, edit);
+							String filePath = ((BaseResourceEdit) edit).m_filePath;
+							log.info("Removing resource ("+edit.getId()+") content: "+m_bodyPath+" file:"+filePath);
+
+							String statement = "SELECT COUNT(FILE_PATH) FROM "+m_resourceTableName+" WHERE FILE_PATH = ?;";
+							int references = -1;
+							try {
+								references = countQuery(statement, filePath);
+							} catch ( IdUnusedException e ) {
+								log.warn("Unexpected error {}", e.getMessage());
+							}
+
+							if ( references > 1 ) {
+								log.info("Retaining file blob for resource_id={} because {} reference(s)", edit.getId(), references);
+							} else {
+								log.debug("Removing resource ("+edit.getId()+") content: "+m_bodyPath+" file:"+filePath);
+								delResourceBodyFilesystem(m_bodyPath, edit);
+							}
 					   } else {
-						   log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+m_bodyPath);
+							log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+m_bodyPath);
 					   }
 				   }
 				   else
@@ -2157,6 +2207,10 @@ public class DbContentService extends BaseContentService
             // add the new
             statement = contentServiceSql.getInsertContentSql(resourceBodyTableName);
 
+            fields = new Object[2];
+            fields[0] = resource.getId();
+			fields[1] = resource.getContentSha256();
+
             boolean success = m_sqlService.dbWriteBinary(statement, fields, body, 0, body.length);
             if (log.isDebugEnabled()) log.debug("putResourceBodyDb: resource ("+resource.getId()+") put success="+success);
             return success;
@@ -2186,15 +2240,23 @@ public class DbContentService extends BaseContentService
             int lenRead;
             try
             {
-                while ((lenRead = stream.read(chunk)) != -1)
+		        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		        DigestInputStream dstream = new DigestInputStream(stream, digest);
+
+                while ((lenRead = dstream.read(chunk)) != -1)
                 {
                     bstream.write(chunk, 0, lenRead);
                     byteCount += lenRead;
                 }
 
+		        MessageDigest md2 = dstream.getMessageDigest();
+				String hex = StorageUtils.bytesToHex(md2.digest());
+
                 edit.setContentLength(byteCount);
+                edit.setContentSha256(hex);
                 ResourcePropertiesEdit props = edit.getPropertiesEdit();
                 props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+                props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, hex);
                 if (edit.getContentType() != null)
                 {
                     props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, edit.getContentType());
@@ -2204,6 +2266,11 @@ public class DbContentService extends BaseContentService
             {
                 // TODO Auto-generated catch block
                 log.error("IOException ", e);
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                // Unlikely
+                log.error("NoSuchAlgorithmException ", e);
             }
             finally
             {
@@ -2245,19 +2312,50 @@ public class DbContentService extends BaseContentService
         {
             try
             {
-                long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, ((BaseResourceEdit) resource).m_filePath, stream);
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                DigestInputStream dstream = new DigestInputStream(stream, digest);
+
+                String filePath = ((BaseResourceEdit) resource).m_filePath;
+                long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, filePath, dstream);
+
+                MessageDigest md2 = dstream.getMessageDigest();
+                String hex = StorageUtils.bytesToHex(md2.digest());
+
                 resource.setContentLength(byteCount);
+                resource.setContentSha256(hex);
                 ResourcePropertiesEdit props = resource.getPropertiesEdit();
                 props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+                props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, hex);
                 if (resource.getContentType() != null)
                 {
                     props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
                 }
+
+                // Check if there already is an identical file (most recent if there is > 1)
+                boolean singleInstanceStore = m_serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
+                if ( singleInstanceStore && m_bodyPath != null && m_bodyPath.equals(rootFolder)) {
+                    String statement = "SELECT FILE_PATH FROM "+m_resourceTableName+" WHERE RESOURCE_SHA256 = ? ORDER BY FILE_PATH DESC LIMIT 1;";
+                    String duplicateFilePath = singleColumnSingleRow(statement, hex);
+
+                    if ( duplicateFilePath != null ) {
+                        delResourceBodyFilesystem(rootFolder, resource);
+                        ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
+                        log.info("Duplicate body found path={}",duplicateFilePath);
+                    } else {
+                        log.debug("Content body us unique id={}",resource.getId());
+                    }
+                }
+
                 return true;
             }
             catch (IOException e)
             {
                 log.error("IOException", e);
+                return false;
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                log.error("NoSuchAlgorithmException", e);
                 return false;
             }
         }
@@ -2302,7 +2400,7 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * Delete the resource body from the external file system. The file name is the m_bodyPath with the resource id appended.
+         * Delete the resource body from the external file system. The file name is the m_bodyPath with the resource filePath appended.
          * 
          * @param resource
          *        The resource whose body is being written.

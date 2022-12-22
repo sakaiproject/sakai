@@ -71,6 +71,9 @@ public interface ResourceProperties extends Serializable
 	/** Property for the content type (live, from DAV:). [MIME type string] */
 	static final String PROP_CONTENT_TYPE = "DAV:getcontenttype";
 
+	/** Property for the content checksum [ string] */
+	static final String PROP_CONTENT_SHA256 = "CHEF:contentsha256";
+
 	/** Property for the last modified date (live, from DAV:, set when anything changes). [Time] */
 	static final String PROP_MODIFIED_DATE = "DAV:getlastmodified";
 
