@@ -93,12 +93,6 @@ public interface ConfigurationService
   public List<String> getGroupIds() throws OsidConfigurationException;
 
   /**
-   * Fetch the site specific Repository OSID package name
-   * @return Repository Package (eg org.sakaibrary.osid.repository.xserver)
-   */
-  public String getSiteConfigOsidPackageName();
-
-  /**
    * Fetch the site specific extended Repository ID
    * @return The Repository ID
    */

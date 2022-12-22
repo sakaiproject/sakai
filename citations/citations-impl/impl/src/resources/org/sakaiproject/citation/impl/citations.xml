@@ -57,12 +57,6 @@
             <value></value>
         </property>
 
-        <!-- which osid impl package to use for Sirsi SingleSearch: edu.indiana.lib.osid.base.repository.http 
-            for Ex Libris MetaLib: org.sakaibrary.osid.repository.xserver -->
-        <property name="osidImpl">
-            <value></value>
-        </property>
-
         <!-- openURL parameters -->
         <property name="openUrlLabel">
             <value>Get It!</value>
