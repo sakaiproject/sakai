@@ -212,7 +212,6 @@
 <script src="${pageWebjarsPath}/pnotify/4.0.0/dist/iife/PNotifyButtons.js$!{portalCDNQuery}"></script>
 <script src="${pageWebjarsPath}/cropper/4.1.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
-<script src="$!{portalCDNPath}/portal/scripts/jumptotop.js$!{portalCDNQuery}"></script>
 
 #if (${sakaiThemesEnabled})
 <script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
@@ -250,6 +249,7 @@
 <script type="module" src="/webcomponents/calendar/sakai-calendar.js$!{portalCDNQuery}"></script>
 <script type="module" src="/webcomponents/tasks/sakai-tasks.js$!{portalCDNQuery}"></script>
 <script type="module" src="/webcomponents/grades/sakai-grades.js$!{portalCDNQuery}"></script>
+<script type="module" src="/webcomponents/sakai-jump-to-top.js$!{portalCDNQuery}"></script>
 <script src="/library/js/sakai.scripts.min.js$!{portalCDNQuery}"></script>
 
 ##parse("/vm/morpheus/snippets/portalChat-snippet.vm")
