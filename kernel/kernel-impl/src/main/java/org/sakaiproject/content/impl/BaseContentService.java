@@ -810,42 +810,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		return useResourceTypeRegistry;
 	}
 
-	protected boolean filesizeColumnExists = false;
-	protected boolean filesizeColumnReady = false;
-
-	public boolean readyToUseFilesizeColumn()
-	{
-		return filesizeColumnExists && filesizeColumnReady;
-	}
-
-	public boolean m_useContextQueryForCollectionSize = false;
-
-	/**
-	 * @return the useContextQueryForCollectionSize
-	 */
-	public boolean isUseContextQueryForCollectionSize() 
-	{
-		return m_useContextQueryForCollectionSize;
-	}
-
-	/**
-	 * @param useContextQueryForCollectionSize the useContextQueryForCollectionSize to set
-	 */
-	public void setUseContextQueryForCollectionSize(boolean useContextQueryForCollectionSize) 
-	{
-		this.m_useContextQueryForCollectionSize = useContextQueryForCollectionSize;
-	}
-
-	protected boolean convertToContextQueryForCollectionSize;
-
-	/**
-	 * @param convertToContextQueryForCollectionSize the convertToContextQueryForCollectionSize to set
-	 */
-	public void setConvertToContextQueryForCollectionSize(boolean convertToContextQueryForCollectionSize) 
-	{
-		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
-	}
-
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -1217,50 +1181,27 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		 */
 		public Object[] storageFields(Entity r)
 		{
-			if(filesizeColumnExists)
+			// include the file path field if we are doing body in the file system
+			if (m_bodyPath != null)
 			{
-				// include the file path field if we are doing body in the file system
-				if (m_bodyPath != null)
-				{
-					Object[] rv = new Object[5];
-					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-					rv[1] = ((BasicGroupAwareEdit) r).getContext();
-					rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
-					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
-					rv[4] = StringUtils.trimToEmpty(((BaseResourceEdit) r).m_filePath);
-					return rv;
-				}
-
-				// otherwise don't include the file path field
-				else
-				{
-					Object[] rv = new Object[4];
-					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-					rv[1] = ((BasicGroupAwareEdit) r).getContext();
-					rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
-					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
-					return rv;
-				}
+				Object[] rv = new Object[5];
+				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+				rv[1] = ((BasicGroupAwareEdit) r).getContext();
+				rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
+				rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
+				rv[4] = StringUtils.trimToEmpty(((BaseResourceEdit) r).m_filePath);
+				return rv;
 			}
+
+			// otherwise don't include the file path field
 			else
 			{
-				// include the file path field if we are doing body in the file system
-				if (m_bodyPath != null)
-				{
-					Object[] rv = new Object[2];
-					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-					rv[1] = StringUtils.trimToEmpty(((BaseResourceEdit) r).m_filePath);
-					return rv;
-				}
-
-				// otherwise don't include the file path field
-				else
-				{
-					Object[] rv = new Object[1];
-					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-					return rv;
-				}
-
+				Object[] rv = new Object[4];
+				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+				rv[1] = ((BasicGroupAwareEdit) r).getContext();
+				rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
+				rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
+				return rv;
 			}
 		}
 
@@ -4592,11 +4533,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
 
-		if(! readyToUseFilesizeColumn())
-		{
-			removeSizeCache(edit);
-		}
-
 		((BaseResourceEdit) edit).setRemoved();
 
 		// remove old version of this edit from thread-local cache
@@ -6078,11 +6014,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			throw new OverQuotaException(edit.getReference());
 		}
 		
-		if(! readyToUseFilesizeColumn())
-		{
-			addSizeCache(edit);
-		}
-
 	} // commitResource
 
     /**
@@ -9107,11 +9038,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// complete the edit
 		m_storage.commitResource(edit);
 
-		if(! readyToUseFilesizeColumn())
-		{
-			addSizeCache(edit);
-		}
-
 		// track it
 		String ref = edit.getReference(null);
 		eventTrackingService.post(eventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), ref, true,
@@ -9243,17 +9169,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			return false;
 		}
 
-		long size = 0;
-
-		if(readyToUseFilesizeColumn())
-		{
-			size = collection.getBodySizeK();
-		}
-		else
-		{
-			log.error("File size column is not ready. Unable to calculate size of collection. Something is wrong with this instance of Sakai. Please check for other startup errors.");
-			return false;
-		}
+		long size = collection.getBodySizeK();
 
 		// find the resource being edited
 		ContentResource inThere = null;
@@ -11682,44 +11598,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		{
 			long size = 0;
 
-			if(readyToUseFilesizeColumn())
+			String context = getContext();
+			if(context != null || m_id.startsWith(COLLECTION_DROPBOX))
 			{
-				String context = getContext();
-				if(context != null || m_id.startsWith(COLLECTION_DROPBOX))
-				{
-					size = getSizeForContext(context!=null?context:m_id)/1000L;
-				}
+				size = getSizeForContext(context!=null?context:m_id)/1000L;
 			}
-			else
-			{
-				// get the member objects
-				List members = getMemberResources();
 
-				// for each member
-				for (Iterator it = members.iterator(); it.hasNext();)
-				{
-					Object obj = it.next();
-					if (obj == null) continue;
-
-					// do not count the size of virtual objects
-					if (obj instanceof BaseCollectionEdit && ((BaseCollectionEdit)obj).getVirtualContentEntity() != null) continue;
-
-					// if a resource, add the body size
-					if (obj instanceof ContentResource)
-					{
-						size += bytes2k(((ContentResource) obj).getContentLength());
-					}
-
-					// if a collection, count it's size
-					else
-					{
-						size += ((BaseCollectionEdit) obj).getBodySizeK();
-					}
-				}
-			}
-			// if (log.isDebugEnabled())
-			// log.debug("getBodySizeK(): collection: " + getId() + " size: " + size);
-
+			log.debug("getBodySizeK(): collection: {} size: {}",getId(),size);
 			return size;
 
 		} // getBodySizeK

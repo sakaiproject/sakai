@@ -194,47 +194,6 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	{
 		return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?) on duplicate key update IN_COLLECTION = ?, LAST_UPDATE = ?";
 	}
-
-	/**
-	 * returns the sql statement to add the FILE_SIZE column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddFilesizeColumnSql(String table)
-	{
-		return "alter table " + table + " add FILE_SIZE BIGINT default null";
-	}
-
-	/**
-	 * returns the sql statement to add the CONTEXT column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddContextColumnSql(String table)
-	{
-		return "alter table " + table + " add CONTEXT VARCHAR(99) default null";
-	}
-
-	/**
-	 * returns the sql statement to add an index of the CONTENT column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddContextIndexSql(String table)
-	{
-		return "create index " + table.trim() + "_CI on " + table + " (CONTEXT)";
-	}
-	
-	/**
-	 * returns the sql statement to add the RESOURCE_TYPE_ID column to the specified table.
-	 */
-	public String getAddResourceTypeColumnSql(String table)
-	{
-		return "alter table " + table + " add RESOURCE_TYPE_ID VARCHAR(255) default null"; 
-	}
-	
-	/**
-	 * returns the sql statement to add an index of the RESOURCE_TYPE_ID column to the specified table.
-	 */
-	public String getAddResourceTypeIndexSql(String table)
-	{
-		return "create index " + table.trim() + "_RTI on " + table + " (RESOURCE_TYPE_ID)";
-	}
-
 	/**
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
 	 */
@@ -256,32 +215,6 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	public String getAccessResourceIdAndXmlSql(String table)
 	{
 		return "select RESOURCE_ID, RESOURCE_UUID, XML from " + table + " where FILE_SIZE is NULL";
-	}
-
-	/**
-	 * returns the sql statement which updates a row in the CONTENT_RESOURCE table with values for CONTEXT and FILE_SIZE.
-	 */
-	public String getContextFilesizeValuesSql(String table, boolean addingUuid)
-	{
-		String sql = "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ? where RESOURCE_UUID = ?";
-		if(addingUuid)
-		{
-			sql = "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ?, RESOURCE_UUID = ? where RESOURCE_ID = ?";
-		}
-		return sql;
-	}
-
-	public String getFilesizeColumnExistsSql() 
-	{
-		return "show columns from CONTENT_RESOURCE like 'FILE_SIZE'";
-	}
-
-	/**
-	 * returns the sql statement to check if any rows exist with NULL FILE_SIZE values
-	 */
-	public String getFilesizeExistsSql()
-	{
-	 	return "select TOP 1 RESOURCE_ID from CONTENT_RESOURCE where FILE_SIZE is NULL";
 	}
 
 	/*
