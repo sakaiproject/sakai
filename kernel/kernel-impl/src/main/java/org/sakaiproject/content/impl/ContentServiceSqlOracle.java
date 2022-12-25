@@ -27,49 +27,6 @@ package org.sakaiproject.content.impl;
 public class ContentServiceSqlOracle extends ContentServiceSqlDefault
 {
 	/**
-	 * returns the sql statement to add the FILE_SIZE column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddFilesizeColumnSql(String table)
-	{
-		return "alter table " + table + " add FILE_SIZE NUMBER(18) default NULL";
-	}
-
-	/**
-	 * returns the sql statement to add the CONTEXT column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddContextColumnSql(String table)
-	{
-		return "alter table " + table + " add CONTEXT VARCHAR2(99) default NULL";
-	}
-
-	/**
-	 * returns the sql statement to add the RESOURCE_TYPE_ID column to the specified table.
-	 */
-	public String getAddResourceTypeColumnSql(String table)
-	{
-		return "alter table " + table + " add RESOURCE_TYPE_ID VARCHAR2(255) default null"; 
-	}
-	
-	/**
-	 * returns the sql statement to add an index of the CONTENT column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddContextIndexSql(String table)
-	{
-		return "create index " + table.trim() + "_CI on " + table + " (CONTEXT)";
-	}
-
-	public String getFilesizeColumnExistsSql() 
-	{
-		return "select column_name from user_tab_columns where table_name = 'CONTENT_RESOURCE' and column_name = 'FILE_SIZE'";
-	}
-
-	@Override
-	public String getFilesizeExistsSql()
-	{
-		return "select RESOURCE_ID from CONTENT_RESOURCE where FILE_SIZE is NULL and rownum = 1";
-	}
-
-	/**
 	 * returns the sql statement which inserts the individual-dropbox-id, site-level dropbox-id and last-update fields into the content_dropbox_changes table.
 	 */
 	public String getInsertIndividualDropboxChangeSql() 
