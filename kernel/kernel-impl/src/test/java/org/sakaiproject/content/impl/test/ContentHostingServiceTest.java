@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Iterator;
 import java.sql.Connection;
 import java.sql.Statement;
-
 import java.security.MessageDigest;
+import java.sql.SQLException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -344,8 +344,9 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
             }
             try {
                 statement.execute("select XML from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
-            } catch ( Exception ex ) {
                 Assert.fail();
+            } catch ( Exception ex ) {
+                // Pass
             }
             try {
                 statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
@@ -354,15 +355,14 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
             }
             try {
                 statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
-            } catch ( Exception ex ) {
                 Assert.fail();
-            }
-           try {
+            } catch ( Exception ex ) {
+                // pass          
+            try {
                 statement.execute("select RESOURCE_SHA256 from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
             } catch ( Exception ex ) {
                 Assert.fail();
             }
-
             // Yes, these are a bit less than exciting, post autoDDL - but what they heck -
             // they should not fail and be correct
             checkCount("select count(*) from CONTENT_COLLECTION where BINARY_ENTITY IS NULL ", 0);
@@ -379,7 +379,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
     protected void checkCount(String sql, int expected) throws Exception
     {
 
-        SqlService m_sqlService = getService(SqlService.class);
+        SqlService m_sqlService = getService(org.sakaiproject.db.api.SqlService.class);
         List list = m_sqlService.dbRead(sql, null, null);
         if (list == null) Assert.fail("Nothing returned for: "+sql);
 
