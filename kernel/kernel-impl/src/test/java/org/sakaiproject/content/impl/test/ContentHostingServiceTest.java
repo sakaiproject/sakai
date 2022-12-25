@@ -357,7 +357,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
                 statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
                 Assert.fail();
             } catch ( Exception ex ) {
-                // pass          
+                // pass
+            }
             try {
                 statement.execute("select RESOURCE_SHA256 from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
             } catch ( Exception ex ) {
@@ -379,7 +380,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
     protected void checkCount(String sql, int expected) throws Exception
     {
 
-        SqlService m_sqlService = getService(org.sakaiproject.db.api.SqlService.class);
+        SqlService m_sqlService = getService(SqlService.class);
         List list = m_sqlService.dbRead(sql, null, null);
         if (list == null) Assert.fail("Nothing returned for: "+sql);
 
