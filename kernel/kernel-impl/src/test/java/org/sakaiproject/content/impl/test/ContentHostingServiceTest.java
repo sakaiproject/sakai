@@ -330,7 +330,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
     protected void checkCount(String sql, int expected) throws Exception
     {
 
-        SqlService m_sqlService = getService(org.sakaiproject.db.api.SqlService.class);
+        SqlService m_sqlService = getService(SqlService.class);
         List list = m_sqlService.dbRead(sql, null, null);
         if (list == null) Assert.fail("Nothing returned for: "+sql);
 
