@@ -30,7 +30,7 @@
 
       <div rsf:id="blti-launch:" style="margin-left:2em">
         <i class="" rsf:id="blti-import-icon"></i>
-        <a href="#" target="sakai-basiclti-launch-iframe" onclick="showIframe(this.title);" rsf:id="blti-launch-link"></a>
+        <a href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title, true);" rsf:id="blti-launch-link"></a>
       </div>
 
       <form action="#" rsf:id="blti-cancel" id="blti-cancel">
@@ -39,26 +39,20 @@
         <input type="submit" rsf:id="cancel" id="cancel-button" class='cancelButton'/>
       </form>
 
-      <div id="modal-iframe-div" class="modal fade" tabindex="-1" aria-labelledby="bltiModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+      <div id="modal-iframe-div" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bltiModalLabel" aria-hidden="true">
+        <div id="blti-dialog" class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="bltiModalLabel">Modal title</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <iframe name="sakai-basiclti-launch-iframe" id="sakai-basiclti-launch-iframe" src="/library/image/sakai/spinner.gif" style="height:800px"></iframe>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
+                    <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
             </div>
           </div>
         </div>
       </div>
-      <div id="modal-iframe-div" clstyle="display:none">
-        <iframe name="sakai-basiclti-launch-iframe" id="sakai-basiclti-launch-iframe" src="/library/image/sakai/spinner.gif" style="height:800px"></iframe>
-      </div>
+
     </div>
 
     <script>
@@ -67,21 +61,40 @@
 
     <script>
       //<![CDATA[
-      function showIframe(title) {
 
-        const el = document.getElementById("modal-iframe-div")
-        const modal = bootstrap.Modal.getOrCreateInstance(el)
-        modal.addEventListener("shown.bs.modal", e => {
-          $('#sakai-basiclti-launch-iframe').width('100%');
-        });
-        modal.addEventListener("hidden.bs.modal", e => {
-          $('#sakai-basiclti-launch-iframe').attr('src','/library/image/sakai/spinner.gif');
-        });
-        modal.show();
-      }
+    function showIframe(elem, exit) {
+      let title = elem;
+      if ( typeof elem != 'string' ) title = $(elem).children('.blti-create-text').html();
+      const mainhead = document.getElementById("mainhead").innerHTML;
+      const newTitle =  mainhead + ': ' + title;
+      document.getElementById("bltiModalLabel").innerHTML = newTitle;
+
+      const el = document.getElementById("modal-iframe-div");
+      const modal = bootstrap.Modal.getOrCreateInstance(el);
+
+      el.addEventListener("shown.bs.modal", e => {
+        $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
+      });
+
+      el.addEventListener("hidden.bs.modal", e => {
+        if ( exit ) {
+           $( "#blti-cancel" ).submit();
+        } else {
+          $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+        }
+      });
+      modal.show();
+
+      $(window).resize(function() {
+
+        // Note that width() gives the content width, taking into consideration the border, padding, etc.
+        $('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+        $('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height()-10);
+      });
+    }
 
       function closeIframe() {
-
         const el = document.getElementById("modal-iframe-div")
         const modal = bootstrap.Modal.getOrCreateInstance(el)
         modal.hide();
