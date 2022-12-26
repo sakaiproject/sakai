@@ -39,6 +39,8 @@
 
         const lessonsElement = document.querySelector('#toolMenu a[href$="/tool/'+page_id+'"], #toolMenu [href$="/tool-reset/'+page_id+'"]');
 
+        const pageName = lessonsElement.innerText;
+
         const siteListItem = lessonsElement.parentElement;
         const mainLink = lessonsElement.href?.replace(/\/tool\//, "/tool-reset/");
 
@@ -50,7 +52,8 @@
                         data-bs-target="#${collapseId}"
                         aria-expanded="false"
                         aria-controls="${collapseId}">
-                    <i class="bi-chevron-right" aria-hidden="true"></i><span>Lessons</span>
+                    <i class="bi-chevron-right" aria-hidden="true"></i>
+                    <span>${pageName}</span>
                 </button>
             </div>
             <div id="${collapseId}" class="lessons-subpages-collapse collapse">
