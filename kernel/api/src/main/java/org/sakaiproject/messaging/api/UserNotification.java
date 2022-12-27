@@ -27,6 +27,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.sakaiproject.springframework.data.PersistableEntity;
+
 import org.hibernate.annotations.Type;
 
 import lombok.Data;
@@ -39,7 +41,7 @@ import lombok.EqualsAndHashCode;
 })
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class UserNotification {
+public class UserNotification implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID", nullable = false)
@@ -60,21 +62,24 @@ public class UserNotification {
     @Column(name = "REF", length = 255, nullable = false)
     private String ref;
 
-    @Column(name="TITLE", length=255)
+    @Column(name="TITLE", length = 255)
     private String title;
 
-    @Column(name="SITE_ID", length=99)
+    @Column(name="SITE_ID", length = 99)
     private String siteId;
 
-    @Column(name="URL", length=2048, nullable=false)
+    @Column(name="URL", length = 2048, nullable = false)
     private String url;
 
-    @Column(name="EVENT_DATE", nullable=false)
+    @Column(name="EVENT_DATE", nullable = false)
     @Type(type = "org.hibernate.type.InstantType")
     private Instant eventDate;
 
-    @Column(name="DEFERRED", nullable=false)
+    @Column(name="DEFERRED", nullable = false)
     private Boolean deferred = Boolean.FALSE;
+
+    @Column(name = "VIEWED")
+    private Boolean viewed = Boolean.FALSE;
 
     @Transient
     private String fromDisplayName;
