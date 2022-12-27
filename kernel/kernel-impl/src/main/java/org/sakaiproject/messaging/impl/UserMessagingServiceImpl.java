@@ -35,8 +35,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
+
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
@@ -55,6 +55,7 @@ import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageListener;
 import org.sakaiproject.messaging.api.MessageMedium;
+import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
 import static org.sakaiproject.messaging.api.MessageMedium.*;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.site.api.Site;
@@ -101,6 +102,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private UserNotificationRepository userNotificationRepository;
     @Autowired
     @Qualifier("org.sakaiproject.time.api.UserTimeService")
     UserTimeService userTimeService;
@@ -365,16 +367,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 
                             protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-                                final List<UserNotification> deferredAlerts
-                                    = sessionFactory.getCurrentSession().createCriteria(UserNotification.class)
-                                        .add(Restrictions.eq("deferred", true))
-                                        .add(Restrictions.eq("siteId", siteId)).list();
-
-                                for (UserNotification da : deferredAlerts) {
-                                    da.setDeferred(false);
-                                    sessionFactory.getCurrentSession().update(da);
-                                }
+                                userNotificationRepository.setDeferredBySiteId(siteId, false);
                             }
                         });
                     }
@@ -403,63 +396,107 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 ba.setSiteId(siteId);
                 ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
+                boolean deferred = false;
                 try {
-                    ba.setDeferred(!siteService.getSite(siteId).isPublished());
+                    deferred = !siteService.getSite(siteId).isPublished();
+                    ba.setDeferred(deferred);
                 } catch (IdUnusedException iue) {
                     log.warn("Failed to find site with id {} while setting deferred to published", siteId);
                 }
 
-                sessionFactory.getCurrentSession().persist(ba);
-                send("USER#" + to, ba);
+                userNotificationRepository.save(ba);
+
+                if (!deferred) {
+                    send("USER#" + to, ba);
+                }
             }
         });
     }
 
     @Transactional  
-    public boolean clearAlert(String userId, long alertId) {
+    public boolean clearNotification(long id) {
 
-        sessionFactory.getCurrentSession().createQuery("delete UserNotification where id = :id and toUser = :toUser")
-                    .setParameter("id", alertId).setParameter("toUser", userId)
-                    .executeUpdate();
-        return true;
-    }
+        String userId = sessionManager.getCurrentSessionUserId();
 
-    @Transactional
-    public List<UserNotification> getAlerts(String userId) {
-
-        List<UserNotification> alerts = sessionFactory.getCurrentSession().createCriteria(UserNotification.class)
-                .add(Restrictions.eq("deferred", false))
-                .add(Restrictions.eq("toUser", userId)).list();
-
-        return alerts.stream().map(this::decorateAlert).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public boolean clearAllAlerts(String userId) {
-
-        sessionFactory.getCurrentSession().createQuery(
-                "delete UserNotification where toUser = :toUser and deferred = :deferred")
-                .setParameter("toUser", userId).setParameter("deferred", false)
-                .executeUpdate();
-        return true;
-    }
-
-    private UserNotification decorateAlert(UserNotification alert) {
-
-        try {
-            User fromUser = userDirectoryService.getUser(alert.getFromUser());
-            alert.setFromDisplayName(fromUser.getDisplayName());
-            alert.setFormattedEventDate(userTimeService.dateTimeFormat(alert.getEventDate(), null, null));
-            if (StringUtils.isNotBlank(alert.getSiteId())) {
-                alert.setSiteTitle(siteService.getSite(alert.getSiteId()).getTitle());
-            }
-        } catch (UserNotDefinedException unde) {
-            alert.setFromDisplayName(alert.getFromUser());
-        } catch (IdUnusedException iue) {
-            alert.setSiteTitle(alert.getSiteId());
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current user");
+            return false;
         }
 
-        return alert;
+        Optional<UserNotification> optUserNotification = userNotificationRepository.findById(id);
+
+        if (optUserNotification.isPresent()) {
+
+            UserNotification un = optUserNotification.get();
+
+            if (un.getToUser().equals(userId)) {
+                userNotificationRepository.delete(un);
+                return true;
+            } else {
+                log.warn("{} attempted to delete a notification belonging to {}", userId, un.getToUser());
+            }
+        }
+
+        return false;
+    }
+
+    public List<UserNotification> getNotifications() {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current user");
+            return Collections.<UserNotification>emptyList();
+        }
+
+        return userNotificationRepository.findByToUser(userId)
+                .stream().map(this::decorateNotification).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean clearAllNotifications() {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current user");
+            return false;
+        }
+
+        userNotificationRepository.deleteByToUserAndDeferred(userId, false);
+        return true;
+    }
+
+    @Transactional
+    public boolean markAllNotificationsViewed() {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current user");
+            return false;
+        }
+
+        userNotificationRepository.setAllNotificationsViewed(userId);
+        return true;
+    }
+
+    private UserNotification decorateNotification(UserNotification notification) {
+
+        try {
+            User fromUser = userDirectoryService.getUser(notification.getFromUser());
+            notification.setFromDisplayName(fromUser.getDisplayName());
+            notification.setFormattedEventDate(userTimeService.dateTimeFormat(notification.getEventDate(), null, null));
+            if (StringUtils.isNotBlank(notification.getSiteId())) {
+                notification.setSiteTitle(siteService.getSite(notification.getSiteId()).getTitle());
+            }
+        } catch (UserNotDefinedException unde) {
+            notification.setFromDisplayName(notification.getFromUser());
+        } catch (IdUnusedException iue) {
+            notification.setSiteTitle(notification.getSiteId());
+        }
+
+        return notification;
     }
 
 
@@ -467,7 +504,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
         messaging.localListen(topic, (nodeId, message) -> {
 
-            listener.read(decorateAlert((UserNotification) message));
+            listener.read(decorateNotification((UserNotification) message));
             return true;
         });
     }
