@@ -18,7 +18,7 @@
 
     <li class="site-list-item py-1 $!{currentSiteClass}">
         <div class="site-list-item-head d-flex align-items-center pe-2">
-            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 #if (!$isCurrentSite)collapsed#end"
+            <button class="d-flex btn btn-nav btn-site rounded-end text-start border-0 me-1 #if (!$isCurrentSite)collapsed#end"
                     data-bs-toggle="collapse"
                     data-bs-target="#site-${index}-pages"
                     aria-expanded="${isExpanded}"
