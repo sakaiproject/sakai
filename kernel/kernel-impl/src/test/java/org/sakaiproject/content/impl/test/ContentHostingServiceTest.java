@@ -22,6 +22,10 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Iterator;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.SQLException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +51,7 @@ import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.BasicConfigItem;
+import org.sakaiproject.db.api.SqlService;
 
 @FixMethodOrder(NAME_ASCENDING)
 @Slf4j
@@ -264,4 +269,89 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			stream.close();
 		}
     }
+
+    @Test
+    public void testSqlSanity() {
+        ContentHostingService ch = getService(ContentHostingService.class);
+        SqlService m_sqlService = getService(SqlService.class);
+
+        // Make sure that the structure of the CONTENT_ tables passes the "modern schema" test
+        try {
+            Connection connection = m_sqlService.borrowConnection();
+            Statement statement = connection.createStatement();
+
+           try {
+                statement.execute("select BINARY_ENTITY from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' " );
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+            try {
+                statement.execute("select XML from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' ");
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+
+            try {
+                statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+            try {
+                statement.execute("select XML from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
+                Assert.fail();
+            } catch ( Exception ex ) {
+                // Pass
+            }
+            try {
+                statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+            try {
+                statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
+                Assert.fail();
+            } catch ( Exception ex ) {
+                // pass
+            }
+
+            // Yes, these are a bit less than exciting, post autoDDL - but what they heck -
+            // they should not fail and be correct
+            checkCount("select count(*) from CONTENT_COLLECTION where BINARY_ENTITY IS NULL ", 0);
+            checkCount("select count(*) from CONTENT_RESOURCE where BINARY_ENTITY IS NULL ", 0);
+            checkCount("select count(*) from CONTENT_RESOURCE_DELETE where BINARY_ENTITY IS NULL ", 0);
+
+            checkCount("select count(*) from CONTENT_COLLECTION where XML IS NOT NULL ", 0);
+
+        } catch ( Exception ex ) {
+            Assert.fail();
+        }
+    }
+
+    protected void checkCount(String sql, int expected) throws Exception
+    {
+
+        SqlService m_sqlService = getService(SqlService.class);
+        List list = m_sqlService.dbRead(sql, null, null);
+        if (list == null) Assert.fail("Nothing returned for: "+sql);
+
+        Iterator iter = list.iterator();
+        if (iter.hasNext())
+        {
+            Object val = null;
+            try
+            {
+                val = iter.next();
+                Integer found = Integer.parseInt((String) val);
+                if ( found == expected ) return;
+                Assert.fail("Mismatch expecting: " + expected + " found: " + found + " sql: "+sql);
+            }
+            catch (Exception ignore)
+            {
+                Assert.fail("Bad integer: " + val + " from: "+sql);
+            }
+        }
+        Assert.fail("Empty list for: "+sql);
+        return;
+    }
+
 }
