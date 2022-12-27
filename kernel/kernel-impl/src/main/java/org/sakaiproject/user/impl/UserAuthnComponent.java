@@ -33,8 +33,12 @@ import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.ExternalTrustedEvidence;
 import org.sakaiproject.user.api.IdPwEvidence;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
 
 /**
  * <p>
@@ -158,7 +162,31 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			{
 				// reject if the user is not defined
 				// TODO: create the user record here?
-				throw new AuthenticationMissingException("User '" + evidence.getIdentifier() + "' not defined", e);
+				// Thach
+				log.debug("Creating user '\" + evidence.getIdentifier() + \"'");
+				
+				UserEdit newUser;
+				try {
+					newUser = userDirectoryService().addUser(null, evidence.getIdentifier());
+					userDirectoryService().commitEdit(newUser);
+					
+					// Try log lookup the user in our database again. Code the above codes
+					User user = userDirectoryService().getUserByAid(evidence.getIdentifier());
+					String disabled = user.getProperties().getProperty("disabled");
+					if (disabled != null && "true".equals(disabled))
+					{
+						throw new AuthenticationException("Account Disabled: The user's authentication has been disabled");
+					}
+					Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
+					return rv;
+					
+					
+				} catch (UserIdInvalidException | UserAlreadyDefinedException | UserPermissionException | UserNotDefinedException e1) {
+					throw new AuthenticationMissingException("Could not create a new user '" + evidence.getIdentifier() + "'", e);
+				}
+				
+				
+				// throw new AuthenticationMissingException("User '" + evidence.getIdentifier() + "' not defined", e);
 			}
 		}
 
