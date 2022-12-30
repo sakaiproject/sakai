@@ -117,9 +117,12 @@
         #end
     #end
 
+    <div class="" style="margin-inline-start: auto; display: flex;">
+    #parse("/vm/morpheus/snippets/toolButton-snippet.vm")
     #*  Role Switcher  *#
   #if ($viewAsStudentLink)
       #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
   #end
+    </div>
     </ol>
 </nav>

@@ -1,0 +1,102 @@
+
+
+#if ($pageColumnLayout == 'col1')
+
+    #set($columnClasses = "Mrphs-pageColumns Mrphs-pageColumns--single")
+
+#elseif ($pageColumnLayout == 'col1of2')
+
+    #set($columnClasses = "Mrphs-pageColumns Mrphs-pageColumns--first")
+
+#end
+
+#set($i = 0) ## Counter for directUrl ids 
+
+#set($homePage = false)
+#foreach( $page in $sitePages.pageNavTools )
+    #if (${page.current} && ${page.pageProps.is_home_page})
+        #set($homePage = true)
+        #break
+    #end
+#end
+
+#set($i = 0) ## Counter for directUrl ids 
+
+    #foreach ( $tool in $pageColumn0Tools )
+
+        #set( $i = $i + 1 )
+
+            #if ($tool)
+
+
+                #if (${tool.hasRenderResult})
+
+                        <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav" aria-label="${rloader.sit_toolnavigation}">
+
+                                #if (${tool.toolShowResetButton})
+
+                                    #if ($!{tool.toolInline})
+
+                                        <h2 class="Mrphs-toolTitleNav__title">
+                                            <a href="${tool.toolResetActionUrl}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
+                                                <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                                <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
+                                            </a>
+                                        </h2>
+
+                                    #else
+
+                                        <h2 class="Mrphs-toolTitleNav__title">
+                                            <a class="Mrphs-toolTitleNav__link--inline" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
+                                                <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                                <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
+                                            </a>
+                                        </h2>
+
+                                    #end ## END of IF ($!{tool.toolInline})
+
+                                #else 
+
+                                    <h2 class="Mrphs-toolTitleNav__title"><span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span><span class="Mrphs-toolTitleNav__addLeft"></span></h2>
+
+                                #end ## END of IF (${tool.toolShowResetButton})
+
+                                <div class="Mrphs-toolTitleNav__button_container #if(${homePage})home#end">
+
+
+                                #if (${tool.toolJSR168Edit})
+
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
+                                        <span class="Mrphs-itemTitle">${rloader.sit_edit}</span>
+                                    </a>
+
+                                #end ## END of IF (${tool.toolJSR168Edit} )
+
+                                #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
+
+                                    <button class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
+                                        <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
+                                    </button>
+                                    <div id="${tool.toolPlacementIDJS}_directurl" role="dialog" aria-labelledby="${tool.toolPlacementIDJS}_directurl__title" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
+                                        <i class="fa fa-times dropDown_close" aria-hidden="true" tabindex="0"></i>
+                                        <label for="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_directurl__title" class="dropDown_title">${rloader.tool_direct_link}</label>
+                                        #if($toolShortUrlEnabled)
+
+                                            <input tabindex="0" type="checkbox" id="directToolUrl-${i}" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" class="Mrphs-directUrl__checkbox"><label for="directToolUrl-${i}">${rloader.short_url}</label>
+
+                                        #end ## END of IF ($toolShortUrlEnabled)
+
+                                        <textarea name="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_urlholder" tabindex="0" class="Mrphs-directUrl__textarea ${tool.toolPlacementIDJS}_urlholder" >${tool.directToolUrl}</textarea>
+                                    </div>
+
+                                #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
+
+                                </div>
+
+                            </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
+
+                            #end ## END of IF (${tool.toolShowTitle})
+
+                    #end
+
+            #end
