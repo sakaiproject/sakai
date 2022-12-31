@@ -516,3 +516,19 @@ table.table-bordered.dataTable {
     border: 1px solid var(--sakai-border-color);
     border-radius: 4px;
 }
+
+.text-danger {
+    background-color: transparent;
+}
+
+.or-line {
+    text-align: center;
+	border-bottom: 1px solid #000;
+	line-height: 0.1em;
+	margin: 10px 0 20px;
+}
+
+ .or-line span {
+	background:#fff;
+	padding:0 10px;
+}
