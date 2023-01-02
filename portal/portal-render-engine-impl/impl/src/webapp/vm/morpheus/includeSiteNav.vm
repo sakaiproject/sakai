@@ -158,4 +158,16 @@
         #end
     </nav>
 </aside>
+
+<script>
+// focus the current tool on load
+window.addEventListener('load', () => {
+    const currentTool = document.querySelector('.selected-page');
+    if (currentTool) {
+        currentTool.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        currentTool.focus();
+    }
+}, { once: true });
+
+</script>
 <!-- END VM includeSiteNav.vm -->
