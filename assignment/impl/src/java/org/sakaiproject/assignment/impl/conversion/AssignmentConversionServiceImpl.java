@@ -288,9 +288,9 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                             // at this point everything has been added to the persistence context
                             // so we just need to merge and flush so that every assignment is persisted
                             try {
-                                assignmentRepository.merge(assignment);
+                                Assignment mergedAssignment = assignmentRepository.merge(assignment);
                                 assignmentsConverted++;
-                                submissionsConverted += assignment.getSubmissions().size();
+                                submissionsConverted += mergedAssignment.getSubmissions().size();
                             } catch (HibernateException he) {
                                 log.warn("could not persist assignment {}, {}", assignmentId, he.getMessage());
                                 assignmentsFailed++;

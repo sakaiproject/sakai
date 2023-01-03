@@ -1462,20 +1462,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         assignment.setDateModified(Instant.now());
         assignment.setModifier(sessionManager.getCurrentSessionUserId());
-        assignmentRepository.merge(assignment);
+        Assignment updatedAssingment = assignmentRepository.merge(assignment);
 
         Task task = new Task();
-        task.setSiteId(assignment.getContext());
+        task.setSiteId(updatedAssingment.getContext());
         task.setReference(reference);
         task.setSystem(true);
-        task.setDescription(assignment.getTitle());
-        task.setGroups(assignment.getGroups());
+        task.setDescription(updatedAssingment.getTitle());
+        task.getGroups().addAll(updatedAssingment.getGroups());
 
-        if (!assignment.getHideDueDate()) {
-            task.setDue(assignment.getDueDate());
+        if (!updatedAssingment.getHideDueDate()) {
+            task.setDue(updatedAssingment.getDueDate());
         }
 
-        if (!assignment.getDraft()) {
+        if (!updatedAssingment.getDraft()) {
             taskService.createTask(task, allowAddSubmissionUsers(reference)
                     .stream().map(User::getId).collect(Collectors.toSet()),
                     Priorities.HIGH);
@@ -1483,7 +1483,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
-        Map<String, String> assignmentProperties = assignment.getProperties();
+        Map<String, String> assignmentProperties = updatedAssingment.getProperties();
         String resubmitNumber = StringUtils.trimToNull(assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
         String resubmitCloseTime = StringUtils.trimToNull(assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
         if (StringUtils.isNotBlank(resubmitNumber)) {
