@@ -103,7 +103,7 @@
 
             <div class="col-md-5">
                 <h2><h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/></h2>
-                <h:commandButton styleClass="import-assessment si si-upload" id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" rendered="#{authorization.createAssessment}" action="importAssessment" />
+                <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" rendered="#{authorization.createAssessment}" action="importAssessment" />
             </div>
         </div>
     </h:form>
