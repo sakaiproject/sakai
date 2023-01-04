@@ -1836,10 +1836,8 @@ $(document).ready(function () {
       return false;
     });
 
-    $('#twitter-link').click(function () {
+    document.getElementById("add-twitter-dialog")?.addEventListener("shown.bs.modal", () => {
 
-      oldloc = $(this);
-      $('div.item').removeClass('editInProgress');
       $('#twitter-error-container').hide();
       $("#twitterEditId").val("-1");
       $("#twitter-addBefore").val(addAboveItem);
@@ -2262,7 +2260,7 @@ $(document).ready(function () {
     var tail_cols = addAboveLI.parent().parent().nextAll();
     var section = addAboveLI.parent().parent().parent();
     var sectionId = "sectionid" + (nextid++);
-    section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span aria-hidden="true" class="collapseIcon fa-caret-down"></span><span class="sectionHeaderText"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><button type="button" data-merge-id="' + newitem + '" aria-label="' + msg('simplepage.join-items') + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></button></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div></div></div>');
+    section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span aria-hidden="true" class="collapseIcon fa-caret-down"></span><span class="sectionHeaderText"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="lb-offscreen">' + msg('simplepage.break-here') + '</h3><button type="button" data-merge-id="' + newitem + '" aria-label="' + msg('simplepage.join-items') + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></button></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div></div></div>');
     // now go to new section
     section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2288,7 +2286,6 @@ $(document).ready(function () {
     section.find('.add-bottom').click(buttonOpenDropdownb);
     fixupColAttrs();
     fixupHeights();
-    closeDropdownc();
   });
 
   $('.add-break-column').click(function (e) {
@@ -2303,7 +2300,7 @@ $(document).ready(function () {
     // current section DIV
     var tail_uls = addAboveLI.parent().nextAll();
     var column = addAboveLI.parent().parent();
-    column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><button type="button" data-merge-id="' + newitem + '" aria-label="' + msg('simplepage.join-items') + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></button></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breakcolumn" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div>');
+    column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="lb-offscreen">' + msg('simplepage.break-column-here') + '</h3><button type="button" data-merge-id="' + newitem + '" aria-label="' + msg('simplepage.join-items') + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></button></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breakcolumn" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div>');
 
     // now go to new section
     column = column.next();
@@ -2318,7 +2315,6 @@ $(document).ready(function () {
     column.find('.add-bottom').click(buttonOpenDropdownb);
     fixupColAttrs();
     fixupHeights();
-    closeDropdownc();
   });
 
   $('.section-merge-link').click(sectionMergeLink);
@@ -3509,7 +3505,7 @@ function fixStatus(here,itemId) {
      if (errors === 'ok') {
          var img = here.closest('.right-col').find('.statusCol img');
          img.attr('src', '/lessonbuilder-tool/images/checkmark.png');
-         here.closest('.right-col').find('.link-div .offscreen').text(msg('simplepage.status.completed') + ' ');
+         here.closest('.right-col').find('.link-div .lb-offscreen').text(msg('simplepage.status.completed') + ' ');
      }
     }
       });
