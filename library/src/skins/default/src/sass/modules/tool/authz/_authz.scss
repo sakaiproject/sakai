@@ -1,6 +1,8 @@
-.checkGrid th:hover,
 .checkGrid td h4:hover {
   color:var(--sakai-active-color-1) !important;
+}
+.checkGrid th:hover {
+  color: var(--sakai-text-color-1);
 }
 .checkGrid a {
   text-decoration: none !important;
@@ -49,7 +51,8 @@ table.listHier.checkGrid th {
   text-align: left;
   white-space: nowrap;
 }
-.checkGrid td.permissionDescription a {
+.checkGrid td.permissionDescription a,
+.checkGrid td.permissionDescription button {
   padding: calc( #{$standard-spacing} / 2) $standard-spacing;
   display: block;
 }
@@ -77,7 +80,7 @@ table.listHier.checkGrid th {
 div#groupSelector {
   margin-top: 0.5em;
 }
-.permissions-undo-button {
-  margin-bottom: 15px;
-  padding-top: .5em;
+
+.permissions-table {
+  --bs-table-hover-bg: var(--sakai-active-color-2);
 }
