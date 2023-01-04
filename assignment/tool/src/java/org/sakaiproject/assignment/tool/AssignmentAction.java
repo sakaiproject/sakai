@@ -3563,7 +3563,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (!gAssignment.getExternallyMaintained() || gAssignment.getExternallyMaintained() && gAssignment.getExternalAppName().equals(assignmentService.getToolId())) {
 
                 // gradebook item has been associated or not
-                String gaId = gAssignment.getExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getName();
+                String gaId = gAssignment.getExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getId().toString();
                 String status = "";
                 if (gAssignmentIdTitles.containsKey(gaId)) {
                     String assignmentTitle = gAssignmentIdTitles.get(gaId);
