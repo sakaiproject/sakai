@@ -351,34 +351,35 @@ simplePageBean.addForumSummary,
 	<bean id="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap" class="java.util.HashMap">       
 		<constructor-arg>
 			<map>
-				<entry key="application/msword" value="si-file-earmark-word"/>
-				<entry key="application/vnd.ms-word" value="si-file-earmark-word"/>
-				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="si-file-earmark-word"/>
-				<entry key="application/ms-powerpoint" value="si-file-earmark-ppt"/>
-				<entry key="application/mspowerpoint" value="si-file-earmark-ppt"/>
-				<entry key="application/x-mspowerpoint" value="si-file-earmark-ppt"/>
-				<entry key="application/msppt" value="si-file-earmark-ppt"/>
-				<entry key="application/vnd.ms-powerpoint" value="si-file-earmark-ppt"/>
-				<entry key="application/x-powerpoint" value="si-file-earmark-ppt"/>
-				<entry key="application/powerpoint" value="si-file-earmark-ppt"/>
-				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="si-file-earmark-ppt"/>
-				<entry key="application/application/vnd.openxmlformats-officedocument.presentationml.slideshow" value="si-file-earmark-ppt"/>
-				<entry key="application/ms-excel" value="si-file-earmark-excel"/>
-				<entry key="application/excel" value="si-file-earmark-excel"/>
-				<entry key="application/vnd.ms-excel" value="si-file-earmark-excel"/>
-				<entry key="application/x-msexcel" value="si-file-earmark-excel"/>
-				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="si-file-earmark-excel"/>
-				<entry key="application/pdf" value="si-file-earmark-pdf"/>
-				<entry key="application/x-pdf" value="si-file-earmark-pdf"/>
-				<entry key="application/x-shockwave-flash" value="si-sakai-meetings"/>
-				<entry key="video/x-flv" value="si-sakai-meetings"/>
-				<entry key="video/mp4" value="si-sakai-meetings"/>
-				<entry key="video/x-mp4" value="si-sakai-meetings"/>
-				<entry key="video/x-m4v" value="si-sakai-meetings"/>
-				<entry key="text/plain" value="si-file-earmark-text"/>
-				<entry key="text/rtf" value="si-file-earmark-text"/>
-				<entry key="LBWEBSITE" value="si-external"/>
-				<entry key="text/html" value="si-external"/>
+				<entry key="application/msword" value="si si-file-earmark-word"/>
+				<entry key="application/vnd.ms-word" value="si si-file-earmark-word"/>
+				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="si si-file-earmark-word"/>
+				<entry key="application/ms-powerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/mspowerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/x-mspowerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/msppt" value="si si-file-earmark-ppt"/>
+				<entry key="application/vnd.ms-powerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/x-powerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/powerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="si si-file-earmark-ppt"/>
+				<entry key="application/application/vnd.openxmlformats-officedocument.presentationml.slideshow" value="si si-file-earmark-ppt"/>
+				<entry key="application/ms-excel" value="si si-file-earmark-excel"/>
+				<entry key="application/excel" value="si si-file-earmark-excel"/>
+				<entry key="application/vnd.ms-excel" value="si si-file-earmark-excel"/>
+				<entry key="application/x-msexcel" value="si si-file-earmark-excel"/>
+				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="si si-file-earmark-excel"/>
+				<entry key="application/pdf" value="si si-file-earmark-pdf"/>
+				<entry key="application/x-pdf" value="si si-file-earmark-pdf"/>
+				<entry key="application/x-shockwave-flash" value="si si-sakai-meetings"/>
+				<entry key="video/x-flv" value="si si-sakai-meetings"/>
+				<entry key="video/mp4" value="si si-sakai-meetings"/>
+				<entry key="video/quicktime" value="si si-file-quicktime"/>
+				<entry key="video/x-mp4" value="si si-sakai-meetings"/>
+				<entry key="video/x-m4v" value="si si-sakai-meetings"/>
+				<entry key="text/plain" value="si si-file-earmark-text"/>
+				<entry key="text/rtf" value="si si-file-earmark-text"/>
+				<entry key="LBWEBSITE" value="si si-external"/>
+				<entry key="text/html" value="si si-external"/>
 				<entry key="application/xhtml+xml" value="si-external"/>
     	</map>
     	</constructor-arg>
