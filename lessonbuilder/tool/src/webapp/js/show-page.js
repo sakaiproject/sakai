@@ -868,9 +868,6 @@ $(document).ready(function () {
       const peerEvalOpenDate = row.find(".peer-eval-open-date").text();
       const peerEvalDueDate = row.find(".peer-eval-due-date").text();
 
-      console.log(peerEvalOpenDate);
-      console.log(peerEvalDueDate);
-
       localDatePicker({
         input: '#due_date_dummy',
         useTime: 1,
@@ -955,10 +952,6 @@ $(document).ready(function () {
     $("#update-student").click(function () {
 
       document.querySelectorAll("#student-form .peer-eval-input-row").forEach(input => {
-
-        console.log(input);
-
-        console.log(input.previousElementSibling.innerText);
 
         input.value = input.previousElementSibling.innerText + ":" + input.value.trim();
       });
@@ -1465,6 +1458,7 @@ $(document).ready(function () {
     });
 
     $(".edit-link").click(function () {
+
       oldloc = $(this);
       $('div.item').removeClass('editInProgress');
       $('.edit-col').addClass('edit-colHidden');
@@ -1503,12 +1497,14 @@ $(document).ready(function () {
 
       // If data-original-name attr is present, use that instead
       const copyText = (linkTextTag) => {
-        const linkText = linkTextTag.attr("data-original-name");
-        linkText = linkText || linkTextTag.text();
+        let linkText = linkTextTag.attr("data-original-name");
+        linkText || linkTextTag.text();
       };
 
       copyText(row.find(".link-text"));
       copyText(row.find(".link-additional-text"));
+
+      linkText = row.find(".link-text").text();
 
       $("#name").val(linkText);
       $("#description").val(row.find(".rowdescription").text());
@@ -1800,6 +1796,7 @@ $(document).ready(function () {
         $("#change-resource-p").show();
         $("#change-resource").attr("href",
             $("#change-resource").attr("href").replace("pageItemId=-1", "pageItemId=" + itemid));
+        $("#change-resource").attr("target", "_blank");
         var groups = row.find(".item-groups").text();
         var grouplist = $("#grouplist");
         if (groups === "--inherited--") {
@@ -1857,6 +1854,13 @@ $(document).ready(function () {
     });
 
     $('#change-resource').click(function () {
+
+      const deleteEl = document.querySelector("#edit-item-dialog");
+      const modal = bootstrap.Modal.getInstance(deleteEl);
+      modal && modal.hide();
+      const mmEl = document.querySelector("#add-multimedia-dialog");
+      const mmModal = bootstrap.Modal.getOrCreateInstance(mmEl);
+      mmModal && mmModal.show();
 
       mm_test_reset();
       $("#mm-name-section").show();
