@@ -645,11 +645,12 @@ public class SakaiBLTIUtilTest {
 			assertEquals(s, sakaiRole);
 		}
 
-		// Institution but not context roles from https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
-		// We don't do person/Student as it maps to Learner
-		for (String s : "Faculty,Guest,None,Other,Staff,Alumni,Observer,ProspectiveStudent".split(",") ) {
-			sakaiRole = mapInboundRole("http://purl.imsglobal.org/vocab/lis/v2/institution/person#" + s, ltiRoles, null);
-			assertEquals(s, sakaiRole);
+		// We ignore institution roles from https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
+		for (String s : "Faculty,Guest,None,Other,Staff,Person,Student,Alumni,Observer,ProspectiveStudent".split(",") ) {
+			String ltiRole = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#" + s;
+			sakaiRole = mapInboundRole(ltiRole, ltiRoles, null);
+			if ( sakaiRole != null ) System.out.println("LTI Role "+ltiRole+" should map to Ignore or null instead of "+sakaiRole);
+			assertTrue(sakaiRole==null);
 		}
 	}
 
@@ -658,10 +659,17 @@ public class SakaiBLTIUtilTest {
 		String imsRole;
 		String sakaiRole;
 
-		for (String roundTrip : "Instructor,Learner,Guest,Teaching Assistant,Mentor,Alumni,ProspectiveStudent".split(",") ) {
+		// Institutional roles do not round trip - Faculty, Member, Staff, Alumni, ProspectiveStudent, Guest, Other
+		for (String roundTrip : "Instructor,Learner,Teaching Assistant,Mentor,Faculty,Member,Staff,Alumni,ProspectiveStudent,Guest,Other".split(",") ) {
 			imsRole = mapOutboundRole(roundTrip, null);
 			sakaiRole = mapInboundRole(imsRole, ltiRoles, null);
-			assertEquals(roundTrip, sakaiRole);
+			if ( imsRole.contains("institution")) {
+				// No round trip for institutional roles
+				assertTrue(sakaiRole==null);
+				continue;
+			} else {
+				assertEquals(roundTrip, sakaiRole);
+			}
 			imsRole = mapOutboundRole(sakaiRole, null);
 			sakaiRole = mapInboundRole(imsRole, ltiRoles, null);
 			assertEquals(roundTrip, sakaiRole);

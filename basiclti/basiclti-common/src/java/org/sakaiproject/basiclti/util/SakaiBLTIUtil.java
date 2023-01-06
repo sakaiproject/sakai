@@ -237,20 +237,21 @@ public class SakaiBLTIUtil {
 		"http://purl.imsglobal.org/vocab/lis/v2/membership#Member=Member,Guest,Student,access;" +
 		"http://purl.imsglobal.org/vocab/lis/v2/membership#Officer=Officer,Guest,Student,access;" +
 
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator=Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty=Faculty,Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest=Guest,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#None=None,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Other=Other,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff=Staff,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student=Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Alumni=Alumni,Guest,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor=Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner=Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Member=Member,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Mentor=Mentor,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer=Observer,Guest,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent=ProspectiveStudent,Guest,Learner,Student,access;"
+		// We ignore institution roles by default
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#None=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Other=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Alumni=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Member=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Mentor=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer=Ignore;" +
+		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent=Ignore;"
 	;
 
 	public static final String LTI_LEGACY_ROLE_MAP = "lti.legacy.role.map";
@@ -820,6 +821,7 @@ public class SakaiBLTIUtil {
 
 			// Loop through Learner,Student,access
 			for (String sakaiRole : sakaiRoleList) {
+				if ( "Ignore".equalsIgnoreCase(sakaiRole) ) continue;
 				if ( siteRoles.contains(sakaiRole) ) return sakaiRole;
 			}
 		}
