@@ -187,7 +187,7 @@ public class OAuthServiceImpl implements OAuthService {
      * @return Date
      */
     private Date plusMinutes(int minute) {
-       return Date.from(LocalDateTime.now().plusMinutes(minute).toInstant(ZoneOffset.UTC));
+       return Date.from(LocalDateTime.now().plusMinutes(minute).toInstant());
     }
 
     @Override
