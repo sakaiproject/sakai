@@ -75,18 +75,9 @@ But here is a copy (may be out of date) so that we can talk about them.
     Instructor:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor;
     Student:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;
     Teaching Assistant:TeachingAssistant,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant;
-    Faculty:Faculty,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty;
-    Member:Member,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Member;
     Learner:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;
     Mentor:Mentor,http://purl.imsglobal.org/vocab/lis/v2/membership#Mentor;
-    Staff:Staff,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff;
-    Alumni:Alumni,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Alumni;
-    ProspectiveStudent:ProspectiveStudent,http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent;
     ContentDeveloper:ContentDeveloper,http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper;
-    Guest:Guest,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest;
-    Other:Other,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Other;
-    Administrator:Administrator,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;
-    Observer:Observer,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer;
 
 Newlines added to the `admin` entry for readibility - they are all one line, comma separated.
 
@@ -103,7 +94,7 @@ and map it back and forth :)
 You can add Sakai-side default mappings or override any or all of the mappings above through
 (you guessed it) a Sakai property:
 
-    lti.outbound.role.map=Sakaiger:Mascot,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Mascot;Friend...
+    lti.outbound.role.map=Sakaiger:Mascot,http://purl.imsglobal.org/vocab/lis/v2/membership#Mascot;Friend...
 
 These mappings in `sakai.properties` are one *very long* line with semicolon separator.
 
@@ -130,7 +121,7 @@ These examples are using the LTI 1.1 "short form" for the LTI roles.
 But you can also specify the full length roles as well, and you can specify more than one LTI
 role be the result of the role mapping.  (blanks and linebreaks added for readablility):
 
-    Instructor:Instructor,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty;
+    Instructor:Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Faculty;
         Teaching Assistant:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper
 
 Inbound LTI Role Mapping
@@ -157,22 +148,6 @@ specfic (site.template).
     http://purl.imsglobal.org/vocab/lis/v2/membership#Member=Learner,Student,access
     http://purl.imsglobal.org/vocab/lis/v2/membership#Officer=Learner,Student,access
 
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator=Instructor,maintain
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty=Instructor,maintain
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest=Guest,Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#None=Guest,Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Other=Other,Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff=Staff,Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student=Learner,Student,access
-
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Alumni=Alumni,Guest,Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor=Instructor,maintain
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner=Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Member=Member,Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Mentor=Mentor,Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer=Observer,Guest,Learner,Student,access
-    http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent=ProspectiveStudent,Guest,Learner,Student,access
-
 Note that `TeachingAssistant` is a little weird because it is a sub-type of `Instructor` and the
 use of a blank within Sakai and no blank in LTI.
 
@@ -182,7 +157,7 @@ The actual default list is stored in
 You can add new default mappings or override any or all of the mappings above through
 Sakai property:
 
-    lti.inbound.role.map=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Mascot=Learner,Student,access;http://...
+    lti.inbound.role.map=http://purl.imsglobal.org/vocab/lis/v2/membership#Mascot=Learner,Student,access;http://...
 
 These mappings in `sakai.properties` are one *very long* line with semicolon separator.
 

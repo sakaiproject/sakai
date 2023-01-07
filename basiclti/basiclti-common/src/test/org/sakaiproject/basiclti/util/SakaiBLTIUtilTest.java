@@ -461,15 +461,13 @@ public class SakaiBLTIUtilTest {
 		Map<String, String> roleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT);
 
 		assertTrue(roleMap instanceof Map);
-		assertEquals(18, roleMap.size());
+		assertEquals(9, roleMap.size());
 		assertTrue(roleMap.get("Yada") == null);
 		assertEquals(roleMap.get("access"),      "Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner");
 		assertEquals(roleMap.get("maintain"),    "Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor");
 		assertEquals(roleMap.get("Student"),     "Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner");
 		assertEquals(roleMap.get("Learner"),     "Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner");
 		assertEquals(roleMap.get("Instructor"),  "Instructor,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor");
-		assertEquals(roleMap.get("Guest"),       "Guest,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest");
-		assertEquals(roleMap.get("Observer"),    "Observer,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer");
 		// Blanks are really important below
 		assertEquals(roleMap.get("Teaching Assistant"),    "TeachingAssistant,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant");
 	}
@@ -532,6 +530,7 @@ public class SakaiBLTIUtilTest {
 		return SakaiBLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
 	}
 
+	// https://www.imsglobal.org/spec/lti/v1p3/#role-vocabularies
 	@Test
 	public void testOutbound() {
 		String toolProp = "ToolI:Instructor;ToolM:Instructor,Learner;ToolA:"+BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+";";
@@ -555,15 +554,9 @@ public class SakaiBLTIUtilTest {
 		assertTrue(imsRole.contains("Instructor"));
 		assertTrue(imsRole.contains("Administrator"));
 
-		imsRole = mapOutboundRole("Guest", toolProp);
-		assertEquals("Guest,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest", imsRole);
-
 		// Extra from properties
 		imsRole = mapOutboundRole("Dude", toolProp);
 		assertEquals("Dude,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Abides", imsRole);
-
-		imsRole = mapOutboundRole("Staff", toolProp);
-		assertEquals("Staff,Dude,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff", imsRole);
 
 		// Tool maps to legacy Instructor - upconverted
 		imsRole = mapOutboundRole("ToolI", toolProp);
@@ -659,17 +652,17 @@ public class SakaiBLTIUtilTest {
 		String imsRole;
 		String sakaiRole;
 
+		// Institutional roles - Just say no
+		for (String roundTrip : "Faculty,Member,Alumni,ProspectiveStudent,Guest,Other".split(",") ) {
+			imsRole = mapOutboundRole(roundTrip, null);
+			assertTrue(imsRole==null);
+		}
+
 		// Institutional roles do not round trip - Faculty, Member, Staff, Alumni, ProspectiveStudent, Guest, Other
-		for (String roundTrip : "Instructor,Learner,Teaching Assistant,Mentor,Faculty,Member,Staff,Alumni,ProspectiveStudent,Guest,Other".split(",") ) {
+		for (String roundTrip : "Instructor,Learner,Teaching Assistant,Mentor".split(",") ) {
 			imsRole = mapOutboundRole(roundTrip, null);
 			sakaiRole = mapInboundRole(imsRole, ltiRoles, null);
-			if ( imsRole.contains("institution")) {
-				// No round trip for institutional roles
-				assertTrue(sakaiRole==null);
-				continue;
-			} else {
-				assertEquals(roundTrip, sakaiRole);
-			}
+			assertEquals(roundTrip, sakaiRole);
 			imsRole = mapOutboundRole(sakaiRole, null);
 			sakaiRole = mapInboundRole(imsRole, ltiRoles, null);
 			assertEquals(roundTrip, sakaiRole);
