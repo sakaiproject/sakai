@@ -51,7 +51,7 @@
         </div>
 
         <div class="samigo-container">
-            <h:panelGroup layout="block" styleClass="alert alert-danger" rendered="#{! empty facesContext.maximumSeverity}">
+            <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}">
                 <h:messages rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
             </h:panelGroup>
 
