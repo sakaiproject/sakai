@@ -1251,13 +1251,13 @@ public class QuestionPoolFacadeQueries
       item.setItemAttachmentSet(copyAttachment(item.getData(), itemData));
       item.setInstruction(AssessmentService.copyStringAttachment(itemData.getInstruction()));
 
-      if (!StringUtils.isEmpty(itemData.getCorrectItemFeedback())) {
+      if (StringUtils.isNotEmpty(itemData.getCorrectItemFeedback())) {
     	  item.setCorrectItemFeedback(AssessmentService.copyStringAttachment(itemData.getCorrectItemFeedback()), AssessmentService.copyStringAttachment(itemData.getCorrectItemFeedbackValue()));
       }
-      if (!StringUtils.isEmpty(itemData.getInCorrectItemFeedback())) {
+      if (StringUtils.isNotEmpty(itemData.getInCorrectItemFeedback())) {
     	  item.setInCorrectItemFeedback(AssessmentService.copyStringAttachment(itemData.getInCorrectItemFeedback()), AssessmentService.copyStringAttachment(itemData.getInCorrectItemFeedbackValue()));
       }
-      if (!StringUtils.isEmpty(itemData.getGeneralItemFeedback())) {
+      if (StringUtils.isNotEmpty(itemData.getGeneralItemFeedback())) {
     	  item.setGeneralItemFeedback(AssessmentService.copyStringAttachment(itemData.getGeneralItemFeedback()), AssessmentService.copyStringAttachment(itemData.getGeneralItemFeedback()));
       }
       
