@@ -1814,17 +1814,17 @@ public class ExtractionHelper
 		  }
 	  }
 
-	  if (!StringUtils.isEmpty(correctItemFeedback))
+	  if (StringUtils.isNotEmpty(correctItemFeedback))
 	  {
 		  updatedFeedback = makeFCKAttachment(correctItemFeedback);
 		  item.setCorrectItemFeedback(updatedFeedback, updatedFeedback);
 	  }
-	  if (!StringUtils.isEmpty(incorrectItemFeedback))
+	  if (StringUtils.isNotEmpty(incorrectItemFeedback))
 	  {
 		  updatedFeedback = makeFCKAttachment(incorrectItemFeedback);
 		  item.setInCorrectItemFeedback(updatedFeedback, updatedFeedback);
 	  }
-	  if (!StringUtils.isEmpty(generalItemFeedback))
+	  if (StringUtils.isNotEmpty(generalItemFeedback))
 	  {
 		  updatedFeedback = makeFCKAttachment(generalItemFeedback);
 		  item.setGeneralItemFeedback(updatedFeedback, updatedFeedback);
