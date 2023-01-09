@@ -1263,14 +1263,14 @@ public class DeliveryActionListener
     	if (itemBean.getExactPoints() >= itemBean.getMaxPoints())
     	{
     		itemBean.setFeedback(item.getCorrectItemFeedback());
-    		if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+    		if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId())) {
     			itemBean.setFeedbackValue(item.getCorrectItemFeedbackValue());
     		}
     	}
     	else
     	{
     		itemBean.setFeedback(item.getInCorrectItemFeedback());
-    		if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+    		if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId())) {
     			itemBean.setFeedbackValue(item.getInCorrectItemFeedbackValue());
     		}
     	}

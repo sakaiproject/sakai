@@ -81,13 +81,13 @@ public class ItemFeedback
     this.text = text;
   }
 
-public String getTextValue() {
+  public String getTextValue() {
     return textValue;
-}
+  }
 
-public void setTextValue(String textValue) {
+  public void setTextValue(String textValue) {
     this.textValue = textValue;
-}
+  }
 
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {
     out.defaultWriteObject();

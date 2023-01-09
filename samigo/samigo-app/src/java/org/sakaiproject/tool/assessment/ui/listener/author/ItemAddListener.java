@@ -820,15 +820,15 @@ public class ItemAddListener implements ActionListener {
           // prepare feedback, because this is UPDATE
           // if it's an empty string, we need to update feedback to an empty string
           // not like below (below we don't ADD if the feedback is null or empty string)
-          if ((bean.getCorrFeedback() != null)) {
+          if (StringUtils.isNotEmpty(bean.getCorrFeedback())) {
                 newFeedback = stripPtags(bean.getCorrFeedback());
                 updateItemFeedback(item, ItemFeedbackIfc.CORRECT_FEEDBACK, newFeedback, newFeedback);
           }
-          if ((bean.getIncorrFeedback() != null)) {
+          if (StringUtils.isNotEmpty(bean.getIncorrFeedback())) {
                 newFeedback = stripPtags(bean.getIncorrFeedback());
                 updateItemFeedback(item, ItemFeedbackIfc.INCORRECT_FEEDBACK, newFeedback, newFeedback);
           }
-          if ((bean.getGeneralFeedback() != null)) {
+          if (StringUtils.isNotEmpty(bean.getGeneralFeedback())) {
                 newFeedback = stripPtags(bean.getGeneralFeedback());
                 updateItemFeedback(item, ItemFeedbackIfc.GENERAL_FEEDBACK, newFeedback, newFeedback);
           }
@@ -858,15 +858,15 @@ public class ItemAddListener implements ActionListener {
             item.setItemMetaDataSet(prepareMetaData(item, bean));
 
             // prepare feedback, only store if feedbacks are not empty
-      	  	if (!StringUtils.isEmpty(bean.getCorrFeedback())) {
+      	  	if (StringUtils.isNotEmpty(bean.getCorrFeedback())) {
       	  		newFeedback = stripPtags(bean.getCorrFeedback());
       	  		item.setCorrectItemFeedback(newFeedback, newFeedback);
       	  	}
-      	  	if (!StringUtils.isEmpty(bean.getIncorrFeedback())) {
+      	  	if (StringUtils.isNotEmpty(bean.getIncorrFeedback())) {
       	  		newFeedback = stripPtags(bean.getIncorrFeedback());
       	  		item.setInCorrectItemFeedback(newFeedback, newFeedback);
       	  	}
-      	  	if (!StringUtils.isEmpty(bean.getGeneralFeedback())) {
+      	  	if (StringUtils.isNotEmpty(bean.getGeneralFeedback())) {
       	  		newFeedback = stripPtags(bean.getGeneralFeedback());
       	  		item.setGeneralItemFeedback(newFeedback, newFeedback);
       	  	}

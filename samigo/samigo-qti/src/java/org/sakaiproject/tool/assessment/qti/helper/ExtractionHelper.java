@@ -1804,11 +1804,11 @@ public class ExtractionHelper
 			  TypeIfc.FILE_UPLOAD.longValue() == typeId.longValue() ||
 			  TypeIfc.ESSAY_QUESTION.longValue() == typeId.longValue())
 	  {
-		  if (!StringUtils.isEmpty(incorrectItemFeedback))
+		  if (StringUtils.isNotEmpty(incorrectItemFeedback))
 		  {
 			  generalItemFeedback += " " + incorrectItemFeedback;
 		  }
-		  if (!StringUtils.isEmpty(correctItemFeedback))
+		  if (StringUtils.isNotEmpty(correctItemFeedback))
 		  {
 			  generalItemFeedback += " " + correctItemFeedback;
 		  }

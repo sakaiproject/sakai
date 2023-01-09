@@ -149,7 +149,7 @@ public class GradingService
   public static final Pattern CALCQ_FORMULA_ALLOW_POINT_NUMBER = Pattern.compile("([^\\d]|^)([\\.])([\\d])");
   public static final Pattern CALCQ_FORMULA_ALLOW_NUMBER_POINT = Pattern.compile("([\\d])([\\.])([^\\d]|$)");
   public static final Pattern CALCQ_DOUBLE_OPEN_BRACKET = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET);
-  public static final Pattern CALCQ_DOUBLE_CLOSE_BRACKET = Pattern.compile(CLOSE_BRACKET  + CLOSE_BRACKET );
+  public static final Pattern CALCQ_DOUBLE_CLOSE_BRACKET = Pattern.compile(CLOSE_BRACKET + CLOSE_BRACKET);
   
   private static final int WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL = -123456789;
   
@@ -2943,7 +2943,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
       if (!StringUtils.isEmpty(feedback)) {
           String[] firstResults = CALCQ_DOUBLE_OPEN_BRACKET.split(feedback); // only works because all variables and calculations are already replaced
-          for (String r: firstResults) {
+          for (String r:firstResults) {
               results = (CALCQ_DOUBLE_CLOSE_BRACKET.split(r));
               segments.addAll(Arrays.asList(results));
           }
