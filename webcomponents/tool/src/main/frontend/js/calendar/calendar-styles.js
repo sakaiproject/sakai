@@ -8,7 +8,9 @@ export const calendarStyles = css`
   }
 
   .calendar__navigation {
-    display: inline-block;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
   }
 
   .calendar__navigation-heading {
