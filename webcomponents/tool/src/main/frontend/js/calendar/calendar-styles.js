@@ -1,6 +1,11 @@
 import { css } from "../assets/lit-element/lit-element.js";
 
 export const calendarStyles = css`
+  .calendar-msg {
+    text-align: center;
+    background-color: var(--sakai-background-color-2);
+  }
+
   .sakai-calendar__navigation-wrapper {
     display: grid;
     grid-template-columns: 1fr min-content;
