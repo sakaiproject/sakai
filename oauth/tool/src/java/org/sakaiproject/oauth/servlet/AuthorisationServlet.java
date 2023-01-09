@@ -173,7 +173,7 @@ public class AuthorisationServlet extends HttpServlet {
 
             request.getRequestDispatcher(authorisePath).forward(request, response);
         } catch (OAuthException e) {
-            log.warn("Problem with oauth request_token", e);
+            log.warn("Problem with oauth request_token: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
     }
