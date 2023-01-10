@@ -128,6 +128,11 @@ export class SakaiCalendar extends LionCalendar {
     .catch (error => console.error(error));
   }
 
+  firstUpdated() {
+
+    this.loadData();
+  }
+
   update(changed) {
 
     super.update(changed);
@@ -168,7 +173,7 @@ export class SakaiCalendar extends LionCalendar {
 
     return html`
 
-      <div>${this.i18n.days_message.replace("{}", this.days)}</div>
+      <div class="calendar-msg">${this.i18n.days_message.replace("{}", this.days)}</div>
 
       <div id="container">
         ${super.render()}
