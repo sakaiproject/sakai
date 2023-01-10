@@ -86,6 +86,8 @@ public class ItemContentsBean implements Serializable {
 
 	private String feedback;
 
+	private String feedbackValue;
+
 	private String responseId = "2";
 
 	private String responseText = "";
@@ -631,6 +633,25 @@ public class ItemContentsBean implements Serializable {
 	 */
 	public void setFeedback(String feedback) {
 		this.feedback = feedback;
+	}
+
+	/**
+	 * item level feedback value
+	 *
+	 * @return the item level feedback value
+	 */
+	public String getFeedbackValue() {
+		return feedbackValue;
+	}
+
+	/**
+	 * item level feedback value
+	 *
+	 * @param feedbackValue
+	 *            the item level feedback value
+	 */
+	public void setFeedbackValue(String feedbackValue) {
+		this.feedbackValue = feedbackValue;
 	}
 
 	/**
