@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -47,6 +48,7 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.time.Instant;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -63,6 +65,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -131,13 +134,14 @@ public class GradingService
    * NOTE: Old regex: ([\\w\\s\\.\\-\\^\\$\\!\\&\\@\\?\\*\\%\\(\\)\\+=#`~&:;|,/<>\\[\\]\\\\\\'\"]+?)
    * was way too complicated.
    */
-  public static final String CALCQ_VAR_FORM_NAME = "[a-zA-Z][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
+  public static final String CALCQ_VAR_FORM_NAME = "[a-zA-ZÀ-ÿ\\u00f1\\u00d1][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
   public static final String CALCQ_VAR_FORM_NAME_EXPRESSION = "("+CALCQ_VAR_FORM_NAME+")";
   public static final String CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED = OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET;
+  public static final String CALCQ_SOLUTION_EXPRESSION = OPEN_BRACKET + OPEN_BRACKET + "|" + CLOSE_BRACKET + CLOSE_BRACKET;
 
   // variable match - (?<!\{)\{([^\{\}]+?)\}(?!\}) - means any sequence inside braces without a braces before or after
-  public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
-  public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
+  public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})", Pattern.UNICODE_CHARACTER_CLASS);
+  public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET, Pattern.UNICODE_CHARACTER_CLASS);
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
   public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\" + CALCULATION_AUX_OPEN + "([^\\" + CALCULATION_AUX_OPEN + "\\" + CALCULATION_AUX_CLOSE + "]+)\\" + CALCULATION_AUX_CLOSE);
   // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
@@ -146,6 +150,8 @@ public class GradingService
   // SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
   public static final Pattern CALCQ_FORMULA_ALLOW_POINT_NUMBER = Pattern.compile("([^\\d]|^)([\\.])([\\d])");
   public static final Pattern CALCQ_FORMULA_ALLOW_NUMBER_POINT = Pattern.compile("([\\d])([\\.])([^\\d]|$)");
+  public static final Pattern CALCQ_DOUBLE_OPEN_BRACKET = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET);
+  public static final Pattern CALCQ_DOUBLE_CLOSE_BRACKET = Pattern.compile(CLOSE_BRACKET + CLOSE_BRACKET);
   
   private static final int WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL = -123456789;
   
@@ -155,6 +161,8 @@ public class GradingService
   private List<String> texts;
   @Getter @Setter
   private HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
+  @Getter @Setter
+  private LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
   private static final int MAX_ERROR_TRIES = 100;
 	  
   /**
@@ -2778,7 +2786,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item, int calcQuestionAnswerSequence ) {
       // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
       if (calcQuestionAnswerSequence == 1) {
-          extractCalcQAnswersArray(answersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
+          extractCalcQAnswersArray(answersMap, answersMapValues, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
       }
       return answersMap;
   }
@@ -2929,6 +2937,21 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       return segments;
   }
 
+  protected List<String> extractFeedbackSegments(String feedback) {
+      List<String> segments = new ArrayList<>();
+      Matcher matcher = CALCQ_FORMULA_SPLIT_PATTERN.matcher(feedback);
+      int lastIndex = 0;
+      while (matcher.find()) {
+          String segment = feedback.substring(lastIndex, matcher.start());
+          segments.add(segment);
+          segments.add(matcher.group().replaceAll(CALCQ_SOLUTION_EXPRESSION, ""));
+          lastIndex = matcher.end();
+      }
+      segments.add(feedback.substring(lastIndex));
+
+      return segments;
+  }
+
   
   /**
    * CALCULATED_QUESTION
@@ -3018,8 +3041,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * Samigo expression parser, which should never happen as this is validated
    * when the question is saved, or if a divide by zero error occurs.
    */
-  private Map<Integer, String> calculateFormulaValues(Map<String, String> variables, ItemDataIfc item) throws Exception {
-      Map<Integer, String> values = new HashMap<>();
+  private ArrayList<Map> calculateFormulaValues(Map<String, String> variables, ItemDataIfc item) throws Exception {
+      Map<Integer, String> values = new LinkedHashMap<>();
+      LinkedHashMap<String, String> solutionVariables = new LinkedHashMap<>();
+      ArrayList<Map> maps = new ArrayList<Map>();
       String instructions = item.getInstruction();
       List<String> formulaNames = this.extractFormulas(instructions);
       for (int i = 0; i < formulaNames.size(); i++) {
@@ -3034,8 +3059,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           String substitutedFormula = replaceMappedVariablesWithNumbers(formula,variables);
           String formulaValue = processFormulaIntoValue(substitutedFormula, decimalPlaces);
           values.put(i + 1, formulaValue + answerData); // later answerData will be used for scoring
+          solutionVariables.put(formulaName, formulaValue + answerData); // later answerData will be used for scoring
       }
-      return values;
+      maps.add(values);
+      maps.add(solutionVariables);
+      return maps;
   }
 
   /**
@@ -3053,28 +3081,43 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param answerList is cleared and filled with sequential answers to the question
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
-  public List<String> extractCalcQAnswersArray(Map<Integer, String> answerList, ItemDataIfc item, Long gradingId, String agentId) {
+  public List<List<String>> extractCalcQAnswersArray(Map<Integer, String> answerList, Map<String, String> answerListValues, ItemDataIfc item, Long gradingId, String agentId) {
       boolean hasErrors = true;
       Map<String, String> variableRangeMap = buildVariableRangeMap(item);
       List<String> instructionSegments = new ArrayList<>(0);
+      List<String> correctFeedbackSegments = new ArrayList<>(0);
+      List<String> incorrectFeedbackSegments = new ArrayList<>(0);
+
       answerList.clear();
+      answerListValues.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
           instructionSegments.clear();
           Map<String, String> variablesWithValues = determineRandomValuesForRanges(variableRangeMap,item.getItemId(), gradingId, agentId, attemptCount);
           try {
-              Map<Integer, String> evaluatedFormulas = calculateFormulaValues(variablesWithValues, item);
-              answerList.putAll(evaluatedFormulas);
+              ArrayList<Map> evaluatedFormulas = calculateFormulaValues(variablesWithValues, item);
+              answerList.putAll(evaluatedFormulas.get(0));
+              answerListValues.putAll(evaluatedFormulas.get(1));
               // replace the variables in the text with values
               String instructions = item.getInstruction();
+              String correctFeedback = item.getCorrectItemFeedback();
+              String incorrectFeedback = item.getInCorrectItemFeedback();
               instructions = replaceMappedVariablesWithNumbers(instructions, variablesWithValues);
+              String correctFeedbackNumbers = replaceMappedVariablesWithNumbers(correctFeedback, variablesWithValues);
+              String incorrectFeedbackNumbers = replaceMappedVariablesWithNumbers(incorrectFeedback, variablesWithValues);
               // then replace the calculations with values (must happen AFTER the variable replacement)
               try {
                   instructions = replaceCalculationsWithValues(instructions, 5); // what decimal precision should we use here?
+                  String correctFeedbackValue = replaceCalculationsWithValues(correctFeedbackNumbers, 5);
+                  String incorrectFeedbackValue = replaceCalculationsWithValues(incorrectFeedbackNumbers, 5);
                   // if could not process the calculation into a result then throws IllegalStateException which will be caught below and cause the numbers to regenerate
                   // only pull out the segments if the formulas worked
                   instructionSegments = extractInstructionSegments(instructions);
+                  correctFeedbackSegments = extractFeedbackSegments(correctFeedbackValue);
+                  incorrectFeedbackSegments = extractFeedbackSegments(incorrectFeedbackValue);
+                  item.updateFeedbackByType(PublishedItemFeedback.CORRECT_FEEDBACK, correctFeedback, correctFeedbackValue);
+                  item.updateFeedbackByType(PublishedItemFeedback.INCORRECT_FEEDBACK, incorrectFeedback, incorrectFeedbackValue);
                   hasErrors = false;
               } catch (SamigoExpressionError e1) {
                   log.warn("Samigo calculated item ({}) calculation invalid: {}", item.getItemId(), e1.get());
@@ -3085,7 +3128,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               attemptCount++;
           }
       }
-      return instructionSegments;
+      return List.of(instructionSegments, correctFeedbackSegments, incorrectFeedbackSegments);
   }
   
   /**
@@ -3188,8 +3231,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * the original answerExpression 
    */
   public String replaceMappedVariablesWithNumbers(String expression, Map<String, String> variables) {
-      if (expression == null) {
-          expression = "";
+      if (StringUtils.isEmpty(expression)) {
+          return expression;
       }
       
       if (variables == null) {
