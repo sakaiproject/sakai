@@ -205,8 +205,8 @@ public class SamigoPoolHandler implements HandlesImportable {
 				textSet.add(text);
 			}
 			itemFacade.setItemTextSet(textSet);
-			itemFacade.setCorrectItemFeedback(importableQuestion.getFeedbackWhenCorrect());
-			itemFacade.setInCorrectItemFeedback(importableQuestion.getFeedbackWhenIncorrect());
+			itemFacade.setCorrectItemFeedback(importableQuestion.getFeedbackWhenCorrect(), importableQuestion.getFeedbackWhenCorrect());
+			itemFacade.setInCorrectItemFeedback(importableQuestion.getFeedbackWhenIncorrect(), importableQuestion.getFeedbackWhenIncorrect());
 			itemFacade.setScore(importableQuestion.getPointValue());
 			itemFacade.setSequence(importableQuestion.getPosition());
 			// status is 0=inactive or 1=active
