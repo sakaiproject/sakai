@@ -210,18 +210,9 @@ public class SakaiBLTIUtil {
 		// A blank *is* part of the Sakai role and *is not* part of the LTI role
 		"Teaching Assistant:TeachingAssistant,http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant;" +
 		// !site.template.lti roles - The simplest mapping :)
-		"Faculty:Faculty,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty;" +
-		"Member:Member,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Member;" +
 		"Learner:Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner;" +
 		"Mentor:Mentor,http://purl.imsglobal.org/vocab/lis/v2/membership#Mentor;" +
-		"Staff:Staff,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff;" +
-		"Alumni:Alumni,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Alumni;" +
-		"ProspectiveStudent:ProspectiveStudent,http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent;" +
-		"ContentDeveloper:ContentDeveloper,http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper;" +
-		"Guest:Guest,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest;" +
-		"Other:Other,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Other;" +
-		"Administrator:Administrator,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator;" +
-		"Observer:Observer,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer;"
+		"ContentDeveloper:ContentDeveloper,http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper;"
 	;
 
 	public static final String LTI_INBOUND_ROLE_MAP = "lti.inbound.role.map";
@@ -235,22 +226,7 @@ public class SakaiBLTIUtil {
 
 		"http://purl.imsglobal.org/vocab/lis/v2/membership#Manager=Manager,Guest,Student,access;" +
 		"http://purl.imsglobal.org/vocab/lis/v2/membership#Member=Member,Guest,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/membership#Officer=Officer,Guest,Student,access;" +
-
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator=Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty=Faculty,Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Guest=Guest,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#None=None,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Other=Other,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff=Staff,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student=Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Alumni=Alumni,Guest,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor=Instructor,maintain;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner=Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Member=Member,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Mentor=Mentor,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Observer=Observer,Guest,Learner,Student,access;" +
-		"http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent=ProspectiveStudent,Guest,Learner,Student,access;"
+		"http://purl.imsglobal.org/vocab/lis/v2/membership#Officer=Officer,Guest,Student,access;"
 	;
 
 	public static final String LTI_LEGACY_ROLE_MAP = "lti.legacy.role.map";
