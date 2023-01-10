@@ -156,12 +156,14 @@ var chatscript = {
 	deleteMessage : function(messageId) {
 		var me = this;
 		var removeModal = $("#removemodal");
-		removeModal.modal("hide");
+		var modal = bootstrap.Modal.getInstance(removeModal);
+		modal.hide();
+
 		$.ajax({
 			url: me.url_submit + messageId,
 			type: "DELETE",
 			success: function(data) {
-				removeModal.modal("hide");
+				modal.hide();
 				me.updateChatData();
 			}
 		});
@@ -215,7 +217,7 @@ var chatscript = {
 			if ($(".divisorNewMessages").length < 2) {
 				var divisorNewMessages = $("#divisorNewMessages").clone();
 				divisorNewMessages.removeAttr("id");
-				divisorNewMessages.removeClass("hide");
+				divisorNewMessages.removeClass("d-none");
 				$("#topForm\\:chatList").append(divisorNewMessages);
 			}
 		}
@@ -239,7 +241,7 @@ var chatscript = {
 			var exists = $("#topForm\\:chatList li[data-message-id=" + messageId + "]").length;
 			if (!exists) {
 				var messageItem = $("#chatListItem").clone();
-				messageItem.removeClass("hide");
+				messageItem.removeClass("d-none");
 				messageItem.removeAttr("id");
 				messageItem.attr("data-message-id", messageId);
 				messageItem.attr("data-owner-id", ownerId);
@@ -251,7 +253,7 @@ var chatscript = {
 				messageItem.find(".chatDate").text(dateStr);
 				messageItem.find(".chatText").html(messageBody);
 				if (removeable) {
-					messageItem.find(".chatRemove").removeClass("hide");
+					messageItem.find(".chatRemove").removeClass("d-none");
 				}
 				if (lastMessageOwnerId == ownerId && messageMillisDiff < (5*60*1000)) {
 					messageItem.addClass("nestedMessage");
@@ -277,7 +279,7 @@ var chatscript = {
 					unreadedMessages++;
 					me.updateUnreadedMessages();
 					$(".divisorNewMessages[id!=divisorNewMessages]").find(".newMessages").text(unreadedMessages);
-					$(".scrollBottom").fadeIn(300).removeClass("hide");
+					$(".scrollBottom").fadeIn(300).removeClass("d-none");
 				}
 			}
 		}
@@ -342,7 +344,7 @@ var chatscript = {
 		removeModal.find("#date").text(date);
 		removeModal.find("#message").html(messageBody);
 		removeModal.find("#deleteButton").attr("data-message-id", messageId);
-		removeModal.modal("show");
+		const modal = new bootstrap.Modal(removeModal).toggle();
 	},
 	scrollChat : function () {
 		var scrollableChat = $("#chatListWrapper");
