@@ -1704,6 +1704,7 @@ public class HistogramListener
 		results.put(INCORRECT, Integer.valueOf(0));
 
 		Map<Integer, String> answersMap = new HashMap<>();
+		LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<>();
 		int total = 0;
 		int i = 1;
 		Long publishAnswerIdAnt = scores.get(0).getPublishedAnswerId();
@@ -1713,7 +1714,7 @@ public class HistogramListener
 				i++;
 				publishAnswerIdAnt = publishAnswerIdAct;
 			}
-			delegate.extractCalcQAnswersArray(answersMap, item, score.getAssessmentGradingId(), score.getAgentId());
+			delegate.extractCalcQAnswersArray(answersMap, answersMapValues, item, score.getAssessmentGradingId(), score.getAgentId());
 			if (score.getAutoScore() != null) {
 				total++;
 				if (delegate.getCalcQResult(score, item, answersMap, i)) {
