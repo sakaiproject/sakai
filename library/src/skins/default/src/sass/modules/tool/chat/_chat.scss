@@ -4,7 +4,7 @@
 @import "_chat_variables";
 	.#{$namespace}sakai-chat{
 		.panel-chat {
-			padding: 0;
+			padding: 15px;
 			margin: 14px 0 0 0;
 			background: var(--sakai-background-color-1);
 
