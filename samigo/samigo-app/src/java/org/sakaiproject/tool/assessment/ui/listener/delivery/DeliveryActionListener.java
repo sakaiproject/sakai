@@ -31,11 +31,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -57,6 +59,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -1259,12 +1262,17 @@ public class DeliveryActionListener
    	
     	if (itemBean.getExactPoints() >= itemBean.getMaxPoints())
     	{
-    		
     		itemBean.setFeedback(item.getCorrectItemFeedback());
+    		if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId())) {
+    			itemBean.setFeedbackValue(item.getCorrectItemFeedbackValue());
+    		}
     	}
     	else
     	{
     		itemBean.setFeedback(item.getInCorrectItemFeedback());
+    		if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId())) {
+    			itemBean.setFeedbackValue(item.getInCorrectItemFeedbackValue());
+    		}
     	}
     }
     else {
@@ -2342,13 +2350,17 @@ public class DeliveryActionListener
       String agentId = determineCalcQAgentId(delivery, bean);
 
       service.getAnswersMap().clear();
-      List<String> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId);
-      if (texts.isEmpty())
+      List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), item, gradingId, agentId);
+      if (texts.get(0).isEmpty())
       {
           log.error("Unable to extract any question text from calculated question with item id {}. The formula for this question may be invalid.", item.getItemId());
-          texts = Collections.singletonList(rb.get("calc.extract_text_error").toString());
+          texts.set(0, Collections.singletonList(rb.get("calc.extract_text_error").toString()));
       }
-      service.setTexts(texts);
+      service.setTexts(texts.get(0));
+
+      //changing solutions ex: {{w}} with numbers
+      replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+
       String questionText = service.getTexts().get(0);
 
       ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
@@ -2895,7 +2907,7 @@ public class DeliveryActionListener
   
   /**
    * CALCULATED_QUESTION
-   * This returns the comma and space delimted answer key for display such as "42.1, 23.19"
+   * This returns the comma and space delimited answer key for display such as "42.1, 23.19"
    */
   private String commaDelimitedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
 	  long gradingId = determineCalcQGradingId(delivery);
@@ -2904,7 +2916,9 @@ public class DeliveryActionListener
 	  String keysString = "";
 
 	service.getAnswersMap().clear();
-	service.setTexts(service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId));
+	service.getAnswersMapValues().clear();
+	List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), item, gradingId, agentId);
+	service.setTexts(texts.get(0));
 
 	int answerSequence = 1; // this corresponds to the sequence value assigned in extractCalcQAnswersArray()
 	int decimalPlaces = 3;
@@ -2918,13 +2932,38 @@ public class DeliveryActionListener
 		  
 		  keysString = keysString.concat(answer + ", ");
 		  answerSequence++;
-	  }
+	}
 	  if (keysString.length() > 2) {
 		  keysString = keysString.substring(0, keysString.length()-2); // truncating the comma and blank on the end
 	  }
+
+	  //changing solutions ex: {{w}} with numbers
+	  replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+
 	  return keysString;
   }
   
+  public void replaceSolutionOnFeedbackWithNumbers(LinkedHashMap<String, String> answerListValues, ItemDataIfc item, List<List<String>> texts) {
+	  String correctFeedback = item.getCorrectItemFeedback();
+	  String incorrectFeedback = item.getInCorrectItemFeedback();
+
+	  for (int i=1; i<texts.size(); i++) {
+		  List<String> parts = texts.get(i);
+		  for (int j=0; j<parts.size(); j++) {
+			  String map = answerListValues.get(parts.get(j));
+			  if (map != null) {
+				  String num = map.substring(0, map.indexOf("|"));
+				  parts.set(j, num);
+			  }
+		  }
+		  if (i == 1) {
+			  item.updateFeedbackByType(PublishedItemFeedback.CORRECT_FEEDBACK, correctFeedback, parts.stream().collect(Collectors.joining("")));
+		  } else if (i == 2) {
+			  item.updateFeedbackByType(PublishedItemFeedback.INCORRECT_FEEDBACK, incorrectFeedback, parts.stream().collect(Collectors.joining("")));
+		  }
+	  }
+  }
+
   /**
    * CALCULATED_QUESTION
    * We need the agentIds in order to properly set the pseudorandom seed
