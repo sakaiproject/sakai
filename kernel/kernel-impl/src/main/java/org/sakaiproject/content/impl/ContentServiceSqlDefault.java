@@ -56,7 +56,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getInsertContentSql(String table)
 	{
-		return "insert into " + table + " (RESOURCE_ID, BODY)" + " values (? , ? )";
+		return "insert into " + table + " (RESOURCE_ID, RESOURCE_SHA256, BODY)" + " values (? , ? , ? )";
 	}
 
 	/**

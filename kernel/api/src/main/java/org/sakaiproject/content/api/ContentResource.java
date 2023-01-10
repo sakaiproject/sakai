@@ -44,6 +44,12 @@ public interface ContentResource
 	public String getContentType();
 
 	/**
+	* Access the resource sha256 checksum
+	* @return The resource sha256 checksum
+	*/
+	public String getContentSha256();
+
+	/**
 	* Access an array of the bytes of the resource.
 	* @return An array containing the bytes of the resource's content.
 	* @exception ServerOverloadException

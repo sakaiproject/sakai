@@ -68,6 +68,10 @@ public class AbstractContentResource implements ContentResource{
 		return wrapped.getResourceType();
 	}
 
+	public String getContentSha256() {
+		return wrapped.getContentSha256();
+	}
+
 	public ContentHostingHandler getContentHandler() {
 		return wrapped.getContentHandler();
 	}
