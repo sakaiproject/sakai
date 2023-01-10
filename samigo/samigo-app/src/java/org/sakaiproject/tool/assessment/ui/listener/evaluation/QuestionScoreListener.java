@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -596,10 +597,11 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				List<ItemGradingAttachment> itemGradingAttachmentList = new ArrayList<>();
 				int i = 1;
 				Map<Integer, String> answersMap = new HashMap<Integer, String>();
+				LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
 				while (iter2.hasNext()) {
 					ItemGradingData gdata = (ItemGradingData) iter2.next();
 					results.setItemGrading(gdata);
-					delegate.extractCalcQAnswersArray(answersMap, item, 
+					delegate.extractCalcQAnswersArray(answersMap, answersMapValues, item, 
 								gdata.getAssessmentGradingId(), gdata.getAgentId());
 					itemGradingAttachmentList.addAll(gdata.getItemGradingAttachmentSet());
 					agentResultsByItemGradingIdMap.put(gdata.getItemGradingId(), results);
@@ -797,8 +799,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 							decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
 							answerKey = answerKey.substring(0, answerKey.indexOf("|")); // cut off extra data e.g. "|2,3"
 							// We need the key formatted in scientificNotation
-							answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);							
-							
+							answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);
+
 							// Answers
 							if (delegate.getCalcQResult(gdata, item, answersMap, i++)) {
 								answerText = checkmarkGif + answerText;
