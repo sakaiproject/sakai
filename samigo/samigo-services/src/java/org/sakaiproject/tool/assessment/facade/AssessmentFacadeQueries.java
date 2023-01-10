@@ -2178,7 +2178,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		while (o.hasNext()) {
 			ItemFeedback itemFeedback = (ItemFeedback) o.next();
 			ItemFeedback newItemFeedback = new ItemFeedback(newItem,
-					itemFeedback.getTypeId(), itemFeedback.getText());
+					itemFeedback.getTypeId(), itemFeedback.getText(), itemFeedback.getTextValue());
 			h.add(newItemFeedback);
 		}
 		return h;
