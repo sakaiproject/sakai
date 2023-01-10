@@ -1787,9 +1787,9 @@ public class ExtractionHelper
 
 	  }
 
-	  item.setGeneralItemFeedback(generalItemFeedback);
-	  item.setCorrectItemFeedback(correctItemFeedback);
-	  item.setInCorrectItemFeedback(incorrectItemFeedback);
+	  item.setGeneralItemFeedback(generalItemFeedback, generalItemFeedback);
+	  item.setCorrectItemFeedback(correctItemFeedback, correctItemFeedback);
+	  item.setInCorrectItemFeedback(incorrectItemFeedback, incorrectItemFeedback);
   }
 
   private void addFeedback(ItemFacade item, Map<String, String> map, Long typeId)
@@ -1797,33 +1797,37 @@ public class ExtractionHelper
 	  String correctItemFeedback = (String) map.get("correctItemFeedback");
 	  String incorrectItemFeedback = (String) map.get("incorrectItemFeedback");
 	  String generalItemFeedback = (String) map.get("generalItemFeedback");
+	  String updatedFeedback;
 
 	  if (generalItemFeedback==null) generalItemFeedback = "";
 	  if (TypeIfc.AUDIO_RECORDING.longValue() == typeId.longValue() ||
 			  TypeIfc.FILE_UPLOAD.longValue() == typeId.longValue() ||
 			  TypeIfc.ESSAY_QUESTION.longValue() == typeId.longValue())
 	  {
-		  if (notNullOrEmpty(incorrectItemFeedback))
+		  if (StringUtils.isNotEmpty(incorrectItemFeedback))
 		  {
 			  generalItemFeedback += " " + incorrectItemFeedback;
 		  }
-		  if (notNullOrEmpty(correctItemFeedback))
+		  if (StringUtils.isNotEmpty(correctItemFeedback))
 		  {
 			  generalItemFeedback += " " + correctItemFeedback;
 		  }
 	  }
 
-	  if (notNullOrEmpty(correctItemFeedback))
+	  if (StringUtils.isNotEmpty(correctItemFeedback))
 	  {
-		  item.setCorrectItemFeedback(makeFCKAttachment(correctItemFeedback));
+		  updatedFeedback = makeFCKAttachment(correctItemFeedback);
+		  item.setCorrectItemFeedback(updatedFeedback, updatedFeedback);
 	  }
-	  if (notNullOrEmpty(incorrectItemFeedback))
+	  if (StringUtils.isNotEmpty(incorrectItemFeedback))
 	  {
-		  item.setInCorrectItemFeedback(makeFCKAttachment(incorrectItemFeedback));
+		  updatedFeedback = makeFCKAttachment(incorrectItemFeedback);
+		  item.setInCorrectItemFeedback(updatedFeedback, updatedFeedback);
 	  }
-	  if (notNullOrEmpty(generalItemFeedback))
+	  if (StringUtils.isNotEmpty(generalItemFeedback))
 	  {
-		  item.setGeneralItemFeedback(makeFCKAttachment(generalItemFeedback));
+		  updatedFeedback = makeFCKAttachment(generalItemFeedback);
+		  item.setGeneralItemFeedback(updatedFeedback, updatedFeedback);
 	  }
   }
   
