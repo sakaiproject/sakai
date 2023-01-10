@@ -152,19 +152,23 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
 
   String getCorrectItemFeedback();
 
-  void setCorrectItemFeedback(String text);
+  String getCorrectItemFeedbackValue();
+
+  void setCorrectItemFeedback(String text, String value);
 
   String getInCorrectItemFeedback();
 
-  void setInCorrectItemFeedback(String text);
+  String getInCorrectItemFeedbackValue();
+
+  void setInCorrectItemFeedback(String text, String value);
 
   String getGeneralItemFeedback();
 
-  void setGeneralItemFeedback(String text);
+  void setGeneralItemFeedback(String text, String value);
 
   String getItemFeedback(String typeId);
 
-  void addItemFeedback(String typeId, String text);
+  void addItemFeedback(String typeId, String text, String value);
 
   void removeFeedbackByType(String typeId);
 
@@ -224,4 +228,5 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
   
   public Long getOriginalItemId();
   public void setOriginalItemId(Long originalItemId);
+  public void updateFeedbackByType(String typeId, String text, String value);
 }

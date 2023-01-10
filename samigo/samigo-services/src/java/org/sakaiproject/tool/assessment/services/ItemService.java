@@ -381,7 +381,7 @@ public class ItemService
     while (o.hasNext()) {
       ItemFeedback itemFeedback = (ItemFeedback) o.next();
       ItemFeedback newItemFeedback = new ItemFeedback(
-          cloned, itemFeedback.getTypeId(), AssessmentService.copyStringAttachment(itemFeedback.getText()));
+          cloned, itemFeedback.getTypeId(), AssessmentService.copyStringAttachment(itemFeedback.getText()), AssessmentService.copyStringAttachment(itemFeedback.getTextValue()));
       h.add(newItemFeedback);
     }
     return h;
