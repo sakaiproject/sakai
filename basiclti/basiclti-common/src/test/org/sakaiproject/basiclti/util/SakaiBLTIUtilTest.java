@@ -642,7 +642,7 @@ public class SakaiBLTIUtilTest {
 		for (String s : "Faculty,Guest,None,Other,Staff,Person,Student,Alumni,Observer,ProspectiveStudent".split(",") ) {
 			String ltiRole = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#" + s;
 			sakaiRole = mapInboundRole(ltiRole, ltiRoles, null);
-			if ( sakaiRole != null ) System.out.println("LTI Role "+ltiRole+" should map to Ignore or null instead of "+sakaiRole);
+			if ( sakaiRole != null ) log.warn("LTI Role [{}] should map to Ignore or null instead of [{}]", ltiRole, sakaiRole);
 			assertTrue(sakaiRole==null);
 		}
 	}
