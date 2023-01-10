@@ -796,7 +796,6 @@ public class SakaiBLTIUtil {
 
 			// Loop through Learner,Student,access
 			for (String sakaiRole : sakaiRoleList) {
-				if ( "Ignore".equalsIgnoreCase(sakaiRole) ) continue;
 				if ( siteRoles.contains(sakaiRole) ) return sakaiRole;
 			}
 		}
