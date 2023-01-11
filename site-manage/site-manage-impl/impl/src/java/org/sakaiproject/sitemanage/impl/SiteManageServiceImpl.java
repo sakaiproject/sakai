@@ -593,7 +593,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         });
                     }
                 } catch (Exception e) {
-                    log.error("Error encountered while asking EntityTransfer to transferCopyEntities from: {} to: {}, {}", fromContext, toContext, e.getMessage());
+                    log.error("Error encountered while transferring data for producer: [{}] from: [{}] to: [{}], {}", ep.getLabel(), fromContext, toContext, e.toString());
                 }
             }
         }

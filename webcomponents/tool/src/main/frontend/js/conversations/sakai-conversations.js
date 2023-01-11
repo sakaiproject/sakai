@@ -362,9 +362,25 @@ export class SakaiConversations extends SakaiElement {
     this.state = STATE_MANAGING_TAGS;
   }
 
-  dimBackground(dim) {
-    document.getElementById("overlay").style.display = dim ? "block" : "none";
+  _dimBackground() { document.getElementById("overlay").style.display = "block"; }
+
+  _undimBackground() { document.getElementById("overlay").style.display = "none"; }
+
+  _setStateAddingTopic() { this.state = STATE_ADDING_TOPIC; }
+
+  _setStateSettings() {
+
+    this.state = STATE_SETTINGS;
+    this.showingSettings = true;
   }
+
+  _setStatePermissions() { this.state = STATE_PERMISSIONS; }
+
+  _setStateManagingTags() { this.state = STATE_MANAGING_TAGS; }
+
+  _setStateStatistics() { this.state = STATE_STATISTICS; }
+
+  _setStateNothingSelected() { this.state = STATE_NOTHING_SELECTED; }
 
   shouldUpdate() {
     return this.i18n && this.data;
@@ -379,7 +395,7 @@ export class SakaiConversations extends SakaiElement {
         </div>
         ${this.data.canCreateTopic ? html`
         <div id="conv-add-topic">
-          <a href="javascript:;" @click=${() => this.state = STATE_ADDING_TOPIC}>
+          <a href="javascript:;" @click="${this._setStateAddingTopic}">
             ${this.i18n.create_new}
           </a>
         </div>
@@ -392,19 +408,19 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <div class=${ifDefined(this.state === STATE_SETTINGS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click=${() => this.state = STATE_SETTINGS}>${this.i18n.general_settings}</a>
+        <button class="btn btn-transparent" @click="${this._setStateSettings}">${this.i18n.general_settings}</button>
       </div>
       <div class=${ifDefined(this.state === STATE_PERMISSIONS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click=${() => this.state = STATE_PERMISSIONS}>${this.i18n.permissions}</a>
+        <button class="btn btn-transparent" @click="${this._setStatePermissions}">${this.i18n.permissions}</button>
       </div>
       ${this.data.canEditTags ? html`
       <div class=${ifDefined(this.state === STATE_MANAGING_TAGS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click=${() => this.state = STATE_MANAGING_TAGS}>${this.i18n.manage_tags}</a>
+        <button class="btn btn-transparent" @click="${this._setStateManagingTags}">${this.i18n.manage_tags}</button>
       </div>
       ` : ""}
       ${this.data.canViewSiteStatistics ? html`
       <div class=${ifDefined(this.state === STATE_STATISTICS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click=${() => this.state = STATE_STATISTICS}>${this.i18n.statistics}</a>
+        <button class="btn btn-transparent" @click="${this._setStateStatistics}">${this.i18n.statistics}</button>
       </div>
       ` : ""}
     `;
@@ -418,13 +434,19 @@ export class SakaiConversations extends SakaiElement {
         ${renderBackButton ? html`
         <div id="conv-back-button-block">
           <div>
-            <a href="javascript:;" @click=${() => this.state = STATE_NOTHING_SELECTED}>
+            <a href="javascript:;" @click="${this._setStateNothingSelected}">
               <div><sakai-icon type="left"></sakai-icon></div>
             </a>
           </div>
         </div>
         ` : ""}
-        <sakai-search id="conv-search" style="width: 400px;" @showing-search-results=${() => this.dimBackground(true)} @hiding-search-results=${() => this.dimBackground(false)} site-id="${this.siteId}" tool="sakai.conversations"></sakai-search>
+        <sakai-search id="conv-search"
+            style="width: 400px;"
+            @showing-search-results="${this._dimBackground}"
+            @hiding-search-results="${this._undimBackground}"
+            site-id="${this.siteId}"
+            tool="sakai.conversations">
+        </sakai-search>
               
         <div class="conv-settings-and-create">
           ${this.data.canUpdatePermissions ? html`
@@ -442,9 +464,11 @@ export class SakaiConversations extends SakaiElement {
             </options-menu>
           ` : html`
           <div class="conv-settings-link">
-            <a href="javascript:;" @click=${() => { this.showingSettings = true; this.state = STATE_SETTINGS; }}>
-              <sakai-icon type="cog" size="small"></sakai-icon>
-              <span id="conv-settings-label">${this.i18n.settings}</span>
+            <a href="javascript:;" @click="${this._setStateSettings}">
+              <div id="conv-settings-label-wrapper">
+                <div><sakai-icon type="cog" size="small"></sakai-icon></div>
+                <div id="conv-settings-label">${this.i18n.settings}</div>
+              </div>
             </a>
           </div>
           `}
@@ -479,7 +503,7 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <sakai-conversations-tag-manager
-          tags="${JSON.stringify(this.data.tags)}"
+          .tags="${this.data.tags}"
           site-id="${this.siteId}"
           @tags-created=${this.tagsCreated}
           @tag-updated=${this.tagUpdated}
@@ -521,8 +545,8 @@ export class SakaiConversations extends SakaiElement {
       <sakai-add-topic
         user-id="${this.data.userId}"
         site-id="${this.siteId}"
-        tags="${JSON.stringify(this.data.tags)}"
-        groups="${JSON.stringify(this.data.groups)}"
+        .tags="${this.data.tags}"
+        .groups="${this.data.groups}"
         @topic-saved=${this.topicSaved}
         @save-wip-topic=${this.saveWipTopic}
         @topic-add-cancelled=${this.cancelAddTopic}
@@ -557,8 +581,7 @@ export class SakaiConversations extends SakaiElement {
         <sakai-topic-list
             id="conv-topic-list"
             site-id="${this.data.siteId}"
-            data="${JSON.stringify(this.data)}"
-            @topic-updated=${this.topicUpdated}
+            .data="${this.data}"
             @topic-selected=${this.topicSelected}>
         </sakai-topic-list>
       </div>
