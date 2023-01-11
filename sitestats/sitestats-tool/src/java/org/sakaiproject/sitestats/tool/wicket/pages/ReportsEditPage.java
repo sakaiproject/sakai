@@ -478,6 +478,7 @@ public class ReportsEditPage extends BasePage {
 		resourceActions.add(ReportManager.WHAT_RESOURCES_ACTION_READ);
 		resourceActions.add(ReportManager.WHAT_RESOURCES_ACTION_REVS);
 		resourceActions.add(ReportManager.WHAT_RESOURCES_ACTION_DEL);
+		resourceActions.add(ReportManager.WHAT_RESOURCES_ACTION_DOW);
 		DropDownChoice whatResourceAction = new DropDownChoice("reportParams.whatResourceAction", resourceActions, new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				if(object == null){
