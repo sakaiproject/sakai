@@ -113,6 +113,8 @@ public interface ContentHostingService extends EntityProducer
 
 	/** Name of the event when reading a resource. */
 	public static final String EVENT_RESOURCE_READ = "content.read";
+	
+	public static final String EVENT_RESOURCE_ZIP_DOWNLOAD = "content.zipdownload";
 
 	/** Name of the event when writing a resource. */
 	public static final String EVENT_RESOURCE_WRITE = "content.revise";
