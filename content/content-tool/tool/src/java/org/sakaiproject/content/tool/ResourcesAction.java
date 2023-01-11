@@ -119,6 +119,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -195,6 +196,8 @@ public class ResourcesAction
 	private static final ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private static final UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private static final TimeService timeService = ComponentManager.get(TimeService.class);
+	private static final EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
+
 
 	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
 	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE_ERROR = "copyright.requireChoice.error";
@@ -10355,6 +10358,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			} else {
 				selectedFiles.add(listItem.getId());
 			}
+			eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ZIP_DOWNLOAD, "/content" + listItem.getId() , false));
 		}
 
 		// Use the site title for the zip name, remove spaces though.
