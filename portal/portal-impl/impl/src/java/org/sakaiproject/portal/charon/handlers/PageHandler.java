@@ -33,6 +33,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -67,8 +71,13 @@ public class PageHandler extends BasePortalHandler
 	 */
 	private static final String SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD = "currentYearFromServer";
 
+	private static final String PORTAL_DISPLAY_CURRENT_ROLE = "portal.display.current.role";
+	
+	private SecurityService securityService = null;
+
 	public PageHandler()
 	{
+		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		setUrlFragment(PageHandler.URL_FRAGMENT);
 	}
 
@@ -238,6 +247,20 @@ public class PageHandler extends BasePortalHandler
 				rcontext.put("pageColumn0Tools", toolList);
 			}
 
+			boolean displayRole = ServerConfigurationService.getBoolean(PORTAL_DISPLAY_CURRENT_ROLE, false);
+			rcontext.put("currentRole", null);
+
+			if (!StringUtils.startsWith(page.getSiteId(), "~") && displayRole && site != null) {
+				String roleId = null;
+				if (site.getMember(session.getUserId()) != null) {
+					roleId = site.getMember(session.getUserId()).getRole().getId();
+				}
+				if (securityService.isSuperUser()) {
+					roleId = "admin";
+				}
+				rcontext.put("currentRole", roleId);				
+			}
+			
 			rcontext.put("pageTwoColumn", Boolean
 					.valueOf(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL));
 
