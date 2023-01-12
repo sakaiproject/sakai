@@ -557,4 +557,21 @@ public class BasicLTIUtilTest {
 		retval = BasicLTIUtil.mergeCSV("1,2", "2,1,3,4", null);
 		assertEquals(retval, "1,2,3,4");
 	}
+
+	@Test
+	public void testShiftJVMDateToTimeZone() {
+		// tz=sun.util.calendar.ZoneInfo[id="America/New_York",offset=-18000000,...
+		TimeZone tz = TimeZone.getTimeZone("America/New_York");
+		assertEquals(tz.getRawOffset(), -18000000);
+		// tzla=sun.util.calendar.ZoneInfo[id="America/Los_Angeles",offset=-28800000...
+		TimeZone tzla = TimeZone.getTimeZone("America/Los_Angeles");
+		assertEquals(tzla.getRawOffset(), -28800000);
+		// tzutc=sun.util.calendar.ZoneInfo[id="UTC",offset=0,dstSavings=0,useDaylight=false,transitions=0,lastRule=null]
+		TimeZone tzutc = TimeZone.getTimeZone("UTC");
+		assertEquals(tzutc.getRawOffset(), 0);
+
+		Date dueDate = new Date("Wed Jan 18 12:00:00 2023");
+		Date newDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, "US/Eastern");
+		Date mountainDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, "America/Denver");
+	}
 }

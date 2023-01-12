@@ -27,6 +27,11 @@ import org.junit.runner.RunWith;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {PlusTestConfiguration.class})
 public class PlusServiceImplTests extends AbstractTransactionalJUnit4SpringContextTests {
@@ -52,4 +57,71 @@ public class PlusServiceImplTests extends AbstractTransactionalJUnit4SpringConte
 		assertEquals(parts.length, 7);
 	}
 
+	// We do this to track when the deprecation actually happens (not likely)
+	@Test
+	public void testCalendar() {
+		Date date = new Date("Wed Jan 18 00:00:00 UTC 2023");
+		int hours = date.getHours();
+		int seconds = date.getSeconds();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		int hours2 = cal.get(Calendar.HOUR_OF_DAY);
+		int seconds2 = cal.get(Calendar.SECOND);
+		assertEquals(hours, hours2);
+		assertEquals(seconds, seconds2);
+
+		// https://stackoverflow.com/questions/5050170/how-do-i-get-a-date-without-time-in-java
+		cal = Calendar.getInstance();
+		date = new Date();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		Date dateWithoutTime = cal.getTime();
+		String dstr = dateWithoutTime.toString();
+		assertTrue(dstr.contains("00:00:00"));
+
+		cal = Calendar.getInstance();
+		date = new Date();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		dateWithoutTime = cal.getTime();
+		dstr = dateWithoutTime.toString();
+		assertTrue(dstr.contains("23:59:00"));
+	}
+
+	@Test
+	public void testTweakDueDate() {
+		Date tweakNull = PlusServiceImpl.tweakDueDate(null);
+		assertNull(tweakNull);
+
+		Date dueDate = new Date();
+		Date tweak = PlusServiceImpl.tweakDueDate(dueDate);
+		assertTrue(tweak.toString().contains("23:59:00"));
+
+		// Doing this without timezone - in herit the current timezone
+		dueDate = new Date("Wed Jan 18 00:00:01 2023");
+		Date good = new Date("Wed Jan 18 23:59:00 2023");
+		// One second after midnight
+		tweak = PlusServiceImpl.tweakDueDate(dueDate);
+		assertTrue(tweak.toString().contains("23:59:00"));
+		assertEquals(tweak, good);
+
+		// One hour after midnight
+		dueDate = new Date("Wed Jan 18 00:01:00 2023");
+		tweak = PlusServiceImpl.tweakDueDate(dueDate);
+		assertTrue(tweak.toString().contains("23:59:00"));
+		assertEquals(tweak, good);
+
+		// Noon :)
+		dueDate = new Date("Wed Jan 18 12:00:00 2023");
+		tweak = PlusServiceImpl.tweakDueDate(dueDate);
+		assertTrue(tweak.toString().contains("23:59:00"));
+		assertEquals(tweak, good);
+
+	}
 }
