@@ -1,5 +1,6 @@
-<div class="form-control">
 <form class="form-horizontal" method="POST" action="{{{actionURL this 'banners' banner.uuid mode}}}">
+  <fieldset class="border p-2">
+  <legend class="w-auto">{{{t this "Create Banner"}}}</legend>
   <div class="d-flex align-items-start justify-content-end m-3">
     <label  class="form-control-label mx-4" for="message">{{{t this "Message"}}}</label>
     <div class="col-sm-10">
@@ -65,5 +66,5 @@
     <input class="btn btn-primary" type="submit" name="save" value="{{{t this "Save Banner"}}}">
     <input class="btn btn-primary pasystem-cancel-btn" data-target="{{baseURL}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
   </div>
+  </fieldset>
 </form>
-</div>

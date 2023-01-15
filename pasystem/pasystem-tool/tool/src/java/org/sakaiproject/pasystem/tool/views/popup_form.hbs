@@ -1,5 +1,6 @@
-<div class="form-control">
 <form enctype="multipart/form-data" class="form-horizontal" method="POST" action="{{{actionURL this 'popups' popup.uuid mode}}}">
+<fieldset class="border p-2">
+  <legend class="w-auto">{{{t this "Create Popup"}}}</legend>
   <div class="d-flex align-items-start justify-content-end m-3">
     <label class="form-control-label mx-4" for="descriptor">{{{t this "Description"}}}</label>
     <div class="col-sm-10">
@@ -61,5 +62,5 @@
     <input class="btn btn-primary" type="submit" name="create" value="{{{t this "Save Popup"}}}">
     <input class="btn btn-primary pasystem-cancel-btn" data-target="{{baseURL}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
   </div>
+</fieldset>
 </form>
-</div>
