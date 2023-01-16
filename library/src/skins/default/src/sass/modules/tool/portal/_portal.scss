@@ -131,18 +131,19 @@
   color: var(--sakak-breadcrumb-color);
 }
 
-.search-results a {
-  text-decoration: none;
+.search-result-link {
 
   &:focus, &:hover {
-    background-color: var(--button-primary-active-background);
-    color: var(--button-primary-active-text-color);
+    text-decoration: none;
+
+    .card {
+      background-color: var(--button-primary-active-background);
+      color: var(--button-primary-active-text-color);
+    }
   }
 }
-
-.search-results a[href]:not(.btn):hover {
-  background-color: var(--button-primary-active-background);
-  color: var(--button-primary-active-text-color);
+a[href]:not(.btn):hover {
+  text-decoration: none;
 }
 
 .portal-footer {
