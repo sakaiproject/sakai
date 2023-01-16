@@ -33,6 +33,7 @@ export const calendarStyles = css`
     font-weight: bold;
     background: var(--sakai-background-color);
     color: var(--link-color);
+    cursor: pointer;
   }
 
   .sakai-calendar__navigation__today {
