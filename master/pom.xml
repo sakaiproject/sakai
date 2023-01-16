@@ -73,7 +73,7 @@
     <sakai.spring.hateoas.version>1.3.3</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.28.5</sakai.tika.version>
-    <sakai.tomcat.version>9.0.70</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.71</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.19.0</sakai.log4j.version>
