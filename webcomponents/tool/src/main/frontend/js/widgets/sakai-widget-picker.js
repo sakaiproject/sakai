@@ -1,9 +1,24 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
 import { SakaiDashboardWidget } from './sakai-dashboard-widget.js';
-import { loadProperties } from "../sakai-i18n.js";
 import { sakaiWidgets } from "./sakai-widgets.js";
+import { loadProperties } from "../sakai-i18n.js";
 
 export class SakaiWidgetPicker extends SakaiDashboardWidget {
+
+  constructor() {
+
+    super();
+
+    this.widgetId = "widget-picker";
+    this.all = sakaiWidgets.getIds();
+    this.current = [];
+    this.available = [];
+    this.draggable = false;
+    this.hasOptions = false;
+
+    this.loadTranslations(this.widgetId);
+    loadProperties("toolnames").then(r => this.toolnames = r);
+  }
 
   static get properties() {
 
@@ -13,20 +28,6 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
       available: { type: Array },
       toolnames: { type: Object },
     };
-  }
-
-  constructor() {
-
-    super();
-    this.widgetId = "picker";
-    this.all = sakaiWidgets.getIds();
-    this.current = [];
-    this.available = [];
-    this.draggable = false;
-    this.hasOptions = false;
-
-    this.loadTranslations("widget-picker");
-    loadProperties("toolnames").then(r => this.toolnames = r);
   }
 
   set all(value) {

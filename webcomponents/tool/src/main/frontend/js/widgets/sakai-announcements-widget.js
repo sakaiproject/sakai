@@ -8,9 +8,8 @@ export class SakaiAnnouncementsWidget extends SakaiDashboardWidget {
   constructor() {
 
     super();
+
     this.widgetId = "announcements";
-    this.widgetId = "announcements";
-    this.loadTranslations("announcements");
   }
 
   content() {
@@ -20,6 +19,7 @@ export class SakaiAnnouncementsWidget extends SakaiDashboardWidget {
         user-id="${ifDefined(this.userId ? this.userId : undefined)}"
         site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
       >
+      </sakai-announcements>
     `;
   }
 }
