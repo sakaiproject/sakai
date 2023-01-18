@@ -1,4 +1,5 @@
 /*
+ *
  * $URL$
  * $Id$
  *
@@ -126,6 +127,7 @@ public class BasicLTIUtil {
 	public static final String EXTRA_ERROR_TIMEOUT = "error_timeout";
 	public static final String EXTRA_HTTP_POPUP = "http_popup";
 	public static final String EXTRA_HTTP_POPUP_FALSE = "false";
+	public static final String EXTRA_FORM_ID = "extra_form_id";
 
 	/** To turn on really verbose debugging */
 	private static boolean verbosePrint = false;
@@ -560,15 +562,20 @@ public class BasicLTIUtil {
 		} else {
 			newMap = cleanProperties;
 		}
+		if ( extra == null ) extra = new TreeMap<String, String>();
+
 		StringBuilder text = new StringBuilder();
 		// paint form
 		String submit_uuid = UUID.randomUUID().toString().replace("-","_");
+		String submit_form_id = extra.get(EXTRA_FORM_ID);
+		if ( submit_form_id == null ) submit_form_id = "ltiLaunchForm_"+submit_uuid;
+
 		text.append("<div id=\"ltiLaunchFormArea_");
 		text.append(submit_uuid);
 		text.append("\">\n");
 		text.append("<form action=\"");
 		text.append(endpoint);
-		text.append("\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm_"+submit_uuid+"\" method=\"post\" ");
+		text.append("\" name=\"ltiLaunchForm\" id=\""+submit_form_id+"\" method=\"post\" ");
 		text.append(" encType=\"application/x-www-form-urlencoded\" accept-charset=\"utf-8\">\n");
 		if ( debug ) {
 		}
@@ -619,14 +626,13 @@ public class BasicLTIUtil {
 			error_timeout = extra.get(EXTRA_ERROR_TIMEOUT);
 			http_popup = extra.get(EXTRA_HTTP_POPUP);
 		}
-		if ( extra == null ) error_timeout = "Unable to send launch to remote URL: "+endpoint;
-		error_timeout += endpoint;
+		if ( extra == null ) error_timeout = "Unable to send launch to remote URL";
 		text.append("<script type=\"text/javascript\">\n");
 		text.append("var open_in_new_window = false;\n");
 		if ( ! EXTRA_HTTP_POPUP_FALSE.equals(http_popup) ) {
 			text.append("if (window.top!=window.self) {\n");
-			text.append("  var theform = document.getElementById('ltiLaunchForm_");
-			text.append(submit_uuid);
+			text.append("  var theform = document.getElementById('");
+			text.append(submit_form_id);
 			text.append("');\n");
 			text.append("  if ( theform && theform.action ) {\n");
 			text.append("    var formAction = theform.action;\n");
@@ -675,8 +681,8 @@ public class BasicLTIUtil {
 			text.append("    document.getElementById('ltiLaunchFormArea_");
 			text.append(submit_uuid);
 			text.append("').style.display = \"none\";\n");
-			text.append("    document.getElementById('ltiLaunchForm_");
-			text.append(submit_uuid);
+			text.append("    document.getElementById('");
+			text.append(submit_form_id);
 			text.append("').submit(); \n");
 			text.append("if ( ! open_in_new_window ) {\n");
 			text.append("   setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");

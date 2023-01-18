@@ -13,9 +13,9 @@ module.exports = {
     "jQuery": "readonly",
     "MathJax": "readonly",
   },
-  "extends": "eslint:recommended",
+  "extends": ["eslint:recommended", "plugin:lit/recommended", "plugin:wc/recommended"],
   "parserOptions": { "ecmaVersion": 2020, "sourceType": "module" },
-  "plugins": ["html"],
+  "plugins": ["html", "lit", "wc"],
   "rules": {
     "accessor-pairs": "error",
     "array-callback-return": "error",
@@ -90,5 +90,8 @@ module.exports = {
     "space-before-blocks": "error",
     "strict": "error",
     "yoda": ["error", "never", { onlyEquality: true }],
+    "lit/attribute-value-entities": "warn",
+    "lit/no-template-arrow": "warn",
+    "lit/no-invalid-html": "warn",
   }
 };

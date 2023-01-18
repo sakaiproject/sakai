@@ -68,14 +68,13 @@
     margin-bottom: 20px;
   }
 
-  #conv-settings > div > a {
-    text-decoration: none;
+  #conv-settings > div > button {
     font-weight: normal;
     font-size: 15px;
     color: #666666;
   }
 
-  #conv-settings > div.setting-active > a {
+  #conv-settings > div.setting-active > button {
     font-weight: 550;
     color: #262626;
   }
@@ -138,6 +137,15 @@
         text-align: center;
         color: #666666;
         text-decoration: none;
+
+        #conv-settings-label-wrapper {
+          display: flex;
+          align-items: center;
+          div:first-child {
+            margin-top: 4px;
+            margin-right: 5px;
+          }
+        }
       }
     }
   }

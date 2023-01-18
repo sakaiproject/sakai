@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -165,6 +166,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * Parameter value to indicate to look up a tool ID within a site
 	 */
 	protected static final String PARAM_SAKAI_SITE = "sakai.site";
+
+	private static String PORTAL_DISPLAY_CURRENT_ROLE = "portal.display.current.role";
 
 	private BasicAuth basicAuth = null;
 
@@ -1978,6 +1981,29 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginUserFirstName", loginUserFirstName);
 				rcontext.put("loginUserDispId", loginUserDispId);
 				rcontext.put("loginUserId", loginUserId);
+
+				boolean displayRole = ServerConfigurationService.getBoolean(PORTAL_DISPLAY_CURRENT_ROLE, true);
+				rcontext.put("currentRole", null);
+				if (displayRole) {
+					String roleId = "";
+					String[] parts = getParts(req);
+					String siteId = (parts.length > 2)? parts[2]: "";
+					if (!StringUtils.startsWith(siteId, "~")) {
+						try {
+							Site site = SiteService.getSite(siteId);
+							if (site.getMember(loginUserId) != null) {
+								roleId = site.getMember(loginUserId).getRole().getId();
+							}
+							if (securityService.isSuperUser()) {
+								roleId = "admin";
+							}
+							rcontext.put("currentRole", (roleId != "")? rloader.getFormattedMessage("sit_role", roleId) : null);
+						} catch (Exception e) {
+							log.warn(e.getMessage());
+						}
+					}
+					
+				}
 			}
 			rcontext.put("displayUserloginInfo", displayUserloginInfo && loginUserDispId != null);
 		}

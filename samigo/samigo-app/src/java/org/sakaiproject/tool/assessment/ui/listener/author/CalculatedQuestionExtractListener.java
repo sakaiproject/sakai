@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -49,6 +51,7 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 public class CalculatedQuestionExtractListener implements ActionListener{
     private static final String ERROR_MESSAGE_BUNDLE = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
     private static final int MAX_ATTEMPT_CNT = 100;
+    private static final Pattern CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES = Pattern.compile("[a-zA-ZÀ-ÿ\\u00f1\\u00d1]\\w*", Pattern.UNICODE_CHARACTER_CLASS);
 
     /**
      * This listener will read in the instructions, parse any variables and 
@@ -277,7 +280,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             if (formula == null || formula.length() == 0) {
                 errors.add(getErrorMessage("formula_name_empty"));
             } else {
-                if (!formula.matches("[a-zA-Z]\\w*")) {
+                if (!CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES.matcher(formula).matches()) {
                     errors.add(getErrorMessage("formula_name_invalid"));
                 }
             }
@@ -288,7 +291,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             if (variable == null || variable.length() == 0) {
                 errors.add(getErrorMessage("variable_name_empty"));
             } else {
-                if (!variable.matches("[a-zA-Z]\\w*")) {
+                if (!CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES.matcher(variable).matches()) {
                     errors.add(getErrorMessage("variable_name_invalid"));
                 }
             }

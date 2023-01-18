@@ -190,7 +190,7 @@ export class SakaiWidgetPanel extends LitElement {
         return html`
           <div class="${this.state === "add" ? "faded" : ""}">
             <sakai-tasks-widget
-              id="${r}" class="widget"
+              id="${r}"
               site-id="${ifDefined(this.siteId ? this.siteId : "")}"
               user-id="${ifDefined(this.userId ? this.userId : "")}"
               class="widget"

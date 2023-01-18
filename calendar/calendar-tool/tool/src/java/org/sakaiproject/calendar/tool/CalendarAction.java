@@ -4929,13 +4929,11 @@ extends VelocityPortletStateAction
 						Site site = SiteService.getSite(calendarObj.getContext());
 						users = site.getUsersIsAllowed("section.role.student");
 					} else if (CalendarEvent.EventAccess.GROUPED.equals(access)){
-						Set<String> groupRefs = new HashSet<>();
 						for (Group group : groups) {
-							groupRefs.add(group.getReference());
+						    task.getGroups().add(group.getReference());
 							users.addAll(group.getMembers().stream()
 								.map(m -> m.getUserId()).collect(Collectors.toSet()));
 						}
-						task.setGroups(groupRefs);
 					}
 					if (users.size() == 0) {
 						users.add(UserDirectoryService.getCurrentUser().getId());

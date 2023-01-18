@@ -83,7 +83,7 @@ export class SakaiRubricCriteria extends RubricsElement {
             </div>
             <div class="criterion-actions">
               <a @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @click="${this.cloneCriterion}" href="#"></a>
-              <sakai-item-delete criterion-id="${c.id}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
+              <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
             </div>
           </div>
         ` : html`
