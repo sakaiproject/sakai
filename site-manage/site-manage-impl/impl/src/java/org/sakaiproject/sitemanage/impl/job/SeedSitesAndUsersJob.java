@@ -211,7 +211,7 @@ public class SeedSitesAndUsersJob implements Job {
 					ass.setPoints(100D);
 					Long aid = gradingService.addAssignment(siteId, ass);
 					for (Member m : site.getMembers()) {
-						gradingService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), "80", "");
+						gradingService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), Integer.toString(randomGenerator.nextInt(101)), faker.lorem().sentence(10));
 					}
 					if (i % 10 == 0) {
 						log.info("Created {} gradebook items", i);
