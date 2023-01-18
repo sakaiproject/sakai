@@ -67,6 +67,13 @@
     <f:param name="itemid" value="#{question.itemId}"/>
     <f:param name="outCome" value="editPool"/>
 </h:commandLink>
+<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+
+<h:commandLink title="#{questionPoolMessages.t_showSolution}" rendered="#{questionpool.importToAuthoring != 'true' && question.typeId == 15}" id="solutionlink" immediate="true" action="#{questionpool.checkSolution}">
+  <h:outputText id="solution" value="#{questionPoolMessages.solution}"/>
+    <f:param name="itemid" value="#{question.itemId}"/>
+    <f:param name="outCome" value="editPool"/>
+</h:commandLink>
 
  <f:verbatim></span></f:verbatim>
     </h:column>
