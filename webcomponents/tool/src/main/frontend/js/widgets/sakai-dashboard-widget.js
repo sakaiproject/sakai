@@ -5,6 +5,17 @@ import "../sakai-pager.js";
 
 export class SakaiDashboardWidget extends LitElement {
 
+  constructor() {
+
+    super();
+
+    this.title = "Widget";
+    this.state = "view";
+    this.editing = false;
+    this.hasOptions = true;
+    loadProperties("dashboard-widget").then(r => this.baseI18n = r);
+  }
+
   static get properties() {
 
     return {
@@ -18,20 +29,19 @@ export class SakaiDashboardWidget extends LitElement {
     };
   }
 
-  constructor() {
+  set widgetId(value) {
 
-    super();
-    this.title = "Widget";
-    this.state = "view";
-    this.editing = false;
-    this.hasOptions = true;
-    loadProperties("dashboard-widget").then(r => this.baseI18n = r);
+    this._widgetId = value;
+    loadProperties(value).then(r => this.title = r.widget_title);
   }
+
+  get widgetId() { return this._widgetId; }
 
   loadTranslations(options) {
 
     const p = loadProperties(options);
     p.then(r => {
+
       this.i18n = r;
       this.title = r.widget_title;
     });
@@ -45,7 +55,7 @@ export class SakaiDashboardWidget extends LitElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.baseI18n && this.title;
+    return this.baseI18n && this.title;
   }
 
   move(direction) {
@@ -81,7 +91,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.moveUp}
                     title="${this.baseI18n.up}"
                     arial-label="${this.baseI18n.up}">
-                  <sakai-icon type="up" size="small">
+                  <sakai-icon type="up" size="small"></sakai-icon>
                 </a>
               </div>
               <div>
@@ -89,7 +99,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.moveDown}
                     title="${this.baseI18n.down}"
                     arial-label="${this.baseI18n.down}">
-                  <sakai-icon type="down" size="small">
+                  <sakai-icon type="down" size="small"></sakai-icon>
                 </a>
               </div>
               <div>
@@ -97,7 +107,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.moveLeft}
                     title="${this.baseI18n.left}"
                     arial-label="${this.baseI18n.left}">
-                  <sakai-icon type="left" size="small">
+                  <sakai-icon type="left" size="small"></sakai-icon>
                 </a>
               </div>
               <div>
@@ -105,7 +115,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.moveRight}
                     title="${this.baseI18n.right}"
                     arial-label="${this.baseI18n.right}">
-                  <sakai-icon type="right" size="small">
+                  <sakai-icon type="right" size="small"></sakai-icon>
                 </a>
               </div>
               <div>
@@ -113,7 +123,7 @@ export class SakaiDashboardWidget extends LitElement {
                     @click=${this.remove}
                     title="${this.baseI18n.remove} ${this.title}"
                     aria-label="${this.baseI18n.remove} ${this.title}">
-                  <sakai-icon type="close" size="small">
+                  <sakai-icon type="close" size="small"></sakai-icon>
                 </a>
               </div>
             </div>

@@ -8,8 +8,8 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
   constructor() {
 
     super();
+
     this.widgetId = "forums";
-    this.loadTranslations({bundle: "org.sakaiproject.api.app.messagecenter.bundle.Messages"});
   }
 
   content() {
@@ -19,6 +19,7 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
         user-id="${ifDefined(this.userId ? this.userId : undefined)}"
         site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
       >
+      </sakai-forums>
     `;
   }
 }
