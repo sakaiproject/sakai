@@ -1254,7 +1254,7 @@ public String getAddOrEdit()
         return "movePool";
   }
 
-  public String checkSolution(){
+  public String checkSolution() {
 		setOutComeParams();
 		getCheckedQuestion();
 		GradingService delegate = new GradingService();
@@ -1322,7 +1322,7 @@ public String getAddOrEdit()
 		itemBean.setItemGradingDataArray(datas);
 
 		FinBean fbean = new FinBean();
-		if(texts.toArray().length>i)
+		if (texts.toArray().length>i)
 			fbean.setText( (String) texts.get(0).toArray()[i]);
 		else
 			fbean.setText("");
