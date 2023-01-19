@@ -32,7 +32,7 @@
 <f:view>
 	<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%=request.getAttribute("html.head")%>
-<title><h:outputText value="#{questionPoolMessages.solution}" /></title>
+<title><h:outputText value="#{questionPoolMessages.sol_q}" /></title>
 </head>
 <body>
 
