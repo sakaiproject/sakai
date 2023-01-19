@@ -1336,6 +1336,24 @@ public class BasicLTIUtil {
 		return null;
 	}
 
+	/**
+	 * Shift a date from the JVM Timezone to Another Timezone
+	 *
+	 * Usually the resulting date is then usually moved into UTC for transport
+	 */
+	public static Date shiftJVMDateToTimeZone(Date date, String timeZone) {
+		if ( date == null || timeZone == null ) return null;
+
+		// Get the JVM TimeZone
+		TimeZone tzJVM = TimeZone.getDefault();
+		TimeZone tzNew = TimeZone.getTimeZone(timeZone);
+		long dueTime = date.getTime();
+		// Shift into UTC and then back to the destination timezone
+		dueTime = dueTime - tzJVM.getRawOffset() + tzNew.getRawOffset();
+		Date retval = new Date(dueTime);
+		return retval;
+	}
+
 	// Parse and return a JSONObject (empty if necessary)
 	// Use this when there is no way to recover from broken JSON except start over
 	public static JSONObject parseJSONObject(String str)

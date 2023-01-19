@@ -51,7 +51,8 @@ public class ContextLog implements PersistableEntity<Long> {
 	public enum LOG_TYPE {
 		NRPS_TOKEN, NRPS_LIST, NRPS_MEMBER, NRPS_ERROR,
 		LineItem_TOKEN, LineItem_CREATE, LineItem_ERROR,
-		Score_TOKEN, Score_SEND, Score_ERROR
+		Score_TOKEN, Score_SEND, Score_ERROR,
+		LineItem_UPDATE
 		// Add at the end - don't insert new above
 	};
 

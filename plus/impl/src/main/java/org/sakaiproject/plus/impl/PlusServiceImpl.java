@@ -19,6 +19,7 @@ package org.sakaiproject.plus.impl;
 import java.lang.StringBuffer;
 
 import java.util.Date;
+import java.util.Calendar;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -835,6 +836,13 @@ public class PlusServiceImpl implements PlusService {
 		li.resourceId = assignmentId.toString();
 		// li.startDateTime
 		Date dueDate = assignmentDefinition.getDueDate();
+		// Move to the end of the day
+		dueDate = tweakDueDate(dueDate);
+		// Move into the destination time zone
+		String timeZone = tenant.getTimeZone();
+		if ( dueDate != null && StringUtils.isNotBlank(timeZone) ) {
+			dueDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, timeZone);
+		}
 		if ( dueDate != null ) li.endDateTime = BasicLTIUtil.getISO8601(dueDate);
 		String body = li.prettyPrintLog();
 
@@ -922,6 +930,10 @@ public class PlusServiceImpl implements PlusService {
 					dbli.setDebugLog(dbs.toString());
 					lineItemRepository.save(dbli);
 					log.debug("Returning lineItemId={}", lineItemId);
+					cLog.setSuccess(Boolean.TRUE);
+					cLog.setDebugLog(dbli.getDebugLog());
+					cLog.setType(ContextLog.LOG_TYPE.LineItem_CREATE);
+					contextLogRepository.save(cLog);
 					return lineItemId; // Caller saves this as appropriate
 				}
 				dbli.setStatus("did not find returned lineitem id");
@@ -1036,6 +1048,13 @@ public class PlusServiceImpl implements PlusService {
 		li.resourceId = assignmentId.toString();
 		// li.startDateTime
 		Date dueDate = assignmentDefinition.getDueDate();
+		// Move to the end of the day
+		dueDate = tweakDueDate(dueDate);
+		// Move into the destination time zone
+		String timeZone = tenant.getTimeZone();
+		if ( dueDate != null && StringUtils.isNotBlank(timeZone) ) {
+			dueDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, timeZone);
+		}
 		if ( dueDate != null ) li.endDateTime = BasicLTIUtil.getISO8601(dueDate);
 		String body = li.prettyPrintLog();
 
@@ -1070,7 +1089,7 @@ public class PlusServiceImpl implements PlusService {
 		ContextLog cLog = new ContextLog();
 		cLog.setContext(context);
 		cLog.setType(ContextLog.LOG_TYPE.LineItem_TOKEN);
-		cLog.setAction("createLineItem assignmentId="+assignmentId+" label="+li.label+" scoreMaximum="+li.scoreMaximum+" dueDate="+dueDate);
+		cLog.setAction("updateLineItem assignmentId="+assignmentId+" label="+li.label+" scoreMaximum="+li.scoreMaximum+" dueDate="+dueDate);
 
 		// Looks like we have the requisite strings in variables :)
 		// https://www.imsglobal.org/spec/lti-ags/v2p0/#creating-a-new-line-item
@@ -1133,6 +1152,10 @@ public class PlusServiceImpl implements PlusService {
 					dbli.setSuccess(Boolean.TRUE);
 					dbli.setDebugLog(dbs.toString());
 					lineItemRepository.save(dbli);
+					cLog.setStatus(dbli.getStatus());
+					cLog.setType(ContextLog.LOG_TYPE.LineItem_UPDATE);
+					cLog.setDebugLog(dbli.getDebugLog());
+					contextLogRepository.save(cLog);
 					return lineItemId;
 				}
 				dbli.setStatus("did not find returned lineitem id");
@@ -1170,7 +1193,7 @@ public class PlusServiceImpl implements PlusService {
 
 		cLog.setSuccess(Boolean.TRUE);
 		cLog.setDebugLog(dbli.getDebugLog());
-		cLog.setType(ContextLog.LOG_TYPE.LineItem_CREATE);
+		cLog.setType(ContextLog.LOG_TYPE.LineItem_UPDATE);
 		contextLogRepository.save(cLog);
 
 		return null;
@@ -1409,6 +1432,20 @@ Authentication: Bearer 89042.hfkh84390xaw3m
 }
  *
 */
+	// Advance any time on the due date to 23:59 on the due date
+	protected static Date tweakDueDate(Date dueDate)
+	{
+		if ( dueDate == null ) return dueDate;
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dueDate);
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		dueDate = cal.getTime();
+		return dueDate;
+	}
 
 }
 

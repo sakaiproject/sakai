@@ -58,6 +58,16 @@
         <p th:text="#{plus.tool.trustemail.detail}">
             plus.tool.trustemail.detail
         </p>
+        <div id="timezone-group" class="form-group">
+          <label for="timezone" class="form-control-label" th:text="#{plus.tool.timezone}">Value</label>
+          <div>
+            <input type="text" class="form-control" id="timezone" th:value="${tenant.timeZone}" th:field="*{timeZone}" />
+          </div>
+          <div th:text="#{plus.tool.timezone.detail}">
+              This is the timezone for the controlling LMS.  SakaiPlus will shift due dates into this timezone before creating
+              or updating line items.
+          </div>
+        </div>
         <div id="oidcregistrationlock-group" class="form-group">
           <label for="oidcregistrationlock" class="form-control-label" th:text="#{plus.tool.oidcregistrationlock}">Value</label>
           <div>
@@ -65,7 +75,7 @@
           </div>
           <div th:text="#{plus.tool.oidcregistrationlock.detail}">
               You set this field to "unlock" LTI Dynamic Registration for this tenant.  It should only be set while performing dynamic registration
-              and shoule be cleared after dynamic registration is complete.
+              and should be cleared after dynamic registration is complete.
           </div>
         </div>
         <div id="clientid-group" class="form-group">

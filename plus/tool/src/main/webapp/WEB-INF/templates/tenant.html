@@ -11,8 +11,9 @@
         <span th:if="${tenant.isDraft}" th:text="#{plus.tool.tenant.draft}">(draft)</span>
         </h1>
         <p>
+        <a th:href="@{/}" th:text="#{plus.tool.all.tenants}"  class="btn btn-secondary">All Tenants</a>
         <a th:href="@{/contexts/{id}(id=${tenant.id})}" th:text="#{plus.tool.all.contexts}" class="btn btn-secondary">View Contexts</a>
-        <a th:href="@{/}" th:text="#{plus.tool.all.tenants}"  class="btn btn-secondary">All Tenants</a></p>
+        </p>
         <p>
         (<a href="https://github.com/sakaiproject/sakai/blob/master/plus/README.md#sakaiplus-tenants" target="_blank" th:text="#{plus.tenant.documentation.url}">SakaiPlus Tenant Documentation</a>)
         </p>
@@ -28,6 +29,7 @@
             <span th:if="${tenant.trustEmail}" th:text="#{plus.tool.on}">On</span>
             <span th:if="${!tenant.trustEmail}" th:text="#{plus.tool.off}">On</span>
         </p>
+        <p><b th:text="#{plus.tool.timezone}">Time Zone:</b> <span th:text="${tenant.timeZone}">timeZone</span></p>
         <p th:if="*{tenant.siteTemplate!=null and #strings.length(tenant.siteTemplate)>0}">
           <b th:text="#{plus.tool.sitetemplate}">Site Template:</b> <span th:text="${tenant.siteTemplate}">siteTemplate</span>
         </p>
