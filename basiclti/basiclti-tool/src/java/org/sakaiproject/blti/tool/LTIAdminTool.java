@@ -2529,10 +2529,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		contentData.setProperty("flow", flow);  // An example
 		contentData.setProperty("remember", "always bring a towel");  // An example
 
-		// Run the contentreturn through the forward servlet
-		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
-			URLEncoder.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
-
 		contentLaunch = ContentItem.buildLaunch(contentLaunch, contentReturn, contentData);
 
 		Object previousData = null;
@@ -2806,10 +2802,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "true");
 		}
 		contentData.setProperty("remember", "the answer is 42");  // An example
-
-		// Run the contentreturn through the forward servlet
-		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
-			URLEncoder.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
 
 		// This will forward to AccessServlet / BasicLTISecurityServiceImpl with a tool: url
 		// AccessServlet will detect if this is a CI or DL and handle it accordingly using
