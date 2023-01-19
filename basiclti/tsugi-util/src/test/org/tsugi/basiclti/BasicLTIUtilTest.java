@@ -560,18 +560,27 @@ public class BasicLTIUtilTest {
 
 	@Test
 	public void testShiftJVMDateToTimeZone() {
-		// tz=sun.util.calendar.ZoneInfo[id="America/New_York",offset=-18000000,...
 		TimeZone tz = TimeZone.getTimeZone("America/New_York");
 		assertEquals(tz.getRawOffset(), -18000000);
-		// tzla=sun.util.calendar.ZoneInfo[id="America/Los_Angeles",offset=-28800000...
 		TimeZone tzla = TimeZone.getTimeZone("America/Los_Angeles");
 		assertEquals(tzla.getRawOffset(), -28800000);
-		// tzutc=sun.util.calendar.ZoneInfo[id="UTC",offset=0,dstSavings=0,useDaylight=false,transitions=0,lastRule=null]
 		TimeZone tzutc = TimeZone.getTimeZone("UTC");
 		assertEquals(tzutc.getRawOffset(), 0);
 
-		Date dueDate = new Date("Wed Jan 18 12:00:00 2023");
-		Date newDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, "US/Eastern");
+		// If The JVM is Eastern and the due date is 3PM, when we send a UTC
+		// time to a server that is in Mountain and we want it to display as
+		// 3PM on the Mountain server, it will be sent as a two hour later UTC
+		// Since we don't know the JVM timezone we shift a JVM date into Eastern
+		// and Mountain and compare those values
+		// The result is that both systems show the due date as 3PM server local time.
+		// When you are a multi-tenant LTI tool with tenants in many time zones, and the LTI
+		// tool sets a due date and then sends it to the upstream LMS - when the students
+		// think it is due at 3PM - it needs to be shown as 2PM on both sysytems.
+		// It does mean that late points are best computed in the controlling LMS, not the
+		// LTI/SakaiPlus system
+		Date dueDate = new Date("Wed Jan 18 15:00:00 2023");
+		Date eastDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, "US/Eastern");
 		Date mountainDate = BasicLTIUtil.shiftJVMDateToTimeZone(dueDate, "America/Denver");
+		assertEquals(eastDate.getTime(), mountainDate.getTime()+2*60*60*1000);
 	}
 }
