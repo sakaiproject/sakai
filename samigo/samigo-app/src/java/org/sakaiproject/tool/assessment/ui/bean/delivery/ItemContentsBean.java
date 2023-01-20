@@ -88,6 +88,8 @@ public class ItemContentsBean implements Serializable {
 
 	private String feedbackValue;
 
+	private String infeedbackValue;
+
 	private String responseId = "2";
 
 	private String responseText = "";
@@ -652,6 +654,25 @@ public class ItemContentsBean implements Serializable {
 	 */
 	public void setFeedbackValue(String feedbackValue) {
 		this.feedbackValue = feedbackValue;
+	}
+
+	/**
+	 * item level incorrect feedback value
+	 *
+	 * @return the item level incorrect feedback value
+	 */
+	public String getInfeedbackValue() {
+		return infeedbackValue;
+	}
+
+	/**
+	 * item level incorrect feedback value
+	 *
+	 * @param feedbackValue
+	 *            the item level incorrect feedback value
+	 */
+	public void setInfeedbackValue(String infeedbackValue) {
+		this.infeedbackValue = infeedbackValue;
 	}
 
 	/**
