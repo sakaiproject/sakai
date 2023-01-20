@@ -607,6 +607,9 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	// temporary storage for new announcement body
 	private String m_tempBody;
 
+	// temporary storage for announcement highlight
+	private boolean m_tempHighlight = false;
+
 	// temporary storage for new announcement release date
 	private Time m_releaseDate = null;
 	
@@ -662,6 +665,15 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		return m_tempBody;
 
 	} // getTempBody()
+
+	/**
+	 * Get
+	 */
+	public boolean getTempHighlight()
+	{
+		return m_tempHighlight;
+
+	} // getTempHighlight()
 
 	/**
 	 * Get
@@ -730,6 +742,17 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		}
 
 	} // setTempBody()
+
+	/**
+	 * Set
+	 */
+	public void setTempHighlight(boolean tempHighlight)
+	{
+		if (tempHighlight != m_tempHighlight)
+		{
+			m_tempHighlight = tempHighlight;
+		}
+	} // setTempHighlight()
 
 	public void setTempReleaseDate(Time tempDate) 
 	{
