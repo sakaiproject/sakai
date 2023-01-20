@@ -788,7 +788,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
               ${this.renderPostEditor()}
             ` : html`
             <a href="javascript:;" @click="${this._setReplying}">
-              <div class="placeholder">
+              <div class="editor-placeholder">
                 <div><sakai-user-photo user-id="${window.top.portal.user.id}"></sakai-user-photo></div>
                 <div>${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.reply_to}</div>
                 <div>${this.topic.title}</div>

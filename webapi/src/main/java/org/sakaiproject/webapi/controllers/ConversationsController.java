@@ -113,7 +113,9 @@ public class ConversationsController extends AbstractSakaiApiController {
             if (!settings.getSiteLocked()
                 || securityService.unlock(Permissions.MODERATE.label, siteRef)) {
                 bean.canEditTags = securityService.unlock(Permissions.TAG_CREATE.label, siteRef);
-                bean.canCreateTopic = securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef);
+                bean.canCreateDiscussion = securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef);
+                bean.canCreateQuestion = securityService.unlock(Permissions.QUESTION_CREATE.label, siteRef);
+                bean.canCreateTopic = bean.canCreateDiscussion || bean.canCreateQuestion;
             }
             bean.canViewSiteStatistics = securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef);
             bean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
