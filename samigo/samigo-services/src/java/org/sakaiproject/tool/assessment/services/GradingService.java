@@ -3130,7 +3130,28 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       }
       return List.of(instructionSegments, correctFeedbackSegments, incorrectFeedbackSegments);
   }
-  
+
+  public void replaceSolutionOnFeedbackWithNumbers(LinkedHashMap<String, String> answerListValues, ItemDataIfc item, List<List<String>> texts) {
+	  String correctFeedback = item.getCorrectItemFeedback();
+	  String incorrectFeedback = item.getInCorrectItemFeedback();
+
+	  for (int i=1; i<texts.size(); i++) {
+		  List<String> parts = texts.get(i);
+		  for (int j=0; j<parts.size(); j++) {
+			  String map = answerListValues.get(parts.get(j));
+			  if (map != null) {
+				  String num = map.substring(0, map.indexOf("|"));
+				  parts.set(j, num);
+			  }
+		  }
+		  if (i == 1) {
+			  item.updateFeedbackByType(PublishedItemFeedback.CORRECT_FEEDBACK, correctFeedback, parts.stream().collect(Collectors.joining("")));
+		  } else if (i == 2) {
+			  item.updateFeedbackByType(PublishedItemFeedback.INCORRECT_FEEDBACK, incorrectFeedback, parts.stream().collect(Collectors.joining("")));
+		  }
+	  }
+  }
+
   /**
    * CALCULATED_QUESTION
    * This returns the decimal places value in the stored answer data.
