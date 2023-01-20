@@ -250,11 +250,13 @@
 						#foreach ($ann_item in $showMessagesList)
 							#set ($rowCount =$rowCount + 1)
 							#set($ann_item_props=$ann_item.getProperties())
+							#set($isHightlighted = (true == $ann_item_props.getProperty("highlight")) )
 
 							<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
-
-								<th headers="subject" scope="row">
-									<strong>
+									<td headers="subject" #if ($isHightlighted=="true") class="font-bold-highlighted" #end scope="row">
+										#if ($isHightlighted == "true")
+											<i aria-hidden="true" title="$tlang.getString('revise.star.title')" class="fa fa-star"></i>
+										#end
 										## show the paperclip if existing
 										#set ($size = 0)
 										#if (!$ann_item.Header.Attachments.isEmpty())
@@ -279,8 +281,7 @@
 											<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $formattedText.escapeHtml($ann_item.Header.subject))">
 											$formattedText.escapeHtml($ann_item.Header.subject) <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a>
 										#end
-									</strong>	
-								</th>
+									</td>
 								<td headers="author" class="hidden-xs">
 									$formattedText.escapeHtml($ann_item.AuthorDisplayName)
 								</td>
@@ -368,12 +369,17 @@
 					#set ($rowCount=0)
 					<ul class="synopticList">
 					#foreach ($ann_item in $showMessagesList)
-					<li>
+						#set ($isHightlighted = $ann_item.getProperties().getProperty("highlight"))
+						<td headers="subject" scope="row">
+						<li>
 						#set ($rowCount =$rowCount + 1)
 							#if ($ann_item.Header.draft)
 							#else
-							<div class="textPanelHeader">
-								<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $formattedText.escapeHtml($ann_item.Header.subject))" class="font-weight-bold">
+							<div class="textPanelHeader#if($isHightlighted=='true') font-bold-highlighted#end" >
+								#if ($isHightlighted == "true")
+									<i aria-hidden="true" title="$tlang.getString('revise.star.title')" class="fa fa-star"></i>
+								#end
+								<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $formattedText.escapeHtml($ann_item.Header.subject))" class="">
 								$formattedText.escapeHtml($ann_item.Header.subject)</a>
 								#set ($size = 0)
 								#if (!$ann_item.Header.Attachments.isEmpty())
@@ -540,12 +546,13 @@
 							 #foreach ($ann_item in $showMessagesList)
 								#set ($rowCount =$rowCount + 1)
 								#set($ann_item_props=$ann_item.getProperties())
-
+								#set($isHightlighted = (true == $ann_item_props.getProperty("highlight")) )
+								
 								<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
-
-									<th headers="subject" scope="row">
-										<strong>
-
+									<td headers="subject" #if ($isHightlighted=="true") class="font-bold-highlighted" #end scope="row">
+										#if ($isHightlighted == "true")
+											<i aria-hidden="true" title="$tlang.getString('revise.star.title')" class="fa fa-star"></i>
+										#end
 										## show the paperclip if existing
 										#set ($size = 0)
 										#if (!$ann_item.Header.Attachments.isEmpty())
@@ -570,11 +577,9 @@
 											<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $formattedText.escapeHtml($ann_item.Header.subject))">
 											$formattedText.escapeHtml($ann_item.Header.subject) <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a>
 										#end
-										</strong>
 										#if ($channel.allowEditMessage($ann_item.Id))
 											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $formattedText.escapeHtml($ann_item.Header.subject))"><i class="fa fa-lg fa-pencil-square-o"></i> $tlang.getString("gen.revise") <span class="skip">$formattedText.escapeHtml($ann_item.Header.subject)</span></a></div>
 										#end
-                                                                                                                                                                                                     
 									</td>
 									<td headers="author" class="hidden-xs">
 										$formattedText.escapeHtml($ann_item.Header.From.DisplayName)
