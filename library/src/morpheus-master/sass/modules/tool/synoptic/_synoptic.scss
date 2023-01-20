@@ -11,6 +11,10 @@ body > .portletBody {
 	iframe{
 		z-index: 0;
 	}
+	.font-bold-highlighted{
+		font-weight: bold;
+		font-size: 1.15em;
+	}
 }
 .#{$namespace}sakai-iframe-site{
 	.siteDescription{
