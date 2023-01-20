@@ -158,6 +158,24 @@ function resizeFrame(){
 					#chef_setupformattedtextarea("body")
 				</div>
 			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<fieldset>
+						<legend>
+							<h4>Highlight</h4>
+						</legend>
+						<div class="checkbox">
+							<label for="annc-highl-key">
+								<label class="annc-highl-label" for="highlight" name="highlight-key">
+									#set($isHightlighted = $message.getProperties().getProperty("highlight") == "true")
+									<input type="checkbox" id="highlight" #if ($isHightlighted) checked="" #end name="highlight" value="true">
+									$tlang.getString("revise.highlight")
+								</label>
+							</label>
+						</div>
+					</fieldset>
+				</div>
+			</div>
 
 			<div class="row">
 				<div class="col-md-12">
