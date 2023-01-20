@@ -276,13 +276,20 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         bean.setFormattedCreatedDate(userTimeService.dateTimeFormat(bean.getCreated(), FormatStyle.MEDIUM, FormatStyle.SHORT));
         bean.setFormattedModifiedDate(userTimeService.dateTimeFormat(bean.getModified(), FormatStyle.MEDIUM, FormatStyle.SHORT));
-        try {
-            bean.setCreatorDisplayName(userDirectoryService.getUser(bean.getCreatorId()).getDisplayName());
-            bean.setSiteTitle(siteService.getSite(bean.getOwnerId()).getTitle());
-        } catch (Exception e) {
-            log.error("Failed to set the creatorDisplayName or the siteTitle", e);
+        if (StringUtils.isNotBlank(bean.getCreatorId())) {
+            try {
+                bean.setCreatorDisplayName(userDirectoryService.getUser(bean.getCreatorId()).getDisplayName());
+            } catch (UserNotDefinedException undfe) {
+                log.warn("Failed to set the creatorDisplayName on rubric bean: {}", undfe.toString());
+            }
         }
-        //bean.locked = rubric.getAssociations().size() > 0;
+        if (StringUtils.isNotBlank(bean.getOwnerId())) {
+            try {
+                bean.setSiteTitle(siteService.getSite(bean.getOwnerId()).getTitle());
+            } catch (IdUnusedException iue) {
+                log.warn("Failed to set the siteTitle on rubric bean: {}", iue.toString());
+            }
+        }
         return bean;
     }
 
