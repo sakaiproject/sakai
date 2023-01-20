@@ -45,7 +45,7 @@ should be included in file importing DeliveryMessages
      </h:dataTable>
    </h:column>
    <h:column>
-      <h:selectOneRadio id="question" value="#{question.responseId}" layout="pagedirection" 
+      <h:selectOneRadio id="question" styleClass="tableTF" value="#{question.responseId}" layout="pagedirection" 
         disabled="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" >
         <f:selectItems value="#{question.answers}" />
