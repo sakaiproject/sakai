@@ -888,7 +888,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
    * @return
    */
   public String getCorrectItemFeedbackValue() {
-    return getItemFeedback(ItemFeedbackIfc.CORRECT_FEEDBACK);
+    return getItemFeedbackValue(ItemFeedbackIfc.CORRECT_FEEDBACK);
   }
 
   /**
@@ -999,7 +999,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   public void updateFeedbackByType(String feedbackTypeId, String text, String value) {
     if (itemFeedbackSet != null) {
       for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
-        PublishedItemFeedback itemFeedback = (PublishedItemFeedback) i.next();
+        ItemFeedback itemFeedback = (ItemFeedback) i.next();
         if (itemFeedback.getTypeId().equals(feedbackTypeId)) {
             itemFeedback.setText(text);
             itemFeedback.setTextValue(value);
