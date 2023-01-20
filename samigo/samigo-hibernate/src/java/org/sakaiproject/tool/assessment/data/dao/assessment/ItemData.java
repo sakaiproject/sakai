@@ -539,7 +539,7 @@ public ItemData() {}
   public void updateFeedbackByType(String typeId, String text, String value) {
     if (itemFeedbackSet != null) {
       for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
-        PublishedItemFeedback itemFeedback = (PublishedItemFeedback) i.next();
+        ItemFeedback itemFeedback = (ItemFeedback) i.next();
         if (itemFeedback.getTypeId().equals(typeId)) {
             itemFeedback.setText(text);
             itemFeedback.setTextValue(value);
