@@ -156,8 +156,9 @@
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continue" />
+		<input type="hidden" id="import-confirm-message" value="$tlang.getString('sitinfimp.merge.confirm')" />
 		<p class="act">
-			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" #if($!existingSite)value="$tlang.getString('gen.finish')"#else value="$tlang.getString('gen.continue')" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="s" id="siteimport-finish-button" class="active" name="eventSubmit_doContinue" #if($!existingSite)value="$tlang.getString('gen.finish')"#else value="$tlang.getString('gen.continue')" #end />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
