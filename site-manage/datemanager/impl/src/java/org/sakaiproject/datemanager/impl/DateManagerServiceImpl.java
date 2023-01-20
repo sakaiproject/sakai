@@ -1224,7 +1224,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				String entityType = (String)jsonForum.get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
 				DateManagerUpdate update;
-				if("forum".equals(entityType)) {
+				if(rb.getString("itemtype.forum").equals(entityType)) {
 					BaseForum forum = forumManager.getForumById(true, forumId);
 					if (forum == null) {
 						errors.add(new DateManagerError("forum",rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.forums.item.name")}), "forums", toolTitle, idx));
