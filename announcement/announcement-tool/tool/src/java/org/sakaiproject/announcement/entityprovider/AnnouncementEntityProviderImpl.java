@@ -334,6 +334,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		da.setCreatedOn(new Date(a.getHeader().getDate().getTime()));
 		da.setSiteId(siteId);
 		da.setSiteTitle(siteTitle);
+		da.setHighlight(a.getProperties().getProperty("highlight"));
 		
 		//get attachments
 		List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
@@ -736,6 +737,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		@Getter @Setter private List<DecoratedAttachment> attachments;
 		@Getter @Setter private String siteId;
 		@Getter @Setter private String announcementId;
+		@Getter @Setter private String highlight;
 		@Getter @Setter private String siteTitle;
 		@Getter @Setter private String channel;
 
