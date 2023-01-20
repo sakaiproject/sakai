@@ -409,6 +409,10 @@
 		border: 0;
 		background: transparent;
 	}
+	.font-bold-highlighted{
+		font-weight: bold;
+		font-size: 1.15em;
+	}
 }
 
 .#{$namespace}multipleTools {
