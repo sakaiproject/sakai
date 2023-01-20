@@ -2,8 +2,9 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<h3>
-		$tlang.getString("sitinfimp.reuse")
+		$tlang.getString("sitinfimp.replace.heading")
 	</h3>
+	<h4>$tlang.getString("sitinfimp.replace.subheading")</h4>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 	#end
@@ -11,7 +12,7 @@
 		## import is possible when use has maintain rights on at least one site other than the current one
 		#if ($!sites && $sites.size()>1)
 			<p class="instruction">
-				$tlang.getString("sitinfimp.replace")
+				$tlang.getFormattedMessage("sitinfimp.replace", $formattedText.escapeHtml($currentSite.getTitle()))
 			</p>
 			<div id="sitesAccordion">
 				<div class="card">

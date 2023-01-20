@@ -1374,6 +1374,16 @@ function setupImportSitesForm($form) {
   $(".siteimport-options-link").click(function (e) {
     $("#" + this.dataset.optionsId).toggle();
   });
+
+  document.getElementById("siteimport-finish-button")?.addEventListener("click", e => {
+
+    if (confirm(document.getElementById("import-confirm-message").value)) {
+		  SPNR.disableControlsAndSpin( this, null );
+    } else {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  });
 };
 
 function updateParticipants(buttonElement) {
