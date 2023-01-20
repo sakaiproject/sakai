@@ -535,7 +535,7 @@ a.hideDivision {
 	display:inline;
 	float:unset;
 }
-.mcAnswerText label {
+.mcAnswerText label, .mcAnswerText .samigo-answer-label, .mcAnswerText .samigo-answer-text, .tableTF label {
 	font-weight: normal;
 }
 /* Someone put a paragraph in a multiple choice answer */
