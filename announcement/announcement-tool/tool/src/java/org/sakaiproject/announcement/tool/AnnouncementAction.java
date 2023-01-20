@@ -2433,12 +2433,14 @@ public class AnnouncementAction extends PagedResourceActionII
 		// *** make sure the subject and body won't be empty
 		// read in the subject input from announcements-new.vm
 		final String subject = params.getString("subject");
+		boolean highlight = params.getBoolean("highlight"); 
 		// read in the body input
 		String body = params.getString("body");
 		body = processFormattedTextFromBrowser(sstate, body);
 
 		state.setTempSubject(subject);
 		state.setTempBody(body);
+		state.setTempHighlight(highlight);
 
 		if (checkForm)
 		{
@@ -2597,6 +2599,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		final Time tempReleaseDate = state.getTempReleaseDate();
 		final Time tempRetractDate = state.getTempRetractDate();
 		final Boolean tempHidden = state.getTempHidden();
+		final boolean tempHighlight = state.getTempHighlight();
 		
 		// announce to public?
 		final String announceTo = state.getTempAnnounceTo();
@@ -2669,6 +2672,9 @@ public class AnnouncementAction extends PagedResourceActionII
 				// values stored here if saving from Add/Revise page
 				ParameterParser params = rundata.getParameters();
 				
+				// Adding the highlight to the properties
+				msg.getPropertiesEdit().addProperty("highlight", String.valueOf(tempHighlight));
+
 				// get release/retract dates
 				final String specify = params.getString(HIDDEN);
 				final boolean use_start_date = params.getBoolean("use_start_date");
