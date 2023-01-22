@@ -1318,6 +1318,7 @@ public String getAddOrEdit()
 		itemBean.setPointsForEdit(item.getScore().toString());
 		itemBean.setMaxPoints(item.getScore());
 		itemBean.setFeedbackValue(item.getCorrectItemFeedbackValue());
+		itemBean.setInfeedbackValue(item.getInCorrectItemFeedbackValue());
 		itemBean.setKey(keysString);
 		itemBean.setItemGradingDataArray(datas);
 

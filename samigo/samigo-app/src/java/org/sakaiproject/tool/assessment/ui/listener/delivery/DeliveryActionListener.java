@@ -2359,11 +2359,7 @@ public class DeliveryActionListener
       service.setTexts(texts.get(0));
 
       //changing solutions ex: {{w}} with numbers
-<<<<<<< HEAD
-      replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
-=======
       service.replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
->>>>>>> 7fa2516dc839abf63f5b810428c0ba07a9b5d8bd
 
       String questionText = service.getTexts().get(0);
 

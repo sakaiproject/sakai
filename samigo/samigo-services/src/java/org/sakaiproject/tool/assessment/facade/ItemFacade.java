@@ -888,11 +888,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
    * @return
    */
   public String getCorrectItemFeedbackValue() {
-<<<<<<< HEAD
-    return getItemFeedback(ItemFeedbackIfc.CORRECT_FEEDBACK);
-=======
     return getItemFeedbackValue(ItemFeedbackIfc.CORRECT_FEEDBACK);
->>>>>>> 7fa2516dc839abf63f5b810428c0ba07a9b5d8bd
   }
 
   /**

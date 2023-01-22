@@ -57,9 +57,16 @@ should be included in file importing DeliveryMessages
   </h:panelGroup>
   <h:panelGroup>
     <f:verbatim><br /></f:verbatim>
+    <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="imageCheck"></h:panelGroup>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+    <h:outputLabel for="feedSC" value="#{authorMessages.correctItemFeedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.itemData.correctItemFeedbackValue}" escape="false" />
+    <f:verbatim><br /></f:verbatim>
+    <h:panelGroup styleClass="icon-sakai--delete feedBackCross" id="imageCross"></h:panelGroup>
+    <f:verbatim><b></f:verbatim>
+    <h:outputLabel for="feedSCI" value="#{authorMessages.incorrectItemFeedback}#{deliveryMessages.column} " />
+    <f:verbatim></b></f:verbatim>
+    <h:outputText id="feedSCI" value="#{question.itemData.inCorrectItemFeedbackValue}" escape="false" />
   </h:panelGroup>
 </h:panelGroup>
