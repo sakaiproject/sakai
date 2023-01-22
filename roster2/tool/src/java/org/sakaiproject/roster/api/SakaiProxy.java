@@ -300,6 +300,11 @@ public interface SakaiProxy {
     public Boolean getViewPronouns();
 
     /**
+     * @return the value of the <code>roster.display.profilelink</code> Sakai property.
+     */
+    public Boolean getViewProfileLink();
+
+    /**
      * Returns the value of the <code>roster.display.user.name.pronunciation</code> Sakai property.
      *
      * @return the value of the <code>roster.display.user.name.pronunciation</code> Sakai property.
@@ -311,5 +316,5 @@ public interface SakaiProxy {
      *
      * @return the profile tool link. Null if user doesn't have profile tool.
      */
-    public String getProfileToolLink();
+    public String getProfileToolLink(String otherUserId);
 }
