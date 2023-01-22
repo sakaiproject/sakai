@@ -115,6 +115,9 @@
                     ## get submit time
                     #if ($!submitTime)
                         $!service.getUsersLocalDateTimeString($submitTime)
+                        #if ($submitTime.isAfter($assignment.DueDate))
+                            <span class="highlight">$tlang.getString("gen.late2")</span>
+                        #end
                     #end
                     <br/>
                 </td>

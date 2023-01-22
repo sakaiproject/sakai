@@ -444,6 +444,15 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         Optional<ToolItemRubricAssociation> association = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams);
         assertTrue(association.isPresent());
         assertEquals(rubricBean.getId(), association.get().getRubric().getId());
+
+        // test switching associations
+        RubricTransferBean rubricBean2 = rubricsService.createDefaultRubric(siteId);
+        Map<String, String> rbcsParams2 = new HashMap<>();
+        rbcsParams2.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams2.put(RubricsConstants.RBCS_LIST, rubricBean2.getId().toString());
+        Optional<ToolItemRubricAssociation> association2 = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams2);
+        assertTrue(association2.isPresent());
+        assertEquals(rubricBean2.getId(), association2.get().getRubric().getId());
     }
 
     @Test

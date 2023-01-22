@@ -2359,7 +2359,11 @@ public class DeliveryActionListener
       service.setTexts(texts.get(0));
 
       //changing solutions ex: {{w}} with numbers
+<<<<<<< HEAD
       replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+=======
+      service.replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+>>>>>>> 7fa2516dc839abf63f5b810428c0ba07a9b5d8bd
 
       String questionText = service.getTexts().get(0);
 
@@ -2938,30 +2942,9 @@ public class DeliveryActionListener
 	  }
 
 	  //changing solutions ex: {{w}} with numbers
-	  replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+	  service.replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
 
 	  return keysString;
-  }
-  
-  public void replaceSolutionOnFeedbackWithNumbers(LinkedHashMap<String, String> answerListValues, ItemDataIfc item, List<List<String>> texts) {
-	  String correctFeedback = item.getCorrectItemFeedback();
-	  String incorrectFeedback = item.getInCorrectItemFeedback();
-
-	  for (int i=1; i<texts.size(); i++) {
-		  List<String> parts = texts.get(i);
-		  for (int j=0; j<parts.size(); j++) {
-			  String map = answerListValues.get(parts.get(j));
-			  if (map != null) {
-				  String num = map.substring(0, map.indexOf("|"));
-				  parts.set(j, num);
-			  }
-		  }
-		  if (i == 1) {
-			  item.updateFeedbackByType(PublishedItemFeedback.CORRECT_FEEDBACK, correctFeedback, parts.stream().collect(Collectors.joining("")));
-		  } else if (i == 2) {
-			  item.updateFeedbackByType(PublishedItemFeedback.INCORRECT_FEEDBACK, incorrectFeedback, parts.stream().collect(Collectors.joining("")));
-		  }
-	  }
   }
 
   /**

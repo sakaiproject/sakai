@@ -24,7 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -187,7 +187,8 @@ public class OAuthServiceImpl implements OAuthService {
      * @return Date
      */
     private Date plusMinutes(int minute) {
-       return Date.from(LocalDateTime.now().plusMinutes(minute).toInstant(ZoneOffset.UTC));
+       LocalDateTime plusMins = LocalDateTime.now().plusMinutes(minute);
+       return Date.from(plusMins.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     @Override

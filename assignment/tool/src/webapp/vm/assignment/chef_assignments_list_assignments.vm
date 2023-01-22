@@ -485,7 +485,10 @@
 									#if ($submission)
 										#set ($submissionId = $submission.Id)
 									#end
-									<span class="highlight">$!service.getSubmissionStatus($!submissionId, false)</span>
+									$!service.getSubmissionStatus($!submissionId, false)
+									#if ($assignment.DueDate && $submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
+										<span class="highlight">$tlang.getString("gen.late2")</span>
+									#end
 								#end
 							</td>
 							<td headers="openDate" class="hidden-xs">
