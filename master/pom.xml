@@ -1156,6 +1156,12 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-test</artifactId>
+        <version>${sakai.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-storage-util</artifactId>
         <version>${sakai.version}</version>
       </dependency>
