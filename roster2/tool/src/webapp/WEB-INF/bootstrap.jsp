@@ -40,6 +40,7 @@
                 hideSingleGroupFilter: ${hideSingleGroupFilter},
                 viewUserDisplayId: ${viewUserDisplayId},
                 viewPronouns: ${viewPronouns},
+                viewProfileLink: ${viewProfileLink},
                 viewUserNamePronunciation: ${viewUserNamePronunciation},
                 viewUserProperty: ${viewUserProperty},
                 viewCandidateDetails: ${viewCandidateDetails},
