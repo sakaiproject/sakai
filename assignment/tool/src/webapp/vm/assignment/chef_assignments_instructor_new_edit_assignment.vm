@@ -17,7 +17,7 @@
             templates: {
                 button: `
                     <button type="button"
-                            class="multiselect dropdown-toggle btn-primary"
+                            class="btn btn-primary multiselect dropdown-toggle"
                             data-bs-toggle="dropdown">
                         <span class="multiselect-selected-text"></span>
                     </button>
