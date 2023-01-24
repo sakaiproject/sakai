@@ -13,7 +13,16 @@
             filterPlaceholder: '$tlang.getString("asn.edit.searchgroup")',
             enableFiltering: true,
             enableCaseInsensitiveFiltering: true,
-            includeSelectAllOption: true
+            includeSelectAllOption: true,
+            templates: {
+                button: `
+                    <button type="button"
+                            class="multiselect dropdown-toggle btn-primary"
+                            data-bs-toggle="dropdown">
+                        <span class="multiselect-selected-text"></span>
+                    </button>
+                `,
+            },
         });
         $('#selectedGroups').change(function(){
             ASN_INE.validateGroupSelection();
