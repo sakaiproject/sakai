@@ -1881,12 +1881,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if(StringUtils.isEmpty(getComposeSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
-      return null ;
+      return null;
     }
     if(StringUtils.isEmpty(getComposeBody()))
     {
       setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
-      return null ;
+      return null;
     }
     if(booleanSchedulerSend) {
 		setOpenDate(schedulerSendDateString);
@@ -1898,16 +1898,16 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     PrivateMessage dMsg = null;
     if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
-    	dMsg =constructMessage(true, getDetailMsg().getMsg()) ;
+	    dMsg = constructMessage(true, getDetailMsg().getMsg());
+	    PrivateMessageSchedulerService.removeScheduledReminder(dMsg.getId());
     }else{
-    	dMsg =constructMessage(true, null) ;
+	    dMsg = constructMessage(true, null);
     }
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setDeleted(Boolean.FALSE);
     dMsg.setExternalEmail(booleanEmailOut);
     dMsg.setScheduler(booleanSchedulerSend);
-    if(booleanSchedulerSend)
-	    dMsg.setScheduledDate(openDate);
+    dMsg.setScheduledDate(booleanSchedulerSend ? openDate : null);
 
     List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
     List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
