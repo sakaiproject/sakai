@@ -517,11 +517,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      * @return A mapping of user eid and url of audio name pronunciation
      */
     private Map<String, String> getPronunciationMap(Map<String, User> userMap) {
-        Map<String, String> pronunceMap = new HashMap<>();
+        Map<String, String> pronounceMap = new HashMap<>();
 
         if ("namecoach".equalsIgnoreCase(serverConfigurationService.getString("roster.pronunciation.provider", ""))) {
             Set<String> emails = userMap.values().stream().map(User::getEmail).collect(Collectors.toSet());
-            if (emails.isEmpty()) { return pronunceMap; }
+            if (emails.isEmpty()) { return pronounceMap; }
 
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 URIBuilder builder = new URIBuilder(serverConfigurationService.getString("namecoach.url", "https://name-coach.com/api/private/v4/participants"));
@@ -550,7 +550,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                         String emailText = emailNode.asText();
                         String embedCode = embedNode.asText();
                         if (emailNode != null && embedNode != null && !emailText.equals("null") && !embedCode.equals("null")) {
-                            pronunceMap.put(emailText, embedCode);
+                            pronounceMap.put(emailText, embedCode);
                         }
                     }
                 }
@@ -580,10 +580,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 if (profileLogic.getUserNamePronunciation(user.getId()) != null) {
                     path.append("<sakai-pronunciation-player user-id=\"").append(userId).append("\" />");
                 }
-                pronunceMap.put(user.getId(), path.toString());
+                pronounceMap.put(user.getId(), path.toString());
             }
         }
-        return pronunceMap;
+        return pronounceMap;
     }
 
     /**
@@ -603,16 +603,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 		Map<String, User> userMap = getUserMap(membership);
 
-		// Audio URL for how to pronunce each name
-		Map<String, String> pronunceMap = new HashMap<>();
+		// Audio URL for how to pronounce each name
+		Map<String, String> pronounceMap = new HashMap<>();
 		if (this.getViewUserNamePronunciation()) {
-			pronunceMap = getPronunciationMap(userMap);
+			pronounceMap = getPronunciationMap(userMap);
 		}
 
 		Collection<Group> groups = site.getGroups();
 		for (Member member : membership) {
 			try {
-				RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronunceMap);
+				RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronounceMap);
 				rosterMembers.put(rosterMember.getEid(), rosterMember);
 			} catch (UserNotDefinedException e) {
 				log.warn("user not found: " + e.getId());
@@ -764,7 +764,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		return membership;
 	}
 	
-	private RosterMember getRosterMember(Map<String, User> userMap, Collection<Group> groups, Member member, Site site, Map<String, String> pronunceMap)
+	private RosterMember getRosterMember(Map<String, User> userMap, Collection<Group> groups, Member member, Site site, Map<String, String> pronounceMap)
         throws UserNotDefinedException {
 
 		String userId = member.getUserId();
@@ -786,13 +786,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		if (sakaiPerson != null) {
 			rosterMember.setPronouns(sakaiPerson.getPronouns());
+			rosterMember.setNickname(sakaiPerson.getNickname());
 		}
 
+		rosterMember.setProfileLink(getProfileToolLink(userId));
+
 		// See if there is a pronunciation available for the user
-		String pronunciation = pronunceMap.get(user.getId());
+		String pronunciation = pronounceMap.get(user.getId());
 		//Try by email instead of Id
 		if(StringUtils.isEmpty(pronunciation)) {
-			pronunciation = pronunceMap.get(user.getEmail());
+			pronunciation = pronounceMap.get(user.getEmail());
 		}
 		rosterMember.setPronunciation(pronunciation);
 
@@ -905,10 +908,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             Map<String, User> userMap = getUserMap(membership);
 
-            // Audio URL for how to pronunce each name
-            Map<String, String> pronunceMap = new HashMap<>();
+            // Audio URL for how to pronounce each name
+            Map<String, String> pronounceMap = new HashMap<>();
             if (this.getViewUserNamePronunciation()) {
-                pronunceMap = getPronunciationMap(userMap);
+                pronounceMap = getPronunciationMap(userMap);
             }
 
             siteMembers = new ArrayList<>();
@@ -927,7 +930,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			for (Member member : membership) {
 
 				try {
-					RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronunceMap);
+					RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronounceMap);
 
 					siteMembers.add(rosterMember);
 					String memberRoleId = rosterMember.getRole();
@@ -1318,27 +1321,27 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         return serverConfigurationService.getBoolean("roster.showVisits", false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public Boolean getViewPronouns() {
         return serverConfigurationService.getBoolean("roster.display.user.pronouns", false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    public Boolean getViewProfileLink() {
+        return serverConfigurationService.getBoolean("roster.display.user.profilelink", true);
+    }
+
     public Boolean getViewUserNamePronunciation() {
         return serverConfigurationService.getBoolean("roster.display.user.name.pronunciation", DEFAULT_VIEW_USER_NAME_PRONUNCIATION);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String getProfileToolLink() {
+    public String getProfileToolLink(String otherUserId) {
+
         try {
             Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
-            return site.getUrl() + "/tool/" + site.getToolForCommonId("sakai.profile2").getId();
+            String url = site.getUrl() + "/tool/" + site.getToolForCommonId("sakai.profile2").getId();
+            if (StringUtils.isNotBlank(otherUserId)) {
+                url += "/viewprofile/" + otherUserId;
+            }
+            return url;
         } catch(Exception e){
             log.error("Error getting tool for profile on user workspace {}", e.getMessage());
         }

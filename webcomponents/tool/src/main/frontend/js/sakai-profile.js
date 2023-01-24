@@ -67,6 +67,9 @@ class SakaiProfile extends LitElement {
           </div>
           <div>
             <div class="name">${this.profile.name}</div>
+            ${this.profile.nickname ? html`
+            <div class="nickname">"${this.profile.nickname}"</div>
+            ` : ""}
             ${this.profile.role ? html`
             <div class="role">${this.profile.role}</div>
             ` : ""}
@@ -131,6 +134,10 @@ class SakaiProfile extends LitElement {
         font-weight: var(--sakai-profile-name-weight, 700);
         font-size: var(--sakai-profile-name-size, 16px);
         margin-bottom: var(--sakai-profile-name-margin-bottom, 8px);
+      }
+      .nickname {
+        font-weight: var(--sakai-profile-nickname-weight, 500);
+        font-size: var(--sakai-profile-nicknamename-size, 14px);
       }
       .role, .pronouns {
         font-weight: var(--sakai-profile-header-weight, 400);

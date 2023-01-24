@@ -23,6 +23,9 @@
             <a href="javascript:;" class="profile" data-user-id="{{userId}}">
         {{/if}}
             <span title="{{getName firstNameLastName}}">{{getName firstNameLastName}}</span>
+            {{#if nickname}}
+            <span title="{{nickname}}"> "{{nickname}}"</span>
+            {{/if}}
         {{#if ../../viewProfile}}
             </a>
         {{/if}}

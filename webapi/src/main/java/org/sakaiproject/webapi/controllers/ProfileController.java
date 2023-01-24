@@ -61,6 +61,7 @@ public class ProfileController extends AbstractSakaiApiController {
 
         ProfileRestBean bean = new ProfileRestBean();
         bean.name = userProfile.getDisplayName();
+        bean.nickname = userProfile.getNickname();
         bean.email = userProfile.getEmail();
         bean.pronouns = userProfile.getPronouns();
         bean.pronunciation = userProfile.getPhoneticPronunciation();
