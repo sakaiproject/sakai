@@ -128,6 +128,11 @@
 							#end
 						</a>
 					</th>
+					#if ($allowAddAssignment == false)
+						<th id="grade" scope="col">
+							$tlang.getString("grade.title")
+						</th>
+					#end
 					<th id="openDate" scope="col" class="hidden-xs">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("newassig.opedat")
@@ -491,6 +496,24 @@
 									#end
 								#end
 							</td>
+							#if ($allowAddAssignment == false)
+								<td headers="grade">
+									#if ($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.returned") && $submission.grade)
+										#if ($assignment.TypeOfGrade.ordinal() == 2)
+											<span>$submission.grade</span>
+										#elseif ($assignment.TypeOfGrade.ordinal() == 3)
+											<span>$service.getGradeDisplay($submission.grade, $assignment.TypeOfGrade, $assignment.ScaleFactor)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)</span>
+										#elseif ($submission.grade.equals("Checked"))
+											<span>$tlang.getString("gen.checked")</span>
+										#else
+											<span>$tlang.getString($submission.grade.toLowerCase())</span>
+										#end
+									#else
+										<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+
+									#end
+								</td>
+							#end
 							<td headers="openDate" class="hidden-xs">
 								$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 							</td>
