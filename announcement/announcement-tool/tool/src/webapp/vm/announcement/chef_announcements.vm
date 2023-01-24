@@ -253,10 +253,10 @@
 							#set($isHightlighted = $ann_item_props.getProperty("highlight"))
 
 							<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
-								#if ($isHightlighted == "true")
-									<i aria-hidden="true" title="$tlang.getString('revise.star.title')" class="fa fa-star"></i>
-								#end
 									<td headers="subject" #if ($isHightlighted=="true") class="font-bold-highlighted" #end scope="row">
+										#if ($isHightlighted == "true")
+											<i aria-hidden="true" title="$tlang.getString('revise.star.title')" class="fa fa-star"></i>
+										#end
 										## show the paperclip if existing
 										#set ($size = 0)
 										#if (!$ann_item.Header.Attachments.isEmpty())
