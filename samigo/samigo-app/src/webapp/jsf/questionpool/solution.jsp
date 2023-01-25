@@ -35,11 +35,10 @@
 <title><h:outputText value="#{questionPoolMessages.sol_q}" /></title>
 
 <script>
-$(document).ready(function() {
-
+document.addEventListener('DOMContentLoaded', function () {
   // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
-  $('#solution\\:questionPoolsLink').parent().addClass('current');
-});
+  document.getElementById('solution:questionPoolsLink').parentElement.classList.add('current');
+}, false);
 </script>
 
 </head>
