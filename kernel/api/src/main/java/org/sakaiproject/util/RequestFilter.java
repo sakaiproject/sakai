@@ -177,7 +177,7 @@ public class RequestFilter implements Filter
 	/** The name of the Sakai property to disable setting the HttpOnly attribute on the cookie (if false). */
 	protected static final String SAKAI_COOKIE_HTTP_ONLY = "sakai.cookieHttpOnly";
 
-	/** The name of the Sakai property to set the SameSite attribute on the cookie. "lax" is the default. */
+	/** The name of the Sakai property to set the SameSite attribute on the cookie. "none" is the default. */
 	protected static final String SAKAI_COOKIE_SAME_SITE = "sakai.cookieSameSite";
 
 	/** The name of the Sakai property to set the X-UA Compatible header
@@ -263,7 +263,7 @@ public class RequestFilter implements Filter
 	/** Set the HttpOnly attribute on the cookie */
 	protected boolean m_cookieHttpOnly = true;
 	/** Set the SameSite attribute on the cookie */
-	protected String m_cookieSameSite = "lax";
+	protected String m_cookieSameSite = "none";
 
 	protected String m_UACompatible = null;
             
@@ -860,7 +860,7 @@ public class RequestFilter implements Filter
 		// retrieve option to enable or disable cookie HttpOnly
 		m_cookieHttpOnly = serverConfigurationService.getBoolean(SAKAI_COOKIE_HTTP_ONLY, true);
 		// retrieve option to enable or disable cookie SameSite
-		m_cookieSameSite = serverConfigurationService.getString(SAKAI_COOKIE_SAME_SITE, "lax");
+		m_cookieSameSite = serverConfigurationService.getString(SAKAI_COOKIE_SAME_SITE, "none");
 
 		m_UACompatible = serverConfigurationService.getString(SAKAI_UA_COMPATIBLE, null);
 
