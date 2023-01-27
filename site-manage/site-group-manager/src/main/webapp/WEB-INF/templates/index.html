@@ -13,10 +13,10 @@
         <thead>
           <tr>
             <th th:text="#{index.table.grouptitle}">Group Title</th>
-            <th class="d-none" th:if="${anyGroupLocked}" th:text="#{index.table.grouplockedby}">Locked By</th>
+            <th class="d-none d-sm-block" th:if="${anyGroupLocked}" th:text="#{index.table.grouplockedby}">Locked By</th>
             <th th:text="#{index.table.joinableset}">Joinable set</th>
-            <th class="d-none" th:text="#{index.table.groupsize}">Size (Max)</th>
-            <th class="d-none" th:text="#{index.table.groupmembers}">Members</th>
+            <th class="d-none d-sm-block" th:text="#{index.table.groupsize}">Size (Max)</th>
+            <th th:text="#{index.table.groupmembers}">Members</th>
             <th><input type="checkbox" id="group-manager-index-select-all" th:text="| #{index.table.selectallnone}|"/></th>
           </tr>
         </thead>
@@ -28,7 +28,7 @@
               <a th:if="${!lockedGroupList.contains(group.id)}" th:href="@{/group(groupId=${group.id})}" th:text="${group.title}"></a>
               <span th:if="${lockedGroupList.contains(group.id)}" th:text="${group.title}"></span>
             </td>
-            <td class="d-none" th:if="${anyGroupLocked}">
+            <td class="d-none d-sm-block" th:if="${anyGroupLocked}">
               <div th:if="${lockedGroupsEntityMap.get(group.id) != null }">
                 <div th:if="${!lockedGroupsEntityMap.get(group.id).get('assignments').isEmpty()}">
                   <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingassignments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assignments}"></span>
@@ -50,8 +50,8 @@
               </div>
             </td>
             <td><a th:if="${groupJoinableSetMap.get(group.id) != null}" th:href="@{/joinableset(joinableSetId=${groupJoinableSetMap.get(group.id)})}" th:text="${groupJoinableSetMap.get(group.id)}"></a></td>
-            <td class="d-none"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
-            <td class="d-none" th:text="${groupMemberMap.get(group.id)}"></td>
+            <td class="d-none d-sm-block"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
+            <td th:text="${groupMemberMap.get(group.id)}"></td>
             <td>
               <input class="group-manager-delete-checkbox" th:if="${!lockedForDeletionGroupList.contains(group.id)}" th:attr="groupInfo=|${group.title} - ${group.getMembers().size()} #{index.table.members}|" type="checkbox" name="deletedGroupList" th:field="*{deletedGroupList}" th:value="${group.id}" onchange="groupManager.checkSubmitButton();"/>
               <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="si si-locked" aria-hidden="true"></span>
