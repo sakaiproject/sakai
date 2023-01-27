@@ -28,7 +28,7 @@ class PasswordField {
   #handleCapslock(event) {
 
     const prevcapsLockActive = this._capsLockActive;
-    const capsMod = event.getModifierState("CapsLock");
+    const capsMod = event?.getModifierState?.("CapsLock");
     this._capsLockActive = event.key !== "CapsLock" ? capsMod : !capsMod; 
 
     if (this._capsLockActive === prevcapsLockActive) { return }
