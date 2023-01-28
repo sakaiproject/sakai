@@ -79,7 +79,7 @@ class SakaiSubmissionMessager extends SakaiElement {
             @group-selected=${this.groupSelected}>
           </sakai-group-picker>
         </div>
-        <button @click=${this.listRecipients}>${this.i18n.show_recipients}</button>
+        <button class="btn-link" @click=${this.listRecipients}>${this.i18n.show_recipients}</button>
         ${this.recipientsToCheck.length > 0 ? html`
           <div class="sm-recipients-label">${this.i18n.recipients}</div>
           <div class="sm-recipients">
@@ -87,7 +87,7 @@ class SakaiSubmissionMessager extends SakaiElement {
           </div>
         ` : ""}
         <div class="send-button-wrapper">
-          <button @click=${this.sendMessage} style="display: inline-block;">${this.i18n.send}</button>
+          <button class="btn btn-primary" @click=${this.sendMessage} style="display: inline-block;">${this.i18n.send}</button>
           ${this.sending ? html`<div id="sm-progressbar-${this.assignmentId}" class="sm-progressbar"></div>` : ""}
           ${this.success ? html`<span class="sm-alert sak-banner-success-inline">${this.i18n.success}</span>` : ""}
           ${this.error ? html`<span class="sm-alert sak-banner-error-inline">${this.i18n.error}</span>` : ""}

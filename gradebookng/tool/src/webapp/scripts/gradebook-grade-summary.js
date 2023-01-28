@@ -75,7 +75,7 @@ GradebookGradeSummary.prototype.setupTabs = function() {
         $otherTab.trigger("click");
       });
       $(document.body).append($confirmationModal);
-      $confirmationModal.modal().modal('show');
+      const modal = new bootstrap.Modal($confirmationModal).toggle();
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
         $cloneOfTab.focus();
@@ -198,7 +198,7 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
         self.$modal.find(".gb-summary-close").trigger("click");
       });
       $(document.body).append($confirmationModal);
-      $confirmationModal.modal().modal('show');
+      const modal = new bootstrap.Modal($confirmationModal).toggle();
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
         self.$content.find(".gb-summary-fake-close").focus();

@@ -82,7 +82,7 @@ GBBE.showConfirmation = function() {
         $confirmationModal.find(".gb-bulk-edit-cancel").focus();
     });
 
-    $confirmationModal.modal().modal('show');
+    const modal = new bootstrap.Modal($confirmationModal).toggle();
 };
 
 GBBE.performRealSubmit = function() {
