@@ -20,7 +20,7 @@ class SitesSidebar {
 
       const chevron = element.querySelector(`[data-bs-target='#${btn.id}'] > i`);
 
-      chevron.className = "bi-chevron-" + (btn.classList.contains("show") ? "down" : "right");
+      chevron.className = `bi-chevron-${btn.classList.contains("show") ? "down" : "right"}`;
 
       btn.addEventListener("show.bs.collapse", e => {
 
