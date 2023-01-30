@@ -598,6 +598,7 @@ div.wicket-modal div.w_blue a.w_close {
 	padding: $standard-space-4x;
 	font-size: 1.5em;
 	overflow: visible;
+	color: var(--sakai-active-color-1);
 
 	&::before {
 		@extend .fa;
