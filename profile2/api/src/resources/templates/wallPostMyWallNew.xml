@@ -8,7 +8,7 @@
   ${wallLink}
 
     </message>
-    <messagehtml>${senderDisplayName} has just posted to your profile wall on ${localSakaiName}
+    <messagehtml>${senderDisplayName} ${bundle["email.mywallnew.subject"]} ${localSakaiName}
   &lt;p&gt;
   ${bundle["email.wall.viewmy"]}
   &lt;br /&gt;&lt;a href="${wallLink}"&gt;${wallLink}&lt;/a&gt;
