@@ -7,7 +7,7 @@
         ${bundle["email.connectionrequest.toconfirm1"]} ${senderDisplayName} ${bundle["email.connectionrequest.toconfirm2"]}
 ${connectionLink}
 	  </message>
-	  <messagehtml>${senderDisplayName} ${bundle["email.mywallnew.subject"]} ${localSakaiName}
+	  <messagehtml>${senderDisplayName} ${bundle["email.connectionrequest.subject"]} ${localSakaiName}
 &lt;p&gt;
 ${bundle["email.connectionrequest.toconfirm1"]} ${senderDisplayName} ${bundle["email.connectionrequest.toconfirm2"]}
 &lt;br /&gt;&lt;a href="${connectionLink}"&gt;${connectionLink}&lt;/a&gt;
