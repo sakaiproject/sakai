@@ -9,7 +9,6 @@
 </head>
 <div th:fragment="bootstrap">
   <script>includeLatestJQuery('common.html');</script>
-  <script>includeWebjarLibrary('bootstrap');</script>
   <script th:inline="javascript">
     $(document).ready(function () {
       var toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
