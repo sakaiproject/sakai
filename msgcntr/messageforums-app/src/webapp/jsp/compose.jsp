@@ -105,9 +105,9 @@
 		  <h:outputText styleClass="sak-banner-warn" value="#{msgs.pvt_draftRecipientsNotFoundMsg}" rendered="#{PrivateMessagesTool.displayDraftRecipientsNotFoundMsg}" />
 
 		  <div class="composeForm">
-				<div class="row">
+				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext required">
+						<h:panelGroup styleClass="shorttext required form-control-label">
 							<h:outputLabel for="list1">
 								<h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
 								<h:outputText value="#{msgs.pvt_to}"/>
@@ -137,7 +137,7 @@
 				</div>
 				<div class="row bcc-row">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext bccLink">
+						<h:panelGroup styleClass="shorttext bccLink form-control-label">
 							<h:outputLabel>
 								<f:verbatim>
 									&nbsp;
@@ -190,16 +190,16 @@
 						</h:panelGroup>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext">
+						<h:panelGroup styleClass="shorttext form-control-label">
 							<h:outputLabel>
 								<h:outputText styleClass="pvt_send_cc" value="#{msgs.pvt_send_cc}"/>
 							</h:outputLabel>
 						</h:panelGroup>
 					</div>
 					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup styleClass="checkbox">
+						<h:panelGroup>
 							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanEmailOut}" id="send_email_out" disabled="#{!PrivateMessagesTool.emailCopyOptional}"></h:selectBooleanCheckbox>
 							<h:outputLabel for="send_email_out">
 								<h:outputText value="#{msgs.pvt_send_as_email}"/>
@@ -207,8 +207,8 @@
 						</h:panelGroup>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-xs-12 col-sm-2">
+				<div class="row d-flex">
+					<div class="col-xs-12 col-sm-2 form-control-label">
 						<h:outputLabel for="viewlist">
 							<h:outputText value="#{msgs.pvt_label}" />
 						</h:outputLabel>
@@ -221,17 +221,17 @@
 						</h:selectOneListbox>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext">
+						<h:panelGroup styleClass="shorttext form-control-label">
 							<h:outputLabel>
 								<h:outputText styleClass="pvt_send_cc" value="#{msgs.pvt_scheduler_send}"/>
 							</h:outputLabel>
 						</h:panelGroup>
 					</div>
 					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup styleClass="checkbox">
-							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanSchedulerSend}" id="scheduler_send_email" onclick = "document.getElementById('compose:openDateSpan').classList.toggle('hidden')"></h:selectBooleanCheckbox>
+						<h:panelGroup>
+							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanSchedulerSend}" id="scheduler_send_email" onclick = "document.getElementById('compose:openDateSpan').classList.toggle('d-none')"></h:selectBooleanCheckbox>
 							<h:outputLabel for="scheduler_send_email">
 								<h:outputText value="#{msgs.pvt_scheduler_send_as_email}"/>
 							</h:outputLabel>
@@ -239,7 +239,7 @@
 					</div>
 				</div>
 
-				<h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget hidden" >
+				<h:panelGroup id="openDateSpan" styleClass="indnt9 openDateSpan calWidget d-none" >
 					<h:outputLabel value="#{msgs.pvt_scheduler_send_date} " for="openDate" />
 					<h:inputText id="openDate" styleClass="openDate" value="#{PrivateMessagesTool.schedulerSendDateString}" />
 				</h:panelGroup>
@@ -252,13 +252,13 @@
 						useTime:1
 					});
 					if(document.getElementById('compose:scheduler_send_email').checked) {
-						document.getElementById('compose:openDateSpan').classList.remove('hidden');
+						document.getElementById('compose:openDateSpan').classList.remove('d-none');
 					}
 
 				</script>
-				<div class="row">
+				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="form-label required">
+						<h:panelGroup styleClass="form-control-label required">
 							<h:outputLabel for="subject">
 								<h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_subject}" />
 							</h:outputLabel>
