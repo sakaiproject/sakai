@@ -34,9 +34,11 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadFragment;
+import org.sakaiproject.util.ResourceLoader;
 
 public class StudentVisitsWidget extends Panel {
 
+	private static final ResourceLoader MSG = new ResourceLoader("Messages");
 	private static final long serialVersionUID = 1L;
 	private List<WidgetMiniStat> widgetMiniStats = null;
 
@@ -81,6 +83,11 @@ public class StudentVisitsWidget extends Panel {
     private Fragment getLazyLoadedMiniStats(String markupId) {
         Fragment ministatFragment = new Fragment(markupId, "ministatFragment", this);
         int miniStatsCount = widgetMiniStats != null ? widgetMiniStats.size() : 0;
+        if (miniStatsCount == 0) {
+            ministatFragment.add(new Label("AlertLabel", "<span class=\"sak-banner-error\">" + MSG.getString("de_noAllow") +"</span>").setEscapeModelStrings(false));
+        }else {
+            ministatFragment.add(new Label("AlertLabel", ""));
+        }
         Loop miniStatsLoop = new Loop("widgetRow", miniStatsCount) {
             private static final long serialVersionUID = 1L;
             @Override
