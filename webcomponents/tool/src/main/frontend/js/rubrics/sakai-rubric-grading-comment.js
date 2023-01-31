@@ -40,7 +40,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
       <!-- popover -->
       <div id="criterion-editor-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left">
-        <div class="arrow"></div>
+        <div class="popover-arrow"></div>
         <div class="popover-title" style="display: flex;">
           <div style="flex: auto;">
             <span class="criterion-title">

@@ -110,12 +110,12 @@ export class SakaiRubricCriteria extends RubricsElement {
                 ${unsafeHTML(c.description)}
               </p>
               ${this.weighted ? html`
-                  <div class="form-inline weight-field">
+                  <div class="weight-field">
                     ${!this.isLocked ? html`
-                      <div class="field-item form-group input-group-sm ${this.validWeight ? "" : "has-error"}">
+                      <div class="field-item form-group input-group-sm ${this.validWeight ? "" : "weight-error"}">
                         <label
                           for="weight_input_${c.id}"
-                          class="control-label"
+                          class="form-control-label"
                           title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
                         >
                           <sr-lang key="weight">Weight</sr-lang>
@@ -130,7 +130,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                           value="${c.weight.toLocaleString(this.locale)}"
                           title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
                         >
-                        <span class="control-label"
+                        <span class="form-control-label"
                           title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
                         >
                           <sr-lang key="percent_sign">%</sr-lang>
@@ -207,8 +207,8 @@ export class SakaiRubricCriteria extends RubricsElement {
       ${this.weighted ? html`
         <div class="weighted-grade-info">
           <div class="total-data">
-            <div class="${this.validWeight ? "" : "has-error"}">
-              <span class="control-label">
+            <div class="${this.validWeight ? "" : "weight-error"}">
+              <span class="form-control-label">
                 <span class="bold-header">${tr("total_weight")}</span>
                 <span>${this.totalWeight}<sr-lang key="percent_sign">%</sr-lang></span>
               </span>
@@ -219,7 +219,7 @@ export class SakaiRubricCriteria extends RubricsElement {
             </div>
           </div>
           <div class="banner-container">
-            <div class="sak-banner-success d-none save-success has-success fade">
+            <div class="sak-banner-success d-none ">
               <sr-lang key="saved_successfully">%</sr-lang>
             </div>
             <div class="sak-banner-warn ${!this.validWeight && this.isDraft ? "" : "d-none"}">
@@ -235,7 +235,7 @@ export class SakaiRubricCriteria extends RubricsElement {
       ${!this.isLocked ? html`
         <div class="action-butons">
           ${this.weighted ? html`
-            <button class="save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
+            <button class="btn-link save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
               <span class="add fa fa-save"></span>
               <sr-lang key="save_weights">Save Weights</sr-lang>
             </button>`
