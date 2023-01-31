@@ -128,6 +128,11 @@
 							#end
 						</a>
 					</th>
+					#if ($allowAddAssignment == false)
+						<th id="grade" scope="col">
+							$tlang.getString("grade.title")
+						</th>
+					#end
 					<th id="openDate" scope="col" class="hidden-xs">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("newassig.opedat")
@@ -491,6 +496,20 @@
 									#end
 								#end
 							</td>
+							#if ($allowAddAssignment == false)
+								<td headers="grade">
+									#if ((($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.returned")) || ($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.pending_resubmit"))) && $submission.grade)
+										#if ($service.getGradeForSubmitter($submission, $user.getId()).equals(""))
+											<span>$tlang.getString("unchecked")</span>
+											<span>$service.getGradeForSubmitter($submission, $user.getId())</span>
+										#else
+											<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+										#end
+									#else
+										<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+									#end
+								</td>
+							#end
 							<td headers="openDate" class="hidden-xs">
 								$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 							</td>
@@ -642,6 +661,7 @@
 										$tlang.getString("peerassessment.submissionReq")
 									#end
 								</td>
+								<td>-</td>
 								<!-- open col -->
 								<td>
 									$!service.getUsersLocalDateTimeString($!assignment.CloseDate)
@@ -703,6 +723,7 @@
 												$tlang.getString("peerassessment.notStarted")
 											#end
 										</td>
+										<td>-</td>
 										<!-- open col -->
 										<td>
 										</td>
