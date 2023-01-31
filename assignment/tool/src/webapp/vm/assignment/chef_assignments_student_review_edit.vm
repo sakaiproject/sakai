@@ -1,4 +1,4 @@
-<!-- start: check_assignments_instructor_grading_submission.vm  -->
+<!-- start: chef_assignments_student_review_edit.vm  -->
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
 	$(document).ready(function(){
@@ -476,4 +476,4 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
-<!-- end: check_assignments_instructor_grading_submission.vm  -->
+<!-- end: chef_assignments_student_review_edit.vm  -->
