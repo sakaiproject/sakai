@@ -499,18 +499,14 @@
 							#if ($allowAddAssignment == false)
 								<td headers="grade">
 									#if ($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.returned") && $submission.grade)
-										#if ($assignment.TypeOfGrade.ordinal() == 2)
-											<span>$submission.grade</span>
-										#elseif ($assignment.TypeOfGrade.ordinal() == 3)
-											<span>$service.getGradeDisplay($submission.grade, $assignment.TypeOfGrade, $assignment.ScaleFactor)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)</span>
-										#elseif ($submission.grade.equals("Checked"))
-											<span>$tlang.getString("gen.checked")</span>
+										#if ($service.getGradeForSubmitter($submission, $user.getId()).equals(""))
+											<span>$tlang.getString("unchecked")</span>
+											<span>$service.getGradeForSubmitter($submission, $user.getId())</span>
 										#else
-											<span>$tlang.getString($submission.grade.toLowerCase())</span>
+											<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 										#end
 									#else
 										<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
-
 									#end
 								</td>
 							#end
