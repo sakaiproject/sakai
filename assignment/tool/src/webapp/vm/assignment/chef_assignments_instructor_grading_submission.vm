@@ -854,4 +854,4 @@
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
     </form>
 </div>
-<!-- end: check_assignments_instructor_grading_submission.vm  -->
+<!-- end: chef_assignments_instructor_grading_submission.vm  -->
