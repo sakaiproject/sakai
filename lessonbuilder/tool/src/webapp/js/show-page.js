@@ -1091,7 +1091,7 @@ $(document).ready(function () {
 
       $('#question-error-container').hide();
       $("#questionEditId").val("-1");
-      $("#question-text-input").val("");
+      $("#question-text-area-evolved\\:\\:input").val("");
       $("#question-answer-input").val("");
       $("#question-graded").prop("checked", false);
       $("#question-gradebook-title").val("");
@@ -1142,8 +1142,8 @@ $(document).ready(function () {
       $("#questionEditId").val(itemId);
 
       $("#activeQuestion").val(row.find(".raw-question-text").prop("name"));
-      const questionText = row.find(".raw-question-text").val();
-      $("#question-text-input").val(questionText);
+      let questionText = row.find(".raw-question-text").val();
+      CKEDITOR.instances["question-text-area-evolved::input"].setData(questionText);
 
       resetMultipleChoiceAnswers();
       resetShortanswers();
@@ -3208,10 +3208,9 @@ function prepareQuestionDialog() {
       $('#question-error').text(msg("simplepage.gbname-expected"));
       $('#question-error-container').show();
       return false;
-  } else if ($("#question-text-input").val() === '') {
+  } else if ($("#question-text-area-evolved\\:\\:input").val() === '') {
       $('#question-error').text(msg("simplepage.missing-question-text"));
       $('#question-error-container').show();
-      return false;
   } else if ($("#multipleChoiceSelect").prop("checked") &&
        $(".question-multiplechoice-answer").filter(function (index){return $(this).val() !== '';}).length < 2) {
       $('#question-error').text(msg("simplepage.question-need-2"));
@@ -3224,7 +3223,7 @@ function prepareQuestionDialog() {
   updateMultipleChoiceAnswers();
   updateShortanswers();
 
-  $("input[name='" + $("#activeQuestion").val() + "'").val($("#question-text-input").val());
+  $("input[name='" + $("#activeQuestion").val() + "'").val($("#question-text-area-evolved\\:\\:input").val());
 
   // RSF bugs out if we don't undisable these before submitting
   $("#multipleChoiceSelect").prop("disabled", false);
@@ -3604,3 +3603,31 @@ function fixAddBeforeLTI(el) {
   $(el).attr('href', $(el).attr('href').replace('addBefore=', 'addBefore=' + (addAboveItem === null ? "" : addAboveItem)));
   return true;
 }
+
+$.widget( "ui.dialog", $.ui.dialog, {
+ /*
+  *  http://bugs.jqueryui.com/ticket/9087#comment:27 - bugfix
+  *  http://bugs.jqueryui.com/ticket/4727#comment:23 - bugfix
+  *  allowInteraction fix to accommodate windowed editors
+  */
+  _allowInteraction: function( event ) {
+    if ( this._super( event ) ) {
+      return true;
+    }
+
+    // address interaction issues with general iframes with the dialog
+    if ( event.target.ownerDocument != this.document[ 0 ] ) {
+      return true;
+    }
+
+    // address interaction issues with dialog window
+    if ( $( event.target ).closest( ".cke_dialog" ).length ) {
+      return true;
+    }
+
+    // address interaction issues with iframe based drop downs in IE
+    if ( $( event.target ).closest( ".cke" ).length ) {
+      return true;
+    }
+  }
+});
