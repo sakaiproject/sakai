@@ -3111,7 +3111,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					UIOutput.make(tableRow, "questionDiv");
 					
-					UIOutput.make(tableRow, "questionText", i.getAttribute("questionText"));
+					UIVerbatim.make(tableRow, "questionText", i.getAttribute("questionText"));
 					UIInput.make(tableRow, "raw-question-text", "#{simplePageBean.questionText}", i.getAttribute("questionText"));
 					
 					List<SimplePageQuestionAnswer> answers = new ArrayList<SimplePageQuestionAnswer>();
@@ -5226,7 +5226,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		UIBoundBoolean.make(form, "question-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}");
-		UIInput.make(form, "question-text-input", "#{simplePageBean.questionText}");
+
+		UIInput questionInput = UIInput.make(form, "question-text-area-evolved:", "#{simplePageBean.questionText}");
+		questionInput.decorate(new UIFreeAttributeDecorator("height", "175"));
+		questionInput.decorate(new UIFreeAttributeDecorator("width", "800"));
+		questionInput.decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.editor")));
+		questionInput.decorate(new UIStyleDecorator("using-editor"));  // javascript needs to know
+		((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(questionInput, "1");
+
 		UIInput.make(form, "question-answer-full-shortanswer", "#{simplePageBean.questionAnswer}");
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookQuestionsDiv");

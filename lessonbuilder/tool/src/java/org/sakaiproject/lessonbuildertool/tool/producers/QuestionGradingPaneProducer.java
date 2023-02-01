@@ -52,6 +52,7 @@ import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
@@ -132,7 +133,7 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		SimplePage containingPage = simplePageToolDao.getPage(questionItem.getPageId());
 		String heading = messageLocator.getMessage("simplepage.question-grading").replace("{}", questionItem.getAttribute("questionText"));
 		
-		UIOutput.make(tofill, "page-header", heading);
+		UIVerbatim.make(tofill, "page-header", heading);
 		
 		List<SimplePageQuestionResponse> responses = simplePageToolDao.findQuestionResponses(questionItem.getId());
 		
