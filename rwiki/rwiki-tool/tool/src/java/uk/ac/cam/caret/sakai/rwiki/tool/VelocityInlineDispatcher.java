@@ -146,6 +146,11 @@ public class VelocityInlineDispatcher implements Dispatcher
 			return ComponentManager.get(FormattedText.class).escapeHtml(val, false);
 		}
 
+		public String escapeHtmlFormattedText(String val)
+		{
+			return ComponentManager.get(FormattedText.class).escapeHtmlFormattedText(val);
+		}
+
 		public String formatDisplayName(String name)
 		{
 			if (name == null)

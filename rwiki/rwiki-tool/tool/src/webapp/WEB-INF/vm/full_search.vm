@@ -77,7 +77,7 @@
 				<!--is-->
 				<li>
 					<h5> <a href="${result.url}" class="searchTopLink" >${util.escapeHtml($searchBean.pageNameFromSearchTitle(${result.title}))}</a></h5> 
-					<div class="searchItemBody" >${util.escapeHtml($result.searchResult)}</div>
+					<div class="searchItemBody" >${util.escapeHtmlFormattedText($result.searchResult)}</div>
 					<div class="searchItemFooter" ><a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a></div>
 				</li>	
 				<!--ie-->
