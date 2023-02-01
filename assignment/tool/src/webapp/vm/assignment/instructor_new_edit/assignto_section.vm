@@ -74,6 +74,7 @@ can be either all members of the site, all members of selected groups, or the se
 				onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection(); ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame(); if($!isTimesheet){ASN.disableTimesheetSetupSection();}"
 				#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound) checked="checked" #end
 				#if ($disableGroupAssignment) disabled="disabled" #end
+				#if ($instructorGroups.size() > 0) checked="" #end
 			/>
 			$tlang.getFormattedMessage("group.issubmit", $releaseToGroupsMsg.toArray())
 			<span id="msgNoGroupAssignmentPeerInUse" style="display:#if($peerAssessment) inline;#else none;#end">$tlang.getString("settings.access.noGroupAssignmentPeerInUse")</span>
@@ -95,7 +96,7 @@ can be either all members of the site, all members of selected groups, or the se
 	</div>
 
 ## Groups multiselect, visible when Option 2 or 3 is chosen
-	#if( ($value_AssignTo == $value_AssignTo_Groups || $value_AssignTo == $value_AssignTo_IndividualsFromGroups) && !$selectedGroupsNotFound )
+	#if( (($value_AssignTo == $value_AssignTo_Groups || $value_AssignTo == $value_AssignTo_IndividualsFromGroups) && !$selectedGroupsNotFound) || $instructorGroups.size() > 0 )
 		#set( $listDisplay = "block" )
 	#else
 		#set( $listDisplay = "none" )
@@ -113,6 +114,11 @@ can be either all members of the site, all members of selected groups, or the se
 						#if ($!group.Id == $!aGroup.Id)
 							#set($selected = true)
 							#set($groupDisabled = $groupsWithUserSubmission.contains($aGroup))
+						#end
+					#end
+					#foreach($instructorGroup in $instructorGroups )
+						#if($group.Id == $instructorGroup.Id)
+							#set($selected = true)
 						#end
 					#end
 					<option value="$group.Id" #if($selected) selected #end #if($groupDisabled) disabled #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
