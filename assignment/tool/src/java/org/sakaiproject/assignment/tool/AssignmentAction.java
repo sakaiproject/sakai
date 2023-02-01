@@ -3019,6 +3019,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 context.put("groupsWithUserSubmission", groupsWithUserSubmission);
             }
+        } else {
+            boolean instructorGroupsProp = serverConfigurationService.getBoolean("assignments.assign.to.instructor.groups", true);
+            if (instructorGroupsProp) {
+                try {
+                    Site site = siteService.getSite(siteId);
+                    User user = (User) state.getAttribute(STATE_USER);
+                    Collection<Group> instructorGroups = site.getGroupsWithMember(user.getId());
+                    context.put("instructorGroups", instructorGroups);
+                } catch (IdUnusedException ex){
+                    log.warn("Site not found for site id:{}", siteId);
+                }
+            }
         }
 
         // set up context variables
