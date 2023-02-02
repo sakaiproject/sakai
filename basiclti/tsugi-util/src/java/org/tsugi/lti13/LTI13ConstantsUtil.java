@@ -79,7 +79,7 @@ public class LTI13ConstantsUtil {
 	// Submission Review (Draft)
 	public static final String MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST = "LtiSubmissionReviewRequest";
 	// Data Privacy Launch (Draft)
-	public static final String MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST = "DataPrivacyLaunchRequest";
+	public static final String MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST = "LtiDataPrivacyLaunchRequest";
 	public static final String CONTENT_ITEM_DOC_TARGET_IFRAME = "iframe";
 	public static final String CONTENT_ITEM_DOC_TARGET_WINDOW = "window";
 	public static final String CONTENT_ITEM_MEDIA_TYPES = "*/*";

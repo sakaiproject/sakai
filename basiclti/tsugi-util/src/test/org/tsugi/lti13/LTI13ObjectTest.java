@@ -214,7 +214,7 @@ public class LTI13ObjectTest {
 		lj.issued = null;  // Since we can't match random stuff
 		lj.jti = null;  // Since we can't match random stuff
 		ljs = JacksonUtil.toString(lj);
-		expected2 = expected.replaceAll("LtiResourceLinkRequest", "DataPrivacyLaunchRequest");
+		expected2 = expected.replaceAll("LtiResourceLinkRequest", "LtiDataPrivacyLaunchRequest");
 		assertEquals(expected2,ljs);
 
 		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST);

@@ -228,7 +228,7 @@ function importLTI13Config() {
                         jQuery("#pl_launch").prop("checked", false);
                         jQuery("#pl_lessonsselection").prop("checked", true);
                     }
-                    if ( message.type == 'DataPrivacyLaunchRequest' ) {
+                    if ( message.type == 'LtiDataPrivacyLaunchRequest' ) {
                         jQuery("#pl_privacy").prop("checked", true);
                     }
                     if ( message.placements && Array.isArray(message.placements) ) {
