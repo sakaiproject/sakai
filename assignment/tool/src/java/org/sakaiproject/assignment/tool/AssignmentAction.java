@@ -2134,7 +2134,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // Get site by ID
             Site currentSite = siteService.getSite(siteId);
             // Assignments Tool Configuration
-            ToolConfiguration toolConfig = currentSite.getToolForCommonId(TOOL_ID);
+            ToolConfiguration toolConfig = currentSite.getToolForCommonId(ASSIGNMENT_TOOL_ID);
                     
             // Get visibility value of assignments tool
             String isAssignmentsVisible = toolConfig.getConfig().getProperty(ToolManager.PORTAL_VISIBLE);
@@ -2589,7 +2589,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // Get site by ID
             Site currentSite = siteService.getSite(siteId);
             // Assignments Tool Configuration
-            ToolConfiguration toolConfig = currentSite.getToolForCommonId(TOOL_ID);
+            ToolConfiguration toolConfig = currentSite.getToolForCommonId(ASSIGNMENT_TOOL_ID);
                     
             // Get visibility value of assignments tool
             String isAssignmentsVisible = toolConfig.getConfig().getProperty(ToolManager.PORTAL_VISIBLE);
