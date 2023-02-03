@@ -36,6 +36,7 @@
                     "userType": "$!{userType}",
                     "siteRole": "$!{userSiteRole}",
                     "impersonatorDisplayId": "$!{impersonatorDisplayId}",
+                    "userDisplayName": "$!{userDisplayName}",
                     "iso8601Timestamp": "$!{userISO8601Timestamp}",
                     "timezone": "$!{userTimezone}",
                     "offsetFromServerMillis": "$!{userTimezoneOffsetMillis}"

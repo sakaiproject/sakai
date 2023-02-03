@@ -1910,6 +1910,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					message = rloader.getFormattedMessage("sit_return", impersonatorDisplayId);
 					rcontext.put("impersonatorDisplayId", impersonatorDisplayId);
 				}
+				rcontext.put("userDisplayName", Validator.escapeHtml(UserDirectoryService.getCurrentUser().getDisplayName())); 
 
 				// check for a logout text override
 				if (message == null)

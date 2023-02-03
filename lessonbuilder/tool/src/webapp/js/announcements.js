@@ -36,23 +36,40 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 						var min = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
 						//using javascript's toLocaleDateString() to include user's locale and local time zone
 						date_time = hour +":"+min+ " " + date.toLocaleDateString();
-						text_for_announcements += '<li class="itemDiv announcementSummaryItem">';
-						var href = tool_href + this["announcementId"]+"&sakai_action=doShowmetadata&persist_to_iframe=itemReference";
-						var entityTitle = this["entityTitle"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-						var createdByDisplayName = this["createdByDisplayName"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-
-						// Highlighted announcements.
-						const isHighlighted = "true" === this["highlight"];
-						let highlightClass = '';
-						text_for_announcements += '<div>';
-						if (isHighlighted) {
-  						    text_for_announcements += '<i aria-hidden="true" class="fa fa-star"></i>';
-  						    highlightClass = 'font-bold-highlighted';
-  						}
-  						text_for_announcements += `<a href="${href}" class="${highlightClass}" target="_top">${entityTitle}</a> by ${createdByDisplayName}</div>`;					
+						let showAnnouncement = (portal["user"]["id"]=="admin")? true: false;
+						if (this["selectedRoles"]!=null) {
+							let selectedRoles = this["selectedRoles"].replaceAll(/[\\\[\\\]]+/g, "");
+							let selectedRolesArray = selectedRoles.split(", ");
+							selectedRolesArray.forEach(selectedRole => {
+								if (selectedRole == portal["user"]["siteRole"]) {
+									showAnnouncement=true;
+								}
+							});
+							if (portal["user"]["userDisplayName"] == this["createdByDisplayName"]) {
+								showAnnouncement = true;
+							}
+						} else {
+							showAnnouncement = true;
+						}
+						if (showAnnouncement) {
+							text_for_announcements += '<li class="itemDiv announcementSummaryItem">';
+							var href = tool_href + this["announcementId"]+"&sakai_action=doShowmetadata&persist_to_iframe=itemReference";
+							var entityTitle = this["entityTitle"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+							var createdByDisplayName = this["createdByDisplayName"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+							// Highlighted announcements.
+							const isHighlighted = "true" === this["highlight"];
+							let highlightClass = '';
+							text_for_announcements += '<div>';
+							if (isHighlighted) {
+								text_for_announcements += '<i aria-hidden="true" class="fa fa-star"></i>';
+								highlightClass = 'font-bold-highlighted';
+							}
+							text_for_announcements += `<a href="${href}" class="${highlightClass}" target="_top">${entityTitle}</a> by ${createdByDisplayName}</div>`;					
+							
+							text_for_announcements += '<div class="itemDate">'+date_time+'</div>';
+							text_for_announcements += '</li>';
+						}
 						
-						text_for_announcements += '<div class="itemDate">'+date_time+'</div>';
-						text_for_announcements += '</li>';
 					});
 				}
 		                text_for_announcements += '</ul>';

@@ -41,8 +41,11 @@
 						<td>$delete_item.Header.Date.toStringLocalFull()</td>
 						<td>
 							#set($publicProperty = $delete_item.getProperties().getProperty("SAKAI:pubview"))
+							#set($selectedRolesProperty = $delete_item.getProperties().getProperty("selectedRoles").replaceAll("[\[\]]", ""))
 							#if ($!publicProperty && $publicProperty.equals("true"))
 								$tlang.getString("gen.public")
+							#elseif ($selectedRolesProperty)
+								$selectedRolesProperty
 							#elseif ($delete_item.getAnnouncementHeader().getAccess().equals($!channelAccess))
 								$tlang.getString("range.allgroups")
 							#else
