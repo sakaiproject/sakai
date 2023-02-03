@@ -58,7 +58,7 @@ can be either all members of the site, all members of selected groups, or the se
 		#end
 		<input type="radio" name="$name_AssignTo" id="groups" value="$value_AssignTo_IndividualsFromGroups"
 			onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment();ASN.resizeFrame(); if($!isTimesheet){ASN.enableTimesheetSetupSection();}"
-			#if( $value_AssignTo == $value_AssignTo_IndividualsFromGroups && !$selectedGroupsNotFound ) checked="checked"
+			#if( ($value_AssignTo == $value_AssignTo_IndividualsFromGroups && !$selectedGroupsNotFound) || $instructorGroups.size() > 0) checked="checked"
 			#elseif(!$!groupsList || $disableIndividual) disabled="disabled"
 			#end />
 		$tlang.getString("displayto.selected")
@@ -74,7 +74,6 @@ can be either all members of the site, all members of selected groups, or the se
 				onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection(); ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame(); if($!isTimesheet){ASN.disableTimesheetSetupSection();}"
 				#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound) checked="checked" #end
 				#if ($disableGroupAssignment) disabled="disabled" #end
-				#if ($instructorGroups.size() > 0) checked="" #end
 			/>
 			$tlang.getFormattedMessage("group.issubmit", $releaseToGroupsMsg.toArray())
 			<span id="msgNoGroupAssignmentPeerInUse" style="display:#if($peerAssessment) inline;#else none;#end">$tlang.getString("settings.access.noGroupAssignmentPeerInUse")</span>
