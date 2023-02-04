@@ -124,6 +124,22 @@ commons.switchState = function (state, arg) {
                     editorCancelButton.prop('disabled', false);
                 }
                 editor.focus();
+            }).on('drop', function (e) {
+                // clear placeholder text
+                if (this.innerHTML == commons.i18n['post_editor_initial_text']) {
+                    this.innerHTML = '';
+                    $('#commons-editor-post-button').prop('disabled', false);
+                    editorPostButton.prop('disabled', false);
+                    editorCancelButton.prop('disabled', false);
+                }
+                editor.focus();
+
+                // get data
+                var dt = e.originalEvent.dataTransfer;
+                if (!dt) dt = window.dataTransfer;
+                var dropped = dt.getData('text');
+                wrapAndInsert(dropped, true);
+                e.preventDefault();
             }).on('paste', function (e) {
 
                 var cd = e.originalEvent.clipboardData;
