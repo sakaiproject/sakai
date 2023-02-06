@@ -1988,7 +1988,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					String roleId = "";
 					String[] parts = getParts(req);
 					String siteId = (parts.length > 2)? parts[2]: "";
-					if (!StringUtils.startsWith(siteId, "~")) {
+					if (!StringUtils.startsWith(siteId, "~") && !StringUtils.isAnyBlank(siteId, loginUserId)) {
 						try {
 							Site site = SiteService.getSite(siteId);
 							if (site.getMember(loginUserId) != null) {
@@ -1999,7 +1999,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 							}
 							rcontext.put("currentRole", (roleId != "")? rloader.getFormattedMessage("sit_role", roleId) : null);
 						} catch (Exception e) {
-							log.warn(e.getMessage());
+							log.warn("Could not determine the user's: [{}] role in site: [{}], {}", loginUserId, siteId, e.toString());
 						}
 					}
 					
