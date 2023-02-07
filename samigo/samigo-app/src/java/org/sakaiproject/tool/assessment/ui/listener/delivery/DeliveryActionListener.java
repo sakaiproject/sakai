@@ -2350,6 +2350,8 @@ public class DeliveryActionListener
       String agentId = determineCalcQAgentId(delivery, bean);
 
       service.getAnswersMap().clear();
+      service.getAnswersMapValues().clear();
+
       List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), item, gradingId, agentId);
       if (texts.get(0).isEmpty())
       {
@@ -2917,6 +2919,7 @@ public class DeliveryActionListener
 
 	service.getAnswersMap().clear();
 	service.getAnswersMapValues().clear();
+
 	List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), item, gradingId, agentId);
 	service.setTexts(texts.get(0));
 
