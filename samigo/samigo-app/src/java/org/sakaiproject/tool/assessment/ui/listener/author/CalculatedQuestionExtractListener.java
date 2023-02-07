@@ -52,6 +52,8 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     private static final String ERROR_MESSAGE_BUNDLE = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
     private static final int MAX_ATTEMPT_CNT = 100;
     private static final Pattern CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES = Pattern.compile("[a-zA-ZÀ-ÿ\\u00f1\\u00d1]\\w*", Pattern.UNICODE_CHARACTER_CLASS);
+    private static final String VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS = "10";
+    private static final String VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS = "11";
 
     /**
      * This listener will read in the instructions, parse any variables and 
@@ -108,17 +110,32 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
         GradingService service = new GradingService();
         String instructions = item.getInstruction();
+        String corrFeedback = item.getCorrFeedback();
+        String incorrFeedback = item.getIncorrFeedback();
         List<String> formulaNames = service.extractFormulas(instructions);
         List<String> variableNames = service.extractVariables(instructions);
+        List<String> corrformulaNames = service.extractFormulas(corrFeedback);
+        List<String> corrvariableNames = service.extractVariables(corrFeedback);
+        List<String> incorrformulaNames = service.extractFormulas(incorrFeedback);
+        List<String> incorrvariableNames = service.extractVariables(incorrFeedback);
 
         errors.addAll(validateExtractedNames(variableNames, formulaNames));
+        errors.addAll(validateExtractedNames(corrvariableNames, corrformulaNames));
+        errors.addAll(validateExtractedNames(incorrvariableNames, incorrformulaNames));
+
+        // checking if there are variable names on feedback which are not in instructions.
+        errors.addAll(checkVariableNamesOnFeedback(variableNames, corrvariableNames, VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS));
+        errors.addAll(checkVariableNamesOnFeedback(variableNames, incorrvariableNames, VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS));
 
         // add new variables and formulas
         // verify that at least one variable and formula are defined
         if (errors.size() == 0) {
             errors.addAll(createFormulasFromInstructions(item, formulaNames));
             errors.addAll(createVariablesFromInstructions(item, variableNames));
-            errors.addAll(createCalculationsFromInstructions(item.getCalculatedQuestion(), instructions, service));
+            item.getCalculatedQuestion().clearCalculations(); // reset the current set and extract a new one
+            errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), instructions, service));
+            errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), corrFeedback, service));
+            errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), incorrFeedback, service));
         }
 
         // validate variable min and max and formula tolerance
@@ -241,21 +258,20 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     }
 
     /**
-     * Finds the calculations in the instructions and places them in the CalculatedQuestionBean
-     * (destroys anything that was already there)
+     * Finds the calculations in the instructions or feedback and places them in the CalculatedQuestionBean
      * 
      * @param calculatedQuestionBean
-     * @param instructions
+     * @param instructionsorfeedback
      * @param service
      * @return list of error messages (empty if there are none)
      */
-    static List<String> createCalculationsFromInstructions(CalculatedQuestionBean calculatedQuestionBean, String instructions, GradingService service) {
+    static List<String> createCalculationsFromInstructionsOrFeedback(CalculatedQuestionBean calculatedQuestionBean, String instructionsorfeedback, GradingService service) {
         List<String> errors = new ArrayList<String>();
-        calculatedQuestionBean.clearCalculations(); // reset the current set and extract a new one
-        if (instructions.indexOf(GradingService.CALCULATION_AUX_OPEN) != -1 || instructions.indexOf(GradingService.CALCULATION_AUX_CLOSE) != -1) {
+
+        if (instructionsorfeedback.indexOf(GradingService.CALCULATION_AUX_OPEN) != -1 || instructionsorfeedback.indexOf(GradingService.CALCULATION_AUX_CLOSE) != -1) {
             errors.add(getErrorMessage("calc_question_simple_instructions_step_4"));
         }
-        List<String> calculations = service.extractCalculations(instructions);
+        List<String> calculations = service.extractCalculations(instructionsorfeedback);
         if (!calculations.isEmpty()) {
             for (String calculation : calculations) {
                 CalculatedQuestionCalculationBean calc = new CalculatedQuestionCalculationBean(calculation);
@@ -612,6 +628,26 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         String err = ContextUtil.getLocalizedString(ERROR_MESSAGE_BUNDLE, 
                 errorCode);
         return err;
+    }
+
+    /**
+     * checkVariableNamesOnFeedback() retrieves the variables which are on feedback and are missing on instructions
+     * the errorCode
+     * @param variableNames feedback
+     * @return
+     */
+    private static List<String> checkVariableNamesOnFeedback(List<String> variableNames, List<String> feedback, String nerror) {
+        List<String> errors = new ArrayList<String>();
+
+        List<String> result = new ArrayList<>(variableNames);
+        result.addAll(feedback);
+        result.removeAll(variableNames);
+
+        if (!result.isEmpty()){
+            String msg = getErrorMessage("samigo_formula_error_" + nerror);
+            errors.add(msg + " :" + result.toString());
+        }
+        return errors;
     }
 
 }

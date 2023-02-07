@@ -3091,6 +3091,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       List<String> incorrectFeedbackSegments = new ArrayList<>(0);
 
       answerList.clear();
+      answerListValues.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
