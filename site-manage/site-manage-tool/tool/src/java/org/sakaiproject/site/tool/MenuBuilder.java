@@ -65,6 +65,9 @@ public class MenuBuilder
 
     private static final String     SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER           = "site.setup.allow.editRoster";
     private static final boolean    SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER_DEFAULT   = true;
+    
+    private static final String     SAK_PROP_CM_IMPLEMENTED                         = "site-manage.courseManagementSystemImplemented";
+    private static final boolean    SAK_PROP_CM_IMPLEMENTED_DEFAULT                 = true;
 
     /**
      * Enumerate the possible choices in the Site Info menu bar.
@@ -117,7 +120,11 @@ public class MenuBuilder
         menu.add( buildMenuEntry( rl.getString( "mb.cursit" ), "doGoto_unjoinable", activeTab.equals( MembershipActiveTab.CURRENT_SITES ) ) );
 
         // Official course enrolments
-        menu.add( buildMenuEntry( rl.getString( "mb.enrolments"), "doGoto_enrolments", activeTab.equals( MembershipActiveTab.OFFICIAL_ENROLMENTS ) ) );
+        boolean courseManagementEnabled = ServerConfigurationService.getBoolean( SAK_PROP_CM_IMPLEMENTED, SAK_PROP_CM_IMPLEMENTED_DEFAULT );
+        if (courseManagementEnabled)
+        {
+            menu.add( buildMenuEntry( rl.getString( "mb.enrolments"), "doGoto_enrolments", activeTab.equals( MembershipActiveTab.OFFICIAL_ENROLMENTS ) ) );
+        }
 
         // Joinable sites
         menu.add( buildMenuEntry( rl.getString( "mb.joisit" ), "doGoto_joinable", activeTab.equals( MembershipActiveTab.JOINABLE_SITES ) ) );
