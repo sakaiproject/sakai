@@ -29,6 +29,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -104,8 +105,22 @@ public class AuthorSettingsListener implements ActionListener
     assessmentSettings.setObjectives(formattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.OBJECTIVES)));
     assessmentSettings.setRubrics(formattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.RUBRICS)));
     assessmentSettings.setPassword(formattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessment.getAssessmentAccessControl().getPassword())));
-    
-    // else throw error
+
+    SebConfig sebConfig = SebConfig.of(assessment.getAssessmentMetaDataMap());
+    if (sebConfig.getConfigMode() == null) {
+      sebConfig = SebConfig.defaults();
+    }
+
+    assessmentSettings.setSebConfigMode(sebConfig.getConfigMode().toString());
+    assessmentSettings.setSebExamKeys(StringUtils.join(sebConfig.getExamKeys(), "\n"));
+    assessmentSettings.setSebAllowUserQuitSeb(sebConfig.getAllowUserQuitSeb());
+    assessmentSettings.setSebShowTaskbar(sebConfig.getShowTaskbar());
+    assessmentSettings.setSebShowTime(sebConfig.getShowTime());
+    assessmentSettings.setSebShowKeyboardLayout(sebConfig.getShowKeyboardLayout());
+    assessmentSettings.setSebShowWifiControl(sebConfig.getShowWifiControl());
+    assessmentSettings.setSebAllowAudioControl(sebConfig.getAllowAudioControl());
+    assessmentSettings.setSebConfigUploadId(sebConfig.getConfigUploadId());
+    assessmentSettings.setSebAllowSpellChecking(sebConfig.getAllowSpellChecking());
 
     // #1c - get question size
     int questionSize = assessmentService.getQuestionSize(assessmentId);

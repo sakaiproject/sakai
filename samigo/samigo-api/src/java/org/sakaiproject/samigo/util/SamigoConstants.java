@@ -146,6 +146,12 @@ public final class SamigoConstants {
     public static final     String      EVAL_BUNDLE                                         = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
     public static final     String      AUTHOR_BUNDLE                                       = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
 
+    /*
+     * Delivery Outcomes
+     */
+    public static final     String      OUTCOME_DELIVERY_TAKE_ASSESSMENT                    = "takeAssessment";
+    public static final     String      OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR              = "secureDeliveryError";
+
     private SamigoConstants() {
     	throw new AssertionError();
     }
