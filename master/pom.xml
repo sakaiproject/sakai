@@ -2084,6 +2084,12 @@
         <version>${sakai.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>sakai-site-manage-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats-api</artifactId>
         <version>${sakai.version}</version>
