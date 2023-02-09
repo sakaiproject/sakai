@@ -85,6 +85,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.SaLengthException;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
@@ -417,6 +418,7 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private String secureDeliveryHTMLFragment;
 
+  @Getter @Setter
   private PhaseStatus secureDeliveryStatus = null;
 
   @Getter @Setter
@@ -490,6 +492,18 @@ public class DeliveryBean implements Serializable {
 
   @Getter @Setter
   private String secureToken;
+
+  @Getter @Setter
+  private boolean sebSetup;
+
+  @Getter @Setter
+  private String sebConfigUploadLink;
+
+  @Getter @Setter
+  private String sebDownloadLink;
+
+  @Getter @Setter
+  private String sebLaunchLink;
 
   /**
    * Creates a new DeliveryBean object.
@@ -1268,6 +1282,32 @@ public class DeliveryBean implements Serializable {
 	return "takeAssessment";
   }
 
+  public void validateSecureDeliveryPhase(Phase phase) {
+    String moduleId = getSecureDeliveryModuleId();
+
+    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+
+    if (moduleId != null) {
+      HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+
+      setSecureDeliveryStatus(secureDeliveryService.validatePhase(moduleId, phase, publishedAssessment, request));
+
+      setSecureDeliveryHTMLFragment(secureDeliveryService.getHTMLFragment(moduleId, publishedAssessment, request,
+          phase, secureDeliveryStatus, locale));
+    }
+  }
+
+  private String getSecureDeliveryModuleId() {
+    String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+
+    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+
+    boolean isSecureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId());
+    boolean moduleExists = moduleExists(moduleId);
+
+    return isSecureDeliveryAvailable && moduleExists ? moduleId : null;
+  }
+
   public String validateIP() {
     String thisIp = ( (HttpServletRequest) FacesContext.
                      getCurrentInstance().getExternalContext().getRequest()).
@@ -1321,23 +1361,19 @@ public class DeliveryBean implements Serializable {
       // should occur before timer check, so that timer will be stopped if access is denied
       setSecureDeliveryHTMLFragment( "" );
       setBlockDelivery( false );
-      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-      if ( "takeAssessment".equals(results) && secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
-   
-    	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-    	  if (moduleExists(moduleId)) {
-    		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-    		  secureDeliveryStatus = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-    		  setSecureDeliveryHTMLFragment( 
-				secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, secureDeliveryStatus, locale));
-    		  setBlockDelivery( PhaseStatus.FAILURE == secureDeliveryStatus );
-    		  if ( PhaseStatus.SUCCESS == secureDeliveryStatus ) {
-    			  results = "takeAssessment";
-              } else {
-    			  results = "secureDeliveryError";
-    			  updatEventLog("error_secure_delivery");
-              }
-    	  }
+
+      if (SamigoConstants.OUTCOME_DELIVERY_TAKE_ASSESSMENT.equals(results) && getSecureDeliveryModuleId() != null) {
+        if (secureDeliveryStatus == null) {
+          validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
+        }
+
+        if (PhaseStatus.SUCCESS.equals(secureDeliveryStatus)) {
+          results = SamigoConstants.OUTCOME_DELIVERY_TAKE_ASSESSMENT;
+        } else {
+          results = SamigoConstants.OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR;
+          setBlockDelivery(true);
+          updatEventLog("error_secure_delivery");
+        }
       }
 
       // if results != "takeAssessment", stop the clock if it is a timed assessment
@@ -1514,6 +1550,12 @@ public class DeliveryBean implements Serializable {
 
   public boolean getDoContinue() {
     return next_page;
+  }
+
+  public boolean isSebActive() {
+    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    return secureDelivery.isSecureDeliveryAvaliable()
+        && StringUtils.equals(SecureDeliverySeb.MODULE_NAME, publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY));
   }
 
   public void setContinue(boolean docontinue) {
@@ -2114,20 +2156,21 @@ public class DeliveryBean implements Serializable {
 
     // Check 10: see if SecureDelivery is okay with this
     log.debug("check10-SecureDelivery");
+
     if (isViaUrlLogin) {
-        SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-        if ( secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
-            String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-            if (moduleExists(moduleId)) {
-                HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-                secureDeliveryStatus = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-                setBlockDelivery( PhaseStatus.FAILURE == secureDeliveryStatus );
-                setSecureDeliveryHTMLFragment(secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, secureDeliveryStatus, locale));
-                if ( PhaseStatus.FAILURE == secureDeliveryStatus ) {
-                    return "secureDeliveryError";
-                }
-            }          
+      String secureDeliveryModuleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+
+      if (secureDeliveryModuleId != null) {
+        validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
+
+        if (PhaseStatus.FAILURE.equals(secureDeliveryStatus)) {
+          if(StringUtils.equals(secureDeliveryModuleId, SecureDeliverySeb.MODULE_NAME)) {
+            setSebSetup(true);
+          } else {
+            return SamigoConstants.OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR;
+          }
         }
+      }
     }
 
     return "safeToProceed";

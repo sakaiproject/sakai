@@ -159,21 +159,21 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
     <h:commandButton type="submit" value="#{deliveryMessages.button_continue}"
-       onclick="return returnToHostUrl(\"#{delivery.selectURL}\");"
-       rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}" />
-
+        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");"
+        rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'
+            && !delivery.sebActive}" />
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && (delivery.anonymousLogin || delivery.accessByUrlAndAuthorized) && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && (delivery.anonymousLogin || delivery.accessByUrlAndAuthorized) && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2' && !delivery.sebActive}" 
        style="act" onclick="reviewAssessment(this);" onkeypress="reviewAssessment(this);" />
 
-    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && (delivery.anonymousLogin || delivery.accessByUrlAndAuthorized) && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}">
+    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && (delivery.anonymousLogin || delivery.accessByUrlAndAuthorized) && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2' && !delivery.sebActive}">
       <f:param name="publishedId" value="#{delivery.assessmentId}" />
       <f:param name="nofeedback" value="false"/>
       <f:param name="actionString" value="reviewAssessment"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener"/>
     </h:commandLink>
-
+    <h:commandButton type="button" value="#{deliveryMessages.seb_quit_browser}" onclick="quitSeb()" rendered="#{delivery.sebActive}" />
   </h:panelGrid>
 </div>
 

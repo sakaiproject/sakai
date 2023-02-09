@@ -400,4 +400,8 @@ public static ArrayList paramArrayValueLike(String paramPart)
     }
     return result;
   }
+
+  public static Locale getLocale() {
+    return new ResourceLoader().getLocale();
+  }
 }
