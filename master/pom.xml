@@ -30,7 +30,8 @@
     <sakai.commons-text.version>1.10.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
-    <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
+    <sakai.commons.configuration.version>1.10</sakai.commons.configuration.version>
+    <sakai.commons.configuration2.version>2.8.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.8.0</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
@@ -768,12 +769,13 @@
       <dependency>
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
-        <version>1.10</version>
+        <version>${sakai.commons.configuration.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-configuration2</artifactId>
-        <version>2.7</version>
+        <version>${sakai.commons.configuration2.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>commons-dbcp</groupId>
@@ -821,6 +823,7 @@
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
         <version>1.9.4</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>commons-digester</groupId>
