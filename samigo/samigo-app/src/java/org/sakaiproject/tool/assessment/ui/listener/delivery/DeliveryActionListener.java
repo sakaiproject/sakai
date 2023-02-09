@@ -78,7 +78,9 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
@@ -129,6 +131,7 @@ public class DeliveryActionListener
   private EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
   private EncryptionUtilityService encryptionUtilityService = ComponentManager.get(EncryptionUtilityService.class);
   private SessionManager sessionManager = ComponentManager.get(SessionManager.class);
+  private PersistenceService persistenceService = PersistenceService.getInstance();
 
   private GradingService service = new GradingService();
 
@@ -151,6 +154,7 @@ public class DeliveryActionListener
       // set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
+      String actionString = ae != null ? actionString = ae.getComponent().getId() : null;
 
       // 2. get assessment from deliveryBean if id matches. otherwise, this is the 1st time
       // that DeliveryActionListener is called, so pull it from DB
@@ -287,21 +291,24 @@ public class DeliveryActionListener
               delivery.setOutcome("takeAssessment");
               delivery.setSecureDeliveryHTMLFragment( "" );
               delivery.setBlockDelivery( false );
-              
               if ( secureDelivery.isSecureDeliveryAvaliable() ) {
-            	  
+
             	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
             	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-              		  
+
             		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
             		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, publishedAssessment, request );
             		  delivery.setSecureDeliveryHTMLFragment( 
             				  secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );             		 
             		  if ( PhaseStatus.FAILURE == status )  {           			 
-            			  delivery.setOutcome( "secureDeliveryError" );
-            			  delivery.setBlockDelivery( true );
-            		  }
-            	  }                 	  
+                    delivery.setBlockDelivery( true );
+                    if (!StringUtils.equals(moduleId, SecureDeliverySeb.MODULE_NAME)) {
+                      delivery.setOutcome("secureDeliveryError");
+                    } else {
+                      delivery.setSebSetup(true);
+                    }
+                  }
+                }
               }
 
               generateSecureTokenForAssessment(delivery);
@@ -331,7 +338,7 @@ public class DeliveryActionListener
       case 5: // Take assessment via url
               log.debug("**** DeliveryActionListener #0");
 
-              if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+              if (StringUtils.startsWith(actionString, "beginAssessment") || StringUtils.startsWith(actionString, "continueAssessment")) {
             	  // #1. check password
             	  if (!delivery.getSettings().getPassword().equals("") && "passwordAccessError".equals(delivery.validatePassword())) {
             		return;
@@ -341,19 +348,23 @@ public class DeliveryActionListener
             	  if (delivery.getSettings().getIpAddresses() != null && !delivery.getSettings().getIpAddresses().isEmpty() && "ipAccessError".equals(delivery.validateIP())) {
             		return;
             	  }
-                  
+
                   // #3. secure delivery START phase
                   if ( secureDelivery.isSecureDeliveryAvaliable() ) {
                       String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
                       if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
                           HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
                           PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-                          if ( PhaseStatus.FAILURE == status ) {
+                          delivery.setSecureDeliveryStatus(status);
+                          if ( PhaseStatus.FAILURE == status && !StringUtils.equals(moduleId, SecureDeliverySeb.MODULE_NAME) ) {
                               return;
                           }
-                      }    	  
+                      }
                   }
               }
+
+              // (Re)set sebSetup
+              delivery.setSebSetup(false);
 
               populateSubmissionsRemaining(pubService, publishedAssessment, delivery);
               

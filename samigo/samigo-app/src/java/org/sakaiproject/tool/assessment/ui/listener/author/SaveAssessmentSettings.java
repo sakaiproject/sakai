@@ -42,6 +42,8 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig.ConfigMode;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -55,6 +57,7 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
@@ -344,12 +347,37 @@ public class SaveAssessmentSettings
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
     String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(encryptedPassword ));
+    if (SecureDeliverySeb.MODULE_NAME.equals(assessmentSettings.getSecureDeliveryModule())) {
+      assessment.updateAssessmentMetaData(SebConfig.CONFIG_MODE, assessmentSettings.getSebConfigMode().toString());
+
+      switch (ConfigMode.valueOf(assessmentSettings.getSebConfigMode())) {
+        case MANUAL:
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_USER_QUIT_SEB, assessmentSettings.getSebAllowUserQuitSeb().toString());
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_RELOAD_IN_EXAM, assessmentSettings.getSebAllowReloadInExam().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_TASKBAR, assessmentSettings.getSebShowTaskbar().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_RELOAD_BUTTON, assessmentSettings.getSebShowReloadButton().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_TIME, assessmentSettings.getSebShowTaskbar().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_KEYBOARD_LAYOUT, assessmentSettings.getSebShowReloadButton().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_WIFI_CONTROL, assessmentSettings.getSebShowReloadButton().toString());
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_AUDIO_CONTROL, assessmentSettings.getSebShowReloadButton().toString());
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_SPELL_CHECKING, assessmentSettings.getSebShowReloadButton().toString());
+          break;
+        case UPLOAD:
+          assessment.updateAssessmentMetaData(SebConfig.CONFIG_UPLOAD_ID, assessmentSettings.getSebConfigUploadId());
+          break;
+        case CLIENT:
+          assessment.updateAssessmentMetaData(SebConfig.EXAM_KEYS, assessmentSettings.getSebExamKeys());
+          break;
+        default:
+          break;
+      }
+    }
     
     // kkk. remove the existing title decoration (if any) and then add the new one (if any)    
     String titleDecoration = assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.TITLE_DECORATION );
     String newTitle;
     if ( titleDecoration != null )
-    	newTitle = assessment.getTitle().replace( titleDecoration, "");
+    	newTitle = StringUtils.replace(assessment.getTitle(), " " + titleDecoration, "");
     else
     	newTitle = assessment.getTitle();
     
