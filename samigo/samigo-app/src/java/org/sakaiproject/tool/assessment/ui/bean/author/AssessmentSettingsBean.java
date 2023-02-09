@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -63,7 +64,9 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -169,6 +172,21 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private SelectItem[] secureDeliveryModuleSelections;
   private String secureDeliveryModule;
   private String secureDeliveryModuleExitPassword;
+  @Setter private SelectItem[] sebConfigModeSelections;
+  @Setter private SelectItem[] booleanSelections;
+  @Getter @Setter private String sebConfigMode;
+  @Getter @Setter private String sebConfigUploadId;
+          @Setter private String sebConfigFileName;
+  @Getter @Setter private String sebExamKeys;
+  @Getter @Setter private Boolean sebAllowUserQuitSeb;
+  @Getter @Setter private Boolean sebAllowReloadInExam;
+  @Getter @Setter private Boolean sebShowTaskbar;
+  @Getter @Setter private Boolean sebShowReloadButton;
+  @Getter @Setter private Boolean sebShowTime;
+  @Getter @Setter private Boolean sebShowKeyboardLayout;
+  @Getter @Setter private Boolean sebShowWifiControl;
+  @Getter @Setter private Boolean sebAllowAudioControl;
+  @Getter @Setter private Boolean sebAllowSpellChecking;
 
   // properties of AssesmentFeedback
   private String feedbackDelivery; // immediate, on specific date , no feedback
@@ -238,7 +256,11 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private final String HIDDEN_RETRACT_DATE_FIELD = "retractDateISO8601";
   private final String HIDDEN_FEEDBACK_DATE_FIELD = "feedbackDateISO8601";
   private final String HIDDEN_FEEDBACK_END_DATE_FIELD = "feedbackEndDateISO8601";
-  
+
+  private final String SEB_CONFIG_MODE_BUNDLE_PREFIX = "seb_config_mode_";
+  private final String YES_BUNDLE_STRING = "assessment_is_timed";
+  private final String NO_BUNDLE_STRING = "assessment_not_timed";
+
   private SimpleDateFormat displayFormat;
 
   private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
@@ -263,6 +285,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   @Autowired
   @Qualifier("org.sakaiproject.time.api.UserTimeService")
   private UserTimeService userTimeService;
+
+  public static final String FILE_PICKER_IS_SEB_CONFIG_ATTACHMENT = "sakai.samigo.seb.config.attachment";
 
   /*
    * Creates a new AssessmentBean object.
@@ -1037,26 +1061,26 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   // "can edit" element. However, we only want to have "can edit" elements inside
   // our valueMap, so we need to weed out the metadata
   public void setValueMap(HashMap newMap){
-	  HashMap h = new HashMap();
+    HashMap h = new HashMap();
 
-	  for (Iterator it = newMap.entrySet().iterator(); it.hasNext();) {
-		  Map.Entry entry = (Map.Entry) it.next();
-		  String key = (String) entry.getKey();
-		  Object o = entry.getValue();
-
-		  if (("ASSESSMENT_AUTHORS".equals(key)) ||
-				  ("ASSESSMENT_KEYWORDS".equals(key)) ||
-				  ("ASSESSMENT_OBJECTIVES".equals(key)) ||
-				  ("ASSESSMENT_RUBRICS".equals(key)) ||
-				  ("ASSESSMENT_BGCOLOR".equals(key)) ||
-				  ("ASSESSMENT_BGIMAGE".equals(key)) || 
-				  (SecureDeliveryServiceAPI.MODULE_KEY.equals(key)) ||
-				  (SecureDeliveryServiceAPI.EXITPWD_KEY.equals(key)));
-		  else{
-			  h.put(key, o);
-		  }
-	  }
-	  this.values = h ;
+    for (Iterator it = newMap.entrySet().iterator(); it.hasNext();) {
+      Map.Entry entry = (Map.Entry) it.next();
+      String key = (String) entry.getKey();
+      Object o = entry.getValue();
+      if (!StringUtils.equalsAny(key,
+          AssessmentMetaData.AUTHORS,
+          AssessmentMetaData.BGCOLOR,
+          AssessmentMetaData.BGIMAGE,
+          AssessmentMetaData.KEYWORDS,
+          AssessmentMetaData.OBJECTIVES,
+          AssessmentMetaData.RUBRICS,
+          SecureDeliveryServiceAPI.EXITPWD_KEY,
+          SecureDeliveryServiceAPI.MODULE_KEY
+      )) {
+        h.put(key, o);
+      }
+    }
+    this.values = h ;
   }
 
   public HashMap getValueMap(){
@@ -1782,7 +1806,15 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public String getBlockDivs() {
 	  return blockDivs;
   }
-  
+
+  public String getSebConfigFileName() {
+    if (this.sebConfigUploadId != null && StringUtils.startsWith(this.sebConfigUploadId, "/")) {
+      return StringUtils.substring(this.sebConfigUploadId, StringUtils.lastIndexOf(this.sebConfigUploadId, "/") + 1);
+    } else {
+      return null;
+    }
+  }
+
   public SelectItem[] getSecureDeliverModuleSelections() {
 	  
 	  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
@@ -1797,6 +1829,26 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 	  
 	  return selections.toArray(new SelectItem[selections.size()]);
   }
+
+    // Create SelectItem array by mapping ConfigMode enum to bundle strings and in values
+    public SelectItem[] getSebConfigModeSelections() {
+        SebConfig.ConfigMode[] configModes = SebConfig.ConfigMode.values();
+
+        return Arrays.stream(configModes).map(configMode -> {
+            String configModeString = assessmentSettingMessages.getString(SEB_CONFIG_MODE_BUNDLE_PREFIX + StringUtils.lowerCase(configMode.toString()));
+
+            return new SelectItem(configMode.toString(), configModeString);
+        }).collect(Collectors.toList()).toArray(new SelectItem[configModes.length]);
+    }
+
+    public SelectItem[] getBooleanSelections() {
+      SelectItem[] selectItemArray = {
+        new SelectItem(true, assessmentSettingMessages.getString(YES_BUNDLE_STRING)),
+        new SelectItem(false, assessmentSettingMessages.getString(NO_BUNDLE_STRING))
+      };
+
+      return selectItemArray;
+    }
 
     public void setCategoriesEnabled(boolean categoriesEnabled) {
         this.categoriesEnabled = categoriesEnabled;
