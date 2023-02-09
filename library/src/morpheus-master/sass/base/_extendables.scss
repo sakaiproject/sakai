@@ -426,7 +426,11 @@ a.noPointers, input.noPointers {
 	@include align-items(center);
 	margin: $standard-spacing 0;
 	
-	> input, > button, > a, > .active {
+	> input,
+	> button,
+	> a,
+	> a[href],
+	> .active {
 		margin-right: $standard-space;
     margin-top: $standard-space;
 		
