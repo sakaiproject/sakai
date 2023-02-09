@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PreDeliveryPhase;
 
 /**
  * @author Luis Camargo (lcamargo@respondus.com)
@@ -142,5 +143,16 @@ public interface SecureDeliveryModuleIfc {
 	default boolean isEnabled(Long assessmentId) {
 		return isEnabled();
 	}
+
+	/**
+	 * Handles module related phases that occur before the delivery
+	 * @param assessment
+	 * @param publishedAssessment
+	 * @param request
+	 * @param phase
+	 * @return phase status
+	 */
+	public PhaseStatus executePreDeliveryPhase(AssessmentIfc assessment, PublishedAssessmentIfc publishedAssessment,
+			HttpServletRequest request, PreDeliveryPhase phase);
 
 }
