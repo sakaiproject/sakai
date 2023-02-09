@@ -40,6 +40,7 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.log.api.LogConfigurationManager;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitemanage.api.SiteManageService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
@@ -101,6 +102,7 @@ public class AbstractWebService {
     protected FormattedText formattedText;
     protected SqlService sqlService;
     protected UserAuditRegistration userAuditRegistration;
+    protected SiteManageService siteManageService;
 
     /**
      * Get the Session related to the given sessionid
@@ -309,5 +311,10 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setUserAuditRegistration(UserAuditRegistration userAuditRegistration) {
         this.userAuditRegistration = userAuditRegistration;
+    }
+
+    @WebMethod(exclude = true)
+    public void setSiteManageService(SiteManageService siteManageService) {
+        this.siteManageService = siteManageService;
     }
 }
