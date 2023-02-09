@@ -40,6 +40,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -419,6 +420,20 @@ public class ConfirmPublishAssessmentListener
     	assessmentSettings.setObjectives(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getObjectives()));
     	assessmentSettings.setRubrics(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getRubrics()));
     	assessmentSettings.setPassword(formattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getPassword())));
+
+        SebConfig sebConfig = SebConfig.of(assessment.getAssessmentMetaDataMap());
+        if (sebConfig.getConfigMode() != null) {
+            assessmentSettings.setSebConfigMode(sebConfig.getConfigMode().toString());
+            assessmentSettings.setSebExamKeys(StringUtils.join(sebConfig.getExamKeys(), "\n"));
+            assessmentSettings.setSebAllowUserQuitSeb(sebConfig.getAllowUserQuitSeb());
+            assessmentSettings.setSebShowTaskbar(sebConfig.getShowTaskbar());
+            assessmentSettings.setSebShowTime(sebConfig.getShowTime());
+            assessmentSettings.setSebShowKeyboardLayout(sebConfig.getShowKeyboardLayout());
+            assessmentSettings.setSebShowWifiControl(sebConfig.getShowWifiControl());
+            assessmentSettings.setSebAllowAudioControl(sebConfig.getAllowAudioControl());
+            assessmentSettings.setSebConfigUploadId(sebConfig.getConfigUploadId());
+            assessmentSettings.setSebAllowSpellChecking(sebConfig.getAllowSpellChecking());
+        }
     }
     
     if (error){

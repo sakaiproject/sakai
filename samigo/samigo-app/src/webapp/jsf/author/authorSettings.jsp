@@ -40,6 +40,7 @@
       <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
       <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script src="/samigo-app/js/authoring.js"></script>
+      <script src="/samigo-app/js/authoringSecureDeliverySettings.js"></script>
       <script src="/library/js/spinner.js"></script>
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
       <script>
@@ -159,6 +160,9 @@
           setAccessibilityAttributes();
           setExceptionDefault();
           disableAllFeedbackCheck();
+
+          // Secure delivery
+          initSecureDeliverySettings(false);
 
           <!--Initialize bootstrap multiselect-->
           $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");
@@ -335,10 +339,10 @@
         <h:outputLabel value="#{assessmentSettingsMessages.heading_high_security}"/>
     </div>
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}">
-        <h:outputLabel value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="" value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-2 form-control-label"/>
         <%-- no WYSIWYG for IP addresses --%>
         <div class="col-md-10">
-            <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"/>
+            <h:inputTextarea value="#{assessmentSettings.ipAddresses}" styleClass="form-control" cols="40" rows="5"/>
             <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.ip_note}"/>
             <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.ip_example} #{assessmentSettingsMessages.ip_ex}"/>
         </div>
@@ -351,17 +355,123 @@
         </div>
     </h:panelGroup>
 
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
-        <h:outputLabel value="#{assessmentSettingsMessages.require_secure_delivery}" styleClass="col-md-2 form-control-label"/>
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
+      <h:panelGroup styleClass="form-group row" layout="block">
+          <h:outputLabel for="secureDeliveryModule" value="#{assessmentSettingsMessages.require_secure_delivery}" styleClass="col-md-2 form-control-label" />
+          <div class="col-md-10">
+              <h:selectOneRadio id="secureDeliveryModule" value="#{assessmentSettings.secureDeliveryModule}" layout="pageDirection" onclick="setBlockDivs();">
+                  <f:selectItems value="#{assessmentSettings.secureDeliveryModuleSelections}" />
+              </h:selectOneRadio>
+          </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebConfigMode" value="#{assessmentSettingsMessages.seb_config_mode}" styleClass="col-md-2 form-control-label" />
         <div class="col-md-10">
-            <h:selectOneRadio id="secureDeliveryModule" value="#{assessmentSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();">
-                <f:selectItems value="#{assessmentSettings.secureDeliveryModuleSelections}" />
-            </h:selectOneRadio>
-	    <h:panelGrid border="0" columns="2"  columnClasses="samigo-security" >
-                <h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
-                <h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{assessmentSettings.secureDeliveryModuleExitPassword}" disabled="#{assessmentSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14"/>
-            </h:panelGrid>
+          <h:selectOneRadio id="sebConfigMode" value="#{assessmentSettings.sebConfigMode}" layout="pageDirection" onclick="setBlockDivs();">
+              <f:selectItems value="#{assessmentSettings.sebConfigModeSelections}" />
+          </h:selectOneRadio>
+          <label class="help-block info-text small config-mode-help-manual">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_manual_help}" />
+          </label>
+          <label class="help-block info-text small config-mode-help-upload">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_upload_help}" />
+          </label>
+          <label class="help-block info-text small config-mode-help-client">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_client_help}" />
+          </label>
         </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebAllowUserQuitSeb" value="#{assessmentSettingsMessages.seb_allow_user_quit_seb}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+          <h:selectOneRadio id="sebAllowUserQuitSeb" value="#{assessmentSettings.sebAllowUserQuitSeb}" layout="pageDirection" onclick="setBlockDivs();">
+              <f:selectItems value="#{assessmentSettings.booleanSelections}" />
+          </h:selectOneRadio>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
+        <h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"
+            styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+            <h:inputText id="secureDeliveryModuleExitPassword" size="14" value="#{assessmentSettings.secureDeliveryModuleExitPassword}"
+                maxlength="14" styleClass="form-control" />
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebShowTaskbar" value="#{assessmentSettingsMessages.seb_show_taskbar}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+          <h:selectOneRadio id="sebShowTaskbar" value="#{assessmentSettings.sebShowTaskbar}" layout="pageDirection" onclick="setBlockDivs();">
+              <f:selectItems value="#{assessmentSettings.booleanSelections}" />
+          </h:selectOneRadio>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebShowTime" value="#{assessmentSettingsMessages.seb_show_time}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+          <h:selectOneRadio id="sebShowTime" value="#{assessmentSettings.sebShowTime}" layout="pageDirection" onclick="setBlockDivs();">
+              <f:selectItems value="#{assessmentSettings.booleanSelections}" />
+          </h:selectOneRadio>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebShowKeyboardLayout" value="#{assessmentSettingsMessages.seb_show_keyboard_layout}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+          <h:selectOneRadio id="sebShowKeyboardLayout" value="#{assessmentSettings.sebShowKeyboardLayout}" layout="pageDirection" onclick="setBlockDivs();">
+              <f:selectItems value="#{assessmentSettings.booleanSelections}" />
+          </h:selectOneRadio>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebShowWifiControl" value="#{assessmentSettingsMessages.seb_show_wifi_control}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+          <h:selectOneRadio id="sebShowWifiControl" value="#{assessmentSettings.sebShowWifiControl}" layout="pageDirection" onclick="setBlockDivs();">
+              <f:selectItems value="#{assessmentSettings.booleanSelections}" />
+          </h:selectOneRadio>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebAllowAudioControl" value="#{assessmentSettingsMessages.seb_allow_audio_control}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+          <h:selectOneRadio id="sebAllowAudioControl" value="#{assessmentSettings.sebAllowAudioControl}" layout="pageDirection" onclick="setBlockDivs();">
+              <f:selectItems value="#{assessmentSettings.booleanSelections}" />
+          </h:selectOneRadio>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebAllowSpellChecking" value="#{assessmentSettingsMessages.seb_allow_spell_checking}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+          <h:selectOneRadio id="sebAllowSpellChecking" value="#{assessmentSettings.sebAllowSpellChecking}" layout="pageDirection" onclick="setBlockDivs();">
+              <f:selectItems value="#{assessmentSettings.booleanSelections}" />
+          </h:selectOneRadio>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <label for="sebConfigUpload" class="col-md-2 form-control-label">
+          <h:outputText value="#{assessmentSettingsMessages.seb_config_upload}" />
+        </label>
+        <div class="col-md-10 seb-upload">
+          <h:outputLink id="sebConfigUploadLink" rendered="#{assessmentSettings.sebConfigFileName != null}" value="/access/content#{assessmentSettings.sebConfigUploadId}" target="new_window">
+            <h:outputText value="#{assessmentSettings.sebConfigFileName}" />
+          </h:outputLink>
+          <input type="file" id="sebConfigUpload" accept=".seb" />
+          <h:inputHidden id="sebConfigUploadId" value="#{assessmentSettings.sebConfigUploadId}" />
+          <div class="sak-banner-success hidden">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_upload_success}" />
+          </div>
+          <div class="sak-banner-error hidden">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_upload_error}" />
+          </div>
+        </div>
+      </h:panelGroup>
+      <h:panelGroup styleClass="form-group row" layout="block">
+        <h:outputLabel for="sebExamKeys" value="#{assessmentSettingsMessages.seb_exam_keys}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+          <h:inputTextarea id="sebExamKeys" styleClass="form-control" value="#{assessmentSettings.sebExamKeys}" cols="40" rows="5" />
+          <label class="help-block info-text small">
+            <h:outputText value="#{assessmentSettingsMessages.seb_exam_keys_upload_info}" />
+          </label>
+        </div>
+      </h:panelGroup>
     </h:panelGroup>
 </samigo:hideDivision><!-- END the Security and Proctoring category -->
 

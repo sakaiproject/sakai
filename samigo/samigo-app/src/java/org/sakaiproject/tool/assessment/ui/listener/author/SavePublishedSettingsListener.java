@@ -42,6 +42,8 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig.ConfigMode;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -67,6 +69,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
@@ -173,15 +176,27 @@ implements ActionListener
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
 	    String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(encryptedPassword ));
-	    
+
+        if (SecureDeliverySeb.MODULE_NAME.equals(assessmentSettings.getSecureDeliveryModule())) {
+            ConfigMode sebConfigMode = ConfigMode.valueOf(assessmentSettings.getSebConfigMode());
+            switch(sebConfigMode) {
+                case UPLOAD:
+                case CLIENT:
+                    assessment.updateAssessmentMetaData(SebConfig.EXAM_KEYS, assessmentSettings.getSebExamKeys());
+                    break;
+                case MANUAL:
+                    break;
+                default:
+                    log.error("Unhandled value of seb config mode [{}]", sebConfigMode);
+                    break;
+            }
+        }
+
 	    // kk. remove the existing title decoration (if any) and then add the new one (if any)	    
 	    String titleDecoration = assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.TITLE_DECORATION );
-	    String newTitle;
-	    if ( titleDecoration != null )
-	    	newTitle = assessment.getTitle().replace( titleDecoration, "");
-	    else
-	    	newTitle = assessment.getTitle();
-	    // getTitleDecoration() returns "" if null or NONE module is passed
+	    String newTitle = StringUtils.isNotEmpty(titleDecoration) && !"NONE".equals(titleDecoration)
+	            ? StringUtils.replace(assessment.getTitle(), " " + titleDecoration, "")
+	            : assessment.getTitle();
 	    titleDecoration = secureDeliveryService.getTitleDecoration( assessmentSettings.getSecureDeliveryModule(), new ResourceLoader().getLocale() );
 	    if (titleDecoration != null && !titleDecoration.trim().equals("")) {
 	    	newTitle = newTitle + " " + titleDecoration;
