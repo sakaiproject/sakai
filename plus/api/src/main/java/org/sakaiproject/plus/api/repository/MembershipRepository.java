@@ -16,6 +16,8 @@
 
 package org.sakaiproject.plus.api.repository;
 
+import java.util.List;
+
 import org.sakaiproject.plus.api.model.Context;
 import org.sakaiproject.plus.api.model.Subject;
 import org.sakaiproject.plus.api.model.Membership;
@@ -24,6 +26,8 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface MembershipRepository extends SpringCrudRepository<Membership, Long> {
 
 	Membership findBySubjectAndContext(Subject subject, Context context);
+
+	List<Membership> getEntriesMinutesOld(Context context, int minutes);
 
 	Membership upsert(Membership entity);
 

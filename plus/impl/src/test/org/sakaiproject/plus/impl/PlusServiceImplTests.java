@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Date;
 import java.util.Calendar;
@@ -123,5 +124,14 @@ public class PlusServiceImplTests extends AbstractTransactionalJUnit4SpringConte
 		assertTrue(tweak.toString().contains("23:59:00"));
 		assertEquals(tweak, good);
 
+	}
+
+	@Test
+	public void testNumberUtils() {
+		int i = NumberUtils.toInt("42", -1);
+		assertEquals(i, 42);
+		assertEquals(NumberUtils.toInt("", -1), -1);
+		assertEquals(NumberUtils.toInt(null, -1), -1);
+		assertEquals(NumberUtils.toInt("fred", -1), -1);
 	}
 }

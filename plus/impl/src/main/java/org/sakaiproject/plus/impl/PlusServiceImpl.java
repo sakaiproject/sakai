@@ -19,6 +19,9 @@ package org.sakaiproject.plus.impl;
 import java.lang.StringBuffer;
 
 import java.util.Date;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import java.util.Map;
@@ -36,6 +39,7 @@ import java.security.KeyPair;
 import org.apache.commons.lang3.StringUtils;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +51,7 @@ import java.io.IOException;
 
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.event.api.Event;
 
 import org.sakaiproject.lti.api.LTIException;
@@ -54,6 +59,10 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.CommentDefinition;
+import org.sakaiproject.exception.IdUnusedException;
+
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 
 import org.sakaiproject.plus.api.Launch;
 import org.sakaiproject.plus.api.PlusService;
@@ -104,6 +113,15 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class PlusServiceImpl implements PlusService {
 
+	// The number of minutes to expire membership entries (1 week)
+	static int MEMBERSHIP_EXPIRE_MINUTES = 7*24*60;
+	static String PLUS_MEMBERSHIP_EXPIRE_MINUTES = "plus:expire_minutes";
+
+	// Wait five or 30 minutes between successive calls to NRPS.
+	public final long DELAY_NRPS_INSTRUCTOR_SECONDS = 300;
+	public final long DELAY_NRPS_LEARNER_SECONDS = 30*60;  // 30 minutes
+	static String PLUS_NRPS_DELAY_SECONDS = "plus:nrps_delay_seconds";
+
 	@Autowired private TenantRepository tenantRepository;
 	@Autowired private SubjectRepository subjectRepository;
 	@Autowired private ContextRepository contextRepository;
@@ -118,6 +136,7 @@ public class PlusServiceImpl implements PlusService {
 	@Autowired private SiteEmailPreferenceSetter siteEmailPreferenceSetter;
 	@Autowired private UserFinderOrCreator userFinderOrCreator;
 	@Autowired private ServerConfigurationService serverConfigurationService;
+	@Autowired private SiteService siteService;
 
 	/*
 	 * Indicate if plus is enabled on this system
@@ -301,6 +320,7 @@ public class PlusServiceImpl implements PlusService {
 			membership = new Membership();
 			membership.setSubject(subject);
 			membership.setContext(context);
+			membership.setUpdatedAt(Instant.now());
 			String ltiRoles = launchJWT.getLTI11Roles();
 			if ( StringUtils.isNotBlank(ltiRoles) ) membership.setLtiRoles(ltiRoles);
 			membership = membershipRepository.upsert(membership);
@@ -695,6 +715,7 @@ public class PlusServiceImpl implements PlusService {
 				Membership membership = new Membership();
 				membership.setSubject(subject);
 				membership.setContext(context);
+				membership.setUpdatedAt(Instant.now());
 				String ltiRoles = launchJWT.getLTI11Roles();
 				if ( StringUtils.isNotBlank(ltiRoles) ) membership.setLtiRoles(ltiRoles);
 				membership = membershipRepository.upsert(membership);
@@ -723,6 +744,20 @@ public class PlusServiceImpl implements PlusService {
 			log.error("Error processing contextMemberships stream context={}", contextGuid, e);
 			cLog.setSuccess(Boolean.FALSE);
 			cLog.setStatus("Exception processing Names and Roles data="+e.getMessage());
+		}
+
+		// Clean up inactive entries (i.e. like a week since the last NRPS retrieval)
+		// We may be in a thread / task instead of a login context...
+		pushAdvisor();
+		try {
+			int minutes = getInactiveExpireMinutes(context);
+			List<Membership> deleted_memberships = removeSiteUsersMinutesOld(context, minutes);
+			if ( deleted_memberships.size() > 0 ) {
+				log.info("Inactive memberships removed {} from {}", deleted_memberships.size(), site.getId());
+				dbs.append("Inactive memberships removed="+deleted_memberships.size());
+			}
+		} finally {
+			popAdvisor();
 		}
 
 		// Update the job status
@@ -1414,6 +1449,124 @@ public class PlusServiceImpl implements PlusService {
 
 	}
 
+	/*
+	 * Get "old" memberships that are still in the Realm
+	 */
+	@Transactional(readOnly = true)
+	@Override
+	public List<Membership> getSiteUsersMinutesOld(Context context, int minutes)
+	{
+		return walkSiteUsersMinutesOld(context, minutes, false);
+	}
+
+	/*
+	 * Remove "old" memberships that are still in the Realm
+	 *
+	 * Returns a list of the memberships that were removed from the Realm.  The memberships
+	 * continue to exist - just the realm entries are removed.  Is a user shows up in an NRPS
+	 * retrieval or launches into a Plus Site, since remove from the Realm does not remove
+	 * user activity data from a Site, they are re-added to the Realm and no data is lost.
+	 */
+	@Transactional
+	@Override
+	public List<Membership> removeSiteUsersMinutesOld(Context context, int minutes)
+	{
+		return walkSiteUsersMinutesOld(context, minutes, true);
+	}
+
+	/*
+	 * Walk through users in the realm that have "old" membership entries and optionally remove
+	 * or list them.
+	 */
+	private List<Membership> walkSiteUsersMinutesOld(Context context, int minutes, boolean remove)
+	{
+		List<Membership> old_memberships = new ArrayList<Membership>();
+
+		Site site = null;
+		String sakaiSite = context.getSakaiSiteId();
+		try
+		{
+			site = siteService.getSite(sakaiSite);
+		}
+		catch (IdUnusedException e)
+		{
+			log.warn("Cannot find site {}", sakaiSite);
+			return old_memberships;
+		}
+
+		Set<String> users = site.getUsers();
+		if ( users == null ) return old_memberships;
+
+		// Filter through the realm
+		boolean changed = false;
+		List<Membership> memberships = membershipRepository.getEntriesMinutesOld(context, minutes);
+		for (Membership membership : memberships) {
+			String userId = membership.getSubject().getSakaiUserId();
+			if ( users.contains(userId) ) {
+				if ( remove ) {
+					log.debug("Removing {} from site {}", userId, sakaiSite);
+					site.removeMember(userId);
+					changed = true;
+				}
+				old_memberships.add(membership);
+			}
+
+		}
+
+		try {
+			siteService.save(site);
+			log.debug("Site saved site={}", site.getId());
+		} catch (Exception e) {
+			log.warn("Failed to save site={}", site.getId());
+		}
+
+	   return old_memberships;
+	}
+
+	/*
+	 * Get the number of minutes to use when expiring inactive users for a site
+	 */
+	public Site getSite(Context context)
+	{
+		String sakaiSiteId	= context.getSakaiSiteId();
+		try
+		{
+			Site site = siteService.getSite(sakaiSiteId);
+			return site;
+		}
+		catch (IdUnusedException e)
+		{
+			log.warn("Cannot find site {}", sakaiSiteId);
+			return null;
+		}
+	}
+
+	/*
+	 * Get the number of minutes to use when expiring inactive users for a site
+	 */
+	public int getInactiveExpireMinutes(Context context)
+	{
+		Site site = getSite(context);
+		if ( site == null ) return MEMBERSHIP_EXPIRE_MINUTES;
+		String minstr = (String) site.getProperties().get(PLUS_MEMBERSHIP_EXPIRE_MINUTES);
+		int minutes = NumberUtils.toInt(minstr, MEMBERSHIP_EXPIRE_MINUTES);
+		return minutes;
+	}
+
+	/*
+	 * Get the number of seconds to use re-retrieving a roster via NRPS
+	 */
+	public long getNRPSDelaySeconds(Context context, boolean instructor)
+	{
+		Site site = getSite(context);
+		if ( site == null ) return DELAY_NRPS_LEARNER_SECONDS;
+		String minstr = (String) site.getProperties().get(PLUS_NRPS_DELAY_SECONDS);
+		long minutes = instructor ? DELAY_NRPS_INSTRUCTOR_SECONDS : DELAY_NRPS_LEARNER_SECONDS;
+		minutes = NumberUtils.toLong(minstr, minutes);
+		return minutes;
+	}
+
+
 /*
 
 https://www.imsglobal.org/spec/lti-ags/v2p0#score-service-media-type-and-schema
@@ -1445,6 +1598,21 @@ Authentication: Bearer 89042.hfkh84390xaw3m
 		cal.set(Calendar.MILLISECOND, 0);
 		dueDate = cal.getTime();
 		return dueDate;
+	}
+
+	private void pushAdvisor() {
+
+		// setup a security advisor
+		SecurityService.pushAdvisor(new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function,
+					String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+	private void popAdvisor() {
+		SecurityService.popAdvisor();
 	}
 
 }
