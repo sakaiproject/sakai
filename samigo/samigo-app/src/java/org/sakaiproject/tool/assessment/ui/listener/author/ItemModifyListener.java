@@ -66,6 +66,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionGlobalVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ImageMapItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
@@ -745,6 +746,7 @@ public class ItemModifyListener implements ActionListener
     String instructions = itemfacade.getInstruction();
     GradingService gs = new GradingService();
     List<String> variables = gs.extractVariables(instructions);
+    List<String> globalvariables = gs.extractGlobalVariables(instructions);
     List<ItemTextIfc> list = itemfacade.getItemTextArray();
     for (ItemTextIfc itemBean : list) {
       if (variables.contains(itemBean.getText())) {
@@ -775,32 +777,56 @@ public class ItemModifyListener implements ActionListener
             break;
           }
         }
+      } else if (globalvariables.contains(itemBean.getText())) {
+        CalculatedQuestionGlobalVariableBean globalvariableformula = new CalculatedQuestionGlobalVariableBean();
+        List<AnswerIfc> answers = itemBean.getAnswerArray();
+        for (AnswerIfc answer : answers) {
+          if (answer.getIsCorrect()) {
+            globalvariableformula.setName(itemBean.getText());
+            globalvariableformula.setSequence(itemBean.getSequence());
+            globalvariableformula.setText(answer.getText());
+            calcQuestionBean.addGlobalVariable(globalvariableformula);
+            break;
+          }
+        }
       } else {
         CalculatedQuestionFormulaBean formula = new CalculatedQuestionFormulaBean();
         List<AnswerIfc> answers = itemBean.getAnswerArray();
         for (AnswerIfc answer : answers) {
           if (answer.getIsCorrect()) {
             String text = answer.getText();
-            formula.setName(itemBean.getText());
-            formula.setSequence(itemBean.getSequence());
-            String[] partsText = text.split("\\|");
-            if (partsText != null && partsText.length == 2) {
-              String formulaStr = partsText[0];
-              formula.setText(formulaStr);
-              String[] partsTolDp = partsText[1].split(",");
-              if (partsTolDp != null && partsTolDp.length == 2) {
-                String tolerance = partsTolDp[0];
-                formula.setTolerance(tolerance);
-                String decimalPlaces = partsTolDp[1];
-                formula.setDecimalPlaces(decimalPlaces);
-              } else {
-                log.error("Calculated question answer text {} is not formatted correctly.", text);
-              }
-            } else {
-              log.error("Calculated question answer text {} is not formatted correctly.", text);
+            if (text.contains("|")) { //could be a global variable which not appear on the instructions
+                formula.setName(itemBean.getText());
+                formula.setSequence(itemBean.getSequence());
+                String[] partsText = text.split("\\|");
+                if (partsText != null && partsText.length >= 2) {
+                  String lastpart = partsText[partsText.length-1];
+                  int index = StringUtils.indexOf(text, lastpart);
+                  String formulaStr = text.substring(0, index-1);
+                  formula.setText(formulaStr);
+                  String[] partsTolDp = lastpart.split(",");
+                  if (partsTolDp != null && partsTolDp.length == 2) {
+                    String tolerance = partsTolDp[0];
+                    formula.setTolerance(tolerance);
+                    String decimalPlaces = partsTolDp[1];
+                    formula.setDecimalPlaces(decimalPlaces);
+                  } else {
+                    log.error("Calculated question answer text {} is not formatted correctly.", text);
+                  }
+                } else {
+                  log.error("Calculated question answer text {} is not formatted correctly.", text);
+                }
+                calcQuestionBean.addFormula(formula);
+                break;
+            } else { // it is a global variable
+                CalculatedQuestionGlobalVariableBean globalvariableformula = new CalculatedQuestionGlobalVariableBean();
+                globalvariableformula.setName(itemBean.getText());
+                globalvariableformula.setSequence(itemBean.getSequence());
+                globalvariableformula.setFromui(itemBean.isFromui());
+                globalvariableformula.setText(answer.getText());
+                calcQuestionBean.addGlobalVariable(globalvariableformula);
+                break;
             }
-            calcQuestionBean.addFormula(formula);
-            break;
           }
         }
       }

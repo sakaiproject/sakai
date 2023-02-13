@@ -38,6 +38,7 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     private String tolerance;
     private String decimalPlaces;
     private boolean active;
+    private boolean fromui;
     private transient boolean validatedFormula;
     private transient boolean validatedTolerance;
     
@@ -153,4 +154,13 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
                 this.getDecimalPlaces();
         return match;
     }
+
+    public boolean isFromui() {
+        return fromui;
+    }
+
+    public void setFromui(boolean fromui) {
+        this.fromui = fromui;
+    }
+
 }
