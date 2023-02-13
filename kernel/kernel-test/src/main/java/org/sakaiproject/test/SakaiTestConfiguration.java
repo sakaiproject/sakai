@@ -28,9 +28,14 @@ import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
 import org.hsqldb.jdbcDriver;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -97,6 +102,31 @@ public class SakaiTestConfiguration {
         HibernateTransactionManager txManager = new HibernateTransactionManager();
         txManager.setSessionFactory(sessionFactory);
         return txManager;
+    }
+
+    @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
+    public AuthzGroupService authzGroupService() {
+        return mock(AuthzGroupService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.entity.api.EntityManager")
+    public EntityManager entityManager() {
+        return mock(EntityManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.event.api.EventTrackingService")
+    public EventTrackingService eventTrackingService() {
+        return mock(EventTrackingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.authz.api.FunctionManager")
+    public FunctionManager functionManager() {
+        return mock(FunctionManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
+    public MemoryService memoryService() {
+        return mock(MemoryService.class);
     }
 
     @Bean(name = "org.sakaiproject.authz.api.SecurityService")
