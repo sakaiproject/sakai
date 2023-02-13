@@ -36,11 +36,13 @@ public class CalculatedQuestionBean implements Serializable {
     private static final long serialVersionUID = -5567978724454506570L;
     private Map<String, CalculatedQuestionFormulaBean> formulas;
     private Map<String, CalculatedQuestionVariableBean> variables;
+    private Map<String, CalculatedQuestionGlobalVariableBean> globalVariables;
     private List<CalculatedQuestionCalculationBean> calculations;
 
     public CalculatedQuestionBean() {
         formulas = new HashMap<String, CalculatedQuestionFormulaBean>();
         variables = new HashMap<String, CalculatedQuestionVariableBean>();
+        globalVariables = new HashMap<String, CalculatedQuestionGlobalVariableBean>();
         calculations = new Vector<CalculatedQuestionCalculationBean>();
     }
 
@@ -132,6 +134,53 @@ public class CalculatedQuestionBean implements Serializable {
 
     public void removeVariable(String name) {
         variables.remove(name);
+    }
+
+    // GLOBAL VARIABLES
+
+    /**
+     * getGlobalActiveVariables() returns a map of all variables that return getActive() of true
+     * @return a map of all variables that return getActive() of true.  If no global variables are active,
+     * the map will have zero elements.
+     */
+    public Map<String, CalculatedQuestionGlobalVariableBean> getGlobalActiveVariables() {
+        Map<String, CalculatedQuestionGlobalVariableBean> results = new HashMap<String, CalculatedQuestionGlobalVariableBean>();
+        for (CalculatedQuestionGlobalVariableBean globalvariable : this.globalVariables.values()) {
+            if (globalvariable.isActive()) {
+                results.put(globalvariable.getName(), globalvariable);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * getGlobalVariablesList returns a List of all global variable formulas, sorted by variable name
+     * @return
+     */
+    public List<CalculatedQuestionGlobalVariableBean> getGlobalVariablesList() {
+        List<CalculatedQuestionGlobalVariableBean> beanList = new ArrayList<CalculatedQuestionGlobalVariableBean>(this.globalVariables.values());
+        Collections.sort(beanList, new Comparator<CalculatedQuestionGlobalVariableBean>() {
+            public int compare(CalculatedQuestionGlobalVariableBean bean1, CalculatedQuestionGlobalVariableBean bean2) {
+                return new NullComparator().compare(bean1.getName(), bean2.getName());
+            }
+        });
+        return beanList;
+    }
+
+    public void addGlobalVariable(CalculatedQuestionGlobalVariableBean globalvariable) {
+        this.globalVariables.put(globalvariable.getName(), globalvariable);
+    }
+
+    public CalculatedQuestionGlobalVariableBean getGlobalVariable(String name) {
+        return this.globalVariables.get(name);
+    }
+
+    public void removeGlobalVariable(String name) {
+        this.globalVariables.remove(name);
+    }
+
+    public Map<String, CalculatedQuestionGlobalVariableBean> getGlobalvariables() {
+        return this.globalVariables;
     }
 
     // CALCULATIONS

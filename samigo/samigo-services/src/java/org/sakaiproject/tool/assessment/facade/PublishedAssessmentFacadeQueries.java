@@ -414,6 +414,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 					itemText.getItemTextAttachmentSet(), protocol);
 			publishedItemText.setItemTextAttachmentSet(publishedItemTextAttachmentSet);
 			publishedItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
+			publishedItemText.setFromui(itemText.isFromui());
 			h.add(publishedItemText);
 		}
 		return h;

@@ -45,6 +45,7 @@ public class PublishedItemText
 
   private Set<ItemTextAttachmentIfc> itemTextAttachmentSet;
   private Integer requiredOptionsCount;
+  private boolean fromui = false;
 
   public PublishedItemText() {}
 
@@ -305,4 +306,13 @@ public class PublishedItemText
 			}
 			return correctOptionLabels;	
 		}
+
+		public boolean isFromui() {
+			return fromui;
+		}
+
+		public void setFromui(boolean fromui) {
+			this.fromui = fromui;
+		}
+
 }

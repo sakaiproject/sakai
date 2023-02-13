@@ -55,6 +55,7 @@ public class ItemText
 
   private Set<ItemTextAttachmentIfc> itemTextAttachmentSet;
   private Integer requiredOptionsCount;
+  private boolean fromui = false;
   
   public ItemText() {}
 
@@ -302,5 +303,13 @@ public class ItemText
 	
 	public String toString(){
 		return getText();
+	}
+
+	public boolean isFromui() {
+		return fromui;
+	}
+
+	public void setFromui(boolean fromui) {
+		this.fromui = fromui;
 	}
 }
