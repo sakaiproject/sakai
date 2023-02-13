@@ -44,11 +44,11 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.conversations.api.ConversationsEvents;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
 import org.sakaiproject.conversations.api.ConversationsService;
 import org.sakaiproject.conversations.api.ConversationsStat;
-import org.sakaiproject.conversations.api.ConversationsEvents;
 import org.sakaiproject.conversations.api.Permissions;
 import org.sakaiproject.conversations.api.PostSort;
 import org.sakaiproject.conversations.api.Reaction;
@@ -84,6 +84,9 @@ import org.sakaiproject.conversations.api.repository.TopicReactionRepository;
 import org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -106,6 +109,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.entity.api.EntityTransferrer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -125,7 +129,7 @@ import lombok.Setter;
 @Slf4j
 @Setter
 @Transactional
-public class ConversationsServiceImpl implements ConversationsService, Observer {
+public class ConversationsServiceImpl implements ConversationsService, EntityProducer, EntityTransferrer, Observer {
 
     private AuthzGroupService authzGroupService;
 
@@ -136,6 +140,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
     private ConversationsCommentRepository commentRepository;
 
     private ConvStatusRepository convStatusRepository;
+
+    private EntityManager entityManager;
 
     private EventTrackingService eventTrackingService;
 
@@ -196,6 +202,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         this.sortedStatsCache = memoryService.<String, List<ConversationsStat>>getCache(STATS_CACHE_NAME);
         this.postsCache = memoryService.<String, Map<String, Map<String, Object>>>getCache(POSTS_CACHE_NAME);
         eventTrackingService.addObserver(this);
+
+        entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
         userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/new_question.xml", TOOL_ID + ".newquestion");
         userMessagingService.importTemplateFromResourceXmlFile("emailtemplates/new_discussion.xml", TOOL_ID + ".newdiscussion");
@@ -2211,12 +2219,101 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         return new String[] { ConversationsEvents.TOPIC_CREATED.label, ConversationsEvents.POST_CREATED.label, ConversationsEvents.REACTED_TO_TOPIC.label };
     }
 
+    public String[] myToolIds() {
+        return new String[] { TOOL_ID };
+    }
+
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
+
+        Map<String, String> traversalMap = new HashMap<>();
+
+        try {
+            getTopicsForSite(fromContext).stream().map(fromBean -> {
+
+                    TopicTransferBean newBean = new TopicTransferBean();
+
+                    newBean.id = fromBean.id;
+                    newBean.title = fromBean.title;
+                    newBean.message = fromBean.message;
+                    newBean.siteId = toContext;
+                    newBean.draft = true;
+
+                    return newBean;
+                }).forEach(tb -> {
+
+                    String fromId = tb.id;
+                    tb.id = null;
+
+                    try {
+                        TopicTransferBean newTopicBean = saveTopic(tb, false);
+                        String fromRef
+                            = ConversationsReferenceReckoner.reckoner().siteId(fromContext).type("t").id(fromId).reckon().getReference();
+                        String toRef
+                            = ConversationsReferenceReckoner.reckoner().siteId(toContext).type("t").id(newTopicBean.id).reckon().getReference();
+                        traversalMap.put(fromRef, toRef);
+                    } catch (ConversationsPermissionsException e) {
+                        log.error("Failed to save topic \"{}\" during site import : {}", tb.title, e.toString());
+                    }
+                });
+        } catch (ConversationsPermissionsException e) {
+            log.error("Failed to get topics for site {} during site import : {}", fromContext, e.toString());
+        }
+
+        return traversalMap;
+    }
+
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
+
+        topicRepository.findBySiteId(toContext).forEach(t -> {
+
+            try {
+                deleteTopic(t.getId());
+            } catch (ConversationsPermissionsException cpe) {
+            }
+        });
+
+        return transferCopyEntities(fromContext, toContext, ids, transferOptions);
+    }
+
+    public boolean parseEntityReference(String referenceString, Reference ref) {
+
+        if (referenceString.startsWith(REFERENCE_ROOT)) {
+            ConversationsReferenceReckoner.ConversationsReference reference
+                = ConversationsReferenceReckoner.reckoner().reference(referenceString).reckon();
+            ref.set(TOOL_ID, reference.getType(), reference.getId(), null, reference.getSiteId());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Entity getEntity(Reference ref) {
+
+        ConversationsReferenceReckoner.ConversationsReference reference
+                = ConversationsReferenceReckoner.reckoner().reference(ref.getReference()).reckon();
+
+        if (!securityService.unlock(SiteService.SITE_VISIT, siteService.siteReference(reference.getSiteId()))) {
+            log.warn("Current user connot get topic entities for site {}", reference.getSiteId());
+            return null;
+        } else {
+            switch (reference.getType()) {
+                case "t":
+                    return topicRepository.findById(reference.getId()).map(TopicTransferBean::of).orElse(null);
+                case "p":
+                    return postRepository.findById(reference.getId()).map(PostTransferBean::of).orElse(null);
+                default:
+                    log.warn("Unrecognised entity type {}. Returning null ...", reference.getType());
+                    return null;
+            }
+        }
+    }
+
     private Calendar getCalendar(String site) {
 
         Calendar calendar = null;
 
         String calendarId = calendarService.calendarReference(site, siteService.MAIN_CONTAINER);
-        try {
+       try {
             calendar = calendarService.getCalendar(calendarId);
         } catch (IdUnusedException e) {
             log.warn("No calendar found for site: {}", site);
