@@ -26,9 +26,11 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.plus.tool.exception.MissingSessionException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.exception.IdUnusedException;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,9 +52,11 @@ import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.plus.api.model.Tenant;
 import org.sakaiproject.plus.api.model.Context;
 import org.sakaiproject.plus.api.model.ContextLog;
+import org.sakaiproject.plus.api.model.Membership;
 import org.sakaiproject.plus.api.repository.TenantRepository;
 import org.sakaiproject.plus.api.repository.ContextRepository;
 import org.sakaiproject.plus.api.repository.ContextLogRepository;
+import org.sakaiproject.plus.api.repository.MembershipRepository;
 
 import javax.annotation.Resource;
 
@@ -81,6 +85,9 @@ public class MainController {
 
 	@Autowired
 	private ContextLogRepository contextLogRepository;
+
+	@Autowired
+	private MembershipRepository membershipRepository;
 
 	@Autowired
 	private LTIService ltiService;
@@ -133,7 +140,6 @@ public class MainController {
 		model.addAttribute("doUpdate", Boolean.FALSE);
 		return "form";
 	}
-
 
 	@PostMapping("/tenant")
 	public String submitForm(@ModelAttribute("tenant") Tenant tenant, RedirectAttributes redirectAttrs) {
@@ -283,6 +289,39 @@ public class MainController {
 		return contextDetail(model, contextId, request);
 	}
 
+	@GetMapping(value = "/membership/{contextId}")
+	public String membershipsDetail(Model model, @PathVariable String contextId, HttpServletRequest request) {
+
+		Optional<Context> optContext = contextRepository.findById(contextId);
+		if ( ! optContext.isPresent() ) return "notfound";
+		Context context = optContext.get();
+
+		int minutes = plusService.getInactiveExpireMinutes(context);
+		List<Membership> current_memberships = plusService.getSiteUsersMinutesOld(context, minutes);
+
+		loadModel(model, request);
+		model.addAttribute("tenantId", context.getTenant().getId());
+		model.addAttribute("context", context);
+		model.addAttribute("admin", isAdmin());
+		model.addAttribute("memberships", current_memberships);
+
+		return "membership";
+	}
+
+	@PostMapping(value = "/expire/{contextId}")
+	public String membershipsDetail(Model model, @PathVariable String contextId, HttpServletRequest request, RedirectAttributes redirectAttrs) {
+
+		Optional<Context> optContext = contextRepository.findById(contextId);
+		if ( ! optContext.isPresent() ) return "notfound";
+
+		Context context = optContext.get();
+		int minutes = plusService.getInactiveExpireMinutes(context);
+		List<Membership> deleted_memberships = plusService.removeSiteUsersMinutesOld(context, minutes);
+
+		redirectAttrs.addFlashAttribute("flashSuccess", rb.getString("plus.tool.memberships.removed")+" "+deleted_memberships.size());
+		return "redirect:/membership/" + contextId;
+	}
+
 	public String contextDetail(Model model, String contextId, HttpServletRequest request) {
 
 		Optional<Context> optContext = contextRepository.findById(contextId);
@@ -322,7 +361,7 @@ public class MainController {
 	private Session getSakaiSession() {
 
 		try {
-		    Session session = sessionManager.getCurrentSession();
+			Session session = sessionManager.getCurrentSession();
 			if (StringUtils.isBlank(session.getUserId())) {
 				log.error("Sakai user session is invalid");
 				throw new MissingSessionException();

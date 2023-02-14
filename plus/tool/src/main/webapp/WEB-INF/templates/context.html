@@ -11,6 +11,8 @@
         <p><a th:href="@{/contexts/{id}(id=${tenantId})}" th:text="#{plus.tool.all.contexts}" class="btn btn-secondary">All Contexts</a>
         <a th:href="@{/}" th:text="#{plus.tool.all.tenants}" class="btn btn-secondary">All Tenants</a></p>
         </div>
+        <a th:href="@{/membership/{id}(id=${context.id})}" class="btn btn-secondary">
+            <span th:text="#{plus.tool.memberships}">Memberships</span></a>
         <p><b th:text="#{plus.tool.job.start}">Start:</b> <span th:text="${context.nrpsStart}">Start</span></p>
         <p><b th:text="#{plus.tool.job.finish}">Finish:</b> <span th:text="${context.nrpsFinish}">Finish</span></p>
         <p><b th:text="#{plus.tool.job.status}">Last operation status:</b><span th:text="${context.status}">status</span></p>
