@@ -62,7 +62,7 @@ import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.exception.IdUnusedException;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 
 import org.sakaiproject.plus.api.Launch;
 import org.sakaiproject.plus.api.PlusService;
@@ -137,6 +137,7 @@ public class PlusServiceImpl implements PlusService {
 	@Autowired private UserFinderOrCreator userFinderOrCreator;
 	@Autowired private ServerConfigurationService serverConfigurationService;
 	@Autowired private SiteService siteService;
+	@Autowired private SecurityService securityService;
 
 	/*
 	 * Indicate if plus is enabled on this system
@@ -748,7 +749,16 @@ public class PlusServiceImpl implements PlusService {
 
 		// Clean up inactive entries (i.e. like a week since the last NRPS retrieval)
 		// We may be in a thread / task instead of a login context...
-		pushAdvisor();
+
+		// setup a security advisor
+		SecurityAdvisor adv = new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function,
+					String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+
+		securityService.pushAdvisor(adv);
 		try {
 			int minutes = getInactiveExpireMinutes(context);
 			List<Membership> deleted_memberships = removeSiteUsersMinutesOld(context, minutes);
@@ -757,7 +767,7 @@ public class PlusServiceImpl implements PlusService {
 				dbs.append("Inactive memberships removed="+deleted_memberships.size());
 			}
 		} finally {
-			popAdvisor();
+			securityService.popAdvisor(adv);
 		}
 
 		// Update the job status
@@ -1598,21 +1608,6 @@ Authentication: Bearer 89042.hfkh84390xaw3m
 		cal.set(Calendar.MILLISECOND, 0);
 		dueDate = cal.getTime();
 		return dueDate;
-	}
-
-	private void pushAdvisor() {
-
-		// setup a security advisor
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
-			public SecurityAdvice isAllowed(String userId, String function,
-					String reference) {
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-	}
-
-	private void popAdvisor() {
-		SecurityService.popAdvisor();
 	}
 
 }
