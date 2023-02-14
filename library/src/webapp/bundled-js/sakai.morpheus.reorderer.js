@@ -106,15 +106,19 @@ $PBJQ(document).ready(function(){
     });
 
     // the jquery-ui sortable initialization
-    return $PBJQ('[id$="reorder-list"]').sortable({
-      items: '.reorder-element:not(.notsortable)',
-      start: function( event, ui ) {
-        preserveStatus(ui);
-      },
-      update: function( event, ui ) {
-        registerChange(event, ui);
-      },
-    });
+    if ($PBJQ('[id$="reorder-list"]').length) {
+        return $PBJQ('[id$="reorder-list"]').sortable({
+            items: '.reorder-element:not(.notsortable)',
+            start: function( event, ui ) {
+            preserveStatus(ui);
+            },
+            update: function( event, ui ) {
+            registerChange(event, ui);
+            },
+        });
+    } else {
+        return null;
+    }
 });
 
 
