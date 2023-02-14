@@ -250,14 +250,23 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
             HttpServletRequest request, PreDeliveryPhase phase) {
         log.debug("Executing pre delivery phase [{}]", phase);
 
-        switch(phase) {
-            case ASSESSMENT_PUBLISH:
-                return publishConfigUpload(publishedAssessment, request) ? PhaseStatus.SUCCESS : PhaseStatus.FAILURE;
-            default:
-                break;
+        if (publishedAssessment == null) {
+            log.error("Published assessment is null, returning {}", PhaseStatus.FAILURE);
+            return PhaseStatus.FAILURE;
         }
 
-        return PhaseStatus.SUCCESS;
+        String configModeString = publishedAssessment.getAssessmentMetaDataByLabel(SebConfig.CONFIG_MODE);
+
+        switch (phase) {
+            case ASSESSMENT_PUBLISH:
+                if (ConfigMode.UPLOAD.toString().equals(configModeString)) {
+                    return publishConfigUpload(publishedAssessment, request) ? PhaseStatus.SUCCESS : PhaseStatus.FAILURE;
+                } else {
+                    return PhaseStatus.SUCCESS;
+                }
+            default:
+                return PhaseStatus.SUCCESS;
+        }
     }
 
     public boolean validateContext(Object context) {

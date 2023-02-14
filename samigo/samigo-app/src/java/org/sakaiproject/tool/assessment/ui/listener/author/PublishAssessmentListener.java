@@ -324,14 +324,15 @@ public class PublishAssessmentListener
             PhaseStatus executionResult = secureDeliveryService.executePreDeliveryPhase(moduleId, PreDeliveryPhase.ASSESSMENT_PUBLISH,
                     assessment, publishedAssessment, request);
 
-            log.debug("Pre-delivery phase {} executed with result [{}]", PreDeliveryPhase.ASSESSMENT_PUBLISH, executionResult);
+            log.debug("Pre-delivery phase {} executed for module [{}] with result [{}]", PreDeliveryPhase.ASSESSMENT_PUBLISH, moduleId, executionResult);
 
             if (!PhaseStatus.SUCCESS.equals(executionResult)) {
                 String errorMessage = MessageFormat.format(
                         ContextUtil.getLocalizedString(SamigoConstants.AUTHOR_BUNDLE, "secure_delivery_exception_publish"),
                         new Object[]{ secureDeliveryService.getModuleName(moduleId, ContextUtil.getLocale()) });
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(errorMessage));
-                throw new AbortProcessingException("Pre-delivery phase failed when trying to publish assessment");
+                throw new AbortProcessingException("Pre-delivery phase " + PreDeliveryPhase.ASSESSMENT_PUBLISH
+                        + " failed for module [" + moduleId + "] when trying to publish assessment");
             }
         }
     }
