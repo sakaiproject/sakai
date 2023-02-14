@@ -3136,14 +3136,14 @@ public class DbContentService extends BaseContentService
             statement3.executeUpdate();
 
             statement = connection
-            .prepareStatement("insert into CONTENT_COLLECTION ( COLLECTION_ID, XML ) values ( ?, ? )");
+            .prepareStatement("insert into CONTENT_RESOURCE ( RESOURCE_ID, XML ) values ( ?, ? )");
             statement.clearParameters();
             statement.setString(1, UTF8TESTID);
             statement.setString(2, sin);
             statement.executeUpdate();
 
             statement2 = connection
-            .prepareStatement("select XML from CONTENT_COLLECTION where COLLECTION_ID = ? ");
+            .prepareStatement("select XML from CONTENT_RESOURCE where RESOURCE_ID = ? ");
             statement2.clearParameters();
             statement2.setString(1, UTF8TESTID);
             rs = statement2.executeQuery();
