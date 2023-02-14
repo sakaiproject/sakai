@@ -58,7 +58,7 @@ can be either all members of the site, all members of selected groups, or the se
 		#end
 		<input type="radio" name="$name_AssignTo" id="groups" value="$value_AssignTo_IndividualsFromGroups"
 			onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment();ASN.resizeFrame(); if($!isTimesheet){ASN.enableTimesheetSetupSection();}"
-			#if( ($value_AssignTo == $value_AssignTo_IndividualsFromGroups && !$selectedGroupsNotFound) || $instructorGroups.size() > 0 ) checked="checked"
+			#if( ($value_AssignTo == $value_AssignTo_IndividualsFromGroups && !$selectedGroupsNotFound) || ($instructorGroups && $instructorGroups.size() > 0) ) checked="checked"
 			#elseif(!$!groupsList || $disableIndividual) disabled="disabled"
 			#end />
 		$tlang.getString("displayto.selected")
@@ -95,7 +95,7 @@ can be either all members of the site, all members of selected groups, or the se
 	</div>
 
 ## Groups multiselect, visible when Option 2 or 3 is chosen
-	#if( (($value_AssignTo == $value_AssignTo_Groups || $value_AssignTo == $value_AssignTo_IndividualsFromGroups) && !$selectedGroupsNotFound) || $instructorGroups.size() > 0 )
+	#if( (($value_AssignTo == $value_AssignTo_Groups || $value_AssignTo == $value_AssignTo_IndividualsFromGroups) && !$selectedGroupsNotFound) || ($instructorGroups && $instructorGroups.size() > 0) )
 		#set( $listDisplay = "block" )
 	#else
 		#set( $listDisplay = "none" )
