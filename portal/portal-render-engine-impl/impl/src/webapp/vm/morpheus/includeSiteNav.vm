@@ -54,7 +54,7 @@
                 #pageListItem ($page.id, $page.title, $pageUrl, "${page.icon}", 4, $page.hidden, $page.locked)
             #end
             #if ($site.subSites)
-                <li class="nav-item">
+                <li class="nav-item" tabindex="1">
                     <div class="d-inline-flex align-items-stretch">
                         <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${index}-subpages" aria-expanded="false" aria-controls="site-${index}-subpages">
                             <i class="btn-site-carret" aria-hidden="true"></i>
@@ -77,7 +77,7 @@
 
 #macro( pageListItem $id $title $url $icon $indentation $hidden $locked)
     
-    <li class="nav-item">
+    <li class="nav-item" tabindex="1">
         <a class="btn btn-nav rounded-end me-1 ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}" href="$!{url}">
             <div class="d-flex text-start align-items-center">
                 <div class="d-flex me-auto rounded-end">
@@ -140,7 +140,7 @@
             #end
             <div class="sites-section p-1 mt-auto">
                 <a id="sakai-view-all-sites" class="btn btn-nav py-3 w-100 btn-site" href="javascript:;" data-bs-toggle="modal" data-bs-target="#select-site-modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x3-gap-fill" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="si si-grid-3x3-fill" viewBox="0 0 16 16">
                         <path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"></path>
                     </svg>
                     <span class="ps-1">${rloader.sitenav_link_allsites}</span>
@@ -160,14 +160,16 @@
 </aside>
 
 <script>
-// focus the current tool on load
-window.addEventListener('load', () => {
-    const currentTool = document.querySelector('.selected-page');
-    if (currentTool) {
-        currentTool.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        currentTool.focus();
-    }
-}, { once: true });
+    // focus the current tool on load
+    window.addEventListener('load', () => {
 
+        document.querySelector('.selected-page').scrollIntoView({behavior:'auto' , block: 'center'});
+    
+    // put the focus back on the portal wrapper so that keyboard navigation works
+    setTimeout(function() {
+    
+        document.querySelector('.Mrphs-portalWrapper').focus();
+    }, 50);
+    });
 </script>
 <!-- END VM includeSiteNav.vm -->

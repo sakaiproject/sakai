@@ -1,50 +1,54 @@
-<nav class="portal-jump-links visually-hidden-focusable navbar navbar-expand-lg navbar-dark bg-primary" aria-label="${rloader.sit_skipnavigation}">
-    <div class="container-fluid">
-        <div class="navbar-collapse">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            #if ($siteNavHasAccessibilityURL)
-                <li class="nav-item">
-                    <a href="$siteNavAccessibilityURL" class="Mrphs-skipNav__link" title="${rloader.sit_accessibility}" accesskey="0">
-                        ${rloader.sit_accessibility}
-                        <span class="accesibility_key">[0]</span>
-                    </a>
-                </li>
-            #end
-                <li class="nav-item">
-                    <a href="#tocontent" class="nav-link active" title="${rloader.sit_jumpcontent}" accesskey="c">
-                        ${rloader.sit_jumpcontent}
-                        <span class="accesibility_key">[c]</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" id="more-sites-menu" class="nav-link active" title="${rloader.sit_jumpworksite}" accesskey="w">
-                        ${rloader.sit_worksites}
-                        <span class="accesibility_key">[w]</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#totoolmenu" class="nav-link active" title="${rloader.sit_jumptools}" accesskey="l">
-                        ${rloader.sit_menutools}
-                        <span class="accesibility_key">[l]</span>
-                    </a>
-#* TODO find out what this adds and... add it to the list?
-            #foreach( $page in $sitePages.pageNavTools )
-                #if (${page.current})
-                    <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="xs-visible Mrphs-skipNav--toolName">
-                        <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
-                        <span>${page.pageTitle}</span>
-                    </a>
+<nav id="skipNav" class="Mrphs-skipNav" aria-label="${rloader.sit_skipnavigation}">
+    <ul class="Mrphs-skipNav__menu">
+
+        #if ($siteNavHasAccessibilityURL)
+            <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--accessibility">
+                <a href="$siteNavAccessibilityURL" class="Mrphs-skipNav__link" title="${rloader.sit_accessibility}" accesskey="0">
+                    ${rloader.sit_accessibility}
+                    <span class="accesibility_key">[0]</span>
+                </a>
+            </li>
+        #end ## END of IF ($siteNavHasAccessibilityURL)
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--content">
+            <a href="#tocontent" class="Mrphs-skipNav__link" title="${rloader.sit_jumpcontent}" accesskey="c">
+                ${rloader.sit_jumpcontent}
+                <span class="accesibility_key">[c]</span>
+            </a>
+        </li>
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#select-site-modal" id="more-sites-menu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w">
+                <i class="si si-grid-3x3-fill all-sites-icon" aria-hidden="true"></i> ${rloader.sit_worksites}
+                <span class="accesibility_key">[w]</span>
+            </a>
+        </li>
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
+            <a id="totool" href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumptools}" accesskey="l">
+                <i class="si si-sakai-sites tools-icon" aria-hidden="true"></i>
+                ${rloader.sit_menutools}
+                <span class="accesibility_key">[l]</span>
+            </a>
+			#foreach( $page in $sitePages.pageNavTools )
+				#if (${page.current})
+					<a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="xs-visible Mrphs-skipNav--toolName">
+						<span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+						<span>${page.pageTitle}</span>
+					</a>
 
                     #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
                         <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="manage-overview-link-mobile">
-                            <span class="fa fa-pencil"></span>$rloader.sit_manover
+                            <span class="si si-edit"></span>$rloader.sit_manover
                         </a>
                     #end
-                #end
-            #end
-*#
-                </li>
-            </ul>
-        </div>
-    </div>
+				#end
+			#end
+        </li>
+    </ul>
 </nav>
+<script>
+    window.addEventListener("load", function() {
+    
+        document.getElementById("totool").addEventListener("click", function() {
+        document.querySelector(".nav-item").focus();
+        });
+    });
+</script>
