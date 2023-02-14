@@ -25,6 +25,14 @@ $(window).load(function () {
   $('.defaultClosed').each(function () {
     setCollapsedStatus($(this).prev(), true);
   });
+
+  // Scroll the last-answered question into view
+  const questionToScrollTo = sessionStorage.getItem('question-submit-return-id');
+  if (questionToScrollTo) {
+    sessionStorage.removeItem('question-submit-return-id');
+    document.getElementById(questionToScrollTo).scrollIntoView(true);
+  }
+
 });
 
 function fixAddBefore(href) {
@@ -117,6 +125,15 @@ $(document).ready(function () {
     box = $(this).children().first();
     box.attr('title', $(this).children().nextAll('.tooltip-content').html())
     box.tooltip();
+  });
+
+  $('.question-submit').click(function (e) {
+    // Store the question the student just answered and jump to it on new page load
+    const closestElement = $(this).parent().closest('[id]');
+    if (closestElement) {
+      const closestId = closestElement.prop('id');
+      sessionStorage.setItem('question-submit-return-id', closestId);
+    }
   });
 
   $("input[type=checkbox].checklist-checkbox").on("change", function () {
