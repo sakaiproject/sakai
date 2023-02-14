@@ -1122,6 +1122,7 @@ $(document).ready(function () {
       $("#multipleChoiceSelect").click();
       $("#multipleChoiceSelect").prop('checked',true);  //the Click above will trigger the right hide/show of things itself, but it will not actually display multipleChoiceSelect as Checked, so we do it explicitly here.
       resetMultipleChoiceAnswers();
+      resetMatchingAnswers();
       resetShortanswers();
 
       $("#multipleChoiceSelect").prop("disabled", false);

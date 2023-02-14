@@ -1340,6 +1340,8 @@
                   <label for="multipleChoiceSelect" rsf:id="msg=simplepage.multipleChoice" />
                   <input type="radio" name="questionTypeGroup" rsf:id="shortanswerSelect" id="shortanswerSelect" />
                   <label for="shortanswerSelect" rsf:id="msg=simplepage.shortanswer" />
+                  <input type="radio" name="questionTypeGroup" rsf:id="matchingSelect" id="matchingSelect" />
+                  <label for="matchingSelect" rsf:id="msg=simplepage.matching" />
                 </div>
 
                 <div class="longtext" style="padding:5px">
@@ -1428,6 +1430,38 @@
                       <input type="checkbox" name="question-show-poll" id="question-show-poll" rsf:id="question-show-poll" />
                       <label for="question-show-poll"><span rsf:id="msg=simplepage.question-show-poll-option"></span></label>
                     </p>
+                  </div>
+                  <div id="matchingDialogDiv">
+                      <fieldset>
+                          <legend><h4 rsf:id="msg=simplepage.answers"></h4></legend>
+                          <table id="matchingAnswers" class="table table-striped table-bordered table-hover">
+                              <thead>
+                                  <tr>
+                                      <th><span rsf:id="msg=simplepage.question-tableheader-matching-prompt">Prompt</span></th>
+                                      <th><span rsf:id="msg=simplepage.question-tableheader-matching-text">Matching Text</span></th>
+                                      <th><span rsf:id="msg=simplepage.question-tableheader-remove">Remove?</span></th>
+                                  </tr>
+                              </thead>
+                              <tbody id="matchingAnswersBody">
+                                  <tr id="copyableMatchingAnswer">
+                                      <input type="hidden" rsf:id="question-matching-complete" class="question-matching-complete" />
+                                      <input type="hidden" rsf:id="question-matching-id" class="question-matching-id" />
+                                      <td>
+                                          <label for="question-matching-prompt"><span rsf:id="msg=simplepage.question-correct-answer" class="lb-offscreen"></span></label>
+                                          <input type="text" name="question-matching-prompt" rsf:id="question-matching-prompt" class="question-matching-prompt" />
+                                      </td>
+                                      <td>
+                                          <label for="question-matching-response"><span rsf:id="msg=simplepage.question-correct-answer" class="lb-offscreen"></span></label>
+                                          <input type="text" name="question-matching-response" rsf:id="question-matching-response" class="question-matching-response" />
+                                      </td>
+                                      <td>
+                                          <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-mc-del"></img></a>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                          <button onclick="addMatchingAnswer(); return false;" rsf:id="msg=simplepage.addAnswer"/>
+                      </fieldset>
                   </div>
                   <div rsf:id="gradeBookQuestionsDiv">
                     <p class="checkbox">
@@ -3174,6 +3208,22 @@
                         </form>
                       </div>
 
+                      <div class="matchingDiv" rsf:id="matchingDiv">
+                          <form action="#" rsf:id="matchingForm" class="matchingForm">
+                              <input type="hidden" rsf:id="csrf6" />
+                              <input type="hidden" rsf:id="matchingId" />
+                              <span rsf:id="matchingSelect:"></span>
+                              <div rsf:id="matchingAnswer:" class="matchingAnswer">
+                                  <label rsf:id="matchingAnswerPrompt" class="matchingAnswerPrompt"/>
+                                  <select rsf:id="matchingAnswerResponse" name="matchingAnswerResponse">
+                                      <option rsf:id="matchingAnswerPossibleResponse:"></option>
+                                  </select>
+                              </div>
+                              <input class="question-submit" type="submit" value="Answer!" rsf:id="answerMatching" />
+                              <input class="showPollGraph question-submit" type="submit" rsf:id="showPollGraph" onclick="return false;"/>
+                          </form>
+                      </div>
+
                       <div class="shortanswerDiv" rsf:id="shortanswerDiv">
                         <form action="#" rsf:id="shortanswerForm" class="shortanswerForm">
                           <input type="hidden" rsf:id="csrf5" />
@@ -3223,6 +3273,11 @@
                     <span rsf:id="questionMultipleChoiceAnswerText" class="questionMultipleChoiceAnswerText"></span>
                     <span rsf:id="questionMultipleChoiceAnswerCorrect" class="questionMultipleChoiceAnswerCorrect"></span>
                     <input type="hidden" class="raw-questionAnswer-text" rsf:id="raw-questionAnswer-text" />
+                  </div>
+                  <div style="display:none" rsf:id="questionMatchingAnswer:" class="questionMatchingAnswer">
+                    <span rsf:id="questionMatchingAnswerId" class="questionMatchingAnswerId"></span>
+                    <span rsf:id="questionMatchingPrompt" class="questionMatchingPrompt"></span>
+                    <span rsf:id="questionMatchingResponse" class="questionMatchingResponse"></span>
                   </div>
                   <span style="display:none" rsf:id="questionShowPoll" class="questionShowPoll"></span>
                   <span style="display:none" rsf:id="questionGrade" class="questionGrade"></span>
