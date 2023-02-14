@@ -255,9 +255,10 @@ public class SebConfig {
         map.put(SEB_WEBVIEW_VERSION_KEY, 3);
         map.put(QUIT_LINK_KEY, QUIT_LINK);
 
-        // TODO remove
-        map.put("killExplorerShell", false);
-        map.put("createNewDesktop", false);
+        // Useful properties for demos, makes it possible to record or share the screen
+        // Commented, since it is disabling security features of SEB
+        //map.put("killExplorerShell", false);
+        //map.put("createNewDesktop", false);
 
         return map;
     }
