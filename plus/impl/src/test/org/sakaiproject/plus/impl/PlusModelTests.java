@@ -258,6 +258,10 @@ public class PlusModelTests extends AbstractTransactionalJUnit4SpringContextTest
 		assertEquals(lms.getLtiRoles(), nms.getLtiRoles());
 		assertEquals(lms.getLtiRolesOverride(), nms.getLtiRolesOverride());
 
+		int minutes = 5;
+		List expired = membershipRepository.getEntriesMinutesOld(context, minutes);
+		assertEquals(0,expired.size());
+
 		newContext = contextRepository.findByContextAndTenant("SI364", tenant);
 
 		LineItem lineItem = new LineItem();
