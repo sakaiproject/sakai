@@ -191,7 +191,7 @@ implements ActionListener
 
 	    // kk. remove the existing title decoration (if any) and then add the new one (if any)	    
 	    String titleDecoration = assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.TITLE_DECORATION );
-	    String newTitle = StringUtils.isEmpty(titleDecoration) && !"NONE".equals(titleDecoration)
+	    String newTitle = StringUtils.isNotEmpty(titleDecoration) && !"NONE".equals(titleDecoration)
 	            ? StringUtils.replace(assessment.getTitle(), " " + titleDecoration, "")
 	            : assessment.getTitle();
 	    titleDecoration = secureDeliveryService.getTitleDecoration( assessmentSettings.getSecureDeliveryModule(), new ResourceLoader().getLocale() );
