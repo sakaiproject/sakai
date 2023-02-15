@@ -127,13 +127,12 @@ $(document).ready(function () {
     box.tooltip();
   });
 
-  $('.question-submit').click(function (e) {
-    // Store the question the student just answered and jump to it on new page load
-    const closestElement = $(this).parent().closest('[id]');
-    if (closestElement) {
-      const closestId = closestElement.prop('id');
-      sessionStorage.setItem('question-submit-return-id', closestId);
-    }
+  document.querySelectorAll('.question-submit').forEach(el => {
+    el.addEventListener("click", e => {
+      // Store the question the student just answered and jump to it on new page load
+      const qEl = e.target.parentElement.closest('[id]');
+      qEl && sessionStorage.setItem('question-submit-return-id', qEl.id);
+    });
   });
 
   $("input[type=checkbox].checklist-checkbox").on("change", function () {
