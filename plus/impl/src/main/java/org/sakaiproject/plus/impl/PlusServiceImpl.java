@@ -768,6 +768,30 @@ public class PlusServiceImpl implements PlusService {
 				cLog.setStatus("Exception processing Names and Roles data="+e.getMessage());
 			}
 
+			// If this is the last page, clean up inactive entries (i.e. like a week since the last NRPS retrieval)
+			// We may be in a thread / task instead of a login context...
+			if ( isEmpty(contextMemberships) ) {
+
+				// setup a security advisor
+				SecurityAdvisor adv = new SecurityAdvisor() {
+					public SecurityAdvice isAllowed(String userId, String function,
+							String reference) {
+						return SecurityAdvice.ALLOWED;
+					}
+				};
+
+				securityService.pushAdvisor(adv);
+				try {
+					int minutes = getInactiveExpireMinutes(context);
+					List<Membership> deleted_memberships = removeSiteUsersMinutesOld(context, minutes);
+					if ( deleted_memberships.size() > 0 ) {
+						log.info("Inactive memberships removed {} from {}", deleted_memberships.size(), site.getId());
+						dbs.append("Inactive memberships removed "+deleted_memberships.size()+" from "+site.getId());
+					}
+				} finally {
+					securityService.popAdvisor(adv);
+				}
+			}
 
 			// Update the job status
 			context.setNrpsFinish(Instant.now());
@@ -779,28 +803,6 @@ public class PlusServiceImpl implements PlusService {
 			contextRepository.save(context);
 			contextLogRepository.save(cLog);
 		}  /* end while paging loop */
-
-        // Clean up inactive entries (i.e. like a week since the last NRPS retrieval)
-        // We may be in a thread / task instead of a login context...
-
-        // setup a security advisor
-        SecurityAdvisor adv = new SecurityAdvisor() {
-            public SecurityAdvice isAllowed(String userId, String function,
-                    String reference) {
-                return SecurityAdvice.ALLOWED;
-            }
-        };
-
-        securityService.pushAdvisor(adv);
-        try {
-            int minutes = getInactiveExpireMinutes(context);
-            List<Membership> deleted_memberships = removeSiteUsersMinutesOld(context, minutes);
-            if ( deleted_memberships.size() > 0 ) {
-                log.info("Inactive memberships removed {} from {}", deleted_memberships.size(), site.getId());
-            }
-        } finally {
-            securityService.popAdvisor(adv);
-        }
 
 	}
 
