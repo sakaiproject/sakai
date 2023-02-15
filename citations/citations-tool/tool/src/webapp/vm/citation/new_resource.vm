@@ -168,7 +168,7 @@
 		</p>	
 	</div>
 	<div class="act">
-		<input type="button" name="Cancel" class="Cancel active" value="$tlang.getString("resource.done")" />
+		<input type="button" name="Cancel" class="Cancel" value="$tlang.getString("label.cancel")" />
         <span class="firstPageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
             <img src="/library/image/sakai/spinner.gif" alt="$stlang.getString("gen.proces")" />
             $stlang.getString("gen.proces")
