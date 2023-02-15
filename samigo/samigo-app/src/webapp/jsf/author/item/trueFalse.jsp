@@ -137,11 +137,6 @@
                 <f:validateDoubleRange />
             </h:inputText>
             <h:message for="answerdsc" styleClass="validate"/>
-            <small>
-                <h:outputText
-                    styleClass="sak-banner-info"
-                    value="#{authorMessages.note_negative_point_value_question}" />
-            </small>
         </div>
     </div>
 
