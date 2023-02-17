@@ -24,6 +24,7 @@ package org.sakaiproject.portal.api;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -268,23 +269,6 @@ public interface PortalService
 	void removeHandler(String portalContext, String urlFragment);
 
 	/**
-	 * @return
-	 */
-	SiteNeighbourhoodService getSiteNeighbourhoodService();
-
-	/**
-	 * Bean setter for Content Hosting dependency.
-	 * @param contentHostingService
-	 */
-	void setContentHostingService(ContentHostingService contentHostingService);
-	
-	/**
-	 * Bean getter for Content Hosting dependency.
-	 * @return
-	 */
-	ContentHostingService getContentHostingService();
-
-	/**
 	 * Retrieves the url for the ContentItem selector - if there are any to select
 	 * @param site The site that is being rendered.
 	 * @return The ContentItem selctor URL or null
@@ -298,18 +282,6 @@ public interface PortalService
 	 * @return The collection ID for the placement's context or current user's My Workspace. 
 	 */
 	String getBrowserCollectionId(Placement placement);
-	
-	/**
-	 * Bean setter for Editor Registry.
-	 * @param editorRegistry
-	 */
-	void setEditorRegistry(EditorRegistry editorRegistry);
-	
-	/**
-	 * Bean getter for Editor Registry.
-	 * @return
-	 */
-	EditorRegistry getEditorRegistry();
 	
 	/**
 	 * Retrieve the activated system-wide Editor.
@@ -340,4 +312,32 @@ public interface PortalService
 	 */
 	public List<Map> getQuickLinks(String siteSkin);
 
+	/**
+	 * Update the list of pinned site ids for the current user
+	 *
+	 * @param siteIds The set of site ids to pin
+	 */
+	public void savePinnedSites(Set<String> siteIds);
+
+	/**
+	 * Get the list of pinned site ids for the current user
+	 *
+	 * @return the set of pinned site ids for the supplied user
+	 */
+	public Set<String> getPinnedSites();
+
+	/**
+	 * Get the list of recent site ids for the current user
+	 *
+	 * @return the set of recent site ids for the supplied user
+	 */
+	public List<String> getRecentSites();
+
+	/**
+	 * Add a recent site to the current user's list. Pop a site off the list if
+	 * necessary.
+	 *
+	 * @param siteId The site id to add
+	 */
+	public void addRecentSite(String siteId);
 }
