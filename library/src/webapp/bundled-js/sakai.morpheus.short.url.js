@@ -21,7 +21,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 }
 
 $PBJQ(document).ready(function(){
-  $PBJQ('.Mrphs-toolTitleNav__link--directurl').click( function( e ){
+  $PBJQ('.link--directurl').click( function( e ){
     var origin = $PBJQ(this).position(),
     	$dialog = $PBJQ(this).siblings('.Mrphs-directUrl'); 
     
@@ -65,7 +65,7 @@ $PBJQ(document).ready(function(){
 	
 	$dialog.toggleClass('active');
 	$dialog.removeAttr('aria-expanded');
-	$PBJQ('.Mrphs-toolTitleNav__link--directurl[rel="#'+$dialog.attr('id')+'"]').focus();
+	$PBJQ('.link--directurl[rel="#'+$dialog.attr('id')+'"]').focus();
     e.preventDefault();
   });
 });
