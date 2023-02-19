@@ -225,6 +225,10 @@
     --sakai-offcanvas-header-color: var(--sakai-text-color-1);
     --sakai-offcanvas-close-btn-bg: var(--sakai-background-color-1);
 
+    .accordion-button::after {
+      filter: invert(100%);
+    }
+
     .w_content .btn {
       color: white;
     }

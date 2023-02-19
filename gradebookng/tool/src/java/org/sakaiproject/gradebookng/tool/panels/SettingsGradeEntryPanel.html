@@ -4,18 +4,19 @@
 <body>
 	<wicket:panel>
 
-		<div class="card">
-			<div class="text-center gb-settings-header" id="settingsGradeEntryHeader">
-				<h3 class="panel-title"
-							data-bs-toggle="collapse"
-							data-bs-target="#settingsGradeEntry"
-							aria-expanded="false"
-							aria-controls="settingsGradeEntry">
-						<wicket:message key="settingspage.gradeentry.heading">Grade Entry</wicket:message>
-				</h3>
-			</div>
-			<div wicket:id="settingsGradeEntryPanel" id="settingsGradeEntry" class="panel-collapse collapse" aria-labelledby="settingsGradeEntryHeader">
-				<div class="card-body">
+	<div class="accordion-item" id="settingsGradeEntryHeader">
+		<h2 class="accordion-header">
+			<button class="accordion-button collapsed fw-bold"
+				type="button"
+				data-bs-toggle="collapse"
+				data-bs-target="#settingsGradeEntry"
+				aria-expanded="false"
+				aria-controls="settingsGradeEntry">
+				<wicket:message key="settingspage.gradeentry.heading">Grade Entry</wicket:message>
+			</button>
+		</h2>
+			<div wicket:id="settingsGradeEntryPanel" id="settingsGradeEntry" class="accordion-collapse collapse" aria-labelledby="settingsGradeEntryHeader">
+				<div class="accordion-body">
 					<p><wicket:message key="settingspage.gradeentry.instructions">How will graders enter grades...</wicket:message></p>
 
 					<div wicket:id="gradeEntry">
@@ -24,7 +25,7 @@
 					</div>
 				</div>
 			</div>
-		</div>
+	</div>
 		
 	</wicket:panel>
 </body>
