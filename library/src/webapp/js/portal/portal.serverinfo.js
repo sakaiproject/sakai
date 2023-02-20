@@ -9,20 +9,20 @@ class ServerInfoPopover {
     config?.serverTime && (this._serverTime = new TimeDisplay(this._container, config.serverTime));
     config?.preferredTime && (this._preferredTime = new TimeDisplay(this._container, config.preferredTime));
 
-    this._element.addEventListener("show.bs.popover", this.#handleShow.bind(this));
-    this._element.addEventListener("hide.bs.popover", this.#handleHide.bind(this));
+    this._element.addEventListener("show.bs.popover", this.handleShow.bind(this));
+    this._element.addEventListener("hide.bs.popover", this.handleHide.bind(this));
     this._iconElement = this._element.querySelector(".bi");
     this._popover = new bootstrap.Popover(this._element);
   }
 
-  #handleShow() {
+  handleShow() {
 
     this._serverTime?.doUpdates();
     this._preferredTime?.doUpdates();
     this._iconElement.classList.replace(...this._iconClasses);
   }
 
-  #handleHide() {
+  handleHide() {
 
     this._serverTime?.stopUpdates();
     this._preferredTime?.stopUpdates();
@@ -54,7 +54,7 @@ class TimeDisplay {
     this._counterInterval = setInterval(() => this._secondsPassed++, 1000);
   }
 
-  #update() {
+  update() {
 
     const timeNow = moment(this._initialTime).add(this._secondsPassed, "seconds");
     setTimeout(() => {
@@ -64,8 +64,8 @@ class TimeDisplay {
 
   doUpdates() {
 
-    this.#update();
-    this._updateInterval = setInterval(this.#update.bind(this), this._intervalLength);
+    this.update();
+    this._updateInterval = setInterval(this.update.bind(this), this._intervalLength);
   }
 
   stopUpdates() {

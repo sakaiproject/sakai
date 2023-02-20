@@ -8,12 +8,12 @@ class PasswordField {
     this._icons = config.icons;
     this._passInput = this._element.querySelector("#pw");
     this._showPassCheck = this._element.querySelector("input[type='checkbox']");
-    this._showPassCheck.addEventListener("click", this.#handleShowPassClick.bind(this));
+    this._showPassCheck.addEventListener("click", this.handleShowPassClick.bind(this));
     this._showPassIcon = this._element.querySelector(`[for="${this._showPassCheck.id}"] .bi`);
-    window.addEventListener("keydown", this.#handleCapslock.bind(this));
+    window.addEventListener("keydown", this.handleCapslock.bind(this));
   }
 
-  #handleShowPassClick() {
+  handleShowPassClick() {
 
     this._showPassword = this._showPassCheck.checked;
     if (this._showPassCheck.checked) {
@@ -25,7 +25,7 @@ class PasswordField {
     }
   }
 
-  #handleCapslock(event) {
+  handleCapslock(event) {
 
     const prevcapsLockActive = this._capsLockActive;
     const capsMod = event?.getModifierState?.("CapsLock");

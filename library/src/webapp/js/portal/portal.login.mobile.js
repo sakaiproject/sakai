@@ -4,16 +4,16 @@ class MobileLogin {
 
     this._passConfig = config?.passwordField;
     this._element = element;
-    this._element.addEventListener("click", this.#showModal.bind(this));
+    this._element.addEventListener("click", this.showModal.bind(this));
   }
 
-  async #showModal() {
+  async showModal() {
 
     //If modal dialog is not loaded yet, do it now 
     if (!this._loaded) {
-      this.#createModalElement();
-      await this.#loadLoginDialog();
-      this.#adjustLoginDialog();
+      this.createModalElement();
+      await this.loadLoginDialog();
+      this.adjustLoginDialog();
       this.passwordField = new PasswordField(this._modalEl.querySelector(".password-field"), this._passConfig);
       this._modal = new bootstrap.Modal(this._modalEl);
       this._loaded = true;
@@ -21,7 +21,7 @@ class MobileLogin {
     this._modal.show();
   }
 
-  #createModalElement() {
+  createModalElement() {
 
     this._modalEl = document.createElement("div");
     this._modalEl.classList.add("modal", "mobile-login");
@@ -31,7 +31,7 @@ class MobileLogin {
   }
 
   //Loads html from the xlogin endpoint and inserts the dialog into the modal
-  async #loadLoginDialog() {
+  async loadLoginDialog() {
 
     const xloginQuery = await fetch('/portal/xlogin');
     if (xloginQuery.ok) {
@@ -44,7 +44,7 @@ class MobileLogin {
   }
 
   //Makes adjustments, to make the dialog viable to be displayed in a modal
-  #adjustLoginDialog() {
+  adjustLoginDialog() {
 
     //Remove d-none class from close button -> make it visible
     const closeModalButton = this._modalEl?.querySelector(".btn-close");
