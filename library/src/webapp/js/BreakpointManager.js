@@ -18,11 +18,11 @@ class BreakpointManager {
     constructor(window) {
         this._window = window;
         this._callbacks = [];
-        this.#handleResize();
-        this._window.addEventListener("resize", this.#handleResize.bind(this));
+        this.handleResize();
+        this._window.addEventListener("resize", this.handleResize.bind(this));
     }
     
-    #handleResize() {
+    handleResize() {
         const width = this._window.innerWidth;
         const tempBP = this._currentBP;
 
@@ -31,12 +31,12 @@ class BreakpointManager {
         if (tempBP !== this._currentBP) {
             this._prevBP = tempBP;
             if (tempBP) {
-                this.#triggerCallbacks();
+                this.triggerCallbacks();
             }
         }
     }
 
-    async #triggerCallbacks() {
+    async triggerCallbacks() {
         this._callbacks.forEach((callback) => {
             callback.call(this._window, this._currentBP, this._prevBP);
         });
