@@ -51,6 +51,8 @@ import org.sakaiproject.announcement.tool.MenuBuilder.ActiveTab;
 import org.sakaiproject.announcement.tool.AnnouncementActionState;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -214,6 +216,7 @@ public class AnnouncementAction extends PagedResourceActionII
    private static final String VIEW_MODE_ALL      = "view.all";
    private static final String VIEW_MODE_PUBLIC   = "view.public";
    private static final String VIEW_MODE_BYGROUP  = "view.bygroup";
+   private static final String VIEW_MODE_BYROLE  = "view.byrole";
    private static final String VIEW_MODE_MYGROUPS = "view.mygroups";
 
    /** The number of days, by default, before retraction. */
@@ -248,6 +251,8 @@ public class AnnouncementAction extends PagedResourceActionII
    
    private static final String DEFAULT_TEMPLATE="announcement/chef_announcements";
 
+   private static final String SELECTED_ROLES_PROPERTY = "selectedRoles";
+   private static final String ROLES_CONSTANT = "roles";
 
     public AnnouncementAction() {
         super();
@@ -465,6 +470,18 @@ public class AnnouncementAction extends PagedResourceActionII
 				&& a.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
 		{
 			return rb.getString("gen.public");
+		}
+		else if (a.getProperties().getPropertyList(SELECTED_ROLES_PROPERTY) != null)
+		{
+			String allRolesString = "";
+			ArrayList<String> selectedRolesList = new ArrayList<String>(a.getProperties().getPropertyList("selectedRoles"));
+			String[] selectedRoles = selectedRolesList.toArray(new String[selectedRolesList.size()]);
+			int count = 0;
+			for (String selectedRole : selectedRoles) {
+				count++;
+				allRolesString += (count==1? "" : ", ") + selectedRole;
+			}
+			return allRolesString;
 		}
 		else if (a.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL))
 		{
@@ -694,11 +711,39 @@ public class AnnouncementAction extends PagedResourceActionII
 							{
 								messages = getMessagesPublic(site, channel, null, true, state, portlet);
 							}
+							else if (VIEW_MODE_BYROLE.equals(view))
+							{
+								messages = getMessagesByRoles(site, channel, null, true, state, portlet);
+							}
 						}
 						else
 						{
 							messages = getMessages(channel, null, true, state, portlet);
 						}
+						List<AnnouncementWrapper> finalMessages = new ArrayList<>();
+						for (AnnouncementWrapper message : messages) {
+							site = SiteService.getSite(EntityManager.newReference(message.getReference()).getContext());
+							List selectedRolesList = message.getProperties().getPropertyList("selectedRoles");
+							boolean showAnnounMessage = false;
+							boolean isOwner = userDirectoryService.getCurrentUser().getId().equals(message.getAnnouncementHeader().getFrom().getId());
+							if (selectedRolesList == null || isOwner || m_securityService.isSuperUser()) {
+								showAnnounMessage = true;
+							} else {
+								ArrayList<String> selectedRolesArray = new ArrayList<String>(selectedRolesList);
+								String[] selectedRoles = selectedRolesArray.toArray(new String[selectedRolesArray.size()]);
+								Member currentMember = site.getMember(userDirectoryService.getCurrentUser().getId());
+								String memberRole = currentMember.getRole().getId();
+								for (String selectedRole : selectedRoles) {
+									if (memberRole.equals(selectedRole)) {
+										showAnnounMessage = true;
+									}
+								}
+							}
+							if (showAnnounMessage) {
+								finalMessages.add(message);
+							}
+						}
+						messages = finalMessages;
 						//readResourcesPage expects messages to be in session, so put the entire messages list in the session
 						sstate.setAttribute("messages", messages);
 						//readResourcesPage just orders the list correctly, so we can trim a correct list
@@ -1369,6 +1414,39 @@ public class AnnouncementAction extends PagedResourceActionII
 	} // getMessagesByGroups
 
 	/**
+	 * This get the whole list of announcement, find their roles, and list them based on role attribute
+	 * 
+	 * @throws PermissionException
+	 */
+	private List<AnnouncementWrapper> getMessagesByRoles(Site site, AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
+			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
+	{
+		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
+		List<AnnouncementWrapper> finalMessages = new ArrayList<>();
+
+		for (AnnouncementWrapper aMessage : messageList)
+		{
+			String pubview = aMessage.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
+			if (pubview != null && Boolean.valueOf(pubview).booleanValue()) {
+				// public announcements
+				aMessage.setRange(rb.getString("range.public"));
+			} else {
+				Collection selectedRoles = ((AnnouncementMessage) aMessage).getProperties().getPropertyList(SELECTED_ROLES_PROPERTY);
+				if (selectedRoles == null || selectedRoles.size() == 0) {
+					// site announcements
+					aMessage.setRange(rb.getString("range.allgroups"));
+				} else {
+					// announcement by role
+					finalMessages.add(aMessage);
+				}
+			}
+		}
+
+		return finalMessages;
+
+	} // getMessagesByRoles
+
+	/**
 	 * This get the whole list of announcement, find their groups, and list them based on group attribute
 	 * 
 	 * @throws PermissionException
@@ -1579,6 +1657,16 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		}
 		
+		String[] annToRoles = state.getTempAnnounceToRoles();
+		if (annToRoles != null) {
+			String rolesString = "";
+			int count = 0;
+			for (String role : annToRoles) {
+				count++;
+				rolesString += (count==1? "" : ", ") + role;
+			}
+			context.put("annToRoles", rolesString);
+		}
 		
 		// Set date
 		AnnouncementMessageEdit edit = state.getEdit();
@@ -1679,7 +1767,19 @@ public class AnnouncementAction extends PagedResourceActionII
 			AnnouncementActionState state, SessionState sstate)
 	{
 		context.put("service", contentHostingService);
-
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+		try {
+			Site site = SiteService.getSite(siteId);
+			Role[] siteRoles = site.getRoles().toArray(new Role[site.getRoles().size()]);
+			List<String> siteRolesIds = new ArrayList<String>();
+			for (Role role: siteRoles){
+				siteRolesIds.add(role.getId());
+			}
+			Collections.sort(siteRolesIds); 
+			context.put("siteRolesIds", siteRolesIds);
+		} catch (IdUnusedException ex) {
+			log.error("Failed to get site from id {}", siteId);
+		}
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("dateFormat", getDateFormatString());
@@ -1715,6 +1815,15 @@ public class AnnouncementAction extends PagedResourceActionII
 						{
 							// to group otherwise
 							context.put("announceTo", "groups");
+						}
+					} 
+					else {
+						List selectedRolesList = state.getEdit().getProperties().getPropertyList("selectedRoles");
+						ArrayList<String> selectedRolesArray = null;
+						if (selectedRolesList != null) {
+							selectedRolesArray = new ArrayList<String>(selectedRolesList);
+							String[] selectedRoles = selectedRolesArray.toArray(new String[selectedRolesArray.size()]);
+							state.setTempAnnounceToRoles(selectedRoles);
 						}
 					}
 				}
@@ -1967,6 +2076,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		context.put("announceToGroups", state.getTempAnnounceToGroups());
 		context.put("highlight", state.getTempHighlight());
+		context.put("announceToRoles", state.getTempAnnounceToRoles());
 
 		context.put("publicDisable", sstate.getAttribute(PUBLIC_DISPLAY_DISABLE_BOOLEAN));
 
@@ -2542,6 +2652,20 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setTempAnnounceToGroups(null);
 		}
 
+		if (announceTo != null && ROLES_CONSTANT.equals(announceTo)) {
+			String[] rolesChoice = params.getStrings(SELECTED_ROLES_PROPERTY);
+			if (rolesChoice == null || rolesChoice.length == 0) {
+				state.setTempAnnounceToRoles(null);
+				if (checkForm) {
+					addAlert(sstate, rb.getString("java.alert.youchooserole"));
+				}
+			} else {
+				state.setTempAnnounceToRoles(rolesChoice);
+			}
+		} else {
+			state.setTempAnnounceToRoles(null);
+		}
+
 		// read the public view setting and save it in session state
 		String publicView = params.getString("pubview");
 		if (publicView == null) publicView = "false";
@@ -2808,6 +2932,15 @@ public class AnnouncementAction extends PagedResourceActionII
 						// set access
 						header.setGroupAccess(groups);
 					}
+					if (announceTo != null && ROLES_CONSTANT.equals(announceTo)) {
+						msg.getPropertiesEdit().removeProperty(SELECTED_ROLES_PROPERTY);
+						for (String role : state.getTempAnnounceToRoles()) {
+							msg.getPropertiesEdit().addPropertyToList(SELECTED_ROLES_PROPERTY, role);
+						}
+						header.clearGroupAccess();
+					} else {
+						msg.getPropertiesEdit().removeProperty(SELECTED_ROLES_PROPERTY);
+					}
 					
 					// site/grouop changed?
 					accessChanged = stringChanged(accessChanged, oAccess, header.getAccess().toString());
@@ -2892,6 +3025,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setMessageReference("");
 			state.setTempAnnounceTo(null);
 			state.setTempAnnounceToGroups(null);
+			state.setTempAnnounceToRoles(null);
 			state.setCurrentSortedBy(getCurrentOrder());
 			//state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
 			sstate.setAttribute(STATE_CURRENT_SORTED_BY, getCurrentOrder());
@@ -3408,6 +3542,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setStatus(CANCEL_STATUS);
 		state.setTempAnnounceTo(null);
 		state.setTempAnnounceToGroups(null);
+		state.setTempAnnounceToRoles(null);
 		state.setCurrentSortedBy(getCurrentOrder());
 		//state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
 		sstate.setAttribute(STATE_CURRENT_SORTED_BY, getCurrentOrder());
