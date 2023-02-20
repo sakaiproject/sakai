@@ -48,6 +48,7 @@ import org.sakaiproject.lti.api.UserFinderOrCreator;
 import org.sakaiproject.lti.api.UserLocaleSetter;
 import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.site.api.SiteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -200,6 +201,11 @@ public class PlusTestConfiguration {
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         return mock(ServerConfigurationService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.site.api.SiteService")
+    public SiteService siteConfigurationService() {
+        return mock(SiteService.class);
     }
 
 }

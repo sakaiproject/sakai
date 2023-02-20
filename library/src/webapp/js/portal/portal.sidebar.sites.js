@@ -14,11 +14,14 @@ class SitesSidebar {
 
     element.querySelectorAll(".site-description-button").forEach(buttonEl => new bootstrap.Popover(buttonEl));
 
-    document.addEventListener("site-pin-change", this.#handlePinChange);
+    document.addEventListener("site-pin-change", this.handlePinChange);
 
     element.querySelectorAll(".site-list-item-collapse").forEach(btn => {
 
       const chevron = element.querySelector(`[data-bs-target='#${btn.id}'] > i`);
+
+      chevron.className = `bi-chevron-${btn.classList.contains("show") ? "down" : "right"}`;
+
       btn.addEventListener("show.bs.collapse", e => {
 
         e.stopPropagation();
@@ -61,7 +64,7 @@ class SitesSidebar {
     this._element.classList.remove("d-none");
   }
 
-  async #handlePinChange(event) {
+  async handlePinChange(event) {
 
     const pinButton = event.target;
     const pinned = event.detail.pinned;
@@ -135,18 +138,18 @@ class PinButton {
     this._element = element;
     this._i18n = config?.i18n;
     this._site = element.getAttribute("data-pin-site");
-    element.addEventListener("click", this.#toggle.bind(this));
+    element.addEventListener("click", this.toggle.bind(this));
   }
 
-  #toggle() {
+  toggle() {
 
     this.pinned = !this.pinned
     this.title = this.pinned ? this._i18n.titleUnpin : this._i18n.titlePin;
-    this.#toggleIcon()
-    this.#emitPinChange();
+    this.toggleIcon()
+    this.emitPinChange();
   }
 
-  #toggleIcon() {
+  toggleIcon() {
 
     const buttonClasses =  this._element.classList;
     const pinnedIcon = "bi-pin";
@@ -156,7 +159,7 @@ class PinButton {
   }
 
   //Dispatches event which will cause a fetch to cange pinned value
-  #emitPinChange() {
+  emitPinChange() {
 
     const eventName = "site-pin-change";
     const eventPayload = { pinned: this.pinned, siteId: this._site };

@@ -17,12 +17,14 @@
 package org.sakaiproject.plus.api;
 
 import java.util.Map;
+import java.util.List;
 
 import org.sakaiproject.lti.api.LTIException;
 
 import org.sakaiproject.plus.api.model.Tenant;
 import org.sakaiproject.plus.api.model.Subject;
 import org.sakaiproject.plus.api.model.Context;
+import org.sakaiproject.plus.api.model.Membership;
 import org.sakaiproject.plus.api.model.Link;
 
 import org.tsugi.lti13.objects.LaunchJWT;
@@ -177,4 +179,33 @@ public interface PlusService {
 	// https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
 	void processGradeEvent(Event event);
 
+	/*
+	 * Get "old" memberships that are still in the Realm
+	 */
+	public List<Membership> getSiteUsersMinutesOld(Context context, int minutes);
+
+	/*
+	 * Remove "old" memberships that are still in the Realm
+	 *
+	 * Returns a list of the memberships that were removed from the Realm.  The memberships
+	 * continue to exist - just the realm entries are removed.  Is a user shows up in an NRPS
+	 * retrieval or launches into a Plus Site, since remove from the Realm does not remove
+	 * user activity data from a Site, they are re-added to the Realm and no data is lost.
+	 */
+	public List<Membership> removeSiteUsersMinutesOld(Context context, int minutes);
+
+	/*
+	 * Get the number of minutes to use when expiring inactive users for a site
+	 */
+	public Site getSite(Context context);
+
+	/*
+	 * Get the number of minutes to use when expiring inactive users for a site
+	 */
+	public int getInactiveExpireMinutes(Context context);
+
+	/*
+	 * Get the number of seconds to use re-retrieving a roster via NRPS
+	 */
+	public long getNRPSDelaySeconds(Context context, boolean instructor);
 }

@@ -184,6 +184,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	
 	private SecurityService securityService = null;
 
+	private SiteNeighbourhoodService siteNeighbourhoodService;
+
 	//Get user preferences
 	private PreferencesService preferencesService;
 
@@ -2027,7 +2029,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
 		userMessagingService = ComponentManager.get(UserMessagingService.class);
-		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
+		portalService = ComponentManager.get(PortalService.class);
+		siteNeighbourhoodService = ComponentManager.get(SiteNeighbourhoodService.class);
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
 		preferencesService = ComponentManager.get(PreferencesService.class);
@@ -2298,12 +2301,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return this.siteHelper;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.Portal#getSiteNeighbourhoodService()
-	 */
 	public SiteNeighbourhoodService getSiteNeighbourhoodService()
 	{
-		return portalService.getSiteNeighbourhoodService();
+		return siteNeighbourhoodService;
 	}
 	
 	/**

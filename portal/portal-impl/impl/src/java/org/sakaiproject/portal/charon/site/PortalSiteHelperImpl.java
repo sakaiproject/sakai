@@ -25,7 +25,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -39,52 +38,49 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.Math.min;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.Summary;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalSiteHelper;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.RequestFilter;
@@ -111,8 +107,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
-	private final String PROP_RECENT_SITES = "portal:recent-sites";
-
 	private static final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
 
 	private static final String PROP_MENU_CLASS = "sakai:menuClass";
@@ -126,8 +120,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private Portal portal;
 
 	private AliasService aliasService;
+	private EntityManager entityManager;
+	private PortalService portalService;
 	private PreferencesService preferencesService;
+	private SecurityService securityService;
+	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
+	private SiteNeighbourhoodService siteNeighbourhoodService;
+	private SiteService siteService;
 	private SqlService sqlService;
+	private ThreadLocalManager threadLocalManager;
+	private UserDirectoryService userDirectoryService;
 
 	private boolean lookForPageAliases;
 
@@ -177,8 +180,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		this.portal = portal;
 		this.lookForPageAliases = lookForPageAliases;
 		aliasService = ComponentManager.get(AliasService.class);
+		entityManager = ComponentManager.get(EntityManager.class);
+		portalService = ComponentManager.get(PortalService.class);
+		siteService = ComponentManager.get(SiteService.class);
+		securityService = ComponentManager.get(SecurityService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 		preferencesService = ComponentManager.get(PreferencesService.class);
+		sessionManager = ComponentManager.get(SessionManager.class);
+		siteNeighbourhoodService = ComponentManager.get(SiteNeighbourhoodService.class);
 		sqlService = ComponentManager.get(SqlService.class);
+		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	}
 
 	/* (non-Javadoc)
@@ -186,8 +198,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	*/
 	public boolean doGatewaySiteList()
 	{
-		String gatewaySiteListPref = ServerConfigurationService
-		.getString("gatewaySiteList");
+		String gatewaySiteListPref = serverConfigurationService.getString("gatewaySiteList");
 
 		if (gatewaySiteListPref == null) return false;
 		return (gatewaySiteListPref.trim().length() > 0);
@@ -199,7 +210,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	*/
 	public String getGatewaySiteId()
 	{
-		String gatewaySiteListPref = ServerConfigurationService.getString("gatewaySiteList");
+		String gatewaySiteListPref = serverConfigurationService.getString("gatewaySiteList");
 
 		if (gatewaySiteListPref == null) return null;					
 
@@ -245,11 +256,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	*/
 	private String[] getGatewaySiteList()
 	{
-		String gatewaySiteListPref = ServerConfigurationService.getString("gatewaySiteList");
+		String gatewaySiteListPref = serverConfigurationService.getString("gatewaySiteList");
 
 		if (gatewaySiteListPref == null || gatewaySiteListPref.trim().length() < 1)
 		{
-			gatewaySiteListPref = ServerConfigurationService.getGatewaySiteId();
+			gatewaySiteListPref = serverConfigurationService.getGatewaySiteId();
 		}
 		if (gatewaySiteListPref == null || gatewaySiteListPref.trim().length() < 1) {
 			return null;
@@ -277,24 +288,22 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		propMap.put(PROP_PARENT_ID, site.getId());
 
 		// This should not call getUserSites(boolean) because the property is variable, while the call is cacheable otherwise
-		List<Site> mySites = SiteService.getSites(
-		org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
-		propMap, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
-		return mySites;
+		return siteService.getSites(SiteService.SelectionType.ACCESS
+			, null, null, propMap, SiteService.SortType.TITLE_ASC, null);
 	}
 
 	public Site getSite(String siteId) {
 
 		if (siteId != null) {
 			try {
-				return SiteService.getSite(siteId);
+				return siteService.getSite(siteId);
 			} catch (IdUnusedException e) {
 				// Attempt to lookup by alias.
-				String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
+				String reference = siteNeighbourhoodService.parseSiteAlias(siteId);
 				if (reference != null) {
-					Reference ref = EntityManager.newReference(reference);
+					Reference ref = entityManager.newReference(reference);
 					try {
-						return SiteService.getSite(ref.getId());
+						return siteService.getSite(ref.getId());
 					} catch (IdUnusedException e2) {
 						log.error("Site with Id {} not found: {}", siteId, e.toString());
 					}
@@ -316,70 +325,32 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 	}
 
-	private List<String> getPinnedSiteIds() {
-
-		Session session = SessionManager.getCurrentSession();
-		return preferencesService.getPreferences(session.getUserId())
-			.getProperties(PreferencesService.SITENAV_PREFS_KEY)
-			.getPropertyList("order");
+	private Set<String> getPinnedSiteIds() {
+		return portalService.getPinnedSites();
 	}
 
-	private List<String> getRecentSiteIds(Site currentSite) {
+	private Collection<String> getRecentSiteIds(Site currentSite) {
 
-		if (currentSite == null || currentSite.getId() == null) return Collections.emptyList();
-		String currentSiteId = currentSite.getId();
-		Session session = SessionManager.getCurrentSession();
-		if (session == null) return Collections.emptyList();
-		String userId = session.getUserId();
-		if (userId == null) return Collections.emptyList();
-
-		int maxRecentSites = ServerConfigurationService.getInt("portal.max.recent.sites", 3);
-
-		if (currentSiteId.startsWith("~") || currentSiteId.startsWith("!")) {
-			Preferences prefs = preferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
-			String recentStr = props.getProperty(PROP_RECENT_SITES);
-			return StringUtils.isBlank(recentStr) ? new ArrayList<>() : new ArrayList<>(Arrays.<String>asList(recentStr.split("::")));
-		} else {
-			PreferencesEdit edit = null;
-			try {
-				edit = preferencesService.edit(userId);
-				ResourcePropertiesEdit props = edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
-				String currentRecentsStr = props.getProperty(PROP_RECENT_SITES);
-
-				// Insert or move the current site to the front of the most recent list, then trim
-				// the list down to maxRecentSites length
-				List<String> updatedRecents
-					= StringUtils.isBlank(currentRecentsStr) ? new ArrayList<>() : new ArrayList<>(Arrays.<String>asList(currentRecentsStr.split("::")));
-				updatedRecents.remove(currentSiteId);
-				updatedRecents.add(0, currentSiteId);
-				updatedRecents = updatedRecents.subList(0, min(updatedRecents.size(), maxRecentSites));
-
-				String updatedRecentsStr = String.join("::", updatedRecents);
-				if (updatedRecentsStr == null || updatedRecentsStr.equals(currentRecentsStr) ) {
-					// No change, just return the list but don't persist the property.
-					preferencesService.cancel(edit);
-					return updatedRecents;
-				}
-
-				props.removeProperty(PROP_RECENT_SITES);
-				props.addProperty(PROP_RECENT_SITES, updatedRecentsStr);
-
-				preferencesService.commit(edit);
-				return updatedRecents;
-			}
-			catch (PermissionException | InUseException | IdUnusedException e) {
-				log.info("Exception editing user preferences: {}", e.toString());
-                if (edit != null) preferencesService.cancel(edit);
-			}
+		if (sessionManager.getCurrentSessionUserId() == null) {
+			return Collections.<String>emptyList();
 		}
 
-		return Collections.emptyList();
+		if (currentSite == null || currentSite.getId() == null) {
+			return Collections.<String>emptySet();
+		}
+
+		String currentSiteId = currentSite.getId();
+
+		if (!siteService.isUserSite(currentSiteId)) {
+			portalService.addRecentSite(currentSite.getId());
+		}
+
+		return portalService.getRecentSites();
 	}
 
 	private boolean isSitePinned(String siteId) {
 
-		List<String> pinnedSiteIds = getPinnedSiteIds();
+		Set<String> pinnedSiteIds = getPinnedSiteIds();
 		return pinnedSiteIds != null && pinnedSiteIds.contains(siteId);
 	}
 
@@ -411,8 +382,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			List<SitePage> pageList = site.getOrderedPages();
 			siteMap.put("pages", getPageMaps(pageList, site));
 			siteMap.put("lessonsSubPages", getLessonsSubpages(
-					UserDirectoryService.getCurrentUser().getId(),
-					SecurityService.unlock("site.upd", site.getReference()), site.getId(), pageList));
+					userDirectoryService.getCurrentUser().getId(),
+					securityService.unlock("site.upd", site.getReference()), site.getId(), pageList));
 		}
 		if (includeSubSites) {
 			List<Site> subSites = getSubSites(site);
@@ -468,7 +439,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private List<Map<String, Object>> getPageMaps(Collection<SitePage> pages, Site site) {
 
-		final boolean siteUpdater = SecurityService.unlock("site.upd", site.getReference());
+		final boolean siteUpdater = securityService.unlock("site.upd", site.getReference());
 
 		return pages.stream().map(this::getPageMap)
 			.filter(m -> !((Boolean) m.get("hidden")) || siteUpdater).collect(Collectors.toList());
@@ -485,7 +456,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 
 			//Get pinned sites
-			List<String> pinnedSiteIds = getPinnedSiteIds();
+			Set<String> pinnedSiteIds = getPinnedSiteIds();
 			if (pinnedSiteIds != null) {
 				// We don't want to show a site twice. Remvove the current site from the pinned.
 				pinnedSiteIds.remove(currentSiteId);
@@ -496,7 +467,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 
 			//Get most recent sites
-			List<String> recentSiteIds = getRecentSiteIds(currentSite);
+			Collection<String> recentSiteIds = getRecentSiteIds(currentSite);
 			// We don't want to see a site twice. Removed any pinned sites from the recents.
 			if (pinnedSiteIds != null) {
 				recentSiteIds.removeAll(pinnedSiteIds);
@@ -507,7 +478,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 		} else {
 			//Get gateway site
-			Site gatewaySite = getSite(ServerConfigurationService.getGatewaySiteId());
+			Site gatewaySite = getSite(serverConfigurationService.getGatewaySiteId());
 			if (!gatewaySite.isEmpty()) {
 				contextSites.put("gatewaySite", getSiteMap(gatewaySite, true, true));
 			}
@@ -541,7 +512,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		// We only compute the depths if there is no user chosen order
 		boolean computeDepth = true;
-		Session session = SessionManager.getCurrentSession();
+		Session session = sessionManager.getCurrentSession();
 
 		List favorites = Collections.emptyList();
 
@@ -660,7 +631,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	public String getUserSpecificSiteTitle(Site site, boolean truncated, boolean escaped, List<String> siteProviders)
 	{
-		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId(), siteProviders );
+		String retVal = siteService.getUserSpecificSiteTitle( site, userDirectoryService.getCurrentUser().getId(), siteProviders );
 		if( truncated )
 		{
 			retVal = getFormattedText().makeShortenedText( retVal, null, null, null );
@@ -719,7 +690,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		String siteUrl = RequestFilter.serverUrl(req)
-		+ ServerConfigurationService.getString("portalPath") + "/";
+		+ serverConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
 		m.put("siteUrl", siteUrl + getFormattedText().escapeUrl(getSiteEffectiveId(s)));
@@ -810,7 +781,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			Site site = null;
 			try
 			{
-				site = SiteService.getSiteVisit(ourParent);
+				site = siteService.getSiteVisit(ourParent);
 			}
 			catch (Exception e)
 			{
@@ -856,7 +827,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// Should be pushed up to the API, similar to server configiuration service, but supporting an Enum(always, never, true, false).
 		boolean showHelp = true;
 		// Supports true, false, never, always
-		String showHelpGlobal = ServerConfigurationService.getString("display.help.menu", "true");
+		String showHelpGlobal = serverConfigurationService.getString("display.help.menu", "true");
 
 		if ("never".equals(showHelp))
 		{
@@ -895,7 +866,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String htmlInclude = site.getProperties().getProperty(PROP_HTML_INCLUDE);
 		if (htmlInclude != null) theMap.put("siteHTMLInclude", htmlInclude);
 
-		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
+		boolean siteUpdate = securityService.unlock("site.upd", site.getReference());
 
 		List<Map> l = new ArrayList<>();
 
@@ -957,8 +928,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					manageOverviewUrl = null;
 				}
 
-				boolean legacyAddMoreToolsPropertyValue = ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false);
-				if ( ! ServerConfigurationService.getBoolean("portal.addmoretools.enable", legacyAddMoreToolsPropertyValue) ) addMoreToolsUrl = null;
+				boolean legacyAddMoreToolsPropertyValue = serverConfigurationService.getBoolean("portal.experimental.addmoretools", false);
+				if ( ! serverConfigurationService.getBoolean("portal.addmoretools.enable", legacyAddMoreToolsPropertyValue) ) addMoreToolsUrl = null;
 
 				String pagePopupUrl = Web.returnUrl(req, "/page/");
 
@@ -1090,15 +1061,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		if ("true".equals(site.getProperties().getProperty("lessons_submenu")) && !l.isEmpty()) {
 			theMap.put("additionalLessonsPages",
-			getSimplePageToolDao().getLessonSubPageJSON(UserDirectoryService.getCurrentUser().getId(), siteUpdate, site.getId(), l));
+			getSimplePageToolDao().getLessonSubPageJSON(userDirectoryService.getCurrentUser().getId(), siteUpdate, site.getId(), l));
 		}
 
 		theMap.put("pageNavTools", l);
-		theMap.put("pageMaxIfSingle", ServerConfigurationService.getBoolean(
+		theMap.put("pageMaxIfSingle", serverConfigurationService.getBoolean(
 		"portal.experimental.maximizesinglepage", false));
 		theMap.put("pageNavToolsCount", Integer.valueOf(l.size()));
 
-		String helpUrl = ServerConfigurationService.getHelpUrl(null);
+		String helpUrl = serverConfigurationService.getHelpUrl(null);
 		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 		theMap.put("pageNavHelpUrl", helpUrl);
 		theMap.put("helpMenuClass", ICON_SAKAI + "help");
@@ -1112,7 +1083,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// which may be true or false.
 
 		boolean showPresence;
-		String globalShowPresence = ServerConfigurationService.getString("display.users.present","true");
+		String globalShowPresence = serverConfigurationService.getString("display.users.present","true");
 
 		if ("never".equals(globalShowPresence)) {
 			showPresence = false;
@@ -1127,7 +1098,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		// Check to see if this is a my workspace site, and if so, whether presence is disabled
-		if (showPresence && SiteService.isUserSite(site.getId()) && !ServerConfigurationService.getBoolean("display.users.present.myworkspace", false)) {
+		if (showPresence && siteService.isUserSite(site.getId()) && !serverConfigurationService.getBoolean("display.users.present.myworkspace", false)) {
 			showPresence = false;
 		}
 
@@ -1143,7 +1114,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		// Initial delay before updating preesnce
 		theMap.put("sakaiPresenceTimeDelay", Integer.valueOf(
-		ServerConfigurationService.getInt("display.users.present.time.delay", 3000)) );
+		serverConfigurationService.getInt("display.users.present.time.delay", 3000)) );
 
 		return theMap;
 	}
@@ -1179,7 +1150,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	*/
 	public Site getMyWorkspace(Session session)
 	{
-		String siteId = SiteService.getUserSiteId(session.getUserId());
+		String siteId = siteService.getUserSiteId(session.getUserId());
 
 		// Make sure we can visit
 		Site site = null;
@@ -1222,7 +1193,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		null, /* tool */null,
 		/* config */null, /* context */site.getId(), /* title */null);
 
-		ThreadLocalManager.set(CURRENT_PLACEMENT, placement);
+		threadLocalManager.set(CURRENT_PLACEMENT, placement);
 
 		// Debugging
 		ppp = getToolManager().getCurrentPlacement();
@@ -1286,7 +1257,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		*/
 
 		// offer to all EntityProducers
-		for (EntityProducer ep : EntityManager.getEntityProducers())
+		for (EntityProducer ep : entityManager.getEntityProducers())
 		{
 			if (ep instanceof EntitySummary)
 			{
@@ -1340,15 +1311,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	*/
 	public String getSiteEffectiveId(Site site)
 	{
-		if (SiteService.isUserSite(site.getId()))
+		if (siteService.isUserSite(site.getId()))
 		{
 			try
 			{
-				String userId = SiteService.getSiteUserId(site.getId());
-				String eid = UserDirectoryService.getUserEid(userId);
+				String userId = siteService.getSiteUserId(site.getId());
+				String eid = userDirectoryService.getUserEid(userId);
 				// SAK-31889: if your EID has special chars, much easier to just use your uid
 				if (StringUtils.isAlphanumeric(eid)) {
-					return SiteService.getUserSiteId(eid);
+					return siteService.getUserSiteId(eid);
 				}
 			}
 			catch (UserNotDefinedException e)
@@ -1385,18 +1356,18 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		try
 		{
-			return SiteService.getSiteVisit(siteId);
+			return siteService.getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
-			if (SiteService.isUserSite(siteId))
+			if (siteService.isUserSite(siteId))
 			{
 				try
 				{
-					String userEid = SiteService.getSiteUserId(siteId);
-					String userId = UserDirectoryService.getUserId(userEid);
-					String alternateSiteId = SiteService.getUserSiteId(userId);
-					return SiteService.getSiteVisit(alternateSiteId);
+					String userEid = siteService.getSiteUserId(siteId);
+					String userId = userDirectoryService.getUserId(userEid);
+					String alternateSiteId = siteService.getUserSiteId(userId);
+					return siteService.getSiteVisit(alternateSiteId);
 				}
 				catch (UserNotDefinedException ee)
 				{
@@ -1407,9 +1378,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
 				if (reference != null)
 				{
-					Reference ref = EntityManager.getInstance().newReference(reference);
+					Reference ref = entityManager.newReference(reference);
 					try {
-						return SiteService.getSiteVisit(ref.getId());
+						return siteService.getSiteVisit(ref.getId());
 					} catch (IdUnusedException iue) {
 					}
 				}
@@ -1432,7 +1403,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		// Get all of the pages
 		List<SitePage> pages = site.getOrderedPages();
-		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
+		boolean siteUpdate = securityService.unlock("site.upd", site.getReference());
 
 		List<SitePage> newPages = new ArrayList<>();
 
@@ -1456,7 +1427,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		// Force "Overview" to the top at all times if enabled
-		if (ServerConfigurationService.getBoolean(SAK_PROP_FORCE_OVERVIEW_TO_TOP, SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT))
+		if (serverConfigurationService.getBoolean(SAK_PROP_FORCE_OVERVIEW_TO_TOP, SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT))
 		{
 			List<SitePage> newPagesCopy = new ArrayList<>(newPages);
 			for (SitePage page : newPages)
@@ -1531,7 +1502,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			{
 				// Use page#{siteId}:{pageAlias} So we can scan for fist colon and alias can contain any character 
 				String refString = aliasService.getTarget(buildAlias(alias, site));
-				String aliasPageId = EntityManager.newReference(refString).getId();
+				String aliasPageId = entityManager.newReference(refString).getId();
 				page = (SitePage) site.getPage(aliasPageId);
 			}
 			catch (IdUnusedException e)
@@ -1612,21 +1583,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		switch (view)
 		{
 			case CURRENT_SITE_VIEW:
-			return new CurrentSiteViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
-			.getInstance(), ServerConfigurationService.getInstance(),
-			preferencesService);
+			return new CurrentSiteViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
 			case ALL_SITES_VIEW:
-			return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
-			.getInstance(), ServerConfigurationService.getInstance(),
-			preferencesService);
+			return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
 			case DHTML_MORE_VIEW:
-			return new MoreSiteViewImpl(this,portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
-			.getInstance(), ServerConfigurationService.getInstance(),
-			preferencesService);
+			return new MoreSiteViewImpl(this,portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
 			case SUB_SITES_VIEW:
-			return new SubSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
-			.getInstance(), ServerConfigurationService.getInstance(),
-			preferencesService);
+			return new SubSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
 		}
 		return null;
 	}

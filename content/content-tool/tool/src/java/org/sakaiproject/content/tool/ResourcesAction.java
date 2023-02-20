@@ -10260,6 +10260,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// Set to hold the names of files that exceed that maximum size for zipping. 
 		Set<String> zipSingleFileSizeExceeded = new HashSet<>();
 
+		// Set to hold the names of files that will get included in the zip. 
+		Set<String> zipIncludedFiles = new HashSet<>();
+
 		long zipMaxIndividualFileSize = Long.parseLong(ServerConfigurationService.getString("content.zip.download.maxindividualfilesize","0"));
 		long zipMaxTotalSize = Long.parseLong(ServerConfigurationService.getString("content.zip.download.maxtotalsize","0"));
 		long accumulatedSize=0;
@@ -10273,7 +10276,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				if (contentService.isCollection(showId)) {
 					if (contentService.allowGetCollection(showId)) {
 						entity = contentService.getCollection(showId);
-						currentEntitySize = getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded);
+						currentEntitySize = getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded, zipIncludedFiles);
 					}
 				} else if (contentService.allowGetResource(showId)) {
 					entity = contentService.getResource(showId);
@@ -10293,7 +10296,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 				ListItem item = new ListItem(entity);
 				if (item.isCollection() && contentService.allowGetCollection(showId)) {
-					item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
+					item.setSize(ResourcesAction.getFileSizeString(getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded, new HashSet<>()), rb));
 					zipDownloadItems.add(item);
 				} else if (!item.isCollection() && contentService.allowGetResource(showId)) {
 					zipDownloadItems.add(item);
@@ -10366,7 +10369,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		new ZipContentUtil().compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
 	}
 
-	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded) throws ZipMaxTotalSizeException
+	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded, Set<String> zipIncludedFiles) throws ZipMaxTotalSizeException
 	{
 		long total=0;
 
@@ -10378,17 +10381,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if (myElement.isResource()) 
 			{
 				long tempSize = ((ContentResource)myElement).getContentLength();
+				String filePath = myElement.getId().replace("/group/" + toolManager.getCurrentPlacement().getContext(), "");
 				if (tempSize > maxIndividualFileSize) {
 					// Work out the file path without the site ID.
-					String filePath = myElement.getId().replace("/group/" + toolManager.getCurrentPlacement().getContext(), "");
 
 					zipSingleFileSizeExceeded.add(filePath);
 				}
-				else {total=total+tempSize;}
+				else {
+					if (!zipIncludedFiles.contains(filePath)) {
+						total=total+tempSize;
+						zipIncludedFiles.add(filePath);
+					}
+				}
 			}
 			else if (myElement.isCollection())
 			{
-				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement, maxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded);
+				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement, maxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded, zipIncludedFiles);
 
 				if (tempSize > zipMaxTotalSize) {
 					throw new ZipMaxTotalSizeException();

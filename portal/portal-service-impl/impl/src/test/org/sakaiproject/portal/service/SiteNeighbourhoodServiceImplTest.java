@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 import static org.mockito.Mockito.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -51,6 +52,9 @@ public class SiteNeighbourhoodServiceImplTest extends TestCase {
 		// Mock a site service
 		SiteService siteService = mock(SiteService.class);
 		siteNeighbourhoodService.setSiteService(siteService);
+
+		PortalService portalService = mock(PortalService.class);
+		siteNeighbourhoodService.setPortalService(portalService);
 		
 		// Make a whole lot of sites and an ordered list
 		List<Site> siteList = new ArrayList<Site>(3000);

@@ -111,21 +111,6 @@
     }
   }
 }
-.accordion-item {
-  background-color: var(--sakai-background-color-3);
-  color: var(--sakai-text-color);
-  .accordion-button {
-    color: var(--sakai-text-color-1);
-
-    background-color: var(--sakai-background-color-3);
-    &:not(.collapsed) {
-      background-color: var(--sakai-background-color-3);
-    }
-  }
-}
-.accordion-collapse {
-  background-color: var(--sakai-background-color-1);
-}
 
 .breadcrumb-item + .breadcrumb-item::before {
   color: var(--sakak-breadcrumb-color);

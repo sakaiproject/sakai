@@ -18,7 +18,11 @@ package org.sakaiproject.plus.impl;
 
 import java.lang.StringBuffer;
 
+import java.util.List;
 import java.util.Date;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import java.util.Map;
@@ -30,12 +34,14 @@ import java.io.InputStream;
 import java.time.Instant;
 
 import java.net.http.HttpResponse;  // Thanks Java 11
+import java.net.http.HttpHeaders;  // Thanks Java 11
 
 import java.security.KeyPair;
 
 import org.apache.commons.lang3.StringUtils;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +53,7 @@ import java.io.IOException;
 
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.event.api.Event;
 
 import org.sakaiproject.lti.api.LTIException;
@@ -54,6 +61,10 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.CommentDefinition;
+import org.sakaiproject.exception.IdUnusedException;
+
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 
 import org.sakaiproject.plus.api.Launch;
 import org.sakaiproject.plus.api.PlusService;
@@ -73,6 +84,7 @@ import org.sakaiproject.plus.api.repository.TenantRepository;
 import org.sakaiproject.plus.api.repository.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.tsugi.http.HttpUtil;
 import org.tsugi.http.HttpClientUtil;
 
 import org.tsugi.basiclti.BasicLTIConstants;
@@ -104,6 +116,15 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class PlusServiceImpl implements PlusService {
 
+	// The number of minutes to expire membership entries (1 week)
+	static int MEMBERSHIP_EXPIRE_MINUTES = 7*24*60;
+	static String PLUS_MEMBERSHIP_EXPIRE_MINUTES = "plus:expire_minutes";
+
+	// Wait five or 30 minutes between successive calls to NRPS.
+	public final long DELAY_NRPS_INSTRUCTOR_SECONDS = 300;
+	public final long DELAY_NRPS_LEARNER_SECONDS = 30*60;  // 30 minutes
+	static String PLUS_NRPS_DELAY_SECONDS = "plus:nrps_delay_seconds";
+
 	@Autowired private TenantRepository tenantRepository;
 	@Autowired private SubjectRepository subjectRepository;
 	@Autowired private ContextRepository contextRepository;
@@ -118,6 +139,8 @@ public class PlusServiceImpl implements PlusService {
 	@Autowired private SiteEmailPreferenceSetter siteEmailPreferenceSetter;
 	@Autowired private UserFinderOrCreator userFinderOrCreator;
 	@Autowired private ServerConfigurationService serverConfigurationService;
+	@Autowired private SiteService siteService;
+	@Autowired private SecurityService securityService;
 
 	/*
 	 * Indicate if plus is enabled on this system
@@ -301,6 +324,7 @@ public class PlusServiceImpl implements PlusService {
 			membership = new Membership();
 			membership.setSubject(subject);
 			membership.setContext(context);
+			membership.setUpdatedAt(Instant.now());
 			String ltiRoles = launchJWT.getLTI11Roles();
 			if ( StringUtils.isNotBlank(ltiRoles) ) membership.setLtiRoles(ltiRoles);
 			membership = membershipRepository.upsert(membership);
@@ -581,159 +605,205 @@ public class PlusServiceImpl implements PlusService {
 		cLog.setAction("syncSiteMemberships getting access token from context="+context.getId()+" tenant="+context.getTenant()+" oidcTokenUrl="+oidcTokenUrl);
 		cLog.setSuccess(Boolean.FALSE);
 
-		// Looks like we have the requisite strings in variables :)
-		KeyPair keyPair = SakaiKeySetUtil.getCurrent();
-		StringBuffer dbs = new StringBuffer();
-		dbs.append("Getting NRPS Token...\n");
-		AccessToken nrpsAccessToken = LTI13AccessTokenUtil.getNRPSToken(oidcTokenUrl, keyPair, clientId, deploymentId, oidcAudience, dbs);
-		if ( nrpsAccessToken == null || isEmpty(nrpsAccessToken.access_token) ) {
-			log.error(dbs.toString());
-			log.error("Could not retrieve NRPS (Names and Roles) token from {}.  Memberships will NOT be synchronized.", oidcTokenUrl);
-			cLog.setDebugLog(dbs.toString());
-			contextLogRepository.save(cLog);
-			return;
-		}
-		if ( verbose(tenant) ) {
-			log.info("Debug Log:\n{}", dbs.toString());
-		} else {
-			log.debug("Debug Log:\n{}", dbs.toString());
-		}
-
-		cLog.setAction("syncSiteMemberships context="+context.getId()+" tenant="+context.getTenant()+" contextMemberships="+contextMemberships+" access_token="+nrpsAccessToken.access_token);
-
-		Map<String, String> headers = new TreeMap<>();
-		headers.put("Authorization", "Bearer "+nrpsAccessToken.access_token);
-		headers.put("Accept", LTI13ConstantsUtil.MEDIA_TYPE_MEMBERSHIPS);
-		headers.put("Content-Type", LTI13ConstantsUtil.MEDIA_TYPE_MEMBERSHIPS); // TODO: Remove when certification is fixed
-
-		// Get ready
-		context.setNrpsStart(Instant.now());
-		context.setNrpsFinish(null);
-		context.setNrpsCount(Long.valueOf(0));
-		context.setNrpsStatus("Started");
-		contextRepository.save(context);
-
-		dbs = new StringBuffer();
-		dbs.append("Loading Context Memberships...\n");
-		InputStream is;
-		 try {
-			HttpResponse<InputStream> response = HttpClientUtil.sendGetStream(contextMemberships, null, headers, dbs);
+		// Paging through multiple Requests - Avoid infinite loop from broken LMS.
+		int max_pages = 10;
+		while( StringUtils.isNotEmpty(contextMemberships) ) {
+			log.debug("Loading contextMemberships={}", contextMemberships);
+			if ( max_pages-- <= 0 ) {
+				log.error("Paging stopped after 10 pages context={} link={}", context.getId(), contextMemberships);
+				break;
+			}
+			// Looks like we have the requisite strings in variables :)
+			KeyPair keyPair = SakaiKeySetUtil.getCurrent();
+			StringBuffer dbs = new StringBuffer();
+			dbs.append("Getting NRPS Token...\n");
+			AccessToken nrpsAccessToken = LTI13AccessTokenUtil.getNRPSToken(oidcTokenUrl, keyPair, clientId, deploymentId, oidcAudience, dbs);
+			if ( nrpsAccessToken == null || isEmpty(nrpsAccessToken.access_token) ) {
+				log.error(dbs.toString());
+				log.error("Could not retrieve NRPS (Names and Roles) token from {}.  Memberships will NOT be synchronized.", oidcTokenUrl);
+				cLog.setDebugLog(dbs.toString());
+				contextLogRepository.save(cLog);
+				return;
+			}
 			if ( verbose(tenant) ) {
 				log.info("Debug Log:\n{}", dbs.toString());
 			} else {
 				log.debug("Debug Log:\n{}", dbs.toString());
 			}
-			is = response.body();
-		} catch (Exception e) {
-			log.error("Error retrieving NRPS (Names and Roles) data from {}", contextMemberships);
-			cLog.setStatus("Error retrieving NRPS (Names and Roles) data");
-			cLog.setDebugLog(dbs.toString());
-			contextLogRepository.save(cLog);
-			return;
-		}
 
-		// https://cassiomolin.com/2019/08/19/combining-jackson-streaming-api-with-objectmapper-for-parsing-json/
-		// Create and configure an ObjectMapper instance
-		ObjectMapper mapper = JacksonUtil.getLaxObjectMapper();
+			cLog.setAction("syncSiteMemberships context="+context.getId()+" tenant="+context.getTenant()+" contextMemberships="+contextMemberships+" access_token="+nrpsAccessToken.access_token);
 
-		cLog = new ContextLog();
-		cLog.setContext(context);
-		cLog.setType(ContextLog.LOG_TYPE.NRPS_LIST);
-		cLog.setStatus("Started syncSiteMemberships at="+Instant.now());
-		cLog.setSuccess(Boolean.TRUE);
-		dbs = new StringBuffer();
+			Map<String, String> headers = new TreeMap<>();
+			headers.put("Authorization", "Bearer "+nrpsAccessToken.access_token);
+			headers.put("Accept", LTI13ConstantsUtil.MEDIA_TYPE_MEMBERSHIPS);
+			headers.put("Content-Type", LTI13ConstantsUtil.MEDIA_TYPE_MEMBERSHIPS); // TODO: Remove when certification is fixed
 
-		Long count = Long.valueOf(0);
-		// Create a JsonParser instance
-		try {
-			JsonParser jsonParser = mapper.getFactory().createParser(is);
+			// Get ready
+			context.setNrpsStart(Instant.now());
+			context.setNrpsFinish(null);
+			context.setNrpsCount(Long.valueOf(0));
+			context.setNrpsStatus("Started");
+			contextRepository.save(context);
 
-			// Check the first token
-			String lastText = null;
-			JsonToken nextToken = null;
-			while (true) {
-				nextToken =  jsonParser.nextToken();
-				if ( nextToken == null ) break;
-				if ( nextToken == JsonToken.START_ARRAY && "members".equals(lastText) ) break;
-				lastText = jsonParser.getText();
-			}
-
-			while (true) {
-				nextToken =  jsonParser.nextToken();
-				if ( nextToken == null ) break;
-				if ( nextToken == JsonToken.END_ARRAY ) break;
-				Member member = mapper.readValue(jsonParser, Member.class);
-
+			dbs = new StringBuffer();
+			dbs.append("Loading Context Memberships...\n");
+			InputStream is;
+			 try {
+				HttpResponse<InputStream> response = HttpClientUtil.sendGetStream(contextMemberships, null, headers, dbs);
 				if ( verbose(tenant) ) {
-					log.info("processing member={}",member.email);
+					log.info("Debug Log:\n{}", dbs.toString());
 				} else {
-					log.debug("processing member={}",member.email);
+					log.debug("Debug Log:\n{}", dbs.toString());
 				}
+				is = response.body();
 
-				count = count + 1;
-
-				if ( count < 200 ) {
-					dbs.append("processing member="+member.email+" user_id="+member.user_id+" count="+count+"\n");
+				HttpHeaders responseHeaders = response.headers();
+				List<String> allValuesOfLink = responseHeaders.allValues("Link");
+				String nextLink = HttpUtil.extractLinkByRel(allValuesOfLink, "next");
+				// If this is not null, we will loop back up and continue to page in results for multi-request NRPS
+				contextMemberships = null;
+				if ( isNotEmpty(nextLink) ) {
+					log.debug("Received Link / next header {}", nextLink);
+					contextMemberships = nextLink;
 				}
-
-				SakaiLaunchJWT launchJWT = new SakaiLaunchJWT();
-				launchJWT.subject = member.user_id;
-				launchJWT.email = member.email;
-				launchJWT.given_name = member.given_name;
-				launchJWT.family_name = member.family_name;
-				launchJWT.roles = member.roles;
-
-				Subject subject = createOrUpdateSubject(tenant, member.user_id, launchJWT);
-				if ( subject == null ) {
-					log.error("Failed createOrUpdateSubject subject={}", member.user_id);
-					dbs.append("Failed createOrUpdateSubject subject="+member.user_id);
-					cLog.setSuccess(Boolean.FALSE);
-					continue;
-				}
-
-				// Upsert the roles
-				Membership membership = new Membership();
-				membership.setSubject(subject);
-				membership.setContext(context);
-				String ltiRoles = launchJWT.getLTI11Roles();
-				if ( StringUtils.isNotBlank(ltiRoles) ) membership.setLtiRoles(ltiRoles);
-				membership = membershipRepository.upsert(membership);
-
-				Map<String, String> payload = getPayloadFromLaunchJWT(tenant, launchJWT);
-				payload.put("tenant_guid", contextGuid);
-				payload.put("subject_guid", subject.getId());
-
-				User user = userFinderOrCreator.findOrCreateUser(payload, false, isEmailTrustedConsumer);
-				if ( user == null ) {
-					log.error("Failed findOrCreateUser subject={}", member.user_id);
-					dbs.append("Failed findOrCreateUser subject="+member.user_id);
-					cLog.setSuccess(Boolean.FALSE);
-					continue;
-				}
-
-				connectSubjectAndUser(subject, user);
-
-				siteEmailPreferenceSetter.setupUserEmailPreferenceForSite(payload, user, site, false);
-
-				site = siteMembershipUpdater.addOrUpdateSiteMembership(payload, false, user, site);
-
-				cLog.setStatus("Completed syncSiteMemberships count="+count+" at="+Instant.now());
+			} catch (Exception e) {
+				log.error("Error retrieving NRPS (Names and Roles) data from {}", contextMemberships);
+				cLog.setStatus("Error retrieving NRPS (Names and Roles) data");
+				cLog.setDebugLog(dbs.toString());
+				contextLogRepository.save(cLog);
+				return;
 			}
-		} catch (IOException | LTIException e) {
-			log.error("Error processing contextMemberships stream context={}", contextGuid, e);
-			cLog.setSuccess(Boolean.FALSE);
-			cLog.setStatus("Exception processing Names and Roles data="+e.getMessage());
-		}
 
-		// Update the job status
-		context.setNrpsFinish(Instant.now());
-		context.setNrpsCount(count);
-		context.setNrpsStatus("Done");
+			// https://cassiomolin.com/2019/08/19/combining-jackson-streaming-api-with-objectmapper-for-parsing-json/
+			// Create and configure an ObjectMapper instance
+			ObjectMapper mapper = JacksonUtil.getLaxObjectMapper();
 
-		// Store the log entry
-		cLog.setDebugLog(dbs.toString());
-		contextRepository.save(context);
-		contextLogRepository.save(cLog);
+			cLog = new ContextLog();
+			cLog.setContext(context);
+			cLog.setType(ContextLog.LOG_TYPE.NRPS_LIST);
+			cLog.setStatus("Started syncSiteMemberships at="+Instant.now());
+			cLog.setSuccess(Boolean.TRUE);
+			dbs = new StringBuffer();
+
+			Long count = Long.valueOf(0);
+			// Create a JsonParser instance
+			try {
+				JsonParser jsonParser = mapper.getFactory().createParser(is);
+
+				// Check the first token
+				String lastText = null;
+				JsonToken nextToken = null;
+				while (true) {
+					nextToken =  jsonParser.nextToken();
+					if ( nextToken == null ) break;
+					if ( nextToken == JsonToken.START_ARRAY && "members".equals(lastText) ) break;
+					lastText = jsonParser.getText();
+				}
+
+				while (true) {
+					nextToken =  jsonParser.nextToken();
+					if ( nextToken == null ) break;
+					if ( nextToken == JsonToken.END_ARRAY ) break;
+					Member member = mapper.readValue(jsonParser, Member.class);
+
+					if ( verbose(tenant) ) {
+						log.info("processing member={}",member.email);
+					} else {
+						log.debug("processing member={}",member.email);
+					}
+
+					count = count + 1;
+
+					if ( count < 200 ) {
+						dbs.append("processing member="+member.email+" user_id="+member.user_id+" count="+count+"\n");
+					}
+
+					SakaiLaunchJWT launchJWT = new SakaiLaunchJWT();
+					launchJWT.subject = member.user_id;
+					launchJWT.email = member.email;
+					launchJWT.given_name = member.given_name;
+					launchJWT.family_name = member.family_name;
+					launchJWT.roles = member.roles;
+
+					Subject subject = createOrUpdateSubject(tenant, member.user_id, launchJWT);
+					if ( subject == null ) {
+						log.error("Failed createOrUpdateSubject subject={}", member.user_id);
+						dbs.append("Failed createOrUpdateSubject subject="+member.user_id);
+						cLog.setSuccess(Boolean.FALSE);
+						continue;
+					}
+
+					// Upsert the roles
+					Membership membership = new Membership();
+					membership.setSubject(subject);
+					membership.setContext(context);
+	                membership.setUpdatedAt(Instant.now());
+					String ltiRoles = launchJWT.getLTI11Roles();
+					if ( StringUtils.isNotBlank(ltiRoles) ) membership.setLtiRoles(ltiRoles);
+					membership = membershipRepository.upsert(membership);
+
+					Map<String, String> payload = getPayloadFromLaunchJWT(tenant, launchJWT);
+					payload.put("tenant_guid", contextGuid);
+					payload.put("subject_guid", subject.getId());
+
+					User user = userFinderOrCreator.findOrCreateUser(payload, false, isEmailTrustedConsumer);
+					if ( user == null ) {
+						log.error("Failed findOrCreateUser subject={}", member.user_id);
+						dbs.append("Failed findOrCreateUser subject="+member.user_id);
+						cLog.setSuccess(Boolean.FALSE);
+						continue;
+					}
+
+					connectSubjectAndUser(subject, user);
+
+					siteEmailPreferenceSetter.setupUserEmailPreferenceForSite(payload, user, site, false);
+
+					site = siteMembershipUpdater.addOrUpdateSiteMembership(payload, false, user, site);
+
+					cLog.setStatus("Completed syncSiteMemberships count="+count+" at="+Instant.now());
+				}
+			} catch (IOException | LTIException e) {
+				log.error("Error processing contextMemberships stream context={}", contextGuid, e);
+				cLog.setSuccess(Boolean.FALSE);
+				cLog.setStatus("Exception processing Names and Roles data="+e.getMessage());
+			}
+
+			// If this is the last page, clean up inactive entries (i.e. like a week since the last NRPS retrieval)
+			// We may be in a thread / task instead of a login context...
+			if ( isEmpty(contextMemberships) ) {
+
+				// setup a security advisor
+				SecurityAdvisor adv = new SecurityAdvisor() {
+					public SecurityAdvice isAllowed(String userId, String function,
+							String reference) {
+						return SecurityAdvice.ALLOWED;
+					}
+				};
+
+				securityService.pushAdvisor(adv);
+				try {
+					int minutes = getInactiveExpireMinutes(context);
+					List<Membership> deleted_memberships = removeSiteUsersMinutesOld(context, minutes);
+					if ( deleted_memberships.size() > 0 ) {
+						log.info("Inactive memberships removed {} from {}", deleted_memberships.size(), site.getId());
+						dbs.append("Inactive memberships removed "+deleted_memberships.size()+" from "+site.getId());
+					}
+				} finally {
+					securityService.popAdvisor(adv);
+				}
+			}
+
+			// Update the job status
+			context.setNrpsFinish(Instant.now());
+			context.setNrpsCount(count);
+			context.setNrpsStatus("Done");
+
+			// Store the log entry
+			cLog.setDebugLog(dbs.toString());
+			contextRepository.save(context);
+			contextLogRepository.save(cLog);
+		}  /* end while paging loop */
+
 	}
 
 /*
@@ -1413,6 +1483,124 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 	}
+
+	/*
+	 * Get "old" memberships that are still in the Realm
+	 */
+	@Transactional(readOnly = true)
+	@Override
+	public List<Membership> getSiteUsersMinutesOld(Context context, int minutes)
+	{
+		return walkSiteUsersMinutesOld(context, minutes, false);
+	}
+
+	/*
+	 * Remove "old" memberships that are still in the Realm
+	 *
+	 * Returns a list of the memberships that were removed from the Realm.  The memberships
+	 * continue to exist - just the realm entries are removed.  Is a user shows up in an NRPS
+	 * retrieval or launches into a Plus Site, since remove from the Realm does not remove
+	 * user activity data from a Site, they are re-added to the Realm and no data is lost.
+	 */
+	@Transactional
+	@Override
+	public List<Membership> removeSiteUsersMinutesOld(Context context, int minutes)
+	{
+		return walkSiteUsersMinutesOld(context, minutes, true);
+	}
+
+	/*
+	 * Walk through users in the realm that have "old" membership entries and optionally remove
+	 * or list them.
+	 */
+	private List<Membership> walkSiteUsersMinutesOld(Context context, int minutes, boolean remove)
+	{
+		List<Membership> old_memberships = new ArrayList<Membership>();
+
+		Site site = null;
+		String sakaiSite = context.getSakaiSiteId();
+		try
+		{
+			site = siteService.getSite(sakaiSite);
+		}
+		catch (IdUnusedException e)
+		{
+			log.warn("Cannot find site {}", sakaiSite);
+			return old_memberships;
+		}
+
+		Set<String> users = site.getUsers();
+		if ( users == null ) return old_memberships;
+
+		// Filter through the realm
+		boolean changed = false;
+		List<Membership> memberships = membershipRepository.getEntriesMinutesOld(context, minutes);
+		for (Membership membership : memberships) {
+			String userId = membership.getSubject().getSakaiUserId();
+			if ( users.contains(userId) ) {
+				if ( remove ) {
+					log.debug("Removing {} from site {}", userId, sakaiSite);
+					site.removeMember(userId);
+					changed = true;
+				}
+				old_memberships.add(membership);
+			}
+
+		}
+
+		try {
+			siteService.save(site);
+			log.debug("Site saved site={}", site.getId());
+		} catch (Exception e) {
+			log.warn("Failed to save site={}", site.getId());
+		}
+
+	   return old_memberships;
+	}
+
+	/*
+	 * Get the number of minutes to use when expiring inactive users for a site
+	 */
+	public Site getSite(Context context)
+	{
+		String sakaiSiteId	= context.getSakaiSiteId();
+		try
+		{
+			Site site = siteService.getSite(sakaiSiteId);
+			return site;
+		}
+		catch (IdUnusedException e)
+		{
+			log.warn("Cannot find site {}", sakaiSiteId);
+			return null;
+		}
+	}
+
+	/*
+	 * Get the number of minutes to use when expiring inactive users for a site
+	 */
+	public int getInactiveExpireMinutes(Context context)
+	{
+		Site site = getSite(context);
+		if ( site == null ) return MEMBERSHIP_EXPIRE_MINUTES;
+		String minstr = (String) site.getProperties().get(PLUS_MEMBERSHIP_EXPIRE_MINUTES);
+		int minutes = NumberUtils.toInt(minstr, MEMBERSHIP_EXPIRE_MINUTES);
+		return minutes;
+	}
+
+	/*
+	 * Get the number of seconds to use re-retrieving a roster via NRPS
+	 */
+	public long getNRPSDelaySeconds(Context context, boolean instructor)
+	{
+		Site site = getSite(context);
+		if ( site == null ) return DELAY_NRPS_LEARNER_SECONDS;
+		String minstr = (String) site.getProperties().get(PLUS_NRPS_DELAY_SECONDS);
+		long minutes = instructor ? DELAY_NRPS_INSTRUCTOR_SECONDS : DELAY_NRPS_LEARNER_SECONDS;
+		minutes = NumberUtils.toLong(minstr, minutes);
+		return minutes;
+	}
+
 
 /*
 

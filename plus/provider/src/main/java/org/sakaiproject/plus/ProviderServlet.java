@@ -137,10 +137,6 @@ public class ProviderServlet extends HttpServlet {
 
 	private static final String DEFAULT_PRIVACY_URL = "https://www.sakailms.com/plus-privacylaunch";
 
-	// Wait five or 30 minutes between successive calls to NRPS.
-	public final long delayNRPSInstructor = 300;
-	public final long delayNRPSLearner = 30*60;  // 30 minutes
-
 	@Autowired private ServerConfigurationService serverConfigurationService;
 	@Autowired private SiteMembershipUpdater siteMembershipUpdater;
 	@Autowired private SiteMembershipsSynchroniser siteMembershipsSynchroniser;
@@ -530,12 +526,12 @@ public class ProviderServlet extends HttpServlet {
 
 			site = siteMembershipUpdater.addOrUpdateSiteMembership(payload, false, user, site);
 
-			long delay = delayNRPSLearner;
-			String roles = payload.get("roles");
-			if ( roles != null && roles.toLowerCase().contains("Instructor".toLowerCase()) )  delay = delayNRPSInstructor;
-
 			String contextGuid = (String) payload.get("context_guid");
 			if ( contextGuid != null && launch.getContext() != null ) {
+				String roles = payload.get("roles");
+				boolean isInstructor = (roles != null && roles.toLowerCase().contains("Instructor".toLowerCase()));
+				long delay = plusService.getNRPSDelaySeconds(launch.getContext(), isInstructor);
+
 				Instant lastRun = launch.getContext().getNrpsStart();
 				long delta = -1;
 				if ( lastRun != null ) {
