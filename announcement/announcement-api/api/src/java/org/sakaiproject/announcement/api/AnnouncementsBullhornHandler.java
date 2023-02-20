@@ -17,6 +17,7 @@ package org.sakaiproject.announcement.api;
 
 import static java.util.function.Predicate.not;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,6 +76,8 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
     private PlatformTransactionManager transactionManager;
+
+   private static final String SELECTED_ROLES_PROPERTY = "selectedRoles";
 
     @Override
     public List<String> getHandledEvents() {
@@ -174,6 +177,19 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                                 usersToNotify.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
                             }
                         }
+
+                    if (message.getProperties().getPropertyList(SELECTED_ROLES_PROPERTY) != null) {
+                        Set<String> usersListAux = new HashSet<>();
+                        ArrayList<String> selectedRolesList = new ArrayList<String>(message.getProperties().getPropertyList(SELECTED_ROLES_PROPERTY));
+                        for (String selectedRole : selectedRolesList) {
+                            for (String userId: usersToNotify) {
+                                if (site.getMember(userId).getRole().getId().equalsIgnoreCase(selectedRole)) {
+                                    usersListAux.add(userId);
+                                }
+                            }
+                        }
+                        usersToNotify = new HashSet<>(usersListAux);
+                    }
 
                         // finally filter out the user who generated the event and superuser types
                         bhEvents = usersToNotify.stream()
