@@ -57,9 +57,7 @@ function createDHTMLMask(callback) {
 
   document.body.appendChild(portalMask);
 
-  if (typeof callback === 'function') {
-    callback();
-  }
+  (typeof callback === 'function') && callback();
 }
 
 function removeDHTMLMask() {
