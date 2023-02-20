@@ -93,6 +93,7 @@
 						##if ($!groups)
 							<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
 						##end 
+						<option value="view.byrole" #if ($!view == "view.byrole")selected="selected"#end >$!tlang.getString('view.byrole')</option>
 					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
@@ -345,6 +346,8 @@
 					$tlang.getString("gen.therearepublic")
 				#elseif ($!view == "view.bygroup")
 					$tlang.getString("gen.therearegroup")
+				#elseif ($!view == "view.byrole")
+					$tlang.getString("gen.therearerole")
 				#else 
 					$tlang.getString("gen.thereare")
 					#end
@@ -437,6 +440,7 @@
 							<option value="view.all" #if ($!view == "'view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
 							<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
 							<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
+							<option value="view.byrole" #if ($!view == "view.byrole")selected="selected"#end >$!tlang.getString('view.byrole')</option>
 							#end
 							#viewFilterPanel("viewFilterForm", "view", $viewSelectOptions, "doView")
 						</div>
@@ -655,6 +659,8 @@
 									$tlang.getString("gen.therearepublic")
 								#elseif ($!view == "view.bygroup")
 									$tlang.getString("gen.therearegroup")
+								#elseif ($!view == "view.byrole")
+									$tlang.getString("gen.therearerole")
 								#else
 									$tlang.getString("gen.thereare")
 								#end
