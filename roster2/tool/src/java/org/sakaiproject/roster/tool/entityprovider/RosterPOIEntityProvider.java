@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -51,6 +52,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -310,42 +312,57 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 		final List<List<String>> rosterRows = new ArrayList<>();
 		final List<List<String>> groupsRows = new ArrayList<>();
+		final List<List<String>> sectionsRows = new ArrayList<>();
+
+		final String siteId = site.getId();
+		final String userId = this.developerHelperService.getCurrentUserId();
+		final boolean canUserViewGroups = this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId);
 
 		createSpreadsheetTitle(rosterRows, site, groupId, viewType);
 
-		final String siteID = site.getId();
-		List<String> header = createColumnHeader(viewType, siteID, false);
+		List<String> header = createColumnHeader(viewType, siteId);
 		List<RosterMember> rosterMembers = Collections.EMPTY_LIST;
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
 
-			rosterMembers = getMembership(currentUserId, siteID, groupId, roleId);
+			rosterMembers = getMembership(currentUserId, siteId, groupId, roleId);
 
 			if (CollectionUtils.isNotEmpty(rosterMembers)) {
-				addOverviewRows(rosterRows, rosterMembers, header, siteID);
+				addOverviewRows(rosterRows, rosterMembers, header, siteId);
 			}
 		} else if (VIEW_ENROLLMENT_STATUS.equals(viewType)) {
 
-			rosterMembers = getEnrolledMembership(currentUserId, siteID, enrollmentSetId, enrollmentStatus);
+			rosterMembers = getEnrolledMembership(currentUserId, siteId, enrollmentSetId, enrollmentStatus);
 
 			if (CollectionUtils.isNotEmpty(rosterMembers)) {
-				addEnrollmentStatusRows(rosterRows, rosterMembers, header, enrollmentSetTitle, enrollmentStatus, siteID);
+				addEnrollmentStatusRows(rosterRows, rosterMembers, header, enrollmentSetTitle, enrollmentStatus, siteId);
 			}
 		}
-
+		// Roster Sheet
 		final Workbook workBook = new XSSFWorkbook();
 		final Sheet rosterSheet = workBook.createSheet(rl.getString("facet_roster"));
 		addRowsToSheet(rosterSheet, rosterRows);
 
-		final String userId = this.developerHelperService.getCurrentUserId();
-		if (CollectionUtils.isNotEmpty(rosterMembers) && this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteID)) {
-			header = createColumnHeader(viewType, siteID, true);
-			addGroupMembershipByGroupRows(groupsRows, rosterMembers, site, header, viewType);
-		}
+		if (canUserViewGroups) {
+			if (CollectionUtils.isNotEmpty(rosterMembers)) {
+				// For the Groups sheet, add a single column header for the different Groups.
+				header.add(rl.getString("facet_groups"));
+				addGroupMembershipByGroupRows(groupsRows, rosterMembers, site, header, viewType);
+			}
 
-		if (groupsRows.size() > 0 ) {
-			Sheet groupsSheet = workBook.createSheet(rl.getString("facet_groups"));
-			addRowsToSheet(groupsSheet, groupsRows);
+			if (groupsRows.size() > 0 ) {
+				Sheet groupsSheet = workBook.createSheet(rl.getString("facet_groups"));
+				addRowsToSheet(groupsSheet, groupsRows);
+
+				// For the Sections sheet, add a column header for each Section & Group used in the Site.
+				List<String> sectionsHeader = createColumnHeader(viewType, siteId);
+				ImmutablePair<List<String>, List<String>> sectionsPair = createSectionHeaders(site, userId);
+				sectionsHeader.addAll(sectionsPair.getLeft());
+				addSectionRows(sectionsRows, rosterMembers, sectionsHeader, sectionsPair.getRight(), site);
+
+				Sheet sectionsSheet = workBook.createSheet(rl.getString("facet_sections"));
+				addRowsToSheet(sectionsSheet, sectionsRows);
+			}
 		}
 
 		return workBook;
@@ -455,37 +472,93 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	private void addOverviewRows(final List<List<String>> dataInRows,
 			final List<RosterMember> rosterMembers, final List<String> header, final String siteId) {
 
-		final String userId = this.developerHelperService.getCurrentUserId();
-
 		dataInRows.add(header);
 		// blank line
 		dataInRows.add(new ArrayList<String>());
 
 		for (final RosterMember member : rosterMembers) {
+			dataInRows.add(addUserDataRow(member, siteId));
+		}
+	}
 
-			final List<String> row = new ArrayList<String>();
+	private List<String> addUserDataRow(final RosterMember member, final String siteId) {
+		final List<String> row = new ArrayList<String>();
 
-			if (this.sakaiProxy.getFirstNameLastName()) {
-				row.add(member.getDisplayName());
-			} else {
-				row.add(member.getSortName());
+		if (sakaiProxy.getFirstNameLastName()) {
+			row.add(member.getDisplayName());
+		} else {
+			row.add(member.getSortName());
+		}
+
+		if (sakaiProxy.getViewUserDisplayId()) {
+			row.add(member.getDisplayId());
+		}
+
+		if (sakaiProxy.getViewEmail(siteId)) {
+			row.add(member.getEmail());
+		}
+
+		if (sakaiProxy.getViewUserProperty(siteId)) {
+			List<String> props = member.getUserProperties().entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
+			row.add(String.join(",", props));
+		}
+
+		row.add(member.getRole());
+
+		return row;
+	}
+
+	/**
+	 * Rows will be filled with Sections and regular Groups spread over different cells, taking into account that:
+	 * a Section is a group with special properties, there can be multiple Sections of the same category,
+	 * and a user can be part of various Sections, but only one from each category.
+	 *
+	 * @param dataInRows list of rows
+	 * @param rosterMembers site users selection
+	 * @param header column headers
+	 * @param usedCategoryIds used section categories
+	 * @param site
+	 */
+	private void addSectionRows(final List<List<String>> dataInRows, final List<RosterMember> rosterMembers,
+			final List<String> header, final List<String> usedCategoryIds, final RosterSite site) {
+
+		dataInRows.add(header);
+
+		for (final RosterMember member : rosterMembers) {
+			// Add user's data at the beginning of each row.
+			final List<String> row = addUserDataRow(member, site.getId());
+			final List<String> rowGroupsPart = new ArrayList<String>();
+			// Get all groups the current member is associated to.
+			final Map<String, String> memberGroupsMap = member.getGroups();
+			final Map<String, String> memberSectionsMap = new HashMap<>();
+
+			for (final RosterGroup group : site.getSiteGroups()) {
+				// Look for the site groups the user isn't part of, to account for them on the spreadsheet structure.
+				final Optional<String> groupTitle = Optional.ofNullable(memberGroupsMap.get(group.getId()));
+				final Optional<String> sectionCategoryId = Optional.ofNullable(group.getSectionCategory());
+
+				if (groupTitle.isPresent()) {
+					// Check if the current group is a Section or a standard Group.
+					if (sectionCategoryId.isPresent()) {
+						memberSectionsMap.put(sectionCategoryId.get(), groupTitle.get());
+					} else {
+						rowGroupsPart.add(groupTitle.get());
+					}
+					// If the user isn't part of the current standard Group.
+				} else if (sectionCategoryId.isEmpty()) {
+					rowGroupsPart.add(""); // Empty spreadsheet cell
+				}
 			}
-
-			if (this.sakaiProxy.getViewUserDisplayId()) {
-				row.add(member.getDisplayId());
+			// Add the user Sections based on their categories, following the header order.
+			for (String category : usedCategoryIds) {
+				if (memberSectionsMap.containsKey(category)) {
+					row.add(memberSectionsMap.get(category));
+				} else {
+					row.add("");
+				}
 			}
-
-			if (this.sakaiProxy.getViewEmail(siteId)) {
-				row.add(member.getEmail());
-			}
-
-			if (this.sakaiProxy.getViewUserProperty(siteId)) {
-				List<String> props = member.getUserProperties().entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
-				row.add(String.join(",", props));
-			}
-
-			row.add(member.getRole());
-
+			// Final row will be composed by: user data + sections + groups.
+			row.addAll(rowGroupsPart);
 			dataInRows.add(row);
 		}
 	}
@@ -587,9 +660,14 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		return null;
 	}
 
-	private List<String> createColumnHeader(final String viewType, final String siteId, boolean isGroupsSheetHeader) {
-
-		final String userId = this.developerHelperService.getCurrentUserId();
+	/**
+	 * Generate the column headers for the main user info, like "name" and "email".
+	 *
+	 * @param viewType
+	 * @param siteId
+	 * @return list of column headers
+	 */
+	private List<String> createColumnHeader(final String viewType, final String siteId) {
 
 		final List<String> header = new ArrayList<>();
 		header.add(rl.getString("facet_name"));
@@ -612,11 +690,46 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			header.add(rl.getString("facet_status"));
 			header.add(rl.getString("facet_credits"));
 		}
-		if (isGroupsSheetHeader && this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
-			header.add(rl.getString("facet_groups"));
-		}
 
 		return header;
+	}
+
+	/**
+	 * Generate the column header for each Section and standard Group on the site.
+	 * A list of section categories will be also returned.
+	 * To allow the rows below to keep the correct order.
+	 *
+	 * @param site
+	 * @param userId
+	 * @return pair(Section & Group headers, category ids from used sections)
+	 */
+	private ImmutablePair<List<String>, List<String>> createSectionHeaders(final RosterSite site, final String userId) {
+		final List<String> sectionHeaders = new ArrayList<>();
+		final List<String> usedCategories = new ArrayList<>();
+		final List<String> groupHeaders = new ArrayList<>();
+		String sectionLabel = rl.getString("facet_sections_category");
+		String groupLabel = rl.getString("groups") + ": ";
+
+		for (final RosterGroup group : site.getSiteGroups()) {
+			// Check every group on the site, will be considered a Section if has any section category id.
+			final Optional<String> sectionCategoryId = Optional.ofNullable(group.getSectionCategory());
+
+			if (sectionCategoryId.isPresent()) {
+				String categoryName = sakaiProxy.getCategoryName(sectionCategoryId.get());
+				String fullSectionLabel = sectionLabel + categoryName;
+				// Avoid repeated Section headers, as multiple Sections can be part of the same category.
+				if (!sectionHeaders.contains(fullSectionLabel)) {
+					sectionHeaders.add(fullSectionLabel);
+					usedCategories.add(sectionCategoryId.get());
+				}
+			} else {
+				groupHeaders.add(groupLabel + group.getTitle());
+			}
+		}
+		sectionHeaders.addAll(groupHeaders);
+		ImmutablePair<List<String>, List<String>> sectionsPair = ImmutablePair.of(sectionHeaders, usedCategories);
+
+		return sectionsPair;
 	}
 
 	private void createSpreadsheetTitle(final List<List<String>> dataInRows,
