@@ -69,6 +69,20 @@ function resizeFrame(){
             includeSelectAllOption: true,
             enableCaseInsensitiveFiltering: true
         });
+
+        $('#selectedRoles').multiselect(
+			{
+				selectAllText: '$tlang.getString("announcement.edit.selectallroles")',
+				nonSelectedText: '$tlang.getString("announcement.edit.selectonerole")',
+				allSelectedText: '$tlang.getString("announcement.edit.allselectedroles")',
+				nSelectedText: '$tlang.getString("announcement.edit.rolesselected")',
+				filterPlaceholder: '$tlang.getString("announcement.edit.searchrole")',
+				enableFiltering: true,
+				includeSelectAllOption: true,
+				enableCaseInsensitiveFiltering: true
+			}
+		);
+		
     });
 </script>
 
@@ -207,7 +221,7 @@ function resizeFrame(){
 						  <label for="site">
 						  	<input type="radio" name="announceTo" id="site" 
 						  		value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end 
-						  		onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"/>
+						  		onclick="$('#groupTable').fadeOut('slow');$('#rolesTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"/>
 						  	$tlang.getString("displayto.site")
 						  </label>
 						</div>
@@ -218,7 +232,7 @@ function resizeFrame(){
 						  <label for="pubview">
 						    <input type="radio" name="announceTo" id="pubview" 
 								value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end 
-								onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"   />
+								onclick="$('#groupTable').fadeOut('slow');$('#rolesTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"   />
 								$tlang.getString("displayto.public")
 						  </label>
 						</div>
@@ -232,11 +246,11 @@ function resizeFrame(){
 					#end
 					#if ($!groups)
 						## added group awareness
-						<div class="checkbox">
+						<div class="checkbox special-margin-bottom">
 						  <label for="groups">
 							<input type="radio" name="announceTo" id="groups" 
 							value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end 
-							onclick="$('#groupTable').fadeIn('slow');resizeFrame(); updateEmailDropdownOptions()"  />
+							onclick="$('#groupTable').fadeIn('slow');$('#rolesTable').fadeOut('slow');resizeFrame(); updateEmailDropdownOptions()"  />
 							$tlang.getString("displayto.selected")
 						  </label>
 						</div>
@@ -265,6 +279,40 @@ function resizeFrame(){
 									<option id="group-$group.Id" value="$group.Id" #if($selected) selected #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($!description) #end</option>
 								#end
 							</select>
+							<br/><br/>
+						</div>
+					#end
+					#if ($siteRolesIds.size() > 0)
+						<div class="checkbox special-margin-top">
+							<label for="roles">
+							#set ($displayRoles = (!$!pubview && $!announceTo == "roles") || $announceToRoles)
+								<input type="radio" name="announceTo" id="roles" 
+								value="roles" #if($displayRoles) checked="checked" #end 
+								onclick="$('#rolesTable').fadeIn('slow');$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"  />
+								$tlang.getString("displayto.roles")
+							</label>
+						</div>
+						#if($displayRoles)
+							#set ($listSiteDisplay="block")
+						#else
+							#set ($listSiteDisplay="none")
+						#end
+						<div id="rolesTable" style="display:$listSiteDisplay">
+						<caption class="skip" style="display:none">$tlang.getString("displayto.roles")</caption></br>
+						<select id="selectedRoles" name="selectedRoles" aria-label="$tlang.getString('announcement.label.selectedroles')" multiple="multiple">
+							#foreach ($roleId in $!siteRolesIds)
+								#set($selected=false)
+								#foreach($selectedRole in $announceToRoles)
+									#if ($roleId == $selectedRole)
+										#set($selected = true)
+									#end
+								#end
+								#if($siteRolesIds.size() == 1) #set($selected=true) #end
+								#set($disabled=true)
+
+								<option id="role-$roleId" value="$roleId" #if($selected) selected #end>$roleId</option>
+							#end
+						</select>
 						</div>
 					#end
 				#end

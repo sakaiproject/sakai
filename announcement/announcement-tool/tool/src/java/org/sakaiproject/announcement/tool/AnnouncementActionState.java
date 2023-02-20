@@ -624,6 +624,9 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 
 	// temporary storage for announce to groups selection
 	private Collection m_tempAnnounceToGroups;
+	
+	// temporary storage for announce to roles selection
+	private String[] m_tempAnnounceToRoles;
 
 	// temporary storage for local file inputStream, contentType and display name
 	private HashMap m_fileProperties = new HashMap();
@@ -715,6 +718,22 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		m_tempAnnounceToGroups = tempAnnounceToGroups;
 
 	} // setTempAnnounceTo()
+	
+	/**
+	 * Get
+	 */
+	public String[] getTempAnnounceToRoles()
+	{
+		return m_tempAnnounceToRoles;
+	} // getTempAnnounceToRoles()
+
+	/**
+	 * set
+	 */
+	public void setTempAnnounceToRoles(String[] tempAnnounceToRoles)
+	{
+		m_tempAnnounceToRoles = tempAnnounceToRoles;
+	} // setTempAnnounceToRoles()
 
 	/**
 	 * Get
