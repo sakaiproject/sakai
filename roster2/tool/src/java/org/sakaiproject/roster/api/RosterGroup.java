@@ -48,5 +48,6 @@ public class RosterGroup {
 
 	private final String id;
 	private String title;
-	private List<String> userIds;	
+	private List<String> userIds;
+	private String sectionCategory;
 }
