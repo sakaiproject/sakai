@@ -46,9 +46,10 @@
 </nav>
 <script>
     window.addEventListener("load", function() {
-    
+
         document.getElementById("totool").addEventListener("click", function() {
-        document.querySelector(".nav-item").focus();
+
+            document.querySelector(".nav-item").focus();
         });
     });
 </script>

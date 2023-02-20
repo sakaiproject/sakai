@@ -162,14 +162,12 @@
 <script>
     // focus the current tool on load
     window.addEventListener('load', () => {
-
         document.querySelector('.selected-page').scrollIntoView({behavior:'auto' , block: 'center'});
-    
-    // put the focus back on the portal wrapper so that keyboard navigation works
-    setTimeout(function() {
-    
-        document.querySelector('.Mrphs-portalWrapper').focus();
-    }, 50);
+        // put the focus back on the portal wrapper so that keyboard navigation works
+        setTimeout(function() {
+
+            document.querySelector('.Mrphs-portalWrapper').focus();
+        }, 50);
     });
 </script>
 <!-- END VM includeSiteNav.vm -->
