@@ -64,9 +64,7 @@ function createDHTMLMask(callback) {
 
 function removeDHTMLMask() {
   const portalMask = document.getElementById('portalMask');
-  if (portalMask) {
-    document.body.removeChild(portalMask);
-  }
+  portalMask && document.body.removeChild(portalMask);
 }
 
 var poll_session_data = function(){
