@@ -2621,7 +2621,6 @@ public class SiteAction extends PagedResourceActionII {
 				} else {
 					context.put("publishType", site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE));
 				}
-				context.put("publishDate", site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE));
 				Date termPublishDate = new Date();
 				try{
 					AcademicSession academicSession = courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID));
@@ -2645,8 +2644,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("shoppingPeriodInstructorEditable", serverConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
 				context.put("viewDelegatedAccessUsers", serverConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
 
-				Date publishingDate = new Date();
-				String readablePublishDate = "";
 				if(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE) != null) {
 					context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
 					context.put("unpublishDate", site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE));
@@ -2655,12 +2652,21 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("unpublishDate", "");
 				}
 				
-				if(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE) != null){
-					publishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)));
+				String sitePublishDate = site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE);
+				String readablePublishDate = "";
+				Date publishingDate = new Date();
+
+				if(sitePublishDate != null){
+					publishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(sitePublishDate));
 					readablePublishDate = userTimeService.dateTimeFormat(publishingDate, rb.getLocale(), DateFormat.SHORT);
+					context.put("publishDate", sitePublishDate);
+				}
+				else {
+					context.put("publishDate", "");
 				}
 
 				context.put("readablePublishDate", readablePublishDate);
+
 				if(site.isPublished()){
 					context.put("existingStatus", "Published");
 					context.put("statusLabel", rb.getString("list.publi"));
