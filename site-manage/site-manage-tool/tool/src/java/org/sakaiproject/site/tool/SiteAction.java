@@ -2756,7 +2756,7 @@ public class SiteAction extends PagedResourceActionII {
 				// the template site, if using one
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 				try {
-					AcademicSession academicSession = courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID));
+					AcademicSession academicSession = courseManagementService.getAcademicSession(siteInfo.term);
 					long courseStartTime = academicSession.getStartDate().getTime();
 					long courseEndTime = academicSession.getEndDate().getTime();
 					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
