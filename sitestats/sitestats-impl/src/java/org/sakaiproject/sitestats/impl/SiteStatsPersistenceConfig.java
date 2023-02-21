@@ -144,6 +144,7 @@ public class SiteStatsPersistenceConfig {
         p.setProperty("hibernate.cache.region.factory_class", serverConfigurationService.getString("sitestats.externalDb.hibernate.cache.region.factory_class", ""));
         p.setProperty("hibernate.cache.use_query_cache", serverConfigurationService.getString("sitestats.externalDb.hibernate.cache.use_query_cache", "false"));
         p.setProperty("hibernate.cache.use_second_level_cache", serverConfigurationService.getString("sitestats.externalDb.hibernate.cache.use_second_level_cache", "false"));
+        p.setProperty("hibernate.id.new_generator_mappings", serverConfigurationService.getString("sitestats.externalDb.hibernate.id.new_generator_mappings", "false"));
         return p;
     }
 
