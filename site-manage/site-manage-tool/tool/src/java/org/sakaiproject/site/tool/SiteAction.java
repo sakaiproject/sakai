@@ -31,6 +31,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.Year;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -2623,15 +2624,20 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("publishDate", site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE));
 				Date termPublishDate = new Date();
 				try{
-					termPublishDate = new Date(courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getStartDate().getTime() - (ONE_DAY_IN_MS * daysbefore));
-					context.put("termStartDate", termPublishDate.toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
-					context.put("termEndDate", courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
-					context.put("termUnpublishDate", new Date(courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
+					AcademicSession academicSession = courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID));
+					long courseStartTime = academicSession.getStartDate().getTime();
+					long courseEndTime = academicSession.getEndDate().getTime();
+					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
+
+					termPublishDate = new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore));
+					context.put("termStartDate", termPublishDate.toInstant().atZone(localZoneId).toString());
+					context.put("termEndDate", new Date(courseEndTime).toInstant().atZone(localZoneId).toString());
+					context.put("termUnpublishDate", new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId).toString());
 					context.put("readableTermStartDate", userTimeService.dateFormat(termPublishDate, rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
 					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(termPublishDate, rb.getLocale(), DateFormat.SHORT));
-					context.put("readableTermEndDate", userTimeService.dateFormat(courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate(), rb.getLocale(), DateFormat.LONG));
-					context.put("readableTermUnpublishDate", userTimeService.dateFormat(new Date(courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.LONG));
-					context.put("readableTermUnpublishDateTime", userTimeService.dateTimeFormat(new Date(courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.SHORT));
+					context.put("readableTermEndDate", userTimeService.dateFormat(academicSession.getEndDate(), rb.getLocale(), DateFormat.LONG));
+					context.put("readableTermUnpublishDate", userTimeService.dateFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.LONG));
+					context.put("readableTermUnpublishDateTime", userTimeService.dateTimeFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.SHORT));
 				} catch(IdNotFoundException i) {	//no session ID means this is Project, or term-free
 
 				}
@@ -2639,24 +2645,28 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("shoppingPeriodInstructorEditable", serverConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
 				context.put("viewDelegatedAccessUsers", serverConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
 
-				Date publishingDate;
-				String publishingDateReadable = "";
-				if(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE) != null){
+				Date publishingDate = new Date();
+				String readablePublishDate = "";
+				if(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE) != null) {
 					context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
 					context.put("unpublishDate", site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE));
 				} else {
 					context.put("readableUnpublishDate", "");
 					context.put("unpublishDate", "");
 				}
-				context.put("readablePublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(String.valueOf(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE))), rb.getLocale(), DateFormat.SHORT));
-				publishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)));
-				publishingDateReadable = userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(String.valueOf(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE))), rb.getLocale(), DateFormat.SHORT);
+				
+				if(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE) != null){
+					publishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)));
+					readablePublishDate = userTimeService.dateTimeFormat(publishingDate, rb.getLocale(), DateFormat.SHORT);
+				}
+
+				context.put("readablePublishDate", readablePublishDate);
 				if(site.isPublished()){
 					context.put("existingStatus", "Published");
 					context.put("statusLabel", rb.getString("list.publi"));
 				} else if(StringUtils.equals(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED) && publishingDate.toInstant().isAfter(Instant.now())){
 					context.put("existingStatus", "Scheduled");
-					context.put("statusLabel", rb.getString("pubuncon.sched") + ' ' + publishingDateReadable);
+					context.put("statusLabel", rb.getString("pubuncon.sched") + ' ' + readablePublishDate);
 				} else if (StringUtils.equals(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_AUTO)
 						&& termPublishDate.toInstant().isAfter(Instant.now())) {
 					context.put("existingStatus", "Scheduled");
@@ -2740,15 +2750,20 @@ public class SiteAction extends PagedResourceActionII {
 				// the template site, if using one
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 				try {
-					AcademicSession academicSession = courseManagementService.getAcademicSession(siteInfo.term);
-					context.put("termStartDate", new Date(academicSession.getStartDate().getTime() - (ONE_DAY_IN_MS * daysbefore)).toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
-					context.put("termEndDate", new Date(academicSession.getEndDate().getTime()).toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
-					context.put("termUnpublishDate", new Date(academicSession.getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(userTimeService.getLocalTimeZone().toZoneId()).toString());
-					context.put("readableTermStartDate", userTimeService.dateFormat(new Date(academicSession.getStartDate().getTime() - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
+					AcademicSession academicSession = courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID));
+					long courseStartTime = academicSession.getStartDate().getTime();
+					long courseEndTime = academicSession.getEndDate().getTime();
+					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
+
+					context.put("termStartDate", new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)).toInstant().atZone(localZoneId).toString());
+					context.put("termEndDate", new Date(courseEndTime).toInstant().atZone(localZoneId).toString());
+					context.put("termUnpublishDate", new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId).toString());
+					context.put("readableTermStartDate", userTimeService.dateFormat(new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
 					context.put("readableTermEndDate", userTimeService.dateFormat(academicSession.getEndDate(), rb.getLocale(), DateFormat.LONG));
-					context.put("readableTermUnpublishDate", userTimeService.dateFormat(new Date(academicSession.getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.LONG));
-					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(new Date(academicSession.getStartDate().getTime() - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.SHORT));
-					context.put("readableTermUnpublishDateTime", userTimeService.dateTimeFormat(new Date(academicSession.getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.SHORT));
+					context.put("readableTermUnpublishDate", userTimeService.dateFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.LONG));
+					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.SHORT));
+					context.put("readableTermUnpublishDateTime", userTimeService.dateTimeFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.SHORT));
+
 					if (templateSite!=null && templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE) != null) {
 						//when we need to get settings from a template site
 						context.put("basedOnTemplate", true);
