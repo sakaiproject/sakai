@@ -30,6 +30,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -2608,7 +2610,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			edit.setDescription(description);
 			edit.setType(type);
 			edit.setLocation(location);
-         edit.setCreator();
+			edit.setCreator();
 			
 			// for site...
 			if (access == EventAccess.SITE)
@@ -2628,15 +2630,25 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// for grouped...
 			else
 			{
+				Collection<Group> allowedGroups = this.getGroupsAllowAddEvent();
+				Collection<Group> allowedSelected = filterAllowedAndSelectedGroups(groups, allowedGroups);
+				Collection<Group> notAllowedSelected = filterNotAllowedAndSelectedGroups(groups, allowedGroups);
 				// if not allowed to GROUP, will throw permission exception
-				try
-				{
-					edit.setGroupAccess(groups,true);
-				}
-				catch (PermissionException e)
-				{
-					cancelEvent(edit);
-					throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+				if(!allowedSelected.isEmpty()) {
+					edit.setGroupAccess(allowedSelected, true);
+					if(!notAllowedSelected.isEmpty()) {
+						log.warn("Attempting to post to groups you don't belong to {} user={} lock={} resource={}", notAllowedSelected.toString(), m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+					}
+				} else {
+					try
+					{
+						edit.setGroupAccess(groups,true);
+					}
+					catch (PermissionException e)
+					{
+						cancelEvent(edit);
+						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+					}
 				}
 			}
 
@@ -2648,6 +2660,20 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			return edit;
 
 		} // addEvent
+
+		/**
+		 * @return only the groups allowed and selected
+		 */
+		private Collection<Group> filterAllowedAndSelectedGroups (Collection<Group> group, Collection<Group> groupAllowed) {
+			return groupAllowed.stream().filter(it -> (group.contains(it))).collect(Collectors.toList());
+		}
+
+		/**
+		 * @return groups not allowed and selected
+		 */
+		private Collection<Group> filterNotAllowedAndSelectedGroups (Collection<Group> group, Collection<Group> groupAllowed) {
+			return group.stream().filter(it -> !(groupAllowed.contains(it))).collect(Collectors.toList());
+		}
 		
 		/**
 		 * Add a new event to this calendar.
