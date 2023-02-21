@@ -1335,7 +1335,7 @@ public class FormattedTextImpl implements FormattedText
             //&nbsp; are converted to char code 160, java doesn't treat it like whitespace, so replace it with ' '
             text = text.replace((char)160, ' ');
         } else {
-            text = org.jsoup.Jsoup.clean(text, "", org.jsoup.safety.Whitelist.none(), new org.jsoup.nodes.Document.OutputSettings().prettyPrint(false).outline(false));
+            text = org.jsoup.Jsoup.clean(text, "", org.jsoup.safety.Safelist.none(), new org.jsoup.nodes.Document.OutputSettings().prettyPrint(false).outline(false));
         }
 
         if (smartSpacing || stripEscapeSequences) {
