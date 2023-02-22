@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.messaging.api;
+package org.sakaiproject.messaging.api.model;
 
 import java.time.Instant;
 
@@ -89,4 +89,7 @@ public class UserNotification implements PersistableEntity<Long> {
 
     @Transient
     private String siteTitle;
+
+    @Transient
+    private String tool;
 }

@@ -4641,7 +4641,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immediately
                 userMessagingService.message(filteredUsers,
                         Message.builder().tool(AssignmentConstants.TOOL_ID).type("releasegrade").build(),
-                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getReleaseGradeReplacements(assignment, siteId), NotificationService.NOTI_REQUIRED);
+                        Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getReleaseGradeReplacements(assignment, siteId), NotificationService.NOTI_REQUIRED);
             }
         }
         if (StringUtils.isNotBlank(resubmitNumber) && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE))) {
@@ -4650,7 +4650,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immidiately
                 userMessagingService.message(filteredUsers,
                         Message.builder().tool(AssignmentConstants.TOOL_ID).type("releaseresubmission").build(),
-                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getReleaseResubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
+                        Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getReleaseResubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
             }
         }
     }
@@ -4672,7 +4672,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immediately
                 userMessagingService.message(new HashSet<>(receivers),
                     Message.builder().tool(AssignmentConstants.TOOL_ID).type("submission").build(),
-                    Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_REQUIRED);
+                    Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), replacements, NotificationService.NOTI_REQUIRED);
             } else if (notiOption.equals(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST)) {
                 // digest the message to each user
                 userMessagingService.message(new HashSet<>(receivers),
@@ -4708,7 +4708,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             userMessagingService.message(users,
                 Message.builder().tool(AssignmentConstants.TOOL_ID).type("submission").build(),
-                Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getSubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
+                Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getSubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
         }
     }
 

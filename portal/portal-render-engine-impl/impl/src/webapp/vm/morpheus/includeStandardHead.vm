@@ -55,16 +55,19 @@
                 "portalCDNQuery" : "$!{portalCDNQuery}",
                 "sakaiSkin" : "$!{pageSkin}",
                 "userTheme" : "$!{userTheme}",
-                #if($themesAutoDetectDark)"userThemeAutoDetectDark" : true,
-                #end"mathJaxConfig" : {
+                #if ($themesAutoDetectDark)
+                "userThemeAutoDetectDark" : true,
+                #end
+                "mathJaxConfig" : {
                     "format" : [#foreach( $format in $mathJaxFormat )"${format}",#end]
                 },
                 toolTitles : {#foreach ($entry in $toolTitles.entrySet())"$entry.key": "$entry.value",#end},
-                notifications: { debug: $!debugNotifications },
+                notifications: { pushEnabled: $!notificationsPushEnabled, debug: $!debugNotifications },
             };
         </script>
 
-        <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/assets/get-browser-fingerprint/src/index.js$!{portalCDNQuery}"></script>
+        <script defer src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
 
         #parse("/vm/morpheus/snippets/title-snippet.vm")
 

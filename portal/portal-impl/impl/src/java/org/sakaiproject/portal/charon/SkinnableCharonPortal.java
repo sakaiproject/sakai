@@ -63,8 +63,8 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
-import org.sakaiproject.messaging.api.UserNotification;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
@@ -1118,6 +1118,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// Format properties for MathJax.
 		String [] mathJaxFormat = ServerConfigurationService.getStrings("mathjax.config.format");
 		rcontext.put("mathJaxFormat", mathJaxFormat);
+
+		boolean notificationsPushEnabled = ServerConfigurationService.getBoolean("portal.notifications.push.enabled", true);
+		rcontext.put("notificationsPushEnabled", notificationsPushEnabled);
 
 		boolean debugNotifications = ServerConfigurationService.getBoolean("portal.notifications.debug", false);
 		rcontext.put("debugNotifications", debugNotifications);

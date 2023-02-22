@@ -30,9 +30,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.UserNotification;
 import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
+import org.sakaiproject.messaging.api.model.UserNotification;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
