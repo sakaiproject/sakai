@@ -6,7 +6,7 @@
     table="SAKAI_PERSON_T" optimistic-lock="version"
     discriminator-value="P">
 
-    <cache usage="read-write" />
+    <cache usage="nonstrict-read-write" />
 
     <id name="id">
       <column name="ID" not-null="true" length="19" />
