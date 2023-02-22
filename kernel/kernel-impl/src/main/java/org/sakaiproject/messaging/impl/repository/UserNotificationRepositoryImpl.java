@@ -25,7 +25,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
 
-import org.sakaiproject.messaging.api.UserNotification;
+import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 

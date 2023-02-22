@@ -253,6 +253,32 @@ public class EntityManagerComponent implements EntityManager
 
 	}
 
+	public Optional<Entity> getEntity(String ref) {
+
+		Reference r = newReference(ref);
+		EntityProducer ep = r.getEntityProducer();
+
+		if (ep != null) {
+			return Optional.ofNullable(ep.getEntity(r));
+		} else {
+			log.debug("No entity producer for reference {}", ref);
+			return Optional.<Entity>empty();
+		}
+	}
+
+	public Optional<String> getTool(String ref) {
+
+		Reference r = newReference(ref);
+		EntityProducer ep = r.getEntityProducer();
+
+		if (ep != null) {
+			return ep.getTool();
+		} else {
+			log.debug("No entity producer for reference {}", ref);
+			return Optional.<String>empty();
+		}
+	}
+
 	/**
 	 * @inheritDoc
 	 */

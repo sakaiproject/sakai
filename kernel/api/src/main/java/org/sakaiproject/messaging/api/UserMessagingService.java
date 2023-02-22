@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.messaging.api.model.UserNotification;
 
 /**
  * The user messaging service is intendened to the the single interface via which tools
@@ -30,6 +31,9 @@ import org.sakaiproject.user.api.User;
  * rather than having that logic scattered through tool code.
  */
 public interface UserMessagingService {
+
+    public static final String PUSH_PUBKEY_PROPERTY = "portal.notifications.push.publickey";
+    public static final String PUSH_PRIVKEY_PROPERTY = "portal.notifications.push.privatekey";
 
     /**
      * Send a message to a set of users, via 1 to many message media. If a template is involved
@@ -96,4 +100,14 @@ public interface UserMessagingService {
      * @return boolean to indicate success
      */
     public boolean markAllNotificationsViewed();
+
+    /**
+     * Subscribe the current user to the push service. This is related to browser push and the
+     * parameters come from the browser vendor's push service via the Sakai client js.
+     *
+     * @param endpoint The browser push service supplied endpoint
+     * @param auth The browser push service supplied auth
+     * @param auth The browser push service supplied userKey
+     */
+    public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint);
 }

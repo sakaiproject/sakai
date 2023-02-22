@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2003-2021 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.messaging.api;
+package org.sakaiproject.messaging.api.repository;
 
-import org.sakaiproject.messaging.api.model.UserNotification;
+import java.util.List;
+import java.util.Optional;
 
-public interface MessageListener {
+import org.sakaiproject.messaging.api.model.PushSubscription;
 
-    public void read(UserNotification un);
+import org.sakaiproject.springframework.data.SpringCrudRepository;
+
+public interface PushSubscriptionRepository extends SpringCrudRepository<PushSubscription, Long> {
+
+    List<PushSubscription> findByUser(String user);
+    int deleteByFingerprint(String browserFingerprint);
 }
-
