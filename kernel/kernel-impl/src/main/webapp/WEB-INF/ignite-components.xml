@@ -170,7 +170,7 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.component.common.edu.person.PersonImpl"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
