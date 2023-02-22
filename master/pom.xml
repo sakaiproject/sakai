@@ -177,28 +177,6 @@
       </build>
     </profile>
     <profile>
-      <id>sakai-release</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <property>
-            <name>sakai-release</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-                <release>${sakai.jdk.version}</release>
-                <optimize>true</optimize>
-                <debug>true</debug>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
       <id>deploy-skip</id>
       <activation>
         <file>
