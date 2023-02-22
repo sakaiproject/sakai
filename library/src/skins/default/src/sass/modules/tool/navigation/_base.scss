@@ -940,3 +940,16 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 #roleSwitchSelect {
 	font-weight: bold;
 }
+
+
+// if role switch is on page
+.role-switch-present {
+	padding-right: 10.5em;
+	margin-top: -42px;
+}
+
+// if overview page
+.add-content-button--overview {
+	padding-right: 10.5em;
+	margin-top: -42px;
+}

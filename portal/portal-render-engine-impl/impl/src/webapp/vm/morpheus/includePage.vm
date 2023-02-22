@@ -118,23 +118,16 @@
                         <script>
                             // if the role switcher is present the page title 'overview' then add padding-right to the add content button
 
-                            const roleSwitchButton = document.getElementById("roleSwitch");
-                            const addContentButton = document.querySelector(".Mrphs-toolTitleNav__button_container");
+                            var roleSwitch = document.getElementById("roleSwitch");
+                            var directToolLinkButton = document.querySelector(".Mrphs-toolTitleNav__button_container");
+                            var pageTitle = document.querySelector(".Mrphs-breadcrumb--toolNameText");
 
-                            if (roleSwitchButton && addContentButton) {
+                            if (roleSwitch && directToolLinkButton) directToolLinkButton.style.cssText = "padding-right: 10.5em; margin-top: -42px;";
 
-                                addContentButton.style.paddingRight = "10.5em";
-                                addContentButton.style.marginTop = "-42px";
-                            }; 
-    
-                            // if the role switcher is present the page title 'overview' then remove the padding-right
 
-                            const pageTitle = document.querySelector(".Mrphs-breadcrumb--toolNameText");
-                            if (pageTitle && pageTitle.textContent === "Overview") { // overview needs to be translated
-
-                                addContentButton.style.paddingRight = "0";
-                                addContentButton.style.marginTop = "0";
-                            };
+                            if (pageTitle && pageTitle.textContent.trim() === "${i18n.get('overview')}") {
+                                addContentButton.style.cssText = "padding-right: 0; margin-top: 0;";
+                            }
                         </script>
 
                                 </div>

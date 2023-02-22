@@ -162,7 +162,8 @@
 <script>
     // focus the current tool on load
     window.addEventListener('load', () => {
-        document.querySelector('.selected-page').scrollIntoView({behavior:'auto' , block: 'center'});
+        document.querySelector('.selected-page')?.scrollIntoView({behavior:'auto', block: 'center'});
+
         // put the focus back on the portal wrapper so that keyboard navigation works
         setTimeout(function() {
 
