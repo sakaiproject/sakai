@@ -370,6 +370,15 @@
           <h:selectOneRadio id="sebConfigMode" value="#{assessmentSettings.sebConfigMode}" layout="pageDirection" onclick="setBlockDivs();">
               <f:selectItems value="#{assessmentSettings.sebConfigModeSelections}" />
           </h:selectOneRadio>
+          <label class="help-block info-text small config-mode-help-manual">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_manual_help}" />
+          </label>
+          <label class="help-block info-text small config-mode-help-upload">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_upload_help}" />
+          </label>
+          <label class="help-block info-text small config-mode-help-client">
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_client_help}" />
+          </label>
         </div>
       </h:panelGroup>
       <h:panelGroup styleClass="form-group row" layout="block">

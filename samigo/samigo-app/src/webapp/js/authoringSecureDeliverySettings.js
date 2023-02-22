@@ -232,6 +232,12 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
     const sebConfigUploadLink = document.querySelector(`#${inputIdPrefix}sebConfigUploadLink`);
     const sebConfigUploadId = document.querySelector(`#${inputIdPrefix}sebConfigUploadId`);
 
+    const configModeHelpTexts = {
+        MANUAL: Banner.find(".config-mode-help-manual"),
+        UPLOAD: Banner.find(".config-mode-help-upload"),
+        CLIENT: Banner.find(".config-mode-help-client"),
+    }
+
     function handleBinaryRadio(value, yesHandler, noHandler) {
         switch (value) {
             case "true":
@@ -258,7 +264,9 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
     }
 
     function handleSebConfigMode() {
-        switch (formElements.seb.sebConfigMode?.value) {
+        const configModeString = formElements.seb.sebConfigMode?.value;
+
+        switch (configModeString) {
             case "MANUAL":
                 showHideElements(Object.values(formElements.seb), manualModeFormElements);
                 handleSebAllowUserQuitSeb();
@@ -278,6 +286,13 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
                 sebExamKeysUploadInfoText?.hide();
                 formElements.secureDeliveryModuleExitPassword.hide();
                 break;
+        }
+
+        // Hide all config mode help texts
+        Object.values(configModeHelpTexts).forEach(helpText => helpText?.hide());
+        // Show current config mode help text
+        if (configModeString) {
+            configModeHelpTexts[configModeString]?.show();
         }
     }
 
