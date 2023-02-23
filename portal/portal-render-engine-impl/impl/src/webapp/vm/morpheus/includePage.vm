@@ -115,20 +115,21 @@
 
                                 #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
-                        <script>
-                            // if the role switcher is present the page title 'overview' then add padding-right to the add content button
+                                    <script>
+                                        // if the role switcher is present the page title 'overview' then add padding-right to the add content button
 
-                            var roleSwitch = document.getElementById("roleSwitch");
-                            var directToolLinkButton = document.querySelector(".Mrphs-toolTitleNav__button_container");
-                            var pageTitle = document.querySelector(".Mrphs-breadcrumb--toolNameText");
+                                        var roleSwitch = document.getElementById("roleSwitch");
+                                        var directToolLinkButton = document.querySelector(".Mrphs-toolTitleNav__button_container");
+                                        var pageTitle = document.querySelector(".Mrphs-breadcrumb--toolNameText");
 
-                            if (roleSwitch && directToolLinkButton) directToolLinkButton.style.cssText = "padding-right: 10.5em; margin-top: -42px;";
-
-
-                            if (pageTitle && pageTitle.textContent.trim() === "${i18n.get('overview')}") {
-                                addContentButton.style.cssText = "padding-right: 0; margin-top: 0;";
-                            }
-                        </script>
+                                        if (roleSwitch && directToolLinkButton) {
+                                            if (pageTitle && pageTitle.textContent.trim() === "$homeToolTitle") {
+                                                directToolLinkButton.classList.add("home-tool-link");
+                                            } else {
+                                                directToolLinkButton.classList.add("non-home-tool-link");
+                                            }
+                                        }
+                                    </script>
 
                                 </div>
 
