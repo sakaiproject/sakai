@@ -167,6 +167,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * messages.
 	 */
 	private static ResourceLoader rloader = new ResourceLoader("sitenav");
+	private static ResourceLoader toolsRloader = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
 	private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
 	/**
@@ -1111,6 +1112,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
+
+		rcontext.put("homeToolTitle", toolsRloader.getString("sakai.home.title"));
 		
 		//SAK-32224. Ability to disable the animated tool menu by property
 		rcontext.put("scrollingToolbarEnabled", ServerConfigurationService.getBoolean("portal.scrolling.toolbar.enabled",true));

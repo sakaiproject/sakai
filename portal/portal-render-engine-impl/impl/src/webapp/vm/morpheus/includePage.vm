@@ -115,27 +115,21 @@
 
                                 #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
-                        <script>
-                            // if the role switcher is present the page title 'overview' then add padding-right to the add content button
+                                    <script>
+                                        // if the role switcher is present the page title 'overview' then add padding-right to the add content button
 
-                            const roleSwitchButton = document.getElementById("roleSwitch");
-                            const addContentButton = document.querySelector(".Mrphs-toolTitleNav__button_container");
+                                        var roleSwitch = document.getElementById("roleSwitch");
+                                        var directToolLinkButton = document.querySelector(".Mrphs-toolTitleNav__button_container");
+                                        var pageTitle = document.querySelector(".Mrphs-breadcrumb--toolNameText");
 
-                            if (roleSwitchButton && addContentButton) {
-
-                                addContentButton.style.paddingRight = "10.5em";
-                                addContentButton.style.marginTop = "-42px";
-                            }; 
-    
-                            // if the role switcher is present the page title 'overview' then remove the padding-right
-
-                            const pageTitle = document.querySelector(".Mrphs-breadcrumb--toolNameText");
-                            if (pageTitle && pageTitle.textContent === "Overview") { // overview needs to be translated
-
-                                addContentButton.style.paddingRight = "0";
-                                addContentButton.style.marginTop = "0";
-                            };
-                        </script>
+                                        if (roleSwitch && directToolLinkButton) {
+                                            if (pageTitle && pageTitle.textContent.trim() === "$homeToolTitle") {
+                                                directToolLinkButton.classList.add("home-tool-link");
+                                            } else {
+                                                directToolLinkButton.classList.add("non-home-tool-link");
+                                            }
+                                        }
+                                    </script>
 
                                 </div>
 
