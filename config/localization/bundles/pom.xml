@@ -10,9 +10,9 @@
 	<name>localization-bundles</name>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>localization-bundles</artifactId>
-	<packaging>sakai-component</packaging>
+	<packaging>jar</packaging>
 	<properties>
-		<deploy.target>components</deploy.target>
+		<deploy.target>shared</deploy.target>
 	</properties>
 	<build>
 		<resources>

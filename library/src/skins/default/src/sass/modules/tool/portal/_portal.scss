@@ -57,6 +57,16 @@
   grid-area: sidebar;
 }
 
+.non-home-tool-link {
+  padding-right: 10.5em;
+  margin-top: -43px !important;
+}
+
+.home-tool-link {
+  padding-right: 0;
+  margin-top: 0;
+}
+
 #sakai-system-indicators {
 
   button {
