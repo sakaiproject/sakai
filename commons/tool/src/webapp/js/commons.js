@@ -133,15 +133,13 @@ commons.switchState = function (state, arg) {
                 editor.focus();
 
                 // get data
-                let dt = e.originalEvent.dataTransfer;
-                if (!dt) dt = window.dataTransfer;
+                const dt = e.originalEvent.dataTransfer || window.dataTransfer;
                 const dropped = dt.getData('text');
                 wrapAndInsert(dropped, true);
                 e.preventDefault();
             }).on('paste', function (e) {
 
-                let cd = e.originalEvent.clipboardData;
-                if (!cd) cd = window.clipboardData;
+                const cd = e.originalEvent.clipboardData || window.clipboardData;
                 const pasted = cd.getData('text');
                 wrapAndInsert(pasted, true);
                 e.preventDefault();
