@@ -157,7 +157,7 @@
 	<div class="act">
 		<div class="citationsDisplay"#if(! ($collectionSize || $collectionSize < 1) && ! ($nestedSectionsSize || $nestedSectionsSize < 1)) style="display:none;"#end>
 			<div class="act">
-				<input type="button" name="Cancel" class="Cancel active" value="$tlang.getString("resource.done")" />
+				<input type="button" name="Cancel" class="submit active" value="$tlang.getString("resource.done")" />
 			</div>
 			<div class="currentListCitations">
 				#parse( "vm/citation/_listCitations.vm" )
