@@ -36,6 +36,8 @@ import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.io.FileHandler;
 import org.apache.commons.configuration2.plist.XMLPropertyListConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -84,15 +86,19 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
     private static String sebDownloadLink;
 
     private PersistenceService persistenceService = PersistenceService.getInstance();
+    private SecurityService securityService = ComponentManager.get(SecurityService.class);
     private ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     private SiteService siteService = ComponentManager.get(SiteService.class);
     private UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
     private ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class);
 
+    private SecurityAdvisor alwaysAllowSecurityAdvisor = (String userId, String function, String reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+
     public static final String MODULE_NAME = "Safe Exam Browser";
 
     public boolean initialize() {
         Objects.requireNonNull(persistenceService);
+        Objects.requireNonNull(securityService);
         Objects.requireNonNull(serverConfigurationService);
         Objects.requireNonNull(siteService);
         Objects.requireNonNull(userDirectoryService);
@@ -351,6 +357,9 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
                 fileHandler.save(outputStream);
                 outputStream.flush();
 
+                // Push advisor, beacuse instructors can't add public resources normally
+                securityService.pushAdvisor(alwaysAllowSecurityAdvisor);
+
                 // Create new resource that will be used for delivery and published settings
                 // Resource needs to be public, because SEB will request it before login, when launched directly from Samigo
                 ContentResource publishedConfigResource  = contentHostingService.addResource(
@@ -365,6 +374,8 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
                         null,
                         null,
                         NotificationService.NOTI_NONE);
+
+                securityService.popAdvisor(alwaysAllowSecurityAdvisor);
 
                 // Add new resourceId to the assessment meta data
                 log.debug("assessment [{}]", publishedAssessmentFacade);
