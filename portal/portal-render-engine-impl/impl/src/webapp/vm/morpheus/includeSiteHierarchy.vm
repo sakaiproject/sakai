@@ -118,8 +118,8 @@
     #end
 
     #*  Role Switcher  *#
-  #if ($viewAsStudentLink)
-      #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-  #end
+    #if ($viewAsStudentLink)
+        #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+    #end
     </ol>
 </nav>
