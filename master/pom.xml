@@ -76,7 +76,7 @@
     <sakai.tomcat.version>9.0.71</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.log4j.version>2.19.0</sakai.log4j.version>
+    <sakai.log4j.version>2.20.0</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
     <sakai.poi.version>5.2.3</sakai.poi.version>
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
