@@ -174,7 +174,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private static final String RESOURCEBUNDLE = "resource.bundle.tool";
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-	private ResourceLoader toolsRloader = Resource.getResourceLoader(resourceClass, resourceBundle);
+	private static ResourceLoader toolsRloader = Resource.getResourceLoader(resourceClass, resourceBundle);
 
 	private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
