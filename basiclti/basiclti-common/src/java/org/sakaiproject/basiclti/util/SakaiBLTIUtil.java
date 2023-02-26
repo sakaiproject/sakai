@@ -532,6 +532,9 @@ public class SakaiBLTIUtil {
 			String context_id_history = site.getProperties().getProperty(LTICustomVars.CONTEXT_ID_HISTORY);
 			setProperty(lti13subst, LTICustomVars.CONTEXT_ID_HISTORY, context_id_history);
 
+			TimeZone context_timezone = TimeZone.getDefault ();
+			setProperty(lti13subst, LTICustomVars.CONTEXT_TIMEZONE, context_timezone.getID());
+
 			setProperty(props, BasicLTIConstants.CONTEXT_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_LABEL, site.getTitle());
