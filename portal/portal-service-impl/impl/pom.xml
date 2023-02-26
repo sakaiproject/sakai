@@ -99,14 +99,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/bundle</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
         <testResources>
             <testResource>
                 <directory>${basedir}/src/webapp</directory>
