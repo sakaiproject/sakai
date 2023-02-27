@@ -499,8 +499,8 @@ div.wicket-modal .w_blue div.w_content
   margin-bottom: 10px;
 }
 .gb-summary-previous-student:before {
-  font-family: 'gradebook-icons';
-  content: '\f060';
+  font-family: 'bootstrap-icons';
+  content: '\F12F';
   padding-right: 4px;
 }
 .gb-summary-next-student {
@@ -509,8 +509,8 @@ div.wicket-modal .w_blue div.w_content
   margin-bottom: 10px;
 }
 .gb-summary-next-student:after {
-  font-family: 'gradebook-icons';
-  content: '\f061';
+  font-family: 'bootstrap-icons';
+  content: '\F138';
   padding-left: 4px;
 }
 .gb-grade-summary-content .tabpanel {

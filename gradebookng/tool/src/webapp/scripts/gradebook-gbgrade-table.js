@@ -1038,6 +1038,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     dropdownMenu = link.nextElementSibling;
 
+    if (!dropdownMenu) {
+      return;
+    }
+
     dropdownMenu.classList.add("gb-dropdown-menu");
 
     $(dropdownMenu).data("cell", $(link.closest("td, th")));
@@ -3442,11 +3446,12 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
             $('body, button').on('click keyup touchend', function (e) {
               if ($(e.target).data("bs-toggle") !== 'popover'
                   && $(e.target).parents('.popover.in').length === 0) { 
-                  $('[data-bs-toggle="popover"]').popover('hide');
+                  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+                    bootstrap.Popover.getInstance(el)?.hide();
+                  });
               }
-            });
-            $selectedField.popover();
-            $selectedField.popover('show');
+            })
+            (new bootstrap.Popover($selectedField[0])).show();
           }
       });
   }
