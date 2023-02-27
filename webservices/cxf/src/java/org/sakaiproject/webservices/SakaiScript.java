@@ -4270,8 +4270,8 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             //check if both sites exist
-            Site site = siteService.getSite(sourcesiteid);
-            site = siteService.getSite(destinationsiteid);
+            Site sourceSite = siteService.getSite(sourcesiteid);
+            Site site = siteService.getSite(destinationsiteid);
 
             //check if super user
             boolean isSuperUser = false;
@@ -4285,7 +4285,7 @@ public class SakaiScript extends AbstractWebService {
                 throw new RuntimeException("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
             }
 
-            List<SitePage> pages = site.getPages();
+            List<SitePage> pages = sourceSite.getPages();
             Map<String, List<String>> toolsToImport = new HashMap<>();
             for (SitePage page : pages) {
 
@@ -4306,7 +4306,7 @@ public class SakaiScript extends AbstractWebService {
                         }
 
                         //skip this tool if not visible, ultimately hiding the whole page
-                        if (!toolManager.isVisible(site, toolConfig)) {
+                        if (!toolManager.isVisible(sourceSite, toolConfig)) {
                             includePage = false;
                             break;
                         }

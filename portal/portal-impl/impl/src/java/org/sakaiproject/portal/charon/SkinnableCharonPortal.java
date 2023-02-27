@@ -168,7 +168,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	private static ResourceLoader rloader = new ResourceLoader("sitenav");
 	private static ResourceLoader toolsRloader = new ResourceLoader("sitesetupgeneric");
-	private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
+
+	// TODO: This is commented out as the new trinity portal doesn't load the connection
+	// manager UI. It may in the future, hence this is left here.
+	//private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
 	/**
 	 * Parameter value to indicate to look up a tool ID within a site
@@ -1042,7 +1045,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Portal"));
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
-		rcontext.put("cmLoader", cmLoader);
+		// TODO: This is commented out as the new trinity portal doesn't load the connection manager
+		//rcontext.put("cmLoader", cmLoader);
 
 		// Allow for inclusion of extra header code via property
 		String includeExtraHead = ServerConfigurationService.getString("portal.include.extrahead", "");
