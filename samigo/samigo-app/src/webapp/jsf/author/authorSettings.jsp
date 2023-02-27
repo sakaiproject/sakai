@@ -187,7 +187,10 @@
               selectAllText: selectAllText,
               nonSelectedText: nonSelectedText,
               allSelectedText: allSelectedText,
-              nSelectedText: nSelectedText
+              nSelectedText: nSelectedText,
+              templates: {
+                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>'
+              },
           });
       });
       </script>
