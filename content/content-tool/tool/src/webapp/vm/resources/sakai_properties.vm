@@ -17,7 +17,7 @@
             nSelectedText: ' $tlang.getString("access.edit.groupsselected")',
             filterPlaceholder: '$tlang.getString("access.edit.searchgroup")',
             templates: {
-                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>',
             },
             enableFiltering: true,
             enableCaseInsensitiveFiltering: true
@@ -31,7 +31,7 @@
                 allSelectedText: '$tlang.getString("access.edit.allselected")',
                 nSelectedText: ' $tlang.getString("access.edit.groupsselected")',
                 templates: {
-                    button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+                    button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>',
                 },
                 filterPlaceholder: '$tlang.getString("access.edit.searchgroup")',
                 enableFiltering: true,
