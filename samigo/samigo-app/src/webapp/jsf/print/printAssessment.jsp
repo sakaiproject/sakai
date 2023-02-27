@@ -73,10 +73,9 @@ document.links[newindex].onclick();
 
 function printQuiz() {
 
-  let printContents = document.getElementById("quizWrapper").innerHTML;
-  let originalContents = document.body.innerHTML;
+  const originalContents = document.body.innerHTML;
 
-  document.body.innerHTML = printContents;
+  document.body.innerHTML = document.getElementById("quizWrapper").innerHTML;
 
   window.print();
 
