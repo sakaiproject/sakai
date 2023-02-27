@@ -982,168 +982,7 @@
   }
 
   /* Summary styles */
-  #instructorView.tab-pane,
-  #studentView.tab-pane {
-    border-top: 1px dotted var(--sakai-border-color);
-    margin-top: 20px;
-    padding-top: 20px;
-  }
-  .gb-summary-grade-score-outof {
-    color: var(--sakai-text-color-dimmed);
-  }
-  .gb-summary-grade-panel {
-    position: relative;
-  }
-  .gb-summary-grade-panel .gb-summary-category-row td:first-child {
-    font-weight: bold;
-  }
-  .gb-summary-grade-panel .gb-summary-grade-row td:first-child {
-    padding-left: 34px;
-  }
-  .gb-summary-grade-panel .gb-no-categories .gb-summary-grade-row td:first-child {
-    padding-left: 0;
-  }
-  .gb-summary-grade-duedate,
-  .gb-summary-grade-score,
-  .gb-summary-grade-weight,
-  .gb-summary-category-grade,
-  .gb-summary-category-weight {
-    text-align: center;
-  }
-  .gb-summary-grade-panel .gb-summary-course-grade {
-    margin: 0 0 10px 1px;
-  }
-  .gb-summary-grade-panel .gb-summary-course-grade .panel {
-    margin-bottom: 0;
-  }
-  .gb-summary-grade-panel .gb-summary-course-grade .panel-body {
-    padding: 8px 15px;
-  }
-  .gb-summary-grade-panel .gb-summary-course-grade-label {
-    padding-right: 10px;
-  }
-  .gb-summary-grade-panel .gb-summary-expand-all {
-    padding-right: 8px;
-  }
-  .gb-summary-grade-panel .gb-summary-category-toggle,
-  .gb-summary-grade-panel .gb-summary-category-toggle:hover,
-  .gb-summary-grade-panel .gb-summary-category-toggle:active {
-    text-decoration: none;
-    display: flex;
-    flex-grow: 2;
-  }
-  .gb-summary-grade-panel .gb-summary-category-toggle-container {
-    display: flex;
-    justify-content: space-between;
-  }
-  .gb-summary-grade-title {
-    font-weight: normal;
-  }
-
-  .gb-summary-grade-score sakai-rubric-student-button {
-      float: right;
-  }
-  .gb-summary-grade-panel .gb-summary-grade-stats.pull-right {
-    margin-left: 8px;
-  }
-  .gb-summary-grade-panel .gb-summary-grade-stats, .gb-summary-grade-panel .gb-summary-grade-stats:hover {
-    text-decoration: none;
-  }
-
-  .gb-summary-grade-panel .gb-summary-grade-stats:before {
-    font-family: 'bootstrap-icons';
-    content: '\F17A';
-    text-decoration: none;
-    font-weight: normal;
-  }
-
-  .gb-summary-grade-panel .gb-summary-category-toggle:before {
-    font-family: 'bootstrap-icons';
-    content: '\F282';
-    padding-right: 5px;
-    width: 24px;
-    text-align: center;
-  }
-  .gb-summary-grade-panel .gb-summary-category-toggle.collapsed:before {
-    content: '\F285';
-  }
-  .gb-summary-navigate-students {
-    margin-bottom: 20px;
-  }
-  .gb-summary-previous-student {
-    float: left;
-    padding-left: 20px;
-    margin-bottom: 10px;
-  }
-  .gb-summary-previous-student:before {
-    font-family: 'bootstrap-icons';
-    content: '\F12F';
-    padding-right: 4px;
-  }
-  .gb-summary-next-student {
-    float: right;
-    padding-right: 20px;
-    margin-bottom: 10px;
-  }
-  .gb-summary-next-student:after {
-    font-family: 'bootstrap-icons';
-    content: '\F138';
-    padding-left: 4px;
-  }
-  .gb-grade-summary-content .tabpanel {
-    display: block;
-    margin-top: 10px;
-  }
-  .gb-summary-grade-panel {
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 10px 0;
-    margin: 0 0 10px;
-    border-bottom: 1px solid var(--sakai-border-color);
-  }
-  .gb-summary-grade-panel .gb-summary-grade-flags {
-    padding-left: 10px;
-    float: right;
-  }
-  .gb-summary-not-released-flag,
-  .gb-summary-not-released-message {
-    color: var(--sakai-text-color-dimmed);
-  }
-  #studentGradeSummary {
-    margin: 30px 0 0;
-  }
-  .gb-grade-summary-close-confirmation {
-    z-index: 50000 !important;
-  }
-  .gb-grade-summary-close-confirmation .modal-dialog {
-    z-index: 50001 !important;
-  }
-  .gb-summary-print {
-    position: absolute;
-    top: 15px;
-    right: 10px;
-  }
-  .gb-summary-print:before {
-    font-family: 'bootstrap-icons';
-    content: '\F500';
-    padding-right: 4px;
-  }
-  #studentGradeSummary .table>tbody+tbody {
-    border-width: 1px;
-  }
-  #studentGradeSummary .table>tbody.gb-summary-assignments-tbody+tbody.gb-summary-category-tbody {
-    border-width: 2px;
-  }
-  .gb-summary-category-row td,
-  .gb-summary-category-row th {
-    background-color: var(--sakai-background-color-2);
-  }
-  .gb-summary-grade-comments div{
-    overflow-y: scroll;
-    overflow-x: hidden;
-    max-height:100px;
-  }
-
+  
   #gradebookGrades .gb-student-number-cell
   {
     width: 180px;
@@ -1792,3 +1631,162 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
   padding-top: 0;
   padding-bottom: 1px
 }
+
+.gb-summary-grade-panel {
+  position: relative;
+}
+.gb-summary-grade-panel .gb-summary-category-row td:first-child {
+  font-weight: bold;
+}
+.gb-summary-grade-panel .gb-summary-grade-row td:first-child {
+  padding-left: 34px;
+}
+.gb-summary-grade-panel .gb-no-categories .gb-summary-grade-row td:first-child {
+  padding-left: 0;
+}
+.gb-summary-grade-duedate,
+.gb-summary-grade-score,
+.gb-summary-grade-weight,
+.gb-summary-category-grade,
+.gb-summary-category-weight {
+  text-align: center;
+}
+.gb-summary-grade-panel .gb-summary-course-grade {
+  margin: 0 0 10px 1px;
+}
+.gb-summary-grade-panel .gb-summary-course-grade .card {
+  margin-bottom: 0;
+}
+.gb-summary-grade-panel .gb-summary-course-grade .card-body {
+  padding: 8px 15px;
+}
+.gb-summary-grade-panel .gb-summary-course-grade-label {
+  padding-right: 10px;
+}
+.gb-summary-grade-panel .gb-summary-expand-all {
+  padding-right: 8px;
+}
+.gb-summary-grade-panel .gb-summary-category-toggle,
+.gb-summary-grade-panel .gb-summary-category-toggle:hover,
+.gb-summary-grade-panel .gb-summary-category-toggle:active {
+  text-decoration: none;
+  display: flex;
+  flex-grow: 2;
+}
+.gb-summary-grade-panel .gb-summary-category-toggle-container {
+  display: flex;
+  justify-content: space-between;
+}
+.gb-summary-grade-title {
+  font-weight: normal;
+}
+
+.gb-summary-grade-score sakai-rubric-student-button {
+    float: right;
+}
+.gb-summary-grade-panel .gb-summary-grade-stats.pull-right {
+  margin-left: 8px;
+}
+.gb-summary-grade-panel .gb-summary-grade-stats, .gb-summary-grade-panel .gb-summary-grade-stats:hover {
+  text-decoration: none;
+}
+
+.gb-summary-grade-panel .gb-summary-grade-stats:before {
+  font-family: 'bootstrap-icons';
+  content: '\F17A';
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.gb-summary-grade-panel .gb-summary-category-toggle:before {
+  font-family: 'bootstrap-icons';
+  content: '\F282';
+  padding-right: 5px;
+  width: 24px;
+  text-align: center;
+}
+.gb-summary-grade-panel .gb-summary-category-toggle.collapsed:before {
+  content: '\F285';
+}
+.gb-summary-navigate-students {
+  margin-bottom: 20px;
+}
+.gb-grade-summary-content .tabpanel {
+  display: block;
+  margin-top: 10px;
+}
+.gb-summary-grade-panel {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 0;
+  margin: 0 0 10px;
+  border-bottom: 1px solid var(--sakai-border-color);
+}
+.gb-summary-grade-panel .gb-summary-grade-flags {
+  padding-left: 10px;
+  float: right;
+}
+.gb-summary-not-released-flag,
+.gb-summary-not-released-message {
+  color: var(--sakai-text-color-dimmed);
+}
+#studentGradeSummary {
+  margin: 30px 0 0;
+}
+.gb-grade-summary-close-confirmation {
+  z-index: 50000 !important;
+}
+.gb-grade-summary-close-confirmation .modal-dialog {
+  z-index: 50001 !important;
+}
+.gb-summary-print {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+}
+.gb-summary-print:before {
+  font-family: 'bootstrap-icons';
+  content: '\F500';
+  padding-right: 4px;
+}
+
+
+.gb-summary-previous-student {
+  float: left;
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+.gb-summary-previous-student:before {
+  font-family: 'bootstrap-icons';
+  content: '\F12F';
+  padding-right: 4px;
+}
+.gb-summary-next-student {
+  float: right;
+  padding-right: 20px;
+  margin-bottom: 10px;
+}
+.gb-summary-next-student:after {
+  font-family: 'bootstrap-icons';
+  content: '\F138';
+  padding-left: 4px;
+}
+.gb-summary-grade-score-outof {
+color: var(--sakai-text-color-dimmed);
+}
+#studentGradeSummary .table>tbody+tbody {
+border-width: 1px;
+}
+#studentGradeSummary .table>tbody.gb-summary-assignments-tbody+tbody.gb-summary-category-tbody {
+border-width: 2px;
+}
+.gb-summary-category-row td,
+.gb-summary-category-row th {
+background-color: var(--sakai-background-color-2);
+}
+.gb-summary-grade-comments div{
+overflow-y: scroll;
+overflow-x: hidden;
+max-height:100px;
+}
+
