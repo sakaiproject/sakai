@@ -70,7 +70,18 @@ for (i=0; i<document.links.length; i++) {
  
 document.links[newindex].onclick(); 
 }
- 
+
+function printQuiz() {
+
+  const originalContents = document.body.innerHTML;
+
+  document.body.innerHTML = document.getElementById("quizWrapper").innerHTML;
+
+  window.print();
+
+  document.body.innerHTML = originalContents;
+}
+
 </script>
 </head>
 
@@ -137,7 +148,7 @@ document.links[newindex].onclick();
         <br />
         
         <h:commandButton action="#{pdfAssessment.prepDocumentPDF}" value="#{printMessages.apply_settings}" styleClass="noActionButton" />
-        <h:outputText value="<input type='button' onclick='print(); return false;' value='#{printMessages.print_html}' class='noActionButton' />" escape="false" />
+        <h:outputText value="<input type='button' onclick='printQuiz(); return false;' value='#{printMessages.print_html}' class='noActionButton' />" escape="false" />
         <h:commandButton action="#{pdfAssessment.getPDFAttachment}" value="#{printMessages.print_pdf}" styleClass="noActionButton" />
       </div>
     </div>
