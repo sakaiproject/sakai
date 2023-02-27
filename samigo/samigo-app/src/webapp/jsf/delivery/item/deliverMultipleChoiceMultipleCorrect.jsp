@@ -39,7 +39,7 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>
       <h:panelGroup id="image2"
         rendered="#{selection.answer.isCorrect != null && !selection.answer.isCorrect && selection.response}"
-        styleClass="icon-sakai--delete feedBackCross">
+        styleClass="si si-remove feedBackCross">
       </h:panelGroup>
     </t:column>
     <t:column>

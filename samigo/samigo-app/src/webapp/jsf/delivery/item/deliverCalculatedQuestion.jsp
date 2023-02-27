@@ -44,7 +44,7 @@ should be included in file importing DeliveryMessages
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}">
       </h:panelGroup>
-      <h:panelGroup styleClass="icon-sakai--delete feedBackCross" id="image2"
+      <h:panelGroup styleClass="si si-remove feedBackCross" id="image2"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" >
