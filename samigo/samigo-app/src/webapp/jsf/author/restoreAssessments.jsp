@@ -108,7 +108,7 @@
                                 <h:outputText value="#{deletedAssessment.lastModifiedDate}">
                                     <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                                 </h:outputText>
-                                <h:outputText value="#{deletedAssessment.lastModifiedDate}" styleClass="hidden spanValue">
+                                <h:outputText value="#{deletedAssessment.lastModifiedDate}" styleClass="d-none spanValue">
                                     <f:convertDateTime pattern="yyyyMMddHHmmss" />
                                 </h:outputText>
                             <f:verbatim></div></f:verbatim>
