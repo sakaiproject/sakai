@@ -553,7 +553,7 @@
                             <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                         </h:outputText>
 
-                        <h:outputText value="#{assessment.startDate}" styleClass="hidden spanValue">
+                        <h:outputText value="#{assessment.startDate}" styleClass="d-none spanValue">
                             <f:convertDateTime pattern="yyyyMMddHHmmss" />
                         </h:outputText>
                     <f:verbatim></div></f:verbatim>
@@ -577,7 +577,7 @@
                             <h:outputText value=" #{selectIndexMessages.late} " styleClass="text-danger" rendered="#{assessment.pastDue}" />
                         </h:panelGroup>
 
-                        <h:outputText value="#{assessment.dueDate}" styleClass="hidden spanValue">
+                        <h:outputText value="#{assessment.dueDate}" styleClass="d-none spanValue">
                             <f:convertDateTime pattern="yyyyMMddHHmmss" />
                         </h:outputText>
                     <f:verbatim></div></f:verbatim>
@@ -611,7 +611,7 @@
                             <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                         </h:outputText>
 
-                        <h:outputText value="#{assessment.lastModifiedDate}" styleClass="hidden spanValue">
+                        <h:outputText value="#{assessment.lastModifiedDate}" styleClass="d-none spanValue">
                             <f:convertDateTime pattern="yyyyMMddHHmmss" />
                         </h:outputText>
                     <f:verbatim></div></f:verbatim>
