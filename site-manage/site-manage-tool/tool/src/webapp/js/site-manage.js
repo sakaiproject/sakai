@@ -826,7 +826,7 @@ var setupCategTools = function () {
 
       // selectedTools with disable checkboxes don't have the red [X] remove link
       if ($(this).prop("disabled") !== true) {
-        removeLink = '<a href="#" class=\"removeTool icon-sakai--delete' + toolInstance + '\"></a>';
+        removeLink = '<a href="#" class=\"removeTool si si-remove' + toolInstance + '\"></a>';
       }
 
       var selId = normalizedId($(this).attr("id"));

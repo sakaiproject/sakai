@@ -39,7 +39,7 @@ should be included in file importing DeliveryMessages
             styleClass="icon-sakai--check feedBackCheck" >
           </h:panelGroup>
           <h:panelGroup id="image2" rendered="#{answer.description ne 'true' && question.responseId eq answer.value}"
-            styleClass="icon-sakai--delete feedBackCross">
+            styleClass="si si-remove feedBackCross">
           </h:panelGroup>
        </h:column>
      </h:dataTable>

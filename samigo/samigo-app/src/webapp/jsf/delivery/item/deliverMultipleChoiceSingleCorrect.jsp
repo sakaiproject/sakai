@@ -62,7 +62,7 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>
       <h:panelGroup id="image2"
         rendered="#{((question.itemData.partialCreditFlag && (selection.answer.partialCredit le 0 || selection.answer.partialCredit == null)) || (selection.answer.isCorrect != null && !selection.answer.isCorrect)) && selection.response}"
-        styleClass="icon-sakai--delete feedBackCross imageClassForSelector">
+        styleClass="si si-remove feedBackCross imageClassForSelector">
       </h:panelGroup>
       <h:panelGroup id="noimage"
         rendered="#{!selection.response}"

@@ -248,3 +248,7 @@ iframe[type="application/pdf"] {
 .popover-body {
     color: var(--sakai-text-color-1);
 }
+
+.si-remove::before {
+    color: red;
+}
