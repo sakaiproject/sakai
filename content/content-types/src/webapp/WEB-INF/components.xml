@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="ContentTypeRegistyBean" class="org.sakaiproject.content.types.ContentTypeRegistryBean"
-	init-method="init" depends-on="org.sakaiproject.localization.util.ContentTypeProperties">
+	init-method="init" depends-on="org.sakaiproject.localization.util.TypeProperties">
 		<property name="resourceTypeRegistry" ref="org.sakaiproject.content.api.ResourceTypeRegistry"/>
 		<property name="useContentTypeRegistry"><value>true</value></property>
 	</bean>
