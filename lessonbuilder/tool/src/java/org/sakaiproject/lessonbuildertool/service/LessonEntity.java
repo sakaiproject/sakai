@@ -119,6 +119,9 @@ public interface LessonEntity {
     public boolean isUsable();
     // only assignments
     public int getTypeOfGrade();
+    default public int getSubmissionType() {
+        return 0;
+    }
 
     // submission
     public LessonSubmission getSubmission(String user);

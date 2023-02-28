@@ -28,6 +28,7 @@ import com.opencsv.CSVParser;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -5624,7 +5625,8 @@ public class SimplePageBean {
 				}
 				LessonSubmission submission = assignment.getSubmission(getCurrentUserId());
 
-				if (submission == null || !submission.getUserSubmission()) {
+				if (assignment.getSubmissionType() != AssignmentEntity.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION
+						&& (submission == null || BooleanUtils.isNotTrue(submission.getUserSubmission()))) {
 				    completeCache.put(itemId, false);
 				    return false;
 				}
@@ -5801,7 +5803,7 @@ public class SimplePageBean {
 				return requiredIndex >= currentIndex;
 			}
 		} else if (type == SimplePageItem.ASSIGNMENT) {
-			if (submission.getUserSubmission()) {
+			if (submission.getUserSubmission() || assEntity.getSubmissionType() == AssignmentEntity.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
 				if (submission.getGrade() != null) {
 					// assignment 2 uses gradebook, so we have a float value
 					// use some fuzz so 1.9999 is the same as 2

@@ -87,6 +87,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
     public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
 
+    public static final int NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION.ordinal();
+
     @Setter private static AssignmentService assignmentService;
     @Setter private static MessageLocator messageLocator;
     @Setter private static AssignmentSupplementItemService assignmentSupplementItemService;
@@ -325,6 +327,16 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		ret.setUserSubmission(submission.getUserSubmission());
 
 		return ret;
+    }
+
+    public int getSubmissionType() {
+        if (assignment == null) {
+            assignment = getAssignment(id);
+        }
+        if (assignment == null) {
+            return 0;
+        }
+        return assignment.getTypeOfSubmission().ordinal();
     }
 
 // we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
