@@ -1510,7 +1510,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
-        assignmentRepository.updateSubmission(submission);
+        submission = assignmentRepository.updateSubmission(submission);
 
         // Assignment Submission Notifications
         Instant dateReturned = submission.getDateReturned();

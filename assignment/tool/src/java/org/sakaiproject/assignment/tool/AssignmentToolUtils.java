@@ -405,6 +405,7 @@ public class AssignmentToolUtils {
             properties.put(PROP_LAST_GRADED_DATE, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault()).format(Instant.now()));
 
             try {
+                log.debug("AssignmentSubmission hashCode instance = {}; grade = {}", Integer.toHexString(submission.hashCode()), submission.getGrade());
                 assignmentService.updateSubmission(submission);
             } catch (PermissionException e) {
                 log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
@@ -594,6 +595,7 @@ public class AssignmentToolUtils {
                             // only update one submission
                             AssignmentSubmission aSubmission = assignmentService.getSubmission(submissionId);
                             if (aSubmission != null) {
+                                log.debug("AssignmentSubmission hashCode instance = {}; grade = {}", Integer.toHexString(aSubmission.hashCode()), aSubmission.getGrade());
                                 int factor = aSubmission.getAssignment().getScaleFactor();
                                 Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
                                 String gradeString = displayGrade(StringUtils.trimToNull(aSubmission.getGrade()), factor);

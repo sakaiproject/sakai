@@ -145,11 +145,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void updateSubmission(AssignmentSubmission submission) {
+    public AssignmentSubmission updateSubmission(AssignmentSubmission submission) {
         if (existsSubmission(submission.getId())) {
             submission.setDateModified(Instant.now());
-            geCurrentSession().merge(submission);
+            submission = (AssignmentSubmission) geCurrentSession().merge(submission);
         }
+	return submission;
     }
 
     @Override

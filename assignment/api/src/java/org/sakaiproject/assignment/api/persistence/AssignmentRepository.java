@@ -52,7 +52,7 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     AssignmentSubmission findSubmission(String submissionId);
 
-    void updateSubmission(AssignmentSubmission submission);
+    AssignmentSubmission updateSubmission(AssignmentSubmission submission);
 
     boolean existsSubmission(String submissionId);
 
