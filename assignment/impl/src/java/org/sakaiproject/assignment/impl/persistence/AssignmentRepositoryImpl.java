@@ -66,6 +66,16 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    @Transactional
+    public Assignment getAssignmentFromDatabase(String id) {
+	    Assignment asn = findOne(id);
+	    Session session = geCurrentSession();
+	    session.refresh(asn);
+	    return asn;
+    }
+    
+
+    @Override
     @SuppressWarnings("unchecked")
     public List<Assignment> findAssignmentsBySite(String siteId) {
         return startCriteriaQuery()
@@ -97,6 +107,18 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             assignment.setDateCreated(Instant.now());
             geCurrentSession().persist(assignment);
         }
+    }
+
+    @Override
+    @Transactional
+    public Assignment updateAssignment(Assignment assignment) {
+	if (existsAssignment(assignment.getId())) {
+		assignment.setDateModified(Instant.now());
+		Session session = geCurrentSession();
+		assignment = (Assignment) session.merge(assignment);
+		session.flush();
+	}
+	return assignment;
     }
 
     @Override

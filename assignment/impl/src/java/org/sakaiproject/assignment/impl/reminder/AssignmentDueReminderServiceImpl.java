@@ -114,7 +114,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         long reminderSeconds = 60 * 60 * serverConfigurationService.getInt("assignment.reminder.hours", 24); // Convert hours to seconds
 
         try {
-            Assignment assignment = assignmentService.getAssignment(assignmentId);
+            Assignment assignment = assignmentService.getAssignmentFromDatabase(assignmentId);
             // Only schedule due date reminders for posted assignments with due dates far enough in the future for a reminder
             if (!assignment.getDraft() && Instant.now().plusSeconds(reminderSeconds).isBefore(assignment.getDueDate())) {
                 Instant reminderDate = assignment.getDueDate().minusSeconds(reminderSeconds);

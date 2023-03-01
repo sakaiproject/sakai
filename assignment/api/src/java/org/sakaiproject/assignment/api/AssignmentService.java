@@ -384,6 +384,17 @@ public interface AssignmentService extends EntityProducer {
     public Assignment getAssignment(String assignmentId) throws IdUnusedException, PermissionException;
 
     /**
+     * Access the Assignment with the specified id. Ensure it is refreshed from the database.
+     *
+     * @param assignmentId -
+     *                     The id of the Assignment.
+     * @return The Assignment corresponding to the id, or null if it does not exist.
+     * @throws IdUnusedException   if there is no object with this id.
+     * @throws PermissionException if the current user is not allowed to read this.
+     */
+    public Assignment getAssignmentFromDatabase(String assignmentId) throws IdUnusedException, PermissionException;
+
+    /**
      * Retrieves the current status of the specified assignment.
      *
      * @return

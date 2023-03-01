@@ -67,7 +67,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         //now schedule a time for the review to be setup
         Assignment assignment;
         try {
-            assignment = assignmentService.getAssignment(assignmentId);
+            assignment = assignmentService.getAssignmentFromDatabase(assignmentId);
             if (!assignment.getDraft() && assignment.getAllowPeerAssessment()) {
                 Instant assignmentCloseTime = assignment.getCloseDate();
                 Instant openTime = null;

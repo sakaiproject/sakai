@@ -1462,7 +1462,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         assignment.setDateModified(Instant.now());
         assignment.setModifier(sessionManager.getCurrentSessionUserId());
-        Assignment updatedAssingment = assignmentRepository.merge(assignment);
+        Assignment updatedAssingment = assignmentRepository.updateAssignment(assignment);
 
         Task task = new Task();
         task.setSiteId(updatedAssingment.getContext());
@@ -1608,6 +1608,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // check security on the assignment
 
         return checkAssignmentAccessibleForUser(assignment, currentUserId);
+    }
+
+    @Override
+    public Assignment getAssignmentFromDatabase(String assignmentId) throws IdUnusedException, PermissionException {
+	    log.debug("GET ASSIGNMENT : ID : {}", assignmentId);
+
+	    Assignment assignment = assignmentRepository.getAssignmentFromDatabase(assignmentId);
+	    if (assignment == null) throw new IdUnusedException(assignmentId);
+
+	    String currentUserId = sessionManager.getCurrentSessionUserId();
+	    // check security on the assignment
+
+	    return checkAssignmentAccessibleForUser(assignment, currentUserId);
     }
 
     @Override
