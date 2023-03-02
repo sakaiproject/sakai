@@ -20,10 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.querySelector("sakai-search input")?.focus();
   });
 
-  searchPanel?.addEventListener("hidden.bs.offcanvas", e => {
-    e.target.querySelector("sakai-search")?.clear();
-  });
-
   document.querySelectorAll(".portal-search-button").forEach(b => {
     b.addEventListener("click", () => portal.search.setup({}));
   });
