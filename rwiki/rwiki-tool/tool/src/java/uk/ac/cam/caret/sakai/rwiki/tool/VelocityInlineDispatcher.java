@@ -22,6 +22,9 @@
 package uk.ac.cam.caret.sakai.rwiki.tool;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
 
@@ -30,10 +33,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -47,6 +54,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
 /**
  * @author ieb
  */
+@Slf4j
 public class VelocityInlineDispatcher implements Dispatcher
 {
 	private static final String MACROS = "/WEB-INF/vm/macros.vm";
@@ -96,11 +104,29 @@ public class VelocityInlineDispatcher implements Dispatcher
 		// EventCartridge ec = new EventCartridge();
 		// ec.addEventHandler(new ExcludeEscapeHtmlReference());
 		// ec.attachToContext(vcontext);
+		RequestScopeSuperBean requestScopeSuperBean =  RequestScopeSuperBean.getFromRequest(request);
 
 		vcontext.put("session", request.getSession());
 		vcontext.put("request", request);
-		vcontext.put("requestScope", RequestScopeSuperBean.getFromRequest(request));
+		vcontext.put("requestScope", requestScopeSuperBean);
 		vcontext.put("util", utilBean);
+
+		String localPage = requestScopeSuperBean.getViewBean().getLocalName();
+		String homePage = requestScopeSuperBean.getHomeBean().getHomeLinkValue();
+		if (!StringUtils.equalsIgnoreCase(homePage, localPage)) {
+			Collection<Group> groups = requestScopeSuperBean.getGroups();
+			vcontext.put("groups", groups);
+		}
+		
+		String[] rwikiObjectGroups = null;
+		try {
+			rwikiObjectGroups = requestScopeSuperBean.getCurrentRWikiObject().getPageGroupsAsArray();
+		} catch(Exception ex) {
+			log.warn("Failing getting the groups from the current RwikiObject");
+		}
+		if (rwikiObjectGroups != null) {
+			vcontext.put("rwikiObjectGroups", new ArrayList<String>(Arrays.asList(rwikiObjectGroups)));
+		}
 		try
 		{
 			String filePath = path + ".vm";
