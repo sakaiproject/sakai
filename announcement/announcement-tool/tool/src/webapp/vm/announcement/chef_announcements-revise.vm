@@ -176,7 +176,7 @@ function resizeFrame(){
 				<div class="col-md-12">
 					<fieldset>
 						<legend>
-							<h4>Highlight</h4>
+							<h4>$tlang.getString("revise.highlight.title")</h4>
 						</legend>
 						<div class="checkbox">
 							<label for="annc-highl-key">
