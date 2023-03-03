@@ -251,7 +251,7 @@
 						#foreach ($ann_item in $showMessagesList)
 							#set ($rowCount =$rowCount + 1)
 							#set($ann_item_props=$ann_item.getProperties())
-							#set($isHightlighted = $ann_item_props.getProperty("highlight"))
+							#set($isHightlighted = (true == $ann_item_props.getProperty("highlight")) )
 
 							<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
 									<td headers="subject" #if ($isHightlighted=="true") class="font-bold-highlighted" #end scope="row">
@@ -550,7 +550,7 @@
 							 #foreach ($ann_item in $showMessagesList)
 								#set ($rowCount =$rowCount + 1)
 								#set($ann_item_props=$ann_item.getProperties())
-								#set($isHightlighted = $ann_item_props.getProperty("highlight"))
+								#set($isHightlighted = (true == $ann_item_props.getProperty("highlight")) )
 								
 								<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
 									<td headers="subject" #if ($isHightlighted=="true") class="font-bold-highlighted" #end scope="row">
