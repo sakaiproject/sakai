@@ -819,17 +819,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.querySelector("#grader-rubric-link").focus();
   }
 
-  cancelRubric() {
-
-    const rubricGradingElem = document.getElementsByTagName("sakai-rubric-grading");
-    if (rubricGradingElem.length <= 0) {
-      return;
-    }
-    const rubricGrading = rubricGradingElem.item(0);
-    rubricGrading && rubricGrading.cancel();
-    this.rubricShowing && this.doneWithRubricDialog();
-  }
-
   replaceWithEditor(id) {
 
     const editor = sakai.editor.launch(id, {
@@ -963,10 +952,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   onTotalPointsUpdated(e) {
 
-    if (this.rubricShowing) {
-      this.submission.grade = e.detail.value;
-      this.requestUpdate();
-    }
+    this.submission.grade = e.detail.value;
+    this.requestUpdate();
   }
 
   onRubricRatingChanged(e) {
@@ -1156,8 +1143,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.submission = this.submissions[i];
 
     this.resetEditors(true);
-
-    this.cancelRubric();
 
     this.modified = false;
 
