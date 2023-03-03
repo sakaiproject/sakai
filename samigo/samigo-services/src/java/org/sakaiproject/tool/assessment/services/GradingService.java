@@ -137,6 +137,7 @@ public class GradingService
   public static final String CALCQ_VAR_FORM_NAME = "[a-zA-ZÀ-ÿ\\u00f1\\u00d1][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
   public static final String CALCQ_VAR_FORM_NAME_EXPRESSION = "("+CALCQ_VAR_FORM_NAME+")";
   public static final String CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED = OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET;
+  public static final String CALCQ_SOLUTION_EXPRESSION = OPEN_BRACKET + OPEN_BRACKET + "|" + CLOSE_BRACKET + CLOSE_BRACKET;
 
   // variable match - (?<!\{)\{([^\{\}]+?)\}(?!\}) - means any sequence inside braces without a braces before or after
   public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})", Pattern.UNICODE_CHARACTER_CLASS);
@@ -2938,19 +2939,16 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
   protected List<String> extractFeedbackSegments(String feedback) {
       List<String> segments = new ArrayList<>();
-      String[] results = null;
-
-      if (!StringUtils.isEmpty(feedback)) {
-          String[] firstResults = CALCQ_DOUBLE_OPEN_BRACKET.split(feedback); // only works because all variables and calculations are already replaced
-          for (String r:firstResults) {
-              results = (CALCQ_DOUBLE_CLOSE_BRACKET.split(r));
-              segments.addAll(Arrays.asList(results));
-          }
-          if (segments.size() == 1) {
-              // add in the trailing segment
-              segments.add("");
-          }
+      Matcher matcher = CALCQ_FORMULA_SPLIT_PATTERN.matcher(feedback);
+      int lastIndex = 0;
+      while (matcher.find()) {
+          String segment = feedback.substring(lastIndex, matcher.start());
+          segments.add(segment);
+          segments.add(matcher.group().replaceAll(CALCQ_SOLUTION_EXPRESSION, ""));
+          lastIndex = matcher.end();
       }
+      segments.add(feedback.substring(lastIndex));
+
       return segments;
   }
 
