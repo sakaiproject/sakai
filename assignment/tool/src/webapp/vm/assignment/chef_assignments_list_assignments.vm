@@ -498,7 +498,7 @@
 							</td>
 							#if ($allowAddAssignment == false)
 								<td headers="grade">
-									#if ($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.returned") && $submission.grade)
+									#if ((($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.returned")) || ($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.pending_resubmit"))) && $submission.grade)
 										#if ($service.getGradeForSubmitter($submission, $user.getId()).equals(""))
 											<span>$tlang.getString("unchecked")</span>
 											<span>$service.getGradeForSubmitter($submission, $user.getId())</span>
