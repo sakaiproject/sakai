@@ -21,6 +21,10 @@ jobs:
           distribution: temurin
           architecture: x64
           cache: maven
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.8.7
       - name: Search for bad unicode translations
         run: |
           find . -name \*.properties -exec grep '\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][^0-9a-fA-F]' {} \; &> grep.txt
