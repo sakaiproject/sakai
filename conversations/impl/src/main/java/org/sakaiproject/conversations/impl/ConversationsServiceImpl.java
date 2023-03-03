@@ -223,7 +223,11 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         blankTopic.siteId = siteId;
         blankTopic.title = "";
         blankTopic.message = "";
-        blankTopic.type = TopicType.QUESTION.name();
+        if (securityService.unlock(Permissions.QUESTION_CREATE.label, siteRef)) {
+            blankTopic.type = TopicType.QUESTION.name();
+        } else if (securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef)) {
+            blankTopic.type = TopicType.DISCUSSION.name();
+        }
         blankTopic.availability = "AVAILABILITY_NOW";
         blankTopic.pinned = false;
         blankTopic.aboutReference = siteRef;

@@ -298,6 +298,8 @@ export class SakaiConversations extends SakaiElement {
     } else {
       this.state = STATE_NOTHING_SELECTED;
     }
+
+    location.reload();
   }
 
   resetState() {

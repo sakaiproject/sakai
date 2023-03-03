@@ -51,24 +51,6 @@ export class SakaiAddTopic extends SakaiElement {
     this.site.aboutReference = value;
   }
 
-  set canCreateDiscussion(value) {
-
-    this._canCreateDiscussion = value;
-
-    if (value) this.topic ? this.topic.type = DISCUSSION : this.type = DISCUSSION;
-  }
-
-  get canCreateDiscussion() { return this._canCreateDiscussion; }
-
-  set canCreateQuestion(value) {
-
-    this._canCreateQuestion = value;
-
-    if (value) this.topic ? this.topic.type = QUESTION : this.type = QUESTION;
-  }
-
-  get canCreateQuestion() { return this._canCreateQuestion; }
-
   get aboutReference() { return this._aboutReference; }
 
   set topic(value) {
@@ -92,8 +74,6 @@ export class SakaiAddTopic extends SakaiElement {
     this.topic.hideDateMillis = this.topic.hideDate ? this.topic.hideDate * 1000 : nowMillis;
     this.topic.dueDateMillis = this.topic.dueDate ? this.topic.dueDate * 1000 : nowMillis;
     this.topic.acceptUntilDateMillis = this.topic.acceptUntilDate ? this.topic.acceptUntilDate * 1000 : nowMillis;
-
-    if (this.type) this.topic.type = this.type;
 
     this.new = value.id === "";
     this.requestUpdate();
@@ -183,7 +163,8 @@ export class SakaiAddTopic extends SakaiElement {
     } else {
       this.topic.type = e.target.dataset.type;
     }
-    this.requestUpdate();
+
+    this.saveWip();
   }
 
   selectTag() {

@@ -228,6 +228,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             blankTopic = conversationsService.getBlankTopic(siteId);
             assertTrue(blankTopic.canModerate);
             assertFalse(blankTopic.draft);
+
+            String siteRef = "/site/" + site1Id;
+
+            when(securityService.unlock(Permissions.QUESTION_CREATE.label, siteRef)).thenReturn(false);
+            when(securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef)).thenReturn(true);
+
+            TopicTransferBean blankTopic2 = conversationsService.getBlankTopic(site1Id);
+            assertEquals(blankTopic2.type, TopicType.DISCUSSION.name());
         } catch (ConversationsPermissionsException e) {
             e.printStackTrace();
         }
