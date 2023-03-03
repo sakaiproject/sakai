@@ -1314,7 +1314,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
-            List<String> submitterIds = new ArrayList<>();
             Optional<String> groupId = Optional.empty();
             if (site != null) {
                 if (a.getIsGroup()) {
@@ -1328,7 +1327,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
                                     ass.setSubmitter(member.getUserId());
                                     submissionSubmitters.add(ass);
-                                    submitterIds.add(member.getUserId());
                                 });
                         groupId = Optional.of(submitter);
                     } else {
@@ -1339,7 +1337,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
                         submissionSubmitter.setSubmitter(submitter);
                         submissionSubmitters.add(submissionSubmitter);
-                        submitterIds.add(submitter);
                     } else {
                         log.warn("Cannot add a submission for submitter {} to assignment {} as they are not a member of the site", submitter, assignmentId);
                     }
@@ -1354,8 +1351,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // identify who the submittee is using the session
             String currentUser = sessionManager.getCurrentSessionUserId();
             submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
-
-            taskService.completeUserTaskByReference(assignmentReference, submitterIds);
 
             AssignmentSubmission submission = assignmentRepository.newSubmission(a.getId(), groupId, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
@@ -1584,6 +1579,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 // student notification, whether the student gets email notification once he submits an assignment
                 notificationToStudent(submission, a);
+
+                List<String> submitterIds
+                    = submission.getSubmitters().stream()
+                        .map(ass -> ass.getSubmitter()).collect(Collectors.toList());
+                taskService.completeUserTaskByReference(assignmentReference, submitterIds);
             }
         }
     }
