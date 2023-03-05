@@ -318,7 +318,7 @@ public class PortletIFrame extends GenericPortlet {
 			Placement placement = ToolManager.getCurrentPlacement();
 
 			if (placement == null) {
-				out.println("Error: placement is null at doView()");
+				out.println(rb.getString("error.placement.isNull"));
 				return;
 			}
             Properties config = getAllProperties(placement);
@@ -554,7 +554,7 @@ public class PortletIFrame extends GenericPortlet {
 
 			Placement placement = ToolManager.getCurrentPlacement();
 			if (placement == null) {
-				out.println("Error: placement is null at doEdit()");
+				out.println(rb.getString("error.placement.isNull"));
 				return;
 			}
             Properties config = getAllProperties(placement);
@@ -771,7 +771,7 @@ public class PortletIFrame extends GenericPortlet {
 			// get the site toolConfiguration, if this is part of a site.
 			Placement placement = ToolManager.getCurrentPlacement();
 			if (placement == null) {
-				log.error("Error: placement is null at processActionEdit()");
+				log.error(rb.getString("error.placement.isNull"));
 				return;
 			}
 			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
