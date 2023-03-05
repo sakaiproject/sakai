@@ -218,7 +218,6 @@ class SakaiRubricsManager extends RubricsElement {
 
     const [rubricClass, rubricType] = sortInput.split("-");
 
-    const query = `.sort-element`;
     const arrowUpIcon = 'fa-chevron-up';
     const arrowDownIcon = 'fa-chevron-down';
     const selector = `.sort-element-${rubricClass}`;
