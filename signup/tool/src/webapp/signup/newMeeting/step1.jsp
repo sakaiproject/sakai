@@ -427,7 +427,7 @@
                                 </div>
                             </div>
 
-                            <div id="single" class="si" style="display:none;">
+                            <div id="single" class="single-box" style="display:none;">
                                 <h:panelGrid columns="2" rendered="true" columnClasses="miCol1,miCol2">
                                     <h:selectOneRadio id="groupSubradio" value="#{NewSignupMeetingBean.unlimited}" valueChangeListener="#{NewSignupMeetingBean.processGroup}" onclick="switchSingle(value)" styleClass="meetingRadioBtn" layout="pageDirection">
                                         <f:selectItem itemValue="#{false}" itemLabel="#{msgs.tab_max_attendee}"/>

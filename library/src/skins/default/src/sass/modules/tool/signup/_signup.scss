@@ -21,10 +21,6 @@
 	}
 	
 	#meeting{
-		input{
-			margin-right: 0.5em;
-		}
-
 		&\:startTime\.minutes, &\:endTime\.minutes{
 			margin-left: 0.5em;
 		}
