@@ -22,16 +22,21 @@
 package org.sakaiproject.content.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.i18n.InternationalizedMessages;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
@@ -48,8 +53,13 @@ public abstract class BaseResourceType implements ResourceType
 
 	@Setter private InternationalizedMessages messageSource;
 
-	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap;
-	protected Map<String, ResourceToolAction> actions;
+	final protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap;
+	final protected Map<String, ResourceToolAction> actions;
+
+	public BaseResourceType() {
+		actionMap = new EnumMap<>(ResourceToolAction.ActionType.class);
+		actions = new HashMap<>();
+	}
 
 	@Override
 	public boolean hasAvailabilityDialog() 
@@ -155,6 +165,16 @@ public abstract class BaseResourceType implements ResourceType
 			}
 		}
 		return Collections.unmodifiableList(list);
+	}
+
+	public Collection<ResourceToolAction> getActions(Reference entityRef, Set permissions) {
+		// TODO: use entityRef to filter actions
+		return Collections.unmodifiableCollection(actions.values());
+	}
+
+	public Collection<ResourceToolAction> getActions(Reference entityRef, User user, Set permissions) {
+		// TODO: use entityRef and user to filter actions
+		return Collections.unmodifiableCollection(actions.values());
 	}
 
 	protected BaseResourceAction.Localizer localizer(final String key) {

@@ -25,11 +25,7 @@ import static org.sakaiproject.content.api.ResourceToolAction.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +72,6 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 
         String helperId = "sakai.resource.type.helper";
 
-        actions = new HashMap<>();
         actions.put(CREATE, new BaseInteractionAction(CREATE, ActionType.NEW_FOLDER, typeId, helperId, localizer("create.folder")));
         actions.put(ACCESS_PROPERTIES, new BaseServiceLevelAction(ACCESS_PROPERTIES, ActionType.VIEW_METADATA, typeId, false, localizer("action.access")));
         actions.put(REVISE_METADATA, new BaseServiceLevelAction(REVISE_METADATA, ActionType.REVISE_METADATA, typeId, false, localizer("action.props")));
@@ -92,7 +87,6 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
         actions.put(COMPRESS_ZIP_FOLDER, new FolderCompressAction(COMPRESS_ZIP_FOLDER, ActionType.COMPRESS_ZIP_FOLDER, typeId, false, localizer("action.compresszipfolder")));
         actions.put(MAKE_SITE_PAGE, new MakeSitePageAction(MAKE_SITE_PAGE, ActionType.MAKE_SITE_PAGE, typeId));
 
-        actionMap = new EnumMap<>(ActionType.class);
         // initialize actionMap with an empty List for each ActionType
         for (ActionType type : ActionType.values()) {
             actionMap.put(type, new ArrayList<>());
@@ -381,9 +375,9 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
             super(id, actionType, typeId, multipleItemAction, localizer);
         }
 
-        private final ZipContentUtil zipUtil = new ZipContentUtil();
 
         public void initializeAction(Reference reference) {
+            ZipContentUtil zipUtil = new ZipContentUtil();
             try {
                 zipUtil.compressFolder(reference);
             } catch (Exception e) {

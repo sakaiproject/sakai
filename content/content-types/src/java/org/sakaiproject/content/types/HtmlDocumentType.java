@@ -24,8 +24,6 @@ package org.sakaiproject.content.types;
 import static org.sakaiproject.content.api.ResourceToolAction.*;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -57,7 +55,6 @@ public class HtmlDocumentType extends BaseResourceType {
 
         String helperId = "sakai.resource.type.helper";
 
-        actions = new HashMap<>();
         actions.put(CREATE, new HtmlDocumentCreateAction(CREATE, ActionType.CREATE, typeId, helperId, localizer("create.html")));
         actions.put(REVISE_CONTENT, new HtmlDocumentReviseAction(REVISE_CONTENT, ActionType.REVISE_CONTENT, typeId, helperId, localizer("action.revise")));
         actions.put(REPLACE_CONTENT, new HtmlDocumentReplaceAction(REPLACE_CONTENT, ActionType.REPLACE_CONTENT, typeId, helperId, localizer("action.replace")));
@@ -73,7 +70,6 @@ public class HtmlDocumentType extends BaseResourceType {
             actions.put(PRINT_FILE, new BaseServiceLevelAction(PRINT_FILE, ActionType.PRINT_FILE, typeId, false, localizer("action.printfile")));
         }
 
-        actionMap = new EnumMap<>(ActionType.class);
         // initialize actionMap with an empty List for each ActionType
         for (ActionType type : ActionType.values()) {
             actionMap.put(type, new ArrayList<>());

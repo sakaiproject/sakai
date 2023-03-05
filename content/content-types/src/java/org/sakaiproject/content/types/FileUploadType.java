@@ -26,10 +26,7 @@ import static org.sakaiproject.content.api.ResourceToolAction.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -50,7 +47,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ZipFileNumberException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.Resource;
 
 import lombok.Setter;
@@ -77,7 +73,6 @@ public class FileUploadType extends BaseResourceType {
         BaseInteractionAction createAction = new BaseInteractionAction(CREATE, ActionType.NEW_UPLOAD, typeId, helperId, localizer("create.uploads"));
         createAction.setRequiredPropertyKeys(Collections.singletonList(ResourceProperties.PROP_CONTENT_ENCODING));
 
-        actions = new HashMap<>();
         actions.put(ACCESS_PROPERTIES, new BaseServiceLevelAction(ACCESS_PROPERTIES, ActionType.VIEW_METADATA, typeId, false, localizer("action.access")));
         actions.put(COPY, new BaseServiceLevelAction(COPY, ActionType.COPY, typeId, true, localizer("action.copy")));
         actions.put(CREATE, createAction);
@@ -96,7 +91,6 @@ public class FileUploadType extends BaseResourceType {
         }
 
         // initialize actionMap with an empty List for each ActionType
-        actionMap = new EnumMap<>(ActionType.class);
         for (ActionType type : ActionType.values()) {
             actionMap.put(type, new ArrayList<>());
         }
@@ -109,16 +103,6 @@ public class FileUploadType extends BaseResourceType {
         }
 
 		resourceTypeRegistry.register(this);
-    }
-
-    public List<ResourceToolAction> getActions(Reference entityRef, Set permissions) {
-        // TODO: use entityRef to filter actions
-        return new ArrayList<>(actions.values());
-    }
-
-    public List<ResourceToolAction> getActions(Reference entityRef, User user, Set permissions) {
-        // TODO: use entityRef and user to filter actions
-        return new ArrayList<>(actions.values());
     }
 
     @Override

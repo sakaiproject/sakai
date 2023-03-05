@@ -24,10 +24,7 @@ package org.sakaiproject.content.types;
 import static org.sakaiproject.content.api.ResourceToolAction.*;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
@@ -38,9 +35,7 @@ import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.Resource;
 
 import lombok.Setter;
@@ -60,7 +55,6 @@ public class TextDocumentType extends BaseResourceType {
 
         String helperId = "sakai.resource.type.helper";
 
-        actions = new HashMap<>();
         actions.put(CREATE, new TextDocumentCreateAction(CREATE, ActionType.CREATE, typeId, helperId, localizer("create.text")));
         // actions.put(ACCESS_CONTENT, new TextDocumentAccessAction());
         actions.put(REVISE_CONTENT, new TextDocumentReviseAction(REVISE_CONTENT, ActionType.REVISE_CONTENT, typeId, helperId, localizer("action.revise")));
@@ -77,7 +71,6 @@ public class TextDocumentType extends BaseResourceType {
             actions.put(PRINT_FILE, new BaseServiceLevelAction(PRINT_FILE, ActionType.PRINT_FILE, typeId, false, localizer("action.printfile")));
         }
 
-        actionMap = new EnumMap<>(ActionType.class);
         // initialize actionMap with an empty List for each ActionType
         for (ActionType type : ActionType.values()) {
             actionMap.put(type, new ArrayList<>());
@@ -91,16 +84,6 @@ public class TextDocumentType extends BaseResourceType {
         }
 
         resourceTypeRegistry.register(this);
-    }
-
-    public List<ResourceToolAction> getActions(Reference entityRef, Set permissions) {
-        // TODO: use entityRef to filter actions
-        return new ArrayList<>(actions.values());
-    }
-
-    public List<ResourceToolAction> getActions(Reference entityRef, User user, Set permissions) {
-        // TODO: use entityRef and user to filter actions
-        return new ArrayList<>(actions.values());
     }
 
     @Override
