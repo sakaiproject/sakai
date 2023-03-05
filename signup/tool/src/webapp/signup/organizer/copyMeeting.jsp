@@ -566,7 +566,7 @@
 								</h:panelGroup>
 
 								<%-- single: --%>
-								<h:panelGroup rendered="#{CopyMeetingSignupMBean.groupType}" styleClass="si" layout="block">
+								<h:panelGroup rendered="#{CopyMeetingSignupMBean.groupType}" styleClass="single-box" layout="block">
 									<div class="form-group row">
 										<t:selectOneRadio id="groupSubradio" value="#{CopyMeetingSignupMBean.unlimited}" onclick="switchSingle(value)" styleClass="meetingRadioBtn" layout="spread">
 											<f:selectItem itemValue="#{false}" itemLabel="#{msgs.tab_max_attendee}"/>
