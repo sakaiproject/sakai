@@ -366,6 +366,13 @@ public class LTICustomVars {
 	public static final String CONTEXT_ID_HISTORY = "Context.id.history";
 
 	/**
+	 * CONTEXT_TIMEZONE
+	 *
+	 * The timezone of the context. (JVM timezone)
+	 */
+	public static final String CONTEXT_TIMEZONE = "Context.timezone";
+
+	/**
 	 * RESOURCELINK_ID
 	 *
 	 *  This is the local identifier for the resource link within the Tool
@@ -1096,7 +1103,7 @@ public class LTICustomVars {
 		PERSON_WEBADDRESS,
 		CONTEXT_ID, CONTEXT_ORG, CONTEXT_TYPE, CONTEXT_TYPE_DEFAULT,
 		CONTEXT_LABEL, CONTEXT_TITLE, CONTEXT_SOURCEDID,
-		CONTEXT_ID_HISTORY,
+		CONTEXT_ID_HISTORY, CONTEXT_TIMEZONE,
 		RESOURCELINK_ID, RESOURCELINK_TITLE,
 		RESOURCELINK_DESCRIPTION, RESOURCELINK_ID_HISTORY,
 		COURSETEMPLATE_SOURCEDID, COURSETEMPLATE_LABEL, COURSETEMPLATE_TITLE,
