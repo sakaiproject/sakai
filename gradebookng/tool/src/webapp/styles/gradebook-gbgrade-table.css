@@ -191,7 +191,6 @@
 }
 #gradeTableWrapper .gb-grade-item-flags {
   position: absolute;
-  bottom: 0;
   left: 5px;
 }
 #gradeTableWrapper th .btn-group,
