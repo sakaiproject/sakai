@@ -97,7 +97,8 @@
 				background: var(--sakai-background-color-1);
 				width: 250px;
 				margin: 251px 0 0 -250px;
-				z-index: 2;
+				z-index: 1000;
+				border: 1px solid var(--sakai-border-color);
 				box-shadow: var(--elevation-3dp);
 				
 				label{
