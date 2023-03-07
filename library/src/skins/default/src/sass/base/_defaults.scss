@@ -56,7 +56,7 @@ a{
     color: var(--sakai-text-color-1);
     text-decoration: none;
   }
-  &[href]:not(.btn) {  // This means a[href]
+  &[href]:not(.btn, .page-link) {  // This means a[href]
     color: var(--link-color);
     &:focus{
       outline: $sakai-focus-outline;
