@@ -4,8 +4,6 @@
 name: Maven Build
 
 on:
-  push:
-    - master
   pull_request:
 
 jobs:
