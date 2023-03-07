@@ -4768,7 +4768,7 @@ public abstract class BaseCitationService implements CitationService
 	    createAction.setLocalizer(
 	    		new BaseResourceAction.Localizer()
 	    		{
-	    			public String getLabel()
+	    			public String getI18nString()
 	    			{
 	    				return rb.getString("action.create");
 	    			}
@@ -4783,7 +4783,7 @@ public abstract class BaseCitationService implements CitationService
 	    reviseAction.setLocalizer(
 	    		new BaseResourceAction.Localizer()
 	    		{
-	    			public String getLabel()
+	    			public String getI18nString()
 	    			{
 	    				return rb.getString("action.revise");
 	    			}
