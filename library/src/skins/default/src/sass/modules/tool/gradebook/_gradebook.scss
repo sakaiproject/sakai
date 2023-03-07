@@ -231,6 +231,7 @@
     position: absolute;
     right: 0;
     bottom: 2px;
+    height: 12px;
   }
   #gradeTableWrapper .gb-comment-notification, #gradeTableWrapper .gb-course-comment-notification {
     position: absolute;
@@ -1512,6 +1513,11 @@
       display: block;
       width: 485px;
       height: 100px;
+  }
+
+  .dropdown-toggle::after {
+      position: relative;
+      top: -7px;
   }
 }
 
