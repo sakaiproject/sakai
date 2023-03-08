@@ -17,7 +17,7 @@
         <p>
         (<a href="https://github.com/sakaiproject/sakai/blob/master/plus/README.md#sakaiplus-tenants" target="_blank" th:text="#{plus.tenant.documentation.url}">SakaiPlus Tenant Documentation</a>)
         </p>
-        <form class="form-horizontal" action="#" th:action="@{/tenant}" method="post" th:object="${tenant}">
+        <form class="form-horizontal" action="#" th:action="@{/tenant}" method="post" th:object="${tenant}" onsubmit="return validateTenantForm()">
         <input th:if="${doUpdate}" type="hidden" th:field="*{id}" />
         <div id="title-group" class="form-group form-control-required">
           <label for="plus-title" class="form-control-label" th:text="#{plus.tool.title}">Value</label>
@@ -181,6 +181,19 @@ function booleanClick(ev) {
     let checked = ev.target.checked;
     let inp = document.getElementById(id+'-boolean');
     inp.value = checked ? 'true' : 'false';
+}
+</script>
+<script>
+function validateTenantForm() {
+    let issuerInput = document.getElementById("issuer");
+    let issuerValue = issuerInput.value.trim();
+    if (issuerValue.endsWith("/")) {
+        alert("Issuer should not end with '/'");
+        issuerInput.focus();
+        issuerInput.scrollIntoView();
+        return false;
+    }
+    return true;
 }
 </script>
   </body>
