@@ -175,7 +175,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         <button id="grader-settings-link" class="btn icon-button ms-3" data-bs-toggle="modal" data-bs-target="#grader-settings" aria-controls="grader-settings">
           <fa-icon size="1.3em" i-class="fas cogs" path-prefix="/webcomponents/assets" />
         </button>
-        <div class="modal fade" id="grader-settings" tabindex="-1" aria-labelledby="grader-settings-modal-label" aria-hidden="true">
+        <div class="modal fade" id="grader-settings" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="grader-settings-modal-label" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -536,7 +536,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               evaluated-item-owner-id="${this.submission.firstSubmitterId}">
             </sakai-rubric-grading-button>
 
-            <div id="grader-rubric-modal" class="modal" tabindex="-1">
+            <div id="grader-rubric-modal" class="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
               <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -590,7 +590,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ${this.submission.feedbackComment ? html`<div class="active-indicator ${this.savedFeedbackComment ? "" : "unsaved"}" aria-label="${this.feedbackCommentPresentMsg()}" title="${this.feedbackCommentPresentMsg()}"></div>` : ""}
         </div>
 
-        <div id="feedback-modal" class="modal" tabindex="-1">
+        <div id="feedback-modal" class="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -686,7 +686,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           : ""}
         </div>
 
-        <div id="private-notes-modal" class="modal" tabindex="-1">
+        <div id="private-notes-modal" class="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
