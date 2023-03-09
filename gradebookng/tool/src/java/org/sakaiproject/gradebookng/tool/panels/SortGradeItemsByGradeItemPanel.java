@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -27,6 +28,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.SortType;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 public class SortGradeItemsByGradeItemPanel extends Panel {
@@ -63,6 +65,13 @@ public class SortGradeItemsByGradeItemPanel extends Panel {
 						Model.of(assignment.getSortOrder())).add(
 								new AttributeModifier("name",
 										String.format("item_%s[current_order]", assignment.getId()))));
+
+				Button sortUpBtn = new Button("sort-up");
+				sortUpBtn.add(new AttributeModifier("title", MessageFormat.format(getString("sortgradeitems.move.item.up"), assignment.getName())));
+				assignmentItem.add(sortUpBtn);
+				Button sortDownBtn = new Button("sort-down");
+				sortDownBtn.add(new AttributeModifier("title", MessageFormat.format(getString("sortgradeitems.move.item.down"), assignment.getName())));
+				assignmentItem.add(sortDownBtn);
 			}
 		});
 	}
