@@ -183,18 +183,20 @@ function booleanClick(ev) {
     inp.value = checked ? 'true' : 'false';
 }
 </script>
-<script>
-function validateTenantForm() {
-    let issuerInput = document.getElementById("issuer");
-    let issuerValue = issuerInput.value.trim();
-    if (issuerValue.endsWith("/")) {
-        alert("Issuer should not end with '/'");
-        issuerInput.focus();
-        issuerInput.scrollIntoView();
-        return false;
+
+<script th:inline="javascript">
+    function validateTenantForm() {
+        let issuerInput = document.getElementById("issuer");
+        let issuerValue = issuerInput.value.trim();
+        let issuerInputErrorMessage = /*[[#{plus.tenant.form.issuer.error.message}]]*/;
+        if (issuerValue.endsWith("/")) {
+            alert(issuerInputErrorMessage);
+            issuerInput.focus();
+            issuerInput.scrollIntoView();
+            return false;
+        }
+        return true;
     }
-    return true;
-}
 </script>
   </body>
 </html>
