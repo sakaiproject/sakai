@@ -1288,9 +1288,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 //1 get all the rubrics from map
                 if (key.startsWith(RubricsConstants.RBCS_PREFIX)) {
                     try {
-                        //2 for each, get its associations
+                        //2 for each, get its active associations
                         Long rubricId = Long.parseLong(key.substring(RubricsConstants.RBCS_PREFIX.length()));
-                        associationRepository.findByRubricId(rubricId).forEach(association -> {
+                        associationRepository.findByRubricId(rubricId).stream()
+                                .filter(ToolItemRubricAssociation::getActive)
+                                .forEach(association -> {
 
                             //2b get association params
                             Map<String,Boolean> originalParams = association.getParameters();
