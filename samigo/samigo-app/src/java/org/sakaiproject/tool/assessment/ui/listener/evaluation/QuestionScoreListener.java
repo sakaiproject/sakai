@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -224,8 +225,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				questionBean.setPublishedAssessment(publishedAssessment);
 			}
 			// build a hashMap (publishedItemId, publishedItem)
-			Map publishedItemHash = pubService
-					.preparePublishedItemHash(publishedAssessment);
+			Map<Long, ItemDataIfc> publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
 			log.debug("questionScores(): publishedItemHash.size = "
 					+ publishedItemHash.size());
 			// build a hashMap (publishedItemTextId, publishedItemText)
@@ -525,6 +525,20 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			if (item != null)
 				deliveryItems.add(item);
 			bean.setDeliveryItem(deliveryItems);
+
+			// At least one other question, that is not cancelled should exist
+			bean.setCancellationAllowed(publishedItemHash.values().stream()
+					.filter(publishedItem -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
+					.filter(publishedItem -> ItemDataIfc.ITEM_NOT_CANCELED == publishedItem.getCancellation().intValue())
+					.collect(Collectors.counting()) > 1);
+			log.debug("setCancellationAllowed({})", bean.isCancellationAllowed());
+
+			bean.setEmiItemPresent(publishedItemHash.values().stream()
+					.filter(publishedItem -> TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
+					.filter(publishedItem -> ItemDataIfc.ITEM_NOT_CANCELED == publishedItem.getCancellation().intValue())
+					.collect(Collectors.counting())
+					.intValue() > 0);
+			log.debug("setEmiItemPresent({})", bean.isEmiItemPresent());
 
 			if (ContextUtil.lookupParam("roleSelection") != null) {
 				bean.setRoleSelection(ContextUtil.lookupParam("roleSelection"));

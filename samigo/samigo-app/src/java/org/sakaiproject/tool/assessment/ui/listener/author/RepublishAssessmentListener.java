@@ -15,11 +15,8 @@
  */
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -86,9 +83,12 @@ public class RepublishAssessmentListener implements ActionListener {
 
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean)
+				ContextUtil.lookupBean("publishedSettings");
+
 		// If there are submissions, need to regrade them
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
-			regradeRepublishedAssessment(publishedAssessmentService, assessment);
+			publishedAssessmentService.regradePublishedAssessment(assessment, publishedAssessmentSettings.getupdateMostCurrentSubmission());
 		}
 		
 		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
@@ -98,7 +98,6 @@ public class RepublishAssessmentListener implements ActionListener {
 		
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
 		
-		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
 		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
 		String subject = publishRepublishNotification.getNotificationSubject();
 		String notificationMessage = publishAssessmentListener.getNotificationMessage(publishRepublishNotification, publishedAssessmentSettings.getTitle(), publishedAssessmentSettings.getReleaseTo(), 
@@ -129,44 +128,6 @@ public class RepublishAssessmentListener implements ActionListener {
        calendarService.updateAllCalendarEvents(assessment, publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
 
 		author.setOutcome("author");
-	}
-	
-	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentFacade publishedAssessment) {
-		Map publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
-		Map publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
-		Map publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
-		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil
-			.lookupBean("publishedSettings");
-		// Actually we don't really need to consider linear or random here.
-		// boolean randomAccessAssessment = publishedAssessmentSettings.getItemNavigation().equals("2");
-		boolean updateMostCurrentSubmission = publishedAssessmentSettings.getupdateMostCurrentSubmission();
-		GradingService service = new GradingService();
-		List list = service.getAllAssessmentGradingData(publishedAssessment.getPublishedAssessmentId());
-		Iterator iter = list.iterator();
-		if (updateMostCurrentSubmission) {
-			publishedAssessment.setLastNeedResubmitDate(new Date());
-		    String currentAgent = "";
-			while (iter.hasNext()) {
-				AssessmentGradingData adata = (AssessmentGradingData) iter.next();
-				if (!currentAgent.equals(adata.getAgentId())){
-					if (adata.getForGrade().booleanValue()) {
-						adata.setForGrade(Boolean.FALSE);
-						adata.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
-					}
-					else {
-						adata.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED);
-					}
-					currentAgent = adata.getAgentId();
-				}
-				service.storeGrades(adata, true, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);
-			}
-		}
-		else {
-			while (iter.hasNext()) {
-				AssessmentGradingData adata = (AssessmentGradingData) iter.next();
-				service.storeGrades(adata, true, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);
-			}
-		}
 	}
 
 	private void updateGB(PublishedAssessmentFacade assessment) {
