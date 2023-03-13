@@ -19,10 +19,12 @@ package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -48,10 +50,13 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 /**
@@ -570,7 +575,146 @@ public class PublishedAssessmentService extends AssessmentService{
 	    }
 	    return map;
   }
-  
+
+  public PublishedAssessmentIfc preparePublishedItemCancellation(PublishedAssessmentIfc publishedAssessment) {
+    // Get publishedItemMap and filter out EMI questions
+    Map<Long, ItemDataIfc> publishedItemMap = preparePublishedItemHash(publishedAssessment).entrySet().stream()
+        .filter(publishedItemEntry -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItemEntry.getValue().getTypeId()))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    // Items to cancel by just setting the score to 0. Other items are unaffected, Total score is reduced.
+    Set<ItemDataIfc> totalScoreItemsToCancel  = publishedItemMap.entrySet().stream()
+        .map(Map.Entry::getValue)
+        .filter(publishedItem -> publishedItem != null)
+        .filter(publishedItem -> publishedItem.getCancellation() == ItemDataIfc.ITEM_TOTAL_SCORE_TO_CANCEL)
+        .filter(publishedItem -> publishedItem.getScore() != null)
+        .filter(publishedItem -> publishedItem.getScore() != 0.0)
+        .collect(Collectors.toSet());
+
+    // Items to cancel by setting the score to 0 and distributing the points to the other items. Total score is unaffected.
+    Set<ItemDataIfc> distributedItemsToCancel = publishedItemMap.entrySet().stream()
+        .map(Map.Entry::getValue)
+        .filter(publishedItem -> publishedItem != null)
+        .filter(publishedItem -> publishedItem.getCancellation() == ItemDataIfc.ITEM_DISTRIBUTED_TO_CANCEL)
+        .filter(publishedItem -> publishedItem.getScore() != null)
+        .filter(publishedItem -> publishedItem.getScore() != 0.0)
+        .collect(Collectors.toSet());
+
+    // Total of distributed items sores
+    Double distributedItemsToCancelTotal = distributedItemsToCancel.stream()
+        .map(publishedItem -> publishedItem.getScore())
+        .reduce(0.0, Double::sum);
+
+    // Number of items that don't are not cancelled or going to be cancelled
+    int distributedItemsNotToCancelCount = publishedItemMap.size() - distributedItemsToCancel.size() - totalScoreItemsToCancel.size();
+
+    // Points that should be added to each not cancelled item
+    Double pointsToDistribute = distributedItemsToCancelTotal > 0.0
+        ? distributedItemsToCancelTotal / (double) distributedItemsNotToCancelCount
+        : 0.0;
+
+    for (ItemDataIfc publishedItem : publishedItemMap.values()) {
+      int publishedItemCancellation = publishedItem.getCancellation() != null
+          ? publishedItem.getCancellation()
+          : ItemDataIfc.ITEM_NOT_CANCELED;
+
+      // Define the score the item should receive, based on it's cancellation status and adjust the cancellation
+      Double score;
+      Double discount;
+      switch (publishedItemCancellation) {
+        default:
+        case ItemDataIfc.ITEM_NOT_CANCELED:
+          Double originalScore = publishedItem.getScore() != null ? publishedItem.getScore() : 0.0;
+          score = originalScore + pointsToDistribute;
+          // Adjust discount based on the weight compared to the original score
+          discount = publishedItem.getDiscount() != null ? (publishedItem.getDiscount() / originalScore) * score : null;
+          break;
+        case ItemDataIfc.ITEM_TOTAL_SCORE_TO_CANCEL:
+          publishedItem.setCancellation(ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED);
+          score = 0.0;
+          discount = 0.0;
+          break;
+        case ItemDataIfc.ITEM_DISTRIBUTED_TO_CANCEL:
+          publishedItem.setCancellation(ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED);
+          score = 0.0;
+          discount = 0.0;
+          break;
+        case ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED:
+        case ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED:
+          // Item is cancelled already, we can skip it
+          continue;
+      }
+
+      // Set score and discount for item in item map
+      publishedItem.setScore(score);
+      publishedItem.setDiscount(discount);;
+
+      Set<ItemTextIfc> publishedItemTextSet = publishedItem.getItemTextSet();
+      publishedItemTextSet.forEach(publishedItemText -> {
+        Set<AnswerIfc> answerSet = publishedItemText.getAnswerSet();
+        // Set score and discount for all the answers
+        answerSet.forEach(answer -> {
+          answer.setScore(score);
+          answer.setDiscount(discount);
+        });
+        publishedItemText.setAnswerSet(answerSet);
+      });
+      publishedItem.setItemTextSet(publishedItemTextSet);
+
+      // Save item
+      log.debug("Saving item [{}] with cancellation [{}]", publishedItem.getItemId(), publishedItem.getCancellation());
+      saveItem(publishedItem);
+    }
+
+    return getPublishedAssessment(publishedAssessment.getPublishedAssessmentId().toString());
+  }
+
+  // Moved here to a separate method to enable unit testing of preparePublishedItemCancellation
+  public void saveItem(ItemDataIfc item) {
+      ItemService itemService = new ItemService();
+      itemService.saveItem(new ItemFacade(item));
+  }
+
+  public void regradePublishedAssessment(PublishedAssessmentIfc publishedAssessment, boolean updateMostCurrentSubmission) {
+    Map<Long, ItemDataIfc> publishedItemHash = preparePublishedItemHash(publishedAssessment);
+    Map<Long, ItemTextIfc> publishedItemTextHash = preparePublishedItemTextHash(publishedAssessment);
+    Map<Long, AnswerIfc> publishedAnswerHash = preparePublishedAnswerHash(publishedAssessment);
+
+    GradingService gradingService = new GradingService();
+    List<AssessmentGradingData> gradingDataList = gradingService.getAllAssessmentGradingData(
+        publishedAssessment.getPublishedAssessmentId());
+
+    if (updateMostCurrentSubmission) {
+      // Allow student to resubmit the last submission
+      publishedAssessment.setLastNeedResubmitDate(new Date());
+
+      String currentAgent = "";
+
+      for (AssessmentGradingData gradingData : gradingDataList) {
+        if (!currentAgent.equals(gradingData.getAgentId())) {
+          if (gradingData.getForGrade().booleanValue()) {
+            gradingData.setForGrade(Boolean.FALSE);
+            gradingData.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
+          } else {
+            gradingData.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED);
+          }
+
+          currentAgent = gradingData.getAgentId();
+        }
+
+        // Grade based on this data
+        gradingService.storeGrades(gradingData, true, publishedAssessment, publishedItemHash,
+            publishedItemTextHash, publishedAnswerHash, true);
+      }
+    } else {
+      for (AssessmentGradingData gradingData : gradingDataList) {
+        // Grade based on this data
+        gradingService.storeGrades(gradingData, true, publishedAssessment, publishedItemHash,
+            publishedItemTextHash, publishedAnswerHash, true);
+      }
+    }
+  }
+
   public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId){
 	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	    getSectionSetForAssessment(publishedAssessmentId);

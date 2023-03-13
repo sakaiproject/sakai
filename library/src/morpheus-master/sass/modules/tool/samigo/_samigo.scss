@@ -50,6 +50,24 @@
 			}
 	}
 
+	.samigo-question-cancelled {
+		opacity: 0.7;
+
+		.sak-banner-info {
+			margin-bottom: 0;
+		}
+	}
+
+	.question-cancel-modal {
+		input[type="checkbox"] {
+			margin-right: $standard-space;
+		}
+
+		.act {
+			margin: unset;
+		}
+	}
+
 	.listNav {
 		.inlineForm {
 			@extend .panel;
