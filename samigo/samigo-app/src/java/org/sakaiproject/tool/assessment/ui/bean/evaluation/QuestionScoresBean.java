@@ -50,11 +50,13 @@ import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -173,6 +175,15 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 
   @Setter @Getter
   private boolean hasAssociatedRubric;
+
+  @Setter @Getter
+  private boolean cancellationAllowed;
+
+  @Setter @Getter
+  private boolean emiItemPresent;
+
+  @Setter @Getter
+  private boolean randomItemPresent;
 
   private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
 
@@ -606,4 +617,10 @@ public void clear(ActionEvent event) {
 	public boolean isEnablePdfExport() {
         return ServerConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true);
 	}
+
+  public Boolean getDeliveryItemCancelled() {
+      return deliveryItem != null || deliveryItem.isEmpty()
+          ? ItemCancellationUtil.isCancelled((ItemDataIfc) deliveryItem.stream().findAny().get())
+          : null;
+  }
 }

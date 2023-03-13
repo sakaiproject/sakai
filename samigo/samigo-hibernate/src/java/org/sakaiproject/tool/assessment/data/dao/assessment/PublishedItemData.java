@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -101,7 +102,9 @@ public class PublishedItemData
   private Integer answerOptionsSimpleOrRich;
 
   private String tagListToJsonString;
-  
+
+  @Getter @Setter private Integer cancellation = ItemDataIfc.ITEM_NOT_CANCELED;
+
   public PublishedItemData() {}
 
   // this constructor should be deprecated, it is missing triesAllowed
