@@ -95,6 +95,8 @@ public class ItemData
   private Integer answerOptionsRichCount;
   private Integer answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE;
 
+  @Getter @Setter private Integer cancellation = ItemDataIfc.ITEM_NOT_CANCELED;
+
   private String tagListToJsonString;
   
 public ItemData() {}

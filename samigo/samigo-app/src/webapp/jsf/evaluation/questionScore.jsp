@@ -36,6 +36,7 @@ $Id$
       <title><h:outputText value="#{evaluationMessages.title_question}" /></title>
       <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
       <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
+      <script type="text/javascript" src="/samigo-app/js/authoringQuestionCancellation.js"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -98,7 +99,7 @@ $Id$
     <h:column>
       <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{!partinit.isRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" >
+          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
             <h:outputText value="#{evaluationMessages.q}#{iteminit.partNumber} " escape="false"/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
@@ -116,7 +117,7 @@ $Id$
 
 	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{partinit.isRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" >
+          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
             <h:outputText value="#{evaluationMessages.q} #{iteminit.partNumber} "/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
@@ -228,12 +229,11 @@ $Id$
     </div>
   </t:dataList>
 
-  <div class="samigo-question-callout">
   <t:dataList value="#{questionScores.deliveryItem}" var="question">
+  <h:panelGroup styleClass="samigo-question-callout#{question.cancellation != 0 ? ' samigo-question-cancelled' : ''}" layout="block">
   <div id="questionScoreItemAttachments">
       <%@ include file="/jsf/evaluation/questionScoreItemAttachment.jsp" %>
   </div>
-
   <h:panelGroup rendered="#{questionScores.typeId == '7'}">
     <f:subview id="displayAudioRecording">
       <%@ include file="/jsf/evaluation/item/displayAudioRecordingQuestion.jsp" %>
@@ -301,8 +301,19 @@ $Id$
     <%@ include file="/jsf/evaluation/item/displayImageMapQuestion.jsp" %>
     </f:subview>
   </h:panelGroup>
+  <h:panelGroup styleClass="sak-banner-info" rendered="#{question.cancellation != 0}" layout="block">
+    <h:outputText value="#{commonMessages.cancel_question_info_cancelled_question}" />
+  </h:panelGroup>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.cancellation == 0 && questionScores.cancellationAllowed}">
+    <button class="button" data-item-cancellable="true" data-itemId='<h:outputText value="#{question.itemIdString}" />'>
+      <h:outputText value="#{commonMessages.cancel_question}" />
+    </button>
+  </h:panelGroup>
+  <h:panelGroup styleClass="sak-banner-info" rendered="#{questionScores.randomItemPresent}" layout="block">
+    <h:outputText value="#{commonMessages.cancel_question_info_random} " />
+  </h:panelGroup>
   </t:dataList>
-  </div>
 
   <h2>
     <p class="navView navModeAction">
@@ -823,6 +834,7 @@ $Id$
                     id="qscore"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
                     required="false"
+                    disabled="#{questionScores.deliveryItemCancelled}"
                     onchange="toPoint(this.id);">
       </h:inputText>
       <h:message for="qscore" style="color:red"/>
@@ -1253,6 +1265,67 @@ $Id$
    </h:commandButton>
    <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true"/>
 </p>
+
+<%--Question Cancellation Modal--%>
+<div id="cancelQuestionModal" class="modal fade question-cancel-modal" tabindex="-1">
+  <h:panelGroup styleClass="modal-dialog" layout="block">
+    <h:panelGroup styleClass="modal-content" layout="block">
+      <h:panelGroup styleClass="modal-header" layout="block">
+        <button type="button" class="close" data-dismiss="modal"
+            aria-label='<h:outputText value="#{authorMessages.button_close}" />'>
+          <span class="fa fa-times" aria-hidden="true"></span>
+        </button>
+        <h2 class="modal-title">
+          <h:outputText value="#{commonMessages.cancel_question}" />
+        </h2>
+      </h:panelGroup>
+      <h:panelGroup styleClass="modal-body" layout="block">
+        <h:panelGroup styleClass="sak-banner-info" layout="block">
+          <h:outputText value="#{commonMessages.cancel_question_info_cancellation}" />
+          <br /><br />
+          <strong>
+            <h:outputText value="#{commonMessages.cancel_question_reduce_total}:" />
+          </strong>
+          <h:outputText value="#{commonMessages.cancel_question_info_reduce_total}" />
+          <br /><br />
+          <strong>
+            <h:outputText value="#{commonMessages.cancel_question_distribute_points}:" />
+          </strong>
+          <h:outputText value="#{commonMessages.cancel_question_info_distribute_points}" />
+        </h:panelGroup>
+        <h:panelGroup styleClass="sak-banner-warn" layout="block">
+          <h:panelGroup rendered="#{questionScores.emiItemPresent}">
+            <h:outputText value="#{commonMessages.cancel_question_info_emi} " />
+            <br /><br />
+          </h:panelGroup>
+          <h:outputText value="#{commonMessages.cancel_question_info_regrade} #{commonMessages.cancel_question_info_no_undo}" />
+        </h:panelGroup>
+      </h:panelGroup>
+      <h:panelGroup styleClass="modal-footer act" layout="block">
+        <h:commandButton styleClass="active" type="submit" id="cancelItemTotal" action="questionScores"
+            value="#{commonMessages.cancel_question_reduce_total}">
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
+          <f:param name="outcome" value="questionScores"/>
+          <f:param name="itemId" value="ITEM_ID"/>
+          <f:param name="cancellation" value="10"/>
+          <f:param name="regrade" value="true"/>
+        </h:commandButton>
+        <h:commandButton styleClass="button" type="submit" id="cancelItemDistribute" action="questionScores"
+            value="#{commonMessages.cancel_question_distribute_points}">
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
+          <f:param name="outcome" value="questionScores"/>
+          <f:param name="itemId" value="ITEM_ID"/>
+          <f:param name="cancellation" value="20"/>
+          <f:param name="regrade" value="true"/>
+        </h:commandButton>
+        <button type="button" class="button" data-dismiss="modal">
+          <h:outputText value="#{commonMessages.cancel_question_cancel}" />
+        </button>
+      </h:panelGroup>
+    </h:panelGroup>
+  </h:panelGroup>
+</div>
+
 </h:form>
 </div>
   <!-- end content -->

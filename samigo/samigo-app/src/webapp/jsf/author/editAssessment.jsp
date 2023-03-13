@@ -34,6 +34,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
       <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script type="text/javascript" src="/samigo-app/js/authoringQuestionCancellation.js"></script>
 
 <script type="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>
@@ -361,7 +362,8 @@ $(window).load( function() {
      <h:outputText rendered="#{question.itemData.typeId== 16}" value=" #{authorMessages.image_map_question}"/><!-- IMAGEMAP_QUESTION -->
 
      <h:outputText value=" #{authorMessages.dash} " />
-     <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" disabled="#{author.isEditPoolFlow || (question.itemData.typeId== 14)}" label="#{authorMessages.pt}" size="6" onkeydown="inIt()" styleClass="ConvertPoint" rendered="#{question.itemData.typeId!= 3}">
+     <h:inputText id="answerptr" styleClass="ConvertPoint" value="#{question.updatedScore}" required="true" label="#{authorMessages.pt}" size="6" onkeydown="inIt()"
+         disabled="#{author.isEditPoolFlow || question.itemData.typeId == 14 || question.cancelled}" rendered="#{question.itemData.typeId!= 3}">
        <f:validateDoubleRange minimum="0.00"/>
      </h:inputText>
      <h:outputText value="&#160;" escape="false" />
@@ -379,6 +381,12 @@ $(window).load( function() {
 
         </h:panelGroup>
           <h:panelGroup>
+            <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && question.cancellable && partBean.cancellationAllowed}">
+              <a href="#" data-item-cancellable="true" data-itemId='<h:outputText value="#{question.itemData.itemIdString}" />'>
+                <h:outputText value="#{commonMessages.cancel_question}" />
+              </a>
+              <h:outputText value=" #{authorMessages.separator} " />
+            </h:panelGroup>
             <h:commandLink title="#{authorMessages.t_removeQ}" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}" rendered="#{author.isEditPendingAssessmentFlow}">
               <h:outputText value="#{commonMessages.remove_action}" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
@@ -394,9 +402,9 @@ $(window).load( function() {
           </h:panelGroup>
         </h:panelGrid>
 
-       <div class="samigo-question-callout">
-		  <h:panelGroup rendered="#{question.itemData.typeId == 11}">
-	  			<%@ include file="/jsf/author/preview_item/FillInNumeric.jsp" %>
+        <h:panelGroup styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
+          <h:panelGroup rendered="#{question.itemData.typeId == 11}">
+            <%@ include file="/jsf/author/preview_item/FillInNumeric.jsp" %>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 9}">
             <%@ include file="/jsf/author/preview_item/Matching.jsp" %>
@@ -453,7 +461,11 @@ $(window).load( function() {
           <h:panelGroup rendered="#{question.itemData.typeId == 16}"><!-- IMAGEMAP_QUESTION -->
                 <%@ include file="/jsf/author/preview_item/ImageMapQuestion.jsp" %>
           </h:panelGroup>   
-      </div>
+
+          <h:panelGroup styleClass="sak-banner-info" rendered="#{question.cancelled}" layout="block">
+            <h:outputText value="#{commonMessages.cancel_question_info_cancelled_question}"/>
+          </h:panelGroup>
+        </h:panelGroup>
 
       <!-- Only want this displayed at the bottom of the last part (others hidden via docReady JS) -->
       <h:panelGroup styleClass="part-insert-question" layout="block" rendered="#{author.isEditPendingAssessmentFlow}">
@@ -473,6 +485,64 @@ $(window).load( function() {
 
     </h:column>
   </t:dataTable>
+</div>
+<%--Question Cancellation Modal--%>
+<div id="cancelQuestionModal" class="modal fade question-cancel-modal" tabindex="-1">
+  <h:panelGroup styleClass="modal-dialog" layout="block">
+    <h:panelGroup styleClass="modal-content" layout="block">
+      <h:panelGroup styleClass="modal-header" layout="block">
+        <button type="button" class="close" data-dismiss="modal"
+            aria-label='<h:outputText value="#{authorMessages.button_close}" />'>
+          <span class="fa fa-times" aria-hidden="true"></span>
+        </button>
+        <h2 class="modal-title">
+          <h:outputText value="#{commonMessages.cancel_question}" />
+        </h2>
+      </h:panelGroup>
+      <h:panelGroup styleClass="modal-body" layout="block">
+        <h:panelGroup styleClass="sak-banner-info" layout="block">
+          <h:outputText value="#{commonMessages.cancel_question_info_cancellation}" />
+          <br /><br />
+          <strong>
+            <h:outputText value="#{commonMessages.cancel_question_reduce_total}:" />
+          </strong>
+          <h:outputText value="#{commonMessages.cancel_question_info_reduce_total}" />
+          <br /><br />
+          <strong>
+            <h:outputText value="#{commonMessages.cancel_question_distribute_points}:" />
+          </strong>
+          <h:outputText value="#{commonMessages.cancel_question_info_distribute_points}" />
+        </h:panelGroup>
+        <h:panelGroup styleClass="sak-banner-warn" layout="block">
+          <h:panelGroup rendered="#{partBean.emiItemPresent}">
+            <h:outputText value="#{commonMessages.cancel_question_info_emi} " />
+            </br>
+            </br>
+          </h:panelGroup>
+          <h:outputText value="#{commonMessages.cancel_question_info_no_undo}" />
+        </h:panelGroup>
+      </h:panelGroup>
+      <h:panelGroup styleClass="modal-footer act" layout="block">
+        <h:commandButton styleClass="active" immediate="true" id="cancelItemTotal" action="editAssessment"
+            value="#{commonMessages.cancel_question_reduce_total}">
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
+          <f:param name="outcome" value="editAssessment" />
+          <f:param name="itemId" value="ITEM_ID" />
+          <f:param name="cancellation" value="10" />
+        </h:commandButton>
+        <h:commandButton styleClass="button" immediate="true" id="cancelItemDistribute" action="editAssessment"
+            value="#{commonMessages.cancel_question_distribute_points}">
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
+          <f:param name="outcome" value="editAssessment" />
+          <f:param name="itemId" value="ITEM_ID" />
+          <f:param name="cancellation" value="20" />
+        </h:commandButton>
+        <button type="button" class="button" data-dismiss="modal">
+          <h:outputText value="#{commonMessages.cancel_question_cancel}" />
+        </button>
+      </h:panelGroup>
+    </h:panelGroup>
+  </h:panelGroup>
 </div>
   </h:column>
 </h:dataTable>
@@ -529,7 +599,8 @@ $(window).load( function() {
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!assessmentBean.hasGradingData}"/>
     </h:panelGrid>
   </h:panelGroup>
-  
+
+
   <h:inputHidden id="randomQuestionsSectionId" value=""/>
 </h:form>
 <!-- end content -->
