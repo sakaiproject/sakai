@@ -43,6 +43,7 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -1716,6 +1717,14 @@ public class ItemContentsBean implements Serializable {
 		} else {
 			return itemData.getItemId();
 		}
+	}
+
+	public boolean isCancelled() {
+		return this.itemData.getCancellation().intValue() != ItemDataIfc.ITEM_NOT_CANCELED;
+	}
+
+	public boolean isCancellable() {
+		return !this.isCancelled();
 	}
 }
 
