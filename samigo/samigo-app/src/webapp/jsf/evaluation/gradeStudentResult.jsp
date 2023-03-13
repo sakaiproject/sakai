@@ -160,12 +160,13 @@ function toPoint(id)
        #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{evaluationMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <t:dataList layout="unorderedList" itemStyleClass="list-group-item" styleClass="list-group question-wrapper" value="#{part.itemContents}" var="question">
                 <span class="badge">
+                  <h:outputText escape="false" value="#{commonMessages.cancel_question_cancelled} " rendered="#{question.cancelled}" />
                   <h:outputText escape="false" value="#{question.roundedMaxPoints}">
                     <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
                   </h:outputText>
                   <h:outputText escape="false" value=" #{deliveryMessages.pt} "/>
                 </span>
-                <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}"> 
+                <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}" styleClass="#{question.cancelled ? 'cancelled-question-link' : ''}">
                   <h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot} #{question.strippedText}"/>
                 </h:outputLink>
                 <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit==true}" value=" #{deliveryMessages.extra_credit_preview}" />
@@ -201,7 +202,7 @@ function toPoint(id)
                     <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
                     <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
                   </p>
-                  <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">
+                  <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
                     <f:validateDoubleRange/>
                   </h:inputText>
                 </h:panelGroup>
@@ -234,7 +235,7 @@ function toPoint(id)
         <div class="tab-content">
           <div id="<h:outputText value="submition#{question.itemData.itemId}" />" class="tab-pane active">
       </h:panelGroup>
-          <div class="samigo-question-callout">
+          <h:panelGroup styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
             <h:panelGroup rendered="#{question.itemData.typeId == 7}">
               <f:subview id="deliverAudioRecording">
                <%@ include file="/jsf/evaluation/item/displayAudioRecording.jsp" %>
@@ -314,7 +315,10 @@ function toPoint(id)
                 <%@ include file="/jsf/delivery/item/deliverMatrixChoicesSurvey.jsp" %>
               </f:subview>
             </h:panelGroup>
-          </div>
+            <h:panelGroup styleClass="sak-banner-info" rendered="#{question.cancelled}" layout="block">
+              <h:outputText value="#{commonMessages.cancel_question_info_cancelled_question}"/>
+            </h:panelGroup>
+          </h:panelGroup>
 
         <h:panelGroup rendered="#{question.hasAssociatedRubric}">
           </div>
