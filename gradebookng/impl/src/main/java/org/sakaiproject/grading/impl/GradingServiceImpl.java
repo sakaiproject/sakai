@@ -329,17 +329,6 @@ public class GradingServiceImpl implements GradingService {
         return assignmentDefinition;
     }
 
-    // Legacy method - Removed 2022-08-21 - Chuck S.
-    /*
-    private Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted,
-        Boolean isReleased, Boolean isExtraCredit, Integer sortOrder)
-            throws ConflictingAssignmentNameException, StaleObjectModificationException {
-
-        Assignment assignmentDefinition = null;
-        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, null, assignmentDefinition);
-    }
-    */
-
     private Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted,
         Boolean isReleased, Boolean isExtraCredit, Integer sortOrder,
         Assignment assignmentDefinition)
@@ -347,21 +336,6 @@ public class GradingServiceImpl implements GradingService {
 
         return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, null, assignmentDefinition);
     }
-
-    // Legacy method - Removed 2022-08-21 - Chuck S.
-    /*
-    private Long createAssignmentForCategory(Long gradebookId, Long categoryId, String name, Double points, Date dueDate, Boolean isNotCounted,
-        Boolean isReleased, Boolean isExtraCredit, Integer categorizedSortOrder)
-            throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException {
-
-        if (gradebookId == null || categoryId == null) {
-            throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
-        }
-
-        Assignment assignmentDefinition = null;
-        return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, null, categorizedSortOrder, assignmentDefinition);
-    }
-    */
 
     private Long createAssignmentForCategory(Long gradebookId, Long categoryId, String name, Double points, Date dueDate, Boolean isNotCounted,
         Boolean isReleased, Boolean isExtraCredit, Integer categorizedSortOrder, Assignment assignmentDefinition)
@@ -795,6 +769,19 @@ public class GradingServiceImpl implements GradingService {
             throw new GradingSecurityException();
         }
 
+        if (assignmentDefinition.getExternallyMaintained()) {
+            return addExternalAssessment(gradebookUid,
+                            assignmentDefinition.getReference(),
+                            assignmentDefinition.getName(),
+                            assignmentDefinition.getPoints(),
+                            assignmentDefinition.getDueDate(),
+                            assignmentDefinition.getExternalAppName(),
+                            null,
+                            assignmentDefinition.getUngraded(),
+                            assignmentDefinition.getCategoryId(),
+                            assignmentDefinition.getExternalAppName());
+        }
+
         final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition);
 
         final Gradebook gradebook = getGradebook(gradebookUid);
@@ -836,7 +823,6 @@ public class GradingServiceImpl implements GradingService {
         }
 
         return assignmentId;
-
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2447,12 +2433,14 @@ public class GradingServiceImpl implements GradingService {
             throw new AssessmentNotFoundException(
                     "There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
         }
+        /*
         if (assignment.getExternallyMaintained()) {
             log.error(
                     "AUTHORIZATION FAILURE: User {} in gradebook {} attempted to grade externally maintained assignment {} from {}",
                     getUserUid(), gradebookUid, assignmentId, clientServiceDescription);
             throw new GradingSecurityException();
         }
+        */
 
         if (!isUserAbleToGradeItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
             log.error("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to grade student {} from {} for item {}",
@@ -3886,8 +3874,9 @@ public class GradingServiceImpl implements GradingService {
     }
 
     @Override
-    public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
-            final String title, final double points, final Date dueDate, final String externalServiceDescription, String externalData)
+    public Long addExternalAssessment(String gradebookUid, String externalId, String title,
+                                        double points, Date dueDate,
+                                        String externalServiceDescription, String externalData)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException {
 
         // Ensure that the required strings are not empty
@@ -3907,7 +3896,6 @@ public class GradingServiceImpl implements GradingService {
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
 
-
         // name cannot contain these chars as they are reserved for special columns in import/export
         GradebookHelper.validateGradeItemName(title);
 
@@ -3926,8 +3914,6 @@ public class GradingServiceImpl implements GradingService {
         final GradebookAssignment asn = new GradebookAssignment(gradebook, title, Double.valueOf(points), dueDate);
         asn.setExternallyMaintained(true);
         asn.setExternalId(externalId);
-        asn.setExternalInstructorLink(externalUrl);
-        asn.setExternalStudentLink(externalUrl);
         asn.setExternalAppName(externalServiceDescription);
         asn.setExternalData(externalData);
         // set released to be true to support selective release
@@ -3961,10 +3947,11 @@ public class GradingServiceImpl implements GradingService {
             }
         }
 
+        return assignmentId;
     }
 
     @Override
-    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
+    public void updateExternalAssessment(String gradebookUid, String externalId,
                                          String externalData, String title, double points, Date dueDate)
             throws AssessmentNotFoundException, AssignmentHasIllegalPointsException {
 
@@ -3990,8 +3977,6 @@ public class GradingServiceImpl implements GradingService {
         // name cannot contain these chars as they are reserved for special columns in import/export
         GradebookHelper.validateGradeItemName(title);
 
-        asn.setExternalInstructorLink(externalUrl);
-        asn.setExternalStudentLink(externalUrl);
         asn.setExternalData(externalData);
         asn.setName(title);
         asn.setDueDate(dueDate);
@@ -4371,8 +4356,6 @@ public class GradingServiceImpl implements GradingService {
         GradebookAssignment assignment = optAssignment.get();
         assignment.setExternalAppName(null);
         assignment.setExternalId(null);
-        assignment.setExternalInstructorLink(null);
-        assignment.setExternalStudentLink(null);
         assignment.setExternalData(null);
         assignment.setExternallyMaintained(false);
         gradingPersistenceManager.saveAssignment(assignment);
@@ -4384,22 +4367,22 @@ public class GradingServiceImpl implements GradingService {
      * Wrapper created when category was added for assignments tool
      */
     @Override
-    public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl, String title, Double points,
+    public Long addExternalAssessment(String gradebookUid, String externalId, String title, Double points,
                                       Date dueDate, String externalServiceDescription, String externalData, Boolean ungraded)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException {
 
-        addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, externalData, ungraded, null);
+        return addExternalAssessment(gradebookUid, externalId, title, points, dueDate, externalServiceDescription, externalData, ungraded, null);
     }
 
     @Override
-    public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points,
+    public Long addExternalAssessment(final String gradebookUid, final String externalId, final String title, final Double points,
                                                    final Date dueDate, final String externalServiceDescription, String externalData, final Boolean ungraded, final Long categoryId)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException {
-        addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, externalData, ungraded, categoryId, null);
+        return addExternalAssessment(gradebookUid, externalId, title, points, dueDate, externalServiceDescription, externalData, ungraded, categoryId, null);
     }
 
     @Override
-    public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points,
+    public Long addExternalAssessment(final String gradebookUid, final String externalId, final String title, final Double points,
                                            final Date dueDate, final String externalServiceDescription, String externalData, final Boolean ungraded, final Long categoryId, String gradableReference)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException {
         // Ensure that the required strings are not empty
@@ -4459,8 +4442,6 @@ public class GradingServiceImpl implements GradingService {
         asn.setReference(gradableReference);
         asn.setExternallyMaintained(true);
         asn.setExternalId(externalId);
-        asn.setExternalInstructorLink(externalUrl);
-        asn.setExternalStudentLink(externalUrl);
         asn.setExternalAppName(externalServiceDescription);
         asn.setExternalData(externalData);
         if (persistedCategory != null) {
@@ -4500,16 +4481,18 @@ public class GradingServiceImpl implements GradingService {
                 log.error("Could not load site associated with gradebook - lineitem not created", e);
             }
         }
+
+        return assignmentId;
     }
 
     @Override
-    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl, String externalData, String title, Double points, Date dueDate, Boolean ungraded)
+    public void updateExternalAssessment(String gradebookUid, String externalId, String externalData, String title, Double points, Date dueDate, Boolean ungraded)
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException {
-        updateExternalAssessment(gradebookUid, externalId, externalUrl, externalData, title, null, points, dueDate, ungraded);
+        updateExternalAssessment(gradebookUid, externalId, externalData, title, null, points, dueDate, ungraded);
     }
 
     @Override
-    public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, String externalData, final String title, Long categoryId,
+    public void updateExternalAssessment(final String gradebookUid, final String externalId, String externalData, final String title, Long categoryId,
                                          final Double points, final Date dueDate, final Boolean ungraded)
             throws AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException {
         final Optional<GradebookAssignment> optAsn = getDbExternalAssignment(gradebookUid, externalId);
@@ -4535,8 +4518,6 @@ public class GradingServiceImpl implements GradingService {
         // name cannot contain these chars as they are reserved for special columns in import/export
         GradebookHelper.validateGradeItemName(title);
 
-        asn.setExternalInstructorLink(externalUrl);
-        asn.setExternalStudentLink(externalUrl);
         asn.setExternalData(externalData);
         asn.setName(title);
         asn.setDueDate(dueDate);

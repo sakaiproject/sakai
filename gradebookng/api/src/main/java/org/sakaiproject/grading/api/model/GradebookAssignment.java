@@ -92,12 +92,6 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
     @Column(name = "EXTERNALLY_MAINTAINED")
     private Boolean externallyMaintained = Boolean.FALSE;
 
-    @Column(name = "EXTERNAL_STUDENT_LINK")
-    private String externalStudentLink;
-
-    @Column(name = "EXTERNAL_INSTRUCTOR_LINK")
-    private String externalInstructorLink;
-
     @Column(name = "EXTERNAL_ID")
     private String externalId;
 

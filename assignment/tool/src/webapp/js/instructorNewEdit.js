@@ -366,19 +366,28 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const gradebookList = document.getElementById("gradebookList");
   const categoryList = document.getElementById("categoryList");
+  //const displayInGradebook = document.getElementById("display-in-gradebook-block");
+  document.getElementById("display-in-gradebook-checkbox").addEventListener("click", e => {
+
+    document.getElementById("assignmentGradingGradebookOptionsPanel").style.display
+      = e.target.checked ? "block" : "none";
+  });
 
   const associate = document.getElementById("associate-gradebook-item");
   associate && associate.addEventListener("change", e => {
 
     gradebookList && (gradebookList.style.display = e.target.checked ? "block" : "none");
+    //displayInGradebook && (displayInGradebook.style.display = e.target.checked ? "none" : "block");
     categoryList && (categoryList.style.display = e.target.checked ? "none" : "block");
   });
 
   const create = document.getElementById("create-gradebook-item");
 	categoryList && (categoryList.style.display = create.hasAttribute("checked") ? "block" : "none");
+	//displayInGradebook && (displayInGradebook.style.display = create.hasAttribute("checked") ? "block" : "none");
   create && create.addEventListener("click", e => {
 
     categoryList && (categoryList.style.display = e.target.checked ? "block" : "none");
+    //displayInGradebook && (displayInGradebook.style.display = e.target.checked ? "block" : "none");
     gradebookList && (gradebookList.style.display = e.target.checked ? "none" : "block");
   });
 });

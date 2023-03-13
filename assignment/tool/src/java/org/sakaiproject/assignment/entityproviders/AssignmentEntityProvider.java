@@ -91,7 +91,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
     private AssignmentService assignmentService;
-    private AssignmentToolUtils assignmentToolUtils;
     private ContentHostingService contentHostingService;
     private EntityBroker entityBroker;
     private EntityManager entityManager;
@@ -871,7 +870,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
 
         if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-            grade = assignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
+            grade = AssignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
         } else if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE && grade.equals(AssignmentConstants.UNGRADED_GRADE_STRING)) {
             grade = null;
         }
@@ -886,7 +885,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 String ug = StringUtils.trimToNull((String) params.get(GRADE_SUBMISSION_GRADE + "_" + s.getSubmitter()));
                 if (ug != null && !ug.equals(AssignmentConstants.UNGRADED_GRADE_STRING)) {
                     if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                        ug = assignmentToolUtils.scalePointGrade(ug, assignment.getScaleFactor(), alerts);
+                        ug = AssignmentToolUtils.scalePointGrade(ug, assignment.getScaleFactor(), alerts);
                     }
                     options.put(GRADE_SUBMISSION_GRADE + "_" + s.getSubmitter(), ug);
                 }
@@ -932,7 +931,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         options.put("siteId", (String) params.get("siteId"));
 
-        assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
+        assignmentService.gradeSubmission(submissionId, gradeOption, options, alerts);
 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
@@ -1539,7 +1538,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
 
-            String gradebookAssignmentProp = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            String gradebookAssignmentProp = a.getProperties().get(PROP_GRADEBOOK_ASSIGNMENT_ID);
             if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
                 // try to get internal gradebook assignment first
                 org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(a.getContext(), gradebookAssignmentProp);
@@ -1709,7 +1708,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.id = as.getId();
             this.gradableId = as.getAssignment().getId();
             this.assignmentCloseTime = sa.getCloseTime();
-            this.draft = assignmentToolUtils.isDraftSubmission(as);
+            try {
+                this.draft = assignmentService.isDraftSubmission(as.getId());
+            } catch (PermissionException pe) {
+                // Should never happen. We already have the assignment submission.
+            }
             this.submitted = as.getSubmitted();
 
             Instant due = sa.getDueTime();

@@ -43,6 +43,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.calendar.api.Calendar;
@@ -382,16 +383,15 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assignmentService.updateAssignment(assignment);
 
 			// if assignment sending grades to gradebook, update the due date in the gradebook
-			String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-			if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
+			String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+			if (StringUtils.isNotBlank(assignmentRef)) {
 				// only update externally linked assignments since internal links are already handled
-				if (gradingService.isExternalAssignmentDefined(assignment.getContext(), associatedGradebookAssignment)) {
-					org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getExternalAssignment(assignment.getContext(), associatedGradebookAssignment);
+				if (gradingService.isExternalAssignmentDefined(assignment.getContext(), assignmentRef)) {
+					org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getExternalAssignment(assignment.getContext(), assignmentRef);
 					if (gAssignment != null) {
 						gradingService.updateExternalAssessment(
 								assignment.getContext(),
-								associatedGradebookAssignment,
-								null,
+								assignmentRef,
 								gAssignment.getExternalData(),
 								gAssignment.getName(),
 								gAssignment.getCategoryId(),
@@ -662,7 +662,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 						gradingService.updateExternalAssessment(
 								siteId,
 								id,
-								null,
 								gAssignment.getExternalData(),
 								gAssignment.getName(),
 								gAssignment.getCategoryId(),

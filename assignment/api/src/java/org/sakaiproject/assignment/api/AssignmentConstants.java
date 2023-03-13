@@ -367,8 +367,10 @@ public final class AssignmentConstants {
 
     public static final String GRADEBOOK_INTEGRATION_NO = "no";
     public static final String GRADEBOOK_INTEGRATION_ADD = "add";
+    public static final String GRADEBOOK_DISPLAY = "displayInGradebook";
+    public static final String GRADEBOOK_INTEGRATION_UPDATE = "update";
     public static final String GRADEBOOK_INTEGRATION_ASSOCIATE = "associate";
-    public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
+    public static final String PROP_GRADEBOOK_ASSIGNMENT_ID = "prop_gradebook_assignment_id";
 
     public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
 

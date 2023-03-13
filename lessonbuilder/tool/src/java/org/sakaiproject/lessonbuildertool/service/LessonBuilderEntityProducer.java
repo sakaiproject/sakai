@@ -968,7 +968,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   }
 
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LESSONBUILDER_ID);
+			       gradebookIfc.addExternalAssessment(siteId, s, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LESSONBUILDER_ID);
 			       needupdate = true;
 			       item.setGradebookId(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -994,7 +994,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			       title = title.substring(0, ii+1) + item.getId() + ")";
 			   }
 			   try {
-			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LESSONBUILDER_ID);
+			       gradebookIfc.addExternalAssessment(siteId, s, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LESSONBUILDER_ID);
 			       needupdate = true;
 			       item.setAltGradebook(s);
 			   } catch(ConflictingAssignmentNameException cane){
@@ -1218,7 +1218,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     simplePageToolDao.quickSaveItem(page);
 		     if (StringUtils.isNotEmpty(gradebookPoints)) {
 		       try {
-			     gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
+			     gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(),
 							    title, Double.valueOf(gradebookPoints), null, LESSONBUILDER_ID);
 			   } catch(ConflictingAssignmentNameException cane){
 			     log.error("merge: ConflictingAssignmentNameException for title {}.", title);

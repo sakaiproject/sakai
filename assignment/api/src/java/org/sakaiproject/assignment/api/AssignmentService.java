@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -731,6 +732,21 @@ public interface AssignmentService extends EntityProducer {
     public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
 
     /**
+     * Convert the set of submitters for the supplied submission into Sakai User objects
+     *
+     * @param submission
+     * @return A Stream of Sakai User object
+     */
+    public Stream<User> getSubmitters(AssignmentSubmission aSubmission);
+
+    /**
+     * Returns true if this is a draft submission
+     *
+     * @param id The submission to test
+     */
+    public boolean isDraftSubmission(String id) throws PermissionException;
+
+    /**
      * @param factor
      * @param maxGradePoint
      * @return
@@ -881,4 +897,52 @@ public interface AssignmentService extends EntityProducer {
     
     public String getAssignmentModifier(String modifier);
     
+    /**
+     * Common grading routine plus specific operation to differentiate cases when saving, releasing or returning grade.
+     */
+    public void gradeSubmission(String submissionId, String gradeOption, Map<String, Object> options, List<String> alerts);
+
+    /**
+     * integration with gradebook
+     *
+     * @param options
+     * @param assignmentRef                Assignment reference
+     * @param associateGradebookAssignment The title for the associated GB assignment
+     * @param addUpdateRemoveAssignment    "add" for adding the assignment; "update" for updating the assignment; "remove" for remove assignment
+     * @param oldTitle          The original assignment title
+     * @param newTitle          The updated assignment title
+     * @param maxPoints      The maximum point of the assignment
+     * @param dueTime        The due time of the assignment
+     * @param catetory                     The category for the new or updated grading item
+     * @param updateSubmissions            Push the scores from the assignment to the grading item
+     */
+    public List<String> synchronizeGradingItem(Map<String, Object> options, String assignmentRef, String associateGradebookAssignment,
+            String addUpdateRemoveAssignment, String oldTitle, String newTitle,
+            int maxPoints, Instant dueTime, long category, boolean updateSubmissions);
+
+    /**
+     * Push all the scores from the assignment into the associated grading item. This will overwrite
+     * any scores already on that grading item
+     *
+     * @param assignment The assigments tool Assignment to push the scores from
+     */
+    public void pushScoresToGradingItem(Assignment assignment);
+
+    /**
+     * Set the grading item score for a single submission
+     *
+     * @param siteId
+     * @param assignmentRef The reference of the assignments Assignment
+     * @param associateGradebookAssignment Either an assignment reference, in the case of an
+     * assignments controlled grading item, or a grading item id (a long in string form)
+     * @param submissionRef the reference of the submission whose score we want to set
+     */
+    public void saveGradingItemScore(String siteId, String assignmentRef, String associateGradebookAssignment, String submissionRef);
+
+    /**
+     * Zeros all the grading item scores for the submissions mae to this supplied assignment
+     *
+     * @param assignment The assigments tool Assignment to push the scores from
+     */
+    public void zeroAssignmentGradingScores(Assignment assignment);
 }
