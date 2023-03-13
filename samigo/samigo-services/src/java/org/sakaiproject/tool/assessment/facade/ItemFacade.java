@@ -110,6 +110,8 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   
   @Getter @Setter private Long originalItemId;
 
+  @Getter @Setter private Integer cancellation = ItemDataIfc.ITEM_NOT_CANCELED;
+
   
   /** ItemFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
