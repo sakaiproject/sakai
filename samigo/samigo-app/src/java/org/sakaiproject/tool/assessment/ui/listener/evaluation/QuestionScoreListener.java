@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -75,6 +76,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -224,8 +226,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				questionBean.setPublishedAssessment(publishedAssessment);
 			}
 			// build a hashMap (publishedItemId, publishedItem)
-			Map publishedItemHash = pubService
-					.preparePublishedItemHash(publishedAssessment);
+			Map<Long, ItemDataIfc> publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
 			log.debug("questionScores(): publishedItemHash.size = "
 					+ publishedItemHash.size());
 			// build a hashMap (publishedItemTextId, publishedItemText)
@@ -525,6 +526,28 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			if (item != null)
 				deliveryItems.add(item);
 			bean.setDeliveryItem(deliveryItems);
+
+			boolean randomItemPresent = publishedItemHash.values().stream()
+					.filter(publishedItem -> ItemCancellationUtil.isRandomItem(publishedItem))
+					.findAny()
+					.isPresent();
+
+			// At least one other question, that is not cancelled should exist and the item can't be random
+			bean.setCancellationAllowed(!randomItemPresent && publishedItemHash.values().stream()
+					.filter(publishedItem -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
+					.filter(publishedItem -> !ItemCancellationUtil.isCancelled(publishedItem))
+					.collect(Collectors.counting()) > 1);
+			log.debug("setCancellationAllowed({})", bean.isCancellationAllowed());
+
+			bean.setEmiItemPresent(publishedItemHash.values().stream()
+					.filter(publishedItem -> TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
+					.filter(publishedItem -> !ItemCancellationUtil.isCancelled(publishedItem))
+					.collect(Collectors.counting())
+					.intValue() > 0);
+			log.debug("setEmiItemPresent({})", bean.isEmiItemPresent());
+
+			bean.setRandomItemPresent(randomItemPresent);
+			log.debug("setRandomItemPresent({})", randomItemPresent);
 
 			if (ContextUtil.lookupParam("roleSelection") != null) {
 				bean.setRoleSelection(ContextUtil.lookupParam("roleSelection"));
@@ -1127,6 +1150,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				partitem.setId(item.getItemId().toString());
 				log.debug("*   item.getId = " + item.getItemId());
 				partitem.setLinked(true);
+				partitem.setItemCancelled(ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED == item.getCancellation()
+						|| ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED == item.getCancellation());
 
 				// Iterator iter3 = scores.iterator();
 				items.add(partitem);
