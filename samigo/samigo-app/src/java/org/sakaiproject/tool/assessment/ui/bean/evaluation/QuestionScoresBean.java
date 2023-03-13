@@ -50,6 +50,7 @@ import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
@@ -173,6 +174,15 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 
   @Setter @Getter
   private boolean hasAssociatedRubric;
+
+  @Setter @Getter
+  private boolean cancellationAllowed;
+
+  @Setter @Getter
+  private boolean emiItemPresent;
+
+  @Getter @Setter
+  private boolean regradedAssessmentReSubmittable;
 
   private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
 

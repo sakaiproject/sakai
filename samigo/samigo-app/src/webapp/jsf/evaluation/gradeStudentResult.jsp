@@ -234,7 +234,7 @@ function toPoint(id)
         <div class="tab-content">
           <div id="<h:outputText value="submition#{question.itemData.itemId}" />" class="tab-pane active">
       </h:panelGroup>
-          <div class="samigo-question-callout">
+          <h:panelGroup styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
             <h:panelGroup rendered="#{question.itemData.typeId == 7}">
               <f:subview id="deliverAudioRecording">
                <%@ include file="/jsf/evaluation/item/displayAudioRecording.jsp" %>
@@ -314,7 +314,10 @@ function toPoint(id)
                 <%@ include file="/jsf/delivery/item/deliverMatrixChoicesSurvey.jsp" %>
               </f:subview>
             </h:panelGroup>
-          </div>
+            <h:panelGroup styleClass="sak-banner-info" rendered="#{question.cancelled}" layout="block">
+              <h:outputText value="#{commonMessages.cancel_question_info_cancelled_question}"/>
+            </h:panelGroup>
+          </h:panelGroup>
 
         <h:panelGroup rendered="#{question.hasAssociatedRubric}">
           </div>
