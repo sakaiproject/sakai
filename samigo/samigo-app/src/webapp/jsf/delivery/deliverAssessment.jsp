@@ -39,6 +39,7 @@
       <script src="/sakai-editor/editor.js"></script>
       <script src="/sakai-editor/editor-launch.js"></script>
       <script src="/samigo-app/js/saveForm.js"></script>
+      <script src="/samigo-app/js/deliveryQuestionCancellation.js"></script>
       <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
       <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
@@ -351,7 +352,7 @@ document.links[newindex].onclick();
                 entity-id="<h:outputText value="#{delivery.rubricAssociation}.#{question.effectiveItemId}" />"></sakai-rubric-student-preview-button>
        </h:panelGroup>
 
-       <div class="samigo-question-callout">
+       <h:panelGroup styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
            <f:subview id="deliverAudioRecording">
            <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>
@@ -454,7 +455,12 @@ document.links[newindex].onclick();
                <li><h:outputText value="#{deliveryMessages.multipleTabsWarningFix_4}" escape="false" /></li>
              </ol>
            </div>
-         </div>
+           <h:panelGroup styleClass="sak-banner-info" rendered="#{question.cancelled}" layout="block">
+             <h:outputText value="#{commonMessages.cancel_question_info_cancelled_question}" />
+             <h:outputText value=" " />
+             <h:outputText value="#{commonMessages.cancel_question_info_skip_question}" />
+           </h:panelGroup>
+         </h:panelGroup>
         </h:column>
       </h:dataTable>
      </div>

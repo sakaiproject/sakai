@@ -50,6 +50,34 @@
 			}
 	}
 
+	.samigo-question-cancelled {
+		opacity: 0.7;
+
+		.sak-banner-info {
+			margin-bottom: 0;
+		}
+	}
+
+	.cancelled-question-link {
+		opacity: 0.7;
+		text-decoration: line-through;
+		font-style: oblique;
+
+		&:hover {
+			text-decoration: line-through underline;
+		}
+	}
+
+	.question-cancel-modal {
+		input[type="checkbox"] {
+			margin-right: $standard-space;
+		}
+
+		.act {
+			margin: unset;
+		}
+	}
+
 	.listNav {
 		.inlineForm {
 			@extend .panel;
