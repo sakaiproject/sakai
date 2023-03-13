@@ -148,10 +148,20 @@ public final class SamigoConstants {
     public static final     String      EVENT_LOG_BUNDLE                                    = "org.sakaiproject.tool.assessment.bundle.EventLogMessages";
 
     /*
+     * Author Outcomes
+     */
+    public static final     String      OUTCOME_AUTHOR_EDIT_ASSESSMENT                      = "editAssessment";
+
+    /*
      * Delivery Outcomes
      */
     public static final     String      OUTCOME_DELIVERY_TAKE_ASSESSMENT                    = "takeAssessment";
     public static final     String      OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR              = "secureDeliveryError";
+
+    /*
+     * Evaluation Outcomes
+     */
+    public static final     String      OUTCOME_EVALUATION_QUESTION_SCORES                  = "questionScores";
 
     private SamigoConstants() {
     	throw new AssertionError();

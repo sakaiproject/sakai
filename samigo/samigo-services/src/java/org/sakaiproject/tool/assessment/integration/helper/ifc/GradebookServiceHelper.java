@@ -25,7 +25,6 @@ import java.util.Map;
 
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
@@ -48,7 +47,7 @@ public interface GradebookServiceHelper extends Serializable
   public void removeExternalAssessment(String gradebookUId,
      String publishedAssessmentId, GradebookExternalAssessmentService g) throws Exception;
 
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId,
+  public boolean addToGradebook(PublishedAssessmentIfc publishedAssessment, Long categoryId,
 		  GradebookExternalAssessmentService g) throws Exception;
 
   public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
