@@ -29,6 +29,9 @@ import java.util.List;
 
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  *
  * <p>Description: Helper bean for QuestionScoresBean getPartList.</p><p>
@@ -51,6 +54,8 @@ public class PartData
   private int numberQuestionsDraw;
   private int numberQuestionsTotal;
   private boolean noQuestions;
+  @Getter @Setter
+  private boolean itemCancelled;
 
   /**
    * Returns a list of the question numbers as Strings.

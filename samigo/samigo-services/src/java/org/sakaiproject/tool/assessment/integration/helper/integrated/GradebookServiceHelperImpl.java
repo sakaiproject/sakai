@@ -31,7 +31,6 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
@@ -156,7 +155,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @return false: cannot add to gradebook
    * @throws java.lang.Exception
    */
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId, 
+  public boolean addToGradebook(PublishedAssessmentIfc publishedAssessment, Long categoryId, 
 		  GradebookExternalAssessmentService g) throws
     Exception
   {
