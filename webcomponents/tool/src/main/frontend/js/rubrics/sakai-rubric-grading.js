@@ -91,18 +91,21 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
         <div class="rubrics-tab-row">
           <a href="javascript:void(0);"
               class="rubrics-tab-button rubrics-tab-selected"
+              id="rubric-grading-or-preview-${this.instanceSalt}-tab"
               @keypress=${this.openGradePreviewTab}
               @click=${this.openGradePreviewTab}>
             <sr-lang key="grading_rubric">gradingrubric</sr-lang>
           </a>
           <a href="javascript:void(0);"
               class="rubrics-tab-button"
+              id="rubric-student-summary-${this.instanceSalt}-tab"
               @keypress=${this.makeStudentSummary}
               @click=${this.makeStudentSummary}>
             <sr-lang key="student_summary">studentsummary</sr-lang>
           </a>
           <a href="javascript:void(0);"
               class="rubrics-tab-button"
+              id="rubric-criteria-summary-${this.instanceSalt}-tab"
               @keypress=${this.makeCriteriaSummary}
               @click=${this.makeCriteriaSummary}>
             <sr-lang key="criteria_summary">criteriasummary</sr-lang>
