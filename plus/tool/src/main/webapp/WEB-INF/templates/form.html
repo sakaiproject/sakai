@@ -17,7 +17,7 @@
         <p>
         (<a href="https://github.com/sakaiproject/sakai/blob/master/plus/README.md#sakaiplus-tenants" target="_blank" th:text="#{plus.tenant.documentation.url}">SakaiPlus Tenant Documentation</a>)
         </p>
-        <form class="form-horizontal" action="#" th:action="@{/tenant}" method="post" th:object="${tenant}" onsubmit="return validateTenantForm()">
+        <form class="form-horizontal" action="#" th:action="@{/tenant}" method="post" th:object="${tenant}">
         <input th:if="${doUpdate}" type="hidden" th:field="*{id}" />
         <div id="title-group" class="form-group form-control-required">
           <label for="plus-title" class="form-control-label" th:text="#{plus.tool.title}">Value</label>
@@ -28,7 +28,7 @@
         <div id="issuer-group" class="form-group form-control-required">
           <label for="issuer" class="form-control-label" th:text="#{plus.tool.issuer}">Value</label>
           <div>
-            <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" required />
+            <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" pattern="https?://[^\s/]+(?:/[^/\s]+)*$" th:attr="title=#{plus.tenant.issuer.error.slash}" required/>
           </div>
           <div th:text="#{plus.tool.issuer.detail}">
               This is different for each LMS, but it is usually a URL like "https://plus.sakalms.org" - with no trailing slash.
@@ -182,19 +182,6 @@ function booleanClick(ev) {
     let inp = document.getElementById(id+'-boolean');
     inp.value = checked ? 'true' : 'false';
 }
-</script>
-
-<script th:inline="javascript">
-    function validateTenantForm() {
-        const issuerInput = document.getElementById("issuer");
-        const issuerInputErrorMessage = /*[[#{plus.tenant.form.issuer.error.message}]]*/;
-        if (issuerInput.value.trim().endsWith("/")) {
-            alert(issuerInputErrorMessage);
-            issuerInput.focus();
-            return false;
-        }
-        return true;
-    }
 </script>
   </body>
 </html>
