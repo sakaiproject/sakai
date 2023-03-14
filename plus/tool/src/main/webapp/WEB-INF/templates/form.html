@@ -186,13 +186,11 @@ function booleanClick(ev) {
 
 <script th:inline="javascript">
     function validateTenantForm() {
-        let issuerInput = document.getElementById("issuer");
-        let issuerValue = issuerInput.value.trim();
-        let issuerInputErrorMessage = /*[[#{plus.tenant.form.issuer.error.message}]]*/;
-        if (issuerValue.endsWith("/")) {
+        const issuerInput = document.getElementById("issuer");
+        const issuerInputErrorMessage = /*[[#{plus.tenant.form.issuer.error.message}]]*/;
+        if (issuerInput.value.trim().endsWith("/")) {
             alert(issuerInputErrorMessage);
             issuerInput.focus();
-            issuerInput.scrollIntoView();
             return false;
         }
         return true;
