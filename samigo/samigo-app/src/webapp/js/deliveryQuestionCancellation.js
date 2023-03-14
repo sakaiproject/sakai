@@ -9,6 +9,11 @@
         inputs?.forEach((input) => input.disabled = true);
     }
 
+    function disableTextAreas(question) {
+        const textAreas = question?.querySelectorAll("textarea");
+        textAreas?.forEach((textArea) => textArea.disabled = true);
+    }
+
     function disableAudioRecording(question) {
         // Remove link that opens audio recording
         question?.querySelector("[id*='openRecord']")?.remove();
@@ -18,6 +23,7 @@
         const question = document.querySelector(".samigo-question-cancelled");
 
         disableInputs(question);
+        disableTextAreas(question);
         disableAudioRecording(question);
     });
 
