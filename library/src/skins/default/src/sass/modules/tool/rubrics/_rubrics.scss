@@ -764,6 +764,10 @@ div.collapse-toggle-buttons > button {
     padding: 0.5rem;
 }
 
+sakai-rubric-summary div.panel-group {
+    margin-top: 1em;
+}
+
 // TODO: This is a hack to get the rubrics working in the new UI(Boosttrap-5)
 .arrow-1 {
     position: absolute;

@@ -75,7 +75,13 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
                           <tr>
                             ${c.ratings.map(r => html`
                               <th class="rubrics-summary-table-cell">
-                                  <div>${r.points} <sr-lang key="points">points</sr-lang></div>
+                                  <div>
+                                    ${this.rubric.weighted ? html`
+                                      (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})        
+                                    ` : html``}
+                                    ${r.points} 
+                                    <sr-lang key="points">points</sr-lang>
+                                  </div>
                                   <div class="summary-rating-name" title="${r.title}">${this._limitCharacters(r.title, 20)}</div>
                               </th>
                               ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.points) > 0 ? html`
@@ -100,6 +106,16 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
                         </table>
                       </div>
                       <dl class="dl-horizontal">
+                          ${this.rubric.weighted ? html`
+                            <dt>
+                              <sr-lang key="criterion2">Criterion</sr-lang>
+                              <sr-lang key="weight">Weight</sr-lang>
+                            </dt>
+                            <dd>
+                              ${c.weight.toLocaleString(this.locale)}
+                              <sr-lang key="percent_sign">%</sr-lang>
+                            </dd>
+                          ` : html``}
                           <dt><sr-lang key="average">average</sr-lang></dt>
                           <dd>
                               ${this._getPointsAverage(c.id)}
@@ -243,7 +259,11 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
   _doesScoreMatchRating(score, criterionId, ratingId) {
 
     const criterion = this.criteria.find(c => c.id === criterionId);
-    return criterion.ratings.some(r => r.points === parseInt(score) && r.id === ratingId);
+    let weightNow = 1;
+    if (this.rubric.weighted) {
+      weightNow = criterion.weight / 100;
+    }
+    return criterion.ratings.some(r => (r.points * weightNow) === parseInt(score) && r.id === ratingId);
   }
 
   _getPointsAverage(criterionId) {
@@ -302,14 +322,20 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
     return Math.sqrt(total).toFixed(2);
   }
 
-  _getCustomCount(criterionId, floorPoints) {
+  _getCustomCount(criterionId, floorPointsParam) {
 
     let ceilingPoints = 5000;
+    let floorPoints = parseInt(floorPointsParam);
     const criterion = this.criteria.find(c => c.id === criterionId);
+    let weightNow = 1;
+    if (this.rubric.weighted) {
+      weightNow = criterion.weight / 100;
+      floorPoints = floorPoints * weightNow;
+    }
     criterion.ratings.every(r => {
 
-      if (r.points > parseInt(floorPoints)) {
-        ceilingPoints = r.points;
+      if ((r.points * weightNow) > floorPoints) {
+        ceilingPoints = r.points * weightNow;
         return false;
       }
       return true;
@@ -319,7 +345,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
 
       ev.criterionOutcomes.forEach(oc => {
 
-        if (oc.criterionId === parseInt(criterionId) && oc.points > parseInt(floorPoints) && oc.points < ceilingPoints) {
+        if (oc.criterionId === parseInt(criterionId) && oc.points > floorPoints && oc.points < ceilingPoints) {
           total = total + 1;
         }
       });
