@@ -70,7 +70,7 @@ export class RubricsElement extends SakaiElement {
     const tabNow = document.getElementById(tabId);
     tabNow && tabNow.setAttribute("class", "rubric-tab-content rubrics-visible"); // style the clicked tab to be visible
     this.querySelectorAll(".rubrics-tab-button").forEach(tb => tb.setAttribute("class", "rubrics-tab-button"));
-    const tabButtonNow = this.querySelector(`#${tabId}-button`);
+    const tabButtonNow = this.querySelector(`#${tabId}-tab`); //name of the tab will be the same as 'tabId' [the tab's content] plus the word '-tab'
     tabButtonNow && tabButtonNow.setAttribute("class", "rubrics-tab-button rubrics-tab-selected"); //select styling on current tab button
   }
 

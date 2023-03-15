@@ -716,7 +716,7 @@ sakai-rubric-student-comment {
     display: inline-block;
     text-align: center;
     border-radius: 4px 4px 0 0;
-    background: var(--sakai-background-color);
+    background: var(--sakai-background-color-2);
 
     &:hover {
         cursor: pointer;
@@ -729,7 +729,7 @@ sakai-rubric-student-comment {
 
 a.rubrics-tab-selected {
     border-bottom: none;
-    background: var(--sakai-background-color-2);
+    background: var(--sakai-background-color);
     pointer-events: none;
     text-decoration: none;
 
@@ -777,10 +777,8 @@ div.collapse-toggle-buttons > button {
     -webkit-filter: drop-shadow(0 -2px 2px #AAA);
 }
 
-.arrow-0 {
+.arrow-0, .arrow-comment {
     position: absolute;
-    bottom: 42px;
-    right: -18px;
     border-bottom: 10px solid transparent;
     border-top: 10px solid transparent;
     border-left: 19px solid #f8f9fa;
@@ -789,14 +787,27 @@ div.collapse-toggle-buttons > button {
     -webkit-filter: drop-shadow(2px 0px 0px #AAA);
 }
 
+.arrow-0 {
+    bottom: 42px;
+    right: -18px;
+}
+
+.arrow-comment {
+    bottom: 50px;
+    right: -18px;
+}
+
 .label-rubrics {
     font-weight: bold;
+}
+
+.rubrics-popover, .rubrics-comment-popover {
+    display: none; 
+    position: absolute; 
+    padding: 10px;
 }
 
 .rubrics-popover {
     top: 389px; 
     left: -10px; 
-    display: none; 
-    position: absolute; 
-    padding: 10px;
 }

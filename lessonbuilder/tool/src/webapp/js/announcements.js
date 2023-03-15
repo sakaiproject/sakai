@@ -40,7 +40,7 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 						var href = tool_href + this["announcementId"]+"&sakai_action=doShowmetadata&persist_to_iframe=itemReference";
 						var entityTitle = this["entityTitle"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 						var createdByDisplayName = this["createdByDisplayName"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-						text_for_announcements += '<div><a href="'+href+'" target="_top">'+ entityTitle +'</a> by '+ createdByDisplayName +'</div>';
+						text_for_announcements += '<div><a href="'+href+'" target="_top">'+ entityTitle +'</a> '+msg("simplepage.announcements-created-by")+' '+ createdByDisplayName +'</div>';
 						text_for_announcements += '<div class="itemDate">'+date_time+'</div>';
 						text_for_announcements += '</li>';
 					});

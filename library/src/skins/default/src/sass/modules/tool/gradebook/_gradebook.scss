@@ -233,6 +233,12 @@
     bottom: 2px;
     height: 12px;
   }
+  #gradeTableWrapper th button.dropdown-toggle {
+    position: absolute;
+    right: -5px;
+    bottom: 5px;
+    height: 12px;
+  }
   #gradeTableWrapper .gb-comment-notification, #gradeTableWrapper .gb-course-comment-notification {
     position: absolute;
     top: 4px;
@@ -1796,3 +1802,6 @@ overflow-x: hidden;
 max-height:100px;
 }
 
+.modal-add-or-edit-gbitem .w_content_container {
+  max-height: 500px;
+}
