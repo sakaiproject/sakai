@@ -86,7 +86,7 @@
   lessonSubnavs.filter((v, i) => lessonSubnavs.findIndex(val => val.siteId === v.siteId) === i)
     .forEach(lessonSubnavData => new LessonsSubPageNavigation(lessonSubnavData));
 
-  #if (!$loggedIn)
+  #if (!$loggedIn && $topLogin)
     //--start-logged-out-scripts
     // Setup header login password field
     new PasswordField(portal.head.querySelector(".password-field"), {
