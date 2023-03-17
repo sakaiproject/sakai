@@ -906,6 +906,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 	/**
 	 * @inheritDoc
 	 */
+	public boolean allowUpdateGroupMembership(String siteId, String groupId)
+	{
+		return unlockCheck(SECURE_UPDATE_GROUP_MEMBERSHIP, siteGroupReference(siteId, groupId));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public boolean allowRoleSwap(String id)
 	{
 		return unlockCheck(SITE_ROLE_SWAP, siteReference(id));

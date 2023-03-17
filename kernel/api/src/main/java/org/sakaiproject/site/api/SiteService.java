@@ -485,6 +485,17 @@ public interface SiteService extends EntityProducer
 	boolean allowUpdateGroupMembership(String id);
 
 	/**
+	 * check permissions for updating a site's groups' memberships
+	 *
+	 * @param siteId
+	 *        The site id.
+	 * @param groupId
+	 *        The group id.
+	 * @return true if is allowed to update the group memberships, false if not.
+	 */
+	boolean allowUpdateGroupMembership(String siteId, String groupId);
+
+	/**
 	 * Save any updates to this site - it must be a defined site (the id must exist) and the user must have update permissions.
 	 * 
 	 * @param site
