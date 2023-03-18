@@ -11,7 +11,7 @@
                     </h:panelGroup>
                 </h:panelGroup>
             </f:facet>
-            <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{!reviewable.isRecordedAssessment}" styleClass="hidden" />
+            <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{!reviewable.isRecordedAssessment}" styleClass="d-none" />
             <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" rendered="#{reviewable.isRecordedAssessment && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" title="#{selectIndexMessages.has_been_modified}" />
             <h:outputText styleClass="highlight fa fa-fw fa-exclamation" rendered="#{reviewable.isRecordedAssessment && reviewable.isAssessmentRetractForEdit}" title="#{selectIndexMessages.currently_being_edited}" />
             <h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort"  rendered="#{reviewable.isRecordedAssessment}"  escape="false"/>
@@ -90,7 +90,7 @@
         </t:column>
 
         <%-- SCORE --%>
-        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="hidden-xs" styleClass="hidden-xs">
+        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-block" styleClass="d-none d-sm-block">
             <f:facet name="header">
                 <h:panelGroup>
                     <h:outputText value="#{selectIndexMessages.individual_score}" styleClass="currentSort" />
@@ -102,7 +102,7 @@
         </t:column>
 
         <%-- TIME --%>
-        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="hidden-xs" styleClass="hidden-xs">
+        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-block" styleClass="d-none d-sm-block">
             <f:facet name="header">
                 <h:panelGroup>
                     <h:outputText value="#{selectIndexMessages.time} " styleClass="currentSort"  />
@@ -116,7 +116,7 @@
         </t:column>
 
         <%-- SUBMITTED --%>
-        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="hidden-xs" styleClass="hidden-xs">
+        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-block" styleClass="d-none d-sm-block">
             <f:facet name="header">
                 <h:panelGroup>
                     <h:outputText value="#{selectIndexMessages.submitted} " styleClass="currentSort"  />

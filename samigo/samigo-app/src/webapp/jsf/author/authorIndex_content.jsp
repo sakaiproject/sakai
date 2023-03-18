@@ -464,7 +464,7 @@
                 </t:column>
 
                 <%/* In Progress */%>
-                <t:column headerstyleClass="inProgress hidden-xs hidden-sm" styleClass="inProgress hidden-xs hidden-sm">
+                <t:column headerstyleClass="inProgress d-none d-sm-table-cell" styleClass="inProgress d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
@@ -479,7 +479,7 @@
                 </t:column>
 
                 <%/* Submitted */%>
-                <t:column headerstyleClass="submitted hidden-xs hidden-sm" styleClass="submitted hidden-xs hidden-sm">
+                <t:column headerstyleClass="submitted d-none d-sm-table-cell" styleClass="submitted d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
@@ -510,7 +510,7 @@
                 </t:column>
 
                 <%/* Release To */%>
-                <t:column headerstyleClass="releaseTo hidden-xs hidden-sm" styleClass="releaseTo hidden-xs hidden-sm">
+                <t:column headerstyleClass="releaseTo d-none d-sm-table-cell" styleClass="releaseTo d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
@@ -532,14 +532,14 @@
                         <t:div id="groupsPanel" style="display: none;">
                             <t:dataList layout="unorderedList" value="#{assessment.releaseToGroups.entrySet()}" var="group" styleClass="groupList">
                                 <h:outputText value="#{group.value}" />
-                                <h:outputText value="#{group.key}" styleClass="hidden" />
+                                <h:outputText value="#{group.key}" styleClass="d-none" />
                             </t:dataList>
                         </t:div>
                     </t:div>
                 </t:column>
 
                 <%/* Release Date */%>
-                <t:column headerstyleClass="releaseDate hidden-xs hidden-sm" styleClass="releaseDate hidden-xs hidden-sm">
+                <t:column headerstyleClass="releaseDate d-none d-sm-table-cell" styleClass="releaseDate d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
@@ -584,7 +584,7 @@
                 </t:column>
 
                 <%/* Last Modified */%>
-                <t:column headerstyleClass="lastModified hidden-xs hidden-sm" styleClass="lastModified hidden-xs hidden-sm">
+                <t:column headerstyleClass="lastModified d-none d-sm-table-cell" styleClass="lastModified d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
@@ -597,7 +597,7 @@
                 </t:column>
 
                 <%/* Modified Date */%>
-                <t:column headerstyleClass="lastModifiedDate hidden-xs hidden-sm" styleClass="lastModifiedDate hidden-xs hidden-sm">
+                <t:column headerstyleClass="lastModifiedDate d-none d-sm-table-cell" styleClass="lastModifiedDate d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
@@ -625,7 +625,7 @@
 
                     <h:selectBooleanCheckbox value="#{assessment.selected}" styleClass="select-checkbox" title="#{authorFrontDoorMessages.assessment_select_to_remove}" />
                 </t:column>
-                <t:column rendered="#{!authorization.deleteAnyAssessment and !authorization.deleteOwnAssessment}" headerstyleClass="hidden" styleClass="hidden">
+                <t:column rendered="#{!authorization.deleteAnyAssessment and !authorization.deleteOwnAssessment}" headerstyleClass="d-none" styleClass="d-none">
                 </t:column>
             </t:dataTable>
 

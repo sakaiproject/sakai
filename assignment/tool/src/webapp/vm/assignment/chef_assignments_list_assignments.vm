@@ -123,7 +123,7 @@
 						</a>
 					</th>
 					#if ($!allowGradeSubmission)
-						<th id="$tlang.getString('gen.visible')" scope="col" class="hidden-xs">
+						<th id="$tlang.getString('gen.visible')" scope="col" class="d-none d-sm-table-cell">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
@@ -147,7 +147,7 @@
 							#end
 						</a>
 					</th>
-					<th id="openDate" scope="col" class="hidden-xs">
+					<th id="openDate" scope="col" class="d-none d-sm-table-cell">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("newassig.opedat")
 							#if ($sortedBy.equals("opendate"))
@@ -171,7 +171,7 @@
 							#end
 						</a>
 					</th>
-					<th id="lastModifiedUser" class="hidden-xs">
+					<th id="lastModifiedUser" class="d-none d-sm-table-cell">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=modifieduser")'; return false;"  title="$tlang.getString("gen.sorbymodusr")">
 							$tlang.getString("gen.mod.user")
 							#if ($sortedBy.equals("modifieduser"))
@@ -183,7 +183,7 @@
 							#end
 						</a>
 					</th>
-					<th id="lastModifiedDate" class="hidden-xs">
+					<th id="lastModifiedDate" class="d-none d-sm-table-cell">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=modifieddate")'; return false;"  title="$tlang.getString("gen.sorbymoddat")">
 							$tlang.getString("gen.mod.date")
 							#if ($sortedBy.equals("modifieddate"))
@@ -216,7 +216,7 @@
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
 						#if ($!showNumSubmissionColumn)
-						<th id="num_submissions" scope="col" class="hidden-xs">
+						<th id="num_submissions" scope="col" class="d-none d-sm-table-cell">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
 								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
@@ -243,7 +243,7 @@
 						#end
 					#end
 					#if ($withGrade && $!allowGradeSubmission)
-						<th id="maxgrade" scope="col" class="hidden-xs">
+						<th id="maxgrade" scope="col" class="d-none d-sm-table-cell">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"   title="$tlang.getString("gen.sorbymax")">
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade"))
@@ -258,7 +258,7 @@
 					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 						<th id="remove" scope="col">
-							<span class="hidden-xs">$tlang.getString("gen.remove.q")</span>
+							<span class="d-none d-sm-table-cell">$tlang.getString("gen.remove.q")</span>
 						</th>
 					#end
 				</tr>
@@ -496,7 +496,7 @@
 								#end
 							</td>
 						#if ($!allowGradeSubmission)
-							<td headers="for" class="hidden-xs">
+							<td headers="for" class="d-none d-sm-table-cell">
 								#if($assignment.TypeOfAccess == "SITE")
 									$tlang.getString("gen.viewallgroupssections")
 								#else
@@ -534,7 +534,7 @@
 									#end
 								#end
 							</td>
-							<td headers="openDate" class="hidden-xs">
+							<td headers="openDate" class="d-none d-sm-table-cell">
 								$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 							</td>
 							<td headers="dueDate">
@@ -543,12 +543,12 @@
 								<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.DueDate)</span>
 							#end
 							</td>
-							<td headers="lastModifiedUser" class="hidden-xs">
+							<td headers="lastModifiedUser" class="d-none d-sm-table-cell">
 							#if ($!assignment.Modifier)
 								<span>$!userDirectoryService.getUser($!assignment.Modifier).getDisplayName()</span>
 							#end
 							</td>
-							<td headers="lastModifiedDate" class="hidden-xs">
+							<td headers="lastModifiedDate" class="d-none d-sm-table-cell">
 								<span>$!service.getUsersLocalDateTimeString($!assignment.DateModified)</span>
 							</td>
 							#if ($!isTimesheet)
@@ -581,7 +581,7 @@
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								#if ($!showNumSubmissionColumn)
-								<td headers="num_submissions" class="specialLink hidden-xs">
+								<td headers="num_submissions" class="specialLink d-none d-sm-table-cell">
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))
 									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false))
@@ -597,7 +597,7 @@
 								#end
 							#end
 							#if ($withGrade && $!allowGradeSubmission)
-							<td headers="maxgrade" class="hidden-xs">
+							<td headers="maxgrade" class="d-none d-sm-table-cell">
 									#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 									#if ($gradeScale == 0)
 										## Grade type not set

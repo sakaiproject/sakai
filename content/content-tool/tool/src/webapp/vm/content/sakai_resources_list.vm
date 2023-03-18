@@ -210,7 +210,7 @@
               </select>
             #end
             #if (!$dropboxMode)
-              <div id="content-display-columns-dropdown" class="hidden-sm hidden-xs dropdown">
+              <div id="content-display-columns-dropdown" class="d-none d-sm-block dropdown">
                 <button style="margin:0" type="button"
                     class="btn btn-link btn-default btn-sm resources-dropdown colPicker"
                     aria-expanded="false"
@@ -253,7 +253,7 @@
 		<table style="margin:0;width:100%;display:table" class="table table-striped table-hover #if (!$dropboxMode) resourcesList #end" cellspacing="0" border="0"  summary="$clang.getString("sh.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
 			<caption class="skip"  style="display:none">$clang.getString("sh.listcap")</caption>
-			<tr class="hidden-sm hidden-xs"> 
+			<tr class="d-none d-sm-table-row"> 
 				<th id="expansion" class="attach" scope="col">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="#" class="fa fa-compress" onclick="document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
@@ -366,7 +366,7 @@
 				<tr 
 					class="#if($item.isSelectedForCopy()) selectedCopy#end#if($item.isSelectedForMove()) selectedMove#end#if(!$item.isAvailable()) inactive#end">
 					#set ($num=$num + 1)
-					<td headers="expansion" class="attach hidden-sm hidden-xs">
+					<td headers="expansion" class="attach d-none d-md-table-cell">
 					</td>
 					<td headers="checkboxes" class="attach">
 						#if($item.depth > 0 && ($item.hasMultipleItemActions() || $canZipDownload))
@@ -455,7 +455,7 @@
 									<span class="sr-only">$clang.getString('locked')</span>
 								#end
                 <span class="visible-sm-inline-block visible-xs-inline-block truncate">$formattedText.escapeHtml($item.name)</span>
-                <span class="hidden-sm hidden-xs">$formattedText.escapeHtml($item.name)</span>
+                <span class="d-none d-sm-block">$formattedText.escapeHtml($item.name)</span>
 								#if ($item.hasCopyrightAlert())
 									&#169;
 								#end
@@ -491,7 +491,7 @@
                         <div class="btn-group  float-end m-s-auto">
                             <button type="button" class="btn btn-primary dropdown-toggle"  data-bs-toggle="dropdown" aria-expanded="false" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$formattedText.escapeHtml($item.name) $clang.getString('gen.actions')</span>
-                                <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
+                                <span class="d-none d-md-inline-block">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
@@ -520,27 +520,27 @@
                         </div>
 					</td>
 					#if($item.depth > 0)
-						<td headers="access" class="hidden-sm hidden-xs access" title="$item.getLongAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end">
+						<td headers="access" class="d-none d-md-table-cell access" title="$item.getLongAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end">
 							<span class="resource-access">$item.getShortAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
 						</td>
-						<td headers="creator" class="creator hidden-sm hidden-xs">
+						<td headers="creator" class="creator d-none d-md-table-cell">
 							<span class="resource-creator">$formattedText.escapeHtml($item.createdBy)</span>
 						</td>
-						<td headers="modified" class="modified hidden-sm hidden-xs">
+						<td headers="modified" class="modified d-none d-md-table-cell">
 							<span class="resource-modified">$item.ModifiedTime</span>
 						</td>
-						<td headers="size" class="size hidden-sm hidden-xs">
+						<td headers="size" class="size d-none d-md-table-cell">
 							<span class="resource-size">$item.size</span>
 						</td>
 					#else
-                        <td class="access hidden-sm hidden-xs" title="#if(!$item.isAvailable()) $clang.getString('access.hidden')#end">
+                        <td class="access d-none d-md-table-cell" title="#if(!$item.isAvailable()) $clang.getString('access.hidden')#end">
                           <span class="resource-access">#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
                         </td>
-                        <td class="creator hidden-sm hidden-xs">
+                        <td class="creator d-none d-md-table-cell">
                         </td>
-                        <td class="modified hidden-sm hidden-xs">
+                        <td class="modified d-none d-md-table-cell">
                         </td>
-                        <td class="size hidden-sm hidden-xs">
+                        <td class="size d-none d-md-table-cell">
                         </td>						
 
 					#end
@@ -643,7 +643,7 @@
 					<tr
 						class="#if($item.isSelectedForCopy()) selectedCopy#end#if($item.isSelectedForMove()) selectedMove#end#if(!$item.isAvailable()) inactive#end">
 					#set ($num=$num + 1)
-							<td headers="expansion" class="attach hidden-sm hidden-xs">
+							<td headers="expansion" class="attach d-none d-md-table-cell">
 							</td>
 							<td headers="checkboxes attach">
 								#if($item.depth > 0 && $item.hasMultipleItemActions())
@@ -739,27 +739,27 @@
 							<td headers="actions2" class="attach"></td>
 							<td headers="actions3" class="attach"></td>
 							#if($item.depth > 0)
-								<td class="access hidden-sm hidden-xs" headers="access" title="$item.getShortAccessLabel()">
+								<td class="access d-none d-md-table-cell" headers="access" title="$item.getShortAccessLabel()">
 									<span class="resource-access">$item.getShortAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
 								</td>
-								<td class="creator hidden-sm hidden-xs" headers="creator">
+								<td class="creator d-none d-md-table-cell" headers="creator">
 									<span class="resource-creator">$formattedText.escapeHtml($item.createdBy)</span>
 								</td>
-								<td class="modified hidden-sm hidden-xs" headers="modified">
+								<td class="modified d-none d-md-table-cell headers="modified">
 									<span class="resource-modified">$item.ModifiedTime</span>
 								</td>
-								<td class="size hidden-sm hidden-xs" headers="size">
+								<td class="size d-none d-md-table-cell" headers="size">
 									<span class="resource-size">$item.size</span>
 								</td>
 							#else
-                                <td class="access hidden-sm hidden-xs" headers="access">
+                                <td class="access d-none d-md-table-cell" headers="access">
                                   <span class="resource-access">#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
                                 </td>
-                                <td class="creator hidden-sm hidden-xs" headers="creator">
+                                <td class="creator d-none d-md-table-cell" headers="creator">
                                 </td>
-                                <td class="modified hidden-sm hidden-xs" headers="modified">
+                                <td class="modified d-none d-md-table-cell" headers="modified">
                                 </td>
-                                <td class="size hidden-sm hidden-xs" headers="size">
+                                <td class="size d-none d-md-table-cell" headers="size">
                                 </td>
 							#end
 						</tr>

@@ -335,3 +335,10 @@ button.icon-button {
 .accordion-collapse {
   background-color: var(--sakai-background-color-1);
 }
+
+// Changed hidden class in Bootstrap 5 to d-none.
+// I updated all instances, but may have missed some.
+// Adding this to ensure all hidden classes are hidden.
+.hidden {
+  display: none !important;
+}
