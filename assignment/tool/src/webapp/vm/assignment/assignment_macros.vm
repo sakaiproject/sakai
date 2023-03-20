@@ -194,12 +194,12 @@
         <li class="firstToolBarItem">
         #if( $current == "Assignment" )
             <span id="tabAssignmentCurrent" class="current">$!tlang.getString( "ts.tab.assignment" )</span>
-            <span id="tabAssignmentRef" class="hidden">
+            <span id="tabAssignmentRef" class="d-none">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.assignment" )" onclick="ASN.switchTimesheetTab( 'tabAssignment' ); return false;">
                 $!tlang.getString( "ts.tab.assignment" ) </a>
             </span>
         #else
-            <span id="tabAssignmentCurrent" class="current hidden">$!tlang.getString( "ts.tab.assignment" )</span>
+            <span id="tabAssignmentCurrent" class="current d-none">$!tlang.getString( "ts.tab.assignment" )</span>
             <span id="tabAssignmentRef" class="">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.assignment" )" onclick="ASN.switchTimesheetTab( 'tabAssignment' ); return false;">
                 $!tlang.getString( "ts.tab.assignment" )</a>
@@ -209,12 +209,12 @@
         <li class="firstToolBarItem">
         #if( $current == "timeSheet" )
             <span id="tabTimeSheetCurrent" class="current">$!tlang.getString( "ts.tab.timesheet" )</span>
-            <span id="tabTimeSheetRef" class="hidden">
+            <span id="tabTimeSheetRef" class="d-none">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">
                 $!tlang.getString( "ts.tab.timesheet" )</a>
             </span>
         #else
-            <span id="tabTimeSheetCurrent" class="current hidden">$!tlang.getString( "ts.tab.timesheet" )</span>
+            <span id="tabTimeSheetCurrent" class="current d-none">$!tlang.getString( "ts.tab.timesheet" )</span>
             <span id="tabTimeSheetRef" class="">
                 <a href="javascript:void(0)""$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">
                 $!tlang.getString( "ts.tab.timesheet" )</a>

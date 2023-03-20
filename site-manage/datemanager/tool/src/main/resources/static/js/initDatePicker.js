@@ -186,13 +186,13 @@ DTMN.findExpandedSections = function()
 
 DTMN.hideShiftError = function()
 {
-  DTMN.shiftErrorBanner.classList.add("hidden");
+  DTMN.shiftErrorBanner.classList.add("d-none");
   DTMN.shiftErrorBanner.removeAttribute("role");
 };
 
 DTMN.showShiftError = function()
 {
-  DTMN.shiftErrorBanner.classList.remove("hidden");
+  DTMN.shiftErrorBanner.classList.remove("d-none");
   DTMN.shiftErrorBanner.setAttribute("role", "alert");
 };
 
