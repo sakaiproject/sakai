@@ -259,11 +259,8 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
   _doesScoreMatchRating(score, criterionId, ratingId) {
 
     const criterion = this.criteria.find(c => c.id === criterionId);
-    let weightNow = 1;
-    if (this.rubric.weighted) {
-      weightNow = criterion.weight / 100;
-    }
-    return criterion.ratings.some(r => (r.points * weightNow) === parseInt(score) && r.id === ratingId);
+    const adjustedWeight = this.rubric.weighted ? criterion.weight / 100 : 1;
+    return criterion.ratings.some(r => (r.points * adjustedWeight) === parseInt(score) && r.id === ratingId);
   }
 
   _getPointsAverage(criterionId) {
