@@ -14,12 +14,12 @@
     window.i18nWlogTab['ts.add.err.submitter']=" $tlang.getString('ts.add.err.submitter')";
 </script>
 
-<div id="StudentTimesheetCurrent" class="hidden">
+<div id="StudentTimesheetCurrent" class="d-none">
     <h4>$!tlang.getString("ts.title.timesheet")</h4>
     <hr>
     ##Checks for Timesheet records
     ##BOOTSTRAP (red)
-    <div id="alertTsheetDelRecord" class="sak-banner-error hidden" role="alert"></div>
+    <div id="alertTsheetDelRecord" class="sak-banner-error d-none" role="alert"></div>
     
     #if ($!isAnyRegTimeSheet)
         <div>

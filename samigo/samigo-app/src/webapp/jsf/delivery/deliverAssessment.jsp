@@ -584,7 +584,7 @@ document.links[newindex].onclick();
       />
 
   <%-- SUBMIT FOR DUE OR RETRACT DATE --%>
-  <h:commandButton id="submitNoCheck" type="submit" styleClass="hidden active" action="#{delivery.submitFromTimeoutPopup}" value="" />
+  <h:commandButton id="submitNoCheck" type="submit" styleClass="d-none active" action="#{delivery.submitFromTimeoutPopup}" value="" />
 
   </h:panelGrid>
 </h:panelGrid>

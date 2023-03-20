@@ -195,7 +195,7 @@ function displayEMIHelp(){
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="d-none">
 </h:commandLink>
 
 &nbsp;
