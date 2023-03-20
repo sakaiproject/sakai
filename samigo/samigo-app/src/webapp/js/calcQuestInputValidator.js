@@ -15,8 +15,8 @@ $( document ).ready(function() {
     });
   });
 
-  $('.calculatedQuestionInput').popover({
-    trigger: 'focus'
+  $('.calculatedQuestionInput').on('shown.bs.popover', function () {
+    $(this).delay(3000).popover('hide');
   });
 
   $('.calculatedQuestionInput').change( function() {
