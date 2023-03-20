@@ -467,7 +467,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 criterion.setDescription(c.getDescription());
                 criterion.setWeight(c.getWeight());
                 criterion.setRatings(c.getRatings().stream()
-                        .map(r -> new Rating(null, r.getTitle(), r.getDescription(), r.getPoints(), criterion))
+                        .map(r -> new Rating(null, r.getTitle(), r.getDescription(), r.getPoints(), null, criterion))
                         .collect(Collectors.toList()));
                 return criterion;
             }).collect(Collectors.toList()));
@@ -605,7 +605,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return rubricRepository.findById(rubricId).map(rubric -> {
 
             String currentUserId = userDirectoryService.getCurrentUser().getId();
-
+            loadRatingWeightedPoints(rubric.getCriteria(), rubric.getWeighted());
             if (rubric.getShared()
                 || isEditor(rubric.getOwnerId())
                 || isEvaluee(rubric.getOwnerId())
@@ -1448,5 +1448,17 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }, Double::sum);
         rubric.setMaxPoints(maxPoints);
         return rubric;
+    }
+
+    private void loadRatingWeightedPoints(List<Criterion> criteria, boolean weighted){
+        for (Criterion criterion: criteria){
+            for (Rating rating: criterion.getRatings()){
+                if(weighted){
+                    rating.setWeightedPoints(rating.getPoints() * (criterion.getWeight() / 100D));
+                } else {
+                    rating.setWeightedPoints(rating.getPoints());
+                }
+            }
+        }
     }
 }

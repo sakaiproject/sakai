@@ -47,6 +47,8 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -69,6 +71,9 @@ public class Rating implements PersistableEntity<Long>, Serializable {
 
     @Column(nullable = false)
     private Double points;
+
+    @Getter @Setter
+    private Double weightedPoints;
 
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
