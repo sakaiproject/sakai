@@ -331,8 +331,8 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
     }
     criterion.ratings.every(r => {
 
-      if ((r.points * weightNow) > floorPoints) {
-        ceilingPoints = r.points * weightNow;
+      if ((r.points * weight) > floorPoints) {
+        ceilingPoints = r.points * weight;
         return false;
       }
       return true;
