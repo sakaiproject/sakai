@@ -189,7 +189,7 @@ public class AssignmentContentProducer implements EntityContentProducer {
 
     public boolean canRead(String ref) {
 
-        if (!ref.startsWith("/assignment")) {
+        if (!isForIndex(ref)) {
             return false;
         }
 
