@@ -22,6 +22,7 @@
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
@@ -57,10 +59,14 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.hibernate.HibernateException;
@@ -345,6 +351,37 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		}
 	}
 
+	public String getRWikiObjectPageGroups(String name, String realm) {
+		name = NameHelper.globaliseName(name, realm);
+		RWikiCurrentObject returnable = null;
+		try {
+			returnable = cdao.findByGlobalName(name);
+		} catch (Exception ex) {
+			log.warn("Rwiki page not found for name: {}", name);
+		}
+		String groupNames = "";
+		if(returnable != null && returnable.getPageGroupsAsList() != null && name.indexOf("/home") == -1) {
+			Site site = null;
+			String siteId = wikiSecurityService.getSiteId();
+			try {
+				site = siteService.getSite(siteId);
+			} catch (IdUnusedException idEx) {
+				log.warn("Site not found for id: {}", siteId);
+			}
+			List<String> groupIds = returnable.getPageGroupsAsList();
+			String owner = returnable.getOwner();
+			List<String> pageGroups = new ArrayList();
+			for (String groupId : groupIds) {
+				Group group = site.getGroup(groupId);
+				if (group != null) {
+					pageGroups.add(group.getTitle());
+				}				
+			}
+			groupNames = StringUtils.join(pageGroups, ", ");
+		}
+		return groupNames;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -363,8 +400,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			throw new ReadPermissionException(user, realm);
 		}
-
-		return cdao.findByGlobalNameAndContents(criteria, user, realm);
+		List<RWikiObject> searchList = cdao.findByGlobalNameAndContents(criteria, user, realm);
+		List<RWikiObject> finalSearchList = new ArrayList<RWikiObject>();
+		for (RWikiObject searchedPage : searchList) {
+			if (this.checkRead(searchedPage)) {
+				finalSearchList.add(searchedPage);
+			}
+		}
+		return finalSearchList;
 	}
 
 	public RWikiCurrentObjectDao getRWikiCurrentObjectDao()
@@ -393,7 +436,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 
 		String user = sessionManager.getCurrentSessionUserId();
-		update(name, user, realm, version, content, permissions);
+		update(name, user, realm, version, content, null, permissions);
 	}
 
 	/**
@@ -413,7 +456,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 * @throws VersionException
 	 */
 	private void update(String name, String user, String realm, Date version,
-			String content, RWikiPermissions permissions)
+			String content, List<String> pageGroups, RWikiPermissions permissions)
 			throws PermissionException, VersionException, RuntimeException
 	{
 
@@ -422,6 +465,13 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		RWikiCurrentObject rwo = getRWikiObject(name, realm);
 		RWikiHistoryObject rwho = null;
 
+		if (pageGroups != null) {
+			if (pageGroups.size() == 0) {
+				rwo.setPageGroupsAsList(null);
+			} else {
+				rwo.setPageGroupsAsList(pageGroups);
+			}
+		}
 		if (wikiSecurityService.checkUpdate((RWikiEntity) getEntity(rwo)))
 		{
 			rwho = updateContent(rwo, content, version);
@@ -568,6 +618,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					+ " doesn't have permission to update and admin: " + name); //$NON-NLS-1$
 		}
 
+	}
+
+	public void update(String name, String realm, Date version, String content, 
+			List<String> pageGroups, RWikiPermissions permissions) throws PermissionException, VersionException 
+	{
+		String user = sessionManager.getCurrentSessionUserId();
+		RWikiCurrentObject rwo = getRWikiObject(name, realm);
+		update(name, user, realm, version, content, pageGroups, permissions);
 	}
 
 	private RWikiHistoryObject updateContent(RWikiCurrentObject rwo,
@@ -852,7 +910,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				String newCommentName = MessageFormat.format(
 						"{0}.{1,number,000}", new Object[] { name, //$NON-NLS-1$
 								Integer.valueOf(cnum) });
-				update(newCommentName, realm, version, content);
+				String originRwikiPageName = NameHelper.globaliseName(name.substring(0, (name.lastIndexOf(".") != -1? name.lastIndexOf(".") : name.length())), realm);
+				RWikiObject originRwikiPage = cdao.findByGlobalName(originRwikiPageName);
+				List<String> originRwikiPageGroups = originRwikiPage.getPageGroupsAsList();
+				if (originRwikiPageGroups != null) {
+					update(newCommentName, realm, version, content, originRwikiPageGroups, null);
+				} else {
+					update(newCommentName, realm, version, content);
+				}
 				break;
 			}
 			catch (VersionException e)
@@ -1752,6 +1817,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public boolean checkAdmin(RWikiObject rwo)
 	{
 		return wikiSecurityService.checkAdmin((RWikiEntity) getEntity(rwo));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean checkAdminPermission(RWikiObject rwo)
+	{
+		return wikiSecurityService.checkAdminPermission(((RWikiEntity) getEntity(rwo)).getReference());
 	}
 
 	/**

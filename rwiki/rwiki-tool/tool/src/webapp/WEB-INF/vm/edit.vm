@@ -38,6 +38,7 @@
 #set( $homeBean = ${requestScope.homeBean} )
 #set( $rlb = ${requestScope.resourceLoaderBean} )
 #set( $title = "${rlb.jsp_edit}: ${util.escapeHtml($viewBean.localName)}" )
+#set( $displayToGroups = $nameHelperBean.displayTo == "groupsel" )
 #header(${title} false  "" )  
 <div id="rwiki_container">
   <div class="portletBody">
@@ -84,6 +85,43 @@
 			menuLinkSpan.html(menuLink.text());
 		})
 	</script>
+
+	#if ($groups)
+		<script>
+			includeWebjarLibrary('bootstrap-multiselect');
+			$(document).ready(function(){
+				$('#selectedGroups').multiselect({
+					selectAllText: '${rlb.groups_multiple_all}',
+					nonSelectedText: '${rlb.groups_multiple_nonselected}',
+					allSelectedText: '${rlb.groups_multiple_allselected}',
+					nSelectedText: ' ${rlb.groups_multiple_nselected}',
+					filterPlaceholder: '${rlb.groups_multiple_filtertext}',
+					enableFiltering: true,
+					includeSelectAllOption: true,
+					enableCaseInsensitiveFiltering: true
+				});
+				// This code is to obtain the necessary size to see all the groups and set it to the editControl panel
+				// So, for this reason it is important to let the selectedGroups section be the last section
+				let groupsButton = document.querySelector("#selectedGroups+div>button");
+				groupsButton.onclick = function() {
+					let expanded = groupsButton.attributes["aria-expanded"];
+					expanded = (expanded == undefined || expanded.nodeValue == "false")
+					if (expanded) { 
+						let editControlOriginalSize = document.getElementById("editControl").offsetHeight;
+						let editControlSize = editControlOriginalSize + 6 + (30 * (parseInt(document.getElementById("groups-size").value) + 1));
+						let fullSize = editControlSize + "px";
+						document.getElementById("editControl").style.height = fullSize;
+					} else {
+						document.getElementById("editControl").style.height = "";
+					}
+				}
+			})
+			function groupSelect(display) {
+				document.getElementById("editControl").style.height = "";
+				document.getElementById("groupTable").style.display = display;
+			}
+		</script>
+	#end
 	
 	<!--[if IE 8]>
 	<script type="text/javascript">
@@ -130,14 +168,14 @@
 			       
 		    <div id="editTab" class="tabOn" >
 				      #if (${errorBean.errors.size()} > 0)
-						       <p class="validation" style="clear: none;">
+						       <p class="validation#if($displayToGroups) sak-banner-error#end" style="clear: none;">
 						       #foreach ( $error in ${errorBean.errors} )
 						          ${util.escapeHtml($error)}
 						       #end
 						       </p>
 				      #end
 			
-				      #if ( ${editBean.saveType} && ${editBean.saveType} != "preview" && !$editBean.saveType.startsWith("attach") )
+				      #if (!$displayToGroups && ${editBean.saveType} && ${editBean.saveType} != "preview" && !$editBean.saveType.startsWith("attach") )
 						      #if ( ${editBean.saveType} == "revert" )
 						         #set( ${editBean.previousContent} = ${requestScope.getPageRevisionContent(${currentRWikiObject},${editBean.previousRevision})} )
 						      #end
@@ -149,7 +187,7 @@
 						          ${util.escapeHtml($editBean.previousContent)}
 						      </pre>
 				      #end
-				      #if ( ${editBean.saveType} && "preview" == ${editBean.saveType} && ${nameHelperBean.submittedContent} )
+				      #if (!$displayToGroups && ${editBean.saveType} && "preview" == ${editBean.saveType} && ${nameHelperBean.submittedContent} )
 						      <p class="longtext">
 						         <label for="submittedContent">${rlb.jsp_submitted_prior_content}</label>
 						         <input type="hidden" name="submittedContent" value="${util.escapeHtml($nameHelperBean.submittedContent)}" />
@@ -158,7 +196,7 @@
 						         ${util.escapeHtml($nameHelperBean.submittedContent)}
 						      </pre>
 				      #end
-				      #if ( ${editBean.saveType} && ${editBean.saveType.startsWith("attach")} && ${nameHelperBean.submittedContent} )
+				      #if (!$displayToGroups && ${editBean.saveType} && ${editBean.saveType.startsWith("attach")} && ${nameHelperBean.submittedContent} )
 						      <p class="longtext">
 						         <label for="submittedContent">${rlb.jsp_submitted_prior_content_attach}</label>
 						         <input type="hidden" name="submittedContent" value="${util.escapeHtml($nameHelperBean.submittedContent)}" />
@@ -210,10 +248,43 @@
 											<p class="checkbox" style="border:none">
 											<label for ="smallchange"><input type="checkbox" id="smallchange" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}</label></p>
 										#end
+										#if ($groups)
+											<input type="hidden" id="groups-size" value=$groups.size() />
+											<div class="siteAccess">
+												<h4>${rlb.displayto_access}</h4>
+												<div class="little-subtitle">${rlb.displayto_access_subtitle}</div>
+												<p class="checkbox" style="border:none">
+													<label for ="siteSelect" class="special-margin-left"><input type="radio" id="siteSelect" name="displayTo" onclick="groupSelect('none')" value="sitesel" #if(!$rwikiObjectGroups.size() > 0|| !$displayToGroups) checked="" #end/> ${rlb.displayto_access_all}</label>
+												</p>
+												<p class="checkbox" style="border:none">
+													<label for ="groupSelector" class="special-margin-left"><input type="radio" id="groupSelector" onclick="groupSelect('block')" name="displayTo" value="groupsel" #if($rwikiObjectGroups.size() > 0|| $displayToGroups) checked="" #end/> ${rlb.displayto_access_groups}</label>
+													#if ($rwikiObjectGroups.size() > 0|| $displayToGroups)
+														#set($listDisplay = "block")
+													#else
+														#set($listDisplay = "none")
+													#end
+													<div id="groupTable" style="display:$listDisplay">
+														<label>${rlb.displayto_access_groups}</label><br/><select id="selectedGroups" name="selectedGroups" multiple="multiple">
+															#foreach ($group in $groups)
+																#set($optionSelected = false)
+																#if ($rwikiObjectGroups)
+																	#foreach ($rwikiobjectGroup in $rwikiObjectGroups)
+																		#if($rwikiobjectGroup.equals($group.Id))
+																			#set($optionSelected = true)
+																		#end
+																	#end
+																#end
+																<option id="group-$group.getTitle()" value="$group.Id" #if($optionSelected) selected="" #end >$group.getTitle()</option>
+															#end
+														</select>
+													</div>
+												</p>
+											</div>
+										#end
 
 						       <p class="act">
 					 		        <input id="saveButton" class="active" type="submit" name="command_save" value="${rlb.jsp_button_save}" accesskey="s" /> 
-					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
+					  		        #if (!$displayToGroups &&(( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} )))
 					 		        <input id="saveButton" type="submit" name="command_overwrite" value="${rlb.jsp_button_overwrite}"  class="active"/>
 					 		        #end 
 					 		        <input id="saveButton" type="submit" name="command_cancel" value="${rlb.jsp_button_cancel}"  accesskey="x"/>
