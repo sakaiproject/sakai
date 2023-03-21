@@ -1262,9 +1262,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	 */
 	public boolean isSiteMaintainer(String siteId) {
 
-		String userId = getCurrentUserId();
-		return hasUserSitePermission(userId, SiteService.SECURE_UPDATE_SITE, siteId)
-		        && hasUserSitePermission(userId, SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, siteId);
+		return hasUserSitePermission(getCurrentUserId(), SiteService.SECURE_UPDATE_SITE, siteId);
 	}
 
 	/**
