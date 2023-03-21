@@ -95,6 +95,8 @@ public abstract class RWikiObjectImpl implements RWikiObject
 	protected boolean m_publicwrite = false;
 
 	protected Integer m_revision = Integer.valueOf(0);
+	
+	protected String m_pageGroups = null;
 
 	// iebdelete protected List m_history = null;
 
@@ -498,6 +500,7 @@ public abstract class RWikiObjectImpl implements RWikiObject
 		rwo.setOwnerAdmin(this.getOwnerAdmin());
 		rwo.setOwnerRead(this.getOwnerRead());
 		rwo.setOwnerWrite(this.getOwnerWrite());
+		rwo.setPageGroups(this.getPageGroups());
 	}
 
 	public void copyTo(RWikiObject rwo)
@@ -513,6 +516,7 @@ public abstract class RWikiObjectImpl implements RWikiObject
 		rwo.setOwnerRead(this.getOwnerRead());
 		rwo.setOwnerWrite(this.getOwnerWrite());
 		rwo.setSha1(this.getSha1());
+		rwo.setPageGroups(this.getPageGroups());
 	}
 
 	protected String m_source = null;
@@ -762,6 +766,41 @@ public abstract class RWikiObjectImpl implements RWikiObject
 		return new String(chars);
 	}
 
+	/**
+	 * Set a new String of groups for this page
+	 * 
+	 * @param pageGroups
+	 */
+	public void setPageGroups(String pageGroups) {
+		m_pageGroups = pageGroups;
+	}
+
+	/**
+	 * Set a new String of groups for this page
+	 * 
+	 * @param pageGroups
+	 */
+	public void setPageGroupsAsString(String pageGroups) {
+		m_pageGroups = pageGroups;
+	}
+
+	/**
+	 * @return return the String of groups for this page
+	 */
+	public String getPageGroups() {
+		return m_pageGroups;
+	}
+
+	/**
+	 * @return return the list of groups for this page
+	 */
+	public String[] getPageGroupsAsArray() {
+		String[] groupsArray = null;
+		if (m_pageGroups != null){
+			groupsArray = m_pageGroups.split(",");
+		}
+		return groupsArray;
+	}
 }
 
 /*******************************************************************************
