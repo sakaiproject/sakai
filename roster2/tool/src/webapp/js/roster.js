@@ -1,6 +1,7 @@
 import { loadProperties } from "/webcomponents/sakai-i18n.js";
 import "/webcomponents/assets/imagesloaded/imagesloaded.pkgd.min.js";
 
+roster.members = [];
 roster.helpers = {};
 
 roster.setupPrintButton = function () {
@@ -126,11 +127,12 @@ roster.addHideOptionHandlers = function () {
 
 roster.addAdditionalInfoModalHandlers = function () {
 
-  document.querySelectorAll(".additional-info").forEach(b => {
+  $('button.additional-info').prop("onclick", null).off("click");
 
-    b.addEventListener("click", e => {
-      roster.renderAdditionalInfoModal(e.currentTarget.dataset.userId);
-    });
+  $('button.additional-info').click(function (e) {
+
+    const userId = this.getAttribute("data-user-id");
+    roster.renderAdditionalInfoModal(userId)
   });
 };
 
@@ -476,9 +478,13 @@ roster.renderMembership = function (options) {
         m.hasAdditionalNotes = m.additionalNotes && m.additionalNotes.length > 0;
         
         m.hasAdditionalInfo = m.hasSpecialNeeds || m.hasAdditionalNotes;
-      });
 
-      roster.members = members;
+        // Append to the roster members the new loaded members.
+        if (!roster.members.find(item => item.userId === m.userId)) {
+          roster.members.push(m);
+        }
+
+      });
 
       roster.renderMembers(members, $('#roster-members'), enrollmentsMode, options);
 
