@@ -25,13 +25,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.util.ResourceLoader;
 
+import org.apache.commons.lang3.StringUtils;
+
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
+import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
+import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.CachableRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderContextFactory;
 import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderEngineFactory;
+import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
+import uk.ac.cam.caret.sakai.rwiki.service.exception.UpdatePermissionException;
+import uk.ac.cam.caret.sakai.rwiki.service.exception.CreatePermissionException;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 /**
@@ -45,6 +58,14 @@ public class RenderServiceImpl implements RenderService
 
 	private RenderContextFactory renderContextFactory;
 
+	private RWikiObjectService objectService;
+
+	private SiteService siteService;
+
+	private RWikiSecurityService wikiSecurityService;
+
+	private static ResourceLoader rl = new ResourceLoader("uk.ac.cam.caret.sakai.rwiki.component.bundle.Messages");
+
 	public void init()
 	{
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
@@ -53,6 +74,12 @@ public class RenderServiceImpl implements RenderService
 				.getName());
 
 		renderContextFactory = (RenderContextFactory) load(cm, RenderContextFactory.class.getName());
+
+		objectService = (RWikiObjectService) load(cm, RWikiObjectService.class.getName());
+
+		siteService = (SiteService) load(cm, SiteService.class.getName());
+
+		wikiSecurityService = (RWikiSecurityService) load(cm, RWikiSecurityService.class.getName());
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -78,7 +105,45 @@ public class RenderServiceImpl implements RenderService
 					pageSpace, plr);
 			RenderContext renderContext = renderContextFactory
 					.getRenderContext(rwo, renderEngine);
-			renderedPage = renderEngine.render(rwo.getContent(), renderContext);
+			
+			String content = rwo.getContent();
+			int startRwikiName = content.indexOf("[");
+			int finishRwikiName = content.indexOf("]");
+			while(startRwikiName != -1) {
+				String pageGroups = objectService.getRWikiObjectPageGroups(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm());
+				String stPageGroups = "";
+				boolean showPage;
+				try {
+					showPage = objectService.checkRead(objectService.getRWikiObject(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm()));
+				} catch (ReadPermissionException ex) {
+					showPage = false;
+				} catch (CreatePermissionException ex) {
+					showPage = true;
+				}
+				
+				boolean showGroups;
+				try {
+					showGroups = objectService.checkAdminPermission(objectService.getRWikiObject(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm()));
+				} catch (ReadPermissionException ex) {
+					showGroups = false;
+				} catch (UpdatePermissionException ex) {
+					showGroups = false;
+				} catch (CreatePermissionException ex) {
+					showGroups = false;
+				}
+				
+				if (StringUtils.isNotBlank(pageGroups) && showGroups) { 
+					stPageGroups += " __%%{color:gray}(*" + rl.getString("availableTo.Groups") + pageGroups + "){color}%%__";
+				}
+				if (!showPage) {
+					content = content.substring(0,startRwikiName) + content.substring(finishRwikiName+1);
+				} else {
+					content = content.substring(0,finishRwikiName+1) + stPageGroups + content.substring(finishRwikiName+1);
+				}
+				startRwikiName = content.indexOf("[", startRwikiName + 2);
+				finishRwikiName = content.indexOf("]", startRwikiName);
+			}
+			renderedPage = renderEngine.render(content, renderContext);
 			if ( renderedPage.indexOf("<p ") < 0 && renderedPage.indexOf("</p>") < 0   ) 
 			{
 				renderedPage = "<p class=\"paragraph\">"+renderedPage+"</p>";

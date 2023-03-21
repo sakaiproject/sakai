@@ -23,6 +23,9 @@ package uk.ac.cam.caret.sakai.rwiki.tool.command;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +35,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -74,6 +81,9 @@ public class SaveCommand implements HttpCommand
 
 	private String cancelPath;
 
+	@Getter @Setter
+	private String groupsErrorPath;
+
 	private SessionManager sessionManager;
 
 	public void init()
@@ -112,6 +122,8 @@ public class SaveCommand implements HttpCommand
 		String save = vphb.getSaveType();
 		String name = vphb.getGlobalName();
 		String realm = vphb.getLocalSpace();
+		String[] pageGroups = vphb.getPageGroups();
+		String displayTo = vphb.getDisplayTo();
 		if (save == null)
 		{
 			save = EditBean.SAVE_VALUE;
@@ -190,9 +202,15 @@ public class SaveCommand implements HttpCommand
 		String version = vphb.getSubmittedVersion();
 		Date versionDate = new Date(Long.parseLong(version));
 
+		if (StringUtils.equals("groupsel", displayTo) && pageGroups == null) {
+			vphb.setSaveState(ViewParamsHelperBean.SAVE_GROUPS_ERROR);
+			this.groupsErrorDispatch(dispatcher,request, response);
+			return;
+		}
+		
 		try
 		{
-			doUpdate(name, realm, versionDate, content);
+			doUpdate(name, realm, versionDate, content, ((pageGroups != null)? new ArrayList<String>(Arrays.asList(pageGroups)) : new ArrayList<String>()), displayTo);
 		}
 		catch (VersionException e)
 		{
@@ -245,9 +263,15 @@ public class SaveCommand implements HttpCommand
 	}
 
 	protected void doUpdate(String name, String realm, Date versionDate,
-			String content)
+			String content, List<String> pageGroups, String displayTo)
 	{
-		objectService.update(name, realm, versionDate, content);
+		if (pageGroups != null && StringUtils.equals("groupsel", displayTo)) {
+			objectService.update(name, realm, versionDate, content, pageGroups, null);
+		} else if (StringUtils.equals("sitesel", displayTo)) {
+			objectService.update(name, realm, versionDate, content, new ArrayList<String>(), null);
+		} else {
+			objectService.update(name, realm, versionDate, content);
+		}
 	}
 
 	private void cancelDispatch(Dispatcher dispatcher,HttpServletRequest request,
@@ -278,6 +302,16 @@ public class SaveCommand implements HttpCommand
 		errorBean
 				.addError(rlb.getString("save.content_changed","Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content."));
 		dispatcher.dispatch(contentChangedPath,request, response);
+	}
+
+	
+	private void groupsErrorDispatch(Dispatcher dispatcher,HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
+		ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoader(request);
+		errorBean.addError(rlb.getString("save.content_no_groups", "You need to choose at least one group"));
+		dispatcher.dispatch(groupsErrorPath,request, response);
 	}
 
 	private void noUpdateAllowed(Dispatcher dispatcher,HttpServletRequest request,
