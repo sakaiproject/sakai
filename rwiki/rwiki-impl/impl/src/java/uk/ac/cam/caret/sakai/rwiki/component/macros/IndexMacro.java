@@ -28,6 +28,11 @@ import java.util.List;
 import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.BaseMacro;
 
+import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+
 import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderEngine;
@@ -170,8 +175,30 @@ public class IndexMacro extends BaseMacro
 					emitSpaceChange(writer, nextNameChars, lastSep,
 							nextSpaceIndex, true);
 				}
+				List<String> rwikiPageGroupsArray = next.getPageGroupsAsList();
+				String pageGroupsString = "";
+				
+				boolean showPage = objectService.checkRead(next);
+				if (rwikiPageGroupsArray != null) {
+					Site site = context.getSite();
+					String[] groupNames = new String[rwikiPageGroupsArray.size()];
+					int count = 0;
+					for(String rwikigroupId : rwikiPageGroupsArray) {
+						Group group = site.getGroup(rwikigroupId);
+						if (group != null) {
+							groupNames[count] = group.getTitle();
+							count++;
+						}
+					}
+					boolean showGroups = objectService.checkAdminPermission(next);
 
-				emitListItem(writer, plr, nextNameChars, nextSpaceIndex + 1);
+					if (count != 0 && showGroups) {
+						pageGroupsString = "<b class='little-subtitle'>(*" + Messages.getString("availableTo.Groups") + StringUtils.join(groupNames, ", ") + ")</b>";
+					}
+				}
+				if (showPage) {
+					emitListItem(writer, plr, nextNameChars, nextSpaceIndex + 1, pageGroupsString);
+				}
 
 				currentNameChars = nextNameChars;
 				currentSpaceIndex = nextSpaceIndex;
@@ -240,7 +267,7 @@ public class IndexMacro extends BaseMacro
 	}
 
 	private void emitListItem(Writer writer, PageLinkRenderer plr,
-			char[] chars, int start) throws IOException
+			char[] chars, int start, String pageGroupsString) throws IOException
 	{
 
 		writer.write("<li>"); //$NON-NLS-1$
@@ -248,6 +275,9 @@ public class IndexMacro extends BaseMacro
 		plr.appendLink(sb, new String(chars), new String(chars, start,
 				chars.length - start), null, true);
 		writer.write(sb.toString());
+		if (StringUtils.isNotBlank(pageGroupsString)) {
+			writer.write(pageGroupsString);
+		}
 		writer.write("</li>\n"); //$NON-NLS-1$
 	}
 
