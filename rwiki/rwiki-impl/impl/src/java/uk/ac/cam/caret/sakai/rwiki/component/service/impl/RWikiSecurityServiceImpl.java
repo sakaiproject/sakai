@@ -26,11 +26,13 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -207,8 +209,29 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 				{
 					log.debug("User is in group and allowed to read"); //$NON-NLS-1$
 				}
-				progress = progress + "2"; //$NON-NLS-1$
-				return true;
+
+				String siteId = toolManager.getCurrentPlacement().getContext();
+				Site site = null;
+				try {
+					site = siteService.getSite(siteId);
+				}catch (IdUnusedException ex) {
+					log.warn("Site not found for id: {}", siteId);
+				}
+				String[] pageGroupIds = rwo.getPageGroupsAsArray();
+				if (pageGroupIds != null) {
+					for (String groupId : pageGroupIds) {
+						Group group = site.getGroup(groupId);
+						if (group != null) {
+							Member currentMember = group.getMember(user);
+							if (currentMember != null) {
+								return true;
+							}
+						}
+					}
+				} else {
+					progress = progress + "2"; //$NON-NLS-1$
+					return true;
+				}
 			}
 
 			if (rwo.getPublicRead())

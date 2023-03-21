@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.servlet.ServletRequest;
 
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -54,13 +57,15 @@ public class ViewParamsHelperBean
 
 	public static final String SAVE_VERSION_EXCEPTION = "save-versionexcep";
 
+	public static final String SAVE_GROUPS_ERROR = "save-groupserror";
+
 	public static final String SAVE_CANCEL = "save-cancel";
 
 	public static final String SAVE_PREVIEW = "save-preview";
 
 	private static final String[] AUTOSAVE_REMOVE = { SAVE_OK, SAVE_CANCEL };
 
-	private static final String[] AUTOSAVE_NORECOVER = { SAVE_VERSION_EXCEPTION, SAVE_PREVIEW };
+	private static final String[] AUTOSAVE_NORECOVER = { SAVE_VERSION_EXCEPTION, SAVE_PREVIEW, SAVE_GROUPS_ERROR };
 
 	/**
 	 * the requested global page name
@@ -130,6 +135,18 @@ public class ViewParamsHelperBean
 	private String saveState = "";
 
 	/**
+	 * the submitted pageGroups
+	 */
+	@Setter @Getter
+	private String[] pageGroups;
+
+	/**
+	 * the submitted displayTo
+	 */
+	@Setter @Getter
+	private String displayTo;
+
+	/**
 	 * Initializes the bean, gets the parameters out of the request
 	 */
 	public void init()
@@ -163,6 +180,10 @@ public class ViewParamsHelperBean
 		submittedVersion = request.getParameter(EditBean.VERSION_PARAM);
 
 		saveType = getSaveTypeFromParameters(request.getParameterMap());
+
+		pageGroups = request.getParameterValues("selectedGroups");
+
+		displayTo = request.getParameter("displayTo");
 
 		String smallChange = request.getParameter(SMALL_CHANGE_PARAM);
 		if (smallChange != null && smallChange.equals(SMALL_CHANGE))
@@ -508,6 +529,5 @@ public class ViewParamsHelperBean
 	{
 		this.saveState = saveState;
 	}
-
 
 }
