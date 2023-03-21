@@ -336,6 +336,32 @@ public interface RWikiObject extends Comparable
 	 */
 	String getSource();
 
+	/**
+	 * The pageGroups String for this page
+	 * 
+	 * @param pageGroups
+	 */
+	void setPageGroups(String pageGroups);
+
+	/**
+	 * The pageGroups String for this page
+	 * 
+	 * @param pageGroups
+	 */
+	void setPageGroupsAsString(String pageGroups);
+
+	/**
+	 * @return The pageGroups String for this page
+	 * @return
+	 */
+	String getPageGroups();
+
+	/**
+	 * @return The pageGroups list for this page
+	 * @return
+	 */
+	String[] getPageGroupsAsArray();
+
 }
 
 /*******************************************************************************
