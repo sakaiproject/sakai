@@ -1804,7 +1804,8 @@ public class GradingServiceImpl implements GradingService {
             gradeDef.setGradeComment(commentText);
         }
 
-        gradeDef.setExcused(gradeRecord.getExcludedFromGrade());
+	Boolean excludedFromGrade = (gradeRecord.getExcludedFromGrade() != null) ? gradeRecord.getExcludedFromGrade() : Boolean.FALSE;
+        gradeDef.setExcused(excludedFromGrade);
 
         return gradeDef;
     }
