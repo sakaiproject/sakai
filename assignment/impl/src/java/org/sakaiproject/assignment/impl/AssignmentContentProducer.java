@@ -200,6 +200,8 @@ public class AssignmentContentProducer implements EntityContentProducer {
         if (assignmentService.permissionCheck(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, ref, null)) {
             String assignmentId = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
             try {
+                // TODO: PERFORMANCE If search returns a ton of hits on assignments, this could
+                // potentially incur some DB penalty.
                 return !assignmentService.getAssignment(assignmentId).getDraft();
             } catch (Exception e) {
                 log.warn("Exception thrown while getting assignment: {}", e.toString());
