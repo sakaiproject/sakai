@@ -1955,6 +1955,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
+			rcontext.put("topLogin", topLogin);
 
 			if (!topLogin)
 			{
