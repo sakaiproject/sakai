@@ -184,7 +184,7 @@ public class AssignmentContentProducer implements EntityContentProducer {
 
     public boolean isForIndex(String ref) {
 
-        return ref.startsWith("/assignment");
+        return ref.startsWith(AssignmentServiceConstants.REFERENCE_ROOT);
     }
 
     public boolean canRead(String ref) {
