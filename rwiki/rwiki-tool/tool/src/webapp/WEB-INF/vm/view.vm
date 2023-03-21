@@ -85,6 +85,31 @@
 				${rlb.getFormattedMessage("jsp_last_modified_by", $value.toArray())}
 				<a id="toCommentsLink" href="#tocomments" style="display:none" style="padding:0 1em 0 0">${rlb.jsp_comment_gotolink} <span></span></a>
 			 </div>
+			#if($groups && $rwikiObjectGroups && $rwikiObjectGroups.size() > 0)
+				<div class="groupsforthispage specialLink" >
+					${rlb.view_groups_text}
+					<span class="bold-text">
+						#set ($isFirst = true)
+						#set($count = 0)
+						#foreach($group in $groups)
+							#foreach($rwikiObjectGroup in $rwikiObjectGroups)
+								#if($group.Id == $rwikiObjectGroup)
+									#set($count = $count + 1)
+									#if($count == $rwikiObjectGroups.size())
+										#set ($isFirst = false)
+									#end
+									#if(!$isFirst)
+										#set($groupName = $group.getTitle())
+									#else
+										#set($groupName = $group.getTitle() + ", ")
+									#end
+									$groupName
+								#end
+							#end
+						#end
+					</span>
+				</div>
+			#end
 
 
 	<div id="rwiki_head"><!-- avoid min height in IEX-->

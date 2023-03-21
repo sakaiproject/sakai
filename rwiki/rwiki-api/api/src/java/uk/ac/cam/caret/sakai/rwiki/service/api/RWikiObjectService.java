@@ -140,6 +140,21 @@ public interface RWikiObjectService extends EntityProducer, EntityTransferrer, C
 			throws PermissionException, VersionException;
 
 	/**
+	 * Update the name page, the pageGroups, no permissions
+	 * 
+	 * @param name
+	 * @param realm
+	 * @param version
+	 * @param content
+	 * @param pageGroups
+	 * @param permissions
+	 * @throws PermissionException
+	 * @throws VersionException
+	 */
+	void update(String name, String realm, Date version, String content, List<String> pageGroups, RWikiPermissions permissions)
+			throws PermissionException, VersionException;
+
+	/**
 	 * Update the name page's permissions
 	 * 
 	 * @param name
@@ -181,6 +196,8 @@ public interface RWikiObjectService extends EntityProducer, EntityTransferrer, C
 	 * @return a non-null list of page names not rwikiObjects
 	 */
 	List findReferencingPages(String name);
+
+	String getRWikiObjectPageGroups(String name, String realm);
 
 	/**
 	 * Revert current revision to a named revision, creates a new revision
@@ -334,6 +351,15 @@ public interface RWikiObjectService extends EntityProducer, EntityTransferrer, C
 	 * @return
 	 */
 	boolean checkAdmin(RWikiObject rwo);
+	
+	/**
+	 * check for admin permission (rwiki.admin) on the reference for the 
+	 * current user
+	 * 
+	 * @param rwo
+	 * @return
+	 */
+	boolean checkAdminPermission(RWikiObject rwo);
 
 	/**
 	 * Find all pages in the database just reture
