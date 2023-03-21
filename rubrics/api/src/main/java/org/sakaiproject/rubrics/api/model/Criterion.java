@@ -75,6 +75,7 @@ public class Criterion implements PersistableEntity<Long>, Serializable {
     private Float weight = 0F;
 
     @EqualsAndHashCode.Exclude
+    @OrderColumn(name = "order_index")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "criterion")
     private List<Rating> ratings = new ArrayList<>();
 
