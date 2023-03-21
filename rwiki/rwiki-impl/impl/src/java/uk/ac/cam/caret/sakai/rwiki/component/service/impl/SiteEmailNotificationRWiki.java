@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +65,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService;
 import uk.ac.cam.caret.sakai.rwiki.utils.DigestHtml;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
+
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.authz.api.Member;
 
 /**
  * <p>
@@ -430,6 +434,8 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		// get the resource reference
 		Reference ref = entityManager.newReference(event.getResource());
 
+		RWikiEntity rwe = (RWikiEntity) rwikiObjectService.getEntity(ref);
+		RWikiObject rwikiObject = rwe.getRWikiObject();
 		// use either the configured site, or if not configured, the site
 		// (context) of the resource
 		String siteId = getSite();
@@ -464,6 +470,28 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 
 			// add any other users
 			addSpecialRecipients(users, ref);
+			
+			if (rwikiObject.getPageGroupsAsList() != null) {
+				List<User> auxUsers = new ArrayList<User>();
+				List<String> groupIds = rwikiObject.getPageGroupsAsList();
+				for (Object userObject : users) {
+					boolean isUserMember = false;
+					User user = (User) userObject;
+					for (String groupId : groupIds) {
+						Group group = site.getGroup(groupId);
+						if (group != null) {
+							Member currentMember = group.getMember(user.getId());
+							if (currentMember != null) {
+								isUserMember = true;
+							}
+						}
+					}
+					if (isUserMember) {
+						auxUsers.add(user);
+					}
+				}
+				users = auxUsers;
+			}
 
 			return users;
 		} catch (Exception any) {
