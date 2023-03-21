@@ -103,5 +103,6 @@
 		<property name="publicWrite" type="boolean" />
 		<property name="sha1" length="64" />
 		<property name="revision"  type="int"/>
+		<property name="pageGroups" column="page_groups" type="materialized_clob" />
 	</class>
 </hibernate-mapping>
