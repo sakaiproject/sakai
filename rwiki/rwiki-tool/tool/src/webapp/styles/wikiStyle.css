@@ -589,7 +589,7 @@ MOOT
 	color: var(--sakai-text-color-2);
 }
 
-.lastmodified { font-size: smaller; text-align: right; color: #555;padding:.5em 0}
+.lastmodified, .groupsforthispage { font-size: smaller; text-align: right; color: #555;padding-top:.5em}
 
 /*view:index-list
 added to blocks that are higher than 300px - creates a scroll if so and sizes them to 300px
@@ -980,4 +980,17 @@ div.rwikiRenderedContent table.listHier th {
 	float: right;
 	text-align: right;
 	margin: 0;
+}
+
+.little-subtitle {
+	font-size: 12px;
+	color: gray;
+	margin-left: 10px;
+}
+#editControl {
+	margin-left:10px;
+}
+.bold-text{
+	font-weight:bold;
+	color:#000;
 }
