@@ -81,7 +81,6 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
-import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.antivirus.api.VirusScanIncompleteException;
@@ -198,7 +197,6 @@ import org.xml.sax.SAXException;
 import org.zwobble.mammoth.DocumentConverter;
 import org.zwobble.mammoth.Result;
 
-import fr.opensagres.odfdom.converter.xhtml.XHTMLConverter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
