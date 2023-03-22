@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -65,8 +64,7 @@ import org.sakaiproject.util.api.FormattedText;
 public class LinearAccessDeliveryActionListener extends DeliveryActionListener
   implements ActionListener
 {
-  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
-  private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
+  private final EventTrackingService eventTrackingService = ComponentManager.get( EventTrackingService.class );
 
   /**
    * ACTION.
@@ -203,7 +201,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
           }
           eventLogData.setSiteId(site_id);
           
-          eventLogData.setErrorMsg(eventLogMessages.getString("no_submission"));
+          eventLogData.setErrorMsg("no_submission_user_no_submit");
           eventLogData.setEndDate(null);
           eventLogData.setEclipseTime(null);
           		  
