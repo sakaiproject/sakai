@@ -36,6 +36,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
@@ -185,6 +186,12 @@ public class SiteServiceTest extends DbSiteService
 
 	@Override
 	protected NotificationService notificationService() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected MicrosoftMessagingService microsoftMessagingService() {
 		// TODO Auto-generated method stub
 		return null;
 	}
