@@ -9,7 +9,7 @@
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 
-	<name>microsoft-integration</name>
+	<name>Microsoft Integration</name>
 	<groupId>org.sakaiproject.microsoft</groupId>
 	<artifactId>microsoft-integration</artifactId>
 	<packaging>pom</packaging>
