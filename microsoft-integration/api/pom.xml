@@ -10,7 +10,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<name>microsoft-api</name>
+	<name>Microsoft Api</name>
 	<groupId>org.sakaiproject.microsoft</groupId>
 	<artifactId>microsoft-api</artifactId>
 	<packaging>jar</packaging>
