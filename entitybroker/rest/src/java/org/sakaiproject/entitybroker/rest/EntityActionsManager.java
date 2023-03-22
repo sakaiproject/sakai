@@ -230,7 +230,7 @@ public class EntityActionsManager {
                     } else if (e.getCause().getClass().isAssignableFrom(SecurityException.class)) {
                         throw new SecurityException(e.getCause().getMessage() + " (rethrown)", e.getCause());
                     }
-                    log.error("Exception {} not rethrown, throwing RuntimeException.", e.getCause().getMessage());
+                    log.error("Target exception class not identified, rethrowing as a RuntimeException: {}", e.getCause().toString());
                 }
                 throw new RuntimeException("Fatal error trying to execute custom action method: " + customAction, e);
             }
