@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="microsoft.admin" title="Microsoft Admin Tool" description="A tool for Microsoft synchronization management.">
+        <category name="sakai.admin" />
+    </tool>
+</registration>
+

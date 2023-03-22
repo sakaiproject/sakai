@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+	<div th:replace="fragments/common :: bootstrap" />
+	<div th:include="fragments/common :: admin (${isAdmin})" />
+
+	<div th:if="${isAdmin}">
+		<div class="portletBody">
+			<div id="menu" th:include="fragments/menus :: main (editGroup)" />
+			<div class="page-header">
+				<h1 class="header-title" th:text="#{group_synch.new_title}"></h1>
+				<div th:utext="#{site_synch.selected_site(${siteTitle})}"></div>
+				<div th:utext="#{site_synch.selected_team(${teamTitle})}"></div>
+			</div>
+
+			<div th:include="fragments/common :: error" />
+			<div class="sak-banner-error hidden" id="delete_error" th:text="#{error.delete_group_synchronization}"></div>
+
+			<div:block id="table-block" th:if="${groupSynchronizations != null}" class="container-fluid">
+				<div class="container-fluid">
+					<div class="row table-space table-row index-background">
+						<div class="col-sm-5">
+							<span class="text-bold" th:text="#{group}"></span>
+						</div>
+						<div class="col-sm-5">
+							<span class="text-bold" th:text="#{channel}"></span>
+						</div>
+						<div class="col-sm-2 text-center">
+							<span th:text="#{delete}" class="text-bold"></span>
+						</div>
+					</div>
+					<div id="row-container" class="row-list">
+						<div th:each="entry, stat: ${groupSynchronizations}" th:id="|groupSynchronization[${stat.index}]|">
+							<div class="row table-space table-row" th:id="|row_${entry.id}|"
+								th:classappend="${stat.even} ? 'table-header' : ''">
+								<div class="col-sm-5" th:text="${groupsMap[entry.groupId]?.title} ?: '???'"></div>
+
+								<div class="col-sm-5" th:text="${channelsMap[entry.channelId]?.name} ?: '???'"></div>
+
+								<div class="col-sm-2 text-center">
+									<i role="button" th:id="|btn_${entry.id}|"
+										class="fa fa-solid fa-trash" tabindex="0"
+										th:data="|deleteGroupSynchronization(button, '@{/delete-groupSynchronization/{id}(id=${entry.id})}')|">
+									</i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div:block>
+			<div id='empty_table' th:class="${groupSynchronizations != null} ? 'hidden' : ''" th:text="#{empty_table}">Empty Table</div>
+		</div>
+
+		<div class="act">
+			<button type="button" class="active" data-toggle="modal" data-target="#groupSynchronization-modal"
+				th:text="#{group_synch.add_synch}"></button>
+			<input type='button' th:value="#{back}" th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
+		</div>
+
+		<div id="groupSynchronization-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="groupSynchronizationModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<form id="groupSynchForm" th:action="@{/add-groupSynchronization/{id}(id=${siteSynchronizationId})}" method="post" onsubmit="return validateForm()">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" th:aria-label="#{close}">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="groupSynchronizationModalLabel" th:text="#{group_synch.new_title}"></h4>
+						</div>
+
+						<div class="modal-body">
+							<div id="error-banner"></div>
+							<div class="container-fluid">
+								<div class="row">
+									<div class="panel-body col-sm-6">
+										<div class="col-title" th:utext="#{group_synch.groups_from_site(${siteTitle})}"></div>
+										<th:block th:if="${groupsMap.size() > 0}">
+											<ul class="list-unstyled">
+												<li th:each="group : ${groupsMap}">
+													<label>
+														<input type='radio' name="selectedGroupId" th:value="${group.key}" />
+														<span th:text="${group.value.title}" />
+													</label>
+												</li>
+											</ul>
+										</th:block>
+										<div th:if="${groupsMap.size() == 0}" th:text="#{group_synch.no_groups}"></div>
+									</div>
+
+									<div class="panel-body col-sm-6">
+										<div class="col-title" th:utext="#{group_synch.channels_from_team(${teamTitle})}"></div>
+										<ul class="list-unstyled">
+											<li>
+												<div>
+													<label class="control-label">
+														<input id="new-checkbox" type='radio' name="selectedChannelId" value="NEW" onchange="checkNewChannel(this.id)" />
+														<span th:text="#{new}"></span>
+													</label>
+													<input type="text" name="newChannelName" disabled />
+												</div>
+											</li>
+
+											<th:block th:if="${channelsMap.size() > 0}">
+												<li th:each="channel : ${channelsMap}">
+													<label>
+														<input type='radio' name="selectedChannelId" th:value="${channel.key}" onchange="checkNewChannel()" />
+														<span th:text="${channel.value.name}" />
+													</label>
+												</li>
+											</th:block>
+											<li th:if="${channelsMap.size() == 0}" th:text="#{group_synch.no_channels}"></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="modal-footer act">
+							<input type="submit" class="active" th:value="#{save}">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}"></button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		
+		<script th:inline="javascript">
+			async function deleteGroupSynchronization(btn, url) {
+				const row_id = btn.id.replace('btn_', 'row_');
+				
+				const classes = btn.classList;
+				classes.remove('fa-trash');
+				classes.add('fa-spinner', 'fa-spin');
+				
+				let response = await fetch(url);
+				let data = await response.json();
+				
+				if(data == true){
+					const row = document.getElementById(row_id);
+					const grouprow = row.parentElement.remove();
+					
+					if(document.querySelectorAll('div[id^="row_"]').length == 0){
+						document.getElementById('empty_table').classList.remove('hidden');
+						document.getElementById('table-block').classList.add('hidden');
+					}
+				} else {
+					classes.remove('fa-spinner', 'fa-spin');
+					classes.add('fa-trash');
+					showError();
+				}
+			}
+
+			function checkNewChannel(id) {
+				const newTeamRadio = document.getElementById(id);
+				const newTeamText = document.getElementsByName('newChannelName')[0];
+
+				if (id == 'new-checkbox') {
+					if (newTeamRadio.checked) {
+						newTeamText.disabled = false;
+						newTeamText.required = true;
+						newTeamText.style.borderColor = 'black';
+					}
+				} else {
+					newTeamText.disabled = true;
+					newTeamText.required = false;
+					newTeamText.style.borderColor = '#E3E4E5';
+				}
+			}
+			
+			function showError() {
+				document.getElementById('delete_error').classList.remove('hidden');
+				setTimeout(() => { document.getElementById('delete_error').classList.add('hidden') }, 10000);
+			}
+
+			var groupTimeoutId = null;
+			var channelTimeoutId = null;
+			function validateForm() {
+				var errorContainer = document.querySelector('#error-banner');
+
+				const groupSelected = document.querySelector('input[name="selectedGroupId"]:checked');
+				const channelSelected = document.querySelector('input[name="selectedChannelId"]:checked');
+
+				if (!groupSelected) {
+					if(groupTimeoutId != null){
+						clearTimeout(groupTimeoutId);
+					}
+					var errorGroup = createError(errorContainer);
+					errorGroup.innerHTML = '[(#{error.groups})]';
+					groupTimeoutId = setTimeout(() => {console.log('Removing...'); errorGroup.remove() }, 5000);
+					return false;
+				}
+
+				if (!channelSelected) {
+					if(channelTimeoutId != null){
+						clearTimeout(channelTimeoutId);
+					}
+					var errorChannel = createError(errorContainer);
+					errorChannel.innerHTML = '[(#{error.channel})]';
+					channelTimeoutId = setTimeout(() => {console.log('Removing...'); errorChannel.remove() }, 10000);
+					return false;
+				}
+
+				return true;
+			}
+
+			const parentDiv = document.querySelector('#row-container');
+
+			parentDiv.addEventListener('click', handleButtonClick);
+			parentDiv.addEventListener('keypress', handleButtonClick);
+		</script>
+	</div>
+</body>
+</html>

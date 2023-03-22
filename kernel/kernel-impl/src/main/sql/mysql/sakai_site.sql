@@ -235,6 +235,8 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1120', '~admin', 'Preferences', '0', 
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1125', '~admin-1120', '~admin', 'sakai.preferences', 1, 'Preferences', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1200', '~admin', 'User Membership', '0', 14, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1210', '~admin-1200', '~admin', 'sakai.usermembership', 1, 'User Membership', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-2000', '~admin', 'Microsoft Admin Tool', '0', 15, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-2000', '~admin-2000', '~admin', 'microsoft.admin', 1, 'Microsoft Admin Tool', NULL );
 
 INSERT INTO SAKAI_SITE VALUES('!admin', 'Administration Workspace', null, null, 'Administration Workspace', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 0, 0, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-100', '!admin', 'Home', '0', 1, '0' );
@@ -293,6 +295,9 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.c
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1590', '!admin', 'Academic Term Manager', '0', 22, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1590', '!admin-1590', '!admin', 'sakai.acadtermmanage', 1, 'Academic Term Manager', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1590', 'sitePage.customTitle', 'true');
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-2000', '!admin', 'Microsoft Admin Tool', '0', 23, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-2000', '!admin-2000', '!admin', 'microsoft.admin', 1, 'Microsoft Admin Tool', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-2000', 'sitePage.customTitle', 'true');
 
 INSERT INTO SAKAI_SITE_USER VALUES('!admin', 'admin', -1);
 

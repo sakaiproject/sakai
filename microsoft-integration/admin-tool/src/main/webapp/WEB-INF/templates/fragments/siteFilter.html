@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+	<th:block th:fragment="siteFilter" th:with="aux=${columnClassName} ?: 'col-md-4'">
+		<div class="row form-group">
+			<label th:classappend="${aux}" class="text-right" th:text="#{filter.site_type}"></label>
+			<div class="col-md-8">
+				<div>
+					<label>
+						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="course" th:checked="${filter_siteType} == 'course'" />
+						<span th:text="#{filter.site_type.course}"></span>
+					</label>
+				</div>
+				<div>
+					<label>
+						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="project" th:checked="${filter_siteType} == 'project'" />
+						<span th:text="#{filter.site_type.project}"></span>
+					</label>
+				</div>
+				<div>
+					<label>
+						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="all" th:checked="${filter_siteType} == 'all' or ${filter_siteType} == null" />
+						<span th:text="#{filter.site_type.all}"></span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row form-group">
+			<div th:classappend="${aux}" class="text-right text-bold" th:text="#{filter.published}"></div>
+			<div class="col-md-4">
+				<input th:name="${prefix} ? |${prefix}.published| : 'published'" type="checkbox" th:checked="${filter_published}" />
+			</div>
+		</div>
+		<div th:if="${showSiteProperty}" class="row form-group">
+			<div class="col-md-4 text-right text-bold property-filter">
+				<a href='#'
+					th:attr="data-content=#{filter.site_property_info}"
+					class="my-info-class fa fa-info-circle"
+					data-trigger="focus"
+					data-toggle="popover"
+					data-placement="top"
+					data-html="true"
+				></a>
+				<div th:text="#{filter.site_property}"></div>
+			</div>
+			<div class="col-md-4">
+				<input id="search-property" th:name="${prefix} ? |${prefix}.siteProperty| : 'siteProperty'" type="text" th:value="${filter_siteProperty}" data="doRefresh('teams-container')" />
+			</div>
+		</div>
+	</th:block>
+</body>
+</html>
