@@ -840,13 +840,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             final String optionRubricAssociate = Optional.ofNullable(params.get(RubricsConstants.RBCS_ASSOCIATE)).orElse(StringUtils.EMPTY);
             final Optional<ToolItemRubricAssociation> existingAssociation = getRubricAssociation(toolId, toolItemId);
 
-            Long requestedRubricId;
-            try {
-                requestedRubricId = NumberUtils.createLong(optionRubricId);
-            } catch (NumberFormatException nfe) {
-                log.warn("requested rubric id [{}] could not be converted to a long", optionRubricId, nfe);
-                return Optional.empty();
-            }
+            Long requestedRubricId = NumberUtils.toLong(optionRubricId);
 
             if (existingAssociation.isPresent()) {
                 final ToolItemRubricAssociation association = existingAssociation.get();
@@ -876,9 +870,20 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                             }
                         }
                     }
+                } else if (requestedRubricId.equals(0L)){
+                    //deactivating an association without making a new one
+                    association.setActive(false);
+                    associationRepository.save(association);
+                    return Optional.empty();
                 }
             } else {
-                // first association for this rubric
+                // if existingAssociation is not present, it could just mean that it was deactivated previously
+                // the specific getRubricAssociation impl that we used earlier to load it will ignore deactivated ones.
+                Optional<ToolItemRubricAssociation> optionalExistingAssociation = findAssociationByItemIdAndRubricId(toolItemId, requestedRubricId);    // this will include inactive [soft-deleted] ones
+                if (optionalExistingAssociation.isPresent()) {  // if there's already an old association for the requested rubric that was deactivated previously, reuse it
+                    optionalExistingAssociation.get().setActive(true);
+                    return Optional.of(associationRepository.save(optionalExistingAssociation.get()));
+                }
                 Optional<ToolItemRubricAssociation> newAssociation = createToolItemRubricAssociation(toolId, toolItemId, params, requestedRubricId);
                 if (newAssociation.isPresent()) {
                     return Optional.of(associationRepository.save(newAssociation.get()));
