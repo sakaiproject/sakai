@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+	<th:block th:fragment="modal">
+		<div id="autoconfig-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="autoconfig-label" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" th:aria-label="#{close}">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h4 class="modal-title" id="autoconfig-label" th:text="#{autoconfig_title}"></h4>
+					</div>
+
+					<div id="body-container" class="modal-body">
+						<div id="autoconfig-container">
+							<div th:replace="fragments/siteFilter :: siteFilter(showSiteProperty=true)"></div>
+
+							<div class="row form-group">
+								<div class="col-md-4 text-right text-bold" th:text="#{filter.team_pattern}"></div>
+								<div class="col-md-4">
+									<input name="teamPattern" type="text" value="${siteTitle}"/>
+								</div>
+							</div>
+
+							<div class="row form-group">
+								<div class="col-md-4 text-right text-bold" th:text="#{filter.new_team}"></div>
+								<div class="col-md-4">
+									<input name="newTeam" type="checkbox" checked />
+								</div>
+							</div>
+
+							<div class="row form-group">
+								<div class="col-md-4 text-right text-bold" th:text="#{filter.new_channel}"></div>
+								<div class="col-md-4">
+									<input name="newChannel" type="checkbox" checked />
+								</div>
+							</div>
+						</div>
+						<div id="autoconfig-confirm"></div>
+						<div id="autoconfig-running">
+							<div th:text="#{autoconfig.already_running}">Already running</div>
+						</div>
+					</div>
+
+					<div id="autoconfig-footer-step-0" class="modal-footer act hidden">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{back}"></button>
+					</div>
+					<div id="autoconfig-footer-step-1" class="modal-footer act hidden">
+						<button type="button" class="active" onclick="sendAutoConfig()" th:text="#{start}"></button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{cancel}"></button>
+					</div>
+					<div id="autoconfig-footer-step-2" class="modal-footer act hidden">
+						<button type="button" class="active" data-dismiss="modal" onclick="confirmAutoConfig()" th:text="#{confirm}"></button>
+						<button type="button" class="btn btn-secondary" onclick="openAutoConfig()" th:text="#{back}"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+
+	<th:block th:fragment="confirm(sitesList, confirmMap)">
+		<div>
+			<div class="row">
+				<div class="col-md-5 text-right text-bold" th:text="#{autoconfig.count_sites}"></div>
+				<div class="col-md-7" th:text="${countSites}"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-5 text-right text-bold" th:text="#{autoconfig.count_teams}"></div>
+				<div class="col-md-7" th:text="${countTeams}"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-5 text-right text-bold" th:text="#{autoconfig.count_link}"></div>
+				<div class="col-md-7" th:text="${countLink}"></div>
+			</div>
+			<div class="row form-group">
+				<div class="col-md-5 text-right text-bold" th:text="#{autoconfig.count_new}"></div>
+				<div class="col-md-7" th:text="${countNew}"></div>
+			</div>
+		</div>
+
+		<input id="site-search" type="text" class="form-control microsoft-search col-md-6"
+		style="width: 50%; float: left" th:placeholder="|&#xF002; #{search}|" onkeyup="searchFilter(this)"
+		data-list="sites-list">
+
+		<div id="autoconfig-confirm-container" style="clear:both">
+			<div class="admin-table modal-table container-fluid">
+				<div class="row table-header table-space table-row index-background">
+					<div class="col-md-7">
+						<span th:text="#{autoconfig.confirm_title}" class="text-bold"></span>
+					</div>
+					<div class="col-md-2">
+						<span th:text="#{autoconfig.confirm_status}" class="text-bold"></span>
+					</div>
+					<div class="col-md-3">
+						<input type="checkbox" id="cb_all" onchange="toggleCheckboxes(this)" data="siteIdList" checked />
+						<span th:text="#{autoconfig.confirm_confirm}" class="text-bold"></span>
+					</div>
+				</div>
+				<div>
+					<div id="sites-list">
+						<div th:each="site : ${sitesList}" class="row table-space table-row">
+							<div class="col-md-7">
+								<span class="title-row" th:text="${site.title}"></span>
+							</div>
+							<div th:text="#{new}" class="col-md-2" style="color: red;" th:if="${confirmMap[site.id] instanceof T(java.lang.String)}"></div>
+							<div th:text="#{found}" class="col-md-2" style="color: green;" th:if="${confirmMap[site.id] instanceof T(org.sakaiproject.microsoft.api.model.SiteSynchronization)}"></div>
+							<div class="col-md-3"><input type="checkbox" name="siteIdList" th:value="${site.id}" checked /></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+
+	<th:block th:fragment="progressbar">
+		<div id="progress-container" class="mb-15 hidden">
+			<div class="align-center">
+				<div class="col-md-2"></div>
+				<div class="col-md-8 align-center">
+					<div class="progress col-md-11">
+						<div id="progress-config" class="progress-bar" role="progressbar"
+						style="width: 0%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="2" tabindex="0"></div>
+					</div>
+					<div class="col-md-1">
+						<a id="error-icon" role="button" href='#' class="my-info-class fa fa-exclamation-circle hidden"></a>
+					</div>
+				</div>
+
+				<div id="refresh-container" class="col-md-2 act hidden">
+					<button type="button" class="active" onClick="window.location.reload();" th:text="#{refresh}"></button>
+				</div>
+			</div>
+
+			<div class="align-center">
+				<div class="col-md-2"></div>
+				<div class="col-md-8 mb-15">
+					<div id="my-collapse" class="collapse" style="border: 1px solid red;">
+						<ul id="error-list"></ul>
+					</div>
+				</div>
+				<div class="col-md-2"></div>
+			</div>
+		</div>
+	</th:block>
+
+	<th:block th:fragment="script">
+		<script th:inline="javascript">
+			var autoconfig_running = false;
+			function setAutoConfigStep(step){
+				document.querySelectorAll("[id^='autoconfig-footer-step-']").forEach((item) => {
+					item.classList.add("hidden");
+					let activeButton = item.querySelector("button.active");
+					if(activeButton){
+						activeButton.disabled = true;
+					}
+				});
+				
+				let new_step = document.getElementById('autoconfig-footer-step-'+step);
+				//show
+				new_step.classList.remove("hidden");
+				let activeButton = new_step.querySelector("button.active");
+				if(activeButton){
+					activeButton.disabled = false;
+				}
+			}
+
+			function openAutoConfig(){
+				let container = document.getElementById('autoconfig-container');
+				let confirm = document.getElementById('autoconfig-confirm');
+				let running = document.getElementById('autoconfig-running');
+				if(autoconfig_running){
+					//show
+					running.classList.remove("hidden");
+					
+					//hide
+					container.classList.add("hidden");
+					confirm.classList.add("hidden");
+					
+					setAutoConfigStep(0);
+				} else {
+					//show
+					container.classList.remove("hidden");
+
+					//hide
+					confirm.classList.add("hidden");
+					confirm.innerHTML = '';
+					running.classList.add("hidden");
+
+					setAutoConfigStep(1);
+				}
+			}
+
+			async function sendAutoConfig() {
+				let container = document.getElementById('autoconfig-container');
+				let siteType = container.querySelector('input[name="siteType"]:checked').value;
+				let published = container.querySelector('input[name="published"]').checked;
+				let siteProperty = container.querySelector('input[name="siteProperty"]').value;
+				let newTeam = container.querySelector('input[name="newTeam"]').checked;
+				let newChannel = container.querySelector('input[name="newChannel"]').checked;
+				let teamPattern = container.querySelector('input[name="teamPattern"]').value;
+
+				let url = "[(@{/autoConfig})]";
+
+				//hide current step
+				container.classList.add("hidden");
+				//disable "start" button
+				document.getElementById('autoconfig-footer-step-1').querySelector("button.active").disabled = true;
+				//add loading
+				var bodyContainer = document.getElementById("body-container");
+				var loading = setLoading(bodyContainer);
+
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(
+						{
+							filter : {
+								siteType: siteType,
+								published: published,
+								siteProperty: siteProperty,
+							},
+							newTeam: newTeam,
+							newChannel: newChannel,
+							teamPattern: teamPattern
+						})
+				});
+				let content = await response.text();
+
+				let confirm = document.getElementById('autoconfig-confirm');
+				confirm.innerHTML = content;
+				loading.remove();
+				//show next step
+				confirm.classList.remove("hidden");
+
+				setAutoConfigStep(2);
+			}
+
+			async function confirmAutoConfig() {
+				let url = "[(@{/autoConfig-confirm})]";
+
+				let container = document.getElementById('autoconfig-confirm-container');
+				let elements = container.querySelectorAll('input[name="siteIdList"]:checked');
+				const selectedIds = [];
+				elements.forEach(function (element) {
+					selectedIds.push(element.value);
+				});
+				const jsonData = JSON.stringify(selectedIds);
+
+				const response = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: jsonData
+				});
+				let result = await response.json();
+
+				if(result){
+					startLoadingProcess();
+				}
+			}
+
+			async function checkAutoConfigStatus() {
+				let url = "[(@{/autoConfig-status})]";
+
+				let response = await fetch(url);
+				let data = await response.json();
+
+				autoconfig_running = data.running;
+				updateLoadingProcess(data);
+				if(data.running){
+					setTimeout(checkAutoConfigStatus, 1000);
+				} else {
+					finishLoadingProcess(data);
+				}
+				return data;
+			}
+
+			function startLoadingProcess(){
+				//hide refresh button
+				document.getElementById('refresh-container').classList.add('hidden');
+				//show progress container
+				document.getElementById('progress-container').classList.remove('hidden');
+				setTimeout(checkAutoConfigStatus, 1000);
+			}
+
+			async function updateLoadingProcess(data){
+				var progressBar = document.getElementById('progress-config');
+				progressBar.style.width = ((((data.count / data.total) * 100)) + "%");
+			}
+
+			function finishLoadingProcess(data){
+				var progressBar = document.getElementById('progress-config');
+
+				if(data.errorList.length > 0){
+					var errorIcon = document.getElementById('error-icon');
+
+					progressBar.style.backgroundColor = 'red';
+					errorIcon.classList.remove('hidden');
+					errorIcon.setAttribute("data-toggle", "collapse");
+					errorIcon.setAttribute("data-target", "#my-collapse");
+
+					var errorContainer = document.getElementById('error-list');
+
+					data.errorList.forEach(item => {
+						const li = document.createElement('li');
+						// item.siteId
+						// item.siteTitle
+						// item.errorMessage
+						li.textContent = `(${item.siteId}) ${item.siteTitle} : ${item.errorMessage}`;
+						errorContainer.appendChild(li);
+					});
+				} else {
+					progressBar.style.backgroundColor = 'green';
+				}
+
+				//show refresh button
+				document.getElementById('refresh-container').classList.remove('hidden');
+			}
+		</script>
+	</th:block>
+</body>
+</html>
