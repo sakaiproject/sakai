@@ -21,6 +21,7 @@ import org.sakaiproject.authz.impl.BaseAuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -78,6 +79,12 @@ public class ContreteAuthzGroupService extends BaseAuthzGroupService {
 
 	@Override
 	protected Storage newStorage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected MicrosoftMessagingService microsoftMessagingService() {
 		// TODO Auto-generated method stub
 		return null;
 	}
