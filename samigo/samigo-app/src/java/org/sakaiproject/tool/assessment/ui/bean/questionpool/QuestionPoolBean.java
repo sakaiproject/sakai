@@ -1795,6 +1795,9 @@ public String getAddOrEdit()
 
       setOutComeTree(originId);
 
+      //Questionpool has been copied
+      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_COPY, "/sam/" +AgentFacade.getCurrentSiteId() + "/sourceId=" + sourceId + " destId=" + destId, true));
+
 	return getOutcome();
 
   }
@@ -1836,7 +1839,10 @@ public String getAddOrEdit()
         }
 
         setOutComeTree(originId);
-      
+
+        //Questionpool has been moved
+        EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_MOVE, "/sam/" +AgentFacade.getCurrentSiteId() + "/sourceId=" + sourceId + " destId=" + destId, true));
+
 	return getOutcome();
   }
 
