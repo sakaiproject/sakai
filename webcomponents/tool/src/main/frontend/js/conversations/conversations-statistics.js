@@ -36,6 +36,8 @@ export class ConversationsStatistics extends SakaiElement {
 
   loadStatsPage(page) {
 
+    if (!this.statsUrl) return;
+
     const options = {
       page,
       sort: this.sort,
@@ -62,7 +64,7 @@ export class ConversationsStatistics extends SakaiElement {
       this.currentPage = data.currentPage;
       this.requestUpdate();
     })
-    .catch(error => console.log(error));
+    .catch(error => console.error(error));
   }
 
   set interval(value) {
