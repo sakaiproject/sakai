@@ -37,8 +37,8 @@ $( document ).ready(function() {
     });
   });
 
-  $('.fillInNumericInput').popover({
-    trigger: 'focus'
+  $('.fillInNumericInput').on('shown.bs.popover', function () {
+    $(this).delay(3000).popover('hide');
   });
 
   $('.fillInNumericInput').change( function() {
