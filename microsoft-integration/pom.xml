@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>22-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+	</parent>
+
+	<name>Microsoft Integration</name>
+	<groupId>org.sakaiproject.microsoft</groupId>
+	<artifactId>microsoft-integration</artifactId>
+	<packaging>pom</packaging>
+
+	<properties>
+		<!-- Dependency versions -->
+		<msal4j.version>1.11.3</msal4j.version>
+		<azure-identity.version>1.5.0</azure-identity.version>
+		<microsoft-graph.version>5.20.0</microsoft-graph.version>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<!-- Microsoft -->
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>msal4j</artifactId>
+				<version>${msal4j.version}</version>
+				<!--scope>provided</scope-->
+			</dependency>
+			<dependency>
+				<groupId>com.azure</groupId>
+				<artifactId>azure-identity</artifactId>
+				<version>${azure-identity.version}</version>
+				<!--scope>provided</scope-->
+			</dependency>
+			<dependency>
+				<groupId>com.microsoft.graph</groupId>
+				<artifactId>microsoft-graph</artifactId>
+				<version>${microsoft-graph.version}</version>
+				<!--scope>provided</scope-->
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<modules>
+		<module>api</module>
+		<module>impl</module>
+		<module>admin-tool</module>
+	</modules>
+
+</project>
