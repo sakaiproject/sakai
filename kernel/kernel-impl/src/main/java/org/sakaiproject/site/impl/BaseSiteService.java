@@ -83,6 +83,8 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.messaging.api.MicrosoftMessage;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.AllowedJoinableAccount;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -476,6 +478,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @return the NotificationService collaborator
 	 */
 	protected abstract NotificationService notificationService();
+	
+	/**
+	 * 
+	 * @return the MicrosoftMessagingService collaborator
+	 */
+	protected abstract MicrosoftMessagingService microsoftMessagingService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -1365,6 +1373,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		microsoftMessagingService().send(MicrosoftMessage.Topic.CREATE_ELEMENT, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.CREATE)
+				.type(MicrosoftMessage.Type.SITE)
+				.siteId(id)
+				.build()
+		);
 
 		return site;
 	}
@@ -1536,6 +1552,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// Use the HardDelete interface to purge content from database
 		if (isHardDelete) {
 			hardDelete(site);
+			
+			//send message to (ignite) MicrosoftMessagingService
+			microsoftMessagingService().send(MicrosoftMessage.Topic.DELETE_ELEMENT, MicrosoftMessage.builder()
+					.action(MicrosoftMessage.Action.DELETE)
+					.type(MicrosoftMessage.Type.SITE)
+					.siteId(site.getId())
+					.build()
+			);
 		}
 	}
 

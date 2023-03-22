@@ -44,6 +44,8 @@ import org.sakaiproject.authz.impl.DbAuthzGroupService.DbStorage.RealmLock;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.messaging.api.MicrosoftMessage;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -1046,6 +1048,16 @@ public class BaseAuthzGroup implements AuthzGroup
 			grant.active = active;
 			grant.provided = provided;
 		}
+		
+
+		//send message to (ignite) MicrosoftMessagingService
+		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.ADD_MEMBER_TO_AUTHZGROUP, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.ADD)
+				.reference(this.getId())
+				.userId(user)
+				.owner(role.isAllowed(SiteService.SECURE_UPDATE_SITE))
+				.build()
+		);
 	}
 
 	/**
@@ -1056,6 +1068,14 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
 		m_userGrants.remove(user);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.REMOVE)
+				.reference(this.getId())
+				.userId(user)
+				.build()
+		);
 	}
 
 	/**
@@ -1077,6 +1097,13 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
 		m_userGrants.clear();
+		
+		//send message to (ignite) MicrosoftMessagingService
+		this.baseAuthzGroupService.microsoftMessagingService().send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.REMOVE_ALL)
+				.reference(this.getId())
+				.build()
+		);
 	}
 
 	/**
