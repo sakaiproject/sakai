@@ -32,7 +32,11 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
@@ -100,8 +104,12 @@ public class AgentResults
   private Double scoreSummation=new Double("0");
   private Double averageScore= new Double("0");
   private String alternativeInstructorReviewUrl;
+  @Getter @Setter
+  private int roundingDecimals = 2;
 
   public AgentResults() {
+    ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+    this.setRoundingDecimals(serverConfigurationService.getInt("samigo.submission.rounding.decimals", 2));
   }
 
   public Double getScoreSummation(){
@@ -240,7 +248,7 @@ public class AgentResults
   public String getRoundedTotalAutoScore() {
    if (totalAutoScore!= null){
 	   try {
-		   String newscore = ContextUtil.getRoundedValue(totalAutoScore.replace(',', '.'), 2);
+		   String newscore = ContextUtil.getRoundedValue(totalAutoScore.replace(',', '.'), this.getRoundingDecimals());
 		   return Validator.check(newscore, "N/A").replace(',', '.');
 	   }
 	   catch (Exception e) {
@@ -274,7 +282,7 @@ public class AgentResults
 		if (totalOverrideScore != null) {
 			try {
 				String newscore = ContextUtil.getRoundedValue(
-						totalOverrideScore.replace(',', '.'), 2);
+						totalOverrideScore.replace(',', '.'), this.getRoundingDecimals());
 				return Validator.check(newscore, "N/A");
 			} catch (Exception e) {
 				// encountered some weird number format/locale
@@ -299,7 +307,7 @@ public class AgentResults
   public String getRoundedFinalScore() {
 	  if (finalScore!= null){
 		  try {
-			  String newscore = ContextUtil.getRoundedValue(finalScore.replace(',', '.'), 2);
+			  String newscore = ContextUtil.getRoundedValue(finalScore.replace(',', '.'), this.getRoundingDecimals());
 			  return Validator.check(newscore, "N/A");
 		  }
 		  catch (Exception e) {
