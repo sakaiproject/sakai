@@ -35,7 +35,7 @@ For opening help sidebar
         aria-label="$rloader.sit_allsites"
         aria-controls="select-site-modal"
         title="$rloader.sit_allsites">
-      <i class="bi-grid-3x3"></i>
+      <i class="bi bi-grid-3x3-gap-fill"></i>
     </button>
   </li>
 
