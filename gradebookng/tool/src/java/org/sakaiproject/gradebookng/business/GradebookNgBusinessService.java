@@ -1816,13 +1816,17 @@ public class GradebookNgBusinessService {
 			List<String> viewableGroupIds = this.gradingPermissionService
 					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
 
+			if (viewableGroupIds == null) {
+				viewableGroupIds = new ArrayList<>();
+			}
+
 			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
 			//need to check realms to see if user has privilege to grade any groups. This is already done in 
-			if(CollectionUtils.isEmpty(viewableGroupIds)){
+			if (CollectionUtils.isEmpty(viewableGroupIds)) {
 				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId());
-				if(CollectionUtils.isNotEmpty(realmsPerms)){
-					for(PermissionDefinition permDef : realmsPerms){
-						if(permDef.getGroupReference()!=null){
+				if (CollectionUtils.isNotEmpty(realmsPerms)) {
+					for (PermissionDefinition permDef : realmsPerms) {
+						if (permDef.getGroupReference() != null) {
 							viewableGroupIds.add(permDef.getGroupReference());
 						} else {
 							canGradeAll = true;
