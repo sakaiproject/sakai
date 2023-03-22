@@ -99,6 +99,16 @@
 		 <p/>
 		 <div class="row">
 		 	<div class="col-md-6">
+
+		 		<div>
+					<%-- immediate=true bypasses the valueChangeListener --%>
+					<h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
+					<%-- activates the valueChangeListener --%>
+					<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="#{samLiteBean.getOutcome}">
+						<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
+		 			</h:commandButton>
+		 		</div>
+
 				<h:panelGroup layout="block" styleClass="toggle_link_container_for_richtextarea" rendered="#{!samLiteBean.richTextarea}">
 					<a class="toggle_link" id="samLiteEntryForm:data_toggle" href="javascript:pre_show_editor()">
 						<h:outputText value="#{samLiteMessages.rich_text_label}"/>
@@ -107,10 +117,10 @@
 				<h:inputHidden value="#{samLiteBean.samigoFrameId}" id="data_textinput_current_status"/>
 				<h:inputHidden value="#{samLiteBean.data}" id="data_value"/>
 				<h:inputTextarea id="data" value="#{samLiteBean.data}" rows="15" cols="75" />
+
 		 		<div>
 					<%-- immediate=true bypasses the valueChangeListener --%>
 					<h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
-					     	
 					<%-- activates the valueChangeListener --%>
 					<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="#{samLiteBean.getOutcome}">
 						<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
