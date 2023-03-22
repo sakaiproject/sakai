@@ -349,4 +349,24 @@ public class AssessmentBean  implements Serializable {
   public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
   }
+
+  /**
+   * Get part with question pools count
+   */
+  public long getPartsWithRandomQuestionsCount() {
+
+    if (this.sections == null) {
+      return 0;
+    }
+
+    int numPoolSections = 0;
+    List<SectionContentsBean> sectionList = (List<SectionContentsBean>) this.sections;
+    return sectionList.stream().filter(section -> section.getPoolIdToBeDrawn() != null).count();
+
+  }
+
+  public boolean isAllRandomPartsReshuffleEnabled() {
+    return ServerConfigurationService.getBoolean("samigo.all.random.parts.reshuffle.enabled", false);
+  }
+
 }
