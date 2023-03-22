@@ -81,6 +81,7 @@ $(window).load( function() {
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!assessmentBean.hasGradingData}"/>
+	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_3}" escape="false" />
     </h:panelGrid>
   </h:panelGroup>
 
@@ -527,6 +528,7 @@ $(window).load( function() {
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!assessmentBean.hasGradingData}"/>
+	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_3}" escape="false" />
     </h:panelGrid>
   </h:panelGroup>
   
