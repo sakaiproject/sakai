@@ -80,6 +80,7 @@ public final class SamigoConstants {
     public static final     String      EVENT_ASSESSMENT_AVAILABLE                          = "sam.assessment.available";
     public static final     String      EVENT_ASSESSMENT_UPDATE_AVAILABLE                   = "sam.assessment.update.available";
     public static final     String      EVENT_ASSESSMENT_DELETE                             = "sam.assessment.delete";
+    public static final     String      EVENT_ASSESSMENT_ALLOW_RETAKE                       = "sam.assessment.allow_retake";
 
 
     //Published assessment events
