@@ -117,6 +117,8 @@ public interface RubricsService {
 
     /**
      * Save the association between a tool item (an assignment, for example), and a rubric
+     * If you are deactivating/removing an existing association, it will soft-delete its data by doing setActive(false) on it.
+     * If you are reactivating an association that has already existed, it will take the old data for it and simply do setActive(true) on it.
      *
      * @param toolId the tool id, something like "sakai.assignment"
      * @param toolItemId the id of the tool's item that is being associated with the rubric
