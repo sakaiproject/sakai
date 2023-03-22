@@ -10,6 +10,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
+	<name>Microsoft Admin Tool</name>
 	<groupId>org.sakaiproject.microsoft</groupId>
 	<artifactId>microsoft-admin-tool</artifactId>
 	<packaging>war</packaging>
