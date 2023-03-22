@@ -44,7 +44,7 @@ import org.sakaiproject.poll.model.Vote;
 @Setter
 public class PollVoteManagerImpl implements PollVoteManager {
 
-	private ExternalLogic externalLogic;    
+	private ExternalLogic externalLogic;
 	private PollDao dao;
 	private PollListManager pollListManager;
 
@@ -119,16 +119,18 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		Search search = new Search();
 		search.addRestriction(new Restriction("userId",userID));
 		search.addRestriction(new Restriction("pollId",pollid));
-		List<Vote> votes = dao.findBySearch(Vote.class, search);		
-		if (votes.size() > 0)
-			return true;
-		else
-			return false;
+		List<Vote> votes = dao.findBySearch(Vote.class, search);
+		return votes.size() > 0;
 	}
 
-	public boolean userHasVoted(Long pollId) {
+	public boolean userHasVoted(Poll poll) {
 
-		return userHasVoted(pollId, externalLogic.getCurrentUserId());
+		// Unlimited votes for admins, teachears and own polls
+		if (this.allowInfiniteVotes(poll)) {
+			return false;
+		}
+
+		return userHasVoted(poll.getPollId(), externalLogic.getCurrentUserId());
 	}
 
 	public Vote getVoteById(Long voteId) {
@@ -202,7 +204,13 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
 		if (pollAfterOpen && pollBeforeClose)
 		{
-			if (poll.getLimitVoting() && userHasVoted(poll.getPollId())) {
+
+			// Unlimited votes for admins, teachears and own polls
+			if (this.allowInfiniteVotes(poll)) {
+				return true;
+			}
+
+			if (poll.getLimitVoting() && userHasVoted(poll)) {
 				return false;
 			}
 			//the user hasn't voted do they have permission to vote?'
@@ -231,5 +239,23 @@ public class PollVoteManagerImpl implements PollVoteManager {
         for (Vote vote : votes) {
             deleteVote(vote);
         }
+    }
+
+    private boolean allowInfiniteVotes(Poll poll) {
+        // Unlimited votes for admins, teachears and own polls
+        boolean isInfiniteVotesAllowed = externalLogic.isInfiniteVotesAllowed();
+        log.debug("Is infinite voting enabled? {}", isInfiniteVotesAllowed);
+        if (isInfiniteVotesAllowed) {
+            boolean isAdmin = externalLogic.isUserAdmin();
+            boolean canEditAnyPoll = externalLogic.isAllowedInLocation(PollListManager.PERMISSION_EDIT_ANY, externalLogic.getCurrentLocationReference());
+            boolean isPollOwner = poll.getOwner().equals(externalLogic.getCurrentUserId());
+            boolean canEditOwnPolls = externalLogic.isAllowedInLocation(PollListManager.PERMISSION_EDIT_OWN, externalLogic.getCurrentLocationReference());
+            if (isAdmin || canEditAnyPoll || (canEditOwnPolls && isPollOwner) ) {
+                log.debug("Infinite voting is allowed");
+                return true;
+            }
+        }
+        log.debug("Infinite voting is not allowed");
+        return false;
     }
 }

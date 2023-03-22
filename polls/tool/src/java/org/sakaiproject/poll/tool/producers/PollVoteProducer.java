@@ -140,9 +140,8 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 		log.debug("got poll " + poll.getText());
 
-
 		//check if they can vote
-		if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
+		if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll)) {
 			log.warn("This user has already voted!");
 			UIOutput.make(tofill, "hasErrors",messageLocator.getMessage("vote_hasvoted.voteCollection"));
 			return;

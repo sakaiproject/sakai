@@ -241,4 +241,9 @@ public class ExternalLogicStubb implements ExternalLogic {
 		return null;
 	}
 
+    @Override
+    public boolean isInfiniteVotesAllowed() {
+        return false;
+    }
+
 }

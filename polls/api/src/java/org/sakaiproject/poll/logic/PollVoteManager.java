@@ -64,10 +64,10 @@ public interface PollVoteManager {
 
     /**
      * Assumes current user
-     * @param pollid
+     * @param poll
      * @return
      */
-    public boolean userHasVoted(Long pollid);
+    public boolean userHasVoted(Poll poll);
 
     public int getDisctinctVotersForPoll(Poll poll);
 

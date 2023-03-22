@@ -271,4 +271,9 @@ public interface ExternalLogic {
             boolean checkForEvilTags,
             boolean replaceWhitespaceTags);
 
+    /**
+     * If the instance is configured to allow infinite votes
+     */
+    public boolean isInfiniteVotesAllowed();
+
 }

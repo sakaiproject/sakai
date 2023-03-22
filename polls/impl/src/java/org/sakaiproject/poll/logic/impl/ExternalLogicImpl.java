@@ -546,4 +546,9 @@ public class ExternalLogicImpl implements ExternalLogic {
         return formattedText.processFormattedText(strFromBrowser, errorMessages, checkForEvilTags, replaceWhitespaceTags);
     }
 
+    @Override
+    public boolean isInfiniteVotesAllowed() {
+        return serverConfigurationService.getBoolean("poll.allow.infinite.votes", false);
+    }
+
 }

@@ -129,7 +129,7 @@ public class VoteValidator implements Validator {
 	  log.debug("options selected is " + options.size());
 	  // the exact choise case
 	  
-	  if (pollVoteManager.userHasVoted(poll.getPollId()) && poll.getLimitVoting()) {
+	  if (pollVoteManager.userHasVoted(poll) && poll.getLimitVoting()) {
 		  	if (!errors.hasFieldErrors("vote_hasvoted")) {
 		  		errors.reject("vote_hasvoted","has voted");
 		  	}
