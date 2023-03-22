@@ -877,7 +877,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     return Optional.empty();
                 }
             } else {
-                //if existingAssociation is not present, it could just mean that it was deactivated previously; the specific getRubricAssociation impl that we used earlier to load it will ignore deactivated ones.
+                // if existingAssociation is not present, it could just mean that it was deactivated previously
+                // the specific getRubricAssociation impl that we used earlier to load it will ignore deactivated ones.
                 Optional<ToolItemRubricAssociation> optionalExistingAssociation = findAssociationByItemIdAndRubricId(toolItemId, requestedRubricId);    // this will include inactive [soft-deleted] ones
                 if (optionalExistingAssociation.isPresent()) {  // if there's already an old association for the requested rubric that was deactivated previously, reuse it
                     optionalExistingAssociation.get().setActive(true);
