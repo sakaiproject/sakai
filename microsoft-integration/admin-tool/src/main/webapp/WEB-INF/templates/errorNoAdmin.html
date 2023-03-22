@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+	<div th:replace="fragments/common :: bootstrap" />
+
+	<div class="sak-banner-error" role="alert" th:text="#{common_danger}">
+		You must be an admin to use this tool, please contact your Administrator.
+	</div>
+</body>
+</html>

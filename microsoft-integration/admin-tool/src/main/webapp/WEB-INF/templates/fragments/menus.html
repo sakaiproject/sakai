@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div th:fragment="main (active)">
+	<ul class="navIntraTool">
+		<li class="firstToolBarItem">
+		<span th:class="${active == 'index' ? 'current' : ''}">
+			<a th:href="@{/index}" th:text="#{menu_main}">Main</a>
+		</span>
+		</li>
+		<li th:if="${active != 'editGroup'}">
+		<span th:class="${active == 'new' ? 'current' : ''}">
+			<a th:title="#{menu_new.title}" th:href="@{/newSiteSynchronization}" th:text="#{menu_new}">New</a>
+		</span>
+		</li>
+		<li th:if="${active == 'editGroup'}">
+		<span th:class="${active == 'editGroup' ? 'current' : ''}">
+			<a th:title="#{menu_edit.title}" th:href="${siteSynchronizationId}" th:text="#{menu_edit}">Edit</a>
+		</span>
+		</li>
+		<li>
+		<span th:class="${active == 'config' ? 'current' : ''}">
+			<a th:title="#{menu_config.title}" th:href="@{/config}" th:text="#{menu_config}">Config</a>
+		</span>
+		</li>
+		<li>
+		<span th:class="${active == 'credentials' ? 'current' : ''}">
+			<a th:title="#{menu_credentials.title}" th:href="@{/credentials}" th:text="#{menu_credentials}">Credentials</a>
+		</span>
+		</li>
+		<li th:if="${active == 'index'}">
+		<span role="button">
+			<a data-toggle="modal" data-target="#autoconfig-modal" th:text="#{autoconfig_title}" onclick="openAutoConfig()"></a>
+		</span>
+		</li>
+	</ul>
+	</div>
+</body>
+</html>

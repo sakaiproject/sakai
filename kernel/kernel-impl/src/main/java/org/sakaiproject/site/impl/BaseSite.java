@@ -47,6 +47,8 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.messaging.api.MicrosoftMessage;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -169,6 +171,7 @@ public class BaseSite implements Site
 	protected AuthzGroup m_azg = null;
 
 	private AuthzGroupService authzGroupService;
+	private MicrosoftMessagingService microsoftMessagingService;
 	private FormattedText formattedText;
 	/**
 	 * Set to true if we have changed our azg, so it need to be written back on
@@ -577,6 +580,7 @@ public class BaseSite implements Site
 			}
 		}
 		this.authzGroupService = this.siteService.authzGroupService();
+		this.microsoftMessagingService = this.siteService.microsoftMessagingService();
 		this.sessionManager = sessionManager;
 		if (this.sessionManager == null) {
 			this.sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
@@ -1717,6 +1721,15 @@ public class BaseSite implements Site
 	{
 		Group rv = new BaseGroup(siteService, this);
 		m_groups.add(rv);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		microsoftMessagingService.send(MicrosoftMessage.Topic.CREATE_ELEMENT, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.CREATE)
+				.type(MicrosoftMessage.Type.GROUP)
+				.siteId(this.getId())
+				.groupId(rv.getId())
+				.build()
+		);
 
 		return rv;
 	}
@@ -1747,6 +1760,15 @@ public class BaseSite implements Site
 
 		// track so we can clean up related on commit
 		m_deletedGroups.add(group);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		microsoftMessagingService.send(MicrosoftMessage.Topic.DELETE_ELEMENT, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.DELETE)
+				.type(MicrosoftMessage.Type.GROUP)
+				.siteId(this.getId())
+				.groupId(group.getId())
+				.build()
+		);
 	}
 
 	/**
