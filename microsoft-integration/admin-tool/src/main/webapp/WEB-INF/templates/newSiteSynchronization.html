@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/common :: head" />
+
+<body>
+	<div th:replace="fragments/common :: bootstrap" />
+	<div th:include="fragments/common :: admin (${isAdmin})" />
+
+	<div th:if="${isAdmin}">
+		<div class="portletBody">
+			<div id="menu" th:include="fragments/menus :: main (new)" />
+			<div class="page-header">
+				<h1 th:text="#{site_synch.new_title}"></h1>
+			</div>
+
+			<div th:include="fragments/common :: error" />
+
+			<form id="siteSynchForm" th:action="@{/save-siteSynchronization}"
+				method="post">
+				<div class="col-sm-12 synchContainer">
+					<div class="col-lg-5">
+						<h3 th:text="#{site_synch.sakai_sites}">Sakai Sites</h3>
+						<div class="panel-body microsoft-block">
+							<fieldset class="fieldset-collapse">
+								<legend class="collapse-button" role="button" data="toggleContent()"
+									th:text="#{site_synch.filters}" tabindex="0"></legend>
+								<div class="fieldset-content" hidden>
+									<div th:replace="fragments/siteFilter :: siteFilter (showSiteProperty=true)">
+									</div>
+
+									<div class="act">
+										<input type="button" class="active control-label"
+											th:value="#{site_synch.filter}" onclick="filterSites(false)" />
+										<input type='button' th:value="#{site_synch.filter.clear}"
+											onclick="filterSites(true)" />
+									</div>
+								</div>
+							</fieldset>
+
+							<input id="site-search" type="text" class="form-control microsoft-search"
+								onkeyup="searchFilter(this)"
+								data-list="sites-list"
+								th:placeholder="|&#xF002; #{search}|" />
+
+							<div id="sakai-error"></div>
+							<div>
+								<ul id="sites-list" class="list-unstyled">
+									<th:block th:fragment="sites(sitesList)">
+										<li class="table-row" th:each="site : ${sitesList}">
+											<label>
+												<input class="form-control" type='checkbox' name="selectedSiteIds"
+												th:value="${site.id}" />
+												<span class="control-label title-row" th:text="${site.title}"></span>
+											</label>
+										</li>
+									</th:block>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-2 text-center">
+						<div class="row arrow-container">
+							<i class="fa fa-arrow-right"></i>
+						</div>
+						<div class="row">
+							<label>
+								<input type='checkbox' name='forced'>
+								<span th:text="#{forced}"></span>
+							</label>
+						</div>
+					</div>
+					<div class="col-lg-5 flex-column">
+						<h3>
+							<span th:text="#{site_synch.microsoft_teams}">Microsoft Teams</span>
+							<i class="fa fa-refresh" aria-hidden="true" href='#' role='button'
+							data="doRefresh('teams-container')" tabindex="0"></i>
+						</h3>
+						<div class="panel-body microsoft-block flex-column" style="height: 100%">
+							<div>
+								<input type="text" class="form-control microsoft-search"
+									onkeyup="searchFilter(this)"
+									data-list="teams-list"
+									th:placeholder="|&#xF002; #{search}|">
+								<div id="microsoft-error"></div>
+							</div>
+							<ul id="teams-container" class="list-unstyled" style="flex-grow: 1;">
+								<li>
+									<input id="new-team-checkbox" class="form-control" type='checkbox' name="selectedTeamIds" value="NEW" onchange="checkNewTeam(this.id)" />
+									<label class="control-label" th:text="#{new}"></label>
+									<input type='text' name="newTeamName" disabled />
+								</li>
+								<div id="teams-list">
+									<th:block th:fragment="teams(teamsMap)">
+										<li class="table-row" th:each="team : ${teamsMap}">
+											<label>
+												<input class="form-control" type='checkbox' name="selectedTeamIds" th:value="${team.key}"
+													th:checked="${team.key} == ${selectedTeamId}"
+													th:disabled="${siteSynchronizationId != null}" />
+												<span class="control-label title-row" th:text="${team.value.name}"></span>
+											</label>
+										</li>
+									</th:block>
+								</div>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="act col-sm-12">
+					<div class="col-sm-12">
+						<input class="active control-label" type='button' th:value="#{save}" onclick="validateForm()" />
+						<input type='button' th:value="#{cancel}"
+							th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
+					</div>
+				</div>
+			</form>
+		</div>
+		<script th:inline="javascript">
+
+			(function () {
+				document.querySelectorAll('.my-info-class').forEach((item) => {
+					$(item).popover();
+				});
+
+				const parentDiv = document.querySelector('#siteSynchForm');
+
+				parentDiv.addEventListener('click', handleButtonClick);
+				parentDiv.addEventListener('keypress', handleButtonClick);
+
+				let input = document.getElementById("search-property");
+				input.addEventListener("keyup", function(event) {
+					if (event.keyCode === 13) {
+						event.preventDefault();
+						filterSites(false);
+					}
+				});
+			})();
+
+			async function doRefresh(id) {
+				var teamsContainer = document.getElementById(id);
+				var teamsList = document.getElementById('teams-list');
+
+				teamsList.innerHTML = '';
+				teamsList.classList.add('hidden');
+				var spinner = setLoading(teamsContainer);
+
+				let url = "[(@{/refreshTeams})]";
+				let response = await fetch(url);
+				let data = await response.text();
+
+				spinner.remove();
+				teamsList.innerHTML = data;
+				teamsList.classList.remove('hidden');
+			};
+
+			let collapsed = true;
+
+			function toggleContent() {
+				const div = document.querySelector('.fieldset-content');
+				const fieldset = document.querySelector('.fieldset-collapse');
+				collapsed = !collapsed;
+				div.style.display = collapsed ? 'none' : 'block';
+				fieldset.style.padding = collapsed ? '0' : '1em';
+			}
+
+			async function filterSites(clear) {
+				const siteSearch = document.getElementById("site-search");
+
+				var siteValue = document.querySelector('input[name="siteType"]:checked').value;
+				const publishedCheckbox = document.querySelector('input[name="published"]');
+				const sitePropertyInput = document.querySelector('input[name="siteProperty"]');
+
+				if (clear) {
+					const siteRadioButtons = document.querySelectorAll('input[name="siteType"]');
+					siteRadioButtons[2].checked = true;
+					siteValue = siteRadioButtons[2].value;
+
+					publishedCheckbox.checked = false;
+
+					sitePropertyInput.value = '';
+				}
+
+				let baseURL = "[(@{/fiterSites})]";
+
+				siteSearch.value = '';
+
+				var sitesList = document.getElementById("sites-list");
+				var sitesListContainer = sitesList.parentElement;
+
+				sitesList.innerHTML = '';
+				sitesList.classList.add('hidden');
+				var spinnerElement = setLoading(sitesListContainer);
+
+				const response = await fetch(baseURL, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(
+						{
+							siteType: siteValue,
+							published: publishedCheckbox.checked,
+							siteProperty: sitePropertyInput.value
+						})
+				});
+				let content = await response.text();
+				sitesList.innerHTML = content;
+				spinnerElement.remove();
+				sitesList.classList.remove('hidden');
+			}
+			function checkNewTeam(id) {
+				const newTeamCheckbox = document.getElementById(id);
+				const newTeamText = document.getElementsByName('newTeamName')[0];
+				if (newTeamCheckbox.checked) {
+					newTeamText.disabled = false;
+					newTeamText.style.borderColor = 'black';
+					newTeamText.required = true;
+				} else {
+					newTeamText.disabled = true;
+					newTeamText.style.borderColor = '#E3E4E5';
+					newTeamText.required = false;
+				}
+			}
+
+			var siteTimeoutId = null;
+			var teamsTimeoutId = null;
+			function validateForm() {
+				var sakaiContainer = document.querySelector('#sakai-error');
+				var microsoftContainer = document.querySelector('#microsoft-error');
+
+				const sakaiSelected = document.querySelector('input[name="selectedSiteIds"]:checked');
+				const teamsSelected = document.querySelector('input[name="selectedTeamIds"]:checked');
+
+				if (!sakaiSelected) {
+					if(siteTimeoutId != null){
+						clearTimeout(siteTimeoutId);
+					}
+					var errorSakaiDiv = createError(sakaiContainer);
+					errorSakaiDiv.innerHTML = '[(#{error.sakai_sites})]';
+					siteTimeoutId = setTimeout(() => {console.log('Removing...'); errorSakaiDiv.remove() }, 5000);
+					return false;
+				}
+
+				if (!teamsSelected) {
+					if(teamsTimeoutId != null){
+						clearTimeout(teamsTimeoutId);
+					}
+					var errorMicrosoftDiv = createError(microsoftContainer);
+					errorMicrosoftDiv.innerHTML = '[(#{error.microsoft_teams})]';
+					teamsTimeoutId = setTimeout(() => {console.log('Removing...'); errorMicrosoftDiv.remove() }, 10000);
+					return false;
+				}
+
+				document.getElementById('siteSynchForm').submit();
+			}
+		</script>
+	</div>
+</body>
+
+</html>

@@ -1,0 +1,208 @@
+.#{$namespace}microsoft-admin {
+
+	// General styles ------------------------
+	$background-color_1: var(--sakai-color-gray--lighter-7);
+
+	.microsoft-search{
+		font-family:Arial, FontAwesome;
+		margin-bottom: 15px;
+	}
+
+	div.page-header {
+		.header-title {
+			margin: revert;
+		}
+	}
+
+	.text-bold {
+		font-weight: 700;
+	}
+
+	div.table-row {
+		display: flex;
+		align-items: center;
+		border: 1px solid #ddd;
+	}
+
+	.table-space {
+		>div {
+			padding: 10px;
+		}
+	}
+
+	div.index-background {
+		background-color: $background-color_1;
+	}
+
+	a.my-info-class {
+		text-decoration: none;
+	}
+
+	input[type="checkbox"] {
+		margin: 0 !important;
+	}
+
+	.popover{
+		width: 250px;
+	}
+
+	.flex-column{
+		display:flex;
+		flex-direction: column;
+	}
+
+	.property-filter{
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 5px;
+	}
+
+
+	// Index styles -----------------
+	.rotate90 {
+		transform: rotate(90deg);
+		transition: transform 0.3s ease-in-out;
+	}
+
+	.no-h-padding {
+		padding-right: 0;
+		padding-left: 0;
+	}
+
+	.utility-gap {
+		gap: 15px;
+	}
+
+	.utility-container {
+		div {
+			justify-content: center;
+		}
+	}
+
+	div.search {
+		justify-content: flex-start;
+	}
+
+	.site-title-margin {
+		margin-left: 8px;
+	}
+
+	.input-search {
+		margin: 0 !important;
+	}
+
+
+	// Synch Row Styles ---------------------
+	.container-flex {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.group-table {
+		padding: 1em 2.2em;
+		border-left: 1px solid #ddd;
+		border-right: 1px solid #ddd;
+		>div {
+			>div {
+				border: 1px solid #ddd;
+			}
+			&:nth-child(odd) {
+				background-color: $background-color_1;
+			}
+		}
+	}
+
+
+	// Auto Config styles -------------------------
+	.align-center {
+		display: flex;
+		align-items: center;
+	}
+
+	.mb-15 {
+		margin-bottom: 15px;
+	}
+
+	#progress-container {
+		.progress {
+			padding: 0px;
+			margin: auto;
+		}
+		.fa-exclamation-circle {
+			color: red;
+		}
+	}
+
+	// Edit Group styles ----------------------------------------
+	.row-list {
+		>div {
+			&:nth-child(even) {
+				>div {
+					background-color: $background-color_1;
+				}
+			}
+		}
+	}
+
+	i.fa.fa-solid.fa-trash {
+		font-size: 20px;
+	}
+
+	.modal-dialog {
+		width: 700px;
+	}
+
+	.col-title {
+		margin-bottom: 10px;
+	}
+
+
+	// New Site styles ------------------------------------------
+	.microsoft-block{
+		border: 1px solid black;
+
+		ul.list-unstyled{
+			overflow-y: auto;
+			height: 262px;
+		}
+	}
+
+	.fieldset-collapse {
+		border: 2px solid #8A8A8A;
+		position: relative;
+		margin-bottom: 15px;
+	}
+
+	.arrow-container {
+		margin-top: 40px;
+		margin-bottom: 20px;
+		font-size: 30px;
+	}
+
+	.synchContainer {
+		display: flex;
+	}
+
+	@media (max-width: 1200px) {
+		.synchContainer {
+			display: block;
+		}
+	}
+
+	// Config styles -------------------------------------
+	.config-fieldset{
+		border: 2px solid rgba(138, 138, 138, 1);
+		padding: 1em;
+		position: relative;
+
+		legend {
+			display: inline-block;
+			width: auto;
+			margin-bottom: 0;
+			padding: 0.5em;
+			border: 0 none;
+		}
+	}
+}

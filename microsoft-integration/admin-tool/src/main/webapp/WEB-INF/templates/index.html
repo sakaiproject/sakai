@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+	<div th:replace="fragments/common :: bootstrap" />
+	<div th:replace="fragments/common :: admin (${isAdmin})" />
+
+	<div th:if="${isAdmin}">
+		<div class="portletBody">
+			<div id="menu" th:replace="fragments/menus :: main (index)" />
+			<div class="page-header">
+				<h1 th:text="#{index_title}"></h1>
+			</div>
+
+			<div th:replace="fragments/common :: error" />
+			<div class="sak-banner-error hidden" id="forced_error"></div>
+
+			<div th:replace="fragments/autoConfig :: progressbar"></div>
+
+			<form id="index-form" th:action="@{/index}" method="get">
+				<div class="container-fluid utility-container row">
+					<div th:if="${search != null and search != ''}" class="listNav col-lg-4 act no-h-padding utility-gap" style="justify-content: flex-start;">
+						<div>
+							<input id="search-input" name="search" class="form-control microsoft-search input-search" type="search"
+								th:value="${search}" th:placeholder="|&#xF002; #{search}|" />
+						</div>
+						<input class="input-search" type="button" onclick="saveValues('search')" th:value="#{search}" />
+					</div>
+					
+					<div th:if="${siteSynchronizations.size() > 0}" id="buttons-container" class="col-lg-4 act utility-gap">
+						<input type="button" class="input-search actionButton active" onclick="deleteRows()" th:value="#{index.delete_selected}" />
+						<input type="button" class="input-search actionButton" onclick="removeTeamUsers()" th:value="|#{index.remove_team_users}*|" />
+					</div>
+					
+					<div th:if="${siteSynchronizations.size() > 0}" class="sakai-table-toolBar col-lg-4 no-h-padding"
+						th:with="indexTo=((${pageNum} * ${pageSize}) + 1),
+						indexOf=(${pageNum} + 1) * ${pageSize} > ${totalElements} ? ${totalElements} : (${pageNum} + 1) * ${pageSize}"
+					>
+						<div class="sakai-table-pagerContainer">
+							<div class="sakai-table-pagerLabel" th:utext="#{pager.showing_elements(${indexTo}, ${indexOf}, ${totalElements})}"></div>
+							<div class="sakai-table-pagerControls">
+								<input type="button" value="|<" 
+									th:title="#{index.pagination_first_page}" onclick="saveValues('firstPagination')"
+									th:disabled="${pageNum} == 0" />
+								<input type="button" value="<"
+									th:title="#{index.pagination_previous_page(${pageSize})}" onclick="saveValues('previousPagination')"
+									th:disabled="${pageNum} == 0" />
+								<div class="sakai-table-pagerPageSize">
+									<span th:text="#{index.pagination_skip}" class="skip"></span>
+									<select id="page-size-input" name="pageSize" th:aria-label="#{index.pagination_page_size.aria}"
+										onchange="saveValues('pageSize')">
+										<option value="10" th:selected="${pageSize} == '10'" th:text="#{pager.show_x_elements(10)}"></option>
+										<option value="50" th:selected="${pageSize} == '50'" th:text="#{pager.show_x_elements(50)}"></option>
+										<option value="100" th:selected="${pageSize} == '100'" th:text="#{pager.show_x_elements(100)}"></option>
+										<option value="200" th:selected="${pageSize} == '200'" th:text="#{pager.show_x_elements(200)}"></option>
+									</select>
+								</div>
+								<input type="button" value=">"
+									th:title="#{index.pagination_next_page(${pageSize})}" onclick="saveValues('nextPagination')"
+									th:disabled="${pageNum} >= ${maxPage}" />
+								<input type="button" value=">|" 
+									th:title="#{index.pagination_last_page}" onclick="saveValues('lastPagination')"
+									th:disabled="${pageNum} >= ${maxPage}" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<input id="select-page-num" name="pageNum" type="hidden" th:value="${pageNum}" />
+				<input id="sort-by-input" name="sortBy" type="hidden" th:value="${sortBy}" />
+				<input id="sort-order-input" name="sortOrder" type="hidden" th:value="${sortOrder}" />
+			</form>
+			<th:block th:if="${siteSynchronizations.size() > 0}">
+				<div id="table-container" class="admin-table container-fluid">
+					<div class="row table-space table-row index-background"
+					th:with="icon=(${sortOrder} == 'DESC' ? 'fa fa-sort-down' : 'fa fa-sort-up')">
+						<div class="col-md-4" role="button" data="saveValues('siteTitle')">
+							<span class="site-title-margin text-bold" th:text="#{site}" tabindex="0"></span>
+							<i th:if="${sortBy} == 'siteTitle'" th:classappend="${icon}"></i>
+						</div>
+						<div class="col-md-3" role="button" data="saveValues('teamTitle')">
+							<span class="text-bold" th:text="#{team}" tabindex="0"></span>
+							<i th:if="${sortBy} == 'teamTitle'" th:classappend="${icon}"></i>
+						</div>
+						<div class="col-md-1 text-center" role="button" data="saveValues('status')">
+							<span class="text-bold" th:text="#{status}" tabindex="0"></span>
+							<i th:if="${sortBy} == 'status'" th:classappend="${icon}"></i>
+						</div>
+						<div class="col-md-1 text-center">
+							<span class="text-bold" th:text="#{index.run}"></span>
+						</div>
+						<div class="col-md-1 text-center">
+							<span class="text-bold" th:text="#{forced}"></span>
+						</div>
+						<div class="col-md-1 text-center">
+							<span class="text-bold" th:text="#{index.groups}"></span>
+						</div>
+						<div class="col-md-1">
+							<input type="checkbox" onchange="toggleCheckboxes(this)" data="selectedIds" />
+						</div>
+					</div>
+					<form id="update-form" th:action="@{/update-siteSynchronizations}" method="post">
+						<th:block th:if="${siteSynchronizations.size() > 0}">
+							<th:block th:each="row, index : ${siteSynchronizations}">
+								<div tabindex="0"
+									class="row table-space table-row"
+									th:id="|row_${row.id}|"
+									th:classappend="${index.even} ? 'index-background' : ''"
+									th:insert="fragments/synchronizationRow :: siteRow(${row})"
+								></div>
+								<div th:id="|rowContainer_${row.id}|" class="row text-center hidden"></div>
+							</th:block>
+						</th:block>
+						<input type="hidden" id="update-action" name="action" value="" />
+					</form>
+				</div>
+				<div class="act" >
+					<div class="instruction" th:text="|* #{index.remove_team_users_info}|"></div>
+				</div>
+			</th:block>
+			<div th:if="${siteSynchronizations.size() == 0}">[[#{empty_table}]]</div>
+		</div>
+
+		<div th:replace="fragments/autoConfig :: modal"></div>
+		<div th:replace="fragments/autoConfig :: script"></div>
+		
+		<script th:inline="javascript">
+			(function () {
+				document.querySelectorAll('.my-info-class').forEach((item) => {
+					$(item).popover();
+				});
+				
+				autoconfig_running = [[${session?.AutoConfigSessionBean?.running}]];
+				
+				if(autoconfig_running){
+					startLoadingProcess();
+				}
+				
+				const parentDiv = document.querySelector('#table-container');
+				if(parentDiv){
+					parentDiv.addEventListener('click', handleButtonClick);
+					parentDiv.addEventListener('keypress', handleButtonClick);
+				}
+			})();
+			
+			function toggleCheckboxes(elem) {
+				var inputNames = elem.getAttribute('data');
+				var checkboxes = document.querySelectorAll('input[type="checkbox"][name="' + inputNames + '"]');
+				for (var checkbox in checkboxes) {
+					checkboxes[checkbox].checked = elem.checked;
+				}
+			}
+
+			async function changeForced(input, baseUrl) {
+				let url = baseUrl + "?forced=" + input.checked;
+				let response = await fetch(url);
+				let data = await response.json();
+				if (data.status == false) {
+					input.checked = !input.checked;
+					showForcedError(data.error);
+				}
+			}
+
+			function showForcedError(error) {
+				let elem = document.getElementById('forced_error');
+				elem.classList.remove('hidden');
+				elem.innerHTML = error;
+				setTimeout(() => { elem.classList.add('hidden') }, 10000);
+			}
+
+			async function toggleGroupRow(id) {
+				let baseURL = "[(@{/listGroupSynchronizations/})]";
+				
+				const child = document.getElementById("toggleIcon_" + id);
+				child.classList.toggle('rotate90');
+				
+				let containerElem = document.getElementById('rowContainer_' + id);
+				containerElem.classList.toggle('hidden');
+				
+				if (containerElem.getElementsByClassName('group-row').length == 0) {
+					setLoading(containerElem);
+					let response = await fetch(baseURL + id);
+					let data = await response.text();
+					containerElem.innerHTML = data;
+				}
+			}
+
+			function checkStatus(id) {
+				let baseURL = "[(@{/checkSiteSynchronizationStatus/})]";
+
+				loadRow(id, baseURL);
+			}
+
+			function doRun(id) {
+				let baseURL = "[(@{/runSiteSynchronization/})]";
+
+				loadRow(id, baseURL);
+			}
+
+			async function loadRow(id, baseURL) {
+				let rowElem = document.getElementById('row_' + id);
+				rowElem.innerHTML = '';
+				setLoading(rowElem);
+				
+				let containerElem = document.getElementById('rowContainer_' + id);
+				containerElem.classList.add('hidden');
+				containerElem.innerHTML = '';
+				
+				let response = await fetch(baseURL + id);
+				let data = await response.text();
+				rowElem.innerHTML = data;
+			}
+
+			function saveValues(elem) {
+				let form = document.getElementById("index-form");
+				let sortBy = document.getElementById("sort-by-input");
+				let sortOrder = document.getElementById("sort-order-input");
+				let pageSize = document.getElementById('page-size-input');
+				let pageNum = document.getElementById('select-page-num');
+				switch (elem) {
+					case 'firstPagination':
+						pageNum.value = 0;
+						break;
+					case 'previousPagination':
+						pageNum.value -= 1;
+						break;
+					case 'nextPagination':
+						let pageNumValue = parseInt(pageNum.value);
+						pageNumValue += 1;
+						pageNum.value = pageNumValue;
+						break;
+					case 'lastPagination':
+						let maxPage = [[${maxPage}]];
+						pageNum.value = maxPage;
+						break;
+					case 'search':
+						pageNum.value = 0;
+						break;
+					case 'pageSize':
+						pageNum.value = 0;
+						break;
+					default:
+						if (sortBy.value == elem) {
+							if(sortOrder.value == 'DESC'){
+								sortOrder.value = 'ASC';
+							} else {
+								sortOrder.value = 'DESC';
+							}
+						} else {
+							sortOrder.value = 'ASC';
+						}
+						sortBy.value = elem;
+						break;
+				}
+				form.submit();
+			}
+
+			function deleteRows() {
+				sendUpdate("delete");
+			}
+			
+			function removeTeamUsers() {
+				sendUpdate("clean");
+			}
+			
+			function sendUpdate(action) {
+				var form = document.getElementById("update-form");
+				document.getElementById("update-action").value = action;
+				document.getElementById("buttons-container").querySelectorAll('input').forEach((item) => {
+					item.disabled = true;
+				});
+				form.submit();
+			}
+		</script>
+	</div>
+</body>
+</html>
