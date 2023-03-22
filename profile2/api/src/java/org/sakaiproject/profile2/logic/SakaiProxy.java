@@ -1094,4 +1094,23 @@ public interface SakaiProxy {
 	 * @return the name pronunciation duration in seconds. 10 seconds if it is not configured in sakai.properties
 	 */
 	public int getNamePronunciationDuration();
+
+	/**
+	 * Check if a user is member of a site
+	 *
+	 * @param userId userId of user to check membership
+	 * @param siteId id of site
+	 * @return true if the user is member of that site
+	 */
+	public boolean isUserMemberOfSite(String userId, String siteId);
+
+	/**
+	 * Check if two users have any site membership in common
+	 *
+	 * @param userId1 userId of user to check membership
+	 * @param userId2 userId of user to check membership
+	 * @return true if both users are members of one common site
+	 */
+	public boolean areUsersMembersOfSameSite(String userId1, String userId2);
+
 }

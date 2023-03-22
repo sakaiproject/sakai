@@ -1719,6 +1719,38 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isUserMemberOfSite(final String userId, final String siteId){
+		try {
+			return this.siteService.getSite(siteId).getUserRole(userId) != null;
+		} catch (IdUnusedException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean areUsersMembersOfSameSite(final String userId1, final String userId2){
+		if (StringUtils.equals(userId1, userId2)) {
+			return true;
+		}
+		
+		try {
+			List<Site> sitesUser1 = siteService.getUserSites(false, userId1);
+			List<Site> sitesUser2 = siteService.getUserSites(false, userId2);
+			List<Site> coincidences = new ArrayList<>(sitesUser1);
+			coincidences.retainAll(sitesUser2);
+			return coincidences.size() > 0;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
+
+	/**
 	 * init
 	 */
 	public void init() {
