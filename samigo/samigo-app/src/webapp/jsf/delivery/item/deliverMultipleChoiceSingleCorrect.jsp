@@ -131,9 +131,9 @@ should be included in file importing DeliveryMessages
     <f:verbatim><br /><br /></f:verbatim>
     <h:outputLabel for="rationale" value="#{deliveryMessages.rationale}" />
     <f:verbatim><br /></f:verbatim>
-    <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
-        rendered="#{delivery.actionString!='reviewAssessment' 
-                 && delivery.actionString!='gradeAssessment'}" />
+    <h:panelGroup id="rationale" rendered="#{delivery.actionString!='reviewAssessment' && delivery.actionString!='gradeAssessment'}">
+      <samigo:wysiwyg rows="140" value="#{question.rationale}" hasToggle="yes"/>
+    </h:panelGroup>
     <h:outputText id="rationale2" value="#{question.rationaleForDisplay}" 
         rendered="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" escape="false"/>
