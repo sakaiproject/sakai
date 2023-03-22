@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="org.sakaiproject.microsoft"/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <!-- Hibernate persistence -->
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.microsoftadmintool"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.microsoft.api.model.SiteSynchronization</value>
+                <value>org.sakaiproject.microsoft.api.model.GroupSynchronization</value>
+                <value>org.sakaiproject.microsoft.api.model.MicrosoftConfigItem</value>
+                <value>org.sakaiproject.microsoft.api.model.MicrosoftLog</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Repositories -->
+    <bean id="org.sakaiproject.microsoft.api.persistence.MicrosoftSiteSynchronizationRepository"
+          class="org.sakaiproject.microsoft.impl.persistence.MicrosoftSiteSynchronizationRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    <bean id="org.sakaiproject.microsoft.api.persistence.MicrosoftGroupSynchronizationRepository"
+          class="org.sakaiproject.microsoft.impl.persistence.MicrosoftGroupSynchronizationRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    <bean id="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"
+          class="org.sakaiproject.microsoft.impl.persistence.MicrosoftConfigRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    <bean id="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"
+          class="org.sakaiproject.microsoft.impl.persistence.MicrosoftLoggingRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <!-- Microsoft Synchronization Service -->
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService" class="org.sakaiproject.microsoft.impl.MicrosoftSynchronizationServiceImpl" init-method="init">
+        <property name="microsoftSiteSynchronizationRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftSiteSynchronizationRepository"/>
+        <property name="microsoftGroupSynchronizationRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftGroupSynchronizationRepository"/>
+        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
+        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"/>
+    </bean>
+    
+    <!-- Microsoft Common Service -->
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftCommonService" class="org.sakaiproject.microsoft.impl.MicrosoftCommonServiceImpl" init-method="init">
+        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
+        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"/>
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.microsoft.api.SakaiProxy" class="org.sakaiproject.microsoft.impl.SakaiProxyImpl" init-method="init">
+    </bean>
+    
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftConfigurationService" class="org.sakaiproject.microsoft.impl.MicrosoftConfigurationServiceImpl" init-method="init">
+        <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftLoggingService" class="org.sakaiproject.microsoft.impl.MicrosoftLoggingServiceImpl" init-method="init">
+        <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"/>
+    </bean>
+    
+    <!-- Scheduling -->
+    <bean id="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob" class="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob">
+        <property name="microsoftSynchronizationService" ref="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
+          init-method="init"
+    >
+        <property name="beanId" value="org.sakaiproject.microsoft.impl.jobs.RunSynchronizationsJob"/>
+        <property name="jobName" value="Microsoft Run Synchronizations Job"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+    </bean>
+</beans>

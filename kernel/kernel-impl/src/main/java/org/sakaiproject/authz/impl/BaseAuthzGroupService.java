@@ -61,6 +61,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -280,6 +281,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	protected abstract UserDirectoryService userDirectoryService();
 
 	protected List<AuthzGroupAdvisor> authzGroupAdvisors;
+	
+	protected abstract MicrosoftMessagingService microsoftMessagingService();
 	
 	protected SiteService siteService;
 	public void setSiteService(SiteService siteService) {
