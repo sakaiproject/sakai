@@ -5,11 +5,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.sakaiproject.microsoft</groupId>
-		<artifactId>integration</artifactId>
+		<artifactId>microsoft-integration</artifactId>
 		<version>22-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
+	<name>Microsoft Admin Tool</name>
 	<groupId>org.sakaiproject.microsoft</groupId>
 	<artifactId>microsoft-admin-tool</artifactId>
 	<packaging>war</packaging>

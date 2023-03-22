@@ -5,12 +5,12 @@
 
 	<parent>
 		<groupId>org.sakaiproject.microsoft</groupId>
-		<artifactId>integration</artifactId>
+		<artifactId>microsoft-integration</artifactId>
 		<version>22-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<name>microsoft-api</name>
+	<name>Microsoft Api</name>
 	<groupId>org.sakaiproject.microsoft</groupId>
 	<artifactId>microsoft-api</artifactId>
 	<packaging>jar</packaging>

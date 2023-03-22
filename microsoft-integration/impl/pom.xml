@@ -5,12 +5,12 @@
 
 	<parent>
 		<groupId>org.sakaiproject.microsoft</groupId>
-		<artifactId>integration</artifactId>
+		<artifactId>microsoft-integration</artifactId>
 		<version>22-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<name>microsoft-impl</name>
+	<name>Microsoft Impl</name>
 	<groupId>org.sakaiproject.microsoft</groupId>
 	<artifactId>microsoft-impl</artifactId>
 	<packaging>sakai-component</packaging>
