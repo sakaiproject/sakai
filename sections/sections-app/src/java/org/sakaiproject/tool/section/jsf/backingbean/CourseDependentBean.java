@@ -166,4 +166,9 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return ((canManageAnySection()) || (getSectionTeachingAssistantsMap().get(sectionUid).stream()
 				.anyMatch(s -> s.getUser().getUserUid().equals(getUserUid()))));
 	}
+
+	public boolean isSuperUser() {
+		return getCourseBean().authz.isSuperUser();
+	}
+
 }
