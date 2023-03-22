@@ -177,6 +177,8 @@ public class IndexMacro extends BaseMacro
 				}
 				String[] rwikiPageGroupsArray = next.getPageGroupsAsArray();
 				String pageGroupsString = "";
+				
+				boolean showPage = objectService.checkRead(next);
 				if (rwikiPageGroupsArray != null) {
 					Site site = context.getSite();
 					String[] groupNames = new String[rwikiPageGroupsArray.length];
@@ -188,11 +190,15 @@ public class IndexMacro extends BaseMacro
 							count++;
 						}
 					}
-					if (count != 0) {
+					boolean showGroups = objectService.checkUpdate(next);
+
+					if (count != 0 && showGroups) {
 						pageGroupsString = "<b class='little-subtitle'>(*" + Messages.getString("availableTo.Groups") + StringUtils.join(groupNames, ", ") + ")</b>";
 					}
 				}
-				emitListItem(writer, plr, nextNameChars, nextSpaceIndex + 1, pageGroupsString);
+				if (showPage) {
+					emitListItem(writer, plr, nextNameChars, nextSpaceIndex + 1, pageGroupsString);
+				}
 
 				currentNameChars = nextNameChars;
 				currentSpaceIndex = nextSpaceIndex;
