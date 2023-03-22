@@ -45,6 +45,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
 import org.sakaiproject.groupmanager.form.GroupForm;
 import org.sakaiproject.groupmanager.service.SakaiService;
+import org.sakaiproject.messaging.api.MicrosoftMessage;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -64,6 +66,9 @@ public class GroupController {
 
     @Autowired
     private SakaiService sakaiService;
+    
+    @Autowired
+    private MicrosoftMessagingService microsoftMessagingService;
 
     private static List<User> selectableMemberList;
 
@@ -294,6 +299,14 @@ public class GroupController {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.sametitle", null, userLocale));
             return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription, joinableShowAllUsers);
         }
+        
+        //send message to (ignite) MicrosoftMessagingService
+        microsoftMessagingService.send(MicrosoftMessage.Topic.CHANGE_LISTEN_GROUP_EVENTS, MicrosoftMessage.builder()
+                .action(MicrosoftMessage.Action.DISABLE)
+                .siteId(site.getId())
+                .groupId(groupId)
+                .build()
+        );
 
         // If the group already exists, get it from the site and delete all the members.
         if (StringUtils.isNotBlank(groupId)) {
@@ -379,24 +392,57 @@ public class GroupController {
         }
 
         sakaiService.saveSite(site);
+        
+        //send message to (ignite) MicrosoftMessagingService
+        microsoftMessagingService.send(MicrosoftMessage.Topic.CHANGE_LISTEN_GROUP_EVENTS, MicrosoftMessage.builder()
+                .action(MicrosoftMessage.Action.ENABLE)
+                .siteId(site.getId())
+                .groupId(groupId)
+                .build()
+        );
 
         //Post Add and Remove events for each added/removed user.
-        if (sakaiService.getBooleanProperty(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false)) {
-            // Post an event for each individual member added
-            for (String addedUserId : addedGroupMemberList) {
-                if (currentGroupMembers.stream().noneMatch(member -> addedUserId.equals(member.getUserId()))) {
-                    sakaiService.postEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_ADD, addedUserId);
-                }
+        // Post an event for each individual member added
+        for (String addedUserId : addedGroupMemberList) {
+            if (currentGroupMembers.stream().noneMatch(member -> addedUserId.equals(member.getUserId()))) {
+            	if (sakaiService.getBooleanProperty(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false)) {
+            		sakaiService.postEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_ADD, addedUserId);
+            	}
+                
+                microsoftMessagingService.send(MicrosoftMessage.Topic.ADD_MEMBER_TO_AUTHZGROUP, MicrosoftMessage.builder()
+        				.action(MicrosoftMessage.Action.ADD)
+        				.type(MicrosoftMessage.Type.GROUP)
+        				.siteId(site.getId())
+          				.groupId(groupId)
+        				.userId(addedUserId)
+        				.owner(site.getMember(addedUserId).getRole().isAllowed(SiteService.SECURE_UPDATE_SITE))
+        				.force(true)
+        				.build()
+                );
             }
-
-            // Post an event for each individual member removed
-            currentGroupMembers.forEach(currentMember -> {
-                if (!addedGroupMemberList.contains(currentMember.getUserId())) {
-                    // an event for each individual member remove
-                    sakaiService.postEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_REMOVE, currentMember.getUserId());
-                }
-            });
         }
+
+        // Post an event for each individual member removed
+        currentGroupMembers.forEach(currentMember -> {
+            if (!addedGroupMemberList.contains(currentMember.getUserId())) {
+                // an event for each individual member remove
+            	if (sakaiService.getBooleanProperty(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false)) {
+            		sakaiService.postEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_REMOVE, currentMember.getUserId());
+            	}
+                
+                microsoftMessagingService.send(MicrosoftMessage.Topic.REMOVE_MEMBER_FROM_AUTHZGROUP, MicrosoftMessage.builder()
+        				.action(MicrosoftMessage.Action.REMOVE)
+        				.type(MicrosoftMessage.Type.GROUP)
+        				.siteId(site.getId())
+          				.groupId(groupId)
+        				.userId(currentMember.getUserId())
+        				.force(true)
+        				.build()
+        		);
+            }
+        });
+        
+        
 
         return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
     }
