@@ -158,7 +158,9 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
         String poolString = ContextUtil.getLocalizedString(MSG_BUNDLE,"pool");
         String partString = ContextUtil.getLocalizedString(MSG_BUNDLE,"part");
         String questionString = ContextUtil.getLocalizedString(MSG_BUNDLE,"question");
+        String textString = ContextUtil.getLocalizedString(MSG_BUNDLE,"question_text");
         String responseString = ContextUtil.getLocalizedString(MSG_BUNDLE,"response");
+        String pointsString = ContextUtil.getLocalizedString(MSG_BUNDLE,"points");
         String rationaleString = ContextUtil.getLocalizedString(MSG_BUNDLE,"rationale");
         String itemGradingCommentsString = ContextUtil.getLocalizedString(MSG_BUNDLE,"grader_comments");
         String responseCommentsString = ContextUtil.getLocalizedString(MSG_BUNDLE,"student_comments");
@@ -166,7 +168,7 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
         String submitTimeString = ContextUtil.getLocalizedString(MSG_BUNDLE,"submit_time");
         
         List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
-        		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, responseString, rationaleString, itemGradingCommentsString, useridMap, responseCommentsString);
+        		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentsString);
         //SAM-1693 the returned list could be null -DH
         List<List<Object>> list = new ArrayList<List<Object>>();
         if (exportResponsesDataList != null) {
