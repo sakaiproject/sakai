@@ -42,6 +42,8 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.CachableRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderContextFactory;
 import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderEngineFactory;
+import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
+import uk.ac.cam.caret.sakai.rwiki.service.exception.UpdatePermissionException;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 /**
@@ -109,10 +111,30 @@ public class RenderServiceImpl implements RenderService
 			while(startRwikiName != -1) {
 				String pageGroups = objectService.getRWikiObjectPageGroups(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm());
 				String stPageGroups = "";
-				if (StringUtils.isNotBlank(pageGroups)) { 
-					stPageGroups += " __%%{color:gray}(*" + rl.getString("availableTo.Groups") + pageGroups + "){color}__%%";
+				boolean showPage;
+				try {
+					showPage = objectService.checkRead(objectService.getRWikiObject(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm()));
+				} catch (ReadPermissionException ex) {
+					showPage = false;
 				}
-				content = content.substring(0,finishRwikiName+1) + stPageGroups + content.substring(finishRwikiName+1);
+				
+				boolean showGroups;
+				try {
+					showGroups = objectService.checkUpdate(objectService.getRWikiObject(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm()));
+				} catch (ReadPermissionException ex) {
+					showGroups = false;
+				} catch (UpdatePermissionException ex) {
+					showGroups = false;
+				}
+				
+				if (StringUtils.isNotBlank(pageGroups) && showGroups) { 
+					stPageGroups += " __%%{color:gray}(*" + rl.getString("availableTo.Groups") + pageGroups + "){color}%%__";
+				}
+				if (!showPage) {
+					content = content.substring(0,startRwikiName) + content.substring(finishRwikiName+1);
+				} else {
+					content = content.substring(0,finishRwikiName+1) + stPageGroups + content.substring(finishRwikiName+1);
+				}
 				startRwikiName = content.indexOf("[", startRwikiName + 2);
 				finishRwikiName = content.indexOf("]", startRwikiName);
 			}
