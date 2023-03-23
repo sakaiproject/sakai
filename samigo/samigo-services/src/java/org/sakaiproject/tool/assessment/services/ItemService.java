@@ -41,12 +41,14 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemHistorical;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemHistoricalIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.facade.BackfillItemHashResult;
@@ -281,7 +283,7 @@ public class ItemService
         item.getDescription(),item.getTypeId(),item.getGrade(),item.getScore(), item.getScoreDisplayFlag(), item.getDiscount(), item.getMinScore(),
         item.getHint(),item.getHasRationale(),item.getStatus(),item.getCreatedBy(),
         item.getCreatedDate(),item.getLastModifiedBy(),item.getLastModifiedDate(),
-        null, null, null, item.getTriesAllowed(), item.getPartialCreditFlag(), item.getHash());
+        null, null, null, null, item.getTriesAllowed(), item.getPartialCreditFlag(), item.getHash());
 
     // perform deep copy, set ItemTextSet, itemMetaDataSet and itemFeedbackSet
     Set newItemTextSet = copyItemTextSet(cloned, item.getItemTextSet());
@@ -289,12 +291,14 @@ public class ItemService
     Set newItemTagSet = copyItemTagSet(cloned, item.getItemTagSet());
     Set newItemFeedbackSet = copyItemFeedbackSet(cloned, item.getItemFeedbackSet());
     Set newItemAttachmentSet = copyItemAttachmentSet(cloned, item.getItemAttachmentSet());
+    Set<ItemHistoricalIfc> newItemHistoricalSet = copyItemHistoricalSet(cloned, item.getItemHistoricalSet());
     String newItemInstruction = AssessmentService.copyStringAttachment(item.getInstruction());
     cloned.setItemTextSet(newItemTextSet);
     cloned.setItemMetaDataSet(newItemMetaDataSet);
     cloned.setItemTagSet(newItemTagSet);
     cloned.setItemFeedbackSet(newItemFeedbackSet);
     cloned.setItemAttachmentSet(newItemAttachmentSet);
+    cloned.setItemHistoricalSet(newItemHistoricalSet);
     cloned.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
     cloned.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
     cloned.setInstruction(newItemInstruction);
@@ -387,6 +391,18 @@ public class ItemService
       ItemFeedback newItemFeedback = new ItemFeedback(
           cloned, itemFeedback.getTypeId(), AssessmentService.copyStringAttachment(itemFeedback.getText()), AssessmentService.copyStringAttachment(itemFeedback.getTextValue()));
       h.add(newItemFeedback);
+    }
+    return h;
+  }
+
+  private Set<ItemHistoricalIfc> copyItemHistoricalSet(ItemData cloned, Set<ItemHistoricalIfc> itemHistoricalSet) {
+    Set<ItemHistoricalIfc> h = new HashSet<ItemHistoricalIfc>();
+    if (itemHistoricalSet == null) return h;
+    Iterator<ItemHistoricalIfc> n = itemHistoricalSet.iterator();
+    while (n.hasNext()) {
+      ItemHistoricalIfc itemHistorical = n.next();
+      ItemHistoricalIfc newItemHistorical = new ItemHistorical(cloned, itemHistorical.getModifiedBy(), itemHistorical.getModifiedDate());
+      h.add(newItemHistorical);
     }
     return h;
   }

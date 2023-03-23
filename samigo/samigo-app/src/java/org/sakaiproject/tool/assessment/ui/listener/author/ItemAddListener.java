@@ -761,6 +761,12 @@ public class ItemAddListener implements ActionListener {
         	delegate.deleteItemContent(oldId, AgentFacade.getAgentString());
         }
     	item = delegate.getItem(oldId,AgentFacade.getAgentString());
+
+        if (isPendingOrPool) {
+            item.addItemHistorical(item.getLastModifiedBy(), item.getLastModifiedDate());
+        }
+        item.setLastModifiedBy(AgentFacade.getAgentString());
+        item.setLastModifiedDate(new Date());
       }
       else{
      	if (isPendingOrPool) {
@@ -769,6 +775,11 @@ public class ItemAddListener implements ActionListener {
      	else {
      		item = new PublishedItemFacade();
      	}
+
+    	item.setCreatedBy(AgentFacade.getAgentString());
+    	item.setCreatedDate(new Date());
+    	item.setLastModifiedBy(AgentFacade.getAgentString());
+    	item.setLastModifiedDate(new Date());
       }
 
       item.setIsExtraCredit(bean.isExtraCredit());
@@ -788,11 +799,6 @@ public class ItemAddListener implements ActionListener {
 	    item.setAnswerOptionsSimpleOrRich(Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()));
 	    item.setAnswerOptionsRichCount(Integer.valueOf(bean.getAnswerOptionsRichCount()));
   	  }
-      
-      item.setCreatedBy(AgentFacade.getAgentString());
-      item.setCreatedDate(new Date());
-      item.setLastModifiedBy(AgentFacade.getAgentString());
-      item.setLastModifiedDate(new Date());
 
       if (bean.getInstruction() != null) {
         // for matching and matrix Survey

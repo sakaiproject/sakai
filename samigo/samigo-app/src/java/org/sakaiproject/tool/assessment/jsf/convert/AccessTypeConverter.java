@@ -19,15 +19,17 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.assessment.jsf.converter;
+package org.sakaiproject.tool.assessment.jsf.convert;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
+import javax.faces.convert.FacesConverter;
 
 import org.sakaiproject.util.ResourceLoader;
 
 // AccessType conversion between the integer value and the localized String.
+@FacesConverter("org.sakaiproject.tool.assessment.jsf.convert.AccessTypeConverter")
 public class AccessTypeConverter implements Converter {
 
     private ResourceLoader messages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");

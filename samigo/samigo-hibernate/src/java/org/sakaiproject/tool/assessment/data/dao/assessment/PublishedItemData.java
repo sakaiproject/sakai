@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemHistoricalIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -924,7 +925,6 @@ public class PublishedItemData
   public void setPartialCreditFlag(Boolean partialCreditFlag) {
 	  this.partialCreditFlag = partialCreditFlag;
   }
-  
 
   public String getLeadInText() {
 	if (leadInText == null) {
@@ -1186,4 +1186,18 @@ public class PublishedItemData
   public String getTagListToJsonString() {
     return convertTagListToJsonString(itemTagSet);
   }
+
+  public Set<ItemHistoricalIfc> getItemHistoricalSet() {
+    // Do nothing
+    return new HashSet<>();
+  }
+
+  public void setItemHistoricalSet(Set<ItemHistoricalIfc> itemMetaDataSet) {
+    // Do nothing
+  }
+
+  public void addItemHistorical(String modifiedBy, Date modifiedDate) {
+    // Do nothing
+  }
+
 }

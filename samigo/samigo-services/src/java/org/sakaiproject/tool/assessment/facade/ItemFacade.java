@@ -39,6 +39,7 @@ import org.osid.assessment.AssessmentException;
 import org.osid.shared.Type;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemHistorical;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
@@ -48,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemHistoricalIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -102,6 +104,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   protected Set itemFeedbackSet;
   protected TypeFacade itemTypeFacade;
   protected Set itemAttachmentSet;
+  protected Set<ItemHistoricalIfc> itemHistoricalSet;
   protected String itemAttachmentMetaData;
   protected String themeText;
   protected String leadInText;
@@ -159,6 +162,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
     this.itemFeedbackSet = getItemFeedbackSet();
     this.hasRationale= data.getHasRationale();//rshastri :SAK-1824
     this.itemAttachmentSet = getItemAttachmentSet();
+    this.itemHistoricalSet = getItemHistoricalSet();
     this.answerOptionsRichCount = getAnswerOptionsRichCount();
     this.answerOptionsSimpleOrRich = getAnswerOptionsSimpleOrRich();
   }
@@ -1350,4 +1354,44 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   public String getTagListToJsonString() {
     return  this.data.getTagListToJsonString();
   }
+
+  /**
+   * Get item historical set (question historical set) from ItemFacade.data
+   * @return
+   * @throws DataFacadeException
+   */
+  public Set<ItemHistoricalIfc> getItemHistoricalSet() throws DataFacadeException {
+    try {
+      this.data = (ItemDataIfc) item.getData();
+    }
+    catch (AssessmentException ex) {
+      throw new DataFacadeException(ex.getMessage());
+    }
+    return this.data.getItemHistoricalSet();
+  }
+
+  /**
+   * Set item historical (question historical) in ItemFacade.data
+   * @param itemHistoricalSet
+   */
+  public void setItemHistoricalSet(Set<ItemHistoricalIfc> itemHistoricalSet) {
+    this.itemHistoricalSet = itemHistoricalSet;
+    this.data.setItemHistoricalSet(itemHistoricalSet);
+  }
+
+  /**
+   * Add a new historical entry to ItemFacade
+   * @param modifiedBy
+   * @param modifiedDate
+   */
+  public void addItemHistorical(String modifiedBy, Date modifiedDate) {
+    if (this.itemHistoricalSet == null) {
+      setItemHistoricalSet(new HashSet());
+    }
+
+    this.data.getItemHistoricalSet().add(new ItemHistorical((ItemData)this.data, modifiedBy, modifiedDate));
+    this.itemHistoricalSet = this.data.getItemHistoricalSet();
+  }
+
+
 }
