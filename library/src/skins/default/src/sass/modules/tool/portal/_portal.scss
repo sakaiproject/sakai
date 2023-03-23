@@ -286,6 +286,10 @@ a[href]:not(.btn):hover {
 
 .portal-nav-sidebar{
 
+  .site-link-block:hover {
+    background-color: var(--site-nav-btn-hover-bg);
+  }
+
   .btn-nav,
   .btn-site-opt {
     @include btn-base();
@@ -299,7 +303,6 @@ a[href]:not(.btn):hover {
     --button-active-color: var(--site-nav-btn-active-color);
     --button-active-bg: var(--site-nav-btn-active-bg);
     --button-active-border-color: var(--site-nav-btn-active-border-color);
-    //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     --button-disabled-color: var(--site-nav-btn-disabled-color);
     --button-disabled-bg: var(--site-nav-btn-disabled-bg);
     --button-disabled-border-color: var(--site-nav-btn-disabled-border-color);
@@ -314,15 +317,10 @@ a[href]:not(.btn):hover {
       --button-active-color: var(--site-nav-btn-current-active-color);
       --button-active-bg: var(--site-nav-btn-current-active-bg);
       --button-active-border-color: var(--site-nav-btn-current-active-border-color);
-      //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
       --button-disabled-color: var(--site-nav-btn-current-disabled-color);
       --button-disabled-bg: var(--site-nav-btn-current-disabled-bg);
       --button-disabled-border-color: var(--site-nav-btn-current-disabled-border-color);
     }
-  }
-
-  .btn-nav {
-    width: 100%;
   }
 
   .site-opt-pin:hover {
