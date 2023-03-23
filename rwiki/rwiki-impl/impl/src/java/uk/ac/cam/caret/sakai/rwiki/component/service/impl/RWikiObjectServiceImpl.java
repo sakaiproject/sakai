@@ -643,7 +643,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		String user = sessionManager.getCurrentSessionUserId();
 		RWikiCurrentObject rwo = getRWikiObject(name, realm);
-		permissions = rwo.getPermissions();
 		update(name, user, realm, version, content, pageGroups, permissions);
 	}
 
