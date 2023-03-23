@@ -2159,6 +2159,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				ContentResource cr_copy = service.createCopyOfContentResource(
 						itemAttachment.getResourceId(), itemAttachment
 								.getFilename(), toContext);
+				if (cr_copy == null) {
+					log.error("Error copying the attachment of the item with id {}.", itemAttachment.getItem().getItemId());
+					continue;
+				}
 				// get relative path
 				String url = getRelativePath(cr_copy.getUrl(), protocol);
 
