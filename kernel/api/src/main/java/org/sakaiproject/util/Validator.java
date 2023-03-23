@@ -83,7 +83,7 @@ public class Validator
 	 */
 	protected static final String ESCAPE_CHARS_IN_RESOURCE_ID = ";'\"";
 
-	protected static final String INVALID_CHARS_IN_ZIP_ENTRY = "/\\%:*?'\"";
+	protected static final String INVALID_CHARS_IN_ZIP_ENTRY = "/\\%:*?'\"[]";
 
 	/** These characters are escaped when making a URL */
 	// protected static final String ESCAPE_URL = "#%?&='\"+ ";
