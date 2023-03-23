@@ -622,6 +622,6 @@ public class XMLImportBean implements Serializable {
     }
 
     questionPool = questionPoolService.savePool(questionPool);
-    questionPoolBean.buildTree();
+    questionPoolBean.buildOwnPoolTree();
   }
 }

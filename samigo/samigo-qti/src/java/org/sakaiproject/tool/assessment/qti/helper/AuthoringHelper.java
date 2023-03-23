@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
@@ -821,7 +822,7 @@ public class AuthoringHelper
  	  questionpool.setOwnerId(me);
  	  questionpool.setTitle(title);
  	  questionpool.setLastModifiedById(me);
-      questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
+ 	  questionpool.setAccessTypeId(QuestionPoolAccessFacade.ADMIN); // set as default
  	  questionpool = questionPoolService.savePool(questionpool);
       // update the remaining questionpool properties
       exHelper.updateQuestionPool(questionpool, assessmentMap);
