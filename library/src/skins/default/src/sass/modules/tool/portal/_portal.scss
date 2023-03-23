@@ -292,12 +292,10 @@ a[href]:not(.btn):hover {
   .site-link-block:hover {
     background-color: var(--site-nav-btn-hover-bg);
     color: var(--site-nav-btn-current-hover-color);
-    a {
-      color: inherit;
-    }
-    i {
-      color: inherit;
-    }
+
+  a, i {
+    color: inherit;
+  }
   }
 
   .btn-nav,
