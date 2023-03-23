@@ -219,7 +219,7 @@ ${util.formatDateTime($date,$request)}
 					<span id="totalComments" class="textPanelFooter"></span>
 					#if (${renderBean.canEdit} || ${renderBean.canCreate})
 						<span class="commentsToolBar">
-							<a href="#" id="createCommentLink" onclick="ajaxRefPopup(this,'${util.escapeHtml(${renderBean.newCommentURL})}',0); return false;" >${rlb.jsp_addcomment}</a>
+							<a href="#" id="createCommentLink" onclick="newEditComment(this, '${util.escapeHtml(${renderBean.newCommentURL})}', false); return false;" >${rlb.jsp_addcomment}</a>
 						</span>
 					#end
 				</h5>
@@ -235,12 +235,12 @@ ${util.formatDateTime($date,$request)}
 							<ul class="actionItem itemAction">
 								#if (${renderBean.canEdit} || ${renderBean.canCreate})
 									<li><span>
-										<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.newCommentURL})}',0); return false;" >${rlb.jsp_comment}</a>
+										<a href="#" onclick="newEditComment(this,'${util.escapeHtml(${comment.newCommentURL})}', false); return false;" >${rlb.jsp_comment}</a>
 									</span></li>
 								#end
 								#if (${comment.canEdit} && (${renderBean.canEdit} || ${renderBean.canCreate}) )
 									<li><span>
-										<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.editCommentURL})}',0); return false;" >${rlb.jsp_edit}</a>
+										<a href="#" onclick="newEditComment(this,'${util.escapeHtml(${comment.editCommentURL})}', true); return false;" >${rlb.jsp_edit}</a>
 									</span></li>
 								#end
 							</ul>
@@ -305,52 +305,6 @@ ${util.formatDateTime($date,$request)}
 
 		
 #end
-#*
-<!-- To Turn AJAX Comments on, uncomment this and change the commandComponents.xml to use EditSaveAction 
-	    <script type="text/javascript" >
-var commentsShowing = false;
-var lastCommentControl = null;
-function toggleComments(target) {
-	if ( target == null ) 
-		target = lastCommentControl;
-	lastCommentControl = target;
-	if ( commentsShowing ) {
-		target.innerHTML = "<c:out value="${rlb.jsp_show_comments}" />";
-	    popupClose(0);
-	    commentsShowing = false;
-	} else {
-		popupClose(0);
-		ajaxRefPopup(target,'<c:out value="${renderBean.listCommentsURL}" escapeXml="false" />',0);
-		target.innerHTML = "<c:out value="${rlb.jsp_hide_comments}" />";
-		commentsShowing = true;
-	}
-}
-var presenceShowing = false;
-var lastPresenceControl = null;
-function togglePresence(target) {
-	if ( target == null ) 
-		target = lastPresenceControl;
-	lastPresenceControl = target;
-	if ( presenceShowing ) {
-		target.innerHTML = "<c:out value="${rlb.jsp_show_who}" />";
-	    popupClose(0);
-	    presenceShowing = false;
-	} else {
-		popupClose(0);
-		ajaxRefPopup(target,'<c:out value="${renderBean.listPresenceURL}" escapeXml="false" />',0);
-		target.innerHTML = "<c:out value="${rlb.jsp_hide_who}" />";
-		presenceShowing = true;
-	}
-}
-</script>
-<div id="rwiki_comments_sidebar" >
-<a href="#" onclick="toggleComments(this); return false;" ><c:out value="${rlb.jsp_show_comments}" /></a>
-<a href="#" onclick="togglePresence(this); return false;" ><c:out value="${rlb.jsp_show_who}" /></a>
-</div>
--->
-*#
-
-
 
 #macro( helppopup $id $pop_head $pop_body )   		
     	<div id="${id}" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
