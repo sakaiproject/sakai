@@ -41,6 +41,9 @@
     &.sidebar-collapsed {
       display: none;
     }
+    a {
+      text-decoration: none;
+    }
   }
   .portal-jump-links {
     padding-left: var(--portal-nav-sidebar-width);
@@ -288,6 +291,13 @@ a[href]:not(.btn):hover {
 
   .site-link-block:hover {
     background-color: var(--site-nav-btn-hover-bg);
+    color: var(--site-nav-btn-current-hover-color);
+    a {
+      color: inherit;
+    }
+    i {
+      color: inherit;
+    }
   }
 
   .btn-nav,

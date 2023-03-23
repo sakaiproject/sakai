@@ -79,7 +79,6 @@ a{
     &.btn-primary{
       @include sakai_primary_button();
     }
-    text-decoration: none;  // TODO
   }
   &.url{
     @media #{$phone}{
