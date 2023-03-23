@@ -19,14 +19,14 @@
     <li class="site-list-item py-1 $!{currentSiteClass}">
         <div class="site-list-item-head d-flex align-items-center pe-2">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
-            <button class="btn icon-button border-0 #if (!$isCurrentSite)collapsed#end"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#site-${index}-pages"
-                    aria-expanded="${isExpanded}"
-                    aria-controls="site-${index}-pages">
-                <i class="bi bi-chevron-right" aria-hidden="true"></i>
-            </button>
-            <a href="$site.url"><span class="text-break">${site.title}</span></a>
+                <button class="btn icon-button border-0 #if (!$isCurrentSite)collapsed#end"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#site-${index}-pages"
+                        aria-expanded="${isExpanded}"
+                        aria-controls="site-${index}-pages">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </button>
+                <a href="$site.url" class="text-break">${site.title}</a>
             </div>
             #if ($loggedIn)
                 <button class="d-inline-block p-1 site-opt-pin btn btn-site-opt bi $!{pinIconClass}"
