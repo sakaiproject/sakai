@@ -9,7 +9,7 @@
 		  aria-controls="portal-nav-sidebar"
 		  aria-label="$rloader.sit_navigation"
 		  title="$rloader.sit_navigation">
-        <i class="bi-grid"></i>
+        <i class="bi-list"></i>
       </button>
     </li>
 
