@@ -124,14 +124,34 @@
     const groupNumber = document.getElementById("groupNumber");
     const isGroupMemberRequired = groupNumber.dataset.required === 'true';
     const groupMaxMembers = document.getElementById("groupMaxMembers");
+    const joinableOpenDate = document.getElementById("joinableOpenDate");
+    const joinableCloseDate = document.getElementById("joinableCloseDate");
+    const setReminder = document.getElementById("setReminder");
+    const setReminderLbl = document.getElementById("setReminderLbl");
+
+    // Immediately invoked function
+    (function() {
+      setReminder.disabled = !joinableCloseDate.value;
+    })();
+
+    joinableCloseDate.addEventListener("blur", e => {
+      if (joinableCloseDate.validity.badInput) {
+        setReminder.disabled = true;
+        setReminderLbl.classList.add("disabled");
+      } else {
+        setReminder.disabled = false;
+        setReminderLbl.classList.remove("disabled");
+      }
+    });
 
     //Enable or disable the submit button depending on the required fields
-    [groupTitle, groupNumber, groupMaxMembers].forEach(field => {
+    [groupTitle, groupNumber, groupMaxMembers, joinableOpenDate, joinableCloseDate].forEach(field => {
 
       field.addEventListener("keyup", () => {
 
         document.querySelectorAll('#createnewjoinableset-form input[type="submit"]').forEach(submit => {
-            submit.disabled = !groupTitle.value || (isGroupMemberRequired && groupNumber.value <= 0) || groupMaxMembers.value <= 0;
+            submit.disabled = !groupTitle.value || (isGroupMemberRequired && groupNumber.value <= 0) ||
+              groupMaxMembers.value <= 0 || joinableOpenDate.validity.badInput || joinableCloseDate.validity.badInput;
         });
       });
     });
