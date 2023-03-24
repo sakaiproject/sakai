@@ -49,9 +49,9 @@ export class SakaiRubricReadonly extends SakaiRubric {
           ${this.enablePdfExport ? html`
             <div class="action-container">
               <sakai-rubric-pdf
-                  site-id="${this.siteId}"
+                  site-id="${this.rubric.ownerId}"
                   rubric-title="${this.rubric.title}"
-                  rubricId="${this.rubric.id}"
+                  rubric-id="${this.rubric.id}"
               />
             </div>
           ` : ""}
