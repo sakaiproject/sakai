@@ -18,6 +18,7 @@ package org.sakaiproject.sitemanage.api;
 import java.util.List;
 import java.util.Locale;
 
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.api.Site;
 
@@ -127,4 +128,21 @@ public interface UserNotificationProvider {
 	 * @param siteTitle
 	 */
 	public void notifySiteImportCompleted(String toEmail, Locale locale, String siteId, String siteTitle);
+
+	/**
+	 * Notify about JoinableSet when created or updated
+	 * @param siteName
+	 * @param userId
+	 * @param joinableGroup
+	 * @param isNew
+	 */
+	public void notifyAboutJoinableSet(String siteName, String userId, Group joinableGroup, boolean isNew);
+
+	/**
+	 * Notify JoinableSet is about to close.
+	 * @param siteName
+	 * @param user
+	 * @param jSetName
+	 */
+	public void notifyJSetDayLeft(String siteName, User user, String jSetName);
 }

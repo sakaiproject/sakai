@@ -26,7 +26,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -2259,7 +2261,7 @@ public class SiteAction extends PagedResourceActionII {
 					List<Group> filteredGroups = new ArrayList<Group>();
 					List<Group> filteredSections = new ArrayList<Group>();
 					Collection<String> viewMembershipGroups = new ArrayList<String>();
-					Set<JoinableGroup> unJoinableGroups = new HashSet<>();
+
 					for (Group g : groups)
 					{
 						Object gProp = g.getProperties().getProperty(g.GROUP_PROP_WSETUP_CREATED);
@@ -2275,13 +2277,6 @@ public class SiteAction extends PagedResourceActionII {
 						if (vProp != null && vProp.equals(Boolean.TRUE.toString())){
 							viewMembershipGroups.add(g.getId());
 						}
-						String joinableProp = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET);
-						String unjoinableProp = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_UNJOINABLE);
-						if (StringUtils.isNotBlank(joinableProp)
-							&& BooleanUtils.toBoolean(unjoinableProp)
-							&& g.getMember(currentUser.getId()) != null) {
-							unJoinableGroups.add(new JoinableGroup(g));
-						}
 					}
 
 					context.put("viewMembershipGroups", viewMembershipGroups);
@@ -2291,28 +2286,80 @@ public class SiteAction extends PagedResourceActionII {
 
 					Collections.sort(filteredSections, new GroupTitleComparator());
 					context.put("sections", filteredSections);
-
-					context.put("unjoinableGroups", new ArrayList<>(unJoinableGroups));
 				}
-				
+
 				Set<JoinableGroup> joinableGroups = new HashSet<>();
+				Set<JoinableGroup> joinedGroups = new HashSet<>();
 				if(site.getGroups() != null){
 					//find a list of joinable-sets this user is already a member of
 					//in order to not display those groups as options
 					Set<String> joinableSetsMember = new HashSet<String>();
-					for(Group group : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId())){
+					String userId = userDirectoryService.getCurrentUser().getId();
+					for(Group group : site.getGroupsWithMember(userId)){
 						String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
 						if(joinableSet != null && !"".equals(joinableSet.trim())){
 							joinableSetsMember.add(joinableSet);
 						}
 					}
-					for(Group group : site.getGroups()){
-						String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
-						if(joinableSet != null && !"".equals(joinableSet.trim()) && !joinableSetsMember.contains(joinableSet)){
-							joinableGroups.add(new JoinableGroup(group));
+					for (Group group : site.getGroups()) {
+						String joinableSetProp = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+
+						if (StringUtils.isNotBlank(joinableSetProp)) {
+							JoinableGroup joinableGroup = new JoinableGroup(group);
+							String joinableOpenDate = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_OPEN_DATE);
+							String joinableCloseDate = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+							boolean isInteractableByDate = true;
+							// Make the corresponding checks if the current joinableSet has any associated datetime.
+							if (joinableOpenDate != null || joinableCloseDate != null) {
+								LocalDateTime currentDate = LocalDateTime.now(ZoneOffset.UTC);
+								LocalDateTime openDate = null;
+								LocalDateTime closeDate = null;
+								// Compare openDate & closeDate with currentDate to determine if the jGroup is joinable/unjoinable
+								if (joinableCloseDate != null) {
+									closeDate = LocalDateTime.parse(joinableCloseDate);
+									joinableGroup.setJoinableCloseDate(userTimeService.dateFromUtcToUserTimeZone(joinableCloseDate, true));
+								}
+
+								if (joinableOpenDate != null) {
+									openDate = LocalDateTime.parse(joinableOpenDate);
+									joinableGroup.setJoinableOpenDate(userTimeService.dateFromUtcToUserTimeZone(joinableOpenDate, true));
+
+									if (closeDate != null) {
+										// If both openDate & closeDate are available, make sure currenData is between them to display the group.
+										if (currentDate.isBefore(openDate) || currentDate.isAfter(closeDate)) {
+											isInteractableByDate = false;
+										}
+										// If only openDate available, check it's before currentDate.
+									} else if (currentDate.isBefore(openDate)) {
+										isInteractableByDate = false;
+									}
+									// If only closeDate available, check it's after currentDate.
+								} else if (closeDate != null && currentDate.isAfter(closeDate)) {
+									isInteractableByDate = false;
+								}
+							}
+							// Add jGroup if the current user IS part of it, or has the right permission (e.g. admin).
+							Member groupMember = group.getMember(currentUser.getId());
+							if (groupMember != null || allowViewRoster) {
+								boolean isEnrolled = true;
+								// To let admin user know why the unjoin button might not be displayed.
+								if (allowViewRoster && groupMember == null) {
+									isEnrolled = false;
+								}
+								joinableGroup.setEnrolled(isEnrolled);
+								// Unjoin button will be enabled if unjoinable property & datetimes allow for it.
+								joinableGroup.setInteractableByDate(isInteractableByDate);
+								joinedGroups.add(joinableGroup);
+							}
+							// Add jGroup if the current user IS NOT part of it.
+							if (!joinableSetsMember.contains(joinableSetProp)) {
+								joinableGroup.setInteractableByDate(isInteractableByDate);
+								joinableGroups.add(joinableGroup);
+							}
 						}
 					}
 				}
+				context.put("joinedJoinableGroups", new ArrayList<>(joinedGroups));
 
 				List<JoinableGroup> sortedJoinableGroups = joinableGroups.stream()
 						.sorted((g1, g2) -> new AlphaNumericComparator().compare(g1.getTitle(), g2.getTitle()))
@@ -15377,6 +15424,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		private String title;
 		private String joinableSet;
 		private String description;
+		private String joinableOpenDate;
+		private String joinableCloseDate;
+		private boolean interactableByDate;
+		private boolean unjoinable;
+		private boolean enrolled;
 		private int size;
 		private int max;
 		private String memberDisplayNames;
@@ -15390,6 +15442,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			this.title = group.getTitle();
 			this.description = group.getDescription();
 			this.joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+			this.unjoinable = BooleanUtils.toBoolean(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_UNJOINABLE));
 			this.max = NumberUtils.toInt(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_MAX));
 			this.preview = BooleanUtils.toBoolean(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW));
 			this.locked = group.getRealmLock().equals(AuthzGroup.RealmLockMode.ALL) || group.getRealmLock().equals(AuthzGroup.RealmLockMode.MODIFY);
