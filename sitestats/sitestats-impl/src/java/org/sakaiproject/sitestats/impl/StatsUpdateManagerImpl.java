@@ -29,6 +29,8 @@ import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -1366,9 +1368,19 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					if (!spc.firstEventIsPresEnd) {
 						doUpdateSitePresenceTotal(session, sp);
 					} else {
-						// TODO Should deal with midnight crossing.
-						// Should we at least warn that we've just got a end event without a start.
-						log.warn("Found an end event without a corresponding start event");
+						// Midnight crossing.
+						// closing day before
+						SitePresence spExistingBefore = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), DateUtils.addDays(sp.getDate(), -1));
+						if(spExistingBefore == null) {
+							// day before not exists
+							log.warn("Not found a day before begin event corresponding end event");
+						} else {
+							long newTotalPresenceBefore;
+							newTotalPresenceBefore = spExistingBefore.getDuration() + sp.getDate().getTime() - spExistingBefore.getLastVisitStartTime().getTime();
+							spExistingBefore.setDuration(newTotalPresenceBefore);
+							spExistingBefore.setLastVisitStartTime(null);
+							doUpdateSitePresenceTotal(session,spExistingBefore);
+						}
 					}
 				}else{
 					long previousTotalPresence = spExisting.getDuration();
@@ -1383,7 +1395,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						}
 					} 
 					newTotalPresence = previousTotalPresence + previousPresence + sp.getDuration();
-					spExisting.setDuration(newTotalPresence);				
+					spExisting.setDuration(newTotalPresence);
 					spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
 					session.update(spExisting);
 					if (!spc.firstEventIsPresEnd) {
@@ -1402,6 +1414,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		SitePresenceTotal sptExisting = doGetSitePresenceTotal(session, sp.getSiteId(), sp.getUserId());
 		if (sptExisting == null) {
 			SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
+			if (sp.getLastVisitStartTime() == null) {
+				spt.setLastVisitTime(sp.getDate());
+			}
 			session.save(spt);
 		} else {
 			sptExisting.incrementTotalVisits();
