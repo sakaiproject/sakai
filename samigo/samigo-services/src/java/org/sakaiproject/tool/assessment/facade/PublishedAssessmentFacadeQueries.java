@@ -2582,7 +2582,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 						  "from PublishedEvaluationModel em, AuthorizationData a " +
 						  "where a.functionId = 'OWN_PUBLISHED_ASSESSMENT' " +
 						  "and em.assessment.publishedAssessmentId = a.qualifierId " +
-						  "and em.toGradeBook = '1'")
+						  "and (em.toGradeBook = '1' or em.toGradeBook = :gradebook)")
+				  .setString("gradebook",  EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())
 				  .list();
 
 		  List<Object[]> l = getHibernateTemplate().execute(hcb);

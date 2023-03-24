@@ -40,6 +40,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.business.entity.SebConfig;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -57,6 +58,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -68,6 +70,8 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class ConfirmPublishAssessmentListener
     implements ActionListener {
+
+  private final String NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED = "NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED";
 
   //private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
@@ -381,15 +385,11 @@ public class ConfirmPublishAssessmentListener
     }
     
     //Gradebook right now only excep if total score >0 check if total score<=0 then throw error.
-    if(assessmentSettings.getToDefaultGradebook())
-	{
- 	    if(assessmentBean.getTotalScore()<=0)
-		{
- 	    	String gb_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
-            context.addMessage(null, new FacesMessage(gb_err));
-            error=true;
-		}
-	}
+    if (StringUtils.equalsAnyIgnoreCase(assessmentSettings.getToDefaultGradebook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString()) && assessmentBean.getTotalScore() <= 0) {
+        String gb_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
+        context.addMessage(null, new FacesMessage(gb_err));
+        error=true;
+    }
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
     org.sakaiproject.grading.api.GradingService g = null;
@@ -398,7 +398,7 @@ public class ConfirmPublishAssessmentListener
             getBean("org.sakaiproject.grading.api.GradingService");
     }
     try{
-	if (assessmentSettings.getToDefaultGradebook() && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){
+	if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook()) && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){
         String gbConflict_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "gbConflict_error");
         context.addMessage(null,new FacesMessage(gbConflict_err));
         error=true;
@@ -437,7 +437,24 @@ public class ConfirmPublishAssessmentListener
             assessmentSettings.setSebAllowSpellChecking(sebConfig.getAllowSpellChecking());
         }
     }
-    
+
+    List<SelectItem> existingGradebook = assessmentSettings.getExistingGradebook();
+    ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+    for (SelectItem item : existingGradebook) {
+        String itemLabel = item.getLabel();
+        String itemValue = (String) item.getValue();
+        String gradebookName = assessmentSettings.getGradebookName();
+        boolean isNotPreviouslyAssociated = currentToolSession.getAttribute(NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED) == null;
+        if (itemLabel.split("\\(").length > 1 &&
+            StringUtils.equals(gradebookName, itemValue) &&
+            isNotPreviouslyAssociated) {
+                error = true;
+                currentToolSession.setAttribute(NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED, Boolean.TRUE);
+                String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "addtogradebook.previouslyAssoc");
+                context.addMessage(null,new FacesMessage(err));
+        }
+    }
+
     if (error){
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
       author.setIsErrorInSettings(true);
@@ -487,7 +504,9 @@ public class ConfirmPublishAssessmentListener
       author.setIsErrorInSettings(true);
       return;
     }
-    
+
+    currentToolSession.removeAttribute(NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED);
+
     //#4 - regenerate the core assessment list in autor bean again
     // sortString can be of these value:title,releaseTo,dueDate,startDate
     // get the managed bean, author and reset the list.

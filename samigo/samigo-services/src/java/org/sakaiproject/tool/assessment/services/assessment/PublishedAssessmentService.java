@@ -729,10 +729,10 @@ public class PublishedAssessmentService extends AssessmentService{
     // a. if Gradebook does not exists, do nothing
     // b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
     // a new record. At the end, populate the scores by calling updateExternalAssessmentScores
-    org.sakaiproject.grading.api.GradingService g = null;
+    org.sakaiproject.grading.api.GradingService gradingService = null;
     boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     if (integrated) {
-      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+      gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
           "org.sakaiproject.grading.api.GradingService");
     }
 
@@ -745,29 +745,33 @@ public class PublishedAssessmentService extends AssessmentService{
 
     Integer scoringType = evaluation.getScoringType();
     GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-    if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+    if (StringUtils.equalsAny(evaluation.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
+
       String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessment.getTitle().trim());
-      boolean gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
+      boolean gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, gradingService);
 
       try {
-        Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-        String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p").id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
-        assessment.setReference(ref);
-        if (gbItemExists) {
-            gbsHelper.updateGradebook(assessment, g);
-        } else {
-            log.warn("Gradebook item does not exist for assessment {}, creating a new gradebook item", assessment.getAssessmentId());
-            gbsHelper.addToGradebook(assessment, null, g);
+        if (StringUtils.equals(evaluation.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+            Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+            String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p").id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
+            assessment.setReference(ref);
+            if (gbItemExists) {
+                gbsHelper.updateGradebook(assessment, gradingService);
+            } else {
+                log.warn("Gradebook item does not exist for assessment {}, creating a new gradebook item", assessment.getAssessmentId());
+                gbsHelper.addToGradebook(assessment, null, gradingService);
+            }
         }
+
         // any score to copy over? get all the assessmentGradingData and copy over
-        GradingService gradingService = new GradingService();
+        GradingService samigoGradingService = new GradingService();
         // need to decide what to tell gradebook
         List list = null;
 
         if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
-          list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+          list = samigoGradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
         } else {
-          list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+          list = samigoGradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
         }
 
         log.debug("list size = {}", list.size());
@@ -784,9 +788,19 @@ public class PublishedAssessmentService extends AssessmentService{
                 Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
                 getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
                 ag.setFinalScore(averageScore);
-              }
+              }	
             }
-            gbsHelper.updateExternalAssessmentScore(ag, g);
+
+            if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+                gbsHelper.updateExternalAssessmentScore(ag, gradingService);
+            }
+
+            String gradebookItemIdString = assessment.getAssessmentToGradebookNameMetaData();
+            if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+                Long gradebookItemId = Long.valueOf(gradebookItemIdString);
+                gbsHelper.updateExternalAssessmentScore(ag, gradingService, gradebookItemId);
+            }
+
           } catch (Exception e) {
             log.warn("Exception occues in " + i	+ "th record. Message:" + e.getMessage());
           }
@@ -794,18 +808,15 @@ public class PublishedAssessmentService extends AssessmentService{
       } catch (Exception e2) {
         log.warn("Exception thrown in updateGB():" + e2.getMessage());
       }
-    }
-    else{ //remove
-      try{
-        gbsHelper.removeExternalAssessment(
-            GradebookFacade.getGradebookUId(),
-            assessment.getPublishedAssessmentId().toString(), g);
-      }
-      catch(Exception e){
-        log.info("*** oh well, looks like there is nothing to remove:"+e.getMessage());
+    } else { //remove
+      try {
+        gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingService);
+      } catch(Exception e) {
+        log.warn("Something happened while removing the external assessment {}", e.getMessage());
       }
     }
-  }
+
+}
 
   public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId){
 	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().

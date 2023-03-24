@@ -49,6 +49,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingCategoryType;
@@ -69,6 +70,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -79,6 +81,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeli
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -86,6 +89,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -118,6 +122,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       integrationContextFactory.getPublishingTargetHelper();
     private static final boolean integrated =
       integrationContextFactory.isIntegrated();
+    private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -205,7 +210,9 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   // properties of EvaluationModel
   private boolean anonymousGrading;
-  private boolean toDefaultGradebook;
+  @Setter @Getter private String toDefaultGradebook;
+  @Setter @Getter private String gradebookName;
+  @Setter private List<SelectItem> existingGradebook = new ArrayList<>();
   private String scoringType;
   private String bgColor;
   private String bgImage;
@@ -466,8 +473,14 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       if (evaluation != null) {
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1");
-        if (evaluation.getToGradeBook()!=null )
-          this.toDefaultGradebook = evaluation.getToGradeBook().equals("1");
+
+        if (evaluation.getToGradeBook() != null) {
+            this.setToDefaultGradebook(evaluation.getToGradeBook());
+            if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+                this.setGradebookName(assessment.getAssessmentToGradebookNameMetaData());
+            }
+        }
+
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
 
@@ -1002,14 +1015,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   public void setAnonymousGrading(boolean anonymousGrading) {
     this.anonymousGrading = anonymousGrading;
-  }
-
-  public boolean getToDefaultGradebook() {
-    return this.toDefaultGradebook;
-  }
-
-  public void setToDefaultGradebook(boolean toDefaultGradebook) {
-    this.toDefaultGradebook = toDefaultGradebook;
   }
 
   public String getScoringType() {
@@ -2078,4 +2083,92 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     public boolean isRenderInfoMessage() {
         return !getInfoMessages().isEmpty();
     }
+
+    // This method builds the gradebook assignment selector in the assessment settings.
+    private List<SelectItem> populateExistingGradebookItems() {
+        PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+        List<SelectItem> target = new ArrayList<>();
+
+        try {
+
+            HashMap<String, String> gAssignmentIdTitles = new HashMap<>();
+            HashMap<String, String> gradebookAssignmentsLabel = new HashMap<>();
+            AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+
+            for (Object assessment : author.getAllAssessments()) {
+
+                if (assessment instanceof AssessmentFacade) {
+                    AssessmentFacade assessmentFacade = (AssessmentFacade) assessment;
+                    String gradebookItemId = assessmentFacade.getAssessmentToGradebookNameMetaData();
+                    if (StringUtils.isNotBlank(gradebookItemId)) {
+                        String associatedAssignmentTitles = "";
+                        if (gAssignmentIdTitles.containsKey(gradebookItemId)) {
+                            // get the current associated assignment titles first
+                            associatedAssignmentTitles = gAssignmentIdTitles.get(gradebookItemId) + ", ";
+                        }
+
+                        // append the current assignment title
+                        associatedAssignmentTitles += assessmentFacade.getTitle();
+
+                        // put the current associated assignment titles back
+                        gAssignmentIdTitles.put(gradebookItemId, associatedAssignmentTitles);
+                    }
+                }
+
+                if (assessment instanceof PublishedAssessmentFacade) {
+                    PublishedAssessmentFacade pubAssessmentFacade = (PublishedAssessmentFacade) assessment;
+                    AssessmentIfc publishedAssessment = publishedAssessmentService.getAssessment(pubAssessmentFacade.getPublishedAssessmentId());
+                    String gradebookItemId = publishedAssessment.getAssessmentToGradebookNameMetaData();
+                    if (StringUtils.isNotBlank(gradebookItemId)) {
+                        String associatedAssignmentTitles = "";
+                        if (gAssignmentIdTitles.containsKey(gradebookItemId)) {
+                            // get the current associated assignment titles first
+                            associatedAssignmentTitles = gAssignmentIdTitles.get(gradebookItemId) + ", ";
+                        }
+
+                        // append the current assignment title
+                        associatedAssignmentTitles += pubAssessmentFacade.getTitle();
+
+                        // put the current associated assignment titles back
+                        gAssignmentIdTitles.put(gradebookItemId, associatedAssignmentTitles);
+                    }
+                }
+            }
+
+            List<Assignment> gradebookAssignmentList = gradingService.getAssignments(AgentFacade.getCurrentSiteId());
+            for (Assignment gradebookAssignment : gradebookAssignmentList) {
+                boolean isExternallyMaintained = gradebookAssignment.getExternallyMaintained();
+                boolean isDefaultSamigoGradebookAssociation = isExternallyMaintained && StringUtils.equals("sakai.samigo", gradebookAssignment.getExternalAppName());
+                if (!isExternallyMaintained || isDefaultSamigoGradebookAssociation) {
+                    // If the gradebook item is external use the externalId, otherwise use the gradebook item id.
+                    String gradebookItemId = isExternallyMaintained ? gradebookAssignment.getExternalId() : String.valueOf(gradebookAssignment.getId());
+                    // The label is just the gradebook assignment name.
+                    String label = gradebookAssignment.getName();
+                    // If the assignment is associated with a gradebook item id add a label to reflect it's already associated.
+                    if (gAssignmentIdTitles.get(gradebookItemId) != null) {
+                        label += " ( " + rb.getFormattedMessage("usedGradebookAssessment", new Object[]{gAssignmentIdTitles.get(gradebookItemId)}) + " )";
+                    }
+                    gradebookAssignmentsLabel.put(gradebookItemId, label);
+                }
+            }
+
+            for (String labelKey : gradebookAssignmentsLabel.keySet()) {
+                target.add(new SelectItem(labelKey, gradebookAssignmentsLabel.get(labelKey)));
+            }
+
+        } catch (Exception gnfe1) {
+            log.error("Severe error getting gradebook items {}.", gnfe1.getMessage());
+            return Arrays.asList(new SelectItem());
+        }
+
+        return target;
+    }
+
+    public List<SelectItem> getExistingGradebook() {
+        if (this.existingGradebook == null || this.existingGradebook.isEmpty()) {
+            this.setExistingGradebook(this.populateExistingGradebookItems());
+        }
+        return this.existingGradebook;
+    }
+
 }

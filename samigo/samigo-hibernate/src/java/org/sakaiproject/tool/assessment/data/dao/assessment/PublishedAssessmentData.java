@@ -37,6 +37,7 @@ import lombok.Setter;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -510,7 +511,7 @@ public class PublishedAssessmentData
   }
 
   public void addAssessmentMetaData(String label, String entry) {
-    if (this.assessmentMetaDataMap.get(label) != null) {
+      if (this.assessmentMetaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.assessmentMetaDataSet.iterator();
       while (iter.hasNext()) {
@@ -769,4 +770,9 @@ public class PublishedAssessmentData
   public void setCategoryId(Long categoryId) {
     this.categoryId = categoryId;
   }
+
+  public String getAssessmentToGradebookNameMetaData() {
+    return (String) this.assessmentMetaDataMap.get(AssessmentMetaDataIfc.TO_GRADEBOOK_ID);
+  }
+
 }

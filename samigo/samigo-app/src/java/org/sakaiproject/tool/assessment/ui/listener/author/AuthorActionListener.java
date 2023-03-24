@@ -45,6 +45,8 @@ import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -92,6 +94,9 @@ public class AuthorActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     log.debug("*****Log: inside AuthorActionListener =debugging ActionEvent: " + ae);
+
+    ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+    currentToolSession.removeAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED");
 
     // get service and managed bean
     AssessmentService assessmentService = new AssessmentService();
