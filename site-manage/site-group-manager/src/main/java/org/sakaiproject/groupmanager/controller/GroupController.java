@@ -349,6 +349,20 @@ public class GroupController {
 
         // Assign or delete the joinable set
         if (StringUtils.isNotBlank(joinableSetName)) {
+            // Get any group associated to the selected JSet
+            Optional<Group> anyJoinableGroup = site.getGroups().stream()
+                    .filter((Group g) -> joinableSetName.equalsIgnoreCase(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))).findAny();
+            if (anyJoinableGroup.isPresent()) {
+                // Grab its date properties to set them to the current group
+                String openDate = anyJoinableGroup.get().getProperties().getProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+                if (StringUtils.isNotBlank(openDate)) {
+                    group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE, openDate);
+                }
+                String closeDate = anyJoinableGroup.get().getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+                if (StringUtils.isNotBlank(closeDate)) {
+                    group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE, closeDate);
+                }
+            }
             group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET, joinableSetName);
             group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET_MAX, groupForm.getJoinableSetNumOfMembers());
             group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW, String.valueOf(groupForm.isGroupAllowPreviewMembership()));
@@ -360,6 +374,8 @@ public class GroupController {
             group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW);
             group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE);
             group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SHOW_ALL);
+            group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+            group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
         }
 
         // Assign roles or members to the groups.
