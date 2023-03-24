@@ -23,8 +23,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import java.util.Locale;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -32,10 +34,13 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -59,7 +64,11 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	private static final String NOTIFY_SITE_CREATION = "sitemanage.notifySiteCreation";
 	
 	private static final String NOTIFY_SITE_CREATION_CONFIRMATION = "sitemanage.notifySiteCreation.confirmation";
-	
+
+	private static final String NOTIFY_ABOUT_JOINABLE_SET = "sitemanage.notifyAboutJoinableSet";
+
+	private static final String NOTIFY_JOINABLE_SET_DAY_LEFT = "sitemanage.notifyJoinableSetDayLeft";
+
 	private static final String SITE_IMPORT_EMAIL_TEMPLATE_FILE_NAME 		= "notifySiteImportConfirmation.xml";
 	private static final String SITE_IMPORT_EMAIL_TEMPLATE_KEY 				= "sitemanage.siteImport.Confirmation";
 	private static final String SITE_IMPORT_EMAIL_TEMPLATE_VAR_WORKSITE 	= "worksiteName";
@@ -67,6 +76,9 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	private static final String SITE_IMPORT_EMAIL_TEMPLATE_VAR_INSTITUTION 	= "institution";
 	private static final String SAK_PROP_UI_INSTITUTION						= "ui.institution";
 	
+	@Setter
+	private UserTimeService userTimeService;
+
 	private EmailService emailService;
 	public void setEmailService(EmailService es) {
 		emailService = es;
@@ -104,6 +116,8 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("notifyCourseRequestSupport.xml"), NOTIFY_COURSE_REQUEST_SUPPORT);
 		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("notifySiteCreation.xml"), NOTIFY_SITE_CREATION);
 		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("notifySiteCreationConfirmation.xml"), NOTIFY_SITE_CREATION_CONFIRMATION);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("notifyAboutJoinableSet.xml"), NOTIFY_ABOUT_JOINABLE_SET);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("notifyJoinableSetDayLeft.xml"), NOTIFY_JOINABLE_SET_DAY_LEFT);
 		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream(SITE_IMPORT_EMAIL_TEMPLATE_FILE_NAME), SITE_IMPORT_EMAIL_TEMPLATE_KEY);
 	}
 	
@@ -455,4 +469,73 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 					toEmail, headerTo, replyTo, replacementValues);
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyAboutJoinableSet(String siteName, String userId, Group joinableGroup, boolean isNew) {
+		String from = serverConfigurationService.getBoolean(NOTIFY_FROM_CURRENT_USER, false)?
+				getCurrentUserEmailAddress():getSetupRequestEmailAddress();
+
+		try {
+			if (from != null) {
+				User user = userDirectoryService.getUser(userId);
+				String userEmail = user.getEmail();
+				String to = userEmail;
+				String headerTo = userEmail;
+				String replyTo = from;
+
+				Locale locale = new ResourceLoader().getLocale();
+				String openDate = joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+				String closeDate = joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+				// Create the map of replacement values
+				Map<String, Object> replacementValues = new HashMap<>();
+				replacementValues.put("localSakaiName", serverConfigurationService.getString("ui.service", ""));
+				replacementValues.put("siteName", siteName);
+				replacementValues.put("userName", user.getDisplayName());
+				replacementValues.put("jSetName", joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET));
+				replacementValues.put("maxUsers", joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX));
+				replacementValues.put("canUnjoin", joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE));
+				replacementValues.put("openDate", userTimeService.dateFromUtcToUserTimeZone(openDate, true));
+				replacementValues.put("closeDate", userTimeService.dateFromUtcToUserTimeZone(closeDate, true));
+				replacementValues.put("isNew", Boolean.toString(isNew));
+
+				// Send email
+				emailTemplateServiceSend(NOTIFY_ABOUT_JOINABLE_SET, locale, user, from, to, headerTo, replyTo, replacementValues);
+			} else {
+				log.warn("No sender email address found");
+			}
+		} catch (UserNotDefinedException e) {
+			log.warn("No user with id {}", userId);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyJSetDayLeft(String siteName, User user, String jSetName) {
+		String from = serverConfigurationService.getBoolean(NOTIFY_FROM_CURRENT_USER, false)?
+				getCurrentUserEmailAddress():getSetupRequestEmailAddress();
+
+		if (from != null) {
+			String userEmail = user.getEmail();
+			String to = userEmail;
+			String headerTo = userEmail;
+			String replyTo = from;
+
+			Locale locale = new ResourceLoader().getLocale();
+			// Create the map of replacement values
+			Map<String, Object> replacementValues = new HashMap<>();
+			replacementValues.put("localSakaiName", serverConfigurationService.getString("ui.service", ""));
+			replacementValues.put("siteName", siteName);
+			replacementValues.put("userName", user.getDisplayName());
+			replacementValues.put("jSetName", jSetName);
+
+			// Send email
+			emailTemplateServiceSend(NOTIFY_JOINABLE_SET_DAY_LEFT, locale, user, from, to, headerTo, replyTo, replacementValues);
+		} else {
+			log.warn("No sender email address found");
+		}
+	}
+
 }

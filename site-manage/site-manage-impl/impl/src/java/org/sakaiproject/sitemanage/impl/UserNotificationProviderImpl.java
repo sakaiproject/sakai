@@ -28,6 +28,7 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -498,5 +499,19 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			String message_body = rb.getFormattedMessage("java.siteImport.confirmation", new Object[]{siteTitle, link});
 			emailService.send(getSetupRequestEmailAddress(), toEmail, message_subject, message_body, headerTo, replyTo, null);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyAboutJoinableSet(String siteName, String userId, Group joinableGroup, boolean isNew) {
+		log.warn("Method implemented on ETSUserNotificationProviderImpl");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyJSetDayLeft(String siteName, User user, String jSetName) {
+		log.warn("Method implemented on ETSUserNotificationProviderImpl");
 	}
 }
