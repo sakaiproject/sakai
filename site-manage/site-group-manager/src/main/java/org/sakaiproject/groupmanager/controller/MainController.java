@@ -59,7 +59,7 @@ public class MainController {
     public String showIndex(Model model, HttpServletRequest request, HttpServletResponse response) {
         log.debug("showIndex()");
         
-        final Locale locale = sakaiService.getLocaleForCurrentSiteAndUser();
+        final Locale locale = sakaiService.getLocaleForCurrentSiteAndUser();    
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
         localeResolver.setLocale(request, response, locale);
 
@@ -74,6 +74,12 @@ public class MainController {
         Map<String, String> groupMemberMap = new HashMap<String, String>();
         // Joinable sets for each group
         Map<String, String> groupJoinableSetMap = new HashMap<String, String>();
+        // Joinable set open dates for each joinable group
+        Map<String, String> joinableSetOpenDateMap = new HashMap<String, String>();
+        // Joinable set close dates for each joinable group
+        Map<String, String> joinableSetCloseDateMap = new HashMap<String, String>();
+        // In order to display or not the related columns
+        boolean anyJoinableSetDate = false;
         // Joinable sets size for each group
         Map<String, String> groupJoinableSetSizeMap = new HashMap<String, String>();
         // List of groups of the site, excluding the ones which GROUP_PROP_WSETUP_CREATED property is false.
@@ -103,9 +109,23 @@ public class MainController {
             groupMemberList.forEach(u -> stringJoiner.add(u.getDisplayName()));
             groupMemberMap.put(group.getId(), stringJoiner.toString());
             // Get the joinable sets and add them to the Map
-            groupJoinableSetMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET));
-            // Get the joinable sets and add them to the Map
-            groupJoinableSetSizeMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) != null ? group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) : null);
+            String joinableSetName = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+            groupJoinableSetMap.put(group.getId(), joinableSetName);
+            // Get the datetimes associated to each joinable set
+            String joinableSetOpenDate = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+            String joinableSetCloseDate = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+            // Convert from UTC to user's timezone & lang format. Save into map used to fill the table
+            joinableSetOpenDate = sakaiService.dateFromUtcToUserTimeZone(joinableSetOpenDate, true);
+            joinableSetOpenDateMap.put(joinableSetName, joinableSetOpenDate);
+            // Same for close date
+            joinableSetCloseDate = sakaiService.dateFromUtcToUserTimeZone(joinableSetCloseDate, true);
+            joinableSetCloseDateMap.put(joinableSetName, joinableSetCloseDate);
+            // Is there any date?
+            if (anyJoinableSetDate == false && (joinableSetOpenDate != null || joinableSetCloseDate != null)) {
+                anyJoinableSetDate = true;
+            }
+            // Get the max number of users who can join each joinable set group
+            groupJoinableSetSizeMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX));
 
             // Check if the group is locked for modify or all
             if (RealmLockMode.ALL.equals(group.getRealmLock()) || RealmLockMode.MODIFY.equals(group.getRealmLock())) {
@@ -135,6 +155,9 @@ public class MainController {
         model.addAttribute("lockedGroupsEntityMap", lockedGroupsEntityMap);
         model.addAttribute("groupMemberMap", groupMemberMap);
         model.addAttribute("groupJoinableSetMap", groupJoinableSetMap);
+        model.addAttribute("joinableSetOpenDateMap", joinableSetOpenDateMap);
+        model.addAttribute("joinableSetCloseDateMap", joinableSetCloseDateMap);
+        model.addAttribute("anyJoinableSetDate", anyJoinableSetDate);
         model.addAttribute("groupJoinableSetSizeMap", groupJoinableSetSizeMap);
         model.addAttribute("mainForm", new MainForm());
         log.debug("Listing {} groups for the site {}.", groupList.size(), site.getId());
