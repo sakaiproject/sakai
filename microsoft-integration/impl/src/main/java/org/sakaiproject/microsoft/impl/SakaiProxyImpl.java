@@ -16,6 +16,7 @@
 package org.sakaiproject.microsoft.impl;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
@@ -31,7 +32,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
@@ -55,6 +56,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	@Autowired
 	private UserDirectoryService userDirectoryService;
+	
+	@Autowired
+	private SessionManager sessionManager;
+	
+	@Autowired
+	private PreferencesService preferencesService;
 
 	public void init() {
 		log.info("Initializing Sakai Proxy");
@@ -124,6 +131,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 			log.error("Could not set user property: userId={}", userId);
 		}
 	}
+	
+	// ------------------------------------------ LOCALE ----------------------------------------------------
+	public Locale getLocaleForCurrentUser() {
+		String userId = sessionManager.getCurrentSessionUserId();
+		return StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+	}
+	
 	
 	// ------------------------------------------ SITES ----------------------------------------------------
 	@Override

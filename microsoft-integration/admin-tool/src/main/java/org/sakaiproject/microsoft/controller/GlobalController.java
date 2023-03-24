@@ -16,16 +16,23 @@
 
 package org.sakaiproject.microsoft.controller;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.microsoft.api.SakaiProxy;
-import org.sakaiproject.microsoft.api.exceptions.*;
+import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
+import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
+import org.sakaiproject.microsoft.api.exceptions.NoAdminException;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,6 +64,14 @@ public class GlobalController {
 			throw new NoAdminException();
 		}
 	}
+	
+	@ModelAttribute("locale")
+	public Locale localeResolver(HttpServletRequest request, HttpServletResponse response) {
+        Locale loc = sakaiProxy.getLocaleForCurrentUser();
+        LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
+        localeResolver.setLocale(request, response, loc);
+        return loc;
+    }
 
 	@ExceptionHandler(MicrosoftGenericException.class)
 	public String handleCredentialsError(HttpServletRequest req, Exception ex, RedirectAttributes redirectAttributes) {

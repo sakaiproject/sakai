@@ -16,6 +16,7 @@
 package org.sakaiproject.microsoft.api;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.sakaiproject.microsoft.api.data.SakaiMembersCollection;
 import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
@@ -34,6 +35,9 @@ public interface SakaiProxy {
 	User getUser(String userId);
 	String getMemberKeyValue(User user, SakaiUserIdentifier key);
 	void setUserProperty(String userId, String value);
+	
+	// ------------------------------------------ LOCALE ----------------------------------------------------
+	Locale getLocaleForCurrentUser();
 	
 	// ------------------------------------------ SITES ----------------------------------------------------
 	List<Site> getSakaiSites();

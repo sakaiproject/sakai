@@ -38,10 +38,6 @@
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.calendar</groupId>
-			<artifactId>sakai-calendar-api</artifactId>
-		</dependency>
 
 		<!-- SPRING -->
 		<dependency>
@@ -88,27 +84,11 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-		</dependency>
 
 		<!-- third party dependencies -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-		</dependency>
-		
-		<!-- Unit Testing -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -117,16 +97,11 @@
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<resources>
 			<resource>
-				<directory>${basedir}/src/main/java</directory>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</resource>
-			<resource>
 				<directory>${basedir}/src/main/resources</directory>
 				<includes>
-					<include>**/*</include>
+					<include>**/*.properties</include>
 				</includes>
+				<filtering>false</filtering>
 			</resource>
 		</resources>
 		<plugins>
