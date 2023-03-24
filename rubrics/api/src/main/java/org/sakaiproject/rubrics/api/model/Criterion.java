@@ -88,6 +88,7 @@ public class Criterion implements PersistableEntity<Long>, Serializable {
         Criterion clonedCriterion = new Criterion();
         clonedCriterion.setTitle(this.title);
         clonedCriterion.setDescription(this.description);
+        clonedCriterion.setWeight(this.weight);
         clonedCriterion.getRatings()
                 .addAll(this.getRatings().stream()
                         .map(r -> {
