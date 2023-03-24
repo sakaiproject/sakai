@@ -33,7 +33,7 @@ public interface SakaiProxy {
 	// ------------------------------------------ USERS ----------------------------------------------------
 	User getUser(String userId);
 	String getMemberKeyValue(User user, SakaiUserIdentifier key);
-	void setMemberKeyValue(String userId, SakaiUserIdentifier key, String value);
+	void setUserProperty(String userId, String value);
 	
 	// ------------------------------------------ SITES ----------------------------------------------------
 	List<Site> getSakaiSites();

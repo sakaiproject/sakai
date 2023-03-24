@@ -381,8 +381,9 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 			if(microsoftConfigRepository.isAllowedCreateInvitation() && u != null) {
 				mu = microsoftCommonService.createInvitation(u.getEmail(), "https://teams.microsoft.com");
 				
-				if(mu != null) {
-					//save microsoft id in sakai (as eid or user property)
+				//if Sakai User is identified by user-property and the property is null or empty --> update that property
+				if(mu != null && mappedSakaiUserId == SakaiUserIdentifier.USER_PROPERTY && StringUtils.isBlank(sakaiProxy.getMemberKeyValue(u, mappedSakaiUserId))) {
+					//save microsoft id in sakai (as user property)
 					String value = null;
 					if(mappedMicrosoftUserId == MicrosoftUserIdentifier.EMAIL) {
 						value = mu.getEmail();
@@ -390,7 +391,7 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 						value = mu.getId();
 					}
 					if(StringUtils.isNotBlank(value)) {
-						sakaiProxy.setMemberKeyValue(u.getId(), mappedSakaiUserId, value);
+						sakaiProxy.setUserProperty(u.getId(), value);
 					}
 				}
 

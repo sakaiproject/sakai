@@ -137,7 +137,7 @@
 				<div class="col-md-2"></div>
 				<div class="col-md-8 mb-15">
 					<div id="my-collapse" class="collapse" style="border: 1px solid red;">
-						<ul id="error-list" class="list-unstyled"></ul>
+						<ul id="error-list"></ul>
 					</div>
 				</div>
 				<div class="col-md-2"></div>
@@ -311,7 +311,7 @@
 						// item.siteId
 						// item.siteTitle
 						// item.errorMessage
-						li.textContent = item.siteId;
+						li.textContent = `(${item.siteId}) ${item.siteTitle} : ${item.errorMessage}`;
 						errorContainer.appendChild(li);
 					});
 				} else {
