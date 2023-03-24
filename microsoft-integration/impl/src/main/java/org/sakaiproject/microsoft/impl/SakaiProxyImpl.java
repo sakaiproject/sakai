@@ -111,26 +111,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	@Override
-	public void setMemberKeyValue(String userId, SakaiUserIdentifier key, String value) {
+	public void setUserProperty(String userId, String value) {
 		try {
-			if(key == SakaiUserIdentifier.USER_PROPERTY || key == SakaiUserIdentifier.USER_EID) {
+			UserEdit edit = userDirectoryService.editUser(userId);
 			
-				UserEdit edit = userDirectoryService.editUser(userId);
-				
-				if(key == SakaiUserIdentifier.USER_PROPERTY) {
-						ResourcePropertiesEdit properties = edit.getPropertiesEdit();
-						properties.removeProperty(SakaiUserIdentifier.USER_PROPERTY_KEY);
-						properties.addProperty(SakaiUserIdentifier.USER_PROPERTY_KEY, value);
-				}
-				
-				if(key == SakaiUserIdentifier.USER_EID) {
-						edit.setEid(value);
-				}
-			
-				userDirectoryService.commitEdit(edit);
-			}
+			ResourcePropertiesEdit properties = edit.getPropertiesEdit();
+			properties.removeProperty(SakaiUserIdentifier.USER_PROPERTY_KEY);
+			properties.addProperty(SakaiUserIdentifier.USER_PROPERTY_KEY, value);
+		
+			userDirectoryService.commitEdit(edit);
 		} catch(Exception e) {
-			log.error("Could not set user {}: userId={}", key, userId);
+			log.error("Could not set user property: userId={}", userId);
 		}
 	}
 	
