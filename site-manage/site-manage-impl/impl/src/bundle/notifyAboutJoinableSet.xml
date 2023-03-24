@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>Joinable Set&lt;#if isNew == "true"&gt; created&lt;#else&gt; updated&lt;/#if&gt;: ${jSetName}</subject>
+		<message>
+			Dear ${userName},
+
+			Joinable Set "${jSetName}" has been &lt;#if isNew == "true"&gt;created &lt;#else&gt;updated &lt;/#if&gt;on the following ${localSakaiName} site: ${siteName}
+
+			It can have several associated groups, you can join one of them.
+			By default each group title is composed by the Joinable Set name followed by a number (e.g ${jSetName} 1).
+			Each group has space for ${maxUsers} member(s).
+			&lt;#if openDate??&gt;
+
+			Available from:  ${openDate}
+			&lt;/#if&gt;
+			&lt;#if closeDate??&gt;
+
+			Enrollment ends:  ${closeDate}
+			&lt;/#if&gt;
+			&lt;#if canUnjoin == "true"&gt;
+
+			Ability to unjoin is active&lt;#if closeDate??&gt; until closing date&lt;/#if&gt;.
+			&lt;#else&gt;
+
+			Ability to unjoin is not active.
+			&lt;/#if&gt;
+
+		</message>
+		<locale></locale>
+	</emailTemplate>
+
+	<emailTemplate>
+		<subject>Conjuto autoinscribible&lt;#if isNew == "true"&gt; creado&lt;#else&gt; actualizado&lt;/#if&gt;: ${jSetName}</subject>
+		<message>
+			Saludos ${userName},
+
+			El conjuto autoinscribible "${jSetName}" ha sido &lt;#if isNew == "true"&gt;creado &lt;#else&gt;actualizado &lt;/#if&gt;en el siguiente sitio de ${localSakaiName}: ${siteName}
+
+			Puede tener diversos grupos asociados, puedes unirte a uno de ellos.
+			Por defecto el título de cada uno de los grupos está compuesto por el nombre del conjunto seguido de un número (ejemplo: ${jSetName} 1).
+			Cada grupo tiene espacio para ${maxUsers} miembro(s).
+			&lt;#if openDate??&gt;
+
+			Disponible a partir de:  ${openDate}
+			&lt;/#if&gt;
+			&lt;#if closeDate??&gt;
+
+			La inscripción finaliza:  ${closeDate}
+			&lt;/#if&gt;
+			&lt;#if canUnjoin == "true"&gt;
+
+			La opción para darse de baja está activa&lt;#if closeDate??&gt; hasta la fecha de cierre&lt;/#if&gt;.
+			&lt;#else&gt;
+
+			La opción para darse de baja está desactivada.
+			&lt;/#if&gt;
+
+		</message>
+		<locale>es</locale>
+	</emailTemplate>
+
+	<emailTemplate>
+		<subject>Conjunt subscrivible&lt;#if isNew == "true"&gt; creat&lt;#else&gt; actualitzat&lt;/#if&gt;: ${jSetName}</subject>
+		<message>
+			Salutacions ${userName},
+
+			El conjunt subscrivible "${jSetName}" s'ha &lt;#if isNew == "true"&gt;creat &lt;#else&gt;actualitzat &lt;/#if&gt;al seg\u00fcent espai de ${localSakaiName}: ${siteName}
+
+			Pot tenir diversos grups associats, pots unir-te a un.
+			Per defecte el títol de cada grup està format pel nom del conjunt seguit d'un nombre (exemple: ${jSetName} 1).
+			Cada grup té espai per a ${maxUsers} membre(s).
+			&lt;#if openDate??&gt;
+
+			Disponible a partir de: ${openDate}
+			&lt;/#if&gt;
+			&lt;#if closeDate??&gt;
+
+			La inscripció finalitza: ${closeDate}
+			&lt;/#if&gt;
+			&lt;#if canUnjoin == "true"&gt;
+
+			L'opció per donar-vos de baixa està activa&lt;#if closeDate??&gt; fins a la data de tancament&lt;/#if&gt;.
+			&lt;#else&gt;
+
+			L'opció per donar-vos de baixa està desactivada.
+			&lt;/#if&gt;
+
+		</message>
+		<locale>ca</locale>
+	</emailTemplate>
+
+	<emailTemplate>
+		<subject>Conjuto autoinscribible&lt;#if isNew == "true"&gt; creado&lt;#else&gt; actualizado&lt;/#if&gt;: ${jSetName}</subject>
+		<message>
+			Saludos ${userName},
+
+			El conjuto autoinscribible "${jSetName}" ha sido &lt;#if isNew == "true"&gt;creado &lt;#else&gt;actualizado &lt;/#if&gt;en el siguiente sitio de ${localSakaiName}: ${siteName}
+
+			Puede tener diversos grupos asociados, puedes unirte a uno de ellos.
+			Por defecto el título de cada uno de los grupos está compuesto por el nombre del conjunto seguido de un número (ejemplo: ${jSetName} 1).
+			Cada grupo tiene espacio para ${maxUsers} miembro(s).
+			&lt;#if openDate??&gt;
+
+			Disponible a partir de:  ${openDate}
+			&lt;/#if&gt;
+			&lt;#if closeDate??&gt;
+
+			La inscripción finaliza:  ${closeDate}
+			&lt;/#if&gt;
+			&lt;#if canUnjoin == "true"&gt;
+
+			La opción para darse de baja está activa&lt;#if closeDate??&gt; hasta la fecha de cierre&lt;/#if&gt;.
+			&lt;#else&gt;
+
+			La opción para darse de baja está desactivada.
+			&lt;/#if&gt;
+
+		</message>
+		<locale>eu</locale>
+	</emailTemplate>
+</emailTemplates>

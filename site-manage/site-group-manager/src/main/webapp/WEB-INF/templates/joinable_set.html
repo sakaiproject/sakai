@@ -34,6 +34,33 @@
                 <label class="form-control-label" for="groupMaxMembers" th:text="|* #{joinableset.maxmembers}|" th:field="*{groupMaxMembers}">Max members per group:</label>
                 <input class="form-control" name="groupMaxMembers" id="groupMaxMembers" type="number" min="1" max="999" th:field="*{groupMaxMembers}"/>
               </div>
+              <div class="form-group">
+                <label class="form-control-label" for="joinableOpenDate" th:text="|#{joinableset.label.opendate}:|">Opening date:</label>
+                <input id="joinableOpenDate" type="datetime-local" class="form-control" name="joinableOpenDate" th:field="*{joinableOpenDate}"/>
+              </div>
+              <div class="form-group">
+                <label class="form-control-label" for="joinableCloseDate" th:text="|#{joinableset.label.closedate}:|">Closing date:</label>
+                <input id="joinableCloseDate" type="datetime-local" class="form-control" name="joinableCloseDate" th:field="*{joinableCloseDate}"/>
+              </div>
+              <div class="checkbox">
+                <label for="sendMail">
+                  <input class="form-control" name="sendMail" id="sendMail" type="checkbox" th:field="*{sendMail}"/>
+                  <span th:text="#{joinableset.checkbox.sendmail}">Send mail to participants indicating the opening and/or closing date</span>
+                </label>
+              </div>
+              <div class="checkbox">
+                <label id="setReminderLbl" for="setReminder">
+                  <input class="form-control" name="setReminder" id="setReminder" type="checkbox" th:field="*{setReminder}"/>
+                  <span th:text="#{joinableset.checkbox.setreminder}">Generate or update the reminder sent 24h before the closing date</span>
+                </label>
+              </div>
+              <hr>
+              <div class="checkbox">
+                <label for="allowUnjoin">
+                  <input class="form-control" name="allowUnjoin" id="allowUnjoin" type="checkbox" th:field="*{allowUnjoin}"/>
+                  <span th:text="|#{joinableset.allow.unjoin} #{joinableset.info.closedate}|">Allow members to unjoin (leave) groups in this set after joining</span>
+                </label>
+              </div>
               <div class="checkbox" th:if="${joinableSetForm.joinableSetId == null}">
                 <label for="allowPreviewMembership">
                   <input class="form-control" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}"/>
@@ -44,12 +71,6 @@
                 <label for="allowViewMembership">
                   <input class="form-control" name="allowViewMembership" id="allowViewMembership" type="checkbox" th:field="*{allowViewMembership}"/>
                   <span th:text="#{joinableset.allow.viewmembership}">Allow members to see the other members of these groups after joining</span>
-                </label>
-              </div>
-              <div class="checkbox">
-                <label for="allowUnjoin">
-                  <input class="form-control" name="allowUnjoin" id="allowUnjoin" type="checkbox" th:field="*{allowUnjoin}"/>
-                  <span th:text="#{joinableset.allow.unjoin}">Allow members to unjoin (leave) groups in this set after joining</span>
                 </label>
               </div>
               <div th:if="${joinableSetForm.joinableSetId != null}">
