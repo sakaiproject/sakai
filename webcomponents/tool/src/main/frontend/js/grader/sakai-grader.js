@@ -761,7 +761,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (!this.rubricShowing) {
       $("#rubric-panel").dialog({
         width: "70%",
-        close: () => this.rubricShowing = false
+        close: () => { this.rubricShowing = false; this.canSave = true; }
       });
       this.rubricShowing = true;
       this.canSave = false;
