@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Date;
@@ -494,6 +495,16 @@ public class DbCalendarServiceSerializationTest extends TestCase
 			@Override
 			public Date parseISODateInUserTimezone(String dateString) {
 				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
+				return null;
+			}
+
+			@Override
+			public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
 				return null;
 			}
 		};
