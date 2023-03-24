@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -249,6 +250,33 @@ public class UserTimeServiceImpl implements UserTimeService {
         }
 
         return null;
+    }
+
+    @Override
+    public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
+        if (utcDate == null) {
+            return null;
+        }
+        ZoneId userTimeZone = getLocalTimeZone().toZoneId();
+        LocalDateTime openDate = LocalDateTime.parse(utcDate);
+        ZonedDateTime utcOpenDate = ZonedDateTime.of(openDate, ZoneOffset.UTC);
+        LocalDateTime zonedOpenDate = LocalDateTime.ofInstant(utcOpenDate.toInstant(), userTimeZone);
+
+        if (formatted) {
+            DateTimeFormatter pattern = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                    .withLocale(resourceLoader.getLocale());
+            return pattern.format(zonedOpenDate);
+        }
+        return zonedOpenDate.toString();
+    }
+
+    @Override
+    public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
+        ZoneId userTimeZone = getLocalTimeZone().toZoneId();
+        LocalDateTime closeDate = LocalDateTime.parse(zonedDate);
+        ZonedDateTime zonedCloseDate = ZonedDateTime.of(closeDate, userTimeZone);
+
+        return LocalDateTime.ofInstant(zonedCloseDate.toInstant(), ZoneOffset.UTC);
     }
 
 }
