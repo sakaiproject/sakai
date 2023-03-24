@@ -72,8 +72,17 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 	</bean>
-	
+
+	<bean id="org.sakaiproject.sitemanage.api.JoinableSetReminderScheduleService"
+		class="org.sakaiproject.sitemanage.impl.JoinableSetReminderScheduleServiceImpl">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userNotificationProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
+	</bean>
+
 	<!--  Hibernate persistence -->
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.siteSetupQuestion"
