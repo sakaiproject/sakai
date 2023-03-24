@@ -1214,7 +1214,7 @@
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-test</artifactId>
         <version>${sakai.version}</version>
-        <scope>provided</scope>
+        <scope>test</scope>
       </dependency>
 
       <!-- Tika includes asm-debug-all which it really shouldn't
