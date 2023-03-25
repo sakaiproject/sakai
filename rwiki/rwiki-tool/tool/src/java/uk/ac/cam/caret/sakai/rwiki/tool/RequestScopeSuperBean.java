@@ -919,15 +919,6 @@ public class RequestScopeSuperBean
 		return configBean;
 	}
 
-	public boolean getLoadAutoSave() {
-		boolean b =  getNameHelperBean().isLoadAutoSave();
-		return b;
-	}
-	public boolean getRemoveAutoSave() {
-		boolean b =  getNameHelperBean().isRemoveAutoSave();
-		return b;
-	}
-	
 	public String getPageRevisionContent(RWikiObject currentRWikiObject,int previousRevision) {
 		RWikiObject  rwo = objectService.getRWikiHistoryObject(currentRWikiObject, previousRevision);
 		if ( rwo == null ) {

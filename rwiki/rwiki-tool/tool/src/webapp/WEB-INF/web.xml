@@ -79,8 +79,6 @@
 				<script src="/sakai-rwiki-tool/scripts/ajaxpopup.js" > </script>
 				<script src="/sakai-rwiki-tool/scripts/asyncload.js" > </script>
 				<script src="/sakai-rwiki-tool/scripts/logger.js" > </script>
-				<script src="/sakai-rwiki-tool/scripts/autosave.js" > </script>
-				<script src="/sakai-rwiki-tool/scripts/flashbridge.js" > </script>
 				<script src="/sakai-rwiki-tool/scripts/utils.js" > </script>
 				]]>
 				
