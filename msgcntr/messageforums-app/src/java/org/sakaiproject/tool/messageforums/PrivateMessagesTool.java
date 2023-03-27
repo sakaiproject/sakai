@@ -1175,7 +1175,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  setBooleanEmailOut(draft.getExternalEmail());
 	  }
 
-	  if(draft.getScheduler() != null && draft.getScheduler()) {
+	  if(draft.getScheduler() != null && draft.getScheduler() && draft.getScheduledDate() != null) {
 		  setSchedulerSendDateString(draft.getScheduledDate().toString());
 		  setBooleanSchedulerSend(draft.getScheduler());
 	  }
