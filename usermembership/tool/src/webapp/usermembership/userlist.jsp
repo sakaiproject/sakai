@@ -94,7 +94,7 @@
 					<f:param name="userId" value="#{row.userID}"/>
 				</h:commandLink>
 			</t:column>
-			<t:column id="internalUserId" headerstyleClass="d-none d-sm-block">
+			<t:column id="internalUserId" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="internalUserId" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.internal_user_id}"/>
@@ -126,7 +126,7 @@
 		        </f:facet>
 				<h:outputText value="#{row.userType}"/>
 			</h:column>
-			<t:column id="authority" headerstyleClass="d-none d-sm-block">
+			<t:column id="authority" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="authority" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.user_authority}"/>
@@ -134,7 +134,7 @@
 		        </f:facet>
 				<h:outputText value="#{row.authority}"/>
 			</t:column>
-			<t:column id="createdOn" headerstyleClass="d-none d-sm-block">
+			<t:column id="createdOn" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="createdOn" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.user_created_on}"/>
@@ -144,7 +144,7 @@
 					<f:convertDateTime dateStyle="medium" timeZone="#{UserListBean.userTimeZone}"/>
 				</h:outputText>
 			</t:column>
-			<t:column id="modifiedOn" headerstyleClass="d-none d-sm-block">
+			<t:column id="modifiedOn" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="modifiedOn" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.user_modified_on}"/>

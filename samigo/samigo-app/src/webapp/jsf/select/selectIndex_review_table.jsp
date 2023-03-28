@@ -90,7 +90,7 @@
         </t:column>
 
         <%-- SCORE --%>
-        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-block" styleClass="d-none d-sm-block">
+        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-table-cell" styleClass="d-none d-sm-table-cell">
             <f:facet name="header">
                 <h:panelGroup>
                     <h:outputText value="#{selectIndexMessages.individual_score}" styleClass="currentSort" />
@@ -102,7 +102,7 @@
         </t:column>
 
         <%-- TIME --%>
-        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-block" styleClass="d-none d-sm-block">
+        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-table-cell" styleClass="d-none d-sm-table-cell">
             <f:facet name="header">
                 <h:panelGroup>
                     <h:outputText value="#{selectIndexMessages.time} " styleClass="currentSort"  />
@@ -116,7 +116,7 @@
         </t:column>
 
         <%-- SUBMITTED --%>
-        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-block" styleClass="d-none d-sm-block">
+        <t:column rendered="#{select.displayAllAssessments != '1'}" headerstyleClass="d-none d-sm-table-cell" styleClass="d-none d-sm-table-cell">
             <f:facet name="header">
                 <h:panelGroup>
                     <h:outputText value="#{selectIndexMessages.submitted} " styleClass="currentSort"  />
