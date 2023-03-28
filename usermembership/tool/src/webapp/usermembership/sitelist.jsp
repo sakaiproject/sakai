@@ -69,7 +69,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.groups}"/>
 			</h:column>
-			<t:column id="siteType" headerstyleClass="d-none d-sm-block">
+			<t:column id="siteType" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="siteType" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.site_type}"/>
@@ -77,7 +77,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.siteType}"/>
 			</t:column>
-			<t:column id="siteTerm" headerstyleClass="d-none d-sm-block">
+			<t:column id="siteTerm" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="siteTerm" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.site_term}"/>
@@ -85,7 +85,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.siteTerm}"/>
 			</t:column>
-			<t:column id="roleID" headerstyleClass="d-none d-sm-block">
+			<t:column id="roleID" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="roleId" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.role_name}"/>
@@ -93,7 +93,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.roleName}"/>
 			</t:column>
-			<t:column id="pubView" headerstyleClass="d-none d-sm-block">
+			<t:column id="pubView" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="published" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.status}"/>
