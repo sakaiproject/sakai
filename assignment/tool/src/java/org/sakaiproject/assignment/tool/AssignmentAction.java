@@ -7498,8 +7498,8 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Object> rubricAssociationMap = new HashMap<>();
             rubricAssociationMap.put("rubricId", rubricId);
             Map<String, String> rubricAssociationParameters = new HashMap<>();
-            rubricAssociationParameters.put("fineTunePoints", params.getString("rbcs-config-fineTunePoints"));
-            rubricAssociationParameters.put("hideStudentPreview", params.getString("rbcs-config-hideStudentPreview"));
+            rubricAssociationParameters.put("fineTunePoints", params.getString(RubricsConstants.RBCS_CONFIG + "fineTunePoints"));
+            rubricAssociationParameters.put("hideStudentPreview", params.getString(RubricsConstants.RBCS_CONFIG + "hideStudentPreview"));
             rubricAssociationMap.put("parameters", rubricAssociationParameters);
             try {
                 state.setAttribute(RUBRIC_ASSOCIATION, (new ObjectMapper()).writeValueAsString(rubricAssociationMap));
