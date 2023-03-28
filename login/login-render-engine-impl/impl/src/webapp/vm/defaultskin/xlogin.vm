@@ -38,13 +38,13 @@
                                 <input id="pw" name="pw" value="${password}" type="password" class="form-control $!{hasErrorsClass}" autocomplete="current-password"></input>
 
                                 <input type="checkbox" class="btn-check" id="showPw" autocomplete="off">
-                                <label class="btn btn-input-group" for="showPw">
+                                <label class="input-group-text" for="showPw">
                                     <i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
                                     <span class="visually-hidden">${rloader.login_show_pw}</span>
                                 </label>
                             </div>
                             <div class="d-flex gap-2 mb-2">
-                                <input name="submit" type="submit" id="submit" class="order-2 btn btn-primary btn-lg flex-grow-1" value="${loginWording}"/>
+                                <input name="submit" type="submit" id="submit" class="btn btn-primary btn-lg flex-grow-1" value="${loginWording}"/>
                                 #if (${doCancel})
                                     <input name="cancel" type="submit" class="order-1 btn btn-secondary btn-lg" value="${cancelWording}"/>
                                 #end
@@ -53,7 +53,7 @@
 
                         #if (${passwordResetUrl})
                             <div class="text-end px-3 py-2">
-                                <a href="${passwordResetUrl}" class="text-end link-dark right">${passwordResetWording}</a>
+                                <a href="${passwordResetUrl}" class="text-end right">${passwordResetWording}</a>
                             </div>
                         #end
                     </div>

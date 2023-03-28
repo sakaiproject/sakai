@@ -77,8 +77,8 @@
       <fieldset class="btn-group" role="radiogroup" aria-label="Switch between light and dark themes">
             <button role="switch" aria-checked="false"
                 id="sakai-darkThemeSwitcher" class="sakaiThemeSwitch Mrphs-userNav__submenuitem--themeSwitcher switch">
-                <span class="bi bi-sun">${rloader.sit_themeSwitcherOff}</span>
-                <span class="bi bi-moon">${rloader.sit_themeSwitcherOn}</span>
+                <span class="bi bi-sun"> ${rloader.sit_themeSwitcherOff}</span> ## Note: The space before the variable is intentional to ensure proper spacing in the rendered output
+                <span class="bi bi-moon"> ${rloader.sit_themeSwitcherOn}</span>
             </button>
       </fieldset>
   </div>
