@@ -1,6 +1,13 @@
 ## Header that shows institution and/or banner logos
 
 <header class="portal-header bg-dark d-flex align-items-center justify-content-between" role="banner">
+
+  <button class="btn m-1 d-md-none" data-bs-toggle="offcanvas" data-bs-target="#portal-nav-sidebar" aria-controls="portal-nav-sidebar" aria-label="$rloader.sit_navigation" title="$rloader.sit_navigation">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" class="bi bi-list" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+    </svg>
+  </button>
+
   <div id="logoWrapper" class="portal-header-logo d-flex align-items-center justify-content-between bg-primary">
     <a class="px-3" href="/portal" title="Home page">
       <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai logo">

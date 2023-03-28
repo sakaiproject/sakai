@@ -37,6 +37,7 @@
                 #if ($site.description)
                 <button class="d-inline-block p-1 btn bi bi-info-circle btn-site-opt site-description-button"
                     data-bs-toggle="popover"
+                    data-bs-trigger="focus"
                     data-bs-html="true"
                     data-bs-content="${site.description}"
                     aria-label="Click for the full site description"
