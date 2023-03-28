@@ -521,6 +521,7 @@
                 }
             }
         }
+
         .weight-field {
             .field-item {
                 margin-top: 10px;
@@ -596,6 +597,15 @@
                 width: 100%;
             }
         }
+    }
+}
+
+div.weight-error {
+    label, span {
+        color: var(--errorBanner-color);
+    }
+    input {
+        border-color: var(--errorBanner-color);
     }
 }
 
