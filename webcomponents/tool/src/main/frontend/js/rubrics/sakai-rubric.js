@@ -274,7 +274,7 @@ export class SakaiRubric extends RubricsElement {
   handleSaveWeights() {
 
     const saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
-    const saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-success`);
+    const saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
 
     if (saveWeightsBtn) saveWeightsBtn.setAttribute('disabled', true);
 
@@ -289,19 +289,14 @@ export class SakaiRubric extends RubricsElement {
 
           if (saveSuccessLbl) {
             saveSuccessLbl.classList.remove('d-none');
-            saveSuccessLbl.classList.add('in');
+            setTimeout(() => {
+              saveSuccessLbl.classList.add('d-none');
+            },5000);
           }
 
           setTimeout(() => {
             if (saveWeightsBtn) saveWeightsBtn.removeAttribute('disabled');
           }, 1000);
-
-          setTimeout(() => {
-            if (saveSuccessLbl) {
-              saveSuccessLbl.classList.remove('in');
-              saveSuccessLbl.classList.add('d-none');
-            }
-          }, 5000);
 
           this.requestUpdate();
           this.dispatchEvent(new SharingChangeEvent());
