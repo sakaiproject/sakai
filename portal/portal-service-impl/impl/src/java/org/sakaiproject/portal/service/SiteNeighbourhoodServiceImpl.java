@@ -49,18 +49,23 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.comparator.AliasIdComparator;
+import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
 @Slf4j
+@Setter
 public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 {
 
 	private static final String SITE_ALIAS = "/sitealias/";
 
 	private SiteService siteService;
+
+	private PortalService portalService;
 
 	private PreferencesService preferencesService;
 
@@ -80,11 +85,6 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	public void init()
 	{
 		useSiteAliases = serverConfigurationService.getBoolean("portal.use.site.aliases", false);
-	}
-
-	public void destroy()
-	{
-
 	}
 
 	/*
@@ -142,6 +142,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			}
 
 			l = props.getPropertyList("order");
+			l = new ArrayList<String>(portalService.getPinnedSites());
 			if (l != null)
 			{
 				prefOrder = l;
@@ -435,80 +436,6 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		}
 	}
 
-	/**
-	 * @return the preferencesService
-	 */
-	public PreferencesService getPreferencesService()
-	{
-		return preferencesService;
-	}
-
-	/**
-	 * @param preferencesService
-	 *        the preferencesService to set
-	 */
-	public void setPreferencesService(PreferencesService preferencesService)
-	{
-		this.preferencesService = preferencesService;
-	}
-
-	/**
-	 * @return the serverConfigurationService
-	 */
-	public ServerConfigurationService getServerConfigurationService()
-	{
-		return serverConfigurationService;
-	}
-
-	/**
-	 * @param serverConfigurationService
-	 *        the serverConfigurationService to set
-	 */
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	/**
-	 * @return the siteService
-	 */
-	public SiteService getSiteService()
-	{
-		return siteService;
-	}
-
-	/**
-	 * @param siteService
-	 *        the siteService to set
-	 */
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
-
-	/**
-	 * @return the userDirectoryService
-	 */
-	public UserDirectoryService getUserDirectoryService()
-	{
-		return userDirectoryService;
-	}
-
-	/**
-	 * @param userDirectoryService
-	 *        the userDirectoryService to set
-	 */
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
-	{
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
-	{
-		this.threadLocalManager = threadLocalManager;
-	}
-
 	public String lookupSiteAlias(String id, String context)
 	{
 		// TODO Constant extraction
@@ -572,10 +499,6 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			log.debug("No alias found for {}", id);
 		}
 		return null;
-	}
-
-	public void setAliasService(AliasService aliasService) {
-		this.aliasService = aliasService;
 	}
 
 	public boolean isUseAliasPrefix()

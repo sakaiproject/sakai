@@ -168,7 +168,7 @@
             </div>
         </script>
         <script id="categoryScoreHeaderTemplate" type="text/template">
-            <span class="colHeader hide" data-col-index="${col}">${col}</span>
+            <span class="colHeader d-none" data-col-index="${col}">${col}</span>
             <div class="relative">
                 {if getExtraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
@@ -204,7 +204,7 @@
                 {for info in dropInfo}
                 <div class="gb-drop-info">${info}</div>
                 {/for}
-                <div class="btn-group">
+                <div class="dropdown">
                     <button type="button"
                         class="btn btn-sm btn-default dropdown-toggle"
                         data-bs-toggle="dropdown"

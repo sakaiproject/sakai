@@ -63,8 +63,8 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
-import org.sakaiproject.messaging.api.UserNotification;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
@@ -167,7 +167,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * messages.
 	 */
 	private static ResourceLoader rloader = new ResourceLoader("sitenav");
-	private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
+	private static ResourceLoader toolsRloader = new ResourceLoader("sitesetupgeneric");
+
+	// TODO: This is commented out as the new trinity portal doesn't load the connection
+	// manager UI. It may in the future, hence this is left here.
+	//private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
 	/**
 	 * Parameter value to indicate to look up a tool ID within a site
@@ -183,6 +187,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private PortalService portalService;
 	
 	private SecurityService securityService = null;
+
+	private SiteNeighbourhoodService siteNeighbourhoodService;
 
 	//Get user preferences
 	private PreferencesService preferencesService;
@@ -1039,7 +1045,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Portal"));
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
-		rcontext.put("cmLoader", cmLoader);
+		// TODO: This is commented out as the new trinity portal doesn't load the connection manager
+		//rcontext.put("cmLoader", cmLoader);
 
 		// Allow for inclusion of extra header code via property
 		String includeExtraHead = ServerConfigurationService.getString("portal.include.extrahead", "");
@@ -1109,6 +1116,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
+
+		rcontext.put("homeToolTitle", rloader.getString("sitenav_home_tool_title"));
 		
 		//SAK-32224. Ability to disable the animated tool menu by property
 		rcontext.put("scrollingToolbarEnabled", ServerConfigurationService.getBoolean("portal.scrolling.toolbar.enabled",true));
@@ -1116,6 +1125,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// Format properties for MathJax.
 		String [] mathJaxFormat = ServerConfigurationService.getStrings("mathjax.config.format");
 		rcontext.put("mathJaxFormat", mathJaxFormat);
+
+		boolean notificationsPushEnabled = ServerConfigurationService.getBoolean("portal.notifications.push.enabled", true);
+		rcontext.put("notificationsPushEnabled", notificationsPushEnabled);
 
 		boolean debugNotifications = ServerConfigurationService.getBoolean("portal.notifications.debug", false);
 		rcontext.put("debugNotifications", debugNotifications);
@@ -1946,6 +1958,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
+			rcontext.put("topLogin", topLogin);
 
 			if (!topLogin)
 			{
@@ -2027,7 +2040,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
 		userMessagingService = ComponentManager.get(UserMessagingService.class);
-		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
+		portalService = ComponentManager.get(PortalService.class);
+		siteNeighbourhoodService = ComponentManager.get(SiteNeighbourhoodService.class);
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
 		preferencesService = ComponentManager.get(PreferencesService.class);
@@ -2298,12 +2312,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return this.siteHelper;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.Portal#getSiteNeighbourhoodService()
-	 */
 	public SiteNeighbourhoodService getSiteNeighbourhoodService()
 	{
-		return portalService.getSiteNeighbourhoodService();
+		return siteNeighbourhoodService;
 	}
 	
 	/**

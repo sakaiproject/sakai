@@ -2,14 +2,11 @@
 	.#{$namespace}toolTitleNav__button_container {
 		@include display-flex;
 		@include align-items(center);
-		margin-top: -48px;			// position the buttons beside the tool title
+		margin-top: -27px;			// position the buttons beside the tool title
 		
 		@media #{$phone} {	// position the buttons for mobile
 			margin-top: 0;
 			margin-bottom: -22px;
-			sakai-maximise-button {
-				display: none;
-			}
     }
       &.home {
 			top: 0px;
@@ -99,8 +96,9 @@
 				display:    block;
 				background: var(--sakai-background-color-1);
 				width: 250px;
-				margin: 10px 0 0 -250px;
-				z-index: 2;
+				margin: 251px 0 0 -250px;
+				z-index: 1000;
+				border: 1px solid var(--sakai-border-color);
 				box-shadow: var(--elevation-3dp);
 				
 				label{
@@ -173,12 +171,6 @@
 			margin-left: $standard-space;	// space between text and icon
 		}
 	}
-
-  sakai-maximise-button {
-    color: var(--button-text-color);
-    font-size: 1.1em;
-  }
-
 }
 
 .#{$namespace}toolBody{
@@ -249,5 +241,23 @@
 
 //Remove excessive heading margin for bootstrap modals
 .modal-title {
-  margin-top: 0;
+	margin-top: 0;
+}
+
+.tool-button-container {
+	background-color: var(--sakai-background-color-1);
+	background-position: right 50%;
+	background-repeat: no-repeat;
+	color: var(--sakai-text-color-1);
+	font-family: "Open Sans", sans-serif;
+	font-size: 13px;
+	font-weight: 600;
+	padding: 0.3em 0.5em 0.3em 0.5em;
+	text-align: left;
+	max-width: 100%;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	border-radius: 3px;
+	border: 1px solid var(--sakai-border-color);
+	margin : 2px;
 }

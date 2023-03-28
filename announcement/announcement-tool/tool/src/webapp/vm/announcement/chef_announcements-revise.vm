@@ -68,7 +68,16 @@ function resizeFrame(){
             filterPlaceholder: '$tlang.getString("announcement.edit.searchgroup")',
             enableFiltering: true,
             includeSelectAllOption: true,
-            enableCaseInsensitiveFiltering: true
+            enableCaseInsensitiveFiltering: true,
+            templates: {
+                button: `
+                    <button type="button"
+                            class="btn btn-primary multiselect dropdown-toggle"
+                            data-bs-toggle="dropdown">
+                        <span class="multiselect-selected-text"></span>
+                    </button>
+                `,
+            },
         });
     });
 </script>

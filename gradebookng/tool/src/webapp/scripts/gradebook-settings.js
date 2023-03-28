@@ -146,13 +146,13 @@ $(function() {
 
 window.addEventListener("DOMContentLoaded", e => {
 
-	const triggers = document.querySelectorAll("#gradebookSettings .panel-collapse");
+	const triggers = document.querySelectorAll("#gradebookSettings .accordion-collapse");
 
   document.getElementById("gb-settings-expand-all")?.addEventListener("click", e => {
-		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.show());
+		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.toggle());
   });
 
   document.getElementById("gb-settings-collapse-all")?.addEventListener("click", e => {
-		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.hide());
+		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.toggle());
   });
 });

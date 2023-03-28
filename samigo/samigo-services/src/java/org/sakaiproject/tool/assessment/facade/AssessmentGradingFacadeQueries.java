@@ -42,6 +42,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.comparators.NullComparator;
+import org.apache.commons.lang3.StringUtils;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -3250,6 +3252,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 log.debug("Random draw from questonpool");
                 itemArrayList = publishedSectionData.getItemArray();
                 long seed = (long) AgentFacade.getAgentString().hashCode();
+
+                // If the section has a previous seed we must use it to use the same order.
+                String sectionRandomizationSeed = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_SEED);
+                if (StringUtils.isNotBlank(sectionRandomizationSeed)) {
+                    seed += Long.parseLong(sectionRandomizationSeed);
+                }
+
                 if (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE) != null && publishedSectionData
                         .getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE)
                         .equals(SectionDataIfc.PER_SUBMISSION)) {

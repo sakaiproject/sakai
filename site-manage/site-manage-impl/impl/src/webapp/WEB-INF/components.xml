@@ -29,6 +29,12 @@
 		<property name="userNotificationProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider"/>
 	</bean>
 
+	<bean id="org.sakaiproject.sitemanage.api.SiteManageService.webservice"
+		  parent="org.sakaiproject.sitemanage.api.SiteManageService"
+		  class="org.sakaiproject.sitemanage.impl.SiteManageServiceImpl"
+		  init-method="init">
+	</bean>
+
 	<bean id="org.sakaiproject.sitemanage.api.SiteTypeProvider"
 			class="org.sakaiproject.sitemanage.impl.SiteTypeProviderImpl"
 			init-method="init"

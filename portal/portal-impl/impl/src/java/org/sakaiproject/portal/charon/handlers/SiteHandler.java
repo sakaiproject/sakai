@@ -220,13 +220,9 @@ public class SiteHandler extends WorksiteHandler
 			toolId = parts[4];
 			String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
 					+ Web.makePath(parts, 4, parts.length);
-			String queryString = Validator.generateQueryString(req);
-			if (queryString != null)
-			{
-				toolUrl = toolUrl + "?" + queryString;
-			}
 			portalService.setResetState("true");
-			res.sendRedirect(toolUrl);
+			res.addHeader("Cache-Control", "no-cache");
+			res.sendRedirect(URLUtils.sanitisePath(toolUrl));
 			return RESET_DONE;
 		}
 
@@ -264,18 +260,12 @@ public class SiteHandler extends WorksiteHandler
 				}
 			}
 
-			String pageUrl = req.getContextPath() + "/site/" + siteId + "/page"
-					+ Web.makePath(parts, 4, parts.length);
+			String pageUrl = URLUtils.sanitisePath(req.getContextPath() + "/site/" + siteId + "/page"
+					+ Web.makePath(parts, 4, parts.length));
 
-			String queryString = Validator.generateQueryString(req);
-			if (queryString != null)
-			{
-				pageUrl = pageUrl + "?" + queryString;
-				if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
-			} else {
-				if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
-			}
+			if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
 			portalService.setResetState("true");
+			res.addHeader("Cache-Control", "no-cache");
 			res.sendRedirect(pageUrl);
 			return RESET_DONE;
 		}
@@ -360,6 +350,7 @@ public class SiteHandler extends WorksiteHandler
 					userId != null && portal.getSiteHelper().isJoinable(siteId, userId))
 			{
 				String redirectUrl = Web.returnUrl(req, "/join/"+siteId);
+				res.addHeader("Cache-Control", "no-cache");
 				res.sendRedirect(redirectUrl);
 				return;
 			}
@@ -461,10 +452,10 @@ public class SiteHandler extends WorksiteHandler
 			// http://localhost:8080/portal/site/963b28b/tool/0996adf
 			String[] pieces = pagerefUrl.split("/");
 			if ( pieces.length > 6 && "tool".equals(pieces[6]) ) {
-				// SAK-25503 - This probably should be a log.debug later
 				String queryString = req.getQueryString();
-				if ( queryString != null ) pagerefUrl = pagerefUrl + '?' + queryString;
-				log.warn("Redirecting tool inline url: "+pagerefUrl);
+				if ( queryString != null ) pagerefUrl = URLUtils.sanitisePath(pagerefUrl) + '?' + queryString;
+				log.debug("Redirecting tool inline url: "+pagerefUrl);
+				res.addHeader("Cache-Control", "no-cache");
 				res.sendRedirect(pagerefUrl);
 				return;
 			}

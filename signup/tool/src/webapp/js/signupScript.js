@@ -473,7 +473,7 @@
 				if(mutiplBoxTag)
 					mutiplBoxTag.className="mi";
 				if(singleBoxTag)
-					singleBoxTag.className="si";
+					singleBoxTag.className="single-box";
 					
 				showDTimeInputFields('enabled');
 				createEditTSBttn.style.display="none";

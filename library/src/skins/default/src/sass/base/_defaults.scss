@@ -56,7 +56,7 @@ a{
     color: var(--sakai-text-color-1);
     text-decoration: none;
   }
-  &[href]:not(.btn) {  // This means a[href]
+  &[href]:not(.btn, .page-link) {  // This means a[href]
     color: var(--link-color);
     &:focus{
       outline: $sakai-focus-outline;
@@ -79,7 +79,6 @@ a{
     &.btn-primary{
       @include sakai_primary_button();
     }
-    text-decoration: none;  // TODO
   }
   &.url{
     @media #{$phone}{
@@ -309,4 +308,36 @@ button.icon-button {
 
 .Mrphs-pageColumns--single .Mrphs-container {
     margin: 0 16px;
+}
+
+// Bootstrap-5 Accordion styles
+.accordion-header {
+  margin: 0; 
+}
+
+.accordion-item {
+  background-color: var(--site-nav-bg);
+  color: var(--sakai-text-color);
+  border: 1px solid var(--tool-border-color);
+  .accordion-button {
+    color: var(--sakai-text-color-1);
+    background-color: var(--site-nav-bg);
+    &::after {
+      color: var(--sakai-text-color-1);
+    }
+    &:not(.collapsed) {
+      background-color: var(--sakai-background-color-3);
+    }
+  }
+}
+
+.accordion-collapse {
+  background-color: var(--sakai-background-color-1);
+}
+
+// Changed hidden class in Bootstrap 5 to d-none.
+// I updated all instances, but may have missed some.
+// Adding this to ensure all hidden classes are hidden.
+.hidden {
+  display: none !important;
 }

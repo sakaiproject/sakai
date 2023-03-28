@@ -17,6 +17,10 @@
 package org.sakaiproject.plus.impl.repository;
 
 import java.util.Objects;
+import java.util.List;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -34,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MembershipRepositoryImpl extends SpringCrudRepositoryImpl<Membership, Long>  implements MembershipRepository {
 
 	@Transactional(readOnly = true)
-        @Override
+	@Override
 	public Membership findBySubjectAndContext(Subject subject, Context context) {
 
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
@@ -54,6 +58,36 @@ public class MembershipRepositoryImpl extends SpringCrudRepositoryImpl<Membershi
 		return result;
 	}
 
+	@Transactional(readOnly = true)
+	@Override
+	public List<Membership> getEntriesMinutesOld(Context context, int minutes)
+	{
+		Instant previousDate = Instant.now().minus(minutes, ChronoUnit.MINUTES);
+
+		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaQuery<Membership> cr = cb.createQuery(Membership.class);
+		Root<Membership> root = cr.from(Membership.class);
+
+		Predicate cond;
+		cond = cb.and(
+			cb.equal(root.get("context"), context),
+			cb.lessThanOrEqualTo(root.get("updatedAt"), previousDate)
+		);
+
+
+		CriteriaQuery<Membership> cq = cr
+			.select(root)
+			.where(cond)
+			.orderBy(cb.desc(root.get("updatedAt")))
+		;
+
+		List<Membership> result = sessionFactory.getCurrentSession()
+				.createQuery(cq)
+				.list();
+
+		return result;
+	}
+
 	// TODO: Tell Earle that in this particular area, JPA sucks!
 	// TODO: Make sure this f'n does what I think it f'n does given that I think I am f'n forced to do it
 	@Transactional
@@ -68,6 +102,7 @@ public class MembershipRepositoryImpl extends SpringCrudRepositoryImpl<Membershi
 		boolean unchanged =
 			Objects.equals(entity.getLtiRoles(), newEntity.getLtiRoles())
 			&& Objects.equals(entity.getLtiRolesOverride(), newEntity.getLtiRolesOverride())
+			&& Objects.equals(entity.getUpdatedAt(), newEntity.getUpdatedAt())
 		;
 
 		if ( unchanged ) return newEntity;
@@ -75,7 +110,7 @@ public class MembershipRepositoryImpl extends SpringCrudRepositoryImpl<Membershi
 		// Do the UPDATE variant of UPSERT
 		newEntity.setLtiRoles(entity.getLtiRoles());
 		newEntity.setLtiRolesOverride(entity.getLtiRolesOverride());
-		newEntity.setLtiRoles(entity.getLtiRoles());
+		newEntity.setUpdatedAt(entity.getUpdatedAt());
 		return save(newEntity);
 	}
 

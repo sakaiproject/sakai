@@ -39,6 +39,7 @@ import org.json.simple.JSONObject;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
@@ -136,6 +137,8 @@ public class LTI13Servlet extends HttpServlet {
 	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
 	private static final String CACHE_PUBLIC = "key::public";
 	private static final String CACHE_PRIVATE = "key::private";
+
+	private static final String PLUS_NRPS_PAGING = "plus:nrps_paging";
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -1288,6 +1291,9 @@ public class LTI13Servlet extends HttpServlet {
 		// HttpUtil.printParameters(request);
 		log.debug("signed_placement={}", signed_placement);
 
+		int start = NumberUtils.toInt(request.getParameter("start"), 0);
+		int limit = NumberUtils.toInt(request.getParameter("limit"), -1);
+
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
 		if (sat == null) {
@@ -1311,7 +1317,7 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Could not load content from signed placement = {}", signed_placement);
 				return;
 			}
-  
+
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
@@ -1344,6 +1350,10 @@ public class LTI13Servlet extends HttpServlet {
 
 		}
 
+		String pagingstr = (String) site.getProperties().get(PLUS_NRPS_PAGING);
+		int paging = NumberUtils.toInt(pagingstr, -1);
+		if ( paging > 0 && ( limit < 0 || limit > paging ) ) limit = paging;
+
 		int releaseName = getInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseEmail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		// int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
@@ -1355,20 +1365,9 @@ public class LTI13Servlet extends HttpServlet {
 		}
 		*/
 
-		JSONObject context_obj = new JSONObject();
-		context_obj.put("id", site.getId());
-		context_obj.put("title", site.getTitle());
-
 		String maintainRole = site.getMaintainRole();
 
- 		response.setContentType(APPLICATION_JSON);
-		PrintWriter out = response.getWriter();
-		out.println("{");
-		out.println(" \"id\" : \"http://TODO.wtf.com/we_eliminated_json_ld_but_forgot_to_remove_this\",");
-		out.println(" \"context\" : ");
-		out.print(JacksonUtil.prettyPrint(context_obj));
-		out.println(",");
-		out.println(" \"members\": [");
+		PrintWriter out = null;
 
 		SakaiBLTIUtil.pushAdvisor();
 		try {
@@ -1386,7 +1385,6 @@ public class LTI13Servlet extends HttpServlet {
 			}
 
 			List<User> users = UserDirectoryService.getUsers(userIds);
-			boolean first = true;
 
 			String roleMapProp = (String) tool.get(LTIService.LTI_ROLEMAP);
 			Map<String, String> toolRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
@@ -1406,7 +1404,37 @@ public class LTI13Servlet extends HttpServlet {
 				SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT
 			);
 
+			// Do we need a Link header
+			// https://www.imsglobal.org/spec/lti-nrps/v2p0#limit-query-parameter
+			// https://www.w3.org/Protocols/9707-link-header.html
+			int user_count = users.size();
+			if ( start < 0 ) start = 0;
+			if ( limit < 0 ) limit = user_count;
+			int next = start+limit;
+
+			if ( next >= user_count) {
+				log.debug("No Link header start={} limit={} count={} next={}", start, limit, user_count, next);
+			} else {
+				log.debug("Link header start={} limit={} count={} next={}", start, limit, user_count, next);
+				// /imsblis/lti13/namesandroles/context:6
+				String linkHeader = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement + "?start=" + next;
+				if ( limit > 0 ) linkHeader += "&limit=" + limit;
+				linkHeader = "<" + linkHeader + ">; rel=\"next\"";
+				log.debug("Link: {}", linkHeader);
+			    response.addHeader("Link", linkHeader);
+			}
+
+			int current = 0;
 			for (User user : users) {
+				if ( current < start) {
+					current++;
+					continue;
+				}
+				if ( current == next) {
+					log.debug("Limit reached current={} next={} start={} limit={}", current, next, start, limit);
+					break;
+				}
+
 				JSONObject jo = new JSONObject();
 				jo.put("status", "Active");
 				String lti11_legacy_user_id = user.getId();
@@ -1475,15 +1503,31 @@ public class LTI13Servlet extends HttpServlet {
 
 				jo.put("sakai_ext", sakai_ext);
 
-				if (!first) {
-					out.println(",");
+				if (out == null) {
+						JSONObject context_obj = new JSONObject();
+						context_obj.put("id", site.getId());
+						context_obj.put("title", site.getTitle());
+
+						response.setContentType(APPLICATION_JSON);
+						out = response.getWriter();
+						out.println("{");
+						out.println(" \"id\" : \"http://TODO.wtf.com/we_eliminated_json_ld_but_forgot_to_remove_this\",");
+						out.println(" \"context\" : ");
+						out.print(JacksonUtil.prettyPrint(context_obj));
+						out.println(",");
+						out.println(" \"members\": [");
+				} else {
+						out.println(",");
 				}
-				first = false;
+
 				out.print(JacksonUtil.prettyPrint(jo));
+				current++;
 
 			}
-			out.println("");
-			out.println(" ] }");
+			if ( out != null ) {
+				out.println("");
+				out.println(" ] }");
+			}
 		} finally {
 			SakaiBLTIUtil.popAdvisor();
 		}

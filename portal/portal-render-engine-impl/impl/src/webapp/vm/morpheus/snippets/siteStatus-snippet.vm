@@ -6,7 +6,7 @@
     </div>
 #elseif (${sitePages} && !${sitePages.pageNavPublished})
 
-    <div id="siteStatus" class="Mrphs-siteStatus sak-banner-warn">
+    <div id="siteStatus" class="Mrphs-siteStatus sak-banner-warn mb-2">
         #if($scheduledate)
             <h4 class="unpublishedScheduledCaption">
                 <span class="fa fa-calendar-check-o" aria-hidden="true"></span>
@@ -16,10 +16,10 @@
         #else
             <strong id="unpublished-label">${rloader.sit_unpublished}</strong>
         #end
-            <button class="Mrphs-button--active" aria-describedby="unpublished-label" #if($publishSiteDialogEnabled) data-bs-toggle="modal" data-target="#publishSiteConfirmModal" #else onclick="publishSite('${sitePages.siteId}');" #end>${rloader.sit_publish_now}</button>
-        #if($manageurl)
-            <a class="managePublishingLink" href="$manageurl" >${rloader.sit_managepublish}</a>
-        #end
+            <button class="btn btn-link Mrphs-button--active" aria-describedby="unpublished-label" #if($publishSiteDialogEnabled) data-bs-toggle="modal" data-target="#publishSiteConfirmModal" #else onclick="publishSite('${sitePages.siteId}');" #end>${rloader.sit_publish_now}</button>
+        ##if($manageurl)
+        ##    <a class="managePublishingLink" href="$manageurl" >${rloader.sit_managepublish}</a>
+        ##end
     </div>
 
     <div id="publishSiteConfirmModal" class="modal" role="dialog" tabindex="-1" aria-hidden="true">

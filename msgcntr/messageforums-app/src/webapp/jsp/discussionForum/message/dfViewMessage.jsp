@@ -217,7 +217,7 @@
 			
 
 			<h:panelGroup layout="block" id="permalinkHolder">
-				<h:outputLink styleClass="closeMe" value="#"><h:panelGroup styleClass="icon-sakai--delete"></h:panelGroup></h:outputLink>
+				<h:outputLink styleClass="closeMe" value="#"><h:panelGroup styleClass="si si-remove"></h:panelGroup></h:outputLink>
 				<h:outputText value="#{msgs.cdfm_button_bar_permalink_message}" style="display:block" styleClass="textPanelFooter"/>
 				<h:inputTextarea value="" />
 			</h:panelGroup>

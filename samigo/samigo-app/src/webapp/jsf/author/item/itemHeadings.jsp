@@ -19,20 +19,9 @@ jQuery(document).ready(function() {
 	if ( itemType == 2 || itemType == 12 ) {
 		$('#itemFormHeading\\:changeQType2').find('option[value=1]').attr('selected', true);
 	}
-
-	const itemAuthorTarget = "${itemauthor.target}";
-	const isEditPendingAssessmentFlow = ${author.isEditPendingAssessmentFlow};
-	const changeQTypeSelect = document.getElementById('itemFormHeading:changeQType2');
-	switch (itemAuthorTarget) {
-		case 'questionpool':
-			changeQTypeSelect.options[changeQTypeSelect.options.length - 1].remove();
-			break;
-
-		case 'assessment':
-			if (!isEditPendingAssessmentFlow) {
-				changeQTypeSelect.remove();
-			}
-			break;
+	var itemAuthorTarget = "${itemauthor.target}";
+	if(itemAuthorTarget == 'questionpool') {
+		$('#itemFormHeading\\:changeQType2').find('option:last').remove();
 	}
 });
 
@@ -201,12 +190,12 @@ function displayEMIHelp(){
     <h:outputLabel for="changeQType2" styleClass="col-md-2" value="#{authorMessages.change_q_type} &#160;" escape="false" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
   <div class="col-md-10">
 
-<h:selectOneMenu onchange="changeTypeLink(this);" value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
+<h:selectOneMenu onchange="changeTypeLink(this);" value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2"  rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}">
   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="d-none">
 </h:commandLink>
 
 &nbsp;

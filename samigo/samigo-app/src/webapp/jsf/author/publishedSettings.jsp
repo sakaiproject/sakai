@@ -198,7 +198,10 @@
               selectAllText: selectAllText,
               nonSelectedText: nonSelectedText,
               allSelectedText: allSelectedText,
-              nSelectedText: nSelectedText
+              nSelectedText: nSelectedText,
+              templates: {
+                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>'
+              },
           });
       });
       </script>
@@ -627,7 +630,7 @@
         </ul>
         <div id="feedbackByDatePanel" class="feedbackByDatePanel" style="display:none;">
             <h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}"/> <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
-            <div class="hidden-lg"><div class="clearfix"></div></div>
+            <div class="d-none d-lg-block"><div class="clearfix"></div></div>
             <h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}"/> <h:inputText value="#{publishedSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" />
             <div class="clearfix"></div><br/>
             <h:selectBooleanCheckbox value="#{publishedSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/> <h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}"/> <h:inputText id="feedbackScoreThreshold" size="4" value="#{publishedSettings.feedbackScoreThreshold}"/>&#37;

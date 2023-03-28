@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
@@ -55,14 +56,9 @@ public class SiteResetHandler extends BasePortalHandler
 			{
 				String siteUrl = req.getContextPath() + "/site"
 						+ Web.makePath(parts, 2, parts.length);
-				// Make sure to add the parameters such as panel=Main
-				String queryString = Validator.generateQueryString(req);
-				if (queryString != null)
-				{
-					siteUrl = siteUrl + "?" + queryString;
-				}
 				portalService.setResetState("true");
-				res.sendRedirect(siteUrl);
+				res.addHeader("Cache-Control", "no-cache");
+				res.sendRedirect(URLUtils.sanitisePath(siteUrl));
 				return RESET_DONE;
 			}
 			catch (Exception ex)

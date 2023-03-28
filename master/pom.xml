@@ -26,7 +26,7 @@
     <sakai.commons-io.version>2.11.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.12.0</sakai.commons.lang3.version>
-    <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
+    <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.10.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
@@ -36,7 +36,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.opensearch.version>1.3.7</sakai.opensearch.version>
+    <sakai.opensearch.version>1.3.8</sakai.opensearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
@@ -48,14 +48,14 @@
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
     <sakai.jackson.version>2.14.1</sakai.jackson.version>
-    <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
+    <sakai.jsoup.version>1.15.4</sakai.jsoup.version>
     <sakai.woodstox.version>6.5.0</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.24</sakai.lombok.version>
+    <sakai.lombok.version>1.18.26</sakai.lombok.version>
     <sakai.lucene.version>8.10.1</sakai.lucene.version>
     <sakai.netty.version>4.1.77.Final</sakai.netty.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
@@ -65,7 +65,7 @@
     <sakai.openpdf.version>1.3.28</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
-    <sakai.spring.version>5.3.20</sakai.spring.version>
+    <sakai.spring.version>5.3.26</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.3</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.3</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.6</sakai.spring.data.rest.version>
@@ -73,10 +73,10 @@
     <sakai.spring.hateoas.version>1.3.3</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.28.5</sakai.tika.version>
-    <sakai.tomcat.version>9.0.71</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.73</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.log4j.version>2.19.0</sakai.log4j.version>
+    <sakai.log4j.version>2.20.0</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
     <sakai.poi.version>5.2.3</sakai.poi.version>
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
@@ -172,28 +172,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>sakai-release</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <property>
-            <name>sakai-release</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-                <release>${sakai.jdk.version}</release>
-                <optimize>true</optimize>
-                <debug>true</debug>
-            </configuration>
           </plugin>
         </plugins>
       </build>
@@ -540,12 +518,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webflux</artifactId>
-        <version>${sakai.spring.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-jpa</artifactId>
         <version>${sakai.spring.data.jpa.version}</version>
@@ -614,7 +586,7 @@
       <dependency>
         <groupId>net.minidev</groupId>
         <artifactId>json-smart</artifactId>
-        <version>2.4.7</version>
+        <version>2.4.10</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -850,7 +822,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.22</version>
+        <version>1.23.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1214,7 +1186,7 @@
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-test</artifactId>
         <version>${sakai.version}</version>
-        <scope>provided</scope>
+        <scope>test</scope>
       </dependency>
 
       <!-- Tika includes asm-debug-all which it really shouldn't
@@ -1581,7 +1553,7 @@
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
-        <version>1.31</version>
+        <version>2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2084,6 +2056,12 @@
         <version>${sakai.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>sakai-site-manage-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats-api</artifactId>
         <version>${sakai.version}</version>
@@ -2312,9 +2290,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-          <groupId>mysql</groupId>
-          <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.47</version>
+          <groupId>com.mysql</groupId>
+          <artifactId>mysql-connector-j</artifactId>
+          <version>8.0.32</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2338,13 +2316,13 @@
       <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast</artifactId>
-        <version>3.12.12</version>
+        <version>3.12.13</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-client</artifactId>
-        <version>3.12.12</version>
+        <version>3.12.13</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2373,7 +2351,7 @@
       <dependency>
         <groupId>org.mariuszgromada.math</groupId>
         <artifactId>MathParser.org-mXparser</artifactId>
-        <version>5.1.0</version>
+        <version>5.2.1</version>
         <scope>provided</scope>
       </dependency>
     </dependencies>

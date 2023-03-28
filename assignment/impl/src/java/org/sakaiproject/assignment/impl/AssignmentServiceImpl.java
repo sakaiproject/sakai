@@ -1314,7 +1314,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
-            List<String> submitterIds = new ArrayList<>();
             Optional<String> groupId = Optional.empty();
             if (site != null) {
                 if (a.getIsGroup()) {
@@ -1328,7 +1327,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
                                     ass.setSubmitter(member.getUserId());
                                     submissionSubmitters.add(ass);
-                                    submitterIds.add(member.getUserId());
                                 });
                         groupId = Optional.of(submitter);
                     } else {
@@ -1339,7 +1337,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
                         submissionSubmitter.setSubmitter(submitter);
                         submissionSubmitters.add(submissionSubmitter);
-                        submitterIds.add(submitter);
                     } else {
                         log.warn("Cannot add a submission for submitter {} to assignment {} as they are not a member of the site", submitter, assignmentId);
                     }
@@ -1354,8 +1351,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // identify who the submittee is using the session
             String currentUser = sessionManager.getCurrentSessionUserId();
             submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
-
-            taskService.completeUserTaskByReference(assignmentReference, submitterIds);
 
             AssignmentSubmission submission = assignmentRepository.newSubmission(a.getId(), groupId, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
@@ -1584,6 +1579,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 // student notification, whether the student gets email notification once he submits an assignment
                 notificationToStudent(submission, a);
+
+                List<String> submitterIds
+                    = submission.getSubmitters().stream()
+                        .map(ass -> ass.getSubmitter()).collect(Collectors.toList());
+                taskService.completeUserTaskByReference(assignmentReference, submitterIds);
             }
         }
     }
@@ -4641,7 +4641,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immediately
                 userMessagingService.message(filteredUsers,
                         Message.builder().tool(AssignmentConstants.TOOL_ID).type("releasegrade").build(),
-                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getReleaseGradeReplacements(assignment, siteId), NotificationService.NOTI_REQUIRED);
+                        Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getReleaseGradeReplacements(assignment, siteId), NotificationService.NOTI_REQUIRED);
             }
         }
         if (StringUtils.isNotBlank(resubmitNumber) && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE))) {
@@ -4650,7 +4650,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immidiately
                 userMessagingService.message(filteredUsers,
                         Message.builder().tool(AssignmentConstants.TOOL_ID).type("releaseresubmission").build(),
-                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getReleaseResubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
+                        Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getReleaseResubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
             }
         }
     }
@@ -4672,7 +4672,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immediately
                 userMessagingService.message(new HashSet<>(receivers),
                     Message.builder().tool(AssignmentConstants.TOOL_ID).type("submission").build(),
-                    Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_REQUIRED);
+                    Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), replacements, NotificationService.NOTI_REQUIRED);
             } else if (notiOption.equals(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST)) {
                 // digest the message to each user
                 userMessagingService.message(new HashSet<>(receivers),
@@ -4708,7 +4708,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             userMessagingService.message(users,
                 Message.builder().tool(AssignmentConstants.TOOL_ID).type("submission").build(),
-                Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getSubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
+                Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getSubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
         }
     }
 

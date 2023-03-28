@@ -12,7 +12,7 @@
   <artifactId>sakai-unboundid-provider</artifactId>
   <packaging>jar</packaging>
   <properties>
-    <sakai.unboundid.version>6.0.4</sakai.unboundid.version>
+    <sakai.unboundid.version>6.0.8</sakai.unboundid.version>
     <deploy.target />
   </properties>
   <dependencies>
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>org.zapodot</groupId>
       <artifactId>embedded-ldap-junit</artifactId>
-      <version>0.8.1</version>
+      <version>0.9.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

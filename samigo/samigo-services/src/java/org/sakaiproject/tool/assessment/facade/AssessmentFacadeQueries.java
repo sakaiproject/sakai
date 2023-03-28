@@ -30,12 +30,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
@@ -1608,6 +1611,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		List<AssessmentData> newList = new ArrayList<>();
 		Map<AssessmentData, String> assessmentMap = new HashMap<>();
 		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
+		boolean createGroupsOnImport = ServerConfigurationService.getBoolean("samigo.create.groups.on.import", true);
 		for (AssessmentData a : list) {
 			log.debug("****protocol:" + ServerConfigurationService.getServerUrl());
 			AssessmentData new_a = prepareAssessment(a, ServerConfigurationService.getServerUrl(), toContext);
@@ -1617,54 +1621,102 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		for (AssessmentData assessmentData : newList) {
 		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
 		}
-		
-		// authorization
-		for (AssessmentData a : newList) {
-			PersistenceService.getInstance().getAuthzQueriesFacade()
-					.createAuthorization(toContext, "EDIT_ASSESSMENT",
-							a.getAssessmentId().toString());
-			
-			Map assessmentMetaDataMap = a.getAssessmentMetaDataMap();
-			if (!assessmentMetaDataMap.containsKey("markForReview_isInstructorEditable")) {
-				a.addAssessmentMetaData("markForReview_isInstructorEditable", "true");
-				a.getAssessmentAccessControl().setMarkForReview(1);
-			}
-			
-			// reset PARTID in ItemMetaData to the section of the newly created section
-			Set sectionSet = a.getSectionSet();
-			Iterator sectionIter = sectionSet.iterator();
-			while (sectionIter.hasNext()) {
-				SectionData section = (SectionData) sectionIter.next();
-				Set itemSet = section.getItemSet();
-				Iterator itemIter = itemSet.iterator();
-				while (itemIter.hasNext()) {
-					ItemData item = (ItemData) itemIter.next();
-					//We use this place to add the saveItem Events used by the search index to index all the new questions
-					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
-					String oldRef = assessmentMap.get(a);
-					String associationId = oldRef.substring(CoreAssessmentEntityProvider.ENTITY_PREFIX.length() + 1) + "." + item.getOriginalItemId();
 
-					try{
-						if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId).isPresent()) {
-							transversalMap.put(ItemEntityProvider.ENTITY_PREFIX + "/" + associationId, ItemEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId() + "." + item.getItemId());
+		try {
+			Site oSite = SiteService.getSite(fromContext);
+			Site nSite = SiteService.getSite(toContext);
+			Map groupsForSite = getGroupsForSite(fromContext);
+			AuthzQueriesFacadeAPI authzQueriesFacadeAPI = PersistenceService.getInstance().getAuthzQueriesFacade();
+			int assessmentIdx = 0;
+
+			// authorization
+			for (AssessmentData a : newList) {
+				Map<String, String> releaseToGroups = getReleaseToGroups(groupsForSite, list.get(assessmentIdx).getAssessmentBaseId());
+
+				PersistenceService.getInstance().getAuthzQueriesFacade()
+						.createAuthorization(toContext, "EDIT_ASSESSMENT", a.getAssessmentId().toString());
+
+				Map assessmentMetaDataMap = a.getAssessmentMetaDataMap();
+				if (!assessmentMetaDataMap.containsKey("markForReview_isInstructorEditable")) {
+					a.addAssessmentMetaData("markForReview_isInstructorEditable", "true");
+					a.getAssessmentAccessControl().setMarkForReview(1);
+				}
+
+				if (createGroupsOnImport && !releaseToGroups.isEmpty()) {
+					boolean siteChanged = false;
+					Collection<Group> nGroups = nSite.getGroups();
+
+					Long assessmentId = a.getAssessmentBaseId();
+					Set<String> groupsAuthorized = new HashSet<>();
+
+					for (Entry<String, String> groupId : releaseToGroups.entrySet()) {
+						Group oGroup = oSite.getGroup(groupId.getKey());
+						Optional<Group> existingGroup = nGroups.stream().filter(g -> StringUtils.equals(g.getTitle(), oGroup.getTitle())).findAny();
+						Group nGroup;
+						if (existingGroup.isPresent()) {
+							groupsAuthorized.add(existingGroup.get().getId());
+							siteChanged = true;
+						} else {
+							// create group
+							nGroup = nSite.addGroup();
+							nGroup.setTitle(oGroup.getTitle());
+							nGroup.setDescription(oGroup.getDescription());
+							nGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
+							groupsAuthorized.add(nGroup.getId());
+							siteChanged = true;
 						}
-					} catch(HttpClientErrorException hcee) {
-						log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());
-					} catch(Exception e){
-						log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
 					}
-					Set itemMetaDataSet = item.getItemMetaDataSet();
-					Iterator itemMetaDataIter = itemMetaDataSet.iterator();
-					while (itemMetaDataIter.hasNext()) {
-						ItemMetaData itemMetaData = (ItemMetaData) itemMetaDataIter.next();
-						if (itemMetaData.getLabel() != null && itemMetaData.getLabel().equals(ItemMetaDataIfc.PARTID)) {
-							log.debug("sectionId = " + section.getSectionId());
-							itemMetaData.setEntry(section.getSectionId().toString());
+					if (siteChanged) {
+						SiteService.save(nSite);
+						for (String group : groupsAuthorized) {
+							authzQueriesFacadeAPI.createAuthorization(group, "TAKE_ASSESSMENT", assessmentId.toString());
 						}
 					}
 				}
+
+				// reset PARTID in ItemMetaData to the section of the newly created section
+				Set sectionSet = a.getSectionSet();
+				Iterator sectionIter = sectionSet.iterator();
+				while (sectionIter.hasNext()) {
+					SectionData section = (SectionData) sectionIter.next();
+					Set itemSet = section.getItemSet();
+					Iterator itemIter = itemSet.iterator();
+					while (itemIter.hasNext()) {
+						ItemData item = (ItemData) itemIter.next();
+						//We use this place to add the saveItem Events used by the search index to index all the new questions
+						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
+						String oldRef = assessmentMap.get(a);
+						String associationId = oldRef.substring(CoreAssessmentEntityProvider.ENTITY_PREFIX.length() + 1) + "." + item.getOriginalItemId();
+
+						try{
+							if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId).isPresent()) {
+								transversalMap.put(ItemEntityProvider.ENTITY_PREFIX + "/" + associationId, ItemEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId() + "." + item.getItemId());
+							}
+						} catch(HttpClientErrorException hcee) {
+							log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());
+						} catch(Exception e){
+							log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+						}
+						Set itemMetaDataSet = item.getItemMetaDataSet();
+						Iterator itemMetaDataIter = itemMetaDataSet.iterator();
+						while (itemMetaDataIter.hasNext()) {
+							ItemMetaData itemMetaData = (ItemMetaData) itemMetaDataIter.next();
+							if (itemMetaData.getLabel() != null && itemMetaData.getLabel().equals(ItemMetaDataIfc.PARTID)) {
+								log.debug("sectionId = " + section.getSectionId());
+								itemMetaData.setEntry(section.getSectionId().toString());
+							}
+						}
+					}
+				}
+
+				assessmentIdx++;
 			}
+		} catch (IdUnusedException ex) {
+			log.error("Cannot find a site with id {} or {}", fromContext, toContext);
+		} catch (PermissionException ex) {
+			log.error("No permission to save a site with id {} or {}", fromContext, toContext);
 		}
+
 		for (AssessmentData data : newList) {
 			// now make sure we have a unique name for the assessment
 			String title = data.getTitle();
@@ -1806,6 +1858,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 						.getTesteeNotification(), a.getMultipartAllowed(), a
 						.getStatus(), AgentFacade.getAgentString(), new Date(), 
 						AgentFacade.getAgentString(), new Date());
+		boolean createGroupsOnImport = ServerConfigurationService.getBoolean("samigo.create.groups.on.import", true);
 		// section set
 		Set newSectionSet = prepareSectionSet(newAssessment, a.getSectionSet(),
 				protocol, toContext);
@@ -1844,16 +1897,20 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				newAssessment.setAssessmentMetaDataSet(newMetaDataSet);
 			}
 			else {
-				// if it's not anonymous, then set it to the whole site (removes group access too)
-				if(toContext != null){
-					releaseTo = toContext;
-					try{
-						Site toSite = SiteService.getSite(toContext);
-						releaseTo = toSite.getTitle();
-					}catch (IdUnusedException e) {
-						log.debug("IdUnusedException: " + e.getMessage());
-					}
+				if (createGroupsOnImport) {
 					newAccessControl.setReleaseTo(releaseTo);
+				} else {
+					// if it's not anonymous, then set it to the whole site (removes group access too)
+					if(toContext != null){
+						releaseTo = toContext;
+						try{
+							Site toSite = SiteService.getSite(toContext);
+							releaseTo = toSite.getTitle();
+						}catch (IdUnusedException e) {
+							log.debug("IdUnusedException: " + e.getMessage());
+						}
+						newAccessControl.setReleaseTo(releaseTo);
+					}
 				}
 			}
 		}

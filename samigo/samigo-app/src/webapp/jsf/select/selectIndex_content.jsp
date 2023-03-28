@@ -261,7 +261,7 @@
                         <h:outputText value="#{takeable.dueDate}" rendered="#{!takeable.pastDue}">
                             <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                         </h:outputText>
-                        <h:outputText value="#{takeable.dueDate}" styleClass="hidden spanValue">
+                        <h:outputText value="#{takeable.dueDate}" styleClass="d-none spanValue">
                             <f:convertDateTime pattern="yyyyMMddHHmmss" />
                         </h:outputText>
                     </t:column>

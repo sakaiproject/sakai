@@ -1038,6 +1038,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     dropdownMenu = link.nextElementSibling;
 
+    if (!dropdownMenu) {
+      return;
+    }
+
     dropdownMenu.classList.add("gb-dropdown-menu");
 
     $(dropdownMenu).data("cell", $(link.closest("td, th")));
@@ -3434,19 +3438,21 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
             var $selectedField = $('.current.highlight .relative');
           
             $selectedField.attr('data-bs-toggle','popover');
-            $selectedField.attr('data-placement','top');
-            $selectedField.attr('data-container','body');
-            $selectedField.attr('data-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
-            $selectedField.attr('data-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
+            $selectedField.attr('data-bs-placement','top');
+            $selectedField.attr('data-bs-container','body');
+            $selectedField.attr('data-bs-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
+            $selectedField.attr('data-bs-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
+            $selectedField.attr('data-bs-template','<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="mt-0 popover-header"></h3><div class="popover-body p-2"></div></div>');
 
             $('body, button').on('click keyup touchend', function (e) {
               if ($(e.target).data("bs-toggle") !== 'popover'
                   && $(e.target).parents('.popover.in').length === 0) { 
-                  $('[data-bs-toggle="popover"]').popover('hide');
+                  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+                    bootstrap.Popover.getInstance(el)?.hide();
+                  });
               }
-            });
-            $selectedField.popover();
-            $selectedField.popover('show');
+            })
+            new bootstrap.Popover($selectedField[0]).show();
           }
       });
   }

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Iterator;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.sql.SQLException;
 
 import java.security.MessageDigest;
 
@@ -345,9 +344,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
             }
             try {
                 statement.execute("select XML from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
-                Assert.fail();
             } catch ( Exception ex ) {
-                // Pass
+                Assert.fail();
             }
             try {
                 statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
@@ -356,9 +354,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
             }
             try {
                 statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
-                Assert.fail();
             } catch ( Exception ex ) {
-                // pass
+                Assert.fail();
             }
            try {
                 statement.execute("select RESOURCE_SHA256 from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );

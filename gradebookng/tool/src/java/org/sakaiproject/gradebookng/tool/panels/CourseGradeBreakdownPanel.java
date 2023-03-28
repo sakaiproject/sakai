@@ -78,13 +78,6 @@ public class CourseGradeBreakdownPanel extends Panel {
     }
 
     @Override
-    public void renderHead(final IHeaderResponse response) {
-        super.renderHead(response);
-        final String version = PortalUtils.getCDNQuery();
-        response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-items.css?version=%s", version)));
-    }
-
-    @Override
     protected void onBeforeRender() {
         super.onBeforeRender();
         final IModel<List<GbBreakdownItem>> loadableItemList = new LoadableDetachableModel<List<GbBreakdownItem>>() {
@@ -131,13 +124,13 @@ public class CourseGradeBreakdownPanel extends Panel {
                 }
                 item.add(gradebookPage.buildFlagWithPopover("extraCreditCategoryFlag", getString("label.gradeitem.extracreditcategory"))
                         .setVisible(categoryDefinition != null && Boolean.TRUE.equals(categoryDefinition.getExtraCredit())));
-                item.add(gradebookPage.buildFlagWithPopover("dropLowestCategoryFlag", getString("label.gradeitem.droplowestcategory").replace("{0}",
+                item.add(gradebookPage.buildFlagWithPopover("dropLowestCategoryFlag", getString("label.category.droplowest").replace("{0}",
                         String.valueOf(categoryDefinition != null ? categoryDefinition.getDropLowest() : "")))
                         .setVisible(categoryDefinition != null && categoryDefinition.getDropLowest() != null && categoryDefinition.getDropLowest() > 0));
-                item.add(gradebookPage.buildFlagWithPopover("dropHighestCategoryFlag", getString("label.gradeitem.drophighestcategory").replace("{0}",
+                item.add(gradebookPage.buildFlagWithPopover("dropHighestCategoryFlag", getString("label.category.drophighest").replace("{0}",
                         String.valueOf(categoryDefinition != null ? categoryDefinition.getDropHighest() : "")))
                         .setVisible(categoryDefinition != null && categoryDefinition.getDropHighest() != null && categoryDefinition.getDropHighest() > 0));
-                item.add(gradebookPage.buildFlagWithPopover("keepHighestCategoryFlag", getString("label.gradeitem.keephighestcategory").replace("{0}",
+                item.add(gradebookPage.buildFlagWithPopover("keepHighestCategoryFlag", getString("label.category.keephighest").replace("{0}",
                         String.valueOf(categoryDefinition != null ? categoryDefinition.getKeepHighest() : "")))
                         .setVisible(categoryDefinition != null && categoryDefinition.getKeepHighest() != null && categoryDefinition.getKeepHighest() > 0));
                 WebMarkupContainer numberGradedCol = new WebMarkupContainer("number-graded");

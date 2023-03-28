@@ -133,6 +133,7 @@ CREATE TABLE CONTENT_RESOURCE
 	FILE_PATH VARCHAR2 (128),
 	FILE_SIZE NUMBER(18),
 	RESOURCE_TYPE_ID VARCHAR2 (255),
+    XML CLOB,
     BINARY_ENTITY BLOB
 -- for BLOB body, add BODY BLOB -- and drop the content_resource_body_binary tables -ggolden
 );

@@ -81,7 +81,7 @@ public class BaseResourceAction implements ResourceToolAction {
 		String label = null;
 		if(this.localizer != null)
 		{
-			label = this.localizer.getLabel();
+			label = this.localizer.getI18nString();
 		}
 		return label;
    }
@@ -100,19 +100,20 @@ public class BaseResourceAction implements ResourceToolAction {
 	}
 	
 	/**
-	 * Localizer provides a way for the registrant to take charge of localizing labels 
+	 * Localizer provides a way for the registrant to take charge of localizing labels
 	 * without extending BaseResourceAction.  In defining actions, a registrant can create
 	 * instances of BaseResourceAction, implement the Localizer interface with a method
 	 * that provides localized strings, and set the localizer.  Subsequent invocation of
 	 * BaseResourceAction.getLabel() will use the Localizer to supply labels.
 	 */
-	public interface Localizer
-	{
-		/**
-		 *
-		 * @return
-		 */
-		public String getLabel();
+	@FunctionalInterface
+	public interface Localizer {
+		public String getI18nString();
+	}
+
+	@FunctionalInterface
+	public interface FormattedLocalizer {
+		public String getI18nString();
 	}
 
 	/**

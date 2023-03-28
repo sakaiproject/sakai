@@ -33,7 +33,7 @@
             #set ($roleSwitchClass = "swapped-view")
         #end
 
-        <div class="Mrphs-portalWrapper vh-100 portal-container $!{roleSwitchClass} $!{sidebarCollapsedClass}">
+        <div class="Mrphs-portalWrapper vh-100 portal-container $!{roleSwitchClass} $!{sidebarCollapsedClass}" tabindex="0">
             <div class="portal-pasystem"></div>
             ## Skip Nav (a11y links)
             #parse("/vm/morpheus/snippets/skipNav-snippet.vm")

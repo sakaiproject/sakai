@@ -316,6 +316,11 @@ public class PortletIFrame extends GenericPortlet {
 			PrintWriter out = response.getWriter();
 			Context context = new VelocityContext();
 			Placement placement = ToolManager.getCurrentPlacement();
+
+			if (placement == null) {
+				out.println(rb.getString("error.placement.isNull"));
+				return;
+			}
             Properties config = getAllProperties(placement);
 
 			response.setTitle(placement.getTitle());
@@ -548,6 +553,10 @@ public class PortletIFrame extends GenericPortlet {
 			context.put("doUpdate", "sakai.update");
 
 			Placement placement = ToolManager.getCurrentPlacement();
+			if (placement == null) {
+				out.println(rb.getString("error.placement.isNull"));
+				return;
+			}
             Properties config = getAllProperties(placement);
             String special = getSpecial(config);
 			context.put("title", formattedText.escapeHtml(placement.getTitle(), false));
@@ -761,6 +770,10 @@ public class PortletIFrame extends GenericPortlet {
 
 			// get the site toolConfiguration, if this is part of a site.
 			Placement placement = ToolManager.getCurrentPlacement();
+			if (placement == null) {
+				log.error(rb.getString("error.placement.isNull"));
+				return;
+			}
 			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
             Properties config = getAllProperties(placement);
             String special = getSpecial(config);

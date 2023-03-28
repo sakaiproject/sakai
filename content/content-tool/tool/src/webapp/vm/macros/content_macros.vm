@@ -15,7 +15,7 @@
         </span>
       </li>
     #if($showWebdavLink)
-      <li class="hidden-xs">
+      <li class="d-sm-none">
         <span #if("webdav" == $current) class="current" #end>
           #if("webdav" == $current)
             $tlang.getString("dav.webdav")
@@ -37,7 +37,7 @@
       </li>
     #end
     #if($showDropboxOptions)
-      <li class="hidden-xs">
+      <li class="d-sm-none">
         <span #if("dropboxUploadMultiple" == $current) class="current" #end>
           #if("dropboxUploadMultiple" == $current)
             $tlang.getString("multiple.file.upload")

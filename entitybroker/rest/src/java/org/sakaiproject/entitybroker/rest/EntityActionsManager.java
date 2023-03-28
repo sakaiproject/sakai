@@ -49,12 +49,15 @@ import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * Handles everything related to the custom actions registration and execution
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class EntityActionsManager {
 
     protected EntityActionsManager() { }
@@ -227,6 +230,7 @@ public class EntityActionsManager {
                     } else if (e.getCause().getClass().isAssignableFrom(SecurityException.class)) {
                         throw new SecurityException(e.getCause().getMessage() + " (rethrown)", e.getCause());
                     }
+                    log.error("Target exception class not identified, rethrowing as a RuntimeException: {}", e.getCause().toString());
                 }
                 throw new RuntimeException("Fatal error trying to execute custom action method: " + customAction, e);
             }

@@ -18,8 +18,24 @@ package org.sakaiproject.messaging.impl;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ignite.IgniteMessaging;
+import org.apache.http.HttpResponse;
 
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.interfaces.ECPrivateKey;
+import org.bouncycastle.jce.interfaces.ECPublicKey;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.Security;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,26 +51,32 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-
 import org.hibernate.SessionFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.ignite.EagerIgniteSpringBean;
-import org.sakaiproject.messaging.api.UserNotification;
+import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageListener;
 import org.sakaiproject.messaging.api.MessageMedium;
+import org.sakaiproject.messaging.api.model.PushSubscription;
+import org.sakaiproject.messaging.api.model.UserNotification;
+import org.sakaiproject.messaging.api.repository.PushSubscriptionRepository;
 import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
 import static org.sakaiproject.messaging.api.MessageMedium.*;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -72,11 +94,17 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
+import nl.martijndwars.webpush.Notification;
+import nl.martijndwars.webpush.PushService;
+import nl.martijndwars.webpush.Subscription;
+import nl.martijndwars.webpush.Utils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -91,43 +119,100 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     @Autowired private DigestService digestService;
     @Autowired private EmailService emailService;
     @Autowired private EmailTemplateService emailTemplateService;
-    @Autowired EventTrackingService eventTrackingService;
-    @Autowired EagerIgniteSpringBean ignite;
+    @Autowired private EntityManager entityManager;
+    @Autowired private EventTrackingService eventTrackingService;
+    @Autowired private EagerIgniteSpringBean ignite;
     @Autowired private PreferencesService preferencesService;
-    @Autowired ServerConfigurationService serverConfigurationService;
-    @Autowired
+    @Autowired private PushSubscriptionRepository pushSubscriptionRepository;
+    @Autowired private ServerConfigurationService serverConfigurationService;
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    private SessionFactory sessionFactory;
+    @Autowired private SessionFactory sessionFactory;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private UserNotificationRepository userNotificationRepository;
-    @Autowired
     @Qualifier("org.sakaiproject.time.api.UserTimeService")
-    UserTimeService userTimeService;
-    @Setter    private ResourceLoader resourceLoader;
-    @Autowired
+    @Autowired private UserTimeService userTimeService;
+    @Setter private ResourceLoader resourceLoader;
     @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
-    private PlatformTransactionManager transactionManager;
+    @Autowired private PlatformTransactionManager transactionManager;
 
     private IgniteMessaging messaging;
     private List<UserNotificationHandler> handlers = new ArrayList<>();
     private Map<String, UserNotificationHandler> handlerMap = new HashMap<>();
     private ExecutorService executor;
+    private PushService pushService;
+    private String publicKey = "";
+    private boolean pushEnabled = false;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     public void init() {
 
-        if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
+        pushEnabled = serverConfigurationService.getBoolean("portal.notifications.push.enabled", true);
+
+        if (pushEnabled) {
             // Site publish is handled specially. It should probably be extracted from the logic below, but for now,
             // we fake it in the list of handled events to get it into the if branch.
             HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
             eventTrackingService.addLocalObserver(this);
         }
 
+        objectMapper.registerModule(new JavaTimeModule());
+
         messaging = ignite.message(ignite.cluster().forLocal());
 
+        Security.addProvider(new BouncyCastleProvider());
+
         executor = Executors.newFixedThreadPool(20);
+
+        if (pushEnabled) {
+            String home = serverConfigurationService.getSakaiHomePath();
+            String publicKeyFileName = serverConfigurationService.getString(PUSH_PUBKEY_PROPERTY, "sakai_push.key.pub");
+            Path publicKeyPath = Paths.get(home, publicKeyFileName);
+            String privateKeyFileName = serverConfigurationService.getString(PUSH_PRIVKEY_PROPERTY, "sakai_push.key");
+            Path privateKeyPath = Paths.get(home, privateKeyFileName);
+
+            if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
+                try {
+                    publicKey = String.join("", Files.readAllLines(Paths.get(home, publicKeyFileName)));
+                    String privateKey = String.join("", Files.readAllLines(Paths.get(home, privateKeyFileName)));
+                    pushService = new PushService(publicKey, privateKey);
+                    String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", "");
+                    pushService.setSubject(pushSubject);
+                } catch (Exception e) {
+                    log.error("Failed to setup push service: {}", e.toString());
+                }
+            } else {
+                ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec("prime256v1");
+
+                try {
+                    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME);
+                    keyPairGenerator.initialize(parameterSpec);
+
+                    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+                    byte[] publicKey = Utils.encode((ECPublicKey) keyPair.getPublic());
+                    String publicKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(publicKey);
+                    try (FileWriter fw = new FileWriter(publicKeyPath.toFile())) {
+                        fw.write(publicKeyBase64);
+                    }
+
+                    byte[] privateKey = Utils.encode((ECPrivateKey) keyPair.getPrivate());
+                    String privateKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(privateKey);
+                    try (FileWriter fw = new FileWriter(privateKeyPath.toFile())) {
+                        fw.write(privateKeyBase64);
+                    }
+
+                    pushService = new PushService(publicKeyBase64, privateKeyBase64);
+                    String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", "");
+                    pushService.setSubject(pushSubject);
+                } catch (Exception e) {
+                    log.error("Failed to generate key pair: {}", e.toString());
+                }
+            }
+        }
     }
 
     public void destroy() {
@@ -149,6 +234,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         private final String message;
 
         public EmailSender(User user, String subject, String message) {
+
             this.user = user;
             this.subject = subject;
             this.message = message;
@@ -248,6 +334,10 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         Placement placement = toolManager.getCurrentPlacement();
         String context = placement != null ? placement.getContext() : null;
 
+        if (replacements.containsKey("icon")) {
+            replacements.put("iconClass", "si si-" + replacements.get("icon"));
+        }
+
         executor.execute(() -> {
 
             String tool = message.getTool();
@@ -317,7 +407,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
             HANDLED_EVENTS.add(eventName);
             handlerMap.put(eventName, handler);
-            log.debug("Registered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
+            log.debug("Registered user notification handler {} for event: {}", handler.getClass().getName(), eventName);
         });
     }
 
@@ -346,8 +436,18 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             if (HANDLED_EVENTS.contains(event) && !EventTrackingService.UNKNOWN_USER.equals(e.getUserId()) ) {
                 String ref = e.getResource();
                 String context = e.getContext();
+
+                boolean deferred = false;
+                try {
+                    deferred = !siteService.getSite(context).isPublished();
+                } catch (IdUnusedException iue) {
+                    log.warn("Failed to find site with id {} while setting deferred to published", context);
+                }
+                final boolean finalDeferred = deferred;
+
                 String[] pathParts = ref.split("/");
                 String from = e.getUserId();
+                Optional<String> tool = entityManager.getTool(ref);
                 long at = e.getEventTime().getTime();
                 try {
                     UserNotificationHandler handler = handlerMap.get(event);
@@ -355,8 +455,12 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                         Optional<List<UserNotificationData>> result = handler.handleEvent(e);
                         if (result.isPresent()) {
                             result.get().forEach(bd -> {
-                                doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
-                                                bd.getSiteId(), e.getEventTime(), bd.getUrl());
+                                UserNotification un = doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
+                                                bd.getSiteId(), e.getEventTime(), finalDeferred, bd.getUrl(), tool);
+                                if (!finalDeferred && this.pushEnabled) {
+                                    un.setTool(tool.orElse(""));
+                                    push(decorateNotification(un));
+                                }
                             });
                         }
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
@@ -378,14 +482,14 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         }
     }
 
-    private void doInsert(String from, String to, String event, String ref
-                            , String title, String siteId, Date eventDate, String url) {
+    private UserNotification doInsert(String from, String to, String event, String ref
+                            , String title, String siteId, Date eventDate, boolean deferred, String url, Optional<String> tool) {
 
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+        return transactionTemplate.execute(new TransactionCallback<UserNotification>() {
 
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
+            public UserNotification doInTransaction(TransactionStatus status) {
 
                 UserNotification ba = new UserNotification();
                 ba.setFromUser(from);
@@ -396,19 +500,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 ba.setSiteId(siteId);
                 ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
-                boolean deferred = false;
-                try {
-                    deferred = !siteService.getSite(siteId).isPublished();
-                    ba.setDeferred(deferred);
-                } catch (IdUnusedException iue) {
-                    log.warn("Failed to find site with id {} while setting deferred to published", siteId);
-                }
+                ba.setDeferred(deferred);
 
-                userNotificationRepository.save(ba);
-
-                if (!deferred) {
-                    send("USER#" + to, ba);
-                }
+                return userNotificationRepository.save(ba);
             }
         });
     }
@@ -511,5 +605,53 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     public void send(String topic, UserNotification un) {
         messaging.send(topic, un);
+    }
+
+    @Transactional
+    public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint) {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current user");
+            return;
+        }
+
+        pushSubscriptionRepository.deleteByFingerprint(browserFingerprint);
+
+        PushSubscription ps = new PushSubscription();
+        ps.setUserId(userId);
+        ps.setEndpoint(endpoint);
+        ps.setAuth(auth);
+        ps.setUserKey(userKey);
+        ps.setCreated(Instant.now());
+        ps.setFingerprint(browserFingerprint);
+
+        pushSubscriptionRepository.save(ps);
+    }
+
+    private void push(UserNotification un) {
+
+        pushSubscriptionRepository.findByUser(un.getToUser()).forEach(pushSubscription -> {
+
+            String pushEndpoint = pushSubscription.getEndpoint();
+            String pushUserKey = pushSubscription.getUserKey();
+            String pushAuth = pushSubscription.getAuth();
+
+            // We only push if the user has given permission for  notifications
+            // and successfully set their subscription details
+            if (!StringUtils.isAnyBlank(pushEndpoint, pushUserKey, pushAuth)) {
+                Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
+                try {
+                    HttpResponse pushResponse = pushService.send(new Notification(sub, objectMapper.writeValueAsString(un)));
+                    log.debug("The push response from {} returned code {} and reason {}",
+                            pushEndpoint,
+                            pushResponse.getStatusLine().getStatusCode(),
+                            pushResponse.getStatusLine().getReasonPhrase());
+                } catch (Exception e) {
+                    log.error("Exception while pushing notification: {}", e.toString());
+                }
+            }
+        });
     }
 }

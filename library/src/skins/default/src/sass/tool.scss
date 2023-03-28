@@ -115,6 +115,7 @@ $jumbotron-heading-font-size: $h4-font-size;
 //Tools
 @import "modules/tool/portal/portal";
 @import "modules/tool/navigation/base";
+@import "modules/tool/navigation/skipnav";
 @import "modules/toolmenu";
 @import "modules/tool/base";
 @import "modules/tool/elements";
@@ -246,4 +247,8 @@ iframe[type="application/pdf"] {
 
 .popover-body {
     color: var(--sakai-text-color-1);
+}
+
+.si-remove::before {
+    color: red;
 }

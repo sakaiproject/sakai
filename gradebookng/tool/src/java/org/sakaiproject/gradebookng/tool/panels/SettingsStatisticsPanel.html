@@ -4,18 +4,19 @@
 <body>
 <wicket:panel>
 
-	<div class="card">
-		<div class="text-center gb-settings-header" id="settingsStatisticsHeader">
-			<h3 class="panel-title"
+	<div class="accordion-item" id="settingsStatisticsHeader">
+		<h2 class="accordion-header">
+			<button class="accordion-button collapsed fw-bold"
+				type="button"
 				data-bs-toggle="collapse"
 				data-bs-target="#settingsStatistics"
 				aria-expanded="false"
 				aria-controls="settingsStatistics">
 				<wicket:message key="settingspage.statistics.heading">Statistics</wicket:message>
-			</h3>
-		</div>
-		<div wicket:id="settingsStatisticsPanel" id="settingsStatistics" class="panel-collapse collapse" aria-labelledby="settingsStatisticsHeader">
-			<div class="card-body">
+			</button>
+		</h2>
+		<div wicket:id="settingsStatisticsPanel" id="settingsStatistics" class="accordion-collapse collapse" aria-labelledby="settingsStatisticsHeader">
+			<div class="accordion-body">
 				<div class="checkbox">
 					<label>
 						<input wicket:id="displayAssignmentStats" type="checkbox" />

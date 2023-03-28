@@ -7,7 +7,8 @@
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
-                <value>org.sakaiproject.messaging.api.UserNotification</value>
+                <value>org.sakaiproject.messaging.api.model.PushSubscription</value>
+                <value>org.sakaiproject.messaging.api.model.UserNotification</value>
             </list>
         </property>
     </bean>
@@ -17,10 +18,15 @@
         <constructor-arg value="usermessagingservice" />
     </bean>
 
+    <bean id="org.sakaiproject.messaging.api.repository.PushSubscriptionRepository"
+            class="org.sakaiproject.messaging.impl.repository.PushSubscriptionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+
     <bean id="org.sakaiproject.messaging.api.repository.UserNotificationRepository"
             class="org.sakaiproject.messaging.impl.repository.UserNotificationRepositoryImpl">
-    <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-  </bean>
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
 
     <bean id="org.sakaiproject.messaging.api.UserMessagingService"
             class="org.sakaiproject.messaging.impl.UserMessagingServiceImpl"

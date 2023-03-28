@@ -65,10 +65,5 @@
 		<create>create index MFR_UNREAD_READ_C_ID on MFR_UNREAD_STATUS_T (READ_C)</create>
 		<drop></drop>
 	</database-object>
-
-	<database-object>
-		<create>create index MFR_UNREAD_STATUS_I2 on MFR_UNREAD_STATUS_T (MESSAGE_C, USER_C, READ_C)</create>
-		<drop></drop>
-	</database-object>
 </hibernate-mapping>
 

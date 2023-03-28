@@ -240,12 +240,32 @@
         #supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
         #if ($!hasAssociatedRubric)
-        <ul id="rubricTabs" class="nav nav-tabs">
-            <li class="active"><a href="#submition">$tlang.getString("gen.subm")</a></li>
-            <li><a href="#rubric">$tlang.getString("grading_rubric")</a></li>
+        <ul id="rubricTabs" class="nav nav-tabs mt-2">
+            <li class="nav-item">
+                <button type="button"
+                        role="tab"
+                        class="nav-link active"
+                        data-bs-target="#submission"
+                        data-bs-toggle="tab"
+                        aria-controls="submission"
+                        aria-selected="true">
+                    $tlang.getString("gen.subm")
+                </button>
+            </li>
+            <li class="nav-item">
+                <button type="button"
+                        role="tab"
+                        class="nav-link"
+                        data-bs-target="#submission-rubric"
+                        data-bs-toggle="tab"
+                        aria-controls="submission-rubric"
+                        aria-selected="true">
+                    $tlang.getString("grading_rubric")
+                </button>
+            </li>
         </ul>
         <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="submition">
+            <div role="tabpanel" class="tab-pane active mt-2" id="submission">
         #else
             <h3>$tlang.getString("gen.subm")</h3>
         #end
@@ -349,7 +369,7 @@
 
         #if ($!hasAssociatedRubric)
         </div>
-        <div role="tabpanel" class="tab-pane" id="rubric">
+        <div role="tabpanel" class="tab-pane mt-2" id="submission-rubric">
             <sakai-rubric-grading
                 site-id="$!assignment.Context"
                 tool-id="sakai.assignment.grades"
@@ -854,4 +874,4 @@
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
     </form>
 </div>
-<!-- end: check_assignments_instructor_grading_submission.vm  -->
+<!-- end: chef_assignments_instructor_grading_submission.vm  -->

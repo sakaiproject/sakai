@@ -98,7 +98,7 @@ even have sakai.site enabled, a `LtiResourceLinkRequest` sent to the base URL wi
 This feature would allow you to put up a server like conversations.sakaicloud.org and serve one and
 only one tool.
 
-* You can also send a `DataPrivacyLaunchRequest`, SakaiPlus checks the following properties (in order)
+* You can also send a `LtiDataPrivacyLaunchRequest`, SakaiPlus checks the following properties (in order)
 and redirects the user to the correct URL:
 
         plus.server.policy.uri

@@ -60,7 +60,7 @@ class SuiNotifications extends SakaiElement {
 
     portal.notifications.setup.then(() => {
 
-      portal.notifications.registerForMessages("notifications", message => {
+      portal.notifications.registerPushCallback("all", message => {
 
         this.notifications.push(message);
         this.fireLoadedEvent();

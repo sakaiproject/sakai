@@ -32,6 +32,7 @@
     <main id="$pageWrapperClass" class="portal-main-content d-flex flex-column #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main">
         <h2 class="skip visually-hidden" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h2>
         #parse("/vm/morpheus/includeSiteHierarchy.vm")
+        #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
         <div id="$pageColumnLayout" class="${columnClasses}">
 
             #foreach ( $tool in $pageColumn0Tools )
@@ -55,7 +56,7 @@
                         #if (${tool.hasRenderResult})
 
 
-                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav d-none" aria-label="${rloader.sit_toolnavigation}">
+                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav" aria-label="${rloader.sit_toolnavigation}">
 
                                 #if (${tool.toolShowResetButton})
 
@@ -85,12 +86,12 @@
 
                                 #end ## END of IF (${tool.toolShowResetButton})
 
-                                <div class="Mrphs-toolTitleNav__button_container d-none #if(${homePage})home#end">
+                                <div class="Mrphs-toolTitleNav__button_container #if(${homePage})home#end">
 
 
                                 #if (${tool.toolJSR168Edit})
 
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
+                                    <a class="tool-button-container si si-edit __link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
                                         <span class="Mrphs-itemTitle">${rloader.sit_edit}</span>
                                     </a>
 
@@ -98,7 +99,7 @@
 
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
-                                    <button class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
+                                    <button class="tool-button-container si si-share link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
                                         <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
                                     </button>
                                     <div id="${tool.toolPlacementIDJS}_directurl" role="dialog" aria-labelledby="${tool.toolPlacementIDJS}_directurl__title" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
@@ -115,27 +116,21 @@
 
                                 #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
-                                #if (${tool.toolShowHelpButton})
+                                    <script>
+                                        // if the role switcher is present the page title 'overview' then add padding-right to the add content button
 
-                                    #if (${tool.toolJSR168Help})
+                                        var roleSwitch = document.getElementById("roleSwitch");
+                                        var directToolLinkButton = document.querySelector(".Mrphs-toolTitleNav__button_container");
+                                        var pageTitle = document.querySelector(".Mrphs-breadcrumb--toolNameText");
 
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
-                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
-                                            <span class="skip">${rloader.site_newwindow}</span>
-                                        </a>
-
-                                    #else
-
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
-                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
-                                            <span class="skip">${rloader.site_newwindow}</span>
-                                        </a>
-
-                                    #end ## END of IF (${tool.toolJSR168Help})
-
-                                #end ## END of IF (${tool.toolShowHelpButton})
-
-                                    <sakai-maximise-button #if (${toolMaximised}) full-screen #end></sakai-maximise-button>
+                                        if (roleSwitch && directToolLinkButton) {
+                                            if (pageTitle && pageTitle.textContent.trim() === "$homeToolTitle") {
+                                                directToolLinkButton.classList.add("home-tool-link");
+                                            } else {
+                                                directToolLinkButton.classList.add("non-home-tool-link");
+                                            }
+                                        }
+                                    </script>
 
                                 </div>
 
@@ -149,7 +144,7 @@
 
                                     <h2 class="Mrphs-toolTitleNav__title">
                                         <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">
-                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset">
+                                            <span class="tool-button-container si si-close __link--reset">
                                                 <span class="Mrphs-itemTitle">${sitReset}</span>
                                             </span>
                                             ${tool.toolTitle}
@@ -162,11 +157,6 @@
 
                                 #end ## END of IF (${tool.toolShowResetButton})
 
-                                #if (${tool.toolShowHelpButton})
-
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help"  href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
-
-                                #end ## END of IF (${tool.toolShowHelpButton})
 
                             </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
 
@@ -246,7 +236,7 @@
                                 <div class="Mrphs-toolTitleNav__button_container">
 
                                 #if (${tool.toolJSR168Edit})
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
+                                    <a class="tool-button-container si si-edit __link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
                                         <span class="Mrphs-itemTitle">${rloader.sit_edit}</span>
                                     </a>
                                 #end ## END of IF (${tool.toolJSR168Edit})
@@ -254,7 +244,7 @@
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
                                 	<!-- TO-DO: let same as the other -->
                                 	
-                                	<button class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
+                                	<button class="tool-button-container si si-share link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
                                         <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
                                     </button>
                                     <div id="${tool.toolPlacementIDJS}_directurl" role="dialog" aria-labelledby="${tool.toolPlacementIDJS}_directurl__title" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
@@ -269,22 +259,6 @@
                                         <textarea name="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_urlholder" tabindex="0" class="Mrphs-directUrl__textarea ${tool.toolPlacementIDJS}_urlholder" >${tool.directToolUrl}</textarea>
                                     </div>
                                 #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
-                                
-                                #if (${tool.toolShowHelpButton})
-                                
-                                    #if (${tool.toolJSR168Help})
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
-                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
-                                            <span class="skip">${rloader.site_newwindow}</span>
-                                        </a>
-                                    #else
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
-                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
-                                            <span class="skip">${rloader.site_newwindow}</span>
-                                        </a>
-                                    #end ## END of IF (${tool.toolJSR168Help})
-                                     
-                                #end ## END of IF (${tool.toolShowHelpButton})
 
                                 </div>
                                 
@@ -304,13 +278,6 @@
                                 #else 
                                     <h2 class="Mrphs-toolTitleNav__title">${tool.toolTitle}</h2>
                                 #end ## END of IF (${tool.toolShowResetButton})
-                                
-                                #if (${tool.toolShowHelpButton})
-                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
-                                        <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
-                                        <span class="skip">${rloader.site_newwindow}</span>
-                                    </a>
-                                #end ## END of IF (${tool.toolShowHelpButton})
                                     
                             </nav><!-- End of nav.portlet portlet-title wrapper -->
                             
@@ -343,7 +310,17 @@
 
     </main>
 
-    #parse("/vm/morpheus/includeFooter.vm")
+    ## Footer ##
+
+    #define ($showFooter)
+        #parse("/vm/morpheus/includeFooter.vm")
+    #end
+
+    #set($showFooter = true)
+    
+    #if ($showFooter)
+        #parse("/vm/morpheus/includeFooter.vm")
+    #end ## END of IF ($showFooter)
 
 </div>
 <!-- END VM includePage.vm -->

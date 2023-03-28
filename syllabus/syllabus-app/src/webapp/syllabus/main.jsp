@@ -145,9 +145,9 @@
 							<span id="warningInfo" class="sak-banner-warn popupMessage" style="display:none; float: left;"></span>
 						</div>
 
-						<span id="lastMoveArray" class="hidden"></span>
-						<span id="lastMoveArrayInit" class="hidden"></span>
-						<span id="lastItemMoved" class="hidden"></span>
+						<span id="lastMoveArray" class="d-none"></span>
+						<span id="lastMoveArrayInit" class="d-none"></span>
+						<span id="lastItemMoved" class="d-none"></span>
 
 						<div id="accordion">
 					</f:verbatim>

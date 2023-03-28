@@ -31,8 +31,10 @@
             ## Skip Nav (a11y links)
             #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
 
+            ## Footer - Not needed in Plus
+            #set($showFooter = false)
             ## Page
-            #parse("/vm/morpheus/includePagePlus.vm")
+            #parse("/vm/morpheus/includePage.vm")
 
             ## Help sidebar
             ##parse("/vm/morpheus/snippets/help-snippet.vm")
