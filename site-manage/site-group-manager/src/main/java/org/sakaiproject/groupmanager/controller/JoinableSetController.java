@@ -290,6 +290,8 @@ public class JoinableSetController {
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_MAX);
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW);
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE);
+                group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+                group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
                 anyGroupUpdated = true;
             }
         }

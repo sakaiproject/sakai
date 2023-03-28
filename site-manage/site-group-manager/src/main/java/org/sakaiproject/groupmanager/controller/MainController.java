@@ -114,23 +114,14 @@ public class MainController {
             // Get the datetimes associated to each joinable set
             String joinableSetOpenDate = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
             String joinableSetCloseDate = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
-            // Convert them from UTC to user's timezone & lang format.
-            // Open date
-            if (joinableSetOpenDate == null) {
-                joinableSetOpenDate = "";
-            } else {
-                joinableSetOpenDate = sakaiService.dateFromUtcToUserTimeZone(joinableSetOpenDate, true);
-            }
+            // Convert from UTC to user's timezone & lang format. Save into map used to fill the table
+            joinableSetOpenDate = sakaiService.dateFromUtcToUserTimeZone(joinableSetOpenDate, true);
             joinableSetOpenDateMap.put(joinableSetName, joinableSetOpenDate);
-            // Close date
-            if (joinableSetCloseDate == null) {
-                joinableSetCloseDate = "";
-            } else {
-                joinableSetCloseDate = sakaiService.dateFromUtcToUserTimeZone(joinableSetCloseDate, true);
-            }
+            // Same for close date
+            joinableSetCloseDate = sakaiService.dateFromUtcToUserTimeZone(joinableSetCloseDate, true);
             joinableSetCloseDateMap.put(joinableSetName, joinableSetCloseDate);
             // Is there any date?
-            if (!anyJoinableSetDate && (joinableSetOpenDate != null || joinableSetCloseDate != null)) {
+            if (anyJoinableSetDate == false && (joinableSetOpenDate != null || joinableSetCloseDate != null)) {
                 anyJoinableSetDate = true;
             }
             // Get the max number of users who can join each joinable set group

@@ -230,18 +230,42 @@ public class SakaiService  {
         
     }
 
+    /**
+     * Get datetime conversion from UTC to user's time zone.
+     * @param utcDate datetime without time-zone
+     * @param formatted send Locale to get formatted output, else null
+     * @return datetime with user's time zone, or null
+     */
     public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
         return userTimeService.dateFromUtcToUserTimeZone(utcDate, formatted);
     }
 
+    /**
+     * Convert datetime from user's time zone to UTC (meant to be stored in DB).
+     * Output ready to be compared with other date.
+     * @param zonedDate datetime without time-zone
+     * @return datetime object without time-zone
+     */
     public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
         return userTimeService.dateFromUserTimeZoneToUtc(zonedDate);
     }
 
+    /**
+     * Notify about JoinableSet when created or updated
+     * @param siteName
+     * @param userId
+     * @param joinableGroup
+     * @param isNew
+     */
     public void notifyAboutJoinableSet(String siteName, String userId, Group joinableGroup, boolean isNew) {
         userNotificationProvider.notifyAboutJoinableSet(siteName, userId, joinableGroup, isNew);
     }
 
+    /**
+     * Notify 24h before JoinableSet's close date
+     * @param dateTime
+     * @param dataPair siteId + joinableSetId
+     */
     public void scheduleReminder(Instant dateTime, String dataPair) {
         jSetReminderScheduleService.scheduleJSetReminder(dateTime, dataPair);
     }
