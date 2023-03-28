@@ -25,6 +25,7 @@
 			copyToClipboardNoScroll(this, $(this).attr('href'));
 		});
 		$('#publicInfoTooltip').tooltip();
+		$('#unjoinInfoTooltip').tooltip();
 	});
 </script>
 
@@ -413,7 +414,7 @@
 								<th>$tlang.getString("sinfo.list.joinable.closedate")</th>
 								<th>
 									$tlang.getString("sinfo.list.joinable.unjoin")
-									<span class="fa fa-info-circle" title="$tlang.getString("sinfo.list.joinable.unjoin.info")"
+									<span id="unjoinInfoTooltip" class="fa fa-info-circle" title="$tlang.getString("sinfo.list.joinable.unjoin.info")"
 											aria-label="$tlang.getString("sinfo.list.joinable.unjoin.info")"></span>
 								</th>
 							#end
@@ -551,49 +552,50 @@
 					</thead>
 					<tbody>
 					#foreach ($g in $!joinableGroups)
-						#if ($g.interactableByDate)
-							<tr>
-								<td>
-									<span>$formattedText.escapeHtml($g.title)</span>
-								</td>
-								<td>
-									<span>$formattedText.escapeHtml($g.joinableSet)</span>
-								</td>
-								<td>
-									<span>$g.size ($g.max)</span>
-								</td>
-								<td>
-									#if ($g.preview)
-									<span>$formattedText.escapeHtml($g.memberDisplayNames)</span>
-									#else
-									<span>$tlang.getString("sinfo.list.joinable.na")</span>
-									#end
-								</td>
+						<tr>
+							<td>
+								<span>$formattedText.escapeHtml($g.title)</span>
+							</td>
+							<td>
+								<span>$formattedText.escapeHtml($g.joinableSet)</span>
+							</td>
+							<td>
+								<span>$g.size ($g.max)</span>
+							</td>
+							<td>
+								#if ($g.preview)
+								<span>$formattedText.escapeHtml($g.memberDisplayNames)</span>
+								#else
+								<span>$tlang.getString("sinfo.list.joinable.na")</span>
+								#end
+							</td>
 
-								<td>
-									<span>$formattedText.escapeHtml($g.joinableOpenDate)</span>
-								</td>
+							<td>
+								<span>$formattedText.escapeHtml($g.joinableOpenDate)</span>
+							</td>
 
-								<td>
-									<span>$formattedText.escapeHtml($g.joinableCloseDate)</span>
-								</td>
+							<td>
+								<span>$formattedText.escapeHtml($g.joinableCloseDate)</span>
+							</td>
 
-								<td>
-									#if ($g.locked)
+							<td>
+								#if ($g.locked)
 									<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
 									<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
-									#elseif ($g.full)
+								#elseif ($g.full)
 									<span>$tlang.getString("sinfo.list.joinable.full")</span>
-									#else
+								#elseif ($g.interactableByDate)
 									<form name="joinableForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
 										<input type="hidden" name="joinable-group-ref" value="$g.reference" />
 										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										<input type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")" title="$tlang.getString("sinfo.list.joinable.join")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+										<input type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")"
+												title="$tlang.getString("sinfo.list.joinable.join")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 									</form>
-									#end
-								</td>
-							</tr>
-						#end
+								#else
+									<span>$tlang.getString("sinfo.list.joinable.unjoin.notavailable")</span>
+								#end
+							</td>
+						</tr>
 					#end
 					</tbody>
 				</table>

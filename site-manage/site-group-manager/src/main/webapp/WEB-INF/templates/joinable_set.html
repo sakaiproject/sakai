@@ -55,6 +55,12 @@
                 </label>
               </div>
               <hr>
+              <div class="checkbox">
+                <label for="allowUnjoin">
+                  <input class="form-control" name="allowUnjoin" id="allowUnjoin" type="checkbox" th:field="*{allowUnjoin}"/>
+                  <span th:text="|#{joinableset.allow.unjoin} #{joinableset.info.closedate}|">Allow members to unjoin (leave) groups in this set after joining</span>
+                </label>
+              </div>
               <div class="checkbox" th:if="${joinableSetForm.joinableSetId == null}">
                 <label for="allowPreviewMembership">
                   <input class="form-control" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}"/>
@@ -65,12 +71,6 @@
                 <label for="allowViewMembership">
                   <input class="form-control" name="allowViewMembership" id="allowViewMembership" type="checkbox" th:field="*{allowViewMembership}"/>
                   <span th:text="#{joinableset.allow.viewmembership}">Allow members to see the other members of these groups after joining</span>
-                </label>
-              </div>
-              <div class="checkbox">
-                <label for="allowUnjoin">
-                  <input class="form-control" name="allowUnjoin" id="allowUnjoin" type="checkbox" th:field="*{allowUnjoin}"/>
-                  <span th:text="#{joinableset.allow.unjoin}">Allow members to unjoin (leave) groups in this set after joining</span>
                 </label>
               </div>
               <div th:if="${joinableSetForm.joinableSetId != null}">
