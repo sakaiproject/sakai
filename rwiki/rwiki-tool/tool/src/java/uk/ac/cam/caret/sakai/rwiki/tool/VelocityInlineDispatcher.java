@@ -113,7 +113,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 
 		String localPage = requestScopeSuperBean.getViewBean().getLocalName();
 		String homePage = requestScopeSuperBean.getHomeBean().getHomeLinkValue();
-		if (!StringUtils.equalsIgnoreCase(homePage, localPage)) {
+		if (!StringUtils.equalsIgnoreCase(homePage, localPage) && requestScopeSuperBean.hasAdminPermission()) {
 			Collection<Group> groups = requestScopeSuperBean.getGroups();
 			vcontext.put("groups", groups);
 		}

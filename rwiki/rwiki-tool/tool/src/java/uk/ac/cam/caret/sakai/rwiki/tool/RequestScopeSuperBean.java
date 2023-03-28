@@ -967,4 +967,7 @@ public class RequestScopeSuperBean
 		return (RenderBean) map.get(key);
 	}
 
+	public boolean hasAdminPermission(){
+		return objectService.checkAdmin(getCurrentRWikiObject());
+	}
 }

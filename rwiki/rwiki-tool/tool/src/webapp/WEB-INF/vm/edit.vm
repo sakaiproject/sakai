@@ -38,7 +38,7 @@
 #set( $homeBean = ${requestScope.homeBean} )
 #set( $rlb = ${requestScope.resourceLoaderBean} )
 #set( $title = "${rlb.jsp_edit}: ${util.escapeHtml($viewBean.localName)}" )
-#set($displayToGroups = $nameHelperBean.displayTo == "groupsel")
+#set( $displayToGroups = $nameHelperBean.displayTo == "groupsel" )
 #header(${title} false  "" )  
 <div id="rwiki_container">
   <div class="portletBody">
