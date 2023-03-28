@@ -38,10 +38,12 @@
                 <button class="d-inline-block p-1 btn bi bi-info-circle btn-site-opt site-description-button"
                     data-bs-toggle="popover"
                     data-bs-html="true"
-                    data-bs-content="${site.description}"
+                    data-bs-content-id="description-${site.id}"
+                    data-bs-trigger="focus"
                     aria-label="Click for the full site description"
                     aria-expanded="false">
                 </button>
+                <div id="description-${site.id}" class="d-none">${site.description}</div>
                 #end
             #end
         </div>
@@ -162,7 +164,7 @@
 </aside>
 
 <script>
-    // focus the current tool on load
+    // focus the current tool on load and prepare site description popovers
     window.addEventListener('load', () => {
         document.querySelector('.selected-page')?.scrollIntoView({behavior:'auto', block: 'center'});
 
@@ -171,6 +173,17 @@
 
             document.querySelector('.Mrphs-portalWrapper').focus();
         }, 50);
+
+        [...document.querySelectorAll('[data-bs-toggle="popover"]')].forEach((el) => {
+            let opts = {
+                animation: false,
+            };
+            if (el.hasAttribute('data-bs-content-id')) {
+	        opts.content = document.getElementById(el.getAttribute('data-bs-content-id')).innerHTML;
+	        opts.html = true;
+                new bootstrap.Popover(el, opts);
+            }
+        })
     });
 </script>
 <!-- END VM includeSiteNav.vm -->
