@@ -661,6 +661,7 @@
 										$tlang.getString("peerassessment.submissionReq")
 									#end
 								</td>
+								<td>-</td>
 								<!-- open col -->
 								<td>
 									$!service.getUsersLocalDateTimeString($!assignment.CloseDate)
@@ -722,6 +723,7 @@
 												$tlang.getString("peerassessment.notStarted")
 											#end
 										</td>
+										<td>-</td>
 										<!-- open col -->
 										<td>
 										</td>
