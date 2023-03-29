@@ -12,7 +12,6 @@
                       title="${rloader.footer_serverinfo_title}"
                       data-bs-container="footer"
                       data-bs-toggle="popover"
-                      data-bs-trigger="focus"
                       data-bs-placement="top"
                       data-bs-html="true" 
                       data-bs-content='#parse("/vm/morpheus/snippets/serverInfoPopover-snippet.vm")'
