@@ -1006,14 +1006,18 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 				// Add the new members (sure would be nice to have transactions here!)
 				for (String userUid : userUids) {
 					String userRole = getUserRoleFromSite(userUid, group.getContainingSite());
-					try {
+					if (userRole != null) {
 						if (!(sakaiRoles.contains(userRole))) {
 							log.warn("USER ROLE NOT ALLOWED IN GROUP. -USER: {} -ROLE: {} -GROUP: {}", userUid, userRole, group.getId());
 							throw new RoleConfigurationException("Can't add a user to a section");
 						}
-						group.insertMember(userUid, userRole, true, false);
-					} catch (AuthzRealmLockException arle) {
-						log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+						try {
+							group.insertMember(userUid, userRole, true, false);
+						} catch (AuthzRealmLockException arle) {
+							log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+						}
+					} else {
+						log.warn("User [{}] doesn't have a role in site [{}], skip adding to section [{}]", userUid, group.getContainingSite(), group.getTitle());
 					}
 				}
 
