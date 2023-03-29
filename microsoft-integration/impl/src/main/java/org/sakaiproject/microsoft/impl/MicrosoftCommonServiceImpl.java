@@ -1153,7 +1153,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				break;
 	
 			case EMAIL:
-				ret = member.email;
+				ret = (member.email != null) ? member.email.toLowerCase() : null;
 				break;
 
 			default:

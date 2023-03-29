@@ -105,7 +105,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 					break;
 	
 				case EMAIL:
-					ret = user.getEmail();
+					ret = (user.getEmail() != null) ? user.getEmail().toLowerCase() : null;
 					break;
 					
 				default:
@@ -187,8 +187,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 						}
 						
 						if(canUpdateSite(site.getReference(), u.getId())) {
+							log.debug(">>USER+: ({}) --> displayName={}, userId={}, id={}", identifier, u.getDisplayName(), u.getId());
 							ret.addOwner(identifier, u);
 						} else {
+							log.debug(">>USER: ({}) --> displayName={}, userId={}, id={}", identifier, u.getDisplayName(), u.getId());
 							ret.addMember(identifier, u);
 						}
 					}
@@ -216,8 +218,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 					User u = userDirectoryService.getUser(m.getUserId());
 					String identifier = getMemberKeyValue(u, key);
 					if(canUpdateSite(group.getContainingSite().getReference(), u.getId())) {
+						log.debug(">>USER+: ({}) --> displayName={}, userId={}, id={}", identifier, u.getDisplayName(), u.getId());
 						ret.addOwner(identifier, u);
 					} else {
+						log.debug(">>USER: ({}) --> displayName={}, userId={}, id={}", identifier, u.getDisplayName(), u.getId());
 						ret.addMember(identifier, u);
 					}
 				}
