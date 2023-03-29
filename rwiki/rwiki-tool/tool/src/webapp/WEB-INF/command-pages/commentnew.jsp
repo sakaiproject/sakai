@@ -33,38 +33,37 @@
   <c:set var="currentRWikiObject" value="${requestScope.rsacMap.currentRWikiObject}"/>
   <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
   
-  <div class="rwiki_help_popup" >
-	    <form action="?#" method="post" >
-	    <nobr><label for="wiki-textarea-content"><c:out value="${rlb.jsp_new_comment}"/></label></nobr><br/>
-		<textarea cols="40" rows="10" name="content" id="wiki-textarea-content" >&#160;</textarea>
-		<input type="hidden" name="action" value="commentnewsave"/>
-		<input type="hidden" name="panel" value="Main"/>
-		<input type="hidden" name="version" value="${currentRWikiObject.version.time}"/>
-		<jsp:element name="input">
-		 	<jsp:attribute name="type">hidden</jsp:attribute>
-			<jsp:attribute name="name">pageName</jsp:attribute>
-			<jsp:attribute name="value"><c:out value="${currentRWikiObject.name}" escapeXml="true"/></jsp:attribute>
-		</jsp:element>
-		<jsp:element name="input">
-			<jsp:attribute name="type">hidden</jsp:attribute>
-			<jsp:attribute name="name">realm</jsp:attribute>
-			<jsp:attribute name="value"><c:out value="${currentRWikiObject.realm}" escapeXml="true"/></jsp:attribute>
-		</jsp:element>
-		<br/>
-		<nobr>
-		<span class="act">
-			<jsp:element name="input">
-				<jsp:attribute name="type">submit</jsp:attribute> 
-				<jsp:attribute name="name">save</jsp:attribute>
-				<jsp:attribute name="value"><c:out value="${rlb.jsp_button_save}" /></jsp:attribute>
-			</jsp:element>
-			<jsp:element name="input">
-				<jsp:attribute name="type">button</jsp:attribute> 
-				<jsp:attribute name="onclick">popupClose(-1);</jsp:attribute>
-				<jsp:attribute name="value"><c:out value="${rlb.jsp_button_cancel}" /></jsp:attribute>
-			</jsp:element>
-		</span>
-		</nobr>
-	    </form>
-	</div>
+  <div class="modal fade" id="rwiki-newcomment-modal" tabindex="-1" aria-labelledby="rwiki-newcomment-label" aria-hidden="true">
+    <form action="?#" method="post" >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="rwiki-newcomment-label">${rlb.jsp_new_comment}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${rlb.jsp_close}"></button>
+          </div>
+          <div class="modal-body">
+            <nobr><label for="wiki-textarea-content"><c:out value="${rlb.jsp_new_comment}"/></label></nobr><br/>
+            <textarea cols="40" rows="10" name="content" id="wiki-textarea-content" >&#160;</textarea>
+            <input type="hidden" name="action" value="commentnewsave"/>
+            <input type="hidden" name="panel" value="Main"/>
+            <input type="hidden" name="version" value="${currentRWikiObject.version.time}"/>
+            <jsp:element name="input">
+              <jsp:attribute name="type">hidden</jsp:attribute>
+              <jsp:attribute name="name">pageName</jsp:attribute>
+              <jsp:attribute name="value"><c:out value="${currentRWikiObject.name}" escapeXml="true"/></jsp:attribute>
+            </jsp:element>
+            <jsp:element name="input">
+              <jsp:attribute name="type">hidden</jsp:attribute>
+              <jsp:attribute name="name">realm</jsp:attribute>
+              <jsp:attribute name="value"><c:out value="${currentRWikiObject.realm}" escapeXml="true"/></jsp:attribute>
+            </jsp:element>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" name="save" class="btn btn-primary">${rlb.jsp_button_save}</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${rlb.jsp_button_cancel}</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 </jsp:root>
