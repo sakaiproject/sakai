@@ -37,7 +37,7 @@ export class SakaiRubricsSharedList extends RubricsElement {
       <div role="tablist">
       ${repeat(this.rubrics, r => r.id, r => html`
         <div class="rubric-item" id="rubric_item_${r.id}">
-          <sakai-rubric-readonly rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}" ?enablePdfExport=${this.enablePdfExport}></sakai-rubric-readonly>
+          <sakai-rubric-readonly rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric-readonly>
         </div>
       `)}
       </div>

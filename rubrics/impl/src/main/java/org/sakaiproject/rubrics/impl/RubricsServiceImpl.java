@@ -1030,12 +1030,12 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     public byte[] createPdf(String siteId, Long rubricId, String toolId, String itemId, String evaluatedItemId)
             throws IOException {
 
-        if (!isEvaluator(siteId) && !isEvaluee(siteId)) {
+        Rubric rubric = rubricRepository.findById(rubricId)
+                .orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
+
+        if (!isEvaluator(siteId) && !isEvaluee(siteId) && !rubric.getShared()) {
             throw new SecurityException("You must be either an evaluator or evaluee to create PDFs");
         }
-
-        Rubric rubric = rubricRepository.findById(rubricId)
-            .orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
 
         Optional<Evaluation> optEvaluation = Optional.empty();
         if (toolId != null && itemId != null && evaluatedItemId != null) {
