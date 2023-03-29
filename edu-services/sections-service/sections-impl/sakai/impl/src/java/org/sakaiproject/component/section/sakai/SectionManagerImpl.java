@@ -1009,8 +1009,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// Add the new members (sure would be nice to have transactions here!)
 		for(Iterator<String> iter = userUids.iterator(); iter.hasNext();) {
 			String userUid = iter.next();
-			String userRole = getUserRoleFromSite(userUid, group.getContainingSite());
 			try {
+				String userRole = getUserRoleFromSite(userUid, group.getContainingSite());
 				if (!(sakaiRoles.contains(userRole))) {
 					log.warn("SectionManagerImpl.setSectionMemberships(). USER ROLE NOT ALLOWED IN GROUP. -USER: {} -ROLE: {} -GROUP: {}",
 							userUid, userRole, group.getId());
@@ -1020,6 +1020,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 				group.insertMember(userUid, userRole, true, false);
 			} catch (AuthzRealmLockException arle) {
 				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+			} catch (NullPointerException npe) {
+				log.warn("USER ERROR IN SITE. -USER: {} -SITE: {} -GROUP: {}",
+						userUid, group.getContainingSite().getId(), group.getId());
 			}
 		}
 
