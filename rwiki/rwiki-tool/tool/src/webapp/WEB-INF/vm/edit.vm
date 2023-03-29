@@ -85,39 +85,23 @@
 		})
 	</script>
 	
-	<!--[if IE 8]>
-	<script type="text/javascript">
-		$(document).ready(function(){
-			utils.fixIE8TextArea();
-		})
-	</script>
-	<span id="ie8"></span>
-	<![endif]-->	
 	<div class="rwiki_edit_wrapper">	
 	<div id="rwiki_head" >		
 		<div id="rwiki_tabholder">
 	        <ul class="tabs" >
 			<li id="edit" class="tabHeadOn" >
 	  		  <p class="tabhead specialLink" title="${rlb.jsp_edit}" >
-		       <a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;" >
+		       <a href="#" onClick="selectTabs('tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;" >
 		       ${rlb.jsp_edit}
 		       </a>
 		     </p>
 		    </li>
 		    <li id="preview" class="tabHeadOff"  >
 		    	<p class="tabhead specialLink" title="${rlb.jsp_preview}">
-				   		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" >
+				   		<a href="#" onClick="selectTabs('tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" >
 				   		${rlb.jsp_preview}
 				   		</a>
 				</p>		
-		    </li>
-		    <li id="autosave" class="autoSaveOffClass" >
-		    	<p class="tabhead specialLink" title="${rlb.jsp_recovered_content}" >
-						   <a href="#" onClick="selectTabs('autosaveTab','tabOff','tabOn','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','autosave','tabHeadOff','tabHeadOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff'); return false;" >
-						   ${rlb.jsp_recovered_content}
-  
-         </a>
-       </p>
 		    </li>
 		    </ul>
 		</div>
@@ -247,18 +231,6 @@
 				      </div>
 					            
 		     </div> <!-- end of previewTab -->
-		        
-		              
-				   <div id="autosaveTab" class="tabOff" >
-						      <div id="textarea_outer_sizing_divx">
-						        <div id="textarea_inner_sizing_divx">
-						           #autosavetoolbar()
-		   			 <div>
-			    		 <textarea cols="60" rows="25" name="restoreContent" id="restoreContent"  readonly="readonly" >${rlb.jsp_no_restored_content}</textarea>
-					    </div>
-					    </div>
-					    </div>
-			 	  </div> <!-- endof autosave tab -->	
 	  </div>
 	  </form>
 	#sidebar()
@@ -266,14 +238,6 @@
 	 
   </div>
 </div>
-<script type="text/javascript" >
-#if ( ${editBean.saveType} && ("preview" ==  ${editBean.saveType}|| ${editBean.saveType.startsWith("attach")}) )
-## If we have a preview or attach, then dont set the restore
-WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','wiki-textarea-content','restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass');
-#else
-WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','wiki-textarea-content','restoreContent','restoreVersion','restoreDate','autosave','tabHeadOff');
-#end
-</script>
 
 #footer()
 
