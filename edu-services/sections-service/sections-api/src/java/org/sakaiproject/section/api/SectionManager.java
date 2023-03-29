@@ -250,7 +250,7 @@ public interface SectionManager {
      * @throws RoleConfigurationException If there is no properly configured role
      * in the site matching the role specified.
      */
-    public void setSectionMemberships(Set userUids, Role role, String sectionId)
+    public void setSectionMemberships(Set<String> userUids, Role role, String sectionId)
     	throws RoleConfigurationException;
 
     /**

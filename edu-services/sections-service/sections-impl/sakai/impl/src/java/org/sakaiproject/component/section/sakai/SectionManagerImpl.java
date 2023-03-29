@@ -754,7 +754,14 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	}
 
 	private String getUserRoleFromSite(String userUid, Site site) {
-		return site.getMember(userUid).getRole().getId();
+		if (site != null) {
+			Member member = site.getMember(userUid);
+			if (member != null) {
+				org.sakaiproject.authz.api.Role role = member.getRole();
+				if (role != null) return role.getId();
+			}
+		}
+		return null;
 	}
 	/**
 	 * {@inheritDoc}
@@ -960,79 +967,69 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		return new EnrollmentRecordImpl(newSection, null, user);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setSectionMemberships(Set userUids, Role role, String sectionUuid) throws RoleConfigurationException {
-		if(role.isStudent()) {
-			// Disallow if we're in an externally managed site
-			ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
-		}
-		
-		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
+	public void setSectionMemberships(Set<String> userUids, Role role, String sectionUuid) throws RoleConfigurationException {
 
+		CourseSectionImpl section = (CourseSectionImpl) getSection(sectionUuid);
 		// It's possible that this section has been deleted
-		if(section == null) {
-			return;
-		}
+		if (section != null) {
+			Group group = section.getGroup();
+			if (group != null) {
+				List<String> sakaiRoles;
+				if (role.isTeachingAssistant()) {
+					sakaiRoles = getSectionTaRoles(group);
+				} else if (role.isStudent()) {
+					// Disallow if we're in an externally managed site throws SecurityException
+					ensureInternallyManaged(section.getCourse().getUuid());
+					sakaiRoles = getSectionStudentRoles(group);
+				} else {
+					log.warn("Only students and TAs can be added to sections, found role [{}] in section {}", role.getName(), section.title);
+					throw new RoleConfigurationException("Only students and TAs can be added to sections");
+				}
 
-		Group group = section.getGroup();
-		List< String> sakaiRoles;
-		if(role.isTeachingAssistant()) {
-			sakaiRoles = getSectionTaRoles(group);
-		} else if(role.isStudent()) {
-			sakaiRoles = getSectionStudentRoles(group);
-		} else {
-			String str = "Only students and TAs can be added to sections";
-			log.error(str);
-			throw new RuntimeException(str);
-		}
-		
-		if(sakaiRoles.isEmpty()) {
-			throw new RoleConfigurationException("Can't set memberships for role " + role +
-					".  No sakai role string can be found for this role.");
-		}
+				if (sakaiRoles.isEmpty()) {
+					throw new RoleConfigurationException("Can't set memberships for role " + role +
+							".  No sakai role string can be found for this role.");
+				}
 
-		// Remove the current members in this role
-		for (String sakaiRole : sakaiRoles) {
-			Set<String> currentUserIds = group.getUsersHasRole(sakaiRole);
-			for (Iterator<String> iter = currentUserIds.iterator(); iter.hasNext();) {
-				String userUid = iter.next();
+				// Remove the current members in this role
+				for (String sakaiRole : sakaiRoles) {
+					Set<String> currentUserIds = group.getUsersHasRole(sakaiRole);
+					for (String userUid : currentUserIds) {
+						try {
+							group.deleteMember(userUid);
+						} catch (AuthzRealmLockException arle) {
+							log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+						}
+					}
+				}
+
+				// Add the new members (sure would be nice to have transactions here!)
+				for (String userUid : userUids) {
+					String userRole = getUserRoleFromSite(userUid, group.getContainingSite());
+					try {
+						if (!(sakaiRoles.contains(userRole))) {
+							log.warn("USER ROLE NOT ALLOWED IN GROUP. -USER: {} -ROLE: {} -GROUP: {}", userUid, userRole, group.getId());
+							throw new RoleConfigurationException("Can't add a user to a section");
+						}
+						group.insertMember(userUid, userRole, true, false);
+					} catch (AuthzRealmLockException arle) {
+						log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+					}
+				}
+
 				try {
-					group.deleteMember(userUid);
-				} catch (AuthzRealmLockException arle) {
-					log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+					siteService().saveGroupMembership(group.getContainingSite());
+					postEvent("section.members.reset", sectionUuid);
+				} catch (IdUnusedException e) {
+					log.error("unable to find site: ", e);
+				} catch (PermissionException e) {
+					log.error("access denied while attempting to save authz group: ", e);
 				}
+			} else {
+				log.warn("Group was missing for section [{}]", sectionUuid);
 			}
-		}
-		
-		// Add the new members (sure would be nice to have transactions here!)
-		for(Iterator<String> iter = userUids.iterator(); iter.hasNext();) {
-			String userUid = iter.next();
-			try {
-				String userRole = getUserRoleFromSite(userUid, group.getContainingSite());
-				if (!(sakaiRoles.contains(userRole))) {
-					log.warn("SectionManagerImpl.setSectionMemberships(). USER ROLE NOT ALLOWED IN GROUP. -USER: {} -ROLE: {} -GROUP: {}",
-							userUid, userRole, group.getId());
-					throw new RoleConfigurationException(
-							"SectionManagerImpl.setSectionMemberships() - Can't add a user to a section");
-				}
-				group.insertMember(userUid, userRole, true, false);
-			} catch (AuthzRealmLockException arle) {
-				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
-			} catch (NullPointerException npe) {
-				log.warn("USER ERROR IN SITE. -USER: {} -SITE: {} -GROUP: {}",
-						userUid, group.getContainingSite().getId(), group.getId());
-			}
-		}
-
-		try {
-			siteService().saveGroupMembership(group.getContainingSite());
-			postEvent("section.members.reset", sectionUuid);
-		} catch (IdUnusedException e) {
-			log.error("unable to find site: ", e);
-		} catch (PermissionException e) {
-			log.error("access denied while attempting to save authz group: ", e);
+		} else {
+			log.warn("No section [{}] found", sectionUuid);
 		}
 	}
 
