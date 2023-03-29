@@ -358,6 +358,7 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 	
 	//private helper to remove member and store log
 	private boolean removeMemberFromMicrosoftTeam(SiteSynchronization ss, MicrosoftUser mu) throws MicrosoftCredentialsException {
+		log.debug("-> teamId={}, userId={}, email={}, guest={}", ss.getTeamId(), mu.getId(), mu.getEmail(), mu.isGuest());
 		boolean res = microsoftCommonService.removeMemberFromTeam(mu.getMemberId(), ss.getTeamId());
 		
 		//save log
@@ -386,7 +387,7 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 					//save microsoft id in sakai (as user property)
 					String value = null;
 					if(mappedMicrosoftUserId == MicrosoftUserIdentifier.EMAIL) {
-						value = mu.getEmail();
+						value = (mu.getEmail() != null) ? mu.getEmail().toLowerCase() : null;
 					} else if(mappedMicrosoftUserId == MicrosoftUserIdentifier.USER_ID) {
 						value = mu.getId();
 					}
@@ -452,6 +453,77 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 			
 			//get site users that are not in team
 			SakaiMembersCollection filteredSiteMembers = siteMembers.diffWith(teamMembers);
+			
+			if(log.isDebugEnabled()) {
+				log.debug("diff members...");
+				filteredSiteMembers.getMemberIds().stream().forEach(id -> log.debug("> {}", id));
+				log.debug("diff owners...");
+				filteredSiteMembers.getOwnerIds().stream().forEach(id -> log.debug("> {}", id));
+			}
+			
+			//if forced --> we need to remove users in Microsoft that do not exist in Sakai
+			if (ss.isForced()) {
+				
+				//process all group synchronizations related - only to remove
+				//users will be removed first from channels
+				if(ss.getGroupSynchronizationsList() != null && ss.getGroupSynchronizationsList().size() > 0) {
+					for(GroupSynchronization gs : ss.getGroupSynchronizationsList()) {
+						SynchronizationStatus aux_status = runGroupSynchronizationForced(ss, gs, mappedSakaiUserId, mappedMicrosoftUserId);
+						if(aux_status == SynchronizationStatus.ERROR_GUEST && ret != SynchronizationStatus.ERROR) {
+							//once ERROR status is set, do not check it again
+							ret = SynchronizationStatus.ERROR_GUEST;
+						}
+						if(aux_status == SynchronizationStatus.ERROR) {
+							ret = SynchronizationStatus.ERROR;
+						}
+					}
+				}
+				
+				//get team members that are not in site
+				MicrosoftMembersCollection filteredTeamMembers = teamMembers.diffWith(siteMembers);
+				
+				if(log.isDebugEnabled()) {
+					log.debug("** is forcing");
+					log.debug("inv diff members...");
+					filteredTeamMembers.getMemberIds().stream().forEach(id -> log.debug("> {} -> email={}", id, ((MicrosoftUser)filteredTeamMembers.getMembers().get(id)).getEmail()));
+					log.debug("inv diff owners...");
+					filteredTeamMembers.getOwnerIds().stream().forEach(id -> log.debug("> {} -> email={}", id, ((MicrosoftUser)filteredTeamMembers.getOwners().get(id)).getEmail()));
+					log.debug("inv diff guests...");
+					filteredTeamMembers.getGuestIds().stream().forEach(id -> log.debug("> {} -> email={}", id, ((MicrosoftUser)filteredTeamMembers.getGuests().get(id)).getEmail()));
+				}
+
+				MicrosoftCredentials credentials = microsoftConfigRepository.getCredentials();
+
+				for(Object o : filteredTeamMembers.getMembers().values()) {
+					MicrosoftUser mu = (MicrosoftUser)o;
+					//remove from team
+					boolean res = removeMemberFromMicrosoftTeam(ss, mu);
+					if(!res) {
+						ret = SynchronizationStatus.ERROR;
+					}
+				}
+				
+				for(Object o : filteredTeamMembers.getOwners().values()) {
+					MicrosoftUser mu = (MicrosoftUser)o;
+					//never remove microsoft "admin" user
+					if(!credentials.getEmail().equalsIgnoreCase(mu.getEmail())) {
+						//remove from team
+						boolean res = removeMemberFromMicrosoftTeam(ss, mu);
+						if(!res) {
+							ret = SynchronizationStatus.ERROR;
+						}
+					}
+				}
+				
+				for(MicrosoftUser mu : filteredTeamMembers.getGuests().values()) {
+					//remove from team
+					boolean res = removeMemberFromMicrosoftTeam(ss, mu);
+					if(!res && ret != SynchronizationStatus.ERROR) {
+						//once ERROR status is set, do not check it again
+						ret = SynchronizationStatus.ERROR_GUEST;
+					}
+				}
+			}
 			
 			Map<String, MicrosoftUser> guestUsers = new HashMap<>();
 			
@@ -522,45 +594,6 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 					}
 					if(aux_status == SynchronizationStatus.ERROR) {
 						ret = SynchronizationStatus.ERROR;
-					}
-				}
-			}
-			
-			//if forced --> we need to remove users in Microsoft that do not exist in Sakai
-			//we do this after group processing, so users will be removed first from channels
-			if (ss.isForced()) {
-				//get team members that are not in site
-				MicrosoftMembersCollection filteredTeamMembers = teamMembers.diffWith(siteMembers);
-
-				MicrosoftCredentials credentials = microsoftConfigRepository.getCredentials();
-
-				for(Object o : filteredTeamMembers.getMembers().values()) {
-					MicrosoftUser mu = (MicrosoftUser)o;
-					//remove from team
-					boolean res = removeMemberFromMicrosoftTeam(ss, mu);
-					if(!res) {
-						ret = SynchronizationStatus.ERROR;
-					}
-				}
-				
-				for(Object o : filteredTeamMembers.getOwners().values()) {
-					MicrosoftUser mu = (MicrosoftUser)o;
-					//never remove microsoft "admin" user
-					if(!credentials.getEmail().equalsIgnoreCase(mu.getEmail())) {
-						//remove from team
-						boolean res = removeMemberFromMicrosoftTeam(ss, mu);
-						if(!res) {
-							ret = SynchronizationStatus.ERROR;
-						}
-					}
-				}
-				
-				for(MicrosoftUser mu : filteredTeamMembers.getGuests().values()) {
-					//remove from team
-					boolean res = removeMemberFromMicrosoftTeam(ss, mu);
-					if(!res && ret != SynchronizationStatus.ERROR) {
-						//once ERROR status is set, do not check it again
-						ret = SynchronizationStatus.ERROR_GUEST;
 					}
 				}
 			}
@@ -742,6 +775,13 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 			//get group users that are not in channel
 			SakaiMembersCollection filteredGroupMembers = groupMembers.diffWith(channelMembers);
 			
+			if(log.isDebugEnabled()) {
+				log.debug("diff group members...");
+				filteredGroupMembers.getMemberIds().stream().forEach(id -> log.debug("> {}", id));
+				log.debug("diff group owners...");
+				filteredGroupMembers.getOwnerIds().stream().forEach(id -> log.debug("> {}", id));
+			}
+			
 			for(String id : filteredGroupMembers.getMemberIds()) {
 				boolean res = false;
 				MicrosoftUser mu = microsoftCommonService.getUser(id, mappedMicrosoftUserId);
@@ -781,39 +821,57 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 					ret = (mu != null && mu.isGuest()) ? SynchronizationStatus.ERROR_GUEST : SynchronizationStatus.ERROR;
 				}
 			}
-			
-			
-			//if forced --> we need to remove users in Microsoft that do not exist in Sakai
-			if (ss.isForced()) {
-				//get channel members that are not in group
-				MicrosoftMembersCollection filteredChannelMembers = channelMembers.diffWith(groupMembers);
+		}
+		gs.setStatus(ret);
+		gs.setStatusUpdatedAt(ZonedDateTime.now());
+		saveOrUpdateGroupSynchronization(gs);
+		
+		return ret;
+	}
 	
-				MicrosoftCredentials credentials = microsoftConfigRepository.getCredentials();
-				
-				for(Object o : filteredChannelMembers.getMembers().values()) {
-					MicrosoftUser mu = (MicrosoftUser)o;
-					//remove from channel
-					boolean res = removeMemberFromMicrosoftChannel(ss, gs, mu);
-					if(!res && ret != SynchronizationStatus.ERROR) {
-						//once ERROR status is set, do not check it again
-						ret = (mu != null && mu.isGuest()) ? SynchronizationStatus.ERROR_GUEST : SynchronizationStatus.ERROR;
-					}
+	private SynchronizationStatus runGroupSynchronizationForced(SiteSynchronization ss, GroupSynchronization gs, SakaiUserIdentifier mappedSakaiUserId, MicrosoftUserIdentifier mappedMicrosoftUserId) throws MicrosoftGenericException {
+		log.debug(".................runGroupSynchronization - forced................");
+		SynchronizationStatus ret = SynchronizationStatus.ERROR;
+
+		Group g = ss.getSite().getGroup(gs.getGroupId());
+		MicrosoftChannel mc = microsoftCommonService.getChannel(ss.getTeamId(), gs.getChannelId());
+		//check channel
+		if(g != null && mc != null) {
+			ret = SynchronizationStatus.OK;
+			
+			SakaiMembersCollection groupMembers = sakaiProxy.getGroupMembers(g, mappedSakaiUserId);
+			MicrosoftMembersCollection channelMembers = microsoftCommonService.getChannelMembers(ss.getTeamId(), gs.getChannelId(), mappedMicrosoftUserId);
+			
+			//is forced --> we need to remove users in Microsoft that do not exist in Sakai
+			//get channel members that are not in group
+			MicrosoftMembersCollection filteredChannelMembers = channelMembers.diffWith(groupMembers);
+			
+			if(log.isDebugEnabled()) {
+				log.debug("** is forcing");
+				log.debug("inv group diff members...");
+				filteredChannelMembers.getMemberIds().stream().forEach(id -> log.debug("> {} -> email={}", id, ((MicrosoftUser)filteredChannelMembers.getMembers().get(id)).getEmail()));
+				log.debug("inv group diff owners...");
+				filteredChannelMembers.getOwnerIds().stream().forEach(id -> log.debug("> {} -> email={}", id, ((MicrosoftUser)filteredChannelMembers.getOwners().get(id)).getEmail()));
+				log.debug("inv group diff guests...");
+				filteredChannelMembers.getGuestIds().stream().forEach(id -> log.debug("> {} -> email={}", id, ((MicrosoftUser)filteredChannelMembers.getGuests().get(id)).getEmail()));
+			}
+
+			MicrosoftCredentials credentials = microsoftConfigRepository.getCredentials();
+			
+			for(Object o : filteredChannelMembers.getMembers().values()) {
+				MicrosoftUser mu = (MicrosoftUser)o;
+				//remove from channel
+				boolean res = removeMemberFromMicrosoftChannel(ss, gs, mu);
+				if(!res && ret != SynchronizationStatus.ERROR) {
+					//once ERROR status is set, do not check it again
+					ret = (mu != null && mu.isGuest()) ? SynchronizationStatus.ERROR_GUEST : SynchronizationStatus.ERROR;
 				}
-				
-				for(Object o : filteredChannelMembers.getOwners().values()) {
-					MicrosoftUser mu = (MicrosoftUser)o;
-					//never remove microsoft "admin" user
-					if(!credentials.getEmail().equalsIgnoreCase(mu.getEmail())) {
-						//remove from channel
-						boolean res = removeMemberFromMicrosoftChannel(ss, gs, mu);
-						if(!res && ret != SynchronizationStatus.ERROR) {
-							//once ERROR status is set, do not check it again
-							ret = (mu != null && mu.isGuest()) ? SynchronizationStatus.ERROR_GUEST : SynchronizationStatus.ERROR;
-						}
-					}
-				}
-				
-				for(MicrosoftUser mu : filteredChannelMembers.getGuests().values()) {
+			}
+			
+			for(Object o : filteredChannelMembers.getOwners().values()) {
+				MicrosoftUser mu = (MicrosoftUser)o;
+				//never remove microsoft "admin" user
+				if(!credentials.getEmail().equalsIgnoreCase(mu.getEmail())) {
 					//remove from channel
 					boolean res = removeMemberFromMicrosoftChannel(ss, gs, mu);
 					if(!res && ret != SynchronizationStatus.ERROR) {
@@ -822,14 +880,21 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 					}
 				}
 			}
+			
+			for(MicrosoftUser mu : filteredChannelMembers.getGuests().values()) {
+				//remove from channel
+				boolean res = removeMemberFromMicrosoftChannel(ss, gs, mu);
+				if(!res && ret != SynchronizationStatus.ERROR) {
+					//once ERROR status is set, do not check it again
+					ret = (mu != null && mu.isGuest()) ? SynchronizationStatus.ERROR_GUEST : SynchronizationStatus.ERROR;
+				}
+			}
 		}
 		gs.setStatus(ret);
 		gs.setStatusUpdatedAt(ZonedDateTime.now());
 		saveOrUpdateGroupSynchronization(gs);
 		
 		return ret;
-	
-	
 	}
 	
 	// ---------------------------------------- HOOKS ------------------------------------------------
