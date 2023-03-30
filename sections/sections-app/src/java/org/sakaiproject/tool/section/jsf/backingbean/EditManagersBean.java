@@ -155,7 +155,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 			return "overview";
 		}
 
-		Set userUids = getHighlightedUsers("memberForm:selectedUsers");
+		Set<String> userUids = getHighlightedUsers("memberForm:selectedUsers");
 		try {
 			getSectionManager().setSectionMemberships(userUids, Role.TA, sectionUuid);
 		} catch (RoleConfigurationException rce) {

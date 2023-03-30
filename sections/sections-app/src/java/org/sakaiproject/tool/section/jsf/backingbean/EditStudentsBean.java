@@ -205,7 +205,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		}
 
 		
-		Set selectedUserUuids = getHighlightedUsers("memberForm:selectedUsers");
+		Set<String> selectedUserUuids = getHighlightedUsers("memberForm:selectedUsers");
 		try {
 			getSectionManager().setSectionMemberships(selectedUserUuids, Role.STUDENT, sectionUuid);
 		} catch (RoleConfigurationException rce) {
@@ -214,7 +214,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		}
 		
 		// If the "available" box is a section, update that section's members as well
-		Set availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
+		Set<String> availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
 		if(StringUtils.trimToNull(availableSectionUuid) != null) {
 			availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
 			try {
@@ -268,7 +268,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_section_deleted"));
 			return "overview";
 		}else{
-			Set selectedUserUuids = getHighlightedUsers("memberForm:selectedUsers");
+			Set<String> selectedUserUuids = getHighlightedUsers("memberForm:selectedUsers");
 			int totalEnrollments = selectedUserUuids.size();
 			Integer sectionMaxEnrollments = section.getMaxEnrollments();
 			int maxEnrollments = Integer.MAX_VALUE;
@@ -286,7 +286,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 			}
 			
 			// If the "available" box is a section, update that section's members as well
-			Set availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
+			Set<String> availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
 			if(StringUtils.trimToNull(availableSectionUuid) != null) {
 				availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
 				if (totalEnrollments <= maxEnrollments) {			
