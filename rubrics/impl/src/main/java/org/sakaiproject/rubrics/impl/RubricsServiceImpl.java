@@ -22,6 +22,7 @@
 
 package org.sakaiproject.rubrics.impl;
 
+import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
 
 import java.awt.Color;
@@ -942,21 +943,15 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         Map<String, Boolean> merged = new HashMap<>();
 
         //Get the parameters
-        params.forEach((name, value1) -> {
-            if (name.startsWith(RubricsConstants.RBCS_CONFIG)) {
-                Boolean value = Boolean.FALSE;
-                if ((value1 != null) && (value1.equals("1"))) {
-                    value = Boolean.TRUE;
-                }
-                merged.put(name.substring(12), value);
+        params.forEach((k, v) -> {
+            if (k.startsWith(RBCS_CONFIG)) {
+                merged.put(StringUtils.remove(k, RBCS_CONFIG), BooleanUtils.toBooleanObject(v));
             }
         });
 
-        for (String name : oldParams.keySet()) {
-            if (!(params.containsKey(RubricsConstants.RBCS_CONFIG + name))) {
-                merged.put(name, Boolean.FALSE);
-            }
-        }
+        oldParams.keySet().stream()
+                .filter(name -> !(params.containsKey(RBCS_CONFIG + name)))
+                .forEach(name -> merged.put(name, Boolean.FALSE));
         return merged;
     }
 
@@ -1301,9 +1296,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                                 .filter(ToolItemRubricAssociation::getActive)
                                 .forEach(association -> {
 
-                            //2b get association params
-                            Map<String,Boolean> originalParams = association.getParameters();
-
                             String tool = association.getToolId();
                             String itemId = association.getItemId();
                             Long newRubricId = NumberUtils.toLong(transversalMap.get(RBCS_PREFIX + rubricId).substring(RBCS_PREFIX.length()));
@@ -1348,10 +1340,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
                             //4 save new association
                             if (newItemId != null) {
-                                Map<String, String> params = originalParams.entrySet().stream()
-                                        .map(e -> Map.entry(e.getKey(), BooleanUtils.toString(e.getValue(), "1", "0")))
-                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                                createToolItemRubricAssociation(tool, newItemId, params, newRubricId).ifPresent(associationRepository::save);
+                                createToolItemRubricAssociation(tool, newItemId, association.getFormattedAssociation(), newRubricId).ifPresent(associationRepository::save);
                             }
                         });
                     } catch (Exception ex) {
