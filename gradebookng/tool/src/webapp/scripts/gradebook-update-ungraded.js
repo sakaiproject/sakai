@@ -64,6 +64,11 @@ GradebookUpdateUngraded.prototype.setupConfirmation = function(){
   function performRealSubmit() {
     self.$content.find(".gb-update-ungraded-real-submit").trigger("click");
     self.$content.find(":input").prop("disabled", true);
+
+    let $gbUpdateUngradedContinueButton = $(".gb-update-ungraded-continue");
+    $gbUpdateUngradedContinueButton.prop('disabled', true);
+    $gbUpdateUngradedContinueButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+
   };
 
 
