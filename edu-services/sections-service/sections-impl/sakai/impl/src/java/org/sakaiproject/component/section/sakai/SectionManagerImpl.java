@@ -1017,7 +1017,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 							log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 						}
 					} else {
-						log.warn("User [{}] doesn't have a role in site [{}], skip adding to section [{}]", userUid, group.getContainingSite(), group.getTitle());
+						log.warn("User [{}] doesn't have a role in site [{}], skip adding to section [{}]", userUid, group.getContainingSite().getId(), group.getTitle());
 					}
 				}
 
