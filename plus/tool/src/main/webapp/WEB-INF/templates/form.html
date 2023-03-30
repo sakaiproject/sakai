@@ -28,7 +28,8 @@
         <div id="issuer-group" class="form-group form-control-required">
           <label for="issuer" class="form-control-label" th:text="#{plus.tool.issuer}">Value</label>
           <div>
-            <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" pattern="https?://[^\s/]+(?:/[^/\s]+)*$" th:attr="title=#{plus.tenant.issuer.error.slash}" required/>
+            <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" pattern="https?://[^\s/]+(?:/[^/\s]+)*$" th:attr="title=#{plus.tenant.issuer.error.slash}" required aria-describedby="issuer-input-error" />
+            <span id="issuer-input-error" class="sr-only"></span>
           </div>
           <div th:text="#{plus.tool.issuer.detail}">
               This is different for each LMS, but it is usually a URL like "https://plus.sakalms.org" - with no trailing slash.
