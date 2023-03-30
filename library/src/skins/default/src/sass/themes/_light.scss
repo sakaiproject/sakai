@@ -118,6 +118,14 @@
     // Used for active, focus, selected effects of --sakai-background-color-3
     --sakai-background-color-7: var(--sakai-color-gray--lighter-2);
 
+    // Default: A slightly darker shade of --sakai-background-color-7
+    // Used for active, focus, selected effects of --sakai-background-color-3
+    --sakai-background-color-8: var(--sakai-color-gray--lighter-1);
+
+    // Default: A slightly darker shade of --sakai-background-color-8
+    // Used for active, focus, selected effects of --sakai-background-color-3
+    --sakai-background-color-9: var(--sakai-color-gray);
+
     // Secondary color. 
     // Suggested: An alterate branding color distinct from
     // what you select for --sakai-primary-color-1
