@@ -8,7 +8,7 @@
 
 #elseif ($pageColumnLayout == 'col1of2')
 
-    #set($columnClasses = "p-2 flex-fill w-50")
+    #set($columnClasses = "p-2 col-lg-6 col-md-12")
 
 #end
 
@@ -34,7 +34,7 @@
         #parse("/vm/morpheus/includeSiteHierarchy.vm")
         #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
         #if ($pageTwoColumn)
-        <div class="d-flex">
+        <div class="row">
         #end
         <div id="$pageColumnLayout" class="${columnClasses}">
 
@@ -197,7 +197,7 @@
 
         #if ($pageTwoColumn)
 
-            <div id="col2of2" class="p-2 flex-fill w-50">
+            <div id="col2of2" class="p-2 col-lg-6 col-md-12">
 
                 #foreach ( $tool in $pageColumn1Tools )
 
@@ -307,7 +307,7 @@
                 #end ## END of FOREACH ( $tool in $pageColumn1Tools )
 
             </div> <!-- end of #col2of2 -->
-        </div> <!-- end of d-flex container -->
+        </div> <!-- end of row -->
 
         #end ## END of IF ($pageTwoColumn)
 
