@@ -32,6 +32,7 @@ public interface AssociationRepository extends SpringCrudRepository<ToolItemRubr
 
     Optional<ToolItemRubricAssociation> findByToolIdAndItemId(String toolId, String itemId);
     Optional<ToolItemRubricAssociation> findByItemIdAndRubricId(String itemId, Long rubricId);
+    Optional<ToolItemRubricAssociation> findByAssociationId(Long associationId);
     List<ToolItemRubricAssociation> findByRubricId(Long rubricId);
     List<ToolItemRubricAssociation> findByItemIdPrefix(String toolId, String itemId);
     int deleteBySiteId(String siteId);
