@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: bootstrap" />
+  <div class="portletBody">
+    <div class="page-header">
+      <h1 th:text="#{common_title}">Bulk User Membership</h1>
+    </div>
+    <div th:replace="fragments/wizard :: step (step3)"></div>
+    <form method="post" th:action="@{/step/3}" class="automembership-wizard-form">
+        <div class="row">
+          <div th:replace="fragments/box_list :: box (title = #{box.succesfull.list.title(#{${action}})}, subtitle='', name = 'sites', disabled = true, value=${sitesIds})" />
+          <div th:if="${!failedUsers.equals('')}">
+            <div th:replace="fragments/box_list :: box (title = #{box.fail.list.title(#{${action}})}, subtitle='', name = 'users', disabled = true, value=${failedUsers})" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="buttons">
+              <input type="submit" id="start-membership-button" class="active button-continue" th:value="#{button.another}">
+            </div>
+          </div>
+        </div>
+    </form>
+  </div>
+</body>
+</html>
