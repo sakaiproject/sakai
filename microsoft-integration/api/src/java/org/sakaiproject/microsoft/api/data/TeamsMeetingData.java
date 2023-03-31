@@ -1,4 +1,4 @@
-package org.sakaiproject.meetings.teams.data;
+package org.sakaiproject.microsoft.api.data;
 
 import lombok.Data;
 

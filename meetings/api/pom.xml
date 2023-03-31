@@ -38,23 +38,4 @@
             <artifactId>sakai-kernel-private</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/resources</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.metaprops</include>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
 </project>

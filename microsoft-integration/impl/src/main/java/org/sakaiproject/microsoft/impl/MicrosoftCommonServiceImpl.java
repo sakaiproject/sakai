@@ -15,6 +15,9 @@
 */
 package org.sakaiproject.microsoft.impl;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,6 +45,7 @@ import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
 import org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier;
+import org.sakaiproject.microsoft.api.data.TeamsMeetingData;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftInvalidCredentialsException;
@@ -82,6 +86,16 @@ import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
 import com.microsoft.graph.requests.UserCollectionRequestBuilder;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+
+import com.microsoft.graph.models.Identity;
+import com.microsoft.graph.models.IdentitySet;
+import com.microsoft.graph.models.LobbyBypassScope;
+import com.microsoft.graph.models.LobbyBypassSettings;
+import com.microsoft.graph.models.MeetingParticipantInfo;
+import com.microsoft.graph.models.MeetingParticipants;
+import com.microsoft.graph.models.OnlineMeeting;
+import com.microsoft.graph.models.OnlineMeetingPresenters;
+import com.microsoft.graph.models.OnlineMeetingRole;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -1213,6 +1227,63 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			return false;
 		}
 		return true;
+	}
+	
+	// ---------------------------------------- ONLINE MEETINGS --------------------------------------------------
+	/**
+	 * Create online meeting
+	 * @param userEmail
+	 * @param subject
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException {
+		TeamsMeetingData result = null;
+		
+		// Get organizer user
+		MicrosoftUser organizerUser = getUserByEmail(userEmail);
+		
+		if(organizerUser != null) {
+			// Organizer
+			MeetingParticipantInfo organizer = new MeetingParticipantInfo();
+			IdentitySet organizerIdentity = new IdentitySet();
+			Identity iden = new Identity();
+			iden.id = organizerUser.getId();
+			iden.displayName = organizerUser.getName();
+			//TODO: seguro que esto es así? (vamos a probar con user)
+			//organizerIdentity.application = iden; 
+			organizerIdentity.user = iden; 
+			organizer.identity = organizerIdentity;
+			organizer.role = OnlineMeetingRole.PRESENTER;
+			
+			// Participants
+			//TODO: include site/group participants?
+			MeetingParticipants participants = new MeetingParticipants();
+			participants.organizer = organizer;
+			
+			// Lobby Settings
+			LobbyBypassSettings lobbySettings = new LobbyBypassSettings();
+			lobbySettings.scope = LobbyBypassScope.ORGANIZATION;
+			
+			// Online Meeting
+			OnlineMeeting onlineMeeting = new OnlineMeeting();
+			if (startDate != null) { onlineMeeting.startDateTime = OffsetDateTime.ofInstant(startDate, ZoneId.systemDefault()); }
+			if (endDate != null) { onlineMeeting.endDateTime = OffsetDateTime.ofInstant(endDate, ZoneId.systemDefault()); }
+			onlineMeeting.participants = participants;
+			onlineMeeting.subject = subject;
+			onlineMeeting.lobbyBypassSettings = lobbySettings;
+			onlineMeeting.allowedPresenters = OnlineMeetingPresenters.ROLE_IS_PRESENTER;
+			
+			OnlineMeeting meeting = getGraphClient().users(organizerUser.getId()).onlineMeetings()
+				.buildRequest()
+				.post(onlineMeeting);
+			
+			result = new TeamsMeetingData();
+			result.setId(meeting.id);
+			result.setJoinUrl(meeting.joinWebUrl);
+		}
+		return result;
 	}
 	
 	// ---------------------------------------- PRIVATE FUNCTIONS ------------------------------------------------

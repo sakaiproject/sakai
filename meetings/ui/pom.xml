@@ -30,14 +30,6 @@
 
     <build>
         <!-- configure the build to use the standard maven structure -->
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <!-- configure the war plugin to correctly use the standard maven structure -->
             <plugin>
