@@ -31,6 +31,9 @@
           <SakaiButton :text="i18n.delete_modal_cancel" @click="$refs.deleteModal.hide()"></SakaiButton>
         </template>
       </SakaiModal>
+      <div v-if="showBannerInfo" class="sak-banner-info">
+        {{ i18n.message_link_copied }}
+      </div>
       <div class="d-flex flex-row flex-wrap mb-2">
         <div>
           {{ schedule }}
@@ -214,7 +217,8 @@ export default {
       participants: { type: Array, default: new Array() },
       savedToCalendar: { type: Boolean, default: false },
       participantOption: {type: String, default: null },
-      groupSelection: {type: Array, default: new Array() }
+      groupSelection: {type: Array, default: new Array() },
+      showBannerInfo: false
     };
   },
   props: {
@@ -305,6 +309,7 @@ export default {
     menuitems() { 
       return [
         { "string": this.i18n.edit_action, "icon": "edit", "action": this.editMeeting },
+        { "string": this.i18n.get_link_action, "icon": "link", "action": this.getMeetingLink, "url": this.url },
         { "string": this.i18n.delete_action, "icon": "delete", "action": this.askDeleteMeeting }
       ];
     },
@@ -368,6 +373,18 @@ export default {
           groupSelection: this.groupSelection
         };
       this.$router.push({name: "EditMeeting", params: parameters});
+    },
+    getMeetingLink() {
+      const storage = document.createElement('textarea');
+      storage.value = this.url;
+      this.$el.appendChild(storage);
+      storage.select();
+      storage.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      this.$el.removeChild(storage);
+      this.showBannerInfo = true;
+      setTimeout(function(){ this.showBannerInfo = false; }.bind(this), 3000);
+      return false;
     }
   },
   mounted () {

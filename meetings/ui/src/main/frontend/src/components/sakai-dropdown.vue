@@ -10,9 +10,9 @@
           :role="getAnchorRole(item)"
           :tabindex="!item.url ? '0' : undefined"
           :href="item.url"
-          @click="handleClick(item)"
-          @keyup.enter="handleClick(item)"
-          @keyup.space="item.action ? handleClick(item) : undefined"
+          @click="handleClick(item, $event)"
+          @keyup.enter="handleClick(item, $event)"
+          @keyup.space="item.action ? handleClick(item, $event) : undefined"
         >
           <sakai-icon
             :iconkey="item.icon"
@@ -62,8 +62,11 @@ export default {
         return "link";
       }
     },
-    handleClick(item) {
+    handleClick(item, event) {
       this.selectedId = item.id;
+      if (event) {
+      event.preventDefault()
+    }
       if (item.route) {
         this.handleRoute(item.route);
       } else if (item.action) {
