@@ -14,7 +14,7 @@
       </id>
       <one-to-one name="node"
          class="org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode"
-         foreign-key="HIER_NODE_FKC" constrained="true" lazy="false" fetch="join" />
+         foreign-key="HIER_NODE_FKC" lazy="false" fetch="join" />
       <property name="hierarchyId" type="string" length="255" index="HIERARCHY_HID" />
       <property name="isRootNode" type="java.lang.Boolean" not-null="true" />
       <property name="ownerId" type="string" length="99" />
