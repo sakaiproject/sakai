@@ -1965,9 +1965,9 @@ public class DeliveryBean implements Serializable {
       return ("reviewAssessment".equals(getActionString())
               || "takeAssessment".equals(getActionString())
               || "takeAssessmentViaUrl".equals(getActionString())
-              || "previewAssessment".equals(getActionString())
-             ) && !"1".equals(getNavigation())
-               && getPageContents().getIsNoParts();
+              || "previewAssessment".equals(getActionString()))
+             && ! ("1".equals(getNavigation()) && getPageContents().getIsNoParts())
+             && (getFeedbackComponent().getShowImmediate() || feedbackOnDate);
   }
 
   public boolean getShowReturnToAssessmentLink() {
