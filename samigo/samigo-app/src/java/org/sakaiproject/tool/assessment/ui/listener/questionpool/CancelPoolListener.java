@@ -53,7 +53,8 @@ public class CancelPoolListener implements ActionListener
     boolean returnToParentPool = "true".equals((String)ae.getComponent().getAttributes().get("returnToParentPool"));
 	if(qpoolbean.getCurrentPool().getId()!=null && qpoolbean.getCurrentPool().getId()==qpoolbean.getOutcomePool() && returnToParentPool){
 		qpoolbean.setOutcomePool(qpoolbean.getCurrentPool().getParentPoolId());
-	}	  
+	}
+	qpoolbean.setCurrentItemIdsString("");
 
   }
 

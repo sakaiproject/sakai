@@ -39,27 +39,41 @@
  <div class="portletBody">
 <!-- content... -->
  <h:form id="importPoolForm" enctype="multipart/form-data">
+   <!-- HEADINGS -->
+   <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
 
    <h:inputHidden value="#{xmlImport.importType}" />
    <h3><h:outputText  value="#{authorImportExport.import_qp}" /></h3>
     <div class="tier1">
-     <div class="form_label">
-      <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-      <%-- currently import pool mirrors import assessment --%>
-      <h:outputText value="#{authorImportExport.import_pool_instructions}" escape="false"/>
-    </div>
+      <div class="tier2">
+       <div class="form_label">
+        <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+        <%-- currently import pool mirrors import assessment --%>
+        <h:outputText value="#{authorImportExport.import_instructions}" escape="false"/>
+       </div>
     <br />
-   <div class="tier2">
-   <h:outputLabel  styleClass="form_label" value="#{authorImportExport.choose_file}"/>
-    <%-- target represents location where import will be temporarily stored
-        check valueChangeListener for final destination --%>
-    <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}"
-      valueChangeListener="#{xmlImport.importPoolFromQti}"/>
+   <h:panelGroup>
+     <h:outputLabel  styleClass="form_label" value="#{authorImportExport.choose_file}"/>
+      <%-- target represents location where import will be temporarily stored
+          check valueChangeListener for final destination --%>
+      <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}"
+        valueChangeListener="#{xmlImport.importPool}"/>
+   </h:panelGroup>
+   <f:verbatim>&nbsp;</f:verbatim>
+     <h:outputText value="#{authorImportExport.file_is}"/>
+     <h:panelGroup>
+       <h:selectOneRadio id="sourceType" layout="pageDirection" value="1" styleClass="samigo-inline-form">
+         <f:selectItem itemLabel="#{authorImportExport.from_samigo}" itemValue="1"/>
+         <f:selectItem itemLabel="#{authorImportExport.from_respondus}" itemValue="2"/>
+       </h:selectOneRadio>
+     </h:panelGroup>
    </div>
+    <br/>
+    <h:outputText escape="false" value="#{authorImportExport.importExport_warning2}"/>
     <br/>
     <br/>
      <%-- activates the valueChangeListener --%>
-     <h:commandButton id="questionPoolsLink" value="#{authorImportExport.import_action}" type="submit"
+     <h:commandButton id="questionPoolLink" value="#{authorImportExport.import_action}" type="submit"
        style="act" action="poolList" >
        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
 	 </h:commandButton>

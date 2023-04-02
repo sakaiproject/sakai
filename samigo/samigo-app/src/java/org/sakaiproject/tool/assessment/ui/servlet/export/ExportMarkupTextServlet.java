@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.servlet.export;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
@@ -37,10 +38,17 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -53,6 +61,8 @@ public class ExportMarkupTextServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private SecurityService securityService = ComponentManager.get(SecurityService.class);
+	private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+	private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
 
 	/**
 	 * passthu to post
@@ -77,27 +87,81 @@ public class ExportMarkupTextServlet extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 		String assessmentId = req.getParameter("assessmentId");
+		String questionPoolId = req.getParameter("questionPoolId");
+		String currentItemIdsString = req.getParameter("currentItemIdsString");
+		String agentIdString = getAgentString(req, res);
+		String currentSiteId="";
+		String createdBy="";
+		boolean accessDenied = true;
 
-		//update random question pools (if any) before exporting
-		AssessmentService assessmentService = new AssessmentService();
-		AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-		int success = assessmentService.updateAllRandomPoolQuestions(assessment);
-		if(success == AssessmentService.UPDATE_SUCCESS){
-			String agentIdString = getAgentString(req, res);
-			String currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
-			String assessmentCreatedBy = assessmentService.getAssessmentCreatedBy(assessmentId);
-			boolean accessDenied = true;
-			if (canExport(req, res, agentIdString, currentSiteId,
-					assessmentCreatedBy)) {
-				accessDenied = false;
+		if (StringUtils.isNotEmpty(assessmentId)) {
+			//update random question pools (if any) before exporting
+			AssessmentService assessmentService = new AssessmentService();
+			AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+			int success = assessmentService.updateAllRandomPoolQuestions(assessment);
+			if (success == AssessmentService.UPDATE_SUCCESS) {
+				currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
+				createdBy = assessmentService.getAssessmentCreatedBy(assessmentId);
+				if (canExport(req, res, agentIdString, currentSiteId, createdBy)) {
+					accessDenied = false;
+				}
+
+				if (accessDenied) {
+					String path = "/jsf/qti/exportDenied.faces";
+					RequestDispatcher dispatcher = req.getRequestDispatcher(path);
+					dispatcher.forward(req, res);
+				} else {
+					Map<String, String> bundle = new HashMap<>();
+					String points = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "points_lower_case");
+					String discount = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.SamLite", "samlite_discount");
+					String randomize = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.SamLite", "example_mc_question_random");
+					String rationale = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.SamLite", "example_mc_question_rationale");
+					String str_true = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.SamLite", "samlite_true");
+					String str_false = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.SamLite", "samlite_false");
+					bundle.put("points", points);
+					bundle.put("discount", discount.toLowerCase());
+					bundle.put("randomize", randomize);
+					bundle.put("rationale", rationale);
+					bundle.put("true", str_true);
+					bundle.put("false", str_false);
+
+					String markupText = assessmentService.exportAssessmentToMarkupText(assessment, bundle);
+
+					res.setContentType("text/plain");
+					String filename = "exportAssessment.txt";
+					res.setHeader("Content-Disposition", "attachment;filename=\"" + filename + "\";");
+
+					res.setContentLength(markupText.length());
+					PrintWriter out = res.getWriter();
+					out.println(markupText);
+					out.close();
+					out.flush();
+				}
+			} else {
+				if (success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){
+					String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
+					req.setAttribute("error", err);
+				} else {
+					String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
+					req.setAttribute("error", err);
+				}
+
+				String path = "/jsf/qti/poolUpdateError.faces";
+				RequestDispatcher dispatcher = req.getRequestDispatcher(path);
+				dispatcher.forward(req, res);
 			}
+		} else if (StringUtils.isNotEmpty(questionPoolId)) {
+			QuestionPoolService questionPoolService = new QuestionPoolService();
+			QuestionPoolFacade questionPool = questionPoolService.getPool(Long.parseLong(questionPoolId), AgentFacade.getAgentString());
+
+			// checking user can export pool
+			accessDenied = !questionPoolService.canExportPool(questionPoolId, agentIdString);
 
 			if (accessDenied) {
 				String path = "/jsf/qti/exportDenied.faces";
 				RequestDispatcher dispatcher = req.getRequestDispatcher(path);
 				dispatcher.forward(req, res);
 			} else {
-				
 				Map<String, String> bundle = new HashMap<>();
 				String points = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "points_lower_case");
 				String discount = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.SamLite", "samlite_discount");
@@ -111,13 +175,12 @@ public class ExportMarkupTextServlet extends HttpServlet {
 				bundle.put("rationale", rationale);
 				bundle.put("true", str_true);
 				bundle.put("false", str_false);
-				
-				String markupText = assessmentService.exportAssessmentToMarkupText(assessment, bundle);
-				 
+
+				String markupText = questionPoolService.exportQuestionPoolToMarkupText(questionPool, currentItemIdsString, bundle);
+
 				res.setContentType("text/plain");
-				String filename = "exportAssessment.txt";
-				res.setHeader("Content-Disposition", "attachment;filename=\""
-						+ filename + "\";");
+				String filename = "exportPool.txt";
+				res.setHeader("Content-Disposition", "attachment;filename=\"" + filename + "\";");
 
 				res.setContentLength(markupText.length());
 				PrintWriter out = res.getWriter();
@@ -125,18 +188,7 @@ public class ExportMarkupTextServlet extends HttpServlet {
 				out.close();
 				out.flush();
 			}
-		}else{
-			if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){  		    		
-				String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
-				req.setAttribute("error", err);
-			}else{
-				String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
-				req.setAttribute("error", err);
-			}
 
-			String path = "/jsf/qti/poolUpdateError.faces";
-			RequestDispatcher dispatcher = req.getRequestDispatcher(path);
-			dispatcher.forward(req, res);
 		}
 	}
 
