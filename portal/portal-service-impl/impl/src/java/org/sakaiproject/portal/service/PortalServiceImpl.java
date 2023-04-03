@@ -821,7 +821,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Transactional
 	public void addRecentSite(String siteId) {
 
-		if (siteId.equals(SiteService.SITE_ERROR)) {
+		if (SiteService.SITE_ERROR.equals(siteId)) {
 			return;
 		}
 
