@@ -97,4 +97,5 @@ public interface MicrosoftCommonService {
 	
 	// ---------------------------------------- ONLINE MEETINGS --------------------------------------------------
 	TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
+	boolean updateOnlineMeeting(String userEmail, String meetingId, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
 }

@@ -454,6 +454,14 @@ public class MeetingsController {
 			meeting.setStartDate(Instant.parse(data.getStartDate()));
 			meeting.setEndDate(Instant.parse(data.getEndDate()));
 			
+			if (MS_TEAMS.equals(data.getProvider())) {
+				User user = sakaiProxy.getCurrentUser();
+				String onlineMeetingId = meetingService.getMeetingProperty(meeting, ONLINE_MEETING_ID);
+				if(StringUtils.isNotBlank(onlineMeetingId)) {
+					microsoftCommonService.updateOnlineMeeting(user.getEmail(), onlineMeetingId, meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
+				}
+			}
+			
 			// Participants
 			MeetingAttendee attendee = null;
 			switch (data.getParticipantOption()) {
@@ -492,6 +500,12 @@ public class MeetingsController {
 			throw new MeetingsException(e.getLocalizedMessage());
 		} catch (IdUnusedException e) {
 			log.error("Error retrieving site when sending notifications.", e);
+			throw new MeetingsException(e.getLocalizedMessage());
+		} catch (MicrosoftCredentialsException e) {
+			log.error("Error updating meeting", e);
+			throw new MeetingsException(e.getLocalizedMessage());
+		} catch (Exception e) {
+			log.error("Error updating meeting", e);
 			throw new MeetingsException(e.getLocalizedMessage());
 		}
 		return meeting;

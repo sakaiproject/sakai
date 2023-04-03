@@ -335,7 +335,7 @@ export default {
       if(response.ok) {
         this.$router.push({ name: "Main" });
       } else if (response.status === 500) {
-        this.showError(this.i18n.error_create_meeting_500);
+        this.showError((this.id) ? this.i18n.error_updating_meeting_500 : this.i18n.error_create_meeting_500);
       } else {
         this.showError(this.i18n.error_create_meeting_unknown);
       }

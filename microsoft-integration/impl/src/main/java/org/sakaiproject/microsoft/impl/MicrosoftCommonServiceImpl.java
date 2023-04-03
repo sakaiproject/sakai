@@ -1286,6 +1286,24 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return result;
 	}
 	
+	@Override
+	public void updateOnlineMeeting(String userEmail, String meetingId, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException {
+		// Get organizer user
+		MicrosoftUser organizerUser = getUserByEmail(userEmail);
+		
+		if(organizerUser != null) {
+			// Online Meeting
+			OnlineMeeting onlineMeeting = new OnlineMeeting();
+			onlineMeeting.startDateTime = OffsetDateTime.ofInstant(startDate, ZoneId.systemDefault());
+			onlineMeeting.endDateTime = OffsetDateTime.ofInstant(endDate, ZoneId.systemDefault());
+			onlineMeeting.subject = subject;
+			
+			getGraphClient().users(organizerUser.getId()).onlineMeetings(meetingId)
+					.buildRequest()
+					.patch(onlineMeeting);
+		}
+	}
+	
 	// ---------------------------------------- PRIVATE FUNCTIONS ------------------------------------------------
 
 	private String getMemberKeyValue(AadUserConversationMember member, MicrosoftUserIdentifier key) {
