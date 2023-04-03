@@ -821,6 +821,10 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Transactional
 	public void addRecentSite(String siteId) {
 
+		if (siteId.equals(SiteService.SITE_ERROR)) {
+			return;
+		}
+
 		String userId = sessionManager.getCurrentSessionUserId();
 
 		if (StringUtils.isBlank(userId)) {
