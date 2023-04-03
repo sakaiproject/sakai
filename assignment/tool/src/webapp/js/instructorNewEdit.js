@@ -80,7 +80,6 @@ ASN_INE.togglePeerAssessment = function(element)
 	$("#site").parent().prop("class", "");
 	$("#site").parent().prop("style", "");
 
-	ASN_INE.setGroupAssignmentRadioEnabled(!element.checked);
 	if (element.checked)
 	{
 		section.style.display="block";
@@ -185,47 +184,6 @@ ASN_INE.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWit
 	panel.style.display = checkbox.checked ? "block" : "none";
 };
 
-// evaluate the state of the peer assessment option based on the current group
-// assignment setting.
-ASN_INE.evaluatePeerAssessmentOption = function()
-{
-	var groupAsn = document.getElementById("groupAssignment");
-	var isGroup = groupAsn !== null && groupAsn.checked;
-	var peerCheck = document.getElementById("usePeerAssessment");
-	if (peerCheck === null)
-	{
-		return;
-	}
-
-	if (isGroup && peerCheck.checked)
-	{
-		peerCheck.click();
-	}
-	ASN_INE.disablePeerAssessment(isGroup);
-};
-
-ASN_INE.disablePeerAssessment = function(disable)
-{
-	var peerCheck = document.getElementById("usePeerAssessment");
-	if (peerCheck === null)
-	{
-		return;
-	}
-
-	peerCheck.disabled = disable;
-	var label = document.getElementById("peerAssessmentCheckboxLabel");
-	if (disable)
-	{
-		label.classList.add("disabled");
-		document.getElementById("peerGroupAsnWarn").style.display = "block";
-	}
-	else
-	{
-		label.classList.remove("disabled");
-		document.getElementById("peerGroupAsnWarn").style.display = "none";
-	}
-};
-
 ASN_INE.handleGradebookRadioClick = function(radio, addToGbRadioId)
 {
 	var catSelect = document.getElementById("category");
@@ -238,15 +196,6 @@ ASN_INE.handleGradebookRadioClick = function(radio, addToGbRadioId)
 	if (itemSelect !== null)
 	{
 		itemSelect.disabled = isAdd;
-	}
-};
-
-ASN_INE.handleAssignToChangeForPeerAssessment = function()
-{
-	var peerCheck = document.getElementById("usePeerAssessment");
-	if (peerCheck !== null)
-	{
-		ASN_INE.evaluatePeerAssessmentOption();
 	}
 };
 

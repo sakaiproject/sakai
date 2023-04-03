@@ -9,6 +9,7 @@
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
         <property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />

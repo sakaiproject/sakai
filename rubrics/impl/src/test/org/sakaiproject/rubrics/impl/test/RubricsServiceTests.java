@@ -478,7 +478,6 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         etb.setStatus(EvaluationStatus.DRAFT);
         etb.setOverallComment(originalComment);
-        etb.setNew(true);
 
         etb = rubricsService.saveEvaluation(etb, siteId);
         assertEquals(EvaluationStatus.DRAFT, etb.getStatus());
