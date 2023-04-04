@@ -23,6 +23,8 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,8 +43,11 @@ public class CardGameStatItem {
 
 
     @Id
-    @Column(name = "ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "card_game_stat_item_sequence")
+    //@Column(name = "ID", nullable = false)
+    //@GeneratedValue(strategy = GenerationType.AUTO, generator = "card_game_stat_item_sequence")
+    @Column(name = "ID", nullable = false, length = 36)
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
     @Column(name = "PLAYER_ID", nullable = false)
