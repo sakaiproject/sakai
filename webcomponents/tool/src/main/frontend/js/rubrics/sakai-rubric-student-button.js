@@ -100,11 +100,11 @@ class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
   setupHidden() {
 
     if (this.dontCheckAssociation) {
-      this.hidden = true;
+      this.hidden = !this.instructor;
     } else {
       this.apiGetAssociation()
         .then(association => {
-          this.hidden = association.parameters.hideStudentPreview;
+          this.hidden = association.parameters.hideStudentPreview && !this.instructor;
         })
         .catch(error => console.error(error));
     }

@@ -301,8 +301,11 @@
 										#if ($rubricMap.containsKey($assignment.getId()))
 										<sakai-rubric-student-button
 											force-preview
+											dont-check-association
 											rubric-id="$rubricMap.get($assignment.getId())"
 											site-id="$assignment.getContext()"
+											tool-id="sakai.assignment.grades"
+											entity-id="$assignment.Id"
 											instructor="true">
 										</sakai-rubric-student-button>
 										#end
