@@ -35,6 +35,12 @@ export function rollUser(users, currentUserId) {
     return randomUser(users, zeroBasedWeights).id;
 }
 
+// Plays a sound file found on provided path
+export async function playSound(path) {
+    const audio = new Audio(path);
+    audio.play();
+}
+
 // Inspired by:
 // https://stackoverflow.com/questions/43566019/how-to-choose-a-weighted-random-array-element-in-javascript#answer-55671924
 function randomUser(users, userWeights) {

@@ -4,7 +4,7 @@
 /////////////////////////////////////
 
 import BaseGame from "./base-game.js";
-import { isUserLearned, rollUser} from "./card-game-utils.js";
+import { isUserLearned, rollUser, playSound} from "./card-game-utils.js";
 import { fetchCheckResult, fetchReset } from "./card-game-api.js";
 
 const VIEWS = {
@@ -19,6 +19,11 @@ const FEEDBACK_STATES = {
     KO: "WRONG"
 };
 
+const SOUNDS = {
+    HIT: "/sakai-roster2-tool/js/card-game/sounds/hit-sound.mp3",
+    MISS: "/sakai-roster2-tool/js/card-game/sounds/miss-sound.mp3",
+}
+
 export default class CardGame extends BaseGame {
 
     constructor(appId, i18n, config, { siteId, users }) {
@@ -32,7 +37,7 @@ export default class CardGame extends BaseGame {
 
         this.selectId = "user-name";
 
-        this.initState({ allUsers: users });
+        this.initState({ allUsers: users , soundEnabled: true});
     }
 
     initState(data) {
@@ -85,6 +90,11 @@ export default class CardGame extends BaseGame {
                             this.mutateRerollUser();
                             this.effectRemoveFeedbackBanner();
                         });
+                document.querySelector("[data-mute]").addEventListener("click",
+                        (event) => {
+                            this.mutateMute();
+                            this.effectRemoveFeedbackBanner();
+                        });
 
                 // Unfortunately we can't listen to jQuery internal events without jQuery
                 const select = document.getElementById(this.selectId);
@@ -134,6 +144,10 @@ export default class CardGame extends BaseGame {
 
         fetchCheckResult(this.siteId, this.state.currentUserId, correct);
 
+        if (this.state.soundEnabled) {
+            playSound(correct ? SOUNDS.HIT : SOUNDS.MISS);
+        }
+
         this.rollUser = true;
         this.mutateCheckName(correct);
     }
@@ -168,6 +182,7 @@ export default class CardGame extends BaseGame {
                     <div class="act">
                         <button class="active btn-check" disabled data-check>${this.tr("check")}</button>
                         <button class="button" data-reroll>${this.tr("reroll_user")}</button>
+                        ${this.renderMuteButton()}
                     </div>
                     ${this.renderFeedbackBanner()}
                 </div>
@@ -244,6 +259,23 @@ export default class CardGame extends BaseGame {
         }
     }
 
+    // Renders the mute button component
+    renderMuteButton() {
+        if (this.state.soundEnabled) {
+            return `
+                <button class="button" title="${this.tr("sound_disable")}" data-mute>
+                    <span class="fa fa-volume-up" aria-hidden="true"></span>
+                </button>
+            `;
+        } else {
+            return `
+                <button class="button" title="${this.tr("sound_enable")}" data-mute>
+                    <span class="fa fa-volume-off" aria-hidden="true"></span>
+                </button>
+            `;
+        }
+    }
+
     // CALC METHODS - Methods calculating a property of the state
     // Should be added to updateCalcState in the correct order (dependency respecting)
 
@@ -309,6 +341,12 @@ export default class CardGame extends BaseGame {
                 state.currentUser.misses++;
             }
             state.previousUserId = state.currentUserId;
+        });
+    }
+
+    mutateMute() {
+        this.mutate((state) => {
+            state.soundEnabled = !state.soundEnabled;
         });
     }
 
