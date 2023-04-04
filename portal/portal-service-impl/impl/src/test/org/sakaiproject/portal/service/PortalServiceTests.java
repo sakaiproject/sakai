@@ -112,6 +112,9 @@ public class PortalServiceTests extends SakaiTests {
         portalService.addRecentSite("site3");
         assertEquals(3, portalService.getRecentSites().size());
 
+        portalService.addRecentSite(SiteService.SITE_ERROR);
+        assertEquals(3, portalService.getRecentSites().size());
+
         Iterator<String> recentSites = portalService.getRecentSites().iterator();
         assertEquals("site3", recentSites.next());
         assertEquals("site2", recentSites.next());
