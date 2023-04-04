@@ -37,6 +37,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
 
     super.connectedCallback();
 
+    this.criteria = [];
     if (this.isConnected) {
 
       if (this.siteId && this.toolId && this.entityId) {
