@@ -49,6 +49,7 @@
                 <module>assignment</module>
                 <module>basiclti</module>
                 <module>calendar</module>
+                <module>card-game</module>
                 <module>chat</module>
                 <module>citations</module>
                 <module>common</module>
