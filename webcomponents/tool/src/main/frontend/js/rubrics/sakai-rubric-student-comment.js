@@ -15,7 +15,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
     const oldValue = this._criterion;
     this._criterion = value;
     this._criterion.comments = value.comments && value.comments.indexOf("null") === 0 ? "" : value.comments;
-    this.triggerId = `criterion-comment-${value.id}-trigger`;
+    this.triggerId = `criterion-comment-${value.id}-trigger` + Math.floor(Math.random() * 90 + 10);
     $(`#${this.triggerId}`).popover("hide");
     this.requestUpdate("criterion", oldValue);
     this.updateComplete.then(() => {

@@ -364,6 +364,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
 							sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
+							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
 							sakaiRubricButton.setVisible(false);
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
@@ -452,6 +453,8 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignment.getId()));
 								}
 							}
+
+							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
 
 							gradeScore.add(sakaiRubricButton);
 						}
