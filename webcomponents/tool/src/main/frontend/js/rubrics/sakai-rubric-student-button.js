@@ -21,6 +21,7 @@ class SakaiRubricStudentButton extends RubricsElement {
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
+      evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
       instructor: Boolean,
       forcePreview: { attribute: "force-preview", type: Boolean },
       dontCheckAssociation: { attribute: "dont-check-association", type: Boolean },
@@ -47,7 +48,7 @@ class SakaiRubricStudentButton extends RubricsElement {
     if (this.forcePreview) {
       this.showRubricLightbox(this.rubricId);
     } else {
-      this.showRubricLightbox(this.rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId });
+      this.showRubricLightbox(this.rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "evaluated-item-owner-id": this.evaluatedItemOwnerId });
     }
   }
 

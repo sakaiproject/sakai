@@ -1,22 +1,5 @@
 <!-- start: chef_assignments_student_view_grade.vm  -->
 #rubricsRequirements
-<script>
-    $(document).ready(function () {
-        $("#accordion").accordion({
-                    heightStyle: 'content',
-                    active: 0,
-                    collapsible: true,
-                    change: function (event, ui) {
-                        ASN.resizeFrame();
-                    },
-                    activate: function (event, ui) {
-                        ASN.resizeFrame();
-                    }
-                }
-        );
-    });
-</script>
-
 ## Include other javascript specific to this page
 #javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
@@ -317,12 +300,38 @@
         #end
     #end
 
-    #if ($submission.Graded && ($submission.GradeReleased || $returned))
+    #if($!rubricSelfReport)
+    <h1>$tlang.getString("autoevaluation")</h1>
+    <sakai-rubric-student
+        tool-id="sakai.assignment"
+        entity-id="$assignment.Id"
+        instructor="true"
+        is-peer-or-self="true"
+        #if($!assignment.IsGroup)
+            evaluated-item-id="$submission.GroupId"
+            evaluated-item-owner-id="$submission.GroupId"
+        #else
+            evaluated-item-id="$currentUserId"
+            evaluated-item-owner-id="$currentUserId"
+        #end
+    ></sakai-rubric-student>
+    <p class="help-block">
+        $tlang.getString("reviewrubricreport")
+    </p>
+    <hr class="itemSeparator" />
+    #end
+    #if (!$rubricHiddenToStudent && $submission.Graded && ($submission.GradeReleased || $returned))
+    <h1>$tlang.getString("instructor_grading")</h1>
     <sakai-rubric-student
         site-id="$assignment.context"
         tool-id="sakai.assignment"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
+        #if($!assignment.IsGroup)
+            evaluated-item-owner-id="$submission.GroupId"
+        #else
+            evaluated-item-owner-id="$currentUserId"
+        #end
         enable-pdf-export="$enablePdfExport"
     ></sakai-rubric-student>
     #end
@@ -350,7 +359,7 @@
         ## Show reviewer feedback from peer review (if exist and the peer review is closed)
         #if ($peerReviews)
             <h3>$tlang.getString("gen.peerReviews")</h3>
-            <div id="accordion">
+            <div id="peer-accordion">
                 #foreach($review in $peerReviews)
                     <h5>$review.assessorDisplayName</h5>
                     <div>
@@ -388,6 +397,17 @@
                                 #end
                             </ul>
                         #end
+                        <sakai-rubric-student
+                            tool-id="sakai.assignment"
+                            entity-id="$assignment.Id"
+                            evaluated-item-id="$review.id.assessorUserId"
+                            is-peer-or-self="true"
+                            #if ($!assignment.isGroup)
+                                evaluated-item-owner-id="$submission.GroupId"
+                            #else
+                                evaluated-item-owner-id="$currentUserId"
+                            #end
+                        ></sakai-rubric-student>
                     </div>
                 #end
             </div>

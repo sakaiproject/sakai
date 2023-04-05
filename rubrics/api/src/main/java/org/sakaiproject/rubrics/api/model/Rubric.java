@@ -106,7 +106,7 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
             for (ToolItemRubricAssociation tira : getAssociations()) {
                 if (tira.getParameters() == null) {
                     locked = true;
-                } else if (!tira.getParameters().containsKey(RubricsConstants.RBCS_SOFT_DELETED) || !tira.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED)) {
+                } else if (!tira.getParameters().containsKey(RubricsConstants.RBCS_SOFT_DELETED) || tira.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED) != 1) {
                     locked = true;
                     break;
                 }

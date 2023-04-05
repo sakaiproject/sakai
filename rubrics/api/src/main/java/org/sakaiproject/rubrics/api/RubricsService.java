@@ -103,15 +103,13 @@ public interface RubricsService {
 
     Optional<EvaluationTransferBean> getEvaluation(Long evaluationId, String siteId);
 
-    Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
+    Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId(String toolId, String itemId, String evaluatedItemId, String evaluatedItemOwnerId, String siteId, boolean isPeer);
 
     EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId);
 
     EvaluationTransferBean cancelDraftEvaluation(Long draftEvaluationId);
 
     boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
-
-    boolean hasAssociatedRubric(String toolId, String associatedToolItemId, String siteId);
 
     Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId, String associatedToolItemId);
 
