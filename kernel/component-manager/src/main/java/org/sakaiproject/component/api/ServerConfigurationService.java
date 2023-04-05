@@ -214,6 +214,17 @@ public interface ServerConfigurationService
 	int getInt(String name, int dflt);
 
 	/**
+	 * Access some named configuration value as an double.
+	 *
+	 * @param name
+	 *        The configuration value name.
+	 * @param defaultValue
+	 *        The value to return if not found.
+	 * @return The configuration value with this name, or the default value if not found.
+	 */
+	double getDouble(String name, double defaultValue);
+
+	/**
 	 * Access some named configuration value as a boolean.
 	 * 
 	 * @param name
