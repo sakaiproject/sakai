@@ -29,10 +29,12 @@ class SakaiRubricStudent extends RubricsElement {
       preview: Boolean,
       instructor: Boolean,
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
+      evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
       rubric: { type: Object },
       rubricId: { attribute: "rubric-id", type: String },
       forcePreview: { attribute: "force-preview", type: Boolean },
       enablePdfExport: { attribute: "enable-pdf-export", type: Object },
+      isPeerOrSelf: { attribute: "is-peer-or-self", type: Boolean }
     };
   }
 
@@ -209,7 +211,12 @@ class SakaiRubricStudent extends RubricsElement {
         .then(rubric => {
 
           if (this.evaluatedItemId) {
-            const evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
+            // Now, get the evaluation
+            let evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}/owners/${this.evaluatedItemOwnerId}`;
+            if (this.isPeerOrSelf) {
+              //for permission filters
+              evalUrl += "?isPeer=true";
+            }
             fetch(evalUrl, {
               credentials: "include",
               headers: { "Content-Type": "application/json" },

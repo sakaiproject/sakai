@@ -30,7 +30,12 @@ export const rubricsApiMixin = Base => class extends Base {
 
   apiGetEvaluation() {
 
-    const url = `/api/sites/${this.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
+    let url = `/api/sites/${this.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}/owners/${this.evaluatedItemOwnerId}`;
+
+    if (this.isPeerOrSelf) {
+      url += "?isPeer=true";
+    }
+
     return fetch(url, { credentials: "include" })
       .then(r => {
 

@@ -64,7 +64,7 @@ import lombok.NonNull;
 @Table(name = "rbc_evaluation",
     indexes = { @Index(name = "rbc_eval_owner",  columnList="ownerId"),
                 @Index(name = "rbc_eval_association_idx",  columnList="association_id") },
-    uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
+    uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluated_item_owner_id" })
 )
 @ToString(exclude = {"criterionOutcomes"})
 public class Evaluation implements PersistableEntity<Long>, Serializable {
