@@ -130,6 +130,12 @@
             <groupId>org.sakaiproject.profile2</groupId>
             <artifactId>profile2-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.cardgame</groupId>
+            <artifactId>sakai-card-game-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
