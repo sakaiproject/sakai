@@ -412,6 +412,11 @@
 												site-id="$assignment.getContext()"
 												tool-id="sakai.assignment"
 												evaluated-item-id="$submissionId"
+												#if($!assignment.IsGroup)
+													evaluated-item-owner-id="$submission.GroupId"
+												#else
+													evaluated-item-owner-id="$user.getId()"
+												#end
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>
 											#end
@@ -609,7 +614,11 @@
 								<!-- title col -->
 								<td class="peer-header">
 									<strong title="$formattedText.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $formattedText.escapeHtml($assignment.Title)</strong>
-									<em>$tlang.getString("peerAssessmentName")</em>
+									#if ($assignment.IsGroup)
+										$tlang.getFormattedMessage("peerAssessmentName", $tlang.getString("peerAssessmentGroups"))
+									#else
+										$tlang.getFormattedMessage("peerAssessmentName", $tlang.getString("peerAssessmentStudents"))
+									#end
 								</td>
 								#if ($!allowGradeSubmission)
 									<!-- scope col -->
@@ -705,10 +714,18 @@
 										<td>
 											<span class="indnt2">
 												#if($review.getSubmitted())
-													$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img src="/library/image/silk/accept.png"/>
+													#if ($assignment.IsGroup)
+														$tlang.getFormattedMessage("peerassessment.group", $reviewCount)&nbsp;<img alt="$tlang.getString("gen.subm4")" src="/library/image/silk/accept.png"/>
+													#else
+														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img alt="$tlang.getString("gen.subm4")" src="/library/image/silk/accept.png"/>
+													#end
 												#else
 													<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($review.id.SubmissionId)")">
-														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)
+														#if ($assignment.IsGroup)
+															$tlang.getFormattedMessage("peerassessment.group", $reviewCount)
+														#else
+															$tlang.getFormattedMessage("peerassessment.student", $reviewCount)
+														#end
 													</a>
 												#end
 											</span>

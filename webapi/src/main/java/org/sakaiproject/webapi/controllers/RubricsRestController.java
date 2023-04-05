@@ -224,7 +224,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
     @PostMapping(value = "/sites/{siteId}/rubric-evaluations", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EvaluationTransferBean> createEvaluation(@PathVariable String siteId, @RequestBody EvaluationTransferBean bean) throws Exception {
 
-        bean.setNew(true);
         return ResponseEntity.ok(rubricsService.saveEvaluation(bean, siteId));
     }
 
@@ -264,12 +263,14 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return ResponseEntity.ok(rubricsService.cancelDraftEvaluation(evaluationId));
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}/evaluations/{evaluatedItemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EvaluationTransferBean> getEvaluation(@PathVariable String siteId, @PathVariable String toolId, @PathVariable String itemId, @PathVariable String evaluatedItemId) throws Exception {
+    @GetMapping(value = {"/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}/evaluations/{evaluatedItemId}/owners/{evaluatedItemOwnerId}",
+        "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}/evaluations/{evaluatedItemId}"},	produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EvaluationTransferBean> getEvaluation(@PathVariable String siteId, @PathVariable String toolId, @PathVariable String itemId, @PathVariable String evaluatedItemId, @PathVariable(required = false) String evaluatedItemOwnerId,
+        @RequestParam(defaultValue = "false") Boolean isPeer) throws Exception {
 
         checkSakaiSession();
 
-        Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluationForToolAndItemAndEvaluatedItemId(toolId, itemId, evaluatedItemId, siteId);
+        Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId(toolId, itemId, evaluatedItemId, evaluatedItemOwnerId, siteId, isPeer);
         if (optBean.isPresent()) {
             return ResponseEntity.ok(optBean.get());
         } else {

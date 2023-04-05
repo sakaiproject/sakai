@@ -69,6 +69,11 @@ This section contains the options for grading this assignment, including rubrics
 					#end
 					fine-tune-points="$tlang.getString("option.pointsoverride")"
 					hide-student-preview="$tlang.getString("option.studentpreview")"
+					student-self-report="$tlang.getString("option.selfreport")"
+					student-self-report-mode-0="$tlang.getString("option.selfreport.must")"
+					student-self-report-mode-1="$tlang.getString("option.selfreport.partialmust")"
+					student-self-report-mode-2="$tlang.getString("option.selfreport.notamust")"
+					show-self-report-check="true"
 				>
 				</sakai-rubric-association>
 			</div>
@@ -160,7 +165,6 @@ This section contains the options for grading this assignment, including rubrics
 						<label id="peerAssessmentCheckboxLabel" for="usePeerAssessment">
 							<input id="usePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true"
 								#if ($!value_UsePeerAssessment.equals("true")) checked="checked" #end
-								#if ($groupAssignment) disabled="disabled" #end
 								onclick="ASN_INE.togglePeerAssessment(this)"
 							/>
 							$tlang.getString("peerAssessmentUse")
