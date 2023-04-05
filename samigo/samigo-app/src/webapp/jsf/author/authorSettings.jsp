@@ -787,11 +787,10 @@
             <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
         </div>
     </h:panelGroup>
-</div>
 </h:panelGroup>
 
-</div><!-- This is the end of the sub-accordion -->
 </samigo:hideDivision><!-- END Layout and Appearance Category -->
+</div> <!-- END of #jqueryui-accordion -->
 
  <p class="act">
 
@@ -824,7 +823,6 @@
 </p>
 </h:form>
 <!-- end content -->
-</div>
 </div>
       </body>
     </html>
