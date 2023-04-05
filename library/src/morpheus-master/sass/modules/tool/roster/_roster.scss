@@ -232,4 +232,27 @@
         }
 
     }
+
+    // S2U-42
+    #card-game {
+        // TODO Master merge: This rule can be removed, master applies it already
+        .progress-bar {
+            background-color: var(--sakai-primary-color-1);
+        }
+
+        .btn-check {
+            flex-grow: 1;
+        }
+
+        @media #{$smallPhone} {
+            .user-image-wrapper {
+                display: flex;
+                justify-content: center;
+            }
+        }
+
+        .user-image {
+            margin-bottom: $standard-spacing;
+        }
+    }
 }
