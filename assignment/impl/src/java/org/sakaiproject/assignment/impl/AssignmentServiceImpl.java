@@ -2576,7 +2576,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 usersWithNoSubmission.removeAll(submitterMap.keySet());
 
                 for (final User user : usersWithNoSubmission) {
-                    String submitterId = getSubmitterIdForAssignment(a, user);
+                    String submitterId = getSubmitterIdForAssignment(a, user.getId());
                     if (StringUtils.isNotBlank(submitterId)) {
                         try {
                             AssignmentSubmission submission = addSubmission(assignmentId, submitterId);
@@ -2624,42 +2624,46 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getSubmitterIdForAssignment(Assignment assignment, User user) {
+    public String getSubmitterIdForAssignment(Assignment assignment, String userId) {
         String submitter = null;
-        if (user != null) {
+        if (userId != null) {
             switch (assignment.getTypeOfAccess()) {
                 case SITE:
                     // access is for the entire site and submitter is a user
-                    submitter = user.getId();
+                    submitter = userId;
                     break;
                 case GROUP:
                     // access is restricted to groups
                     Site site;
                     try {
                         site = siteService.getSite(assignment.getContext());
+                        //if it is an actual group id we just return it
+                        if (site.getGroup(userId) != null) {
+                            return userId;
+                        }
                         Set<String> assignmentGroups = assignment.getGroups();
-                        Collection<Group> userGroups = site.getGroupsWithMember(user.getId());
+                        Collection<Group> userGroups = site.getGroupsWithMember(userId);
                         Set<String> groupIdsMatchingAssignmentForUser = userGroups.stream().filter(g -> assignmentGroups.contains(g.getReference())).map(Group::getId).collect(Collectors.toSet());
 
                         if (groupIdsMatchingAssignmentForUser.size() < 1) {
-                            log.debug("User {} is not a member of any groups for this assignment {}", user.getId(), assignment.getId());
+                            log.debug("User {} is not a member of any groups for this assignment {}", userId, assignment.getId());
                         } else if (groupIdsMatchingAssignmentForUser.size() == 1) {
                             if (assignment.getIsGroup()) {
                                 submitter = groupIdsMatchingAssignmentForUser.toArray(new String[] {})[0];
                             } else {
-                                submitter = user.getId();
+                                submitter = userId;
                             }
                         } else if (groupIdsMatchingAssignmentForUser.size() > 1 && !assignment.getIsGroup()) {
-                            submitter = user.getId();
+                            submitter = userId;
                         } else {
-                            log.warn("User {} is on more than one group for this assignment {}, please remove the user from a group so that they are only a member of a single group", user.getId(), assignment.getId());
+                            log.warn("User {} is on more than one group for this assignment {}, please remove the user from a group so that they are only a member of a single group", userId, assignment.getId());
                         }
                     } catch (IdUnusedException iue) {
                         log.warn("Could not get the site {} for assignment {} while determining the submitter of the submission", assignment.getContext(), assignment.getId());
                     }
                     break;
                 default:
-                    log.warn("Can't determine the type of submission to create for user {} in assignment {}", user.getId(), assignment.getId());
+                    log.warn("Can't determine the type of submission to create for user {} in assignment {}", userId, assignment.getId());
                     break;
             }
         }
