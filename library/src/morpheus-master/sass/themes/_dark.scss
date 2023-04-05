@@ -197,4 +197,8 @@
     // Jumbotron
     --jumbotron-bg: var(--sakai-color-blue--darker-5);
     --jumbotron-color: var(--sakai-text-color-1);
+
+    // S2U-42 Bootstrap thumbnails
+    // TODO Master merge: Remove thumbnail customization in favor of card
+    --sakai-thumbnail-background-color: var(--sakai-background-color-2);
 }
