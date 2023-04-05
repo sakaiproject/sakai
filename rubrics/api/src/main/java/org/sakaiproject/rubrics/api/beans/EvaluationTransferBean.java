@@ -38,7 +38,7 @@ public class EvaluationTransferBean {
     private String evaluatedItemOwnerId;
     private EvaluatedItemOwnerType evaluatedItemOwnerType;
     private String evaluatorId;
-    private boolean isNew;
+    private boolean peerOrSelf;
     private Instant modified;
     private String overallComment;
     private String ownerId;

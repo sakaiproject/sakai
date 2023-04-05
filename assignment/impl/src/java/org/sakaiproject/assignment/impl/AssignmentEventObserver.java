@@ -83,7 +83,7 @@ public class AssignmentEventObserver implements Observer {
                                         submission = Optional.ofNullable(assignmentService.getSubmission(a.getId(), user.getId()));
                                         submission = Optional.ofNullable(submission.orElseGet(() -> {
                                             try {
-                                                return assignmentService.addSubmission(a.getId(), assignmentService.getSubmitterIdForAssignment(a, user));
+                                                return assignmentService.addSubmission(a.getId(), assignmentService.getSubmitterIdForAssignment(a, user.getId()));
                                             } catch (PermissionException e) {
                                                 log.warn("Can't access submission for assignment {} and user {}, {}", a.getId(), user.getId(), e.getMessage());
                                             }

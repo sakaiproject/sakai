@@ -64,7 +64,7 @@ import lombok.NonNull;
 @NoArgsConstructor
 @Table(name = "rbc_evaluation",
     indexes = { @Index(name = "rbc_eval_owner",  columnList="ownerId") },
-    uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
+    uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluated_item_owner_id" })
 )
 @ToString(exclude = {"toolItemRubricAssociation", "criterionOutcomes"})
 public class Evaluation implements PersistableEntity<Long>, Serializable {
@@ -87,12 +87,6 @@ public class Evaluation implements PersistableEntity<Long>, Serializable {
     private String evaluatedItemOwnerId;
 
     private String overallComment;
-
-    /*
-    @ManyToOne
-    @JoinColumn(name = "association_id", referencedColumnName = "id", nullable = false)
-    private ToolItemRubricAssociation association;
-    */
 
     @Column(name = "association_id", nullable = false)
     private Long associationId;

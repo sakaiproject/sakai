@@ -58,6 +58,8 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
     el.removeAttribute("entity-id");
     el.removeAttribute("evaluated-item-id");
     el.removeAttribute("instructor");
+    el.removeAttribute("evaluated-item-owner-id");
+    el.removeAttribute("peer-or-self");
 
     rubrics.utils.lightbox.style.display = "none";
     rubrics.utils.windowRef.document.body.style.overflow = "auto";
@@ -83,6 +85,8 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
       el.removeAttribute("entity-id");
       el.removeAttribute("evaluated-item-id");
       el.removeAttribute("instructor");
+      el.removeAttribute("evaluated-item-owner-id");
+      el.removeAttribute("peer-or-self");
     } else {
       el.removeAttribute("rubric-id");
       if (attributes["force-preview"]) {
@@ -94,6 +98,8 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
       el.setAttribute("entity-id", attributes["entity-id"]);
       el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
       el.setAttribute("instructor", attributes.instructor);
+      el.setAttribute("evaluated-item-owner-id", attributes["evaluated-item-owner-id"]);
+      el.setAttribute("peer-or-self", attributes["peer-or-self"]);
     }
     rubrics.utils.lightbox.style.display = "block";
     rubrics.utils.lightbox.focus();
