@@ -1,5 +1,6 @@
 import { loadProperties } from "/webcomponents/sakai-i18n.js";
 import "/webcomponents/assets/imagesloaded/imagesloaded.pkgd.min.js";
+import loadCardGame from "/sakai-roster2-tool/js/card-game/index.js";
 
 roster.helpers = {};
 
@@ -130,6 +131,8 @@ roster.changeActiveTab = function (state) {
     activeID = '#navbar_enrollment_status_link';
   } else if (roster.STATE_PERMISSIONS === state) {
     activeID = '#navbar_permissions_link';
+  } else if (roster.STATE_CARD_GAME === state) {
+    activeID = '#navbar_card_game_link';
   }
 
   if (activeID !== '') {
@@ -276,6 +279,9 @@ roster.switchState = function (state, args) {
     });
   } else if (roster.STATE_PERMISSIONS === state) {
     roster.render('permissions', { siteTitle: roster.site.title }, 'roster_content');
+  } else if (roster.STATE_CARD_GAME === state) {
+    roster.render(roster.TEMPLATE_CARD_GAME , {}, roster.DEFAULT_OUTPUT_ID);
+    loadCardGame("card-game", roster.siteId);
   }
 };
 
@@ -845,7 +851,11 @@ roster.init = function () {
   roster.STATE_OVERVIEW = 'overview';
   roster.STATE_ENROLLMENT_STATUS = 'status';
   roster.STATE_PERMISSIONS = 'permissions';
+  roster.STATE_CARD_GAME = 'card_game';
 
+  roster.TEMPLATE_CARD_GAME = 'card_game';
+
+  roster.DEFAULT_OUTPUT_ID = 'roster_content';
   roster.DEFAULT_GROUP_ID = 'all';
   roster.DEFAULT_ENROLLMENT_STATUS = 'All';
   roster.DEFAULT_STATE = roster.STATE_OVERVIEW;
@@ -902,6 +912,10 @@ roster.initNavBar = function() {
 
   $('#navbar_permissions_link > span > a').click(function (e) {
     return roster.switchState(roster.STATE_PERMISSIONS);
+  });
+
+  $('#navbar_card_game_link > span > a').click(function (e) {
+    return roster.switchState(roster.STATE_CARD_GAME);
   });
 };
 
