@@ -80,36 +80,10 @@ ASN_INE.togglePeerAssessment = function(element)
 	$("#site").parent().prop("class", "");
 	$("#site").parent().prop("style", "");
 
-	ASN_INE.setGroupAssignmentRadioEnabled(!element.checked);
 	if (element.checked)
 	{
 		section.style.display="block";
 		ASN.resizeFrame('grow');
-	}
-};
-
-ASN_INE.setGroupAssignmentRadioEnabled = function(enabled)
-{
-	var groupAssignRadio = document.getElementById("groupAssignment");
-	if (groupAssignRadio !== null)
-	{
-		var label = document.getElementById("groupAssignmentCheckboxLabel");
-		var peerInUseMsg = document.getElementById("msgNoGroupAssignmentPeerInUse");
-		if (enabled)
-		{
-			if (ASN_INE.canEnableGroupAsnOption())
-			{
-				groupAssignRadio.disabled = false;
-				label.classList.remove("disabled");
-			}
-			peerInUseMsg.style.display = "none";
-		}
-		else
-		{
-			groupAssignRadio.disabled = true;
-			label.classList.add("disabled");
-			peerInUseMsg.style.display = "inline";
-		}
 	}
 };
 
@@ -138,11 +112,7 @@ ASN_INE.handleGradeScaleChange = function(select, textfieldId)
 	var isPoints = ASN_INE.isGradeTypePoints();
 	pointsPanel.style.display = isPoints ? "block" : "none";
 
-	if (!isPoints) // we're switching away from points which means peer assessment is not valid, so re-enable the group option
-	{
-		ASN_INE.setGroupAssignmentRadioEnabled(true);
-	}
-	else // we're switching to points, peer assessment may already be enabled
+	if (isPoints) // we're switching to points
 	{
 		if (pointsField !== null && !/\d/.test(pointsField.value))
 		{
@@ -152,22 +122,7 @@ ASN_INE.handleGradeScaleChange = function(select, textfieldId)
 		{
 			pointsField.focus();
 		}
-		ASN_INE.evaluateAssignToOptionsForPeerAssessment();
 	}
-};
-
-// evaluate the state of the assign to options based on the current
-// state of peer assessment
-ASN_INE.evaluateAssignToOptionsForPeerAssessment = function()
-{
-	var peerCheck = document.getElementById("usePeerAssessment");
-	var gradeAsn = document.getElementById("gradeAssignment");
-	if (peerCheck === null || gradeAsn === null)
-	{
-		return;
-	}
-
-	ASN_INE.setGroupAssignmentRadioEnabled(!gradeAsn.checked || !peerCheck.checked);
 };
 
 ASN_INE.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWithGbRadioId)
@@ -185,47 +140,6 @@ ASN_INE.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWit
 	panel.style.display = checkbox.checked ? "block" : "none";
 };
 
-// evaluate the state of the peer assessment option based on the current group
-// assignment setting.
-ASN_INE.evaluatePeerAssessmentOption = function()
-{
-	var groupAsn = document.getElementById("groupAssignment");
-	var isGroup = groupAsn !== null && groupAsn.checked;
-	var peerCheck = document.getElementById("usePeerAssessment");
-	if (peerCheck === null)
-	{
-		return;
-	}
-
-	if (isGroup && peerCheck.checked)
-	{
-		peerCheck.click();
-	}
-	ASN_INE.disablePeerAssessment(isGroup);
-};
-
-ASN_INE.disablePeerAssessment = function(disable)
-{
-	var peerCheck = document.getElementById("usePeerAssessment");
-	if (peerCheck === null)
-	{
-		return;
-	}
-
-	peerCheck.disabled = disable;
-	var label = document.getElementById("peerAssessmentCheckboxLabel");
-	if (disable)
-	{
-		label.classList.add("disabled");
-		document.getElementById("peerGroupAsnWarn").style.display = "block";
-	}
-	else
-	{
-		label.classList.remove("disabled");
-		document.getElementById("peerGroupAsnWarn").style.display = "none";
-	}
-};
-
 ASN_INE.handleGradebookRadioClick = function(radio, addToGbRadioId)
 {
 	var catSelect = document.getElementById("category");
@@ -238,15 +152,6 @@ ASN_INE.handleGradebookRadioClick = function(radio, addToGbRadioId)
 	if (itemSelect !== null)
 	{
 		itemSelect.disabled = isAdd;
-	}
-};
-
-ASN_INE.handleAssignToChangeForPeerAssessment = function()
-{
-	var peerCheck = document.getElementById("usePeerAssessment");
-	if (peerCheck !== null)
-	{
-		ASN_INE.evaluatePeerAssessmentOption();
 	}
 };
 
