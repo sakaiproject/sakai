@@ -559,6 +559,11 @@
     --timer-bar-low-bg: var(--sakai-color-red--lighter-1);
 
     --progress-bar-bg: var(--sakai-color-blue--lighter-6);
+
+    // S2U-42 Bootstrap thumbnails
+    // TODO Master merge: Remove thumbnail customization in favor of card
+    --sakai-thumbnail-background-color: var(--sakai-background-color-1);
+    --sakai-thumbnail-border-color: var(--sakai-border-color);
 }
 
 // Tables
