@@ -541,13 +541,28 @@ function printView(url) {
 											#else
 												<span>
 											#end
-											#if($reviewersMap.containsKey($item.getId().getAssessorUserId()))
-												$formattedText.escapeHtml($!reviewersMap.get($item.getId().getAssessorUserId()).sortName)
+											#if($assignment.isGroup)
+												#if($groupsReviewersMap.containsKey($item.getId().getAssessorUserId()))
+													$formattedText.escapeHtml($!groupsReviewersMap.get($item.getId().getAssessorUserId()).title)
+												#else
+													$formattedText.escapeHtml($!item.getId().getAssessorUserId())
+												#end
 											#else
-												$formattedText.escapeHtml($!item.getId().getAssessorUserId())
+												#if($reviewersMap.containsKey($item.getId().getAssessorUserId()))
+													$formattedText.escapeHtml($!reviewersMap.get($item.getId().getAssessorUserId()).sortName)
+												#else
+													$formattedText.escapeHtml($!item.getId().getAssessorUserId())
+												#end
 											#end
 											</span>
 											</a>
+											<sakai-rubric-student-button
+												tool-id="sakai.assignment"
+												evaluated-item-id="$!item.getId().getAssessorUserId()"
+												entity-id="$assignment.Id"
+												evaluated-item-owner-id="$!submitterId"
+												instructor="true">
+											</sakai-rubric-student-button>
 											#if($!item.getScoreDisplay().length() > 0 || ($!item.getComment() && $!item.getComment().trim().length() > 0))
 												<span class="highlight" #if($item.Removed) style="text-decoration: line-through" #end>
 													#if($item.isDraft())
@@ -589,6 +604,7 @@ function printView(url) {
 										dont-check-association
 										tool-id="sakai.assignment"
 										evaluated-item-id="$submission.Id"
+										evaluated-item-owner-id="$!submitterId"
 										entity-id="$assignment.Id"
 										instructor="true">
 									</sakai-rubric-student-button>

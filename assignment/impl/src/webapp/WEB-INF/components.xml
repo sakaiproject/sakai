@@ -197,6 +197,7 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.conversion.AssignmentConversionService"
