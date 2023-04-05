@@ -114,14 +114,14 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
     @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf", joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"))
     @MapKeyColumn(name = "parameter_label")
     @Fetch(FetchMode.SUBSELECT)
-    private Map<String, Boolean> parameters;
+    private Map<String, Integer> parameters;
 
     public Map<String, String> getFormattedAssociation() {
 
         Map<String, String> formattedParams = new HashMap<>();
         formattedParams.put(RubricsConstants.RBCS_ASSOCIATE,"1");
         formattedParams.put(RubricsConstants.RBCS_LIST, String.valueOf(rubric.getId()));
-        parameters.forEach((k, v) -> formattedParams.put(RubricsConstants.RBCS_CONFIG + k, String.valueOf(v ? 1 : 0)));
+        parameters.forEach((k, v) -> formattedParams.put(k, String.valueOf(v)));
         return formattedParams;
     }
 }

@@ -44,7 +44,6 @@ class Submission {
       if (init.groupId) {
         const group = groups.find(g => g.id === init.groupId);
         this.groupTitle = group.title;
-        this.groupRef = group.reference;
         this.groupMembers = init.submitters.map(s => s.displayName).join(", ");
       }
 
