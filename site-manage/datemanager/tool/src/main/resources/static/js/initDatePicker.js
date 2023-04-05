@@ -128,8 +128,21 @@ DTMN.attachDatePicker = function (selector, updates, notModified) {
     }
     // Disable feedback start and end date inputs if feedback on date not used (assessments)
     if (dataTool === 'assessments' && (dataField === 'feedback_start' || dataField === 'feedback_end')) {
-      var disabled = !updates[dataTool][dataIdx].feedback_by_date;
+      const disabled = !updates[dataTool][dataIdx].feedback_by_date || (updates[dataTool][dataIdx].feedback_by_date && updates[dataTool][dataIdx].exceptions);
       $(elt).prop('disabled', disabled);
+      if (disabled === true && updates[dataTool][dataIdx].feedback_by_date && updates[dataTool][dataIdx].exceptions) {
+        $td.append(`
+          <a tabindex="0" style="cursor: pointer; text-decoration: none;"
+              class="si si-info-circle"
+              data-bs-toggle="popover"
+              data-bs-trigger="focus"
+              data-bs-container="body"
+              data-bs-placement="auto"
+              data-bs-content="${DTMN.i18n.samigo_exceptions_instruction}">
+            <span class="sr-only">${DTMN.i18n.samigo_exceptions_instruction}</span>
+          </a>`
+        );
+      }
       $td.find('.ui-datepicker-trigger').prop('disabled', disabled);
     }
     if (dataTool === 'forums' && (dataField === 'open_date' || dataField === 'due_date')) {

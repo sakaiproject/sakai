@@ -18,6 +18,12 @@
       /*]]>*/
     </script>
     <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+    <script th:inline="javascript">
+
+        var DTMN = DTMN || {};
+        DTMN.i18n = DTMN.i18n || {};
+        DTMN.i18n.samigo_exceptions_instruction = [[#{samigo.exceptions.instruction}]];
+    </script>
     <script th:src="@{/js/initDatePicker.js}"></script>
     <meta http-equiv="Content-Style-Type" content="text/css" />
 
