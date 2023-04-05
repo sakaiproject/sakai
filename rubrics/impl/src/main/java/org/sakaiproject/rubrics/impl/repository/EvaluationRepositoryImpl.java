@@ -53,6 +53,20 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         return session.createQuery(query).uniqueResultOptional();
     }
 
+    public Optional<Evaluation> findByAssociationIdAndEvaluatedItemIdAndOwner(Long associationId, String evaluatedItemId, String evaluatedItemOwnerId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> eval = query.from(Evaluation.class);
+        query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+                            cb.equal(eval.get("evaluatedItemId"), evaluatedItemId),
+                            cb.equal(eval.get("evaluatedItemOwnerId"), evaluatedItemOwnerId)));
+
+        return session.createQuery(query).uniqueResultOptional();
+    }
+
     public Optional<Evaluation> findByAssociationIdAndUserId(Long associationId, String userId) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -60,22 +74,7 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
         Root<Evaluation> eval = query.from(Evaluation.class);
-        //Join<Evaluation, ToolItemRubricAssociation> ass = eval.join("association");
         query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
-                            cb.equal(eval.get("evaluatedItemOwnerId"), userId)));
-
-        return session.createQuery(query).uniqueResultOptional();
-    }
-
-    public Optional<Evaluation> findByAssociation_ItemIdAndUserId(String itemId, String userId) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
-        Root<Evaluation> eval = query.from(Evaluation.class);
-        Join<Evaluation, ToolItemRubricAssociation> ass = eval.join("association");
-        query.where(cb.and(cb.equal(ass.get("itemId"), itemId),
                             cb.equal(eval.get("evaluatedItemOwnerId"), userId)));
 
         return session.createQuery(query).uniqueResultOptional();

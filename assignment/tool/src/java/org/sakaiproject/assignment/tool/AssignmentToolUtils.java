@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,6 +50,9 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti13.LineItemUtil;
 import org.sakaiproject.lti13.util.SakaiLineItem;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -81,6 +85,7 @@ public class AssignmentToolUtils {
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     private GradebookFrameworkService gradebookFrameworkService;
     private GradebookService gradebookService;
+    private RubricsService rubricsService;
     private TimeService timeService;
     private ToolManager toolManager;
     private LTIService ltiService;
@@ -822,4 +827,41 @@ public class AssignmentToolUtils {
             }
         }
     }
+
+    public boolean hasRubricSelfReview(String assignmentId) {
+        try {
+            Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
+            if (rubricAssociation.isPresent()) {
+                return Integer.valueOf(1).equals(rubricAssociation.get().getParameters().get(RubricsConstants.RBCS_STUDENT_SELF_REPORT));
+            }
+        } catch (Exception e) {
+            log.warn("Error trying to retrieve rubrics association for assignment : {}", e.getMessage());
+        }
+        return false;
+    }
+
+    public int getRubricSelfReviewMode(String assignmentId) {
+        try {
+            Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
+            if (rubricAssociation.isPresent()) {
+                return rubricAssociation.get().getParameters().get(RubricsConstants.RBCS_STUDENT_SELF_REPORT_MODE);
+            }
+        } catch (Exception e) {
+            log.warn("Error trying to retrieve rubrics association for assignment : {}", e.getMessage());
+        }
+        return -1;
+    }
+
+    public boolean hasRubricHiddenToStudent(String assignmentId) {
+        try {
+            Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
+            if (rubricAssociation.isPresent()) {
+                return Integer.valueOf(1).equals(rubricAssociation.get().getParameters().get("hideStudentPreview"));
+            }
+        } catch (Exception e) {
+            log.warn("Error trying to retrieve rubrics association for assignment : {}", e.getMessage());
+        }
+        return false;
+    }
+
 }

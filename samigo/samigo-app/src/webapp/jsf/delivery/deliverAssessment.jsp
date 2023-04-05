@@ -341,7 +341,8 @@ document.links[newindex].onclick();
            site-id='<h:outputText value="#{delivery.siteId}" />'
            tool-id="sakai.samigo"
            entity-id='<h:outputText value="#{delivery.rubricAssociation}.#{question.effectiveItemId}"/>'
-           evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'>
+           evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'
+           evaluated-item-owner-id='<h:outputText value="#{person.id}" />'>
          </sakai-rubric-student>
        </h:panelGroup>
 

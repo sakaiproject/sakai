@@ -578,7 +578,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 tool-id="${this.toolId}"
                 entity-id="${this.entityId}"
                 evaluated-item-id="${this.submission.id}"
-                evaluated-item-owner-id="${this.submission.groupRef || this.submission.firstSubmitterId}"
+                evaluated-item-owner-id="${this.submission.groupId || this.submission.firstSubmitterId}"
                 ?group=${this.submission.groupId}
                 ?enable-pdf-export=${this.enablePdfExport}
                 @total-points-updated=${this.onTotalPointsUpdated}
