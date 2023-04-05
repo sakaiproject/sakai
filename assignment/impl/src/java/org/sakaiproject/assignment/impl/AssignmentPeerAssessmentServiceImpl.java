@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
@@ -42,10 +45,14 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.springframework.orm.hibernate5.HibernateCallback;
@@ -56,10 +63,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport implements AssignmentPeerAssessmentService {
 
-    private ScheduledInvocationManager scheduledInvocationManager;
-    protected AssignmentService assignmentService;
-    private SecurityService securityService = null;
-    private SessionManager sessionManager;
+    @Getter @Setter private ScheduledInvocationManager scheduledInvocationManager;
+    @Getter @Setter protected AssignmentService assignmentService;
+    @Getter @Setter private SecurityService securityService = null;
+    @Getter @Setter private SessionManager sessionManager;
+    @Getter @Setter private SiteService siteService;
 
     public void schedulePeerReview(String assignmentId) {
         //first remove any previously scheduled reviews:
@@ -108,25 +116,27 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 //keep track of how many assessor's each student has
                 Map<String, Integer> studentAssessorsMap = new HashMap<String, Integer>();
                 List<User> submitterUsersList = assignmentService.allowAddSubmissionUsers(assignmentService.createAssignmentEntity(assignment.getId()).getReference());
-                List<String> submitterIdsList = new ArrayList<String>();
+                Set<String> submitterIdsList = new HashSet<String>();
                 if (submitterUsersList != null) {
                     for (User u : submitterUsersList) {
-                        submitterIdsList.add(u.getId());
+                        String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, u.getId());
+                        submitterIdsList.add(submitterId);
                     }
                 }
                 //loop through the assignment submissions and setup the maps and lists
                 for (AssignmentSubmission s : submissions) {
                     Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);
                     List<String> submitteeIds = s.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
+                    String submitterId = ass.isPresent() ? assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter()) : "";
                     //check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
                     if (s.getDateSubmitted() != null && (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
-                            && CollectionUtils.containsAny(submitterIdsList,submitteeIds)
+                            && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && submitterIdsList.contains(submitterId)))
                             && !s.getSubmitters().contains("admin")) {
                         //only deal with users in the submitter's list
                         submissionIdMap.put(s.getId(), s);
                         if (ass.isPresent()) {
-                            assignedAssessmentsMap.put(ass.get().getSubmitter(), new HashMap<>());
-                            studentAssessorsMap.put(ass.get().getSubmitter(), 0);
+                            assignedAssessmentsMap.put(submitterId, new HashMap<>());
+                            studentAssessorsMap.put(submitterId, 0);
                         }
                     }
                 }
@@ -151,13 +161,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         //first, add this assessment to the AssignedAssessmentsMap
                         AssignmentSubmission s = submissionIdMap.get(p.getId().getSubmissionId());
                         Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//Next, increment the count for studentAssessorsMap
-                        Integer count = ass.isPresent() ?studentAssessorsMap.get(ass.get().getSubmitter()) : 0;
+                        String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
+                        Integer count = ass.isPresent() ? studentAssessorsMap.get(submitterId) : 0;
 
                         //check if the count is less than num of reviews before added another one,
                         //otherwise, we need to delete this one (if it's empty)
                         if (count < numOfReviews || p.getScore() != null || p.getComment() != null) {
                             count++;
-                            studentAssessorsMap.put(ass.get().getSubmitter(), count);
+                            studentAssessorsMap.put(submitterId, count);
                             Map<String, PeerAssessmentItem> peerAssessments = assignedAssessmentsMap.get(p.getId().getAssessorUserId());
                             if (peerAssessments == null) {
                                 //probably not possible, but just check
@@ -185,7 +196,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 for (String submissionId : randomSubmissionIds) {
                     AssignmentSubmission s = submissionIdMap.get(submissionId);
                     Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//first find out how many existing items exist for this user:
-                    Integer assignedCount = ass.isPresent() ? studentAssessorsMap.get(ass.get().getSubmitter()) : 0;
+                    String studentId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
+                    Integer assignedCount = ass.isPresent() ? studentAssessorsMap.get(studentId) : 0;
                     //by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
                     //a submission and the same submission user left, making for uneven distributions of submission reviews
                     List<String> snakeSubmissionList = new ArrayList<String>(randomSubmissionIds.subList(i, randomSubmissionIds.size()));
@@ -194,7 +206,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                     while (assignedCount < numOfReviews) {
                         //we need to add more reviewers for this user's submission
-                        String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap, ass.get().getSubmitter(), submissionId, snakeSubmissionList, submissionIdMap);
+                        String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap, studentId, submissionId, snakeSubmissionList, submissionIdMap);
                         if (lowestAssignedAssessor != null) {
                             Map<String, PeerAssessmentItem> assessorsAssessmentMap = assignedAssessmentsMap.get(lowestAssignedAssessor);
                             if (assessorsAssessmentMap == null) {
@@ -237,7 +249,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             AssignmentSubmission s = submissionIdMap.get(sId);
             Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//do not include assesseeId (aka the user being assessed)
             if (ass.isPresent()) {
-            	String submitter = ass.get().getSubmitter();
+                String submitter = assignmentService.getSubmitterIdForAssignment(s.getAssignment(), ass.get().getSubmitter());
                 if (!assesseeId.equals(submitter) &&
                         (lowestAssignedAssessorCount == null || peerAssessments.get(submitter).keySet().size() < lowestAssignedAssessorCount)) {
                     //check if this user already has a peer assessment for this assessee
@@ -485,31 +497,6 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             securityService.popAdvisor(sa);
         }
         return saved;
-    }
-
-    public void setScheduledInvocationManager(
-            ScheduledInvocationManager scheduledInvocationManager) {
-        this.scheduledInvocationManager = scheduledInvocationManager;
-    }
-
-    public void setAssignmentService(AssignmentService assignmentService) {
-        this.assignmentService = assignmentService;
-    }
-
-    public SecurityService getSecurityService() {
-        return securityService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
     }
 
 }

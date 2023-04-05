@@ -698,11 +698,11 @@ ASN.enableSubmitUnlessNoFile = function(checkForFile)
 
     if (doEnable)
     {
-        btnPost.removeAttribute('disabled');
+        btnPost.disabled = false;
     }
     else
     {
-        btnPost.setAttribute('disabled', 'disabled');
+        btnPost.disabled = true;
     }
 };
 
@@ -983,6 +983,76 @@ ASN.disableTimesheetSetupSection = function()
 }
 
 $(document).ready(() => {
+  //peer-review and self-report
+  $('body').on('rubric-association-loaded', e => {
+    const dontAssociateCheck = document.getElementById("dont-associate-radio");
+    const doAssociateCheck = document.getElementById("do-associate-radio");
+    const studentSelfReport = document.getElementById('rbcs-config-studentSelfReport');
+    const usePeerAssessment = document.getElementById("usePeerAssessment");
+
+    if(doAssociateCheck.checked) {
+      //page-loading
+      if (studentSelfReport.checked) {
+        // We do a click to hide "peerAssessmentOptions" container
+        if (usePeerAssessment.checked) {
+          usePeerAssessment.click();
+        }
+        usePeerAssessment.disabled = true;
+      } else {
+        usePeerAssessment.disabled = false;
+      }
+
+      if (usePeerAssessment.checked) {
+        studentSelfReport.disabled = true;
+        studentSelfReport.checked = false;
+      } else {
+        studentSelfReport.disabled = false;
+      }
+    }
+
+    doAssociateCheck.addEventListener("change", function() {
+        studentSelfReport.disabled = false;
+        studentSelfReport.checked = false;
+    });
+
+    dontAssociateCheck.addEventListener("change", function() {
+        usePeerAssessment.disabled = false;
+        studentSelfReport.checked = false;
+    });
+    
+    //event manage
+    studentSelfReport.addEventListener("change", function() {
+      if (studentSelfReport.checked) {
+        // We do a click to hide "peerAssessmentOptions" container
+        if (usePeerAssessment.checked) {
+          usePeerAssessment.click();
+        }
+        usePeerAssessment.disabled = true;
+      } else {
+        usePeerAssessment.disabled = false;
+      }
+    });
+    usePeerAssessment.addEventListener("change", function() {
+      if (usePeerAssessment.checked) {
+        studentSelfReport.disabled = true;
+        studentSelfReport.checked = false;
+      } else if (doAssociateCheck.checked) {
+        studentSelfReport.disabled = false;
+      }
+    });
+  });
+
+  $("#peer-accordion").accordion({
+    heightStyle: 'content',
+    active: 0,
+    collapsible: true,
+    change: function (event, ui) {
+      ASN.resizeFrame();
+    },
+    activate: function (event, ui) {
+      ASN.resizeFrame();
+    }
+  });
 
   $("#infoImg").popover({html : true});
 
@@ -1007,6 +1077,10 @@ $(document).ready(() => {
     [...document.getElementsByTagName("sakai-rubric-student-button")].forEach(b => promises.push(b.releaseEvaluation()));
     Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
   });
+  const confirmButton = document.getElementById("confirm");
+  confirmButton && confirmButton.addEventListener("click", saveRubric);
+  const postButton = document.getElementById("post");
+  postButton && postButton.addEventListener("click", saveRubric);
 
   // If grade is released, rubric must be released too
   const gradeIsReleasedInput = document.getElementById("grade-is-released");

@@ -1,12 +1,24 @@
 <!-- start: check_assignments_instructor_grading_submission.vm  -->
+#rubricsRequirements
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
 	$(document).ready(function(){
 		ASN.setupPeerReviewAttachment();
+		document.body.addEventListener('total-points-updated', (e) => {
+			e.stopPropagation();
+			const gradeField = document.getElementById('grade');
+			if(gradeField) {
+			  gradeField.value = e.detail.value;
+			}
+		});
+
      });
 </script>
 <div class="portletBody">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
+	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
+		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
+		#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
+	#end
 	## confirmation
 	#if ($!gradingDone)
 		<div class="success">
@@ -44,7 +56,9 @@
 					#assignmentIcons($assignment)
 					<span class="highlight"> -
 					$tlang.getString("gen.reviewing"):&nbsp;
-					#if(!$view_only && $assignment.getPeerAssessmentAnonEval())
+					#if(!$view_only && $assignment.getPeerAssessmentAnonEval() && $assignment.IsGroup)
+						$tlang.getString("group")
+					#elseif (!$view_only && $assignment.getPeerAssessmentAnonEval())
 						$tlang.getString("gen.student")
 					#elseif ($value_CheckAnonymousGrading)
 						$formattedText.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
@@ -53,7 +67,11 @@
 					#end
 					#if($view_only)
 						<br/>
-						$tlang.getFormattedMessage("gen.reviewer.who", $formattedText.escapeHtml($reviewer.getDisplayName()), $formattedText.escapeHtml($reviewer.getDisplayId()))
+						#if ($assignment.IsGroup)
+							$tlang.getFormattedMessage("gen.reviewer.who", $formattedText.escapeHtml($reviewer.getTitle()), $formattedText.escapeHtml($reviewer.getId()))
+						#else
+							$tlang.getFormattedMessage("gen.reviewer.who", $formattedText.escapeHtml($reviewer.getDisplayName()), $formattedText.escapeHtml($reviewer.getDisplayId()))
+						#end
 					#else
 						($reviewNumber $tlang.getString("gen.of") $totalReviews)
 						<br/>
@@ -159,6 +177,45 @@
 				#end
 
 						#if ($withGrade)
+
+							#if ($!hasAssociatedRubric)
+								#if ($!view_only)
+								<sakai-rubric-student
+									site-id="$assignment.context"
+									tool-id="sakai.assignment"
+									entity-id="$assignment.Id"
+									evaluated-item-id="$assessorId"
+									is-peer-or-self="true"
+									#if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
+										is-peer-group-graded="true"
+									#end
+									#if ($!assignment.isGroup)
+										evaluated-item-owner-id="$ownerGroupId"
+									#else
+										evaluated-item-owner-id="$submitterId"
+									#end
+
+								></sakai-rubric-student>
+								#else
+								<sakai-rubric-grading
+									site-id="$assignment.context"
+									tool-id="sakai.assignment"
+									entity-id="$assignment.Id"
+									evaluated-item-id="$assessorId"
+									is-peer-or-self="true"
+									#if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
+										is-peer-group-graded="true"
+									#end
+									#if ($!assignment.isGroup)
+										evaluated-item-owner-id="$ownerGroupId"
+										group
+									#else
+										evaluated-item-owner-id="$submitterId"
+									#end
+								></sakai-rubric-grading>
+								#end
+							#end
+
 							<div class="highlightPanel" style="width:80%">
 								#set ($gradeType = $assignment.TypeOfGrade.ordinal())
 								<p class="shorttext">
@@ -448,7 +505,7 @@
 						#end
 					#else
 						<input type="button" id="post" name="returnSubmit" value="$tlang.getString('gen.subm3')" class="active" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'submitgrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.subm3")" />
-						<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.sav")" />
+						<input type="button" id="save" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.sav")" />
 						<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgrade_review', null, null ); return false;" />
 					#end
 					#if ($!prevSubmissionId)
