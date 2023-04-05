@@ -1,5 +1,5 @@
 <!-- start: chef_assignments_student_confirm_submission.vm -->
-###header_append("<script type=${quote}text/javascript${quote}>includeWebjarLibrary(${quote}bootstrap${quote});</script>")
+#rubricsRequirements
 
 <script>
 	$(document).ready(function(){
@@ -128,6 +128,26 @@
             </tr>
         #end
     </table>
+    #if ($!rubricSelfReport)
+    <h1>$tlang.getString("autoevaluation")</h1>
+    <sakai-rubric-student
+        tool-id="sakai.assignment"
+        entity-id="$assignment.Id"
+        is-peer-or-self="true"
+        #if ($!assignment.isGroup)
+            evaluated-item-id="$selectedGroup"
+            evaluated-item-owner-id="$selectedGroup"
+            group
+        #else
+            evaluated-item-id="$submitter.Id"
+            evaluated-item-owner-id="$submitter.Id"
+        #end
+    ></sakai-rubric-student>
+    <p class="instruction">
+        $tlang.getString("reviewrubric")
+    </p>
+    #end
+
     <h4>
         $tlang.getString("gen.submission")
     </h4>
