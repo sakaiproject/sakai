@@ -20,7 +20,52 @@ $(document).ready(function(){
         $('.cloned a').show();
         ASN.resizeFrame('grow');
     });
-    
+    $('body').on('rubrics-grading-loaded', e => {
+        const studentSelfReportMode = $studentSelfReportMode;
+        switch (studentSelfReportMode) {
+            // The student has to select a criteria on every criterion
+            case 0:
+            default:
+                if($('.sakai-rubric-criteria-grading').length) {
+                    $('body').on('rubric-ratings-changed', e => {
+                        const criterionRatingsLength = $('.criterion-ratings').length;
+                        const ratingsSelected = $('.rating-item.selected').length;
+                        if (ratingsSelected === criterionRatingsLength) {
+                            disableSubmitButtons(false);
+                        } else {
+                            disableSubmitButtons(true);
+                        }
+                    });
+                }
+                break;
+
+            // The student has to select at least one criteria in one criterion
+            case 1:
+                if($('.sakai-rubric-criteria-grading').length) {
+                    $('body').on('rubric-ratings-changed', e => {
+                        const ratingsSelected = $('.rating-item.selected').length;
+                        if (ratingsSelected > 0) {
+                            disableSubmitButtons(false);
+                        } else {
+                            disableSubmitButtons(true);
+                        }
+                    });
+                }
+                break;
+
+            // The student is not required to select any criteria
+            case 2:
+                disableSubmitButtons(false);
+                break;
+        }
+    });
+
+    function disableSubmitButtons(disabled) {
+        document.getElementById('confirm').disabled = disabled;
+        document.getElementById('preview').disabled = disabled;
+        document.getElementById('save').disabled = disabled;
+    }
+
 });
 </script>
 ## Include other javascript specific to this page
@@ -368,10 +413,14 @@ $(document).ready(function(){
 
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
+		#if (!$!rubricSelfReport)
 		<sakai-rubric-student-preview-button
 			site-id="$context"
 			tool-id="sakai.assignment"
-			entity-id="$assignment.Id"></sakai-rubric-student-preview-button>
+			entity-id="$assignment.Id">
+		</sakai-rubric-student-preview-button>
+		#end
+
 
 		#if ($submission.Graded && ($submission.GradeReleased || $returned))
 		<sakai-rubric-student
@@ -380,6 +429,7 @@ $(document).ready(function(){
 			entity-id="$assignment.Id"
 			evaluated-item-id="$submission.Id"
 			enable-pdf-export="$enablePdfExport"
+			evaluated-item-owner-id="$submitter.id"
 		></sakai-rubric-student>
 		#end
 
@@ -454,6 +504,32 @@ $(document).ready(function(){
 		<input type="hidden" name="option" id="option" value="cancel" />
 		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignmentReference" />
+		
+		#if ($!rubricSelfReport)
+		<p class="instruction">
+			#if ($studentSelfReportMode == 0)
+				$tlang.getString("youhavetorubric")
+			#elseif ($studentSelfReportMode == 1)
+				$tlang.getString("youhavetorubricone")
+			#elseif ($studentSelfReportMode == 2)
+				$tlang.getString("youmustrubric")
+			#end
+		</p>
+		<sakai-rubric-grading
+			site-id="$context"
+			tool-id="sakai.assignment"
+			entity-id="$assignment.Id"
+			#if ($!assignment.isGroup)
+				evaluated-item-id="$selectedGroup"
+				evaluated-item-owner-id="$selectedGroup"
+				group
+			#else
+				evaluated-item-id="$submitter.id"
+				evaluated-item-owner-id="$submitter.id"
+			#end
+			is-peer-or-self="true" 
+		></sakai-rubric-grading>
+		#end
 
 		#if ($!canSubmit)
 			## if a draft submission or the submission has been returned and has not yet submitted
