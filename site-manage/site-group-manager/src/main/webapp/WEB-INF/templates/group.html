@@ -32,7 +32,7 @@
       </div>
       <div class="mb-2">
         <label for="groupAllowViewMembership" class="form-control-label block">
-          <input id="groupAllowViewMembership" class="form-control" type="checkbox" th:field="*{groupAllowViewMembership}" th:checked="${groupForm.groupAllowViewMembership}"/>
+          <input id="groupAllowViewMembership" class="form-check-input" type="checkbox" th:field="*{groupAllowViewMembership}" th:checked="${groupForm.groupAllowViewMembership}"/>
           <span th:text="#{groups.allowviewmembership}"></span>
         </label>
       </div>
@@ -50,13 +50,13 @@
           <div class="card text-dark bg-light mb-3 p-3">
             <div class="form-check">
               <label for="groupAllowPreviewMembership" class="form-control-label block">
-                <input id="groupAllowPreviewMembership" class="form-control" type="checkbox" th:field="*{groupAllowPreviewMembership}" th:checked="${groupForm.groupAllowPreviewMembership}"/>
+                <input id="groupAllowPreviewMembership" class="form-check-input" type="checkbox" th:field="*{groupAllowPreviewMembership}" th:checked="${groupForm.groupAllowPreviewMembership}"/>
                 <span th:text="#{groups.joinableset.allowpreviewmembership}"></span>
               </label>
             </div>
             <div class="form-check">
               <label for="groupUnjoinable" class="form-control-label block">
-                <input id="groupUnjoinable" class="form-control" type="checkbox" th:field="*{groupUnjoinable}" th:checked="${groupForm.groupUnjoinable}"/>
+                <input id="groupUnjoinable" class="form-check-input" type="checkbox" th:field="*{groupUnjoinable}" th:checked="${groupForm.groupUnjoinable}"/>
                 <span th:text="#{groups.joinableset.allowunjoin}"></span>
               </label>
             </div>
@@ -70,7 +70,7 @@
         <div class="col-sm-8">
           <div class="form-check block">
             <label for="groupJoinableShowAllUsers" class="form-control-label">
-              <input id="groupJoinableShowAllUsers" class="form-control" type="checkbox" th:field="*{groupJoinableShowAllUsers}" th:checked="${groupForm.groupJoinableShowAllUsers}"/>
+              <input id="groupJoinableShowAllUsers" class="form-check-input" type="checkbox" th:field="*{groupJoinableShowAllUsers}" th:checked="${groupForm.groupJoinableShowAllUsers}"/>
               <span th:text="#{groups.joinableset.show.all}">Show all site participants, even if they already joined a group of this joinable set</span>
             </label>
             <a class="si si-info-circle" tabindex="0" data-placement="bottom" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" th:attr="data-bs-content=''+#{groups.joinableset.show.all.info}+''"></a>
