@@ -65,8 +65,8 @@ export default {
     handleClick(item, event) {
       this.selectedId = item.id;
       if (event) {
-      event.preventDefault()
-    }
+        event.preventDefault();
+      }
       if (item.route) {
         this.handleRoute(item.route);
       } else if (item.action) {

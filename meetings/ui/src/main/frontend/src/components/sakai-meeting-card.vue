@@ -70,16 +70,6 @@
         </template>
         <template #body>{{ description }}</template>
       </sakai-modal>
-      <div v-if="false" class="d-flex gap-1 my-2">
-        <sakai-avatar
-          v-for="participant in shownParticipants"
-          :key="participant.userid"
-          :userId="participant.userid"
-          :text="participant.text"
-          :userName="participant.name"
-          :size="avatarHeight"
-        />
-      </div>
       <sakai-avatar-list
         :userlist="shownParticipants"
         :avatarsize="avatarHeight"
@@ -158,7 +148,6 @@ h2 {
 
 <script>
 import "string.prototype.format";
-import SakaiAvatar from "./sakai-avatar.vue";
 import SakaiAvatarList from "./sakai-avatar-list.vue";
 import SakaiIcon from "./sakai-icon.vue";
 import SakaiButton from "./sakai-button.vue";
@@ -182,7 +171,6 @@ dayjs.extend(timezonePlugin);
 export default {
   name: "card",
   components: {
-    SakaiAvatar,
     SakaiAvatarList,
     SakaiIcon,
     SakaiButton,

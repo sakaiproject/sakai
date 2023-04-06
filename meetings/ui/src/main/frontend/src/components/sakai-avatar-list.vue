@@ -16,16 +16,14 @@
 </template>
 <script>
 import sakaiAvatar from "./sakai-avatar.vue";
+import i18nMixn from "../mixins/i18n-mixn.js";
 
 export default {
   components: { sakaiAvatar },
+  mixins: [i18nMixn],
   data() {
     return {
-      i18n: {
-        and: "and",
-        more: "more",
-        connectedParticipants: "Connected participants: ",
-      },
+      i18nProps: "card"
     };
   },
   props: {
@@ -47,18 +45,20 @@ export default {
       }
     },
     srText() {
-      let text = this.i18n.connectedParticipants;
-      this.shownUsers.forEach((element, index) => {
-        text += `${
-          element.name
-            ? element.name
-            : element.text
-            ? `${this.i18n.and} ${element.text.replace("+", "")} ${
-                this.i18n.more
-              }.`
-            : "error"
-        }${index <= this.shownUsers.length - 2 ? "," : ""} `;
-      });
+      let text = this.i18n.availableParticipants;
+      if(this.shownUsers.length > 0){
+        this.shownUsers.forEach((element, index) => {
+          text += `${
+            element.name
+              ? element.name
+              : element.text
+              ? this.i18n.and_x_more?.replace('{}', element.text.replace("+", ""))
+              : element.userid
+              ? element.userid
+              : "error"
+          }${index <= this.shownUsers.length - 2 ? "," : ""} `;
+        });
+      }
       return text;
     },
   },

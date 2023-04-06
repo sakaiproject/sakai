@@ -1251,14 +1251,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			Identity iden = new Identity();
 			iden.id = organizerUser.getId();
 			iden.displayName = organizerUser.getName();
-			//TODO: seguro que esto es así? (vamos a probar con user)
-			//organizerIdentity.application = iden; 
 			organizerIdentity.user = iden; 
 			organizer.identity = organizerIdentity;
 			organizer.role = OnlineMeetingRole.PRESENTER;
 			
 			// Participants
-			//TODO: include site/group participants?
 			MeetingParticipants participants = new MeetingParticipants();
 			participants.organizer = organizer;
 			

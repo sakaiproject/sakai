@@ -1,3 +1,4 @@
+import i18nMixn from "../mixins/i18n-mixn.js";
 
 let validateProp = {
   type: [Array, Object],
@@ -10,6 +11,7 @@ export default {
   props: {
     validate: validateProp, 
   },
+  mixins: [i18nMixn],
   computed: {
     validations() {
       let validations = [];
@@ -29,7 +31,11 @@ export default {
         });
       }
       if(this.validate) {
-        return [...validations, ...Array.of(this.validate)];
+        if(Array.isArray(this.validate)){
+          return [...validations, ...this.validate];
+        } else {
+          return [...validations, ...Array.of(this.validate)];
+        }
       } else {
         return validations;
       }
@@ -40,7 +46,7 @@ export default {
     validationStatus() {
       //Setup Status boject
       var status = {
-        isValid: false,
+        isValid: true,
         skipped: false,
         message: ''
       };
@@ -49,7 +55,7 @@ export default {
         let validationType = validationInput instanceof String || typeof validationInput === 'string'
           ? validationInput : validationInput.type;
         
-        let doValidate = validationInput.active !== undefined ? validationInput.active : this.hadInput;
+        let doValidate = validationInput?.active || this.hadInput;
 
         //Return if we are not validating yet
         if(!doValidate) {
@@ -57,17 +63,24 @@ export default {
           return;
         }
         status.skipped = false;
-
         switch(validationType) {
           case 'required':
             if(this.type === "checkbox" && this.value === false) {
-              status.message = validationInput.message ? validationInput.message : "This checkbox is required to be checked";
+              status.message = validationInput.message ? validationInput.message : this.i18n?.empty_checkbox;
               status.isValid = false;
-            } else if (this.value === undefined || this.value.trim() === "") {
-              status.message = validationInput.message ? validationInput.message : "This field is required to be filled out";
+            } else if (!this.value || this.value.trim() === "") {
+              status.message = validationInput.message ? validationInput.message : this.i18n?.empty_field;
               status.isValid = false;
             } else {
-              status.isValid = true;
+              status.isValid = status.isValid && true;
+            }
+            break;
+          case 'maxlength':
+            if (this.value && this.value.length > validationInput.value) {
+              status.message = validationInput.message ? validationInput.message : this.i18n?.maxlenght_field;
+              status.isValid = false;
+            } else {
+              status.isValid = status.isValid && true;
             }
             break;
           case 'custom':
@@ -77,7 +90,7 @@ export default {
               status.isValid = false;
             } else {
               //Is valid
-              status.isValid = true;
+              status.isValid = status.isValid && true;
             }
             break;
           default:
@@ -96,6 +109,7 @@ export default {
   data() {
     return { 
       hadInput: false,
+      i18nProps: "validations"
     };
   },
 };

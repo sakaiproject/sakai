@@ -1,14 +1,16 @@
 <template>
   <div>
     <label v-if="!isCheckbox" class="mb-1" :for="inputId">{{ title }}</label>
-    <textarea
+    <SakaiTextarea
       v-if="textarea"
       :id="inputId"
       :disabled="disabled"
-      class="form-control"
-      rows="10"
-      v-model="value"
+      :required="required"
+      :maxlength="maxlength"
+      :validate="validate"
+      v-model:value="value"
       @input="$emit('update:value', $event.target.value)"
+      @validation="$emit('validation', $event)"
     />
     <SakaiSelect
       v-else-if="select"
@@ -26,6 +28,7 @@
       :type="type"
       :disabled="disabled"
       :required="required"
+      :maxlength="maxlength"
       :checklabel="title"
       :validate="validate"
       @input="$emit('update:value', $event.target.value)"
@@ -45,6 +48,7 @@
 import { v4 as uuid } from "uuid";
 import SakaiInput from "./sakai-input.vue";
 import SakaiSelect from "./sakai-select.vue";
+import SakaiTextarea from "./sakai-textarea.vue";
 import { validateProp } from "../mixins/validation-mixin.js";
 
 export default {
@@ -55,7 +59,8 @@ export default {
   },
   components: {
     SakaiInput,
-    SakaiSelect
+    SakaiSelect,
+    SakaiTextarea
   },
   props: {
     title: {
@@ -85,6 +90,9 @@ export default {
       type: Boolean,
       default: false
     },
+    maxlength: {
+      type: Number
+    },
     disabled: {
       type: Boolean,
       default: false
@@ -105,18 +113,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.sakai-area {
-  resize: auto;
-  background: var(--sakai-background-color-1);
-  color: var(--sakai-text-color-1);
-  border: 1px solid var(--sakai-border-color);
-  border-radius: 5px;
-  padding: 0.375rem;
-  width: 100%;
-}
-.sakai-area:focus {
-  outline: 3px solid var(--focus-outline-color);
-}
-</style>

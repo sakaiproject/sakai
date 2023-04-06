@@ -11,30 +11,31 @@
   [class^="col-"] {
     float: unset;
   }
-    
+
   .is-invalid ~ .invalid-feedback,
   .is-invalid ~ .invalid-tooltip,
   .was-validated :invalid ~ .invalid-feedback,
   .was-validated :invalid ~ .invalid-tooltip {
     display: block;
   }
-  
+
   .form-control,
   .form-control:focus {
     background-color: unset;
   }
-  
+
   legend {
     font-size: unset;
+
     &.form-label {
       font-weight: bold;
     }
   }
-  
+
   .fade {
     opacity: unset;
   }
-  
+
   .modal-header {
     &::before,
     &::after {

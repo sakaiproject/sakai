@@ -40,7 +40,8 @@ public class Meeting {
     @Column(name = "meeting_title", length = 255, nullable = false)
     private String title;
     
-    @Column(name = "meeting_description", length = 255)
+    // @Lob (for Oracle?)
+    @Column(name = "meeting_description", columnDefinition="TEXT")
     private String description;
     
     @Column(name = "meeting_site_id", length = 99)

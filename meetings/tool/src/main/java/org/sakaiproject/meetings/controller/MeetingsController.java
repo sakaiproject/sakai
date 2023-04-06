@@ -155,9 +155,16 @@ public class MeetingsController {
 	 * @throws MeetingsException
 	 */
 	private void checkCurrentUserInMeeting(String meetingId) throws MeetingsException {
+		if (sakaiProxy.isAdmin()) {
+			return;
+		}
 		List<Meeting> result = new ArrayList<>();
 		try {
 			Meeting meeting = meetingService.getMeeting(meetingId);
+			if(canUpdateSite(meeting.getSiteId())) {
+				return;
+			}
+			
 			Site site = sakaiProxy.getSite(meeting.getSiteId());
 			String userId = sakaiProxy.getCurrentUserId();
 			String siteId = site.getId();
@@ -228,47 +235,53 @@ public class MeetingsController {
 		if (optMeeting.isPresent()) {
 			Meeting meeting = optMeeting.get();
 			checkCurrentUserInSite(meeting.getSiteId());
-				Site site = sakaiProxy.getSite(meeting.getSiteId());
-				if(site != null) {
+			Site site = sakaiProxy.getSite(meeting.getSiteId());
+			if(site != null) {
 				for (MeetingAttendee attendee : meeting.getAttendees()) {
 					switch (attendee.getType()) {
-						case USER:
-							User user = sakaiProxy.getUser(attendee.getObjectId());
-							if(user != null) {
-								ParticipantData participant = new ParticipantData();
-								participant.setUserid(user.getId());
-								participants.add(participant);
-							} else {
-								log.error("Error retrieving participants");
-							}
-							
-							break;
-						case SITE:
-							site.getMembers().stream().forEach(member -> {
+					case USER:
+						User user = sakaiProxy.getUser(attendee.getObjectId());
+						if(user != null) {
+							ParticipantData participant = new ParticipantData();
+							participant.setUserid(user.getId());
+							participant.setName(user.getDisplayName());
+							participants.add(participant);
+						} else {
+							log.error("Error retrieving participants");
+						}
+						break;
+
+					case SITE:
+						site.getMembers().stream()
+							.sorted((o1, o2) -> o1.getUserId().compareTo(o2.getUserId()))
+							.forEach(member -> {
 								ParticipantData siteParticipant = new ParticipantData();
 								User siteUser = sakaiProxy.getUser(member.getUserId());
 								if(siteUser != null) {
 									siteParticipant.setUserid(siteUser.getId());
+									siteParticipant.setName(siteUser.getDisplayName());
 									participants.add(siteParticipant);
 								} else {
 									log.error("Error retrieving participants (SITE): userId={}", member.getUserId());
 								}
 							});
-							break;
-						case GROUP:
-							site.getMembersInGroups(Collections.singleton(attendee.getObjectId()))
+						break;
+
+					case GROUP:
+						site.getMembersInGroups(Collections.singleton(attendee.getObjectId()))
 							.stream().forEach(userId -> {
 								ParticipantData groupParticipant = new ParticipantData();
 								User groupUser = sakaiProxy.getUser(userId);
 								if(groupUser != null) {
 									groupParticipant.setUserid(groupUser.getId());
+									groupParticipant.setName(groupUser.getDisplayName());
 									participants.add(groupParticipant);
 								} else {
 									log.error("Error retrieving participants (GROUP): userId={}", userId);
 								}
 							});
-							break;
-						default: break;
+						break;
+					default: break;
 					}
 				}
 				return participants.stream().distinct().collect(Collectors.toList());
@@ -291,7 +304,7 @@ public class MeetingsController {
 		// Retrieve meetings for which the user has permission 
 		String userId = sakaiProxy.getCurrentUserId();
 		List<Meeting> meetingList = null;
-		if (sakaiProxy.isAdmin()) {
+		if (sakaiProxy.isAdmin() || canUpdateSite(siteId)) {
 			meetingList = meetingService.getAllMeetingsFromSite(siteId);
 		} else {
 			try {
@@ -455,10 +468,10 @@ public class MeetingsController {
 			meeting.setEndDate(Instant.parse(data.getEndDate()));
 			
 			if (MS_TEAMS.equals(data.getProvider())) {
-				User user = sakaiProxy.getCurrentUser();
+				String organizerEmail = meetingService.getMeetingProperty(meeting, ORGANIZER_USER);
 				String onlineMeetingId = meetingService.getMeetingProperty(meeting, ONLINE_MEETING_ID);
 				if(StringUtils.isNotBlank(onlineMeetingId)) {
-					microsoftCommonService.updateOnlineMeeting(user.getEmail(), onlineMeetingId, meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
+					microsoftCommonService.updateOnlineMeeting(organizerEmail, onlineMeetingId, meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
 				}
 			}
 			

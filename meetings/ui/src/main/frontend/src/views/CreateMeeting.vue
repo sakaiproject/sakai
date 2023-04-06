@@ -8,6 +8,7 @@
               :title="i18n.meeting_title"
               v-model:value="formdata.title"
               :required="true"
+              :maxlength="255"
               @validation="setValidation('title', $event)"
             />
           </div>
@@ -15,20 +16,12 @@
             <SakaiInputLabelled
               :title="i18n.meeting_description"
               textarea="true"
+              :maxlength="4000"
               v-model:value="formdata.description"
+              @validation="setValidation('description', $event)"
             />
           </div>
           <div class="col-md-6 col-xl-4">
-            <!--
-            <div class="row mt-3 align-items-md-end">
-              <div class="col">
-                <SakaiInputLabelled title="Preupload presentation" />
-              </div>
-              <div class="col-sm-12 col-md-auto mt-3">
-                <SakaiButton text="Add" class="w-100" />
-              </div>
-            </div>
-            -->
             <div class="row mt-3">
               <div class="col">
                 <SakaiInputLabelled
@@ -41,23 +34,6 @@
                 />
               </div>
             </div>
-            <!--
-            <div class="row mt-3">
-              <div class="col">
-                <div class="d-flex">
-                  <SakaiInputLabelled text="Record Meeting" type="checkbox"/>
-                </div>
-                <div class="d-flex">
-                  <SakaiInput type="checkbox" />
-                  <label class="ms-2" for="input">Disable Chat</label>
-                </div>
-                <div class="d-flex">
-                  <SakaiInput type="checkbox" />
-                  <label class="ms-2" for="input">Wait For Moderator</label>
-                </div>
-              </div>
-            </div>
-            -->
           </div>
         </div>
       </SakaiAccordionItem>
@@ -145,17 +121,6 @@
           </div>
         </div>
       </SakaiAccordionItem>
-      <!--
-      <SakaiAccordionItem title="5. Meeting Add-ons">
-        <div class="pb-4">
-          <div class="d-flex">
-            <SakaiInput type="checkbox" />
-            <label class="ms-2" for="input">Include Whiteboard</label>
-          </div>
-          <SakaiButton text="Add Poll" :primary="true" class="mt-3" />
-        </div>
-      </SakaiAccordionItem>
--->
     </SakaiAccordion>
     <div class="d-flex mt-5">
       <SakaiButton
@@ -234,7 +199,7 @@ export default {
           value: "users",
         },
       ],
-      validations: { title: false, provider: true, dateOpen: true, dateClose: true },
+      validations: { title: false, description: true, provider: true, dateOpen: true, dateClose: true },
       hadDateInput: false
     };
   },

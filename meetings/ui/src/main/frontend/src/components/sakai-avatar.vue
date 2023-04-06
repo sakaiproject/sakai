@@ -8,6 +8,7 @@
       :height="size"
       :style="imageStyle"
       :alt="altText"
+      :title="userName"
     />
     <div v-if="variant == 'placeholder'" :style="placeholderStyle">
       <sakai-icon iconkey="fileImage"></sakai-icon>
@@ -63,16 +64,12 @@ export default {
       }
     },
     borderRadius() {
-      return (
-        "border-radius:" +
-        (this.form === "square" ? this.sqareRadius : "50%") +
-        ";"
-      );
+      return { borderRadius: this.form === "square" ? this.sqareRadius : "50%" };
     },
     imageStyle() {
       var style = this.borderRadius;
       if (this.dark) {
-        style += "filter:brightness(75%);";
+        style['filter'] = 'brightness(75%)';
       }
       return style;
     },
@@ -86,20 +83,19 @@ export default {
       }
     },
     placeholderStyle() {
-      var style = this.borderRadius;
-      if (this.variant === "text") {
-        style += "background-color:" + this.placeholderBackgroundColor + ";";
-        style += "color:" + this.placeholderColor + ";";
-      } else {
-        style += "background-color:" + this.brokenBackgroundColor + ";";
-        style += "color:" + this.brokenColor + ";";
-      }
-      style += "width:" + this.size + "px;";
-      style += "height:" + this.size + "px;";
-      style +=
-        "display: flex;flex-direction: column;justify-content: center; text-align: center;";
-      style += "font-size:" + this.fontSize + "px;";
-      return style;
+      let aux = {
+        backgroundColor: (this.variant === 'text') ? this.placeholderBackgroundColor : this.brokenBackgroundColor,
+        color: (this.variant === 'text') ? this.placeholderColor : this.brokenColor,
+        cursor: 'default',
+        width: this.size + 'px',
+        height: this.size + 'px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        textAlign: 'center',
+        fontSize: this.fontSize + 'px'
+      };
+      return [this.borderRadius, aux];
     },
     imageUrl() {
       var url = window.location.protocol + "//" + window.location.host;
