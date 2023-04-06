@@ -31,28 +31,35 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
+import lombok.Getter;
+
 /**
- * Manages a TraxTransform using templates to make it fast to get hold of. This
- * class is NOT thread safe and should be cached in the Thread Local
+ * Manages a TraxTransform using templates to make it fast to get hold of.
  * 
  * @author ieb
  */
-public class XSLTTransform
-{
+public class XSLTTransform {
 
-	private Templates templates = null;
+	private SAXTransformerFactory factory;
+	private Templates templates;
+	@Getter private ClassLoader classLoader;
 
-	private SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory.newDefaultInstance();
-	
+
+	public XSLTTransform() {
+		classLoader = this.getClass().getClassLoader();
+		factory = (SAXTransformerFactory) SAXTransformerFactory.newInstance(
+				"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl", classLoader);
+	}
+
 	/**
-	 * Set the xslt resource.
+	 * Set the xslt template to use during the transform.
 	 * 
-	 * @param xsltresource
-	 *        an Input Source to the XSLT
+	 * @param  xsltresource
+	 *         an Input Source to the XSLT
 	 * @throws Exception
+	 *         typically an exception related to parsing the template
 	 */
-	public void setXslt(InputSource xsltresource) throws Exception
-	{
+	public void setXslt(InputSource xsltresource) throws Exception {
 		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 		saxParserFactory.setNamespaceAware(true);
 		TemplatesHandler th = factory.newTemplatesHandler();
@@ -67,76 +74,15 @@ public class XSLTTransform
 	}
 
 	/**
-	 * get the output content handler, configured with the writer, ready for
-	 * pumping sax events into
-	 * 
-	 * @param out
-	 *        the output stream
-	 * @return a content handler configured to produce output
-	 * @throws Exception
-	 */
-/*
-  
- 	public ContentHandler getOutputHandler(Writer out, Map outputProperties)
-			throws Exception
-	{
-		TransformerHandler saxTH = factory.newTransformerHandler(templates);
-		Result r = new StreamResult(out);
-		if (outputProperties != null)
-		{
-			Transformer trans = saxTH.getTransformer();
-			for (Iterator i = outputProperties.keySet().iterator(); i.hasNext();)
-			{
-				String name = (String) i.next();
-				String value = (String) outputProperties.get(name);
-				log.info("Setting Property "+name+"=["+value+"]");
-				trans.setOutputProperty(name, value);
-
-			}
-
-			// String s = OutputKeys.INDENT;
-		}
-		saxTH.setResult(r);
-		return saxTH;
-	}
-*/
-/*
-	public ContentHandler getOutputHandler(OutputStream out,
-			final Map outputProperties) throws Exception
-	{
-
-		TransformerHandler saxTH = factory.newTransformerHandler(templates);
-		StreamResult r = new StreamResult(out);
-		if (outputProperties != null)
-		{
-			Transformer trans = saxTH.getTransformer();
-			for (Iterator i = outputProperties.keySet().iterator(); i.hasNext();)
-			{
-				String name = (String) i.next();
-				String value = (String) outputProperties.get(name);
-				log.info("Setting Property "+name+"=["+value+"]");
-				trans.setOutputProperty(name, value);
-
-			}
-
-			// String s = OutputKeys.INDENT;
-		}
-		saxTH.setResult(r);
-		return saxTH;
-	}
-
-*/
-	/**
 	 * Get the content handler of the transform, this method can also be used to
 	 * test if the transform is valid.
 	 * 
-	 * @return
+	 * @return A TransformerHandler object that can process SAX ContentHandler events into a Result.
 	 * @throws Exception
+	 *         typically an exception because of a configuration error
 	 */
-	public TransformerHandler getContentHandler() throws Exception
-	{
-		TransformerHandler saxTH = factory.newTransformerHandler(templates);
-		return saxTH;
+	public TransformerHandler getContentHandler() throws Exception {
+		return factory.newTransformerHandler(templates);
 	}
 
 }
