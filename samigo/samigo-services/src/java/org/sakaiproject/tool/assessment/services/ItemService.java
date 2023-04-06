@@ -373,6 +373,7 @@ public class ItemService
 
   private Set copyItemTagSet(ItemData cloned, Set itemTagSet) {
     Set h = new HashSet();
+    if (itemTagSet == null) return h;
     Iterator n = itemTagSet.iterator();
     while (n.hasNext()) {
       ItemTag itemTag = (ItemTag) n.next();

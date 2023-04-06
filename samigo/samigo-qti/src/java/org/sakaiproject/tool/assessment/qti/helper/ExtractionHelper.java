@@ -1160,8 +1160,11 @@ public class ExtractionHelper
    */
   public void makeItemAttachmentSet(ItemFacade item)
   {
+	  Set<ItemAttachmentIfc> set = new HashSet<ItemAttachmentIfc>();
+	  item.setItemAttachmentSet(set);
+	  
 	  // if unzipLocation is null, there is no assessment attachment - no action is needed
-	  if (unzipLocation == null) {
+	  if (unzipLocation == null) {  
 		  return;
 	  }  
 	  // first check if there is any attachment
@@ -1173,7 +1176,6 @@ public class ExtractionHelper
 
 	  ItemAttachmentIfc itemAttachment;
 	  String[] attachmentArray = attachment.split("\\n");
-	  Set<ItemAttachmentIfc> set = new HashSet<ItemAttachmentIfc>();
 	  AttachmentHelper attachmentHelper = new AttachmentHelper();
 	  AssessmentService assessmentService = new AssessmentService();
 	  for (int i = 0; i < attachmentArray.length; i++) {
@@ -1830,6 +1832,7 @@ public class ExtractionHelper
 		  updatedFeedback = makeFCKAttachment(generalItemFeedback);
 		  item.setGeneralItemFeedback(updatedFeedback, updatedFeedback);
 	  }
+	  if (item.getItemFeedbackSet() == null) item.setItemFeedbackSet(new HashSet());
   }
   
   /**
@@ -1931,9 +1934,9 @@ public class ExtractionHelper
 						  {
 							  answerFeedback.setText(makeFCKAttachment(XmlUtil.processFormattedText((String) answerFeedbackList.get(sequence - 1))));
 							  set.add(answerFeedback);
-							  answer.setAnswerFeedbackSet(set);
 						  }
 					  }
+					  answer.setAnswerFeedbackSet(set);
 
 					  boolean MCSC=itemMap.get("itemIntrospect").equals("Multiple Choice");
 					  if(MCSC){
@@ -3068,7 +3071,7 @@ public class ExtractionHelper
   {
     this.unzipLocation = unzipLocation;
   }
-  
+
   //------------- EMI -------------------//
 	private String get(Map itemMap, String key) {
 		return ((String) itemMap.get(key)).trim();
@@ -3254,4 +3257,19 @@ public class ExtractionHelper
 		}
 		return attachSet;
 	}
+
+    public boolean updateSectionBasedOnQuestionPool(SectionFacade section, Map sectionMap) {
+
+        section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, (String)sectionMap.get("pool_id"));
+        section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, (String)sectionMap.get("pool_name"));
+        section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, (String)sectionMap.get("num_questions"));
+        section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, (String)sectionMap.get("randomization_type"));
+        section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, (String)sectionMap.get("point_value"));
+        section.addSectionMetaData(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION, (String)sectionMap.get("discount_value"));
+ 
+        String poolid = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
+        return StringUtils.isNotBlank(poolid);
+
+    }
+
 }

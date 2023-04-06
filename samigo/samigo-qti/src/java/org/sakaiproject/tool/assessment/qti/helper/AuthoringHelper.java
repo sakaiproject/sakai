@@ -39,7 +39,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 
+import org.apache.commons.lang3.StringUtils;
+import org.osid.shared.SharedException;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -52,13 +56,16 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -67,7 +74,9 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
@@ -87,6 +96,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
+
 
 
 /**
@@ -565,6 +575,14 @@ public class AuthoringHelper
   public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, List failedMatchingQuestions, String siteId)
   {
 	AssessmentFacade assessment = null;
+        SecurityService securityService = new SecurityService();
+        SecurityAdvisor advisor = new SecurityAdvisor() {
+            public SecurityAdvice isAllowed(String userId, String function, String reference) {
+                return SecurityAdvice.ALLOWED;
+            }
+        };
+        securityService.pushAdvisor(advisor);
+
 
     AssessmentService assessmentService = new AssessmentService();
     try
@@ -679,43 +697,205 @@ public class AuthoringHelper
         section.setTypeId(TypeIfc.DEFAULT_SECTION);
         section.setStatus( Integer.valueOf(1));
         section.setSequence(Integer.valueOf(sec + 1));
-        
-        List itemList = exHelper.getItemXmlList(sectionXml);
-        for (int itm = 0; itm < itemList.size(); itm++) // for each item
-        {
-          log.debug("items=" + itemList.size());
-          Item itemXml = (Item) itemList.get(itm);
 
-          ItemFacade item = new ItemFacade();
+        //QuestionPool
+        boolean isBasedOnQuestionPool = exHelper.updateSectionBasedOnQuestionPool(section, sectionMap);
+        if (isBasedOnQuestionPool) {
+
+          QuestionPoolService questionPoolService = new QuestionPoolService();
+          section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+          String poolId = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
+          String poolTitle = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+          boolean hasRandomPartScore = false;
+          Double score = null;
+          String requestedScore = section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION);
+          if (StringUtils.isNotBlank(requestedScore)) {
+            hasRandomPartScore = true;
+            score = new Double(requestedScore);
+          }
+          boolean hasRandomPartDiscount = false;
+          Double discount = null;
+          String requestedDiscount = section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION);
+          if (StringUtils.isNotBlank(requestedDiscount)) {
+            hasRandomPartDiscount = true;
+            discount = new Double(requestedDiscount);
+          }
+
+          QuestionPoolFacade pool = null;
+          QuestionPoolIteratorFacade qpools = questionPoolService.getAllPoolsWithAccess(me, QuestionPoolAccessFacade.READ_ONLY);
+
           try {
-        	  exHelper.updateItem(item, itemXml, isRespondus);
+            while (qpools.hasNext()) {
+              QuestionPoolFacade qpool = qpools.next();
+              if (qpool.getQuestionPoolId().toString().equals(poolId)) {
+                pool = qpool;
+                break;
+              }
+            }
+          } catch (SharedException e) {
+            pool = null;
+          }
+          
+          // The pool we used to create this assessment exists (and is the same) in this system  
+          if (pool != null && pool.getTitle().equals(poolTitle)) {
+            List<ItemFacade> itemlist = questionPoolService.getAllItems(new Long(poolId));
+            int i=0;
+            for (ItemFacade item : itemlist) {
+              //copy item so we can have it in more than one assessment
+              ItemData item2 = itemService.cloneItem(item);
+              item2.setSection(section.getData());
+              item2.setSequence(Integer.valueOf(++i));
+              if (hasRandomPartScore || hasRandomPartDiscount) {
+                long itemTypeId = item.getTypeId().longValue();
+                if (hasRandomPartScore && itemTypeId != TypeFacade.MULTIPLE_CHOICE_SURVEY.longValue()) {
+                  item2.setScore(score);
+                }
+                if (hasRandomPartDiscount && (itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || itemTypeId == TypeFacade.TRUE_FALSE.longValue())) {
+                  item2.setDiscount(discount);
+                }
+                Set<ItemTextIfc> itemTextSet = item2.getItemTextSet();
+                if (itemTextSet != null) {
+                  Iterator<ItemTextIfc> iterITS = itemTextSet.iterator();
+                  while (iterITS.hasNext()) {
+                    ItemTextIfc itemText = iterITS.next();
+                    Set<AnswerIfc> answerSet = itemText.getAnswerSet();
+                    if (answerSet != null) {
+                      Iterator<AnswerIfc> iterAS = answerSet.iterator();
+                      while (iterAS.hasNext()) {
+                        AnswerIfc answer = iterAS.next();
+                        if (hasRandomPartScore && itemTypeId != TypeFacade.MULTIPLE_CHOICE_SURVEY.longValue()) {
+                          answer.setScore(score);
+                        }
+                        if (hasRandomPartDiscount && (itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || itemTypeId == TypeFacade.TRUE_FALSE.longValue())) {
+                          answer.setDiscount(discount);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              section.addItem(item2);
+            }
+          }
+          else { // The pool doesn't exist in this system, we create it
+            
+            List itemList = exHelper.getItemXmlList(sectionXml);
+            for (int itm = 0; itm < itemList.size(); itm++) // for each item
+            {
+              log.debug("items=" + itemList.size());
+              Item itemXml = (Item) itemList.get(itm);
+              
+              ItemFacade item = new ItemFacade();
+            try {
+              exHelper.updateItem(item, itemXml, isRespondus);
+            }
+            catch (RespondusMatchingException rme) {
+              if (failedMatchingQuestions != null) {
+                failedMatchingQuestions.add(itm + 1);
+              }
+            }
+              
+              // make sure required fields are set
+              item.setCreatedBy(me);
+              item.setCreatedDate(assessment.getCreatedDate());
+              item.setLastModifiedBy(me);
+              item.setLastModifiedDate(assessment.getCreatedDate());
+              item.setStatus(ItemDataIfc.ACTIVE_STATUS);
+              // assign the next sequence number
+              item.setSequence(  Integer.valueOf(itm + 1));
+              // add item to section
+              item.setSection(section); // one to many
+              // update metadata with PARTID
+              item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
+              
+              // Item Attachment
+              exHelper.makeItemAttachmentSet(item);
+                        
+              itemService.saveItem(item);
+              section.addItem(item); // many to one
+              item.setItemId(item.getItemId());
+              item.setItemIdString(item.getItemId().toString());
+                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
+            } // ... end for each item
+                     
+            String origPoolTitle = new String(poolTitle);
+            int i = 1;
+            while(!questionPoolService.poolIsUnique("0", poolTitle, "0", AgentFacade.getAgentString())) {
+              poolTitle = origPoolTitle + " - " + i++;
+            }
+            
+            pool = new QuestionPoolFacade();
+            pool.setOwnerId(me);
+            pool.setTitle(poolTitle);
+            pool.setLastModifiedById(me);
+            pool.setAccessTypeId(QuestionPoolAccessFacade.ADMIN); // set as default
+            pool.setQuestionPoolItems(new HashSet());
+            
+            pool = questionPoolService.savePool(pool);
+            
+            section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, pool.getQuestionPoolId().toString());
+            
+            Iterator iter = section.getItemFacadeSet().iterator();
+            HashSet questionPoolItems = new HashSet();
+            while (iter.hasNext()) {
+              ItemFacade item = (ItemFacade)iter.next();
+              
+              //copy item so we can have it in more than one assessment
+              ItemData item2 = itemService.cloneItem(item);
+              item2.setItemId(new Long(0));
+              item2.setSection(null);
+              item2.setSequence(null);
+              ItemFacade itemFacade = itemService.saveItem(new ItemFacade(item2));
+              //item.setItemId(item.getItemId());
+              //item.setItemIdString(item.getItemId().toString());
+              
+              QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
+              questionPoolItem.setQuestionPoolId(pool.getQuestionPoolId());
+              questionPoolItem.setItemId(itemFacade.getItemId());        
+              pool.addQuestionPoolItem((QuestionPoolItemIfc) questionPoolItem);
+            }
+            questionPoolService.savePool(pool);
+          }
+          
+        } // This assessment is not based on questionpool
+        else {
+          
+          List itemList = exHelper.getItemXmlList(sectionXml);
+          for (int itm = 0; itm < itemList.size(); itm++) // for each item
+          {
+            log.debug("items=" + itemList.size());
+            Item itemXml = (Item) itemList.get(itm);
+            
+            ItemFacade item = new ItemFacade();
+          try {
+            exHelper.updateItem(item, itemXml, isRespondus);
           }
           catch (RespondusMatchingException rme) {
-        	  if (failedMatchingQuestions != null) {
-        		  failedMatchingQuestions.add(itm + 1);
-        	  }
+            if (failedMatchingQuestions != null) {
+              failedMatchingQuestions.add(itm + 1);
+            }
           }
-          // make sure required fields are set
-          item.setCreatedBy(me);
-          item.setCreatedDate(assessment.getCreatedDate());
-          item.setLastModifiedBy(me);
-          item.setLastModifiedDate(assessment.getCreatedDate());
-          item.setStatus(ItemDataIfc.ACTIVE_STATUS);
-          // assign the next sequence number
-          item.setSequence(  Integer.valueOf(itm + 1));
-          // add item to section
-          item.setSection(section); // one to many
-          // update metadata with PARTID
-          item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
-           
-          // Item Attachment
-          exHelper.makeItemAttachmentSet(item);
-          
-          item = itemService.saveItem(item);
-          section.addItem(item);
-          EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
-        } // ... end for each item
-        
+            
+            // make sure required fields are set
+            item.setCreatedBy(me);
+            item.setCreatedDate(assessment.getCreatedDate());
+            item.setLastModifiedBy(me);
+            item.setLastModifiedDate(assessment.getCreatedDate());
+            item.setStatus(ItemDataIfc.ACTIVE_STATUS);
+            // assign the next sequence number
+            item.setSequence(  Integer.valueOf(itm + 1));
+            // add item to section
+            item.setSection(section); // one to many
+            // update metadata with PARTID
+            item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
+            
+            // Item Attachment
+            exHelper.makeItemAttachmentSet(item);
+            
+            section.addItem(item); // many to one
+          } // ... end for each item
+        }
+
         // Section Attachment
       	exHelper.makeSectionAttachmentSet(section, sectionMap);
 
@@ -758,7 +938,10 @@ public class AuthoringHelper
       log.error(e.getMessage(), e);
       assessmentService.removeAssessment(assessment.getAssessmentId().toString());
       throw new RuntimeException(e);
-    }
+    } finally {
+            securityService.popAdvisor();
+        }
+
   }
 
   /**
