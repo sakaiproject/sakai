@@ -2,12 +2,9 @@ package org.sakaiproject.microsoft.controller.auxiliar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.site.api.Site;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,15 +24,12 @@ public class AutoConfigSessionBean {
 	Map<String, Object> confirmMap = new HashMap<>();
 	@JsonIgnore
 	Map<String, Site> sitesMap = new HashMap<>();
-	@JsonIgnore
-	Map<String, String> newTeamsMap = new HashMap<>();
 	
 	public void startRunning(int total) {
 		this.running = true;
 		this.total = total;
 		this.count = 0;
 		this.errorList = new ArrayList<>();
-		this.newTeamsMap = new HashMap<>();
 	}
 	
 	public void finishRunning() {
