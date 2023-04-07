@@ -21,6 +21,8 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
+import java.util.Properties;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Templates;
@@ -31,7 +33,8 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import lombok.Getter;
+import com.sun.org.apache.xml.internal.serializer.Serializer;
+import com.sun.org.apache.xml.internal.serializer.SerializerFactory;
 
 /**
  * Manages a TraxTransform using templates to make it fast to get hold of.
@@ -40,36 +43,39 @@ import lombok.Getter;
  */
 public class XSLTTransform {
 
-	private SAXTransformerFactory factory;
+	private ClassLoader classLoader;
+	private SAXParserFactory parserFactory;
+	private SAXTransformerFactory transformerFactory;
 	private Templates templates;
-	@Getter private ClassLoader classLoader;
 
 
 	public XSLTTransform() {
 		classLoader = this.getClass().getClassLoader();
-		factory = (SAXTransformerFactory) SAXTransformerFactory.newInstance(
-				"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl", classLoader);
+		transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance(
+				"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
+				classLoader);
+		parserFactory = SAXParserFactory.newInstance(
+				"com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+				classLoader);
 	}
 
 	/**
 	 * Set the xslt template to use during the transform.
 	 * 
-	 * @param  xsltresource
+	 * @param  xsltResource
 	 *         an Input Source to the XSLT
 	 * @throws Exception
 	 *         typically an exception related to parsing the template
 	 */
-	public void setXslt(InputSource xsltresource) throws Exception {
-		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-		saxParserFactory.setNamespaceAware(true);
-		TemplatesHandler th = factory.newTemplatesHandler();
-		String systemId = xsltresource.getSystemId();
+	public void setXslt(InputSource xsltResource) throws Exception {
+		parserFactory.setNamespaceAware(true);
+		TemplatesHandler th = transformerFactory.newTemplatesHandler();
+		String systemId = xsltResource.getSystemId();
 		th.setSystemId(systemId);
-		SAXParser parser = saxParserFactory.newSAXParser();
+		SAXParser parser = parserFactory.newSAXParser();
 		XMLReader xr = parser.getXMLReader();
-
 		xr.setContentHandler(th);
-		xr.parse(xsltresource);
+		xr.parse(xsltResource);
 		templates = th.getTemplates();
 	}
 
@@ -82,7 +88,23 @@ public class XSLTTransform {
 	 *         typically an exception because of a configuration error
 	 */
 	public TransformerHandler getContentHandler() throws Exception {
-		return factory.newTransformerHandler(templates);
+		return transformerFactory.newTransformerHandler(templates);
 	}
 
+	/**
+	 * Get the specified serializer for the output method that is specified by the value of the
+	 * property associated with the "method" key in the format.
+	 *
+	 * @param format
+	 *        the output format, must set the method property minimally
+	 * @return a serializer for the specified output method
+	 */
+	public Serializer getSerializer(Properties format) {
+		Thread currentThread = Thread.currentThread();
+		ClassLoader savedLoader = currentThread.getContextClassLoader();
+		currentThread.setContextClassLoader(classLoader);
+		Serializer serializer = SerializerFactory.getSerializer(format);
+		currentThread.setContextClassLoader(savedLoader);
+		return serializer;
+	}
 }

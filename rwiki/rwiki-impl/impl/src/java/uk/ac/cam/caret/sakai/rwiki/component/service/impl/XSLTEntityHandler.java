@@ -45,13 +45,11 @@ import javax.xml.transform.sax.TransformerHandler;
 
 import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
 import com.sun.org.apache.xml.internal.serializer.Serializer;
-import com.sun.org.apache.xml.internal.serializer.SerializerFactory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 
-import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -159,8 +157,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	private EntityManager entityManager;
 
 	private SAXParserFactory saxParserFactory;
-
-	private SerializerFactory serializerFactory;
 
 	private String breadCrumbParameter = "breadcrumb";
 
@@ -916,11 +912,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				S_OMIT_META_TAG:{http://xml.apache.org/xalan}omit-meta-tag
 				S_USE_URL_ESCAPING:{http://xml.apache.org/xalan}use-url-escaping
 			*/
-			Thread currentThread = Thread.currentThread();
-			ClassLoader savedLoader = currentThread.getContextClassLoader();
-			currentThread.setContextClassLoader(xsltTransform.getClassLoader());
-			Serializer s = SerializerFactory.getSerializer(p);
-			currentThread.setContextClassLoader(savedLoader);
+			Serializer s = xsltTransform.getSerializer(p);
 
 			s.setOutputStream(out);
 			sr.setHandler(s.asContentHandler());
