@@ -96,11 +96,12 @@ public class MainController {
 		
 		//filter elements
 		if(StringUtils.isNotBlank(search)) {
+			String lcSearch = search.toLowerCase();
 			list = list.stream()
-					.filter(ss -> ss.getSiteId().contains(search) ||
-								  ss.getTeamId().contains(search) ||
-								  ss.getSite().getTitle().contains(search) ||
-								  map.get(ss.getTeamId()).getName().contains(search))
+					.filter(ss -> ss.getSiteId().contains(lcSearch) ||
+								  ss.getTeamId().contains(lcSearch) ||
+								  ss.getSite().getTitle().toLowerCase().contains(lcSearch) ||
+								  map.get(ss.getTeamId()).getName().toLowerCase().contains(lcSearch))
 					.collect(Collectors.toList());
 		}
 

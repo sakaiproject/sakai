@@ -27,6 +27,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -54,6 +56,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.microsoft.graph.models.AadUserConversationMember;
 import com.microsoft.graph.models.Channel;
@@ -417,7 +420,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return teamsMap;
 	}
 	
-	public String createTeam(String name, String ownerEmail) throws MicrosoftCredentialsException {
+	public String createTeam_old(String name, String ownerEmail) throws MicrosoftCredentialsException {
 		String groupId = createGroup(name, ownerEmail);
 		if(groupId != null) {
 			//get Teams cache
@@ -441,6 +444,68 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return groupId;
 	}
 	
+	@Override
+	public String createTeam(String name, String ownerEmail) throws MicrosoftCredentialsException {
+		try {
+			LinkedList<String> rolesList = new LinkedList<String>();
+			rolesList.add("owner");
+			
+			User userOwner = getGraphClient().users(ownerEmail).buildRequest().get();
+			AadUserConversationMember conversationMember = new AadUserConversationMember();
+			conversationMember.oDataType = "#microsoft.graph.aadUserConversationMember";
+			conversationMember.roles = rolesList;
+			conversationMember.additionalDataManager().put("user@odata.bind", new JsonPrimitive("https://graph.microsoft.com/v1.0/users('" + userOwner.id + "')"));
+			
+			LinkedList<ConversationMember> membersList = new LinkedList<ConversationMember>();
+			membersList.add(conversationMember);
+			
+			ConversationMemberCollectionResponse conversationMemberCollectionResponse = new ConversationMemberCollectionResponse();
+			conversationMemberCollectionResponse.value = membersList;
+			ConversationMemberCollectionPage conversationMemberCollectionPage = new ConversationMemberCollectionPage(conversationMemberCollectionResponse, null);
+			
+			Team team = new Team();
+			team.displayName = name;
+			team.description = name;
+			team.members = conversationMemberCollectionPage;
+			team.additionalDataManager().put("template@odata.bind", new JsonPrimitive("https://graph.microsoft.com/v1.0/teamsTemplates('standard')"));
+
+			Team ret = getGraphClient().teams()
+				.buildRequest()
+				.post(team);
+			
+			JsonElement adm = ret.additionalDataManager().get("graphResponseHeaders");
+			if(adm != null) {
+				String contentLocation = adm.getAsJsonObject().get("content-location").getAsString();
+				Pattern teamPattern = Pattern.compile("^/teams\\('([^']+)'\\)$");
+				Matcher matcher = teamPattern.matcher(contentLocation);
+				if(matcher.find()) {
+					String teamId = matcher.group(1);
+					//get Teams cache
+					Cache.ValueWrapper cachedValue = getCache().get(CACHE_TEAMS);
+					if(cachedValue != null) {
+						//add newly created team to the cached map
+						Map<String, MicrosoftTeam> teamsMap = (Map<String, MicrosoftTeam>)cachedValue.get();
+						teamsMap.put(teamId, MicrosoftTeam.builder()
+								.id(teamId)
+								.name(name)
+								.description(name)
+								.build());
+						
+						getCache().put(CACHE_TEAMS, teamsMap);
+					}
+					
+					return teamId;
+				}
+			}
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception ex){
+			log.debug("Error creating Microsoft Team: name={}", name);
+		}
+		return null;
+	}
+	
+	@Override
 	public String createGroup(String name, String ownerEmail) throws MicrosoftCredentialsException {
 		try {
 			Group group = new Group();
@@ -470,6 +535,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return null;
 	}
 	
+	@Override
 	public void createTeamFromGroup(String groupId) throws MicrosoftCredentialsException {
 		Team team = new Team();
 		team.additionalDataManager().put("template@odata.bind", new JsonPrimitive("https://graph.microsoft.com/v1.0/teamsTemplates('standard')"));
@@ -480,6 +546,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				.post(team);
 	}
 	
+	@Override
 	public void createTeamFromGroupAsync(String groupId) throws MicrosoftCredentialsException {
 		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 		
@@ -928,42 +995,49 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	
 	@Override
 	public String createChannel(String teamId, String name, String ownerEmail) throws MicrosoftCredentialsException {
-		Channel channel = new Channel();
-		channel.membershipType = ChannelMembershipType.PRIVATE;
-		channel.displayName = name;
-		channel.description = name;
-		
-		User userOwner = getGraphClient().users(ownerEmail).buildRequest().get();
-		AadUserConversationMember conversationMember = new AadUserConversationMember();
-		conversationMember.oDataType = "#microsoft.graph.aadUserConversationMember";
-		conversationMember.roles = Arrays.asList(MicrosoftUser.OWNER);
-		conversationMember.additionalDataManager().put("user@odata.bind", new JsonPrimitive("https://graph.microsoft.com/v1.0/users('" + userOwner.id + "')"));
-		
-		LinkedList<ConversationMember> membersList = new LinkedList<ConversationMember>();
-		membersList.add(conversationMember);
-		
-		ConversationMemberCollectionResponse conversationMemberCollectionResponse = new ConversationMemberCollectionResponse();
-		conversationMemberCollectionResponse.value = membersList;
-		ConversationMemberCollectionPage conversationMemberCollectionPage = new ConversationMemberCollectionPage(conversationMemberCollectionResponse, null);
-		channel.members = conversationMemberCollectionPage;
-
-		Channel newChannel = getGraphClient().teams(teamId).channels()
-			.buildRequest()
-			.post(channel);
-		
-		//add new channel to cache
-		Cache.ValueWrapper cachedValue = getCache().get(CACHE_CHANNELS+teamId);
-		if(cachedValue != null) {
-			Map<String, MicrosoftChannel> channelsMap = (Map<String, MicrosoftChannel>)cachedValue.get();
-			channelsMap.put(newChannel.id, MicrosoftChannel.builder()
-					.id(newChannel.id)
-					.name(newChannel.displayName)
-					.description(newChannel.description)
-					.build());
-			getCache().put(CACHE_CHANNELS+teamId, channelsMap);
+		try {
+			Channel channel = new Channel();
+			channel.membershipType = ChannelMembershipType.PRIVATE;
+			channel.displayName = formatMicrosoftString(name);
+			channel.description = name;
+			
+			User userOwner = getGraphClient().users(ownerEmail).buildRequest().get();
+			AadUserConversationMember conversationMember = new AadUserConversationMember();
+			conversationMember.oDataType = "#microsoft.graph.aadUserConversationMember";
+			conversationMember.roles = Arrays.asList(MicrosoftUser.OWNER);
+			conversationMember.additionalDataManager().put("user@odata.bind", new JsonPrimitive("https://graph.microsoft.com/v1.0/users('" + userOwner.id + "')"));
+			
+			LinkedList<ConversationMember> membersList = new LinkedList<ConversationMember>();
+			membersList.add(conversationMember);
+			
+			ConversationMemberCollectionResponse conversationMemberCollectionResponse = new ConversationMemberCollectionResponse();
+			conversationMemberCollectionResponse.value = membersList;
+			ConversationMemberCollectionPage conversationMemberCollectionPage = new ConversationMemberCollectionPage(conversationMemberCollectionResponse, null);
+			channel.members = conversationMemberCollectionPage;
+	
+			Channel newChannel = getGraphClient().teams(teamId).channels()
+				.buildRequest()
+				.post(channel);
+			
+			//add new channel to cache
+			Cache.ValueWrapper cachedValue = getCache().get(CACHE_CHANNELS+teamId);
+			if(cachedValue != null) {
+				Map<String, MicrosoftChannel> channelsMap = (Map<String, MicrosoftChannel>)cachedValue.get();
+				channelsMap.put(newChannel.id, MicrosoftChannel.builder()
+						.id(newChannel.id)
+						.name(newChannel.displayName)
+						.description(newChannel.description)
+						.build());
+				getCache().put(CACHE_CHANNELS+teamId, channelsMap);
+			}
+	
+			return newChannel.id;
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch(Exception e) {
+			log.debug("Error creating private channel ({}) in teamId={}", name, teamId);
 		}
-
-		return newChannel.id;
+		return null;
 	}
 	
 	@Override
@@ -1161,6 +1235,18 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				break;
 		}
 		return ret;
+	}
+	
+	//https://learn.microsoft.com/en-us/graph/known-issues#create-channel-can-return-an-error-response
+	private String formatMicrosoftString(String str) {
+		String[] charsToReplace = {"\\~", "#", "%", "&", "\\*", "\\{", "\\}", "\\+", "/", "\\\\", ":", "<", ">", "\\?", "\\|", "‘", "`", "´", "”", "\""};
+		for (String c : charsToReplace) {
+		    str = str.replaceAll(c, "");
+		}
+		str = str.replaceAll("^_+", "");
+		str = str.replaceAll("^\\.\\.\\.", "");
+		str = str.replaceAll("\\.\\.\\.$", "");
+		return str;
 	}
 
 }

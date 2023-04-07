@@ -1005,6 +1005,11 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 				if(site != null) {
 					Group group = site.getGroup(groupId);
 					if(group != null) {
+						//exclude automatic lesson groups
+						if(group.getTitle().startsWith("Access:")) {
+							return;
+						}
+						
 						//get all synchronizations linked to this site
 						List<SiteSynchronization> list = microsoftSiteSynchronizationRepository.findBySite(siteId);
 						if(list != null) {
