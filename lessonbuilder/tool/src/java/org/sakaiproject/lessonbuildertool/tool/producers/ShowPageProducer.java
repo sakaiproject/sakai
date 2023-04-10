@@ -3624,8 +3624,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * @param simplePageToolDao
 	 * @return Whether or not this item is available.
 	 */
-	protected boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
-			boolean canEditPage, SimplePage currentPage, boolean notDone, Status status, boolean forceButtonColor, String color) {
+	protected boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean,
+                               SimplePageToolDao simplePageToolDao, MessageLocator messageLocator, boolean canEditPage,
+                               SimplePage currentPage, boolean notDone, Status status, boolean forceButtonColor, String color) {
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
 		boolean usable = available || canEditPage;
@@ -3644,23 +3645,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					if (! available)
 					    fakeDisableLink(link, messageLocator);
-				}
-				else {
+				} else {
 				    // run this through /access/lessonbuilder so we can track it even if the user uses the context menu
 				    // We could do this only for the notDone case, but I think it could cause trouble for power users
 				    // if the url isn't always consistent.
 				    if (i.getAttribute("multimediaUrl") != null) { // resource where we've stored the URL ourselves
-					URL = "/access/lessonbuilder/item/" + i.getId() + "/";
+					    URL = "/access/lessonbuilder/item/" + i.getId() + "/";
 				    } else {
-					URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
+					    URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
 				    }
 				    UILink link = UILink.make(container, ID, URL);
 				    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
 				    if (notDone)
-					link.decorate(new UIFreeAttributeDecorator("onclick", 
+					    link.decorate(new UIFreeAttributeDecorator("onclick",
 										   "afterLink($(this)," + i.getId() + ") ; return true"));
 				    if (! available)
-					fakeDisableLink(link, messageLocator);
+					    fakeDisableLink(link, messageLocator);
 				}
 			}
 
@@ -3890,7 +3890,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
             } else {
                 if (usable && lessonEntity != null) {
 					if (i.isPrerequisite()) {
-					simplePageBean.checkItemPermissions(i, true);
+					    simplePageBean.checkItemPermissions(i, true);
 					}
 					URL = lessonEntity.getUrl();
 					// UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
