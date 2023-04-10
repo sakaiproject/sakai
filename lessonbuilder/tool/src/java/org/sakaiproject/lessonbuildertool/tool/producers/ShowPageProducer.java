@@ -3846,49 +3846,49 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		} else if (i.getType() == SimplePageItem.BLTI) {
 		    LessonEntity lessonEntity = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
 		    if ("inline".equals(i.getFormat())) {
-			// no availability 
-			String height=null;
-			if (i.getHeight() != null && !i.getHeight().equals(""))
-			    height = i.getHeight().replace("px","");  // just in case
-			
-			UIComponent iframe = UIOutput.make(container, "blti-iframe")
-					.decorate(new UIFreeAttributeDecorator("allow", String.join(";",
-							Optional.ofNullable(ServerConfigurationService.getStrings("browser.feature.allow"))
-									.orElseGet(() -> new String[]{}))));
-			if (lessonEntity != null)
-			    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
-			
-			String h = "300";
-			if (height != null && !height.trim().equals(""))
-			    h = height;
-			
-			iframe.decorate(new UIFreeAttributeDecorator("height", h));
-			iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
-			// normally we get the name from the link text, but there's no link text here
-			UIOutput.make(container, "item-name", i.getName());
-		    } else if (!"window".equals(i.getFormat())) {
-				// this is the default if format isn't valid or is missing
-				if (usable && lessonEntity != null) {
-					// I'm fairly sure checkitempermissions doesn't do anything useful for LTI,
-					// as it isn't group aware
-					if (i.isPrerequisite()) {
-						simplePageBean.checkItemPermissions(i, true);
-					}
-					GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-					view.setSendingPage(currentPage.getPageId());
-					view.setItemId(i.getId());
-					UILink link = UIInternalLink.make(container, "link", view);
-					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-					if (! available)
-						fakeDisableLink(link, messageLocator);
-				} else {
-					if (i.isPrerequisite()) {
-						simplePageBean.checkItemPermissions(i, false);
-					}
-					fake = true; // need to set this in case it's available for missing entity
-				}
-		    } else {
-				if (usable && lessonEntity != null) {
+                // no availability
+                String height=null;
+                if (i.getHeight() != null && !i.getHeight().equals(""))
+                    height = i.getHeight().replace("px","");  // just in case
+
+                UIComponent iframe = UIOutput.make(container, "blti-iframe")
+                        .decorate(new UIFreeAttributeDecorator("allow", String.join(";",
+                                Optional.ofNullable(ServerConfigurationService.getStrings("browser.feature.allow"))
+                                        .orElseGet(() -> new String[]{}))));
+                if (lessonEntity != null)
+                    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
+
+                String h = "300";
+                if (height != null && !height.trim().equals(""))
+                    h = height;
+
+                iframe.decorate(new UIFreeAttributeDecorator("height", h));
+                iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
+                // normally we get the name from the link text, but there's no link text here
+                UIOutput.make(container, "item-name", i.getName());
+            } else if (!"window".equals(i.getFormat())) {
+                // this is the default if format isn't valid or is missing
+                if (usable && lessonEntity != null) {
+                    // I'm fairly sure checkitempermissions doesn't do anything useful for LTI,
+                    // as it isn't group aware
+                    if (i.isPrerequisite()) {
+                        simplePageBean.checkItemPermissions(i, true);
+                    }
+                    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+                    view.setSendingPage(currentPage.getPageId());
+                    view.setItemId(i.getId());
+                    UILink link = UIInternalLink.make(container, "link", view);
+                    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+                    if (! available)
+                        fakeDisableLink(link, messageLocator);
+                } else {
+                    if (i.isPrerequisite()) {
+                        simplePageBean.checkItemPermissions(i, false);
+                    }
+                    fake = true; // need to set this in case it's available for missing entity
+                }
+            } else {
+                if (usable && lessonEntity != null) {
 					if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);
 					}
@@ -3906,7 +3906,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				} else {
 					fake = true; // need to set this in case it's available for missing entity
 				}
-		    }
+            }
 		}
 
 		String note = null;
