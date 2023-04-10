@@ -104,46 +104,6 @@ public class SiteArchiver {
 		m_contentHostingService = service;
 	}
 
-	public static String pad(int level, String s) {
-        StringBuilder result = new StringBuilder();
-
-        for (int i = 0; i < level; i++) {
-            result.append(' ');
-        }
-
-        result.append(s);
-
-        return result.toString();
-    }
-
-
-    public static void dumpDOM(Node elt, int indent) {
-        System.err.println(pad(indent, elt.getNodeName()));
-        NamedNodeMap attributes = elt.getAttributes();
-
-        if (attributes != null) {
-            for (int i = 0; i < attributes.getLength(); i++) {
-                Node attribute = attributes.item(i);
-		String line = pad(indent + 2, String.format("%s=%s", attribute.getNodeName(), attribute.getNodeValue()));
-                System.err.println(line);
-
-		for (int ch = 0; ch < line.length(); ch++) {
-		    if ((int)line.charAt(ch) == 8) {
-			System.err.println("^^^^ BACKSPACE EMBEDDED HERE");
-		    }
-		}
-            }
-        }
-
-        NodeList children = elt.getChildNodes();
-
-        if (children != null) {
-            for (int i = 0; i < children.getLength(); i++) {
-                dumpDOM(children.item(i), indent + 4);
-            }
-        }
-    }
-
 	@Setter private TransactionTemplate transactionTemplate;
 
 	public String archive(String siteId, String m_storagePath, String fromSystem)
@@ -222,7 +182,7 @@ public class SiteArchiver {
 			catch (Throwable t)
 			{
 				String failure = String.format("Failure archiving site %s from service %s [%s]: %s", siteId, service.getLabel(), serviceName, t.getMessage());
-				log.error(failure, t);
+				log.warn(failure, t);
 				throw new RuntimeException(failure);
 			}
 
@@ -233,7 +193,8 @@ public class SiteArchiver {
 			// fileName
 			log.debug("fileName => {}", fileName);
 
-			// dumpDOM(doc, 0);
+			Xml.writeDocument(doc, fileName);
+		}
 
 		// archive the collected attachments
 		{
@@ -342,7 +303,7 @@ public class SiteArchiver {
 		root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
 
 		stack.push(root);
-		archiveArchive(theSite, doc, stack, results.toString());
+		archiveArchive(doc, stack, results.toString());
 		stack.pop();
 
 		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/archive.xml");
@@ -505,13 +466,11 @@ public class SiteArchiver {
 
 	/**
 	* Archive the archive results
-	* @param site the site.
 	* @param doc The document to contain the xml.
-	* @param stack The stack of elements, the top of which will be the containing
-	* element of the "site" element.
+	* @param stack The stack of elements
 	* @param result The results of the archive operation
 	*/
-	protected String archiveArchive(Site site, Document doc, Stack stack, String results)
+	protected String archiveArchive(Document doc, Stack stack, String results)
 	{
 		Element element = doc.createElement("log");
 		((Element)stack.peek()).appendChild(element);
@@ -523,6 +482,6 @@ public class SiteArchiver {
 
 		stack.pop();
 
-		return "archived the archive operation log for: " + site.getId() + "\n";
-	}	// archiveUsers
+		return "archived the archive operation log\n";
+	}	// archiveArchive
 }
