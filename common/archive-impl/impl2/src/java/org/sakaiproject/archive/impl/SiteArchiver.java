@@ -161,6 +161,7 @@ public class SiteArchiver {
 			root.setAttribute("system", fromSystem);
 			root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
 			root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
+			root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
 			
 			stack.push(root);
 
@@ -207,6 +208,7 @@ public class SiteArchiver {
 			root.setAttribute("system", fromSystem);
 			root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
 			root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
+			root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
 			
 			stack.push(root);
 
