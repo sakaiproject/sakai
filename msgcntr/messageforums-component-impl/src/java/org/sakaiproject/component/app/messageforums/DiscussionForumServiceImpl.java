@@ -157,7 +157,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String CUSTOM_PERMISSIONS = "permission_levels";
 	private static final String DIRECT_TOOL = "/directtool/";
 
-	private static final String ARCHIVE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm'Z'"; // ISO8601
+        private static final String ARCHIVE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mmZ"; // ISO8601 with timezone
 	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
 	private static final String VERSION_ATTR = "version";
 
@@ -240,7 +240,6 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 	private int appendDiscussionForumElements(String siteId, Document doc, Element messageForumElement, List attachments) {
 		SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
-		formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 		int discussionForumCount = 0;
 		List<DiscussionForum> discussionForums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
@@ -291,7 +290,6 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 	private void appendDiscussionTopicElements(Document doc, DiscussionForum forum, Element discussionForumElement, List attachments) {
 		SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
-		formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 		List<DiscussionTopic> discussionTopics = dfManager
 				.getTopicsByIdWithMessagesMembershipAndAttachments(forum.getId());
