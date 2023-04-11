@@ -257,19 +257,18 @@
     padding-left: 0.5em;
   }
 
-  .site-entry-star {
+  .site-entry-pin {
     margin-right: 5px;
     visibility: hidden;
   }
 
-  .site-entry-star:before {
+  .site-entry-pin:before {
     font-style: normal;
-    font-family: FontAwesome;
-    content: '\f005';
+    content: '\f4ec';
     color: #ababab;
   }
 
-  .site-entry.favorite-site .site-entry-star {
+  .site-entry.favorite-site .site-entry-pin {
     visibility: visible;
   }
 
