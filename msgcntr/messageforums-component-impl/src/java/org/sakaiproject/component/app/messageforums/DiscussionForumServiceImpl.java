@@ -157,7 +157,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String CUSTOM_PERMISSIONS = "permission_levels";
 	private static final String DIRECT_TOOL = "/directtool/";
 
-        private static final String ARCHIVE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mmZ"; // ISO8601 with timezone
+	private static final String ARCHIVE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mmZ"; // ISO8601 with timezone
 	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
 	private static final String VERSION_ATTR = "version";
 
