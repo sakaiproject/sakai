@@ -15,14 +15,17 @@
 */
 package org.sakaiproject.microsoft.api;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
 import org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier;
+import org.sakaiproject.microsoft.api.data.TeamsMeetingData;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 
@@ -92,4 +95,13 @@ public interface MicrosoftCommonService {
 	boolean addOwnerToChannel(String userId, String teamId, String channelId) throws MicrosoftCredentialsException;
 	
 	boolean removeMemberFromChannel(String memberId, String teamId, String channelId) throws MicrosoftCredentialsException;
+	
+	// ---------------------------------------- ONLINE MEETINGS --------------------------------------------------
+	TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
+	void updateOnlineMeeting(String userEmail, String meetingId, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
+	List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, boolean force) throws MicrosoftCredentialsException;
+	
+	// ---------------------------------------- ONE-DRIVE --------------------------------------------------------
+	String getDriveItemIdFromLink(String link) throws MicrosoftCredentialsException;
+	String getNewLink(String userId, String itemId) throws MicrosoftCredentialsException;
 }

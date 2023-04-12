@@ -15,8 +15,12 @@
 */
 package org.sakaiproject.microsoft.impl;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -36,12 +40,14 @@ import org.sakaiproject.messaging.api.MicrosoftMessage;
 import org.sakaiproject.messaging.api.MicrosoftMessage.MicrosoftMessageBuilder;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
+import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
 import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
 import org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier;
+import org.sakaiproject.microsoft.api.data.TeamsMeetingData;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftInvalidCredentialsException;
@@ -59,10 +65,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.microsoft.graph.models.AadUserConversationMember;
+import com.microsoft.graph.models.CallRecordingEventMessageDetail;
+import com.microsoft.graph.models.CallRecordingStatus;
 import com.microsoft.graph.models.Channel;
 import com.microsoft.graph.models.ChannelMembershipType;
+import com.microsoft.graph.models.ChatMessage;
 import com.microsoft.graph.models.ConversationMember;
 import com.microsoft.graph.models.DirectoryObject;
+import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.models.DriveItemCreateLinkParameterSet;
 import com.microsoft.graph.models.Group;
 import com.microsoft.graph.models.Invitation;
 import com.microsoft.graph.models.Team;
@@ -71,6 +82,8 @@ import com.microsoft.graph.options.HeaderOption;
 import com.microsoft.graph.options.Option;
 import com.microsoft.graph.requests.ChannelCollectionPage;
 import com.microsoft.graph.requests.ChannelCollectionRequestBuilder;
+import com.microsoft.graph.requests.ChatMessageCollectionPage;
+import com.microsoft.graph.requests.ChatMessageCollectionRequestBuilder;
 import com.microsoft.graph.requests.ConversationMemberCollectionPage;
 import com.microsoft.graph.requests.ConversationMemberCollectionRequestBuilder;
 import com.microsoft.graph.requests.ConversationMemberCollectionResponse;
@@ -82,6 +95,17 @@ import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
 import com.microsoft.graph.requests.UserCollectionRequestBuilder;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+
+import com.microsoft.graph.models.Identity;
+import com.microsoft.graph.models.IdentitySet;
+import com.microsoft.graph.models.LobbyBypassScope;
+import com.microsoft.graph.models.LobbyBypassSettings;
+import com.microsoft.graph.models.MeetingParticipantInfo;
+import com.microsoft.graph.models.MeetingParticipants;
+import com.microsoft.graph.models.OnlineMeeting;
+import com.microsoft.graph.models.OnlineMeetingPresenters;
+import com.microsoft.graph.models.OnlineMeetingRole;
+import com.microsoft.graph.models.Permission;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -108,6 +132,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	private static final String CACHE_NAME = MicrosoftCommonServiceImpl.class.getName() + "_cache";
 	private static final String CACHE_TEAMS = "key::teams";
 	private static final String CACHE_CHANNELS = "key::channels::";
+	private static final String CACHE_RECORDINGS = "key::recordings::";
 	
 	private String lock = "LOCK";
 
@@ -937,7 +962,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				Map<String, MicrosoftChannel> channelsMap = (Map<String, MicrosoftChannel>)cachedValue.get();
 				channelsMap.put(channelId, mc);
 				
-				getCache().put(CACHE_TEAMS, channelsMap);
+				getCache().put(CACHE_CHANNELS+teamId, channelsMap);
 			}
 			return mc;
 		}catch(MicrosoftCredentialsException e) {
@@ -1213,6 +1238,174 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			return false;
 		}
 		return true;
+	}
+	
+	// ---------------------------------------- ONLINE MEETINGS --------------------------------------------------
+	/**
+	 * Create online meeting
+	 * @param userEmail
+	 * @param subject
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException {
+		TeamsMeetingData result = null;
+		
+		// Get organizer user
+		MicrosoftUser organizerUser = getUserByEmail(userEmail);
+		
+		if(organizerUser != null) {
+			// Organizer
+			MeetingParticipantInfo organizer = new MeetingParticipantInfo();
+			IdentitySet organizerIdentity = new IdentitySet();
+			Identity iden = new Identity();
+			iden.id = organizerUser.getId();
+			iden.displayName = organizerUser.getName();
+			organizerIdentity.user = iden; 
+			organizer.identity = organizerIdentity;
+			organizer.role = OnlineMeetingRole.PRESENTER;
+			
+			// Participants
+			MeetingParticipants participants = new MeetingParticipants();
+			participants.organizer = organizer;
+			
+			// Lobby Settings
+			LobbyBypassSettings lobbySettings = new LobbyBypassSettings();
+			lobbySettings.scope = LobbyBypassScope.ORGANIZATION;
+			
+			// Online Meeting
+			OnlineMeeting onlineMeeting = new OnlineMeeting();
+			if (startDate != null) { onlineMeeting.startDateTime = OffsetDateTime.ofInstant(startDate, ZoneId.systemDefault()); }
+			if (endDate != null) { onlineMeeting.endDateTime = OffsetDateTime.ofInstant(endDate, ZoneId.systemDefault()); }
+			onlineMeeting.participants = participants;
+			onlineMeeting.subject = subject;
+			onlineMeeting.lobbyBypassSettings = lobbySettings;
+			onlineMeeting.allowedPresenters = OnlineMeetingPresenters.ROLE_IS_PRESENTER;
+			
+			OnlineMeeting meeting = getGraphClient().users(organizerUser.getId()).onlineMeetings()
+				.buildRequest()
+				.post(onlineMeeting);
+			
+			result = new TeamsMeetingData();
+			result.setId(meeting.id);
+			result.setJoinUrl(meeting.joinWebUrl);
+		}
+		return result;
+	}
+	
+	@Override
+	public void updateOnlineMeeting(String userEmail, String meetingId, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException {
+		// Get organizer user
+		MicrosoftUser organizerUser = getUserByEmail(userEmail);
+		
+		if(organizerUser != null) {
+			// Online Meeting
+			OnlineMeeting onlineMeeting = new OnlineMeeting();
+			onlineMeeting.startDateTime = OffsetDateTime.ofInstant(startDate, ZoneId.systemDefault());
+			onlineMeeting.endDateTime = OffsetDateTime.ofInstant(endDate, ZoneId.systemDefault());
+			onlineMeeting.subject = subject;
+			
+			getGraphClient().users(organizerUser.getId()).onlineMeetings(meetingId)
+					.buildRequest()
+					.patch(onlineMeeting);
+		}
+	}
+	
+	@Override
+	public List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, boolean force) throws MicrosoftCredentialsException{
+		List<MeetingRecordingData> ret = new ArrayList<>();
+		
+		//get from cache (if not forced)
+		if(!force) {
+			Cache.ValueWrapper cachedValue = getCache().get(CACHE_RECORDINGS+onlineMeetingId);
+			if(cachedValue != null) {
+				return (List<MeetingRecordingData>)cachedValue.get();
+			}
+		}
+		
+		ChatMessageCollectionPage page = getGraphClient().chats(onlineMeetingId).messages()
+				.buildRequest()
+				.get();
+		
+		while (page != null) {
+			//explore chat messages from given meeting
+			for(ChatMessage message : page.getCurrentPage()) {
+				//we only want "success" recording messages
+				if(message.eventDetail != null && message.eventDetail instanceof CallRecordingEventMessageDetail) {
+					CallRecordingEventMessageDetail details = (CallRecordingEventMessageDetail)message.eventDetail;
+					if(details.callRecordingStatus == CallRecordingStatus.SUCCESS) {
+						try {
+							MeetingRecordingData.MeetingRecordingDataBuilder builder = MeetingRecordingData.builder()
+								.id(details.callId)
+								.name(details.callRecordingDisplayName)
+								.url(details.callRecordingUrl)
+								.organizerId(details.initiator.user.id);
+							
+							//get driveItem (file in one-drive) from given webURL
+							String driveItemId = getDriveItemIdFromLink(details.callRecordingUrl);
+							if(StringUtils.isNotBlank(driveItemId)) {
+								//create a new link for sharing (we want all users to access the recording, not only the assistant ones)
+								String newURL = getNewLink(details.initiator.user.id, driveItemId);
+								if(newURL != null) {
+									builder.url(newURL);
+								}
+							}
+							
+							ret.add(builder.build());
+							
+						}catch(Exception e) {
+							log.debug("Error getting chat message chatId={}, messageId={}", onlineMeetingId, message.id);
+						}
+					}
+				}
+			}
+			ChatMessageCollectionRequestBuilder builder = page.getNextPage();
+			if (builder == null) break;
+			page = builder.buildRequest().get();
+		}
+		//update cache
+		getCache().put(CACHE_RECORDINGS+onlineMeetingId, ret);
+
+		return ret;
+	}
+	
+	// ---------------------------------------- ONE-DRIVE --------------------------------------------------------
+	@Override
+	public String getDriveItemIdFromLink(String link) throws MicrosoftCredentialsException {
+		String ret = null;
+		try {
+			String base64Link = Base64.getUrlEncoder().encodeToString(link.getBytes());
+			String finalLink = "u!"+base64Link.replaceAll("=+$", "").replace('/', '_').replace('+','-');
+			DriveItem item = getGraphClient().shares(finalLink).driveItem().buildRequest().get();
+			ret = item.id;
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.debug("Error getting driveItem from link={}", link);
+		}
+		return ret;
+	}
+	
+	@Override
+	public String getNewLink(String userId, String itemId) throws MicrosoftCredentialsException {
+		String ret = null;
+		try {
+			Permission p = getGraphClient().users(userId).drive().items(itemId)
+				.createLink(DriveItemCreateLinkParameterSet
+					.newBuilder()
+					.withType("view")
+					.withScope("organization")
+					.build())
+				.buildRequest()
+				.post();
+			ret = p.link.webUrl;
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.debug("Error creating link for item={} from user={}", itemId, userId);
+		}
+		return ret;
 	}
 	
 	// ---------------------------------------- PRIVATE FUNCTIONS ------------------------------------------------

@@ -18,6 +18,7 @@ package org.sakaiproject.microsoft.api;
 import java.util.List;
 import java.util.Locale;
 
+import org.sakaiproject.microsoft.api.data.SakaiCalendarEvent;
 import org.sakaiproject.microsoft.api.data.SakaiMembersCollection;
 import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
 import org.sakaiproject.microsoft.api.data.SakaiUserIdentifier;
@@ -30,8 +31,11 @@ public interface SakaiProxy {
 	// ------------------------------------------ SECURITY ----------------------------------------------------
 	boolean isAdmin();
 	boolean canUpdateSite(String siteReference, String userId);
+	boolean canCurrentUserAccessSite(String siteId);
 
 	// ------------------------------------------ USERS ----------------------------------------------------
+	String getCurrentUserId();
+	User getCurrentUser();
 	User getUser(String userId);
 	String getMemberKeyValue(User user, SakaiUserIdentifier key);
 	void setUserProperty(String userId, String value);
@@ -48,4 +52,17 @@ public interface SakaiProxy {
 	
 	// ------------------------------------------ GROUPS ----------------------------------------------------
 	SakaiMembersCollection getGroupMembers(Group group, SakaiUserIdentifier key);
+	
+	// ------------------------------------------ CALENDAR ----------------------------------------------------
+	boolean existsCalendar(String reference);
+	String saveCalendar(SakaiCalendarEvent calendarEvent);
+	boolean removeFromCalendar(String siteId, String calendarEventId) throws Exception;
+	
+	// --------------------------------------------- EMAIL -----------------------------------------------------
+	void sendMail(String from, List<String> to, String subject, String content);
+	
+	// --------------------------------------- SERVER CONFIG & PROPERTIES --------------------------------------
+	String getString(String name);
+	String getString(String name, String dflt);
+	String getServerName();
 }
