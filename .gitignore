@@ -25,3 +25,4 @@ rsf/sakai-rsf-web/test/overlays
 .mvn/wrapper/maven-wrapper.jar
 .checkstyle
 assets
+**/src/main/frontend/node/
