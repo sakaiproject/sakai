@@ -425,7 +425,7 @@ $(document).ready(function () {
 
       // mm-display-type is 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
 
-      const url = $('#mm-url').val();
+      let url = $('#mm-url').val();
       if (url !== '' && $('#mm-is-mm').val() === 'true') {
         if (mm_testing === 0) {
           // initial submit for URL. see what we've got
