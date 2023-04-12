@@ -117,14 +117,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 Map<String, Integer> studentAssessorsMap = new HashMap<String, Integer>();
                 List<User> submitterUsersList = assignmentService.allowAddSubmissionUsers(assignmentService.createAssignmentEntity(assignment.getId()).getReference());
                 Set<String> submitterIdsList = new HashSet<String>();
-                Optional<Site> site = getSiteForContext(assignment.getContext());
                 if (submitterUsersList != null) {
                     for (User u : submitterUsersList) {
-                        String submitterId = u.getId();
-                        if (assignment.getIsGroup() && site.isPresent()) {
-                            Optional<Group> group = site.get().getGroupsWithMember(submitterId).stream().findFirst();
-                            if (group.isPresent()) submitterId = group.get().getId();
-                        }
+                        String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, u.getId());
                         submitterIdsList.add(submitterId);
                     }
                 }
@@ -132,23 +127,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 for (AssignmentSubmission s : submissions) {
                     Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);
                     List<String> submitteeIds = s.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
-                    String groupId = "";
-                    if (assignment.getIsGroup() && site.isPresent()) {
-                        Optional<Group> group = site.get().getGroupsWithMember(ass.get().getSubmitter()).stream().findFirst();
-                        if (group.isPresent()) groupId = group.get().getId();
-                    }
+                    String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
                     //check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
                     if (s.getDateSubmitted() != null && (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
-                            && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && CollectionUtils.containsAny(submitterIdsList, groupId)))
+                            && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && submitterIdsList.contains(submitterId)))
                             && !s.getSubmitters().contains("admin")) {
                         //only deal with users in the submitter's list
                         submissionIdMap.put(s.getId(), s);
                         if (ass.isPresent()) {
-                            String submitterId = ass.get().getSubmitter();
-                            if (assignment.getIsGroup() && site.isPresent()) {
-                                Optional<Group> group = site.get().getGroupsWithMember(submitterId).stream().findFirst();
-                                if (group.isPresent()) submitterId = group.get().getId();
-                            }
                             assignedAssessmentsMap.put(submitterId, new HashMap<>());
                             studentAssessorsMap.put(submitterId, 0);
                         }
@@ -175,21 +161,13 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         //first, add this assessment to the AssignedAssessmentsMap
                         AssignmentSubmission s = submissionIdMap.get(p.getId().getSubmissionId());
                         Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//Next, increment the count for studentAssessorsMap
-                        Integer count = ass.isPresent() ?studentAssessorsMap.get(ass.get().getSubmitter()) : 0;
-                        if (assignment.getIsGroup() && site.isPresent()) {
-                            Optional<Group> group = site.get().getGroupsWithMember(ass.get().getSubmitter()).stream().findFirst();
-                            count = ass.isPresent() && group.isPresent() ?studentAssessorsMap.get(group.get().getId()) : 0;
-                        }
+                        String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
+                        Integer count = ass.isPresent() ? studentAssessorsMap.get(submitterId) : 0;
 
                         //check if the count is less than num of reviews before added another one,
                         //otherwise, we need to delete this one (if it's empty)
                         if (count < numOfReviews || p.getScore() != null || p.getComment() != null) {
                             count++;
-                            String submitterId = ass.get().getSubmitter();
-                            if (assignment.getIsGroup() && site.isPresent()) {
-                                Optional<Group> group = site.get().getGroupsWithMember(ass.get().getSubmitter()).stream().findFirst();
-                                if (group.isPresent()) submitterId = group.get().getId();
-                            }
                             studentAssessorsMap.put(submitterId, count);
                             Map<String, PeerAssessmentItem> peerAssessments = assignedAssessmentsMap.get(p.getId().getAssessorUserId());
                             if (peerAssessments == null) {
@@ -218,11 +196,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 for (String submissionId : randomSubmissionIds) {
                     AssignmentSubmission s = submissionIdMap.get(submissionId);
                     Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//first find out how many existing items exist for this user:
-                    String studentId = ass.get().getSubmitter();
-                    if (assignment.getIsGroup() && site.isPresent()) {
-                        Optional<Group> group = site.get().getGroupsWithMember(studentId).stream().findFirst();
-                        if (group.isPresent()) studentId = group.get().getId();
-                    }
+                    String studentId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
                     Integer assignedCount = ass.isPresent() ? studentAssessorsMap.get(studentId) : 0;
                     //by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
                     //a submission and the same submission user left, making for uneven distributions of submission reviews
@@ -233,10 +207,6 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     while (assignedCount < numOfReviews) {
                         //we need to add more reviewers for this user's submission
                         String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap, studentId, submissionId, snakeSubmissionList, submissionIdMap);
-                        if (assignment.getIsGroup() && site.isPresent()) {
-                            Optional<Group> group = site.get().getGroupsWithMember(lowestAssignedAssessor).stream().findFirst();
-                            if (group.isPresent()) lowestAssignedAssessor = group.get().getId();
-                        }
                         if (lowestAssignedAssessor != null) {
                             Map<String, PeerAssessmentItem> assessorsAssessmentMap = assignedAssessmentsMap.get(lowestAssignedAssessor);
                             if (assessorsAssessmentMap == null) {
@@ -279,12 +249,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             AssignmentSubmission s = submissionIdMap.get(sId);
             Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//do not include assesseeId (aka the user being assessed)
             if (ass.isPresent()) {
-                Optional<Site> site = getSiteForContext(ass.get().getSubmission().getAssignment().getContext());
-                String submitter = ass.get().getSubmitter();
-                if (ass.get().getSubmission().getAssignment().getIsGroup() && site.isPresent()) {
-                    Optional<Group> group = site.get().getGroupsWithMember(submitter).stream().findFirst();
-                    if (group.isPresent()) submitter = group.get().getId();
-                }
+                String submitter = assignmentService.getSubmitterIdForAssignment(s.getAssignment(), ass.get().getSubmitter());
                 if (!assesseeId.equals(submitter) &&
                         (lowestAssignedAssessorCount == null || peerAssessments.get(submitter).keySet().size() < lowestAssignedAssessorCount)) {
                     //check if this user already has a peer assessment for this assessee
@@ -532,16 +497,6 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             securityService.popAdvisor(sa);
         }
         return saved;
-    }
-
-    private Optional<Site> getSiteForContext(String context) {
-        Optional<Site> site = Optional.empty();
-        try {
-            site = Optional.of(siteService.getSite(context));
-        } catch (IdUnusedException ex) {
-            log.error("Can not get the site with context: {}", context);
-        }
-        return site;
     }
 
 }

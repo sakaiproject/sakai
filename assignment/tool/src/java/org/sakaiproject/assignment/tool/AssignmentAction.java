@@ -1735,12 +1735,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }else {
                 // new submission
                 // if assignment is a group submission... send group id and not user id
-                String submitterId;
-                if (assignment.getIsGroup()) {
-                    submitterId = assignmentService.getSubmitterIdForAssignment(assignment, user);
-                } else {
-                    submitterId = submitter.getId();
-                }
+                String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, user.getId());
                 try {
                     s = assignmentService.addSubmission(assignment.getId(), submitterId);
                     if (s != null ) {
@@ -2800,14 +2795,9 @@ public class AssignmentAction extends PagedResourceActionII {
         if (!allowAddAssignment) {
             //this is the same requirement for displaying the assignment link for students
             //now lets create a map for peer reviews for each eligible assignment
-            Optional<Site> site = getSiteForContext(contextString);
             for (Assignment assignment : assignments) {
                 if (assignment.getAllowPeerAssessment() && (assignmentService.isPeerAssessmentOpen(assignment) || assignmentService.isPeerAssessmentClosed(assignment))) {
-                    String peerId = userDirectoryService.getCurrentUser().getId();
-                    if (assignment.getIsGroup() && site.isPresent()) {
-                        Optional<Group> group = site.get().getGroupsWithMember(userDirectoryService.getCurrentUser().getId()).stream().findFirst();
-                        if (group.isPresent()) peerId = group.get().getId();
-                    }
+                    String peerId = assignmentService.getSubmitterIdForAssignment(assignment, userDirectoryService.getCurrentUser().getId());
                     peerAssessmentItemsMap.put(assignment.getId(), assignmentPeerAssessmentService.getPeerAssessmentItems(assignment.getId(), peerId, assignment.getScaleFactor()));
                 }
             }
@@ -4722,7 +4712,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
         Assignment assignment = getAssignment(assignmentRef, "build_instructor_grade_assignment_context", state);
-        Optional<Site> site = getSiteForContext(assignment.getContext());
 
         if (assignment != null) {
             context.put("assignment", assignment);
@@ -4796,6 +4785,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 Map<String, List<PeerAssessmentItem>> itemsMap = new HashMap<String, List<PeerAssessmentItem>>();
                 Map<String, User> reviewersMap = new HashMap<>();
                 Map<String, Group> groupsReviewersMap = new HashMap<>();
+                Site site = null;
+                try {
+                    site = siteService.getSite(assignment.getContext());
+                } catch (IdUnusedException ex) {
+                    log.error("Could not get the site {}", context);
+                }
                 if (items != null) {
                     for (PeerAssessmentItem item : items) {
                         //update items map
@@ -4808,8 +4803,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         //update users/groups map:
                         if (assignment.getIsGroup()) {
                             Group gr = groupsReviewersMap.get(item.getId().getAssessorUserId());
-                            if (gr == null && site.isPresent()) {
-                                gr = site.get().getGroup(item.getId().getAssessorUserId());
+                            if (gr == null && site != null) {
+                                gr = site.getGroup(item.getId().getAssessorUserId());
                                 groupsReviewersMap.put(item.getId().getAssessorUserId(), gr);
                             }
                         } else {
@@ -5201,20 +5196,13 @@ public class AssignmentAction extends PagedResourceActionII {
         List<PeerAssessmentItem> peerAssessmentItems = (List<PeerAssessmentItem>) state.getAttribute(PEER_ASSESSMENT_ITEMS);
         String assignmentId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
         Assignment assignment = getAssignment(assignmentId, "build_student_review_edit_context", state);
-        Optional<Site> site = getSiteForContext(assignment.getContext());
         User sessionUser = (User) state.getAttribute(STATE_USER);
         String assessorId = (String) state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID);
         if (assessorId == null) assessorId = sessionUser.getId();
         String currentUserGroup = null;
-        if (assignment.getIsGroup() && site.isPresent()) {
-            Optional<Group> group = site.get().getGroupsWithMember(assessorId).stream().findFirst();
-            if (group.isPresent()) {
-                assessorId = group.get().getId();
-            }
-            Optional<Group> optCurrentUserGroup = site.get().getGroupsWithMember(sessionUser.getId()).stream().findFirst();
-            if (optCurrentUserGroup.isPresent()) {
-                currentUserGroup = optCurrentUserGroup.get().getId();
-            }
+        if (assignment.getIsGroup()) {
+            assessorId = assignmentService.getSubmitterIdForAssignment(assignment, assessorId);
+            currentUserGroup = assignmentService.getSubmitterIdForAssignment(assignment, sessionUser.getId());
         }
         context.put("assessorId", assessorId);
 
@@ -5313,8 +5301,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     context.put("view_only", true);
                     try {
                         if (assignment.getIsGroup()) {
-                            Group group = site.get().getGroup(peerAssessmentItem.getId().getAssessorUserId());
-                            context.put("reviewer", group);
+                            try {
+                                Site site = siteService.getSite(assignment.getContext());
+                                Group group = site.getGroup(peerAssessmentItem.getId().getAssessorUserId());
+                                context.put("reviewer", group);
+                            } catch (IdUnusedException ex) {
+                                log.warn("Could not get the site {}", context);
+                            }
                         } else {
                             User reviewer = userDirectoryService.getUser(peerAssessmentItem.getId().getAssessorUserId());
                             context.put("reviewer", reviewer);
@@ -9851,12 +9844,7 @@ public class AssignmentAction extends PagedResourceActionII {
             //set the page to go to
             state.setAttribute(VIEW_ASSIGNMENT_ID, assignmentId);
             String submissionId = null;
-            Optional<Site> site = getSiteForContext(a.getContext());
-            String peerId = userDirectoryService.getCurrentUser().getId();
-            if (a.getIsGroup() && site.isPresent()) {
-                Optional<Group> group = site.get().getGroupsWithMember(peerId).stream().findFirst();
-                if (group.isPresent()) peerId = group.get().getId();
-            }
+            String peerId = assignmentService.getSubmitterIdForAssignment(a, userDirectoryService.getCurrentUser().getId());
             List<PeerAssessmentItem> peerAssessmentItems = peerAssessmentItems = assignmentPeerAssessmentService.getPeerAssessmentItems(a.getId(), peerId, a.getScaleFactor());
             state.setAttribute(PEER_ASSESSMENT_ITEMS, peerAssessmentItems);
             List<String> submissionIds = new ArrayList<String>();
@@ -11285,29 +11273,23 @@ public class AssignmentAction extends PagedResourceActionII {
      * @return
      */
     public boolean saveReviewGradeForm(RunData data, SessionState state, String gradeOption) {
-        ParameterParser params = data.getParameters();
-        String submissionId = params.getString("submissionId");
-        String assessorUserId = userDirectoryService.getCurrentUser().getId();
-        if (submissionId != null) {
-            AssignmentSubmission s = getSubmission(submissionId, "saveReviewGradeForm", state);
-            Assignment assignment = s.getAssignment();
-            Optional<Site> site = getSiteForContext(assignment.getContext());
-            if (assignment.getIsGroup() && site.isPresent()) {
-                Optional<Group> group = site.get().getGroupsWithMember(assessorUserId).stream().findFirst();
-                if (group.isPresent()) assessorUserId = group.get().getId();
-            }
-        }
-        if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null && !assessorUserId.equals(state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID))) {
-            //this is only set during the read only view, so just return
-            return false;
-        }
 
 	    boolean preExistingAlerts = state.getAttribute(STATE_MESSAGE) != null;
 
+        ParameterParser params = data.getParameters();
+        String submissionId = params.getString("submissionId");
         if (submissionId != null) {
             AssignmentSubmission s = getSubmission(submissionId, "saveReviewGradeForm", state);
             if (s != null) {
                 submissionId = s.getId();//using the id instead of the reference
+            }
+
+            Assignment assignment = s.getAssignment();
+            String assessorUserId = assignmentService.getSubmitterIdForAssignment(assignment, userDirectoryService.getCurrentUser().getId());
+
+            if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null && !assessorUserId.equals(state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID))) {
+                //this is only set during the read only view, so just return
+                return false;
             }
 
             //call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
@@ -15137,16 +15119,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         return rv;
-    }
-
-    private Optional<Site> getSiteForContext(String context) {
-        Optional<Site> site = Optional.empty();
-        try {
-            site = Optional.of(siteService.getSite(context));
-        } catch (IdUnusedException ex) {
-            log.error("Can not get the site with context: {}", context);
-        }
-        return site;
     }
 
     /**

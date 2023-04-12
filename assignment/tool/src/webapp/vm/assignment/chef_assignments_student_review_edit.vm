@@ -15,7 +15,10 @@
      });
 </script>
 <div class="portletBody">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
+	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
+		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
+		#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
+	#end
 	## confirmation
 	#if ($!gradingDone)
 		<div class="success">
