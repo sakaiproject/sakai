@@ -627,10 +627,10 @@ public interface AssignmentService extends EntityProducer {
      * Given an Assignment and a User, rationalize who the submitter should be taking into account the assignment configuration
      * Will check the assignments access and group configuration to determine the submitter id
      * @param assignment The assignment
-     * @param user The user
+     * @param userId The user id
      * @return the correct submitter id to use for creating a submission or null if one can't be determined
      */
-    String getSubmitterIdForAssignment(Assignment assignment, User user);
+    String getSubmitterIdForAssignment(Assignment assignment, String userId);
 
     /**
      * @param accentedString
