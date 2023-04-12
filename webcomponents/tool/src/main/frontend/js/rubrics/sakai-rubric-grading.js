@@ -276,7 +276,6 @@ export class SakaiRubricGrading extends RubricsElement {
       this.totalPoints = this.totalPoints + criterion.pointoverride;
     }
 
-    this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
     const detail = {
       evaluatedItemId: this.evaluatedItemId,
       entityId: this.entityId,
@@ -339,6 +338,7 @@ export class SakaiRubricGrading extends RubricsElement {
     })
     .then(data => {
 
+      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
       this.evaluation = data;
       return Promise.resolve(this.evaluation);
     })
@@ -401,7 +401,6 @@ export class SakaiRubricGrading extends RubricsElement {
     // remove the strike out from the clicked points value
     this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
 
-    this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
     this.requestUpdate();
     this.updateTotalPoints();
 

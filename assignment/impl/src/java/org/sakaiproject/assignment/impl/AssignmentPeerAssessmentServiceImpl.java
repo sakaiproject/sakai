@@ -127,7 +127,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 for (AssignmentSubmission s : submissions) {
                     Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);
                     List<String> submitteeIds = s.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
-                    String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
+                    String submitterId = ass.isPresent() ? assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter()) : "";
                     //check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
                     if (s.getDateSubmitted() != null && (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
                             && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && submitterIdsList.contains(submitterId)))
