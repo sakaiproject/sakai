@@ -1,0 +1,67 @@
+/* This is here, to "unset" some Bootstrap 3 rules that come along */
+
+#meetings-tool {
+  .dropdown-menu .divider {
+    height: unset;
+    margin: unset;
+    overflow: unset;
+    background-color: unset;
+  }
+
+  [class^="col-"] {
+    float: unset;
+  }
+
+  .is-invalid ~ .invalid-feedback,
+  .is-invalid ~ .invalid-tooltip,
+  .was-validated :invalid ~ .invalid-feedback,
+  .was-validated :invalid ~ .invalid-tooltip {
+    display: block;
+  }
+
+  .form-control,
+  .form-control:focus {
+    background-color: unset;
+  }
+
+  legend {
+    font-size: unset;
+
+    &.form-label {
+      font-weight: bold;
+    }
+  }
+
+  .fade {
+    opacity: unset;
+  }
+
+  .modal-header {
+    &::before,
+    &::after {
+      display: none;
+      content: "";
+    }
+  }
+}
+
+/* Since B5 is based heavily on the rem unit,
+   which is defined by the root font size,
+   we need to overwrite 10px */
+html {
+  font-size: 16px !important;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  
+  &.show {
+    opacity: 0.5 !important;
+  }
+}
