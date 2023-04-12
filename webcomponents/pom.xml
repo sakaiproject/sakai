@@ -9,14 +9,24 @@
 		<relativePath>../master/pom.xml</relativePath>
     </parent>
 
-    <name>Sakai Web Components</name>
-    <groupId>org.sakaiproject</groupId>
-    <artifactId>webcomponents-parent</artifactId>
+    <name>webcomponents-base</name>
+    <groupId>org.sakaiproject.webcomponents</groupId>
+    <artifactId>webcomponents-base</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>bundle</module>
+        <module>api</module>
         <module>tool</module>
     </modules>
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/bundle</directory>
+            </resource>
+        </resources>
+    </build>
+
 
 </project>

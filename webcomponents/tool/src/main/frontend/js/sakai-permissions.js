@@ -224,7 +224,7 @@ class SakaiPermissions extends SakaiElement {
 
   loadPermissions() {
 
-    fetch(`/direct/permissions/${portal.siteId}/getPerms/${this.tool}.json?ref=${this.groupReference}`, {cache: "no-cache", credentials: "same-origin"})
+    fetch(`/api/sites/${portal.siteId}/permissions?tool=${this.tool}&groupRef=${this.groupReference}`, {cache: "no-cache", credentials: "same-origin"})
       .then(res => {
 
         if (res.status === 403) {
@@ -252,7 +252,7 @@ class SakaiPermissions extends SakaiElement {
     document.body.style.cursor = "wait";
 
     const boxes = this.querySelectorAll('.permissions-table input[type="checkbox"]');
-    const params = `ref=${this.groupReference}&${  Array.from(boxes).reduce((acc, b) => {
+    const params = `groupRef=${this.groupReference}&${  Array.from(boxes).reduce((acc, b) => {
 
       if (b.checked) {
         return `${acc  }${encodeURIComponent(b.id)}=true&`;
@@ -261,21 +261,25 @@ class SakaiPermissions extends SakaiElement {
 
     }, "")}`;
 
-    fetch(`/direct/permissions/${portal.siteId}/setPerms`, {method: "POST", credentials: "same-origin", body: new URLSearchParams(params), timeout: 30000})
-      .then(res => {
+    fetch(`/api/sites/${portal.siteId}/permissions`, {
+      method: "POST",
+      credentials: "same-origin",
+      body: new URLSearchParams(params), timeout: 30000
+    })
+    .then(res => {
 
-        if (res.ok) {
-          this._completePermissions();
-        } else {
-          throw new Error("Network response was not ok.");
-        }
-      })
-      .catch(error => {
+      if (res.ok) {
+        this._completePermissions();
+      } else {
+        throw new Error("Network response was not ok.");
+      }
+    })
+    .catch (error => {
 
-        document.querySelector(`#${this.tool.replace('.', '\\.')}-failure-message`).style.display = "inline-block";
-        console.error(`Failed to save permissions for tool ${this.tool}`, error);
-      })
-      .finally(() => document.body.style.cursor = "default");
+      document.querySelector(`#${this.tool.replace('.', '\\.')}-failure-message`).style.display = "inline-block";
+      console.error(`Failed to save permissions for tool ${this.tool}`, error);
+    })
+    .finally(() => document.body.style.cursor = "default");
   }
 
   resetPermissions() {
