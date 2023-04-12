@@ -259,31 +259,7 @@ public class SiteArchiver {
 		stack.pop();
 		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/user.xml");
 
-		// Write an archive.xml file with status about the export
-		doc = Xml.createDocument();
-		stack = new Stack();
-		root = doc.createElement("archive");
-		doc.appendChild(root);
-		root.setAttribute("site", siteId);
-		root.setAttribute("date", now.toString());
-		root.setAttribute("system", fromSystem);
-		root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
-
-		stack.push(root);
-		archiveArchive(doc, stack, results.toString());
-		stack.pop();
-
-		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/archive.xml");
-
-		log.info("Completed archive of site {}", siteId);
-
-		String lessonsExportPath = m_storagePath + siteId + "-archive/lessonbuilder.xml";
-		if (new File(lessonsExportPath).exists()) {
-		    new LessonsRejigger().rewriteLessons(lessonsExportPath);
-		    new SubPageWhacker().whack(lessonsExportPath);
-		    new QuizTitleHappyMaker().makeHappy(lessonsExportPath);
-		}
-
+		// Custom changes inherited from NYU
 		new SiteInfoPoker().pokeAsResource(siteId, m_storagePath + siteId + "-archive");
 
 		String syllabusExportPath = m_storagePath + siteId + "-archive/syllabus.xml";
