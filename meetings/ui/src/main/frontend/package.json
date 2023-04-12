@@ -1,0 +1,25 @@
+{
+  "name": "meetings-ui",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --base=/meetings-ui/ --outDir ../../../target/webapp/",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.7",
+    "bootstrap": "^5.2.3",
+    "dayjs": "^1.10.8",
+    "string.prototype.format": "^1.0.0",
+    "uuid": "^9.0.0",
+    "vue": "^3.2.47",
+    "vue-router": "^4.1.6",
+    "pinia": "^2.0.36"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.2.1",
+    "sass": "^1.62.1",
+    "vite": "^4.3.5"
+  }
+}
