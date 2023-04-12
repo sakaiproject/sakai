@@ -19,7 +19,7 @@
 
 			<form id="index-form" th:action="@{/index}" method="get">
 				<div class="container-fluid utility-container row">
-					<div th:if="${search != null and search != ''}" class="listNav col-lg-4 act no-h-padding utility-gap" style="justify-content: flex-start;">
+					<div th:if="${siteSynchronizations.size() > 0 or (search != null and search != '')}" class="listNav col-lg-4 act no-h-padding utility-gap" style="justify-content: flex-start;">
 						<div>
 							<input id="search-input" name="search" class="form-control microsoft-search input-search" type="search"
 								th:value="${search}" th:placeholder="|&#xF002; #{search}|" />
