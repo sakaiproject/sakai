@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <!-- Include Sakai OSS parent, includes information for release management and project information common to all projects --> 
+  <!-- Include Sakai OSS parent, includes information for release management and project information common to all projects -->
   <parent>
       <groupId>org.sakaiproject</groupId>
       <artifactId>oss-parent</artifactId>
@@ -100,7 +100,7 @@
 
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
-    <sakai.msgcntr.version>${sakai.version}</sakai.msgcntr.version> 
+    <sakai.msgcntr.version>${sakai.version}</sakai.msgcntr.version>
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sakai.jdk.version>11</sakai.jdk.version>
@@ -287,22 +287,17 @@
       </snapshots>
     </repository>
     <repository>
-      <id>sakai-maven2-snapshots</id>
-      <name>Sakai Maven Repo</name>
-      <layout>default</layout>
-      <url>https://source.sakaiproject.org/maven2-snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-        <checksumPolicy>ignore</checksumPolicy>
-      </releases>
+      <id>repository.spring.release</id>
+      <name>Spring GA Repository</name>
+      <url>https://repo.spring.io/release</url>
       <snapshots>
-        <enabled>true</enabled>
-        <checksumPolicy>ignore</checksumPolicy>
+        <enabled>false</enabled>
       </snapshots>
     </repository>
     <repository>
-      <id>shib-release</id>
-      <url>https://build.shibboleth.net/nexus/content/groups/public</url>
+      <id>gridgain</id>
+      <name>Gridgain Systems</name>
+      <url>https://gridgainsystems.com/nexus/content/repositories/external</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -1115,7 +1110,7 @@
          <artifactId>backport-util-concurrent</artifactId>
          <version>3.1</version>
          <scope>provided</scope>
-      </dependency> 
+      </dependency>
       <dependency>
         <groupId>jaxen</groupId>
         <artifactId>jaxen</artifactId>
@@ -1481,13 +1476,13 @@
         <artifactId>lucene-backward-codecs</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-grouping</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-queries</artifactId>
@@ -1869,7 +1864,7 @@
         <artifactId>delegatedaccess-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
-      </dependency> 
+      </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.course-management</groupId>
         <artifactId>coursemanagement-api</artifactId>
@@ -1904,7 +1899,7 @@
         <artifactId>hierarchy-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
-      </dependency> 
+      </dependency>
       <dependency>
         <groupId>org.sakaiproject.mailarchive</groupId>
         <artifactId>sakai-mailarchive-api</artifactId>
