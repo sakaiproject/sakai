@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
@@ -58,6 +57,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 
 /**
  * The QuestionPoolService calls the service locator to reach the
@@ -605,8 +605,13 @@ public class PublishedAssessmentService extends AssessmentService{
         .map(publishedItem -> publishedItem.getScore())
         .reduce(0.0, Double::sum);
 
-    // Number of items that don't are not cancelled or going to be cancelled
-    int distributedItemsNotToCancelCount = publishedItemMap.size() - distributedItemsToCancel.size() - totalScoreItemsToCancel.size();
+    // Number of items that are cancelled already
+    int cancelledItemsCount = publishedItemMap.values().stream()
+        .filter(publishedItem -> ItemCancellationUtil.isCancelled(publishedItem))
+        .collect(Collectors.counting()).intValue();
+
+    // Number of items that are not cancelled or going to be cancelled
+    int distributedItemsNotToCancelCount = publishedItemMap.size() - distributedItemsToCancel.size() - totalScoreItemsToCancel.size() - cancelledItemsCount;
 
     // Points that should be added to each not cancelled item
     Double pointsToDistribute = distributedItemsToCancelTotal > 0.0
@@ -642,6 +647,7 @@ public class PublishedAssessmentService extends AssessmentService{
         case ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED:
         case ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED:
           // Item is cancelled already, we can skip it
+          saveItem(publishedItem);
           continue;
       }
 
