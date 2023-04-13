@@ -511,7 +511,11 @@
 											<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 										#end
 									#else
-										<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+										#if ($service.getGradeForSubmitter($submission, $user.getId()).equals(""))
+											<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+										#else
+											<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+										#end
 									#end
 								</td>
 							#end
