@@ -115,9 +115,11 @@ can be either all members of the site, all members of selected groups, or the se
 							#set($groupDisabled = $groupsWithUserSubmission.contains($aGroup))
 						#end
 					#end
-					#foreach($instructorGroup in $instructorGroups )
-						#if($group.Id == $instructorGroup.Id)
-							#set($selected = true)
+					#if (!$assignmentGroups)
+						#foreach($instructorGroup in $instructorGroups )
+							#if($group.Id == $instructorGroup.Id)
+								#set($selected = true)
+							#end
 						#end
 					#end
 					<option value="$group.Id" #if($selected) selected #end #if($groupDisabled) disabled #end>$formattedText.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
