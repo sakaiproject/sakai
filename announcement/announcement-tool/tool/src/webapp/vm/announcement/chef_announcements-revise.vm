@@ -181,7 +181,7 @@ function resizeFrame(){
 						<div class="checkbox">
 							<label for="annc-highl-key">
 								<label class="annc-highl-label" for="highlight" name="highlight-key">
-									#set($isHightlighted = $message.getProperties().getProperty("highlight") == "true")
+									#set($isHightlighted = $message.getProperties().getProperty("highlight") == "true" || $highlight)
 									<input type="checkbox" id="highlight" #if ($isHightlighted) checked="" #end name="highlight" value="true">
 									$tlang.getString("revise.highlight")
 								</label>

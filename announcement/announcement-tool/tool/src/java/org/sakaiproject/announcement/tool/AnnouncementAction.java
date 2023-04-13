@@ -2075,6 +2075,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		context.put("announceToGroups", state.getTempAnnounceToGroups());
 		context.put("announceToRoles", state.getTempAnnounceToRoles());
+		context.put("highlight", state.getTempHighlight());
 
 		context.put("publicDisable", sstate.getAttribute(PUBLIC_DISPLAY_DISABLE_BOOLEAN));
 
