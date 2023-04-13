@@ -7,9 +7,6 @@
 
 	<div th:if="${isAdmin}">
 		<div class="portletBody">
-			<input id="sort-by-input" name="sortBy" type="hidden" th:value="${sortBy}" />
-			<input id="sort-order-input" name="sortOrder" type="hidden" th:value="${sortOrder}" />
-
 			<div id="menu" th:replace="fragments/menus :: main (index)" />
 			<div class="page-header">
 				<h1 th:text="#{index_title}"></h1>
@@ -24,7 +21,6 @@
 				<div class="container-fluid utility-container row">
 					<div th:if="${siteSynchronizations.size() > 0 or (search != null and search != '')}" class="listNav col-lg-4 act no-h-padding utility-gap" style="justify-content: flex-start;">
 						<div>
-							<input id="select-page-num" name="pageNum" type="hidden" th:value="${pageNum}" />
 							<input id="search-input" name="search" class="form-control microsoft-search input-search" type="search"
 								th:value="${search}" th:placeholder="|&#xF002; #{search}|" />
 						</div>
@@ -37,38 +33,41 @@
 					</div>
 					
 					<div th:if="${siteSynchronizations.size() > 0}" class="sakai-table-toolBar col-lg-4 no-h-padding"
-					th:with="indexTo=((${pageNum} * ${pageSize}) + 1),
-					indexOf=(${pageNum} + 1) * ${pageSize} > ${totalElements} ? ${totalElements} : (${pageNum} + 1) * ${pageSize}">
+						th:with="indexTo=((${pageNum} * ${pageSize}) + 1),
+						indexOf=(${pageNum} + 1) * ${pageSize} > ${totalElements} ? ${totalElements} : (${pageNum} + 1) * ${pageSize}"
+					>
 						<div class="sakai-table-pagerContainer">
-							<script type="text/javascript" src="/library/js/sakai-table-toolbar/pagerPanelMacro.js" defer=""></script>
 							<div class="sakai-table-pagerLabel" th:utext="#{pager.showing_elements(${indexTo}, ${indexOf}, ${totalElements})}"></div>
 							<div class="sakai-table-pagerControls">
-								<input type="button" name="eventSubmit_doList_first" value="|<" th:title="#{index.pagination_first_page}"
-									onclick="saveValues('firstPagination')" th:disabled="${pageNum} == 0" />
-								<input type="button" name="eventSubmit_doList_prev" value="<"
+								<input type="button" value="|<" 
+									th:title="#{index.pagination_first_page}" onclick="saveValues('firstPagination')"
+									th:disabled="${pageNum} == 0" />
+								<input type="button" value="<"
 									th:title="#{index.pagination_previous_page(${pageSize})}" onclick="saveValues('previousPagination')"
 									th:disabled="${pageNum} == 0" />
 								<div class="sakai-table-pagerPageSize">
 									<span th:text="#{index.pagination_skip}" class="skip"></span>
-								<select id="page-size-input" name="pageSize" th:aria-label="#{index.pagination_page_size.aria}"
+									<select id="page-size-input" name="pageSize" th:aria-label="#{index.pagination_page_size.aria}"
 										onchange="saveValues('pageSize')">
-										<option value="3" th:selected="${pageSize} == '3'" th:text="#{pager.show_x_elements(3)}"></option>
 										<option value="10" th:selected="${pageSize} == '10'" th:text="#{pager.show_x_elements(10)}"></option>
 										<option value="50" th:selected="${pageSize} == '50'" th:text="#{pager.show_x_elements(50)}"></option>
 										<option value="100" th:selected="${pageSize} == '100'" th:text="#{pager.show_x_elements(100)}"></option>
 										<option value="200" th:selected="${pageSize} == '200'" th:text="#{pager.show_x_elements(200)}"></option>
 									</select>
 								</div>
-								<input id="max-page" type="hidden" th:value="${maxPage}" />
-								<input type="button" name="eventSubmit_doList_next" value=">"
+								<input type="button" value=">"
 									th:title="#{index.pagination_next_page(${pageSize})}" onclick="saveValues('nextPagination')"
 									th:disabled="${pageNum} >= ${maxPage}" />
-								<input type="button" name="eventSubmit_doList_last" value=">|" th:title="#{index.pagination_last_page}"
-									onclick="saveValues('lastPagination')" th:disabled="${pageNum} >= ${maxPage}" />
+								<input type="button" value=">|" 
+									th:title="#{index.pagination_last_page}" onclick="saveValues('lastPagination')"
+									th:disabled="${pageNum} >= ${maxPage}" />
 							</div>
 						</div>
 					</div>
 				</div>
+				<input id="select-page-num" name="pageNum" type="hidden" th:value="${pageNum}" />
+				<input id="sort-by-input" name="sortBy" type="hidden" th:value="${sortBy}" />
+				<input id="sort-order-input" name="sortOrder" type="hidden" th:value="${sortOrder}" />
 			</form>
 			<th:block th:if="${siteSynchronizations.size() > 0}">
 				<div id="table-container" class="admin-table container-fluid">
@@ -212,11 +211,11 @@
 			}
 
 			function saveValues(elem) {
-				var form = document.getElementById("index-form");
-				var sortBy = document.getElementById("sort-by-input");
-				var sortOrder = document.getElementById("sort-order-input");
-				var pageSize = document.getElementById('page-size-input');
-				var pageNum = document.getElementById('select-page-num');
+				let form = document.getElementById("index-form");
+				let sortBy = document.getElementById("sort-by-input");
+				let sortOrder = document.getElementById("sort-order-input");
+				let pageSize = document.getElementById('page-size-input');
+				let pageNum = document.getElementById('select-page-num');
 				switch (elem) {
 					case 'firstPagination':
 						pageNum.value = 0;
@@ -225,12 +224,12 @@
 						pageNum.value -= 1;
 						break;
 					case 'nextPagination':
-						var pageNumValue = parseInt(pageNum.value);
+						let pageNumValue = parseInt(pageNum.value);
 						pageNumValue += 1;
 						pageNum.value = pageNumValue;
 						break;
 					case 'lastPagination':
-						var maxPage = document.getElementById("max-page").value;
+						let maxPage = [[${maxPage}]];
 						pageNum.value = maxPage;
 						break;
 					case 'search':
