@@ -28,9 +28,12 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
@@ -41,6 +44,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -49,11 +53,14 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -717,6 +724,75 @@ public class PublishedAssessmentService extends AssessmentService{
         // Grade based on this data
         gradingService.storeGrades(gradingData, true, publishedAssessment, publishedItemHash,
             publishedItemTextHash, publishedAnswerHash, true);
+      }
+    }
+  }
+
+  public void updateGradebook(PublishedAssessmentIfc assessment) {
+    GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+    GradebookExternalAssessmentService gradebookExternalAssessmentService = IntegrationContextFactory.getInstance().isIntegrated()
+      ? (GradebookExternalAssessmentService) SpringBeanLocator.getInstance()
+          .getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
+      : null;
+
+    if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), gradebookExternalAssessmentService)) {
+      PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
+      if (evaluation == null) {
+        evaluation = new PublishedEvaluationModel();
+        evaluation.setAssessmentBase(assessment);
+      }
+
+      Integer scoringType = evaluation.getScoringType();
+      if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+
+        try {
+          try {
+            log.debug("before gbsHelper.updateGradebook()");
+            gbsHelper.updateGradebook(assessment, gradebookExternalAssessmentService);
+          } catch (Exception ex) {
+              log.warn("Gradebook item does not exist for assessment {}, creating a new gradebook item", assessment.getAssessmentId());
+              gbsHelper.addToGradebook(assessment, null, gradebookExternalAssessmentService);
+          }
+
+          // any score to copy over? get all the assessmentGradingData and copy over
+          GradingService gradingService = new GradingService();
+          // need to decide what to tell gradebook
+          List<AssessmentGradingData> gradingDataList;
+
+          if (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringType)) {
+            gradingDataList = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+          } else {
+            gradingDataList = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+          }
+          log.debug("grading data list size: {}", gradingDataList.size());
+
+          for (int i = 0; i < gradingDataList.size(); i++) {
+            try {
+              AssessmentGradingData gradingData = gradingDataList.get(i);
+              log.debug("gradingData.scores: {}", gradingData.getTotalAutoScore());
+              // Send the average score if average was selected for multiple submissions
+              if (EvaluationModelIfc.AVERAGE_SCORE.equals(scoringType)
+                  && !AssessmentGradingData.NO_SUBMISSION.equals(gradingData.getStatus())) {
+                Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+                getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), gradingData.getAgentId());
+                gradingData.setFinalScore(averageScore);
+              }
+              gbsHelper.updateExternalAssessmentScore(gradingData, gradebookExternalAssessmentService);
+            } catch (Exception e) {
+              log.warn("Could not update score item #{}: {}", i, e.toString());
+            }
+          }
+        } catch (Exception e2) {
+          log.warn("Could not update gradebook: {}", e2.toString());
+        }
+      } else {
+        // remove
+        try {
+          gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(),
+              assessment.getPublishedAssessmentId().toString(), gradebookExternalAssessmentService);
+        } catch (Exception e) {
+          log.info("Nothing to remove: {}", e.toString());
+        }
       }
     }
   }
