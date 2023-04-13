@@ -181,9 +181,6 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Setter @Getter
   private boolean emiItemPresent;
 
-  @Getter @Setter
-  private boolean regradedAssessmentReSubmittable;
-
   private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
 
   /**

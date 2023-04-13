@@ -1296,13 +1296,6 @@ $Id$
           </h:panelGroup>
           <h:outputText value="#{commonMessages.cancel_question_info_regrade} #{commonMessages.cancel_question_info_no_undo}" />
         </h:panelGroup>
-        <h:panelGroup styleClass="form-row" layout="block">
-          <h:selectBooleanCheckbox id="regradedAssessmentReSubmittable" value="#{questionScores.regradedAssessmentReSubmittable}" />
-          <h:outputLabel for="regradedAssessmentReSubmittable" value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
-          <label class="help-block info-text small">
-            <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox_warn}" />
-          </label>
-        </h:panelGroup>
       </h:panelGroup>
       <h:panelGroup styleClass="modal-footer act" layout="block">
         <h:commandButton styleClass="active" type="submit" id="cancelItemTotal" action="questionScores"
