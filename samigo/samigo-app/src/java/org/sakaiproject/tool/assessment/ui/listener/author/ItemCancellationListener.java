@@ -99,6 +99,7 @@ public class ItemCancellationListener implements ActionListener {
 
             // Update questionsScores bean
             questionScoresBean.setPublishedAssessment(updatedPublishedAssessment);
+            questionScoresBean.setItemScoresMap(null);
             QuestionScoreListener questionScoreListener = new QuestionScoreListener();
             questionScoreListener.questionScores(publishedAssessmentId, questionScoresBean, false);
         }
