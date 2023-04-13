@@ -44,7 +44,7 @@ public class EntityDescriptionManagerTest extends TestCase {
       // setup things
       td = new TestData();
       entityDescriptionManager = new ServiceTestManager(td).entityDescriptionManager;
-      Locale.setDefault(new Locale("en", "US"));
+      Locale.setDefault(Locale.ENGLISH);
    }
 
    public void testReplacePrefix() {

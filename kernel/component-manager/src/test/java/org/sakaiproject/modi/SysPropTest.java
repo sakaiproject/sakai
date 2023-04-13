@@ -18,6 +18,7 @@ package org.sakaiproject.modi;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.*;
@@ -46,56 +47,56 @@ public class SysPropTest {
 
     @Test
     public void givenAValue_whenGetting_thenItIsPresent() {
-        System.setProperty("sakai.home", "/home");
-        assertThat(sakai_home.get().get()).isEqualTo("/home");
+        System.setProperty("sakai.home", File.separator + "home");
+        assertThat(sakai_home.get().get()).isEqualTo(File.separator + "home");
     }
 
     @Test
     public void givenAValue_whenGettingPath_thenItIsPresent() {
-        System.setProperty("sakai.home", "/home");
-        assertThat(sakai_home.getPath().get()).isEqualTo(Path.of("/home"));
+        System.setProperty("sakai.home", File.separator + "home");
+        assertThat(sakai_home.getPath().get()).isEqualTo(Path.of(File.separator + "home"));
     }
 
     @Test
     public void givenAValue_whenGettingPathWithSuffix_thenItIsAppended() {
-        System.setProperty("sakai.home", "/home");
-        assertThat(sakai_home.getPathPlus("other").get()).isEqualTo(Path.of("/home/other"));
+        System.setProperty("sakai.home", File.separator + "home");
+        assertThat(sakai_home.getPathPlus("other").get()).isEqualTo(Path.of(File.separator + "home" + File.separator + "other"));
     }
 
     @Test
     public void givenAValue_whenGettingRawPathWithSuffix_thenItIsAppended() {
-        System.setProperty("sakai.home", "/home");
-        assertThat(sakai_home.getRawPathPlus("other")).isEqualTo(Path.of("/home/other"));
+        System.setProperty("sakai.home", File.separator + "home");
+        assertThat(sakai_home.getRawPathPlus("other")).isEqualTo(Path.of(File.separator + "home" + File.separator + "other"));
     }
 
     @Test
     public void givenAValue_whenGettingRaw_thenItIsMatches() {
-        System.setProperty("sakai.home", "/home");
-        assertThat(sakai_home.getRaw()).isEqualTo("/home");
+        System.setProperty("sakai.home", File.separator + "home");
+        assertThat(sakai_home.getRaw()).isEqualTo(File.separator + "home");
     }
 
     @Test
     public void givenAStringPath_whenGettingAsPath_thenItMatches() {
-        System.setProperty("sakai.home", "/home");
-        assertThat(sakai_home.getRawPath()).isEqualTo(Path.of("/home"));
+        System.setProperty("sakai.home", File.separator + "home");
+        assertThat(sakai_home.getRawPath()).isEqualTo(Path.of(File.separator + "home"));
     }
 
     @Test
     public void givenAValue_whenSettingAString_thenItIsStoredInSystemProps() {
-        System.setProperty("sakai.home", "/home");
+        System.setProperty("sakai.home", File.separator + "home");
 
-        sakai_home.set("/changed");
+        sakai_home.set(File.separator + "changed");
 
-        assertThat(System.getProperty("sakai.home")).isEqualTo("/changed");
+        assertThat(System.getProperty("sakai.home")).isEqualTo(File.separator + "changed");
     }
 
     @Test
     public void givenAValue_whenSettingAPath_thenItIsStoredInSystemProps() {
-        System.setProperty("sakai.home", "/home");
+        System.setProperty("sakai.home", File.separator + "home");
 
-        sakai_home.set(Path.of("/changed"));
+        sakai_home.set(Path.of(File.separator + "changed"));
 
-        assertThat(System.getProperty("sakai.home")).isEqualTo("/changed");
+        assertThat(System.getProperty("sakai.home")).isEqualTo(File.separator + "changed");
     }
 
     @Test
