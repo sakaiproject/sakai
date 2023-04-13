@@ -1,7 +1,5 @@
 package org.sakaiproject.meetings.impl;
 
-import static org.mockito.Mockito.mock;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +9,7 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +20,6 @@ import org.sakaiproject.meetings.api.model.Meeting;
 import org.sakaiproject.meetings.api.model.MeetingAttendee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -132,6 +130,34 @@ public class MeetingServiceImplTest extends AbstractTransactionalJUnit4SpringCon
         meetingService.updateMeeting(data);
         Meeting data2 = meetingService.getMeeting(data.getId());
         Assert.assertTrue("Modified".equals(data2.getTitle()));
+    }
+    
+    @Test
+    public void createLongDescriptionMeetingTest() {
+        Meeting data = new Meeting();
+        data.setTitle("Test Long");
+        data.setDescription(RandomStringUtils.randomAlphabetic(4000));
+        data.setSiteId("site");
+        Meeting ret = meetingService.createMeeting(data);
+        Assert.assertNotNull(ret.getId());
+        
+        Meeting test = meetingService.getMeeting(ret.getId());
+        Assert.assertNotNull(test.getId());
+        
+        Assert.assertThrows(Exception.class,
+            ()->{
+                Meeting data2 = new Meeting();
+                data2.setTitle("Test Long 2");
+                data2.setDescription(RandomStringUtils.randomAlphabetic(4001));
+                data2.setSiteId("site");
+                
+                Meeting ret2 = meetingService.createMeeting(data2);
+                Assert.assertNotNull(ret.getId());
+                
+                Meeting test2 = meetingService.getMeeting(ret2.getId());
+                //should never reach this point
+                Assert.assertNull(test2.getId());
+        });
     }
     
     @Test

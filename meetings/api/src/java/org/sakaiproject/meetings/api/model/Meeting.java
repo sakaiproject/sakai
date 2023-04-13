@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -40,8 +41,8 @@ public class Meeting {
     @Column(name = "meeting_title", length = 255, nullable = false)
     private String title;
     
-    // @Lob (for Oracle?)
-    @Column(name = "meeting_description", columnDefinition="TEXT")
+    @Lob
+    @Column(name = "meeting_description", length = 4000)
     private String description;
     
     @Column(name = "meeting_site_id", length = 99)
