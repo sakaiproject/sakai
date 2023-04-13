@@ -97,7 +97,9 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentChangeHandler;
 import org.sakaiproject.content.api.ContentCollection;
@@ -508,6 +510,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		m_contentFilterService = service;
 	}
 
+	private CitationService citationService;
 
 	/**
 	 * Set the site quota.
@@ -908,6 +911,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
  			virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
 			virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
+
+			this.citationService = ComponentManager.get(CitationService.class);
 		}
 		catch (Exception t)
 		{
@@ -4519,6 +4524,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
+
+		//check if resourec is of type CitationList and clean up citation tables
+		if(removeContent){
+			if(edit.getResourceType().equals(CitationService.CITATION_LIST_ID)){
+				try{
+					log.info("Removing CitationList: " + new String(edit.getContent()));
+					citationService.hardDeleteCitation(new String(edit.getContent()));
+				}catch (ServerOverloadException e){
+					log.error("Error removing CitationList " + e);
+				}
+			}
+		}
 
 		try {
 			String uuid = this.getUuid(id);

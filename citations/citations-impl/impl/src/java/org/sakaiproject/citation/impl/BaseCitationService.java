@@ -5744,5 +5744,18 @@ public abstract class BaseCitationService implements CitationService
     	return c;
     }
 
+	public void hardDeleteCitation(String id){
+		try{
+			CitationCollection collection = getCollection(id);
+			List<Citation> citations = collection.getCitations();
+			for (Citation citation : citations){
+				m_storage.removeCitation(citation);
+			}
+			m_storage.removeCollection(collection);
+		}catch (IdUnusedException e){
+			log.error("Citation does not exist: " + e);
+		}
+	}
+
 } // BaseCitationService
 
