@@ -3624,8 +3624,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * @param simplePageToolDao
 	 * @return Whether or not this item is available.
 	 */
-	protected boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
-			boolean canEditPage, SimplePage currentPage, boolean notDone, Status status, boolean forceButtonColor, String color) {
+	protected boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean,
+                               SimplePageToolDao simplePageToolDao, MessageLocator messageLocator, boolean canEditPage,
+                               SimplePage currentPage, boolean notDone, Status status, boolean forceButtonColor, String color) {
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
 		boolean usable = available || canEditPage;
@@ -3644,23 +3645,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					if (! available)
 					    fakeDisableLink(link, messageLocator);
-				}
-				else {
+				} else {
 				    // run this through /access/lessonbuilder so we can track it even if the user uses the context menu
 				    // We could do this only for the notDone case, but I think it could cause trouble for power users
 				    // if the url isn't always consistent.
 				    if (i.getAttribute("multimediaUrl") != null) { // resource where we've stored the URL ourselves
-					URL = "/access/lessonbuilder/item/" + i.getId() + "/";
+					    URL = "/access/lessonbuilder/item/" + i.getId() + "/";
 				    } else {
-					URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
+					    URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
 				    }
 				    UILink link = UILink.make(container, ID, URL);
 				    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
 				    if (notDone)
-					link.decorate(new UIFreeAttributeDecorator("onclick", 
+					    link.decorate(new UIFreeAttributeDecorator("onclick",
 										   "afterLink($(this)," + i.getId() + ") ; return true"));
 				    if (! available)
-					fakeDisableLink(link, messageLocator);
+					    fakeDisableLink(link, messageLocator);
 				}
 			}
 
@@ -3846,67 +3846,67 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		} else if (i.getType() == SimplePageItem.BLTI) {
 		    LessonEntity lessonEntity = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
 		    if ("inline".equals(i.getFormat())) {
-			// no availability 
-			String height=null;
-			if (i.getHeight() != null && !i.getHeight().equals(""))
-			    height = i.getHeight().replace("px","");  // just in case
-			
-			UIComponent iframe = UIOutput.make(container, "blti-iframe")
-					.decorate(new UIFreeAttributeDecorator("allow", String.join(";",
-							Optional.ofNullable(ServerConfigurationService.getStrings("browser.feature.allow"))
-									.orElseGet(() -> new String[]{}))));
-			if (lessonEntity != null)
-			    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
-			
-			String h = "300";
-			if (height != null && !height.trim().equals(""))
-			    h = height;
-			
-			iframe.decorate(new UIFreeAttributeDecorator("height", h));
-			iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
-			// normally we get the name from the link text, but there's no link text here
-			UIOutput.make(container, "item-name", i.getName());
-		    } else if (!"window".equals(i.getFormat())) {
-			// this is the default if format isn't valid or is missing
-			if (usable && lessonEntity != null) {
-			    // I'm fairly sure checkitempermissions doesn't do anything useful for LTI,
-			    // as it isn't group aware
-				if (i.isPrerequisite()) {
-					simplePageBean.checkItemPermissions(i, true);
-				}
-				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-				view.setSendingPage(currentPage.getPageId());
-				view.setItemId(i.getId());
-				UILink link = UIInternalLink.make(container, "link", view);
-				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-				if (! available)
-				    fakeDisableLink(link, messageLocator);
-			} else {
-				if (i.isPrerequisite()) {
-					simplePageBean.checkItemPermissions(i, false);
-				}
-				fake = true; // need to set this in case it's available for missing entity
-			}
-		    } else {
-			if (usable && lessonEntity != null) {
-			    if (i.isPrerequisite()) {
-				simplePageBean.checkItemPermissions(i, true);
-			    }
-			    URL = lessonEntity.getUrl();
-			    // UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
-			    UILink link = UILink.make(container, ID, i.getName(), URL);
-			    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-			    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
-			    if (! available)
-				fakeDisableLink(link, messageLocator);
-			    if (notDone)
-				link.decorate(new UIFreeAttributeDecorator("onclick", 
-					 "setTimeout(function(){window.location.reload(true)},3000); return true"));
+                // no availability
+                String height=null;
+                if (i.getHeight() != null && !i.getHeight().equals(""))
+                    height = i.getHeight().replace("px","");  // just in case
 
-			} else {
-			    fake = true; // need to set this in case it's available for missing entity
-			}
-		    }
+                UIComponent iframe = UIOutput.make(container, "blti-iframe")
+                        .decorate(new UIFreeAttributeDecorator("allow", String.join(";",
+                                Optional.ofNullable(ServerConfigurationService.getStrings("browser.feature.allow"))
+                                        .orElseGet(() -> new String[]{}))));
+                if (lessonEntity != null)
+                    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
+
+                String h = "300";
+                if (height != null && !height.trim().equals(""))
+                    h = height;
+
+                iframe.decorate(new UIFreeAttributeDecorator("height", h));
+                iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
+                // normally we get the name from the link text, but there's no link text here
+                UIOutput.make(container, "item-name", i.getName());
+            } else if (!"window".equals(i.getFormat())) {
+                // this is the default if format isn't valid or is missing
+                if (usable && lessonEntity != null) {
+                    // I'm fairly sure checkitempermissions doesn't do anything useful for LTI,
+                    // as it isn't group aware
+                    if (i.isPrerequisite()) {
+                        simplePageBean.checkItemPermissions(i, true);
+                    }
+                    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+                    view.setSendingPage(currentPage.getPageId());
+                    view.setItemId(i.getId());
+                    UILink link = UIInternalLink.make(container, "link", view);
+                    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+                    if (! available)
+                        fakeDisableLink(link, messageLocator);
+                } else {
+                    if (i.isPrerequisite()) {
+                        simplePageBean.checkItemPermissions(i, false);
+                    }
+                    fake = true; // need to set this in case it's available for missing entity
+                }
+            } else {
+                if (usable && lessonEntity != null) {
+					if (i.isPrerequisite()) {
+					    simplePageBean.checkItemPermissions(i, true);
+					}
+					URL = lessonEntity.getUrl();
+					// UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+					UILink link = UILink.make(container, ID, URL);
+					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+					link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+					if (! available)
+						fakeDisableLink(link, messageLocator);
+					if (notDone)
+						link.decorate(new UIFreeAttributeDecorator("onclick",
+						 "setTimeout(function(){window.location.reload(true)},3000); return true"));
+
+				} else {
+					fake = true; // need to set this in case it's available for missing entity
+				}
+            }
 		}
 
 		String note = null;
