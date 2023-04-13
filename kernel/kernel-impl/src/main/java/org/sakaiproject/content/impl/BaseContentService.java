@@ -4520,6 +4520,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
 
+		//check if resourec is of type CitationList and clean up citation tables
+		if(removeContent){
+			if(edit.getResourceType().equals(CitationService.CITATION_LIST_ID)){
+				try{
+					log.info("Removing CitationList: " + new String(edit.getContent()));
+					citationService.hardDeleteCitation(new String(edit.getContent()));
+				}catch (ServerOverloadException e){
+					log.error("Error removing CitationList " + e);
+				}
+			}
+		}
+
 		try {
 			String uuid = this.getUuid(id);
 			String userId = sessionManager.getCurrentSessionUserId().trim();
