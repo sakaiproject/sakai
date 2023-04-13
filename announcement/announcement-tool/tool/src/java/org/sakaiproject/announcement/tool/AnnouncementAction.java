@@ -2472,6 +2472,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setTempBody("");
 		state.setTempSubject("");
 		state.setStatus(ADD_STATUS);
+		state.setTempHighlight(false);
 
 		sstate.setAttribute(AnnouncementAction.SSTATE_PUBLICVIEW_VALUE, null);
 		sstate.setAttribute(AnnouncementAction.SSTATE_NOTI_VALUE, null);
