@@ -68,6 +68,8 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
     private PlatformTransactionManager transactionManager;
 
+   private static final String SELECTED_ROLES_PROPERTY = "selectedRoles";
+
     @Override
     public List<String> getHandledEvents() {
         return Arrays.asList(AnnouncementService.SECURE_ANNC_ADD, AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY, AnnouncementService.SECURE_ANNC_REMOVE_OWN, AnnouncementService.SECURE_ANNC_REMOVE_ANY);
@@ -145,6 +147,19 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                         for (String group : message.getHeader().getGroups()) {
                             usersList.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
                         }
+                    }
+                    
+                    if (message.getProperties().getPropertyList(SELECTED_ROLES_PROPERTY) != null) {
+                        Set<String> usersListAux = new HashSet<>();
+			            ArrayList<String> selectedRolesList = new ArrayList<String>(message.getProperties().getPropertyList(SELECTED_ROLES_PROPERTY));
+                        for (String selectedRole : selectedRolesList) {
+                            for (String userId: usersList) {
+                                if (site.getMember(userId).getRole().getId().equalsIgnoreCase(selectedRole)) {
+                                    usersListAux.add(userId);
+                                }
+                            }
+                        }
+                        usersList = new HashSet<>(usersListAux);
                     }
 
                     for (String  to : usersList) {
