@@ -1280,14 +1280,14 @@ $Id$
           <h:outputText value="#{commonMessages.cancel_question_info_cancellation}" />
           <br /><br />
           <strong>
-            <h:outputText value="#{commonMessages.cancel_question_distribute_points}:" />
-          </strong>
-          <h:outputText value="#{commonMessages.cancel_question_info_distribute_points}" />
-          <br /><br />
-          <strong>
             <h:outputText value="#{commonMessages.cancel_question_reduce_total}:" />
           </strong>
           <h:outputText value="#{commonMessages.cancel_question_info_reduce_total}" />
+          <br /><br />
+          <strong>
+            <h:outputText value="#{commonMessages.cancel_question_distribute_points}:" />
+          </strong>
+          <h:outputText value="#{commonMessages.cancel_question_info_distribute_points}" />
         </h:panelGroup>
         <h:panelGroup styleClass="sak-banner-warn" layout="block">
           <h:panelGroup rendered="#{questionScores.emiItemPresent}">
