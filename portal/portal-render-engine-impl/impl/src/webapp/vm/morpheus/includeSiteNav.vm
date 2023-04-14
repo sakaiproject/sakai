@@ -48,7 +48,7 @@
                 #end
             #end
         </div>
-        <div id="site-${index}-pages" class="site-list-item-collapse collapse #if ($isCurrentSite)show#end">
+        <div id="site-${index}-pages" class="site-list-item-collapse collapse #if ($isCurrentSite && !($isUserSite && $justLoggedIn))show#end">
             <ul class="site-page-list nav flex-column py-1 mb-2">
             #foreach ( $page in $site.pages )
                 #if ($isCurrentSite)
