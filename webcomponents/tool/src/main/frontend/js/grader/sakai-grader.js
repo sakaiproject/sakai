@@ -1231,32 +1231,32 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     switch (this.gradeScale) {
       case SCORE_GRADE_TYPE:
-        {
-          const input = document.getElementById("score-grade-input");
-          input && (input.value = this.submission.grade);
-          break;
-        }
+      {
+        const input = document.getElementById("score-grade-input");
+        input && (input.value = this.submission.grade);
+        break;
+      }
 
       case PASS_FAIL_GRADE_TYPE:
-        {
-          const input = document.getElementById("pass-fail-selector");
-          input && (input.value = this.submission.grade);
-          break;
-        }
+      {
+        const input = document.getElementById("pass-fail-selector");
+        input && (input.value = this.submission.grade);
+        break;
+      }
 
       case LETTER_GRADE_TYPE:
-        {
-          const input = document.getElementById("letter-grade-selector");
-          input && (input.value = this.submission.grade);
-          break;
-        }
+      {
+        const input = document.getElementById("letter-grade-selector");
+        input && (input.value = this.submission.grade);
+        break;
+      }
 
       case CHECK_GRADE_TYPE:
-        {
-          const input = document.getElementById("check-grade-input");
-          input && (input.checked = this.submission.grade === this.assignmentsI18n["gen.checked"] || this.submission.grade === GRADE_CHECKED);
-          break;
-        }
+      {
+        const input = document.getElementById("check-grade-input");
+        input && (input.checked = this.submission.grade === this.assignmentsI18n["gen.checked"] || this.submission.grade === GRADE_CHECKED);
+        break;
+      }
 
       default:
     }
