@@ -52,6 +52,11 @@ public class GbStudentGradeInfo implements Serializable {
 	private boolean hasCourseGradeComment;
 	private List<String> sections;
 
+	@Getter
+	private String employeeHrId;
+	@Getter
+	private String employeeNumber;
+
 	public GbStudentGradeInfo() {
 	}
 
@@ -69,6 +74,8 @@ public class GbStudentGradeInfo implements Serializable {
 		studentNumber = u.getStudentNumber();
 		grades = new HashMap<>();
 		categoryAverages = new HashMap<>();
+		this.employeeHrId = u.getEmployeeHrId();
+		this.employeeNumber = u.getEmployeeNumber();
 		sections = u.getSections();
 	}
 
@@ -82,6 +89,8 @@ public class GbStudentGradeInfo implements Serializable {
 		this.studentNumber = studentNumber;
 		this.grades = new HashMap<>();
 		this.categoryAverages = new HashMap<>();
+		this.employeeHrId = (u.getProperties().getProperty("employeeHrId") != null) ? u.getProperties().getProperty("employeeHrId") : "";
+		this.employeeNumber = (u.getProperties().getProperty("employeeNumber") != null) ? u.getProperties().getProperty("employeeNumber") : "";
 		sections = new ArrayList<>();
 	}
 

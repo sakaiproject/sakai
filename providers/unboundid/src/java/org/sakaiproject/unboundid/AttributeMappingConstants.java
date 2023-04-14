@@ -119,6 +119,13 @@ public abstract class AttributeMappingConstants {
 	 */
 	public static final String DEFAULT_JPEG_PHOTO_ATTR = "jpegPhoto";
 
+	/** Default value in {@link #DEFAULT_ATTR_MAPPINGS} representing
+	 * the user's employeeNumber attribute
+	 * the user's employeeHrId attribute
+	 */
+	public static final String DEFAULT_EMPLOYEE_NUMBER_ATTR = "employeeNumber";
+	public static final String DEFAULT_EMPLOYEE_HR_ID_ATTR = "employeeHrId";
+
 	/**
 	 * Default set of user entry attribute mappings. Keys are
 	 * logical names, values are physical names.

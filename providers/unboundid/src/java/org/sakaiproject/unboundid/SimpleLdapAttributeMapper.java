@@ -287,6 +287,20 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         log.debug("mapLdapAttributeOntoUserData() preparing to map: [logical attr name = {}][physical attr name = {}][value = {}]",
             logicalAttrName, attribute.getName(), attrValue);
 
+        //The attribute employeeId is stored as String
+        if (logicalAttrName.equals(AttributeMappingConstants.DEFAULT_EMPLOYEE_NUMBER_ATTR)) {
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.eid: [logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
+            userData.setProperty(AttributeMappingConstants.DEFAULT_EMPLOYEE_NUMBER_ATTR, attrValue);
+        } else
+
+        //The attribute employeeId is stored as String
+        if (logicalAttrName.equals(AttributeMappingConstants.DEFAULT_EMPLOYEE_HR_ID_ATTR)) {
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.eid: [logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
+            userData.setProperty(AttributeMappingConstants.DEFAULT_EMPLOYEE_HR_ID_ATTR, attrValue);
+        } else
+
         //The attribute jpegPhoto is stored in base64
         if (logicalAttrName.equals(AttributeMappingConstants.DEFAULT_JPEG_PHOTO_ATTR)) {
             attrValue = new String(Base64.encodeBase64(unboundidAttribute.getValueByteArray()));

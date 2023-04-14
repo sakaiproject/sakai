@@ -60,6 +60,12 @@ public class GbUser implements GbUserBase, Serializable, Comparable<GbUser> {
 
 	private final String sortName;
 
+	@Getter
+	private String employeeHrId;
+
+	@Getter
+	private String employeeNumber;
+
 	@Setter
 	@Accessors(chain = true)
 	private List<String> sections;
@@ -75,6 +81,8 @@ public class GbUser implements GbUserBase, Serializable, Comparable<GbUser> {
 		this.firstName = FormatHelper.htmlEscape(u.getFirstName());
 		this.lastName = FormatHelper.htmlEscape(u.getLastName());
 		this.studentNumber = FormatHelper.htmlEscape(studentNumber);
+		this.employeeHrId = (u.getProperties().getProperty("employeeHrId") != null) ? u.getProperties().getProperty("employeeHrId") : "";
+		this.employeeNumber = (u.getProperties().getProperty("employeeNumber") != null) ? u.getProperties().getProperty("employeeNumber") : "";
 		this.sections = Collections.emptyList();
 		this.sortName = u.getSortName();
 	}
