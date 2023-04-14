@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>webcomponents-parent</artifactId>
+        <groupId>org.sakaiproject.webcomponents</groupId>
+        <artifactId>webcomponents-base</artifactId>
         <version>24-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai Web Components Tool</name>
-    <groupId>org.sakaiproject</groupId>
-    <artifactId>webcomponents</artifactId>
+    <name>webcomponents-tool</name>
+    <groupId>org.sakaiproject.webcomponents</groupId>
+    <artifactId>webcomponents-tool</artifactId>
     <packaging>war</packaging>
 
     <dependencies>
@@ -34,18 +34,9 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

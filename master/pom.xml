@@ -2127,6 +2127,12 @@
         <version>${sakai.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.webapi</groupId>
+        <artifactId>sakai-webapi-common</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.oauth</groupId>
         <artifactId>oauth-api</artifactId>
         <version>${sakai.version}</version>

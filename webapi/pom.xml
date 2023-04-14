@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
@@ -10,154 +9,25 @@
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-    <artifactId>api</artifactId>
-    <packaging>war</packaging>
+    <name>sakai-webapi-base</name>
+    <groupId>org.sakaiproject.webapi</groupId>
+    <artifactId>sakai-webapi-base</artifactId>
+    <packaging>pom</packaging>
 
-    <name>sakai-webapi</name>
+    <modules>
+        <module>common</module>
+        <module>tool</module>
+    </modules>
 
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        <!-- third party dependencies -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-        </dependency>
-        <!-- Sakai dependencies -->
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.search</groupId>
-            <artifactId>search-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.edu-services.course-management</groupId>
-            <artifactId>coursemanagement-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.announcement</groupId>
-            <artifactId>sakai-announcement-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.assignment</groupId>
-            <artifactId>sakai-assignment-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.msgcntr</groupId>
-            <artifactId>messageforums-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.message</groupId>
-            <artifactId>sakai-message-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.calendar</groupId>
-            <artifactId>sakai-calendar-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.rubrics</groupId>
-            <artifactId>rubrics-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.calendar</groupId>
-            <artifactId>sakai-calendar-util</artifactId>
-            <version>24-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.conversations</groupId>
-            <artifactId>sakai-conversations-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.grading</groupId>
-            <artifactId>sakai-grading-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.samigo</groupId>
-            <artifactId>samigo-services</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.json</groupId>
-            <artifactId>javax.json-api</artifactId>
-            <version>1.1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.java-json-tools</groupId>
-            <artifactId>json-patch</artifactId>
-            <version>1.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.samigo</groupId>
-            <artifactId>samigo-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.profile2</groupId>
-            <artifactId>profile2-api</artifactId>
-        </dependency>
-        <!-- Spring dependencies -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.hateoas</groupId>
-            <artifactId>spring-hateoas</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.plugin</groupId>
-            <artifactId>spring-plugin-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
             <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-
-    </dependencies>
+                <groupId>org.sakaiproject.webapi</groupId>
+                <artifactId>sakai-webapi-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
