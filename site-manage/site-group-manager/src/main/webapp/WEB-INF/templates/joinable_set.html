@@ -36,19 +36,19 @@
               </div>
               <div class="mb-2" th:if="${joinableSetForm.joinableSetId == null}">
                 <label for="allowPreviewMembership">
-                  <input class="form-control" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}"/>
+                  <input class="form-check-input" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}"/>
                   <span th:text="#{joinableset.allow.previewmembership}">Allow user to see group membership before joining</span>
                 </label>
               </div>
               <div class="mb-2" th:if="${joinableSetForm.joinableSetId == null}">
                 <label for="allowViewMembership">
-                  <input class="form-control" name="allowViewMembership" id="allowViewMembership" type="checkbox" th:field="*{allowViewMembership}"/>
+                  <input class="form-check-input" name="allowViewMembership" id="allowViewMembership" type="checkbox" th:field="*{allowViewMembership}"/>
                   <span th:text="#{joinableset.allow.viewmembership}">Allow members to see the other members of these groups after joining</span>
                 </label>
               </div>
               <div class="mb-2">
                 <label for="allowUnjoin">
-                  <input class="form-control" name="allowUnjoin" id="allowUnjoin" type="checkbox" th:field="*{allowUnjoin}"/>
+                  <input class="form-check-input" name="allowUnjoin" id="allowUnjoin" type="checkbox" th:field="*{allowUnjoin}"/>
                   <span th:text="#{joinableset.allow.unjoin}">Allow members to unjoin (leave) groups in this set after joining</span>
                 </label>
               </div>
@@ -81,13 +81,13 @@
                         <input class="form-control" name="groupMaxMembers" id="groupMaxMembers" type="number" min="1" max="999" th:field="*{groupMaxMembers}" />
                         <div class="form-check">
                           <label for="allowPreviewMembership">
-                            <input class="form-control" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}"/>
+                            <input class="form-check-input" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}"/>
                             <span th:text="#{joinableset.allow.previewmembership}">Allow user to see group membership before joining</span>
                           </label>
                         </div>
                         <div class="form-check">
                           <label for="allowViewMembership">
-                            <input class="form-control" name="allowViewMembership" id="allowViewMembership" type="checkbox" th:field="*{allowViewMembership}"/>
+                            <input class="form-check-input" name="allowViewMembership" id="allowViewMembership" type="checkbox" th:field="*{allowViewMembership}"/>
                             <span th:text="#{joinableset.allow.viewmembership}">Allow members to see the other members of these groups after joining</span>
                           </label>
                         </div>
