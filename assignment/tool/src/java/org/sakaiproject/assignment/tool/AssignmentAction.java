@@ -11508,8 +11508,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String privateNotes = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_PRIVATE_NOTES), true);
             // private notes value changed?
-            hasChange = submission != null && valueDiffFromStateAttribute(state, privateNotes, submission.getPrivateNotes());
-            if (feedbackComment != null) {
+            hasChange = !hasChange && submission != null ? valueDiffFromStateAttribute(state, privateNotes, submission.getPrivateNotes()) : hasChange;
+            if (privateNotes != null) {
                 state.setAttribute(GRADE_SUBMISSION_PRIVATE_NOTES, privateNotes);
             }
 
