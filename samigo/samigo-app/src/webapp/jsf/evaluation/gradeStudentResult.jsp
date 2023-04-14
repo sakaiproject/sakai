@@ -202,7 +202,7 @@ function toPoint(id)
                     <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
                     <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
                   </p>
-                  <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">
+                  <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
                     <f:validateDoubleRange/>
                   </h:inputText>
                 </h:panelGroup>

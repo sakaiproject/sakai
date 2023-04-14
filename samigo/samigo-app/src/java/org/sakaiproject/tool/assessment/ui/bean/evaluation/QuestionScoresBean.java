@@ -56,6 +56,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -613,4 +614,10 @@ public void clear(ActionEvent event) {
 	public boolean isEnablePdfExport() {
         return ServerConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true);
 	}
+
+  public Boolean getDeliveryItemCancelled() {
+      return deliveryItem != null || deliveryItem.isEmpty()
+          ? ItemCancellationUtil.isCancelled((ItemDataIfc) deliveryItem.stream().findAny().get())
+          : null;
+  }
 }

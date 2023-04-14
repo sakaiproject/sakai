@@ -831,6 +831,7 @@ $Id$
                     id="qscore"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
                     required="false"
+                    disabled="#{questionScores.deliveryItemCancelled}"
                     onchange="toPoint(this.id);">
       </h:inputText>
       <h:message for="qscore" style="color:red"/>
