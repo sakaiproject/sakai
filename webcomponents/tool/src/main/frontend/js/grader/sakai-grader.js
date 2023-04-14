@@ -780,7 +780,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div id="grader-submitted-block" class="grader-block">
         <div class="d-flex mb-3">
           <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
-          <div style="flex: 4;">
+          <div class="d-flex flex-grow-1">
             <span class="submitter-name">${this.renderSubmitter()}</span>
             ${this.submission.draft && this.submission.visible ? html`
             <span class="draft-submission">(${this.i18n.draft_submission})</span>
