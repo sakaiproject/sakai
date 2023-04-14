@@ -25,7 +25,7 @@ should be included in file importing DeliveryMessages
 --%>
 -->
   <!-- ATTACHMENTS -->
-<%@ include file="/jsf/delivery/item/attachment.jsp" %>
+<%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
 <div class="sr-only">
   <h:outputFormat value="#{deliveryMessages.calcq_sr_explanation}" escape="false">
