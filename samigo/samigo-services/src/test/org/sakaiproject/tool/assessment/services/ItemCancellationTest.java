@@ -150,6 +150,27 @@ public class ItemCancellationTest {
     }
 
     @Test
+    public void testRepeatedCancellation() {
+        // Cancellation with cancelled item present
+
+        // Items that we use as input for the cancellation
+        ItemDataIfc[] testItems = {
+            createItem(0L, 0, 0.0, 1, 1, ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED),
+            createItem(1L, 0, 4.0, 1, 1, ItemDataIfc.ITEM_DISTRIBUTED_TO_CANCEL),
+            createItem(2L, 0, 5.0, 1, 1, ItemDataIfc.ITEM_NOT_CANCELED),
+        };
+
+        // First reference cancelled items
+        ItemDataIfc[] cancelledTestItems1 = {
+            createItem(0L, 0, 0.0, 1, 1, ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED),
+            createItem(1L, 0, 0.0, 1, 1, ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED),
+            createItem(2L, 0, 9.0, 1, 1, ItemDataIfc.ITEM_NOT_CANCELED),
+        };
+
+        assertItemCancellation(testItems, cancelledTestItems1, 1);
+    }
+
+    @Test
     public void testNoCancellation() {
         // Not cancelling items is does not happen, but we can test it anyway, to further validate the integrity
 

@@ -99,7 +99,7 @@ $Id$
     <h:column>
       <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{!partinit.isRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" >
+          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
             <h:outputText value="#{evaluationMessages.q}#{iteminit.partNumber} " escape="false"/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
@@ -117,7 +117,7 @@ $Id$
 
 	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{partinit.isRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" >
+          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
             <h:outputText value="#{evaluationMessages.q} #{iteminit.partNumber} "/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
@@ -831,6 +831,7 @@ $Id$
                     id="qscore"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
                     required="false"
+                    disabled="#{questionScores.deliveryItemCancelled}"
                     onchange="toPoint(this.id);">
       </h:inputText>
       <h:message for="qscore" style="color:red"/>
@@ -1280,14 +1281,14 @@ $Id$
           <h:outputText value="#{commonMessages.cancel_question_info_cancellation}" />
           <br /><br />
           <strong>
-            <h:outputText value="#{commonMessages.cancel_question_distribute_points}:" />
-          </strong>
-          <h:outputText value="#{commonMessages.cancel_question_info_distribute_points}" />
-          <br /><br />
-          <strong>
             <h:outputText value="#{commonMessages.cancel_question_reduce_total}:" />
           </strong>
           <h:outputText value="#{commonMessages.cancel_question_info_reduce_total}" />
+          <br /><br />
+          <strong>
+            <h:outputText value="#{commonMessages.cancel_question_distribute_points}:" />
+          </strong>
+          <h:outputText value="#{commonMessages.cancel_question_info_distribute_points}" />
         </h:panelGroup>
         <h:panelGroup styleClass="sak-banner-warn" layout="block">
           <h:panelGroup rendered="#{questionScores.emiItemPresent}">
@@ -1295,13 +1296,6 @@ $Id$
             <br /><br />
           </h:panelGroup>
           <h:outputText value="#{commonMessages.cancel_question_info_regrade} #{commonMessages.cancel_question_info_no_undo}" />
-        </h:panelGroup>
-        <h:panelGroup styleClass="form-row" layout="block">
-          <h:selectBooleanCheckbox id="regradedAssessmentReSubmittable" value="#{questionScores.regradedAssessmentReSubmittable}" />
-          <h:outputLabel for="regradedAssessmentReSubmittable" value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
-          <label class="help-block info-text small">
-            <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox_warn}" />
-          </label>
         </h:panelGroup>
       </h:panelGroup>
       <h:panelGroup styleClass="modal-footer act" layout="block">

@@ -76,6 +76,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -529,13 +530,13 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			// At least one other question, that is not cancelled should exist
 			bean.setCancellationAllowed(publishedItemHash.values().stream()
 					.filter(publishedItem -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
-					.filter(publishedItem -> ItemDataIfc.ITEM_NOT_CANCELED == publishedItem.getCancellation().intValue())
+					.filter(publishedItem -> !ItemCancellationUtil.isCancelled(publishedItem))
 					.collect(Collectors.counting()) > 1);
 			log.debug("setCancellationAllowed({})", bean.isCancellationAllowed());
 
 			bean.setEmiItemPresent(publishedItemHash.values().stream()
 					.filter(publishedItem -> TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
-					.filter(publishedItem -> ItemDataIfc.ITEM_NOT_CANCELED == publishedItem.getCancellation().intValue())
+					.filter(publishedItem -> !ItemCancellationUtil.isCancelled(publishedItem))
 					.collect(Collectors.counting())
 					.intValue() > 0);
 			log.debug("setEmiItemPresent({})", bean.isEmiItemPresent());
@@ -1141,6 +1142,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				partitem.setId(item.getItemId().toString());
 				log.debug("*   item.getId = " + item.getItemId());
 				partitem.setLinked(true);
+				partitem.setItemCancelled(ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED == item.getCancellation()
+						|| ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED == item.getCancellation());
 
 				// Iterator iter3 = scores.iterator();
 				items.add(partitem);

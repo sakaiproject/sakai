@@ -91,16 +91,15 @@ public class ItemCancellationListener implements ActionListener {
 
         // If we are republishing from questions tab we need to pass the value of the allow-resumission checkbox
         if (SamigoConstants.OUTCOME_EVALUATION_QUESTION_SCORES.equals(outcome)) {
-            boolean reSubmittable = questionScoresBean.isRegradedAssessmentReSubmittable();
-            log.debug("reSubmittable {}", reSubmittable);
-
             if (regrade) {
                 publishedAssessmentService.regradePublishedAssessment(
-                    publishedAssessmentService.getPublishedAssessment(publishedAssessmentId), reSubmittable);
+                        publishedAssessmentService.getPublishedAssessment(publishedAssessmentId), false);
+                publishedAssessmentService.updateGradebook(updatedPublishedAssessment);
             }
 
             // Update questionsScores bean
             questionScoresBean.setPublishedAssessment(updatedPublishedAssessment);
+            questionScoresBean.setItemScoresMap(null);
             QuestionScoreListener questionScoreListener = new QuestionScoreListener();
             questionScoreListener.questionScores(publishedAssessmentId, questionScoresBean, false);
         }
