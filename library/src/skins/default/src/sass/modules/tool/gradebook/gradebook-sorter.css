@@ -15,10 +15,6 @@
   margin-right: 40px;
 }
 
-#gradebookSorter .gb-sorter-sortable:before {
-  font-family: "bootstrap-icons";
-  content: '\f0c9';
-}
 
 #gradebookSorter .gb-sorter-sortable .si-grip-horizontal:before {
   margin-right: 5px;
