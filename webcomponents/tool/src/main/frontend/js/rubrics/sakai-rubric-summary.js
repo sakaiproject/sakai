@@ -6,7 +6,7 @@ import { rubricsApiMixin } from "./sakai-rubrics-api-mixin.js";
  * @property {string} siteId
  * @property {string} toolId
  * @property {string} entityId
- * @property {string} [summaryType]
+ * @property {string} summaryType
  */
 export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
 
@@ -51,73 +51,75 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
 
     if (this.summaryType === "criteria") {
       return html`
-        <div class="pull-right collapse-toggle-buttons">
-          <button type="button" @click=${this._expandAll}><sr-lang key="expand_all">expand all</sr-lang></button>
-          <button type="button" @click=${this._collapseAll}><sr-lang key="collapse_all">collapse all</sr-lang></button>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h3><sr-lang key="criteria_summary">CRITERIA</sr-lang></h3>
+          <div class="collapse-toggle-buttons">
+            <button type="button" class="btn btn-link" @click=${this._expandAll}><sr-lang key="expand_all">expand all</sr-lang></button>
+            <button type="button" class="btn btn-link" @click=${this._collapseAll}><sr-lang key="collapse_all">collapse all</sr-lang></button>
+          </div>
         </div>
-        <h3><sr-lang key="criteria_summary">CRITERIA</sr-lang></h3>
         ${!this.allEvaluations?.length ? html`
           <div class="sak-banner-warn">
             <sr-lang key="no_evaluations_warning">WARN</sr-lang>
           </div>
         ` : html`
           ${this.criteria.map((c) => html`
-            <div class="panel-group">
+            <div class="mb-2">
               <div class="card">
                 <div class="card text-center bg-light">
-                  <h4 class="panel-title">
+                  <h4>
                     <a class="collapse-toggle collapsed" data-bs-toggle="collapse" href="#collapse${c.id}">${c.title}</a>
                   </h4>
                 </div>
-                  <div id="collapse${c.id}" class="panel-collapse collapse">
-                    <div class="card-body">
-                      <div class="table">
-                        <table class="rubrics-summary-table table table-bordered table-sm">
-                          <tr>
-                            ${c.ratings.map(r => html`
-                              <th class="rubrics-summary-table-cell">
-                                  <div>${r.points} <sr-lang key="points">points</sr-lang></div>
-                                  <div class="summary-rating-name" title="${r.title}">${this._limitCharacters(r.title, 20)}</div>
-                              </th>
-                              ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.points) > 0 ? html`
-                                <th class="rubrics-summary-table-cell"><sr-lang key="adjusted_score">adjustedscore</sr-lang></th>
-                              ` : ""}
-                            `)}
-                            <th style="display:none" class="rubrics-summary-table-cell rubrics-summary-average-cell"><sr-lang key="average">average</sr-lang></th>
-                            <th style="display:none" class="rubrics-summary-table-cell "><sr-lang key="median">median</sr-lang></th>
-                            <th style="display:none" class="rubrics-summary-table-cell "><sr-lang key="stdev">stdev</sr-lang></th>
-                          </tr>
-                          <tr>
-                            ${c.ratings.map(r => html`
-                              <td class="points-${r.points} rubrics-summary-table-cell point-cell-${c.id}">${this._getACount(c.id, r.id)}</td>
-                              ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.points) > 0 ? html`
-                                <td class="rubrics-summary-table-cell">${this._getCustomCount(c.id, r.points)}</td>
-                              ` : html``}
-                            `)}
-                            <td style="display:none" class="rubrics-summary-table-cell rubrics-summary-average-cell">${this._getPointsAverage(c.id)}</td>
-                            <td style="display:none" class="rubrics-summary-table-cell">${this._getPointsMedian(c.id)}</td>
-                            <td style="display:none" class="rubrics-summary-table-cell">${this._getPointsStdev(c.id)}</td>
-                          </tr>
-                        </table>
-                      </div>
-                      <dl class="dl-horizontal">
-                          <dt><sr-lang key="average">average</sr-lang></dt>
-                          <dd>
-                              ${this._getPointsAverage(c.id)}
-                          </dd>
-                          <dt><sr-lang key="median">median</sr-lang></dt>
-                          <dd>
-                              ${this._getPointsMedian(c.id)}
-                          </dd>
-                          <dt><sr-lang key="stdev">stdev</sr-lang></dt>
-                          <dd>
-                              ${this._getPointsStdev(c.id)}
-                          </dd>
-                      </dl>
+                <div id="collapse${c.id}" class="collapse">
+                  <div class="card-body">
+                    <div class="table">
+                      <table class="rubrics-summary-table table table-bordered table-sm">
+                        <tr>
+                          ${c.ratings.map(r => html`
+                            <th class="rubrics-summary-table-cell">
+                                <div>${r.points} <sr-lang key="points">points</sr-lang></div>
+                                <div class="summary-rating-name" title="${r.title}">${this._limitCharacters(r.title, 20)}</div>
+                            </th>
+                            ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.points) > 0 ? html`
+                              <th class="rubrics-summary-table-cell"><sr-lang key="adjusted_score">adjustedscore</sr-lang></th>
+                            ` : ""}
+                          `)}
+                          <th class="rubrics-summary-table-cell rubrics-summary-average-cell d-none"><sr-lang key="average">average</sr-lang></th>
+                          <th  class="rubrics-summary-table-cell d-none"><sr-lang key="median">median</sr-lang></th>
+                          <th  class="rubrics-summary-table-cell d-none"><sr-lang key="stdev">stdev</sr-lang></th>
+                        </tr>
+                        <tr>
+                          ${c.ratings.map(r => html`
+                            <td class="points-${r.points} rubrics-summary-table-cell point-cell-${c.id}">${this._getACount(c.id, r.id)}</td>
+                            ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.points) > 0 ? html`
+                              <td class="rubrics-summary-table-cell">${this._getCustomCount(c.id, r.points)}</td>
+                            ` : html``}
+                          `)}
+                          <td class="rubrics-summary-table-cell rubrics-summary-average-cell d-none">${this._getPointsAverage(c.id)}</td>
+                          <td class="rubrics-summary-table-cell d-none">${this._getPointsMedian(c.id)}</td>
+                          <td  class="rubrics-summary-table-cell d-none">${this._getPointsStdev(c.id)}</td>
+                        </tr>
+                      </table>
                     </div>
+                    <dl class="dl-horizontal mb-0">
+                        <dt><sr-lang key="average">average</sr-lang></dt>
+                        <dd>
+                            ${this._getPointsAverage(c.id)}
+                        </dd>
+                        <dt><sr-lang key="median">median</sr-lang></dt>
+                        <dd>
+                            ${this._getPointsMedian(c.id)}
+                        </dd>
+                        <dt><sr-lang key="stdev">stdev</sr-lang></dt>
+                        <dd>
+                            ${this._getPointsStdev(c.id)}
+                        </dd>
+                    </dl>
                   </div>
                 </div>
               </div>
+            </div>
           `)}
           <div><sr-lang key="adjusted_score_warning">adjustedscorewarning</sr-lang></div>
         `}
@@ -128,7 +130,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
       <h3><sr-lang key="student_summary">studentsummary</sr-lang></h3>
       ${!this.allEvaluations?.length ? html`
       <div class="sak-banner-warn">
-          <sr-lang key="no_evaluations_warning">WARN</sr-lang>
+        <sr-lang key="no_evaluations_warning">WARN</sr-lang>
       </div>
       ` : html`
       <div class="table">
