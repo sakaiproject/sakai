@@ -1,31 +1,22 @@
-import { SakaiElement } from "/webcomponents/sakai-element.js";
-import { html } from "/webcomponents/assets/lit-element/lit-element.js";
-import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
-import { ifDefined } from "/webcomponents/assets/lit-html/directives/if-defined.js";
-import "./sakai-grader-file-picker.js";
-import "../sakai-date-picker.js";
-import "../sakai-group-picker.js";
-import "../sakai-document-viewer.js";
-import "../sakai-lti-iframe.js";
-import "../sakai-user-photo.js";
-import "../fa-icon.js";
-import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
-import { Submission } from "./submission.js";
-import "../rubrics/rubric-association-requirements.js";
-import "../rubrics/sakai-rubric-grading-button.js";
-
-import { GRADE_CHECKED,
-          LETTER_GRADE_TYPE,
-          SCORE_GRADE_TYPE,
-          PASS_FAIL_GRADE_TYPE,
-          CHECK_GRADE_TYPE } from "./sakai-grader-constants.js";
-
+import { SakaiElement } from "/webcomponents/sakai-element.js?version=8757fb86";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js?version=8757fb86";
+import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js?version=8757fb86";
+import { ifDefined } from "/webcomponents/assets/lit-html/directives/if-defined.js?version=8757fb86";
+import "./sakai-grader-file-picker.js?version=8757fb86";
+import "../sakai-date-picker.js?version=8757fb86";
+import "../sakai-group-picker.js?version=8757fb86";
+import "../sakai-document-viewer.js?version=8757fb86";
+import "../sakai-lti-iframe.js?version=8757fb86";
+import "../sakai-user-photo.js?version=8757fb86";
+import "../fa-icon.js?version=8757fb86";
+import { gradableDataMixin } from "./sakai-gradable-data-mixin.js?version=8757fb86";
+import { Submission } from "./submission.js?version=8757fb86";
+import "../rubrics/rubric-association-requirements.js?version=8757fb86";
+import "../rubrics/sakai-rubric-grading-button.js?version=8757fb86";
+import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE } from "./sakai-grader-constants.js?version=8757fb86";
 export class SakaiGrader extends gradableDataMixin(SakaiElement) {
-
   constructor() {
-
     super();
-
     this.sumittedTextMode = false;
     this.rubricParams = new Map();
     this.graderOnLeft = this.getSetting("grader", "graderOnLeft");
@@ -41,64 +32,155 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.confirmedNotSaveFeedback = false;
     this.savedPvtNotes = true;
     this.savedFeedbackComment = true;
-
     this.assignmentsI18n = {};
-
     this.i18nPromise = this.loadTranslations("grader");
     this.i18nPromise.then(t => this.i18n = t);
-
     this.loadTranslations("assignment").then(t => this.assignmentsI18n = t);
+
     if (typeof MathJax !== "undefined") {
       MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
     }
 
     this.canSave = true;
-
     this.debug = true;
   }
 
   static get properties() {
-
     return {
       // Actual attributes
-      gradableId: { attribute: "gradable-id", type: String },
-      submissionId: { attribute: "submission-id", type: String },
-      currentStudentId: { attribute: "current-student-id", type: String },
-      gradableTitle: { attribute: "gradable-title", type: String },
-      hasAssociatedRubric: { attribute: "has-associated-rubric", type: String },
-      entityId: { attribute: "entity-id", type: String },
-      toolId: { attribute: "tool-id", type: String },
-      userListUrl: { attribute: "user-list-url", type: String },
-      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+      gradableId: {
+        attribute: "gradable-id",
+        type: String
+      },
+      submissionId: {
+        attribute: "submission-id",
+        type: String
+      },
+      currentStudentId: {
+        attribute: "current-student-id",
+        type: String
+      },
+      gradableTitle: {
+        attribute: "gradable-title",
+        type: String
+      },
+      hasAssociatedRubric: {
+        attribute: "has-associated-rubric",
+        type: String
+      },
+      entityId: {
+        attribute: "entity-id",
+        type: String
+      },
+      toolId: {
+        attribute: "tool-id",
+        type: String
+      },
+      userListUrl: {
+        attribute: "user-list-url",
+        type: String
+      },
+      enablePdfExport: {
+        attribute: "enable-pdf-export",
+        type: Boolean
+      },
       // State vars we want to trigger a render
-      submittedTextMode: { attribute: false, type: Boolean },
-      submission: { attribute: false, type: Object },
-      nonEditedSubmission: { attribute: false, type: Object },
-      graderOnLeft: { attribute: false, type: Boolean },
-      selectedAttachment: { attribute: false, type: Object },
-      saveSucceeded: { attribute: false, type: Boolean },
-      saveFailed: { attribute: false, type: Boolean },
-      savedPvtNotes: { attribute: false, type: Boolean },
-      savedFeedbackComment: { attribute: false, type: Boolean },
-      submissions: { attribute: false, type: Array },
-      ungradedOnly: { attribute: false, type: Boolean },
-      submissionsOnly: { attribute: false, type: Boolean },
-      showResubmission: { attribute: false, type: Boolean },
-      isChecked: { attribute: false, type: Boolean },
-      allowExtension: { attribute: false, type: Boolean },
-      totalGraded: { attribute: false, type: Number },
-      token: { attribute: false, type: String },
-      rubric: { attribute: false, type: Object },
-      assignmentsI18n: { attribute: false, type: Object },
-      showingHistory: { attribute: false, type: Boolean },
-      ltiGradebleLaunch: { attribute: "lti-gradable-launch", type: String },
-      showOverrides: { attribute: false, type: Boolean },
-      canSave: { attribute: false, type: Boolean },
+      submittedTextMode: {
+        attribute: false,
+        type: Boolean
+      },
+      submission: {
+        attribute: false,
+        type: Object
+      },
+      nonEditedSubmission: {
+        attribute: false,
+        type: Object
+      },
+      graderOnLeft: {
+        attribute: false,
+        type: Boolean
+      },
+      selectedAttachment: {
+        attribute: false,
+        type: Object
+      },
+      saveSucceeded: {
+        attribute: false,
+        type: Boolean
+      },
+      saveFailed: {
+        attribute: false,
+        type: Boolean
+      },
+      savedPvtNotes: {
+        attribute: false,
+        type: Boolean
+      },
+      savedFeedbackComment: {
+        attribute: false,
+        type: Boolean
+      },
+      submissions: {
+        attribute: false,
+        type: Array
+      },
+      ungradedOnly: {
+        attribute: false,
+        type: Boolean
+      },
+      submissionsOnly: {
+        attribute: false,
+        type: Boolean
+      },
+      showResubmission: {
+        attribute: false,
+        type: Boolean
+      },
+      isChecked: {
+        attribute: false,
+        type: Boolean
+      },
+      allowExtension: {
+        attribute: false,
+        type: Boolean
+      },
+      totalGraded: {
+        attribute: false,
+        type: Number
+      },
+      token: {
+        attribute: false,
+        type: String
+      },
+      rubric: {
+        attribute: false,
+        type: Object
+      },
+      assignmentsI18n: {
+        attribute: false,
+        type: Object
+      },
+      showingHistory: {
+        attribute: false,
+        type: Boolean
+      },
+      ltiGradebleLaunch: {
+        attribute: "lti-gradable-launch",
+        type: String
+      },
+      showOverrides: {
+        attribute: false,
+        type: Boolean
+      },
+      canSave: {
+        attribute: false,
+        type: Boolean
+      }
     };
   }
 
   set gradableId(newValue) {
-
     this._gradableId = newValue;
     this.i18nPromise.then(() => this.loadData(newValue));
   }
@@ -108,7 +190,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   set submission(newValue) {
-
     if (!this.nonEditedSubmission || newValue.id !== this.nonEditedSubmission.id) {
       this.nonEditedSubmission = {};
       Object.assign(this.nonEditedSubmission, newValue);
@@ -122,12 +203,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.showResubmission = this._submission.resubmitsAllowed === -1 || this._submission.resubmitsAllowed > 0;
     this.isChecked = newValue.grade === this.assignmentsI18n["gen.checked"] || newValue.grade === GRADE_CHECKED;
     this.allowExtension = this._submission.extensionAllowed;
-    this.submittedTextMode = this._submission.submittedText;
-
-    // If there's no submitted text and at least one attachment, show the first attachment
+    this.submittedTextMode = this._submission.submittedText; // If there's no submitted text and at least one attachment, show the first attachment
     // by default.
-    if (!this.submittedTextMode && this._submission.submittedAttachments
-          && this._submission.submittedAttachments.length > 0) {
+
+    if (!this.submittedTextMode && this._submission.submittedAttachments && this._submission.submittedAttachments.length > 0) {
       this.selectedAttachment = this._submission.submittedAttachments[0];
       const preview = this.submission.previewableAttachments[this.selectedAttachment.ref];
       this.selectedPreview = preview || this.selectedAttachment;
@@ -142,14 +221,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
 
     this.querySelector("sakai-rubric-grading")?.setAttribute("evaluated-item-id", this._submission.id);
-
     this.requestUpdate();
 
     if (this.gradable.allowPeerAssessment) {
       this.updateComplete.then(() => $("#peer-info").popover());
-    }
+    } // If any grade overrides have been set, check the overrides box
 
-    // If any grade overrides have been set, check the overrides box
+
     this.showOverrides = this.submission.submitters?.some(s => s.overridden);
   }
 
@@ -162,18 +240,15 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   firstUpdated() {
-
     this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment", data => {
       this.submission.feedbackComment = data;
     });
-
     this.privateNotesEditor = this.replaceWithEditor("grader-private-notes", data => {
       this.submission.privateNotes = data;
     });
   }
 
   renderTopbar() {
-
     return html`
       <div id="grader-topbar">
 
@@ -248,7 +323,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderGradable() {
-
     return html`
       <div id="gradable">
         ${this.submission.ltiSubmissionLaunch ? html`
@@ -258,16 +332,16 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             new-window-text="${this.i18n.lti_grade_launch_button}"
             launch-url="${this.submission.ltiSubmissionLaunch}">
           </sakai-lti-iframe>
-        ` : "" }
-        ${(this.ltiGradableLaunch && ! this.submission.ltiSubmissionLaunch )  ? html`
+        ` : ""}
+        ${this.ltiGradableLaunch && !this.submission.ltiSubmissionLaunch ? html`
           <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
           <sakai-lti-iframe
             allow-resize="yes"
             new-window-text="${this.i18n.lti_grade_launch_button}"
             launch-url="${this.ltiGradableLaunch}">
           </sakai-lti-iframe>
-        ` : "" }
-        ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
+        ` : ""}
+        ${this.submission.submittedTime || this.submission.draft && this.submission.visible ? html`
         <h3 class="d-inline-block">${this.assignmentsI18n["gen.subm"]}</h3>
         ` : html`
         <h3 class="d-inline-block">${this.i18n.no_submission}</h3>
@@ -280,7 +354,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ${this.i18n.grade_submission}
           </button>
         </div>
-        ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
+        ${this.submission.submittedTime || this.submission.draft && this.submission.visible ? html`
           ${this.submittedTextMode ? html`
             <div id="grader-submitted-text-block">
               <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>
@@ -305,7 +379,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderSaved() {
-
     return html`<span class="saved fa fa-check-circle"
                   title="${this.i18n.saved_successfully}"
                   style="display: ${this.saveSucceeded ? "inline" : "none"};">
@@ -313,7 +386,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderFailed() {
-
     return html`<span class="saved failed fa fa-times-circle"
                   title="${this.i18n.failed_save}"
                   style="display: ${this.saveFailed ? "inline" : "none"};">
@@ -321,7 +393,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   _renderGradeInputs(label, submitter) {
-
     return html`
       <span>${label}</span>
       ${this.gradeScale === LETTER_GRADE_TYPE ? html`
@@ -348,7 +419,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           data-user-id="${ifDefined(submitter ? submitter.id : undefined)}"
           type="text"
           class="points-input ${ifDefined(submitter ? "grader-grade-override" : undefined)}"
-          .value=${submitter ? (submitter.overridden ? submitter.grade : "") : this.submission.grade} />
+          .value=${submitter ? submitter.overridden ? submitter.grade : "" : this.submission.grade} />
         ${this.renderSaved()}
         ${this.renderFailed()}
         <span>(${this.assignmentsI18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
@@ -387,7 +458,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 class=${ifDefined(submitter ? "grader-grade-override" : undefined)}
                 @click=${submitter ? undefined : this.gradeSelected}
                 value=${GRADE_CHECKED}
-                .checked=${submitter ? (submitter.overridden && submitter.grade === this.assignmentsI18n["gen.checked"]) : this.submission.grade === this.assignmentsI18n["gen.checked"]}>
+                .checked=${submitter ? submitter.overridden && submitter.grade === this.assignmentsI18n["gen.checked"] : this.submission.grade === this.assignmentsI18n["gen.checked"]}>
         </input>
         <span>${this.assignmentsI18n["gen.gra2"]} ${this.assignmentsI18n["gen.checked"]}</span>
         ${this.renderSaved()}
@@ -397,17 +468,15 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderGrader() {
-
     // Hide the right UI until we have push notifications for grade changes
     if (this.submission.ltiSubmissionLaunch) return "";
-
     return html`
       ${this.submission.id !== "dummy" ? html`
 
       <aside id="grader" class="offcanvas offcanvas-end" tabindex="-1" aria-labelledby="grader-label">
 
         <div class="offcanvas-header">
-          <h2 class="offcanvas-title" id="grader-label">Grader</h2>
+          <h2 class="offcanvas-title" id="grader-label">${this.i18n.grader}</h2>
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
@@ -574,7 +643,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 `)}
                 </div>
               </div>
-            ` : "" }
+            ` : ""}
           </div>
           <div class="feedback-label grader-label content-button-block grader-block">
             <button id="grader-feedback-button"
@@ -625,8 +694,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                     </div>
                   </div>
                 `)}
-              </div>`
-            : ""}
+              </div>` : ""}
             <sakai-grader-file-picker button-text="${this.assignmentsI18n["gen.addatt"]}"
                 style="display: inline-block;"
                 title="${this.i18n.add_attachments_tooltip}">
@@ -673,8 +741,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               <div class="active-indicator ${this.savedPvtNotes ? "" : "unsaved"}"
                   aria-label="${this.pvtNotePresentMsg()}"
                   title="${this.pvtNotePresentMsg()}">
-              </div>`
-            : ""}
+              </div>` : ""}
           </div>
 
           <div id="private-notes-block" class="collapse ms-2">
@@ -702,7 +769,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 <select aria-label="${this.i18n.attempt_selector_label}"
                     @change=${e => this.submission.resubmitsAllowed = parseInt(e.target.value)}>
                   ${Array(10).fill().map((_, i) => html`
-                    <option value="${i + 1}" .selected=${this.submission.resubmitsAllowed === (i + 1)}>${i + 1}</option>
+                    <option value="${i + 1}" .selected=${this.submission.resubmitsAllowed === i + 1}>${i + 1}</option>
                   `)}
                   <option value="-1" .selected=${this.submission.resubmitsAllowed === -1}>${this.i18n.unlimited}</option>
                 </select>
@@ -760,7 +827,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderSubmitter() {
-
     return html`
       ${this.submission.groupId ? html`${this.submission.groupTitle}` : html`${this.submission.firstSubmitterName}`}
     `;
@@ -771,7 +837,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   render() {
-
     return html`
       ${this.areSettingsInAction() ? html`
       <div class="sak-banner-warn">${this.i18n.filter_settings_warning}</div>
@@ -780,7 +845,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div id="grader-submitted-block" class="grader-block">
         <div class="d-flex mb-3">
           <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
-          <div class="d-flex flex-grow-1">
+          <div style="flex: 4;">
             <span class="submitter-name">${this.renderSubmitter()}</span>
             ${this.submission.draft && this.submission.visible ? html`
             <span class="draft-submission">(${this.i18n.draft_submission})</span>
@@ -821,7 +886,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   _getPhotoUserId() {
-
     if (this.submission.groupId || this.gradable.anonymousGrading || !this.submission.firstSubmitterId) {
       return "blank";
     }
@@ -834,33 +898,33 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   doneWithRubric() {
-
     this.querySelector("#grader-rubric-link").focus();
+
     this._closeRubric();
   }
 
   replaceWithEditor(id, changedCallback) {
-
     const editor = sakai.editor.launch(id, {
-      autosave: { delay: 10000000, messageType: "no" },
+      autosave: {
+        delay: 10000000,
+        messageType: "no"
+      },
       startupFocus: true,
-      toolbarSet: "Basic",
+      toolbarSet: "Basic"
     });
-
     editor.on("change", e => {
-
       changedCallback && changedCallback(e.editor.getData());
       this.modified = true;
     });
-
-    editor.on("instanceReady", (e) => {
-      e.editor.dataProcessor.writer.setRules('p', { breakAfterClose: false });
+    editor.on("instanceReady", e => {
+      e.editor.dataProcessor.writer.setRules('p', {
+        breakAfterClose: false
+      });
     });
     return editor;
   }
 
   toggleInlineFeedback(e, cancelling) {
-
     if (!this.feedbackTextEditor) {
       this.feedbackTextEditor = this.replaceWithEditor("grader-feedback-text-editor");
       this.feedbackTextEditor.setData(this.submission.feedbackText, () => this.modified = false);
@@ -874,6 +938,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       } else {
         this.feedbackTextEditor.setData(this.submission.feedbackText, () => this.modified = false);
       }
+
       this.feedbackTextEditor.destroy();
       this.feedbackTextEditor = undefined;
       this.querySelector("#grader-feedback-text").style.display = "block";
@@ -888,16 +953,15 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   doneWithFeedback() {
-
     this.submission.feedbackComment = this.feedbackCommentEditor.getData();
     this.modified = true;
     this.savedFeedbackComment = false;
     this.feedbackCommentEditor.resetDirty();
+
     this._closeFeedback();
   }
 
   cancelFeedback() {
-
     if (this.feedbackCommentEditor.checkDirty()) {
       if (this.confirmedNotSaveFeedback) {
         this.feedbackCommentEditor.setData(this.submission.feedbackComment, () => this.modified = false);
@@ -916,7 +980,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   cancelPrivateNotes() {
-
     if (this.privateNotesEditor.checkDirty()) {
       if (this.confirmedNotSavePvtNotes) {
         this.privateNotesEditor.setData(this.submission.privateNotes, () => this.modified = false);
@@ -939,11 +1002,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   doneWithPrivateNotes() {
-
     this.submission.privateNotes = this.privateNotesEditor.getData();
     this.modified = true;
     this.savedPvtNotes = false;
     this.privateNotesEditor.resetDirty();
+
     this._closePrivateNotes();
   }
 
@@ -956,7 +1019,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   previewAttachment(e) {
-
     e.preventDefault();
     this.selectedAttachment = this.submission.submittedAttachments.find(sa => sa.url === e.target.dataset.url);
     const type = this.selectedAttachment.type;
@@ -967,32 +1029,30 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.submittedTextMode = false;
       this.previewMode = true;
       let preview = this.submission.previewableAttachments[this.selectedAttachment.ref];
-      preview = (!preview && (type.startsWith("image/") || type.startsWith("video/") || this.previewMimetypes.includes(type))) ? this.selectedAttachment : preview;
+      preview = !preview && (type.startsWith("image/") || type.startsWith("video/") || this.previewMimetypes.includes(type)) ? this.selectedAttachment : preview;
+
       if (preview) {
         this.selectedPreview = preview;
       } else {
-        this.selectedPreview = this.selectedAttachment;
-        // If there's no preview, open in a new tab or download the attachment.
+        this.selectedPreview = this.selectedAttachment; // If there's no preview, open in a new tab or download the attachment.
+
         window.open(this.selectedPreview.url, '_blank');
       }
     }
   }
 
   addRubricParam(e, type) {
-
     let name = `rbcs-${e.detail.evaluatedItemId}-${e.detail.entityId}-${type}`;
-    if ("totalpoints" !== type && "state-details" !== type) name += `-${  e.detail.criterionId}`;
+    if ("totalpoints" !== type && "state-details" !== type) name += `-${e.detail.criterionId}`;
     this.rubricParams.set(name, type === "criterionrating" ? e.detail.ratingId : e.detail.value);
   }
 
   onTotalPointsUpdated(e) {
-
     this.submission.grade = e.detail.value;
     this.requestUpdate();
   }
 
   onRubricRatingChanged(e) {
-
     this.addRubricParam(e, "criterion");
     this.addRubricParam(e, "criterionrating");
     this.submission.hasRubricEvaluation = true;
@@ -1012,9 +1072,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   loadData(gradableId) {
-
     const doIt = data => {
-
       this.gradeScale = data.gradable.gradeScale;
 
       if (this.gradeScale === LETTER_GRADE_TYPE) {
@@ -1031,18 +1089,17 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (!this.gradableDataLoader) {
       this.gradableDataLoader = this.loadGradableData(gradableId, portal.siteId, this.submissionId);
     }
+
     this.gradableDataLoader.then(data => doIt(data));
   }
-
   /**
    * Bundle up and all the needed stuff, like the grade, rubric, instructor comments and attachments.
    */
+
+
   getFormData() {
-
     const formData = new FormData();
-
     formData.valid = true;
-
     this.querySelector("sakai-grader-file-picker").files.forEach((f, i) => formData.set(`attachment${i}`, f, f.name));
     formData.set("grade", this.submission.grade);
     this.querySelectorAll(".grader-grade-override").forEach(el => {
@@ -1060,12 +1117,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         formData.set("grade", this.submission.grade);
       }
     }
+
     formData.set("feedbackText", this.submission.feedbackText);
     formData.set("feedbackComment", this.submission.feedbackComment);
     formData.set("privateNotes", this.submission.privateNotes);
-
     this.rubricParams.forEach((value, name) => formData.set(name, value));
-
     formData.set("studentId", this.submission.firstSubmitterId);
     formData.set("courseId", portal.siteId);
     formData.set("gradableId", this.gradableId);
@@ -1075,29 +1131,31 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       formData.set("resubmitNumber", this.submission.resubmitsAllowed);
       formData.set("resubmitDate", this.submission.resubmitDate);
     }
+
     if (this.allowExtension) {
       formData.set("extensionDate", this.submission.extensionDate);
     }
+
     formData.set("siteId", portal.siteId);
 
     if (this.debug) {
       // Display the key/value pairs
       for (const pair of formData.entries()) {
-        console.debug(`${pair[0]  }: ${  pair[1]}`);
+        console.debug(`${pair[0]}: ${pair[1]}`);
       }
     }
 
     return formData;
   }
-
   /**
    * Submit the data, optionally releasingb based on a data attribute
    */
+
+
   save(e) {
-
     const release = e.target.dataset.release;
-
     const formData = this.getFormData();
+
     if (formData.valid) {
       formData.set("gradeOption", release ? "return" : "retract");
       this.submitGradingData(formData);
@@ -1109,18 +1167,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   submitGradingData(formData) {
-
     fetch("/direct/assignment/setGrade.json", {
       method: "POST",
       cache: "no-cache",
       credentials: "same-origin",
-      body: formData,
+      body: formData
     }).then(r => r.json()).then(data => {
-
       const submission = new Submission(data, this.groups, this.i18n);
-
       submission.grade = formData.get("grade");
-
       this.querySelector("sakai-grader-file-picker").reset();
       this.submissions.splice(this.submissions.findIndex(s => s.id === submission.id), 1, submission);
       this.originalSubmissions.splice(this.originalSubmissions.findIndex(s => s.id === submission.id), 1, submission);
@@ -1129,22 +1183,20 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.totalGraded = this.submissions.filter(s => s.graded).length;
       this.saveSucceeded = true;
       setTimeout(() => {
-
         this.saveSucceeded = false;
-
         const graderEl = document.getElementById("grader");
         bootstrap.Offcanvas.getInstance(graderEl).hide();
         graderEl.addEventListener('hidden.bs.offcanvas', () => {
-
           // Close all the collapses on the hidden event, so we don't have loads of sliding
           // about going on at once.
           this._closeFeedback();
+
           this._closePrivateNotes();
+
           this._closeRubric();
         });
       }, 500);
     }).catch(e => {
-
       console.error(`Failed to save grade for submission ${this.submission.id}: ${e}`);
       this.saveFailed = true;
       setTimeout(() => this.saveFailed = false, 2000);
@@ -1152,7 +1204,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   resetEditors(cancelling) {
-
     if (this.feedbackCommentEditor) {
       this.feedbackCommentEditor.setData(this.submission.feedbackComment, () => this.feedbackCommentEditor.resetDirty());
     }
@@ -1167,38 +1218,46 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   cancel() {
-
     if (!this.canNavigate()) {
       return;
     }
+
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this.submission.id));
     const i = this.submissions.findIndex(s => s.id === this.submission.id);
     this.submissions.splice(i, 1, originalSubmission);
-
     this.submission = this.submissions[i];
-
     this.resetEditors(true);
-
     this.modified = false;
 
     switch (this.gradeScale) {
-      case SCORE_GRADE_TYPE: {
-        const input = document.getElementById("score-grade-input");
-        input  && (input.value = this.submission.grade);
-        break;
-      } case PASS_FAIL_GRADE_TYPE: {
-        const input = document.getElementById("pass-fail-selector");
-        input  && (input.value = this.submission.grade);
-        break;
-      } case LETTER_GRADE_TYPE: {
-        const input = document.getElementById("letter-grade-selector");
-        input  && (input.value = this.submission.grade);
-        break;
-      } case CHECK_GRADE_TYPE: {
-        const input = document.getElementById("check-grade-input");
-        input && (input.checked = this.submission.grade === this.assignmentsI18n["gen.checked"] || this.submission.grade === GRADE_CHECKED);
-        break;
-      }
+      case SCORE_GRADE_TYPE:
+        {
+          const input = document.getElementById("score-grade-input");
+          input && (input.value = this.submission.grade);
+          break;
+        }
+
+      case PASS_FAIL_GRADE_TYPE:
+        {
+          const input = document.getElementById("pass-fail-selector");
+          input && (input.value = this.submission.grade);
+          break;
+        }
+
+      case LETTER_GRADE_TYPE:
+        {
+          const input = document.getElementById("letter-grade-selector");
+          input && (input.value = this.submission.grade);
+          break;
+        }
+
+      case CHECK_GRADE_TYPE:
+        {
+          const input = document.getElementById("check-grade-input");
+          input && (input.checked = this.submission.grade === this.assignmentsI18n["gen.checked"] || this.submission.grade === GRADE_CHECKED);
+          break;
+        }
+
       default:
     }
 
@@ -1206,7 +1265,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   clearSubmission() {
-
     const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
     this.submissions[currentIndex] = this.nonEditedSubmission;
     this.querySelector("sakai-grader-file-picker").reset();
@@ -1215,26 +1273,22 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   canNavigate() {
-
     // Deal with the right pane not present
     const nFiles = this.querySelector("sakai-grader-file-picker")?.files.length;
-    return this.modified || nFiles
-      ? (confirm(this.i18n.confirm_discard_changes) ? this.clearSubmission() : false) : true;
+    return this.modified || nFiles ? confirm(this.i18n.confirm_discard_changes) ? this.clearSubmission() : false : true;
   }
 
   toStudentList(e) {
-
     e.preventDefault();
+
     if (this.canNavigate()) {
       location.href = this.userListUrl;
     }
   }
 
   validateGradeInput(e) {
-
     if (e.key === "Tab") return;
-
-    const decimalSeparator = (1.1).toLocaleString(portal.locale).substring(1, 2);
+    const decimalSeparator = 1.1.toLocaleString(portal.locale).substring(1, 2);
     const rgxp = new RegExp(`[\\d${decimalSeparator}]`);
 
     if (e.key === "Backspace" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -1243,49 +1297,49 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       e.preventDefault();
       return false;
     }
+
     const number = e.target.value.replace(",", ".");
+    const numDecimals = number.includes(".") ? number.split(".")[1].length : 0; // If the user has highlighted the current entry, they want to replace it.
 
-    const numDecimals = number.includes(".") ? number.split(".")[1].length : 0;
-
-    // If the user has highlighted the current entry, they want to replace it.
-    if (numDecimals === 2 && ((e.target.selectionEnd - e.target.selectionStart) < e.target.value.length)) {
+    if (numDecimals === 2 && e.target.selectionEnd - e.target.selectionStart < e.target.value.length) {
       e.preventDefault();
       return false;
     }
   }
 
   gradeSelected(e) {
-
     if (this.gradeScale === CHECK_GRADE_TYPE) {
       if (e.target.checked) {
         this.submission.grade = GRADE_CHECKED;
       } else {
         this.submission.grade = "Unchecked";
       }
+
       this.isChecked = e.target.checked;
     } else {
       this.submission.grade = e.target.value;
     }
+
     this.modified = true;
   }
 
   previous() {
-
     const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
 
     if (currentIndex >= 1) {
       if (!this.canNavigate()) {
         return;
       }
+
       if (this.feedbackTextEditor) {
         this.toggleInlineFeedback(null, true);
       }
+
       this.submission = this.submissions[currentIndex - 1];
     }
   }
 
   studentSelected(e) {
-
     if (!this.canNavigate()) {
       return;
     }
@@ -1294,24 +1348,23 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   next() {
-
     const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
 
     if (currentIndex < this.submissions.length - 1) {
       if (!this.canNavigate()) {
         return;
       }
+
       if (this.feedbackTextEditor) {
         this.toggleInlineFeedback(null, true);
       }
+
       this.submission = this.submissions[currentIndex + 1];
     }
   }
 
   applyFilters(e) {
-
     e.stopPropagation();
-
     this.submissions = [...this.originalSubmissions];
 
     if (this.ungradedOnly) {
@@ -1338,80 +1391,69 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     } else {
       this.submission = new Submission();
     }
+
     this.totalGraded = this.submissions.filter(s => s.graded).length;
   }
 
   submittedOnlyChanged(e) {
-
     this.submittedOnly = e.target.checked;
     this.applyFilters(e);
   }
 
   areSettingsInAction() {
-
-    return (this.currentGroup && this.currentGroup !== `/site/${portal.siteId}`) || this.submittedOnly || this.ungradedOnly;
+    return this.currentGroup && this.currentGroup !== `/site/${portal.siteId}` || this.submittedOnly || this.ungradedOnly;
   }
 
   removeAttachment(e) {
-
     e.stopPropagation();
     e.preventDefault();
 
     if (confirm(this.i18n.confirm_remove_attachment)) {
-
       const ref = e.target.dataset.ref;
-
       fetch(`/direct/assignment/removeFeedbackAttachment?gradableId=${this.gradableId}&submissionId=${this.submission.id}&ref=${encodeURIComponent(ref)}`).then(r => {
-
         if (r.status === 200) {
           this.submission.feedbackAttachments.splice(this.submission.feedbackAttachments.findIndex(fa => fa.ref === ref), 1);
           this.requestUpdate();
         }
-      })
-      .catch (error => console.error(`Failed to remove attachment on server: ${error}`));
+      }).catch(error => console.error(`Failed to remove attachment on server: ${error}`));
     }
   }
 
   groupSelected(e) {
-
     this.currentGroup = e.detail.value;
     this.applyFilters(e);
   }
 
   ungradedOnlyChanged(e) {
-
     this.ungradedOnly = e.target.checked;
     this.applyFilters(e);
   }
 
   resubmitDateSelected(e) {
-
     this.submission.resubmitDate = e.detail.epochMillis;
     this.modified = true;
   }
 
   extensionDateSelected(e) {
-
     this.submission.extensionDate = e.detail.epochMillis;
     this.modified = true;
   }
 
   toggleResubmissionBlock(e) {
-
     if (!e.target.checked) {
       this.submission.resubmitsAllowed = 0;
     } else {
       this.submission.resubmitsAllowed = 1;
     }
+
     this.showResubmission = e.target.checked;
   }
 
   toggleExtensionBlock(e) {
-
     this.submission.extensionAllowed = !e.target.checked;
     this.allowExtension = e.target.checked;
   }
-}
 
+}
 const tagName = "sakai-grader";
 !customElements.get(tagName) && customElements.define(tagName, SakaiGrader);
