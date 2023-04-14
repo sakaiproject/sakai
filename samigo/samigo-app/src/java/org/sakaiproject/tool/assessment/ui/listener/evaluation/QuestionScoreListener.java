@@ -1142,6 +1142,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				partitem.setId(item.getItemId().toString());
 				log.debug("*   item.getId = " + item.getItemId());
 				partitem.setLinked(true);
+				partitem.setItemCancelled(ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED == item.getCancellation()
+						|| ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED == item.getCancellation());
 
 				// Iterator iter3 = scores.iterator();
 				items.add(partitem);
