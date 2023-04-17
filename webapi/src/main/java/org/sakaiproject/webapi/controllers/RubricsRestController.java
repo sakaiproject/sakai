@@ -277,6 +277,19 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }
     }
 
+    @DeleteMapping(value = "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}/evaluations/{evaluatedItemId}")
+    ResponseEntity deleteEvaluation(@PathVariable String siteId, @PathVariable String toolId, @PathVariable String itemId, @PathVariable String evaluatedItemId) throws Exception {
+
+        checkSakaiSession();
+
+        if (rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(toolId, itemId, evaluatedItemId, siteId)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     @GetMapping(value = "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<List<EvaluationTransferBean>> getEvaluationsForItem(@PathVariable String siteId, @PathVariable String toolId, @PathVariable String itemId) throws Exception {
 

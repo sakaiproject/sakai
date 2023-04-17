@@ -1,5 +1,6 @@
 sakai-grader {
 
+
   #grader-topbar {
     display: flex;
     justify-content: space-between;
@@ -161,6 +162,29 @@ sakai-grader {
 
     .points-input {
       width: 60px;
+    }
+
+    .fade-text {
+      position: relative;
+      color: black;
+      max-height: 50px;
+    }
+
+    .fade-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(top, transparent, white);
+      pointer-events: none;
+    }
+
+    .grader-snippet {
+      background-color: white;
+      div:first-child {
+        background-color: white;
+      }
     }
 
     #grader-grade-block {

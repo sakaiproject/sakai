@@ -105,6 +105,8 @@ public interface RubricsService {
 
     Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
 
+    boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
+
     List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId);
 
     EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId);

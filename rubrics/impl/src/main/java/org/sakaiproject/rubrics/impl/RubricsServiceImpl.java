@@ -666,6 +666,16 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             });
     }
 
+    public boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId) {
+
+        ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
+            .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
+
+        int count = evaluationRepository.deleteByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
+
+        return count == 1;
+    }
+
     @Transactional(readOnly = true)
     public List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId) {
 
