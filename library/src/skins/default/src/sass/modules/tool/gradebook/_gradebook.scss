@@ -1805,3 +1805,11 @@ max-height:100px;
 .w_blue .w_content_container {
   max-height: 450px;
 }
+
+.dropdown-menu > li > a {
+  text-decoration: none;
+}
+.dropdown-menu > li:hover,
+.dropdown-menu > li:focus {
+  background-color: var(--button-hover-background);
+}
