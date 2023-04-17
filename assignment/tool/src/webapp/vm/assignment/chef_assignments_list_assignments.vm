@@ -511,7 +511,7 @@
 											<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 										#end
 									#else
-										#if ($service.getGradeForSubmitter($submission, $user.getId()).equals(""))
+										#if ($service.getGradeForSubmitter($submission, $user.getId()).equals("") || ($service.getSubmissionStatus($submission.Id) == $tlang.getString("gen.notsta")))
 											<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
 										#else
 											<span>$service.getGradeForSubmitter($submission, $user.getId())#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
