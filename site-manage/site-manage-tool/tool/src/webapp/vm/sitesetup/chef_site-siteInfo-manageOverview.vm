@@ -253,12 +253,12 @@
 
 <script>
     $('input:radio[id="layout1"]').click(function() {
-        $('#single-col').removeClass("hidden");
-        $('#double-col').addClass("hidden");
+        $('#single-col').removeClass("d-none");
+        $('#double-col').addClass("d-none");
     });
 
     $('input:radio[id="layout2"]').click(function() {
-        $('#double-col').removeClass("hidden");
-        $('#single-col').addClass("hidden");
+        $('#double-col').removeClass("d-none");
+        $('#single-col').addClass("d-none");
     });
 </script>

@@ -18,14 +18,16 @@
 
     <li class="site-list-item py-1 $!{currentSiteClass}">
         <div class="site-list-item-head d-flex align-items-center pe-2">
-            <button class="d-flex btn btn-nav btn-site rounded-end text-start border-0 me-1 #if (!$isCurrentSite)collapsed#end"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#site-${index}-pages"
-                    aria-expanded="${isExpanded}"
-                    aria-controls="site-${index}-pages">
-                <i class="bi bi-chevron-right" aria-hidden="true"></i>
-                <span class="text-break">${site.title}</span>
-            </button>
+            <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
+                <button class="btn icon-button border-0 #if (!$isCurrentSite)collapsed#end"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#site-${index}-pages"
+                        aria-expanded="${isExpanded}"
+                        aria-controls="site-${index}-pages">
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </button>
+                <a href="$site.url" class="text-break">${site.title}</a>
+            </div>
             #if ($loggedIn)
                 <button class="d-inline-block p-1 site-opt-pin btn btn-site-opt bi $!{pinIconClass}"
                     data-pin-site="${site.id}"
@@ -35,11 +37,14 @@
                 #if ($site.description)
                 <button class="d-inline-block p-1 btn bi bi-info-circle btn-site-opt site-description-button"
                     data-bs-toggle="popover"
+                    data-bs-trigger="focus"
                     data-bs-html="true"
-                    data-bs-content="${site.description}"
+                    data-bs-content-id="description-${site.id}"
+                    data-bs-trigger="focus"
                     aria-label="Click for the full site description"
                     aria-expanded="false">
                 </button>
+                <div id="description-${site.id}" class="d-none">${site.description}</div>
                 #end
             #end
         </div>
@@ -82,7 +87,7 @@
             <div class="d-flex text-start align-items-center">
                 <div class="d-flex me-auto rounded-end">
                     <i class="me-1 $!{icon}" aria-hidden="true"></i>
-                    <span>${title}</span>
+                    <span class="me-2">${title}</span>
                 </div>
                 <div class="me-1">
                 #if ($hidden)
@@ -160,7 +165,7 @@
 </aside>
 
 <script>
-    // focus the current tool on load
+    // focus the current tool on load and prepare site description popovers
     window.addEventListener('load', () => {
         document.querySelector('.selected-page')?.scrollIntoView({behavior:'auto', block: 'center'});
 
@@ -169,6 +174,17 @@
 
             document.querySelector('.Mrphs-portalWrapper').focus();
         }, 50);
+
+        [...document.querySelectorAll('[data-bs-toggle="popover"]')].forEach((el) => {
+            let opts = {
+                animation: false,
+            };
+            if (el.hasAttribute('data-bs-content-id')) {
+	        opts.content = document.getElementById(el.getAttribute('data-bs-content-id')).innerHTML;
+	        opts.html = true;
+                new bootstrap.Popover(el, opts);
+            }
+        })
     });
 </script>
 <!-- END VM includeSiteNav.vm -->

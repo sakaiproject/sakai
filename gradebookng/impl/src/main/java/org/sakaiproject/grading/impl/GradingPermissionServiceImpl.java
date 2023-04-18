@@ -580,10 +580,14 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         // Retrieve all the different permission info needed here so not called repeatedly for each student
         List<Permission> permsForUserAnyGroup = getPermissionsForUserAnyGroup(gradebookId, userId);
         List<Permission> allPermsForUser = getPermissionsForUser(gradebookId, userId);
-        List<Permission> permsForAnyGroupForCategories = getPermissionsForUserAnyGroupForCategory(gradebookId, userId, categoryIds);
+        List<Permission> permsForAnyGroupForCategories
+            = categoryIds.isEmpty() ? Collections.<Permission>emptyList()
+                    : getPermissionsForUserAnyGroupForCategory(gradebookId, userId, categoryIds);
         List<Permission> permsForUserAnyGroupAnyCategory = getPermissionsForUserAnyGroupAnyCategory(gradebookId, userId);
         List<Permission> permsForGroupsAnyCategory = getPermissionsForUserForGoupsAnyCategory(gradebookId, userId, groupIds);
-        List<Permission> permsForUserForCategories = getPermissionsForUserForCategory(gradebookId, userId, categoryIds);
+        List<Permission> permsForUserForCategories
+            = categoryIds.isEmpty() ? Collections.<Permission>emptyList()
+                    : getPermissionsForUserForCategory(gradebookId, userId, categoryIds);
 
         return getAvailableItemsForStudent(optGradebook.get(), userId, studentId, sectionIdCourseSectionMap, catIdCategoryMap, assignments, permsForUserAnyGroup, allPermsForUser, permsForAnyGroupForCategories, permsForUserAnyGroupAnyCategory, permsForGroupsAnyCategory, permsForUserForCategories, sectionIdStudentIdsMap);
     }

@@ -38,7 +38,7 @@
 							</a>
 						</th>
 						<th id="softremoveddate">
-							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=softremoveddate")'; return false;"  title="$tlang.getString("gen.sorbyremoveddate")" class="hidden-xs">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=softremoveddate")'; return false;"  title="$tlang.getString("gen.sorbyremoveddate")" class="d-none d-sm-table-cell">
 								$tlang.getString("gen.removeddate")
 								#if ($sortedBy.equals("softremoveddate"))
 									#if ($sortedAsc.equals("true"))
@@ -50,7 +50,7 @@
 							</a>
 						</th>
 						<th id="num_submissions" scope="col">
-							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"  title="$tlang.getString("gen.sorbynumsub")" class="hidden-xs">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"  title="$tlang.getString("gen.sorbynumsub")" class="d-none d-sm-table-cell">
 								$tlang.getString("gen.subm2")
 								#if ($sortedBy.equals("num_submissions"))
 									#if ($sortedAsc.equals("true"))
@@ -63,7 +63,7 @@
 						</th>
 						#if ($!allowRecoverAssignment)
 							<th id="selectAssignments" scope="col">
-								<span class="hidden-xs">$tlang.getString("selectAssignments")</span>
+								<span class="d-none d-sm-table-cell">$tlang.getString("selectAssignments")</span>
 							</th>
 						#end
 					</tr>

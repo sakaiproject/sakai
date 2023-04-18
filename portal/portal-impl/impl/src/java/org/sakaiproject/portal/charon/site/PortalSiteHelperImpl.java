@@ -328,10 +328,28 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return null;
 	}
 
+	private List<String> getExcludedSiteIds()
+	{
+		Session session = sessionManager.getCurrentSession();
+		List<String> excludedSiteIds = Collections.<String>emptyList();
+
+		if ( session != null ) { 
+			Preferences prefs = preferencesService.getPreferences(session.getUserId());
+			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+
+			List propList = props.getPropertyList("exclude");
+			if (propList != null) {
+				excludedSiteIds = (List<String>) propList;
+			}
+		}
+		return excludedSiteIds;
+	}
+
 	private Collection<Site> getSites(Collection<String> siteIds) {
 
 		if (siteIds != null) {
 			return siteIds.stream()
+				.filter(siteId -> ! getExcludedSiteIds().contains(siteId))
 				.map(this::getSite)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());

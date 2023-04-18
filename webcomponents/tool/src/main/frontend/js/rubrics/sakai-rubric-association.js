@@ -166,7 +166,7 @@ class SakaiRubricAssociation extends RubricsElement {
       <div class="sak-banner-warn"><small>${this.i18n.rubric_points_warning}</small></div>
       <div class="sakai-rubric-association form">
         ${this.readOnly ? "" : html`
-          <div class="radio">
+          <div class="form-check">
             <label>
               <input
                   @click="${this._associate}"
@@ -178,7 +178,7 @@ class SakaiRubricAssociation extends RubricsElement {
             </label>
           </div>
 
-          <div class="radio">
+          <div class="form-check">
             <label>
               <input @click="${this._associate}" name="rbcs-associate" type="radio" .value="${this.associateValue}" ?checked=${this.isAssociated} ?disabled=${this.readOnly}>${this.associateLabel}
             </label>
@@ -202,7 +202,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
           ${this.readOnly ? "" : html`
             <div class="rubric-options">
-              <div class="checkbox">
+              <div class="form-check">
                 <label>
                   <input
                       name="rbcs-config-fineTunePoints"
@@ -213,7 +213,7 @@ class SakaiRubricAssociation extends RubricsElement {
                       ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
                 </label>
               </div>
-              <div class="checkbox">
+              <div class="form-check">
                 <label>
                   <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
                 </label>

@@ -10,14 +10,13 @@
         </div>
 
         <input type="checkbox" class="btn-check" id="showPwTop" autocomplete="off">
-        <label class="btn btn-input-group" for="showPwTop">
+        <label class="input-group-text" for="showPwTop">
             <i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
             <span class="visually-hidden">${rloader.login_show_pw}</span>
         </label>
     </div>
     <button type="submit" class="btn btn-outline-light p-3 my-1 ">${rloader.login}</button>
 </form>
-<button id="mobileLoginBtn" class="d-sm-none btn btn-dark btn-outline-light mb-1 p-3 my-1 mx-2">
+<button id="mobileLoginBtn" class="d-sm-none btn btn-outline-light mb-1 my-1 mx-2">
     ${rloader.login}
-    <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
 </button>

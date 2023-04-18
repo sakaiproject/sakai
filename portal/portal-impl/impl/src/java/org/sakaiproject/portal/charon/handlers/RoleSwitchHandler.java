@@ -30,6 +30,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -132,7 +133,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 				// Post an event
 				eventTrackingService.post(eventTrackingService.newEvent(EVENT_ROLESWAP_START, parts[3], parts[2], false, NotificationService.NOTI_NONE));
 
-				res.sendRedirect(siteUrl);
+				res.sendRedirect(URLUtils.sanitisePath(siteUrl));
 				return RESET_DONE;
 			}
 			catch(Exception ex)

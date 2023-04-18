@@ -41,6 +41,9 @@
     &.sidebar-collapsed {
       display: none;
     }
+    a {
+      text-decoration: none;
+    }
   }
   .portal-jump-links {
     padding-left: var(--portal-nav-sidebar-width);
@@ -53,6 +56,22 @@
   grid-area: header;
   box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
+
+// Responsive header for mobile
+@media (max-width: 767px) {
+  .portal-header {
+    background-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
+    justify-content: space-between !important;
+  }
+}
+
+@media screen and (max-width: 560px) {
+  .portal-header-logo img {
+    width: 26vw;
+    height: auto;
+  }
+}
+
 .portal-nav-sidebar {
   grid-area: sidebar;
 }
@@ -229,16 +248,6 @@ a[href]:not(.btn):hover {
   }
 }
 
-.btn-input-group {
-  @include button-variant(
-    $input-bg,
-    $input-border-color,
-    $active-background: $input-group-addon-bg,
-  );
-  display: flex;
-  align-items: center;
-}
-
 .btn-sidebar-collapse {
   border: none;
   @include button-variant($primary, $light);
@@ -286,6 +295,15 @@ a[href]:not(.btn):hover {
 
 .portal-nav-sidebar{
 
+  .site-link-block:hover {
+    background-color: var(--site-nav-btn-hover-bg);
+    color: var(--site-nav-btn-current-hover-color);
+
+  a, i {
+    color: inherit;
+  }
+  }
+
   .btn-nav,
   .btn-site-opt {
     @include btn-base();
@@ -299,7 +317,6 @@ a[href]:not(.btn):hover {
     --button-active-color: var(--site-nav-btn-active-color);
     --button-active-bg: var(--site-nav-btn-active-bg);
     --button-active-border-color: var(--site-nav-btn-active-border-color);
-    //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     --button-disabled-color: var(--site-nav-btn-disabled-color);
     --button-disabled-bg: var(--site-nav-btn-disabled-bg);
     --button-disabled-border-color: var(--site-nav-btn-disabled-border-color);
@@ -314,15 +331,10 @@ a[href]:not(.btn):hover {
       --button-active-color: var(--site-nav-btn-current-active-color);
       --button-active-bg: var(--site-nav-btn-current-active-bg);
       --button-active-border-color: var(--site-nav-btn-current-active-border-color);
-      //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
       --button-disabled-color: var(--site-nav-btn-current-disabled-color);
       --button-disabled-bg: var(--site-nav-btn-current-disabled-bg);
       --button-disabled-border-color: var(--site-nav-btn-current-disabled-border-color);
     }
-  }
-
-  .btn-nav {
-    width: 100%;
   }
 
   .site-opt-pin:hover {
@@ -419,5 +431,15 @@ a[href]:not(.btn):hover {
 
   .fa-tool-menu-icon {
     margin-top: 5px;
+  }
+}
+
+.sakai-sitesAndToolsNav * {
+  text-decoration: none;
+}
+
+#create-task {
+  @media (max-width: 460px) {
+    width: 100%;
   }
 }

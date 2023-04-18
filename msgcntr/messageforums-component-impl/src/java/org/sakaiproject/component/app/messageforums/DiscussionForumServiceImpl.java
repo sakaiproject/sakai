@@ -36,6 +36,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.TimeZone;
 
 
 import org.apache.commons.codec.binary.Base64;
@@ -156,6 +157,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String CUSTOM_PERMISSIONS = "permission_levels";
 	private static final String DIRECT_TOOL = "/directtool/";
 
+	private static final String ARCHIVE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mmZ"; // ISO8601 with timezone
 	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
 	private static final String VERSION_ATTR = "version";
 
@@ -237,6 +239,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private int appendDiscussionForumElements(String siteId, Document doc, Element messageForumElement, List attachments) {
+		SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
+
 		int discussionForumCount = 0;
 		List<DiscussionForum> discussionForums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
 		if (CollectionUtils.isNotEmpty(discussionForums)) {
@@ -260,10 +264,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					}
 					if (discussionForum.getAvailabilityRestricted()) {
 						if (discussionForum.getOpenDate() != null) {
-							discussionForumElement.setAttribute(OPEN_DATE, discussionForum.getOpenDate().toString());
+							discussionForumElement.setAttribute(OPEN_DATE, formatter.format(discussionForum.getOpenDate()));
 						}
 						if (discussionForum.getCloseDate() != null) {
-							discussionForumElement.setAttribute(CLOSE_DATE, discussionForum.getCloseDate().toString());
+							discussionForumElement.setAttribute(CLOSE_DATE, formatter.format(discussionForum.getCloseDate()));
 						}
 					}
 
@@ -285,6 +289,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private void appendDiscussionTopicElements(Document doc, DiscussionForum forum, Element discussionForumElement, List attachments) {
+		SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
+
 		List<DiscussionTopic> discussionTopics = dfManager
 				.getTopicsByIdWithMessagesMembershipAndAttachments(forum.getId());
 		if (CollectionUtils.isNotEmpty(discussionTopics)) {
@@ -302,10 +308,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				}
 				if (discussionTopic.getAvailabilityRestricted()) {
 					if (discussionTopic.getOpenDate() != null) {
-						discussionTopicElement.setAttribute(OPEN_DATE, discussionTopic.getOpenDate().toString());
+						discussionTopicElement.setAttribute(OPEN_DATE, formatter.format(discussionTopic.getOpenDate()));
 					}
 					if (discussionTopic.getCloseDate() != null) {
-						discussionTopicElement.setAttribute(CLOSE_DATE, discussionTopic.getCloseDate().toString());
+						discussionTopicElement.setAttribute(CLOSE_DATE, formatter.format(discussionTopic.getCloseDate()));
 					}
 				}
 				if (discussionTopic.getSortIndex() != null) {

@@ -16,16 +16,18 @@ export class SakaiRubricStudentComment extends RubricsElement {
     this._criterion = value;
     this._criterion.comments = value.comments && value.comments.indexOf("null") === 0 ? "" : value.comments;
     this.triggerId = `criterion-comment-${value.id}-trigger`;
-    $(`#${this.triggerId}`).popover("hide");
     this.requestUpdate("criterion", oldValue);
     this.updateComplete.then(() => {
 
-      $(`#${this.triggerId}`).popover({
+      const triggerEl = document.getElementById(this.triggerId);
+      bootstrap.Popover.getInstance(triggerEl)?.hide();
+
+      (new bootstrap.Popover(triggerEl, {
         content: () => this.criterion.comments,
         html: true,
         title: () =>  this.criterion.title,
         placement: "auto",
-      });
+      }));
     });
   }
 
@@ -34,8 +36,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
   }
 
   handleClose() {
-
-    $(`#${this.triggerId}`).popover("hide");
+    bootstrap.Popover.getInstance(document.getElementById(this.triggerId))?.hide();
   }
 
   render() {

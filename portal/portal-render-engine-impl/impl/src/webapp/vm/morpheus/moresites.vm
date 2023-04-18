@@ -33,9 +33,11 @@
   <div id="select-site-modal"
         class="modal"
         role="dialog"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
         aria-hidden="true"
         aria-label="${rloader.sit_allsites_dialog_label}">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
       <div class="modal-content border-0">
         <div class="modal-header">
           <h5 class="modal-title">All My Sites</h5>

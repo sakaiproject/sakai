@@ -96,4 +96,11 @@ public class URLUtils
 		return newPathInfo;
 	}
 
+	// Replace query-like characters in URL path (risk of parameter pollution).
+	// We don't ever except these to form part of page ids or tool ids
+	public static String sanitisePath(String path)
+	{
+		return path.replace('&','_').replace('?','_').replace('=','_');
+	}
+
 }

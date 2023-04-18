@@ -70,7 +70,7 @@ function outputForums(messagesArray, toolHref, forumSummaryDiv){
 			//using javascript's toLocaleDateString() to include user's locale and local time zone
 			var date_time = hour + ":" + min + " " + date.toLocaleDateString();
 			var href = toolHref + "&messageId=" + messagesArray[i].messageId + "&topicId=" +messagesArray[i].topicId + "&forumId=" + messagesArray[i].forumId;
-			text_for_forums+='<li class="forumSummaryItem"><a href="'+href+'">'+messagesArray[i].entityTitle+'</a> by '+messagesArray[i].author+'</br><span class="forumSummaryDate">'+date_time+'</span></li>';
+			text_for_forums+='<li class="itemDiv forumSummaryItem"><div><a href="'+href+'">'+messagesArray[i].entityTitle+'</a> '+msg("simplepage.created-by")+' '+messagesArray[i].author+'</div><div class="forumSummaryDate">'+date_time+'</div></li>';
 		}
 		text_for_forums+='</ul>';
 	}

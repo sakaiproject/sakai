@@ -1,12 +1,15 @@
 sakai-grader {
 
-  div.grader-nav {
-
+  #grader-topbar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     border-bottom: 1px solid var(--sakai-border-color);
     padding: 5px;
+
+    #grader-title-block {
+      display: flex;
+    }
 
     .grader-groups {
       margin-top: 10px;
@@ -16,16 +19,22 @@ sakai-grader {
       }
     }
 
-    .grader-navigator {
+    #grader-navigator {
       flex: 0 0 auto;
       text-align: center;
       text-decoration: none;
+      button > i {
+        font-size: 20px;
+      }
+      #grader-settings-link > i {
+        font-size: 16px;
+      }
       select {
         display: inline-block;
         margin: 0px 8px;
         &:focus { outline: 0;}
       }
-      .grader-navigator a { text-decoration: none; font-weight: bold; }
+      a { text-decoration: none; font-weight: bold; }
       .profile-image {
         margin-right: 6px;
         img {
@@ -35,13 +44,19 @@ sakai-grader {
     }
   }
 
-  .grader-container {
-    display: flex;
-  }
-
-  .gradable {
-    flex: 1;
+  #gradable {
     padding: 5px;
+
+    h3:first-child {
+      margin-left: 5px;
+    }
+
+    #grader-link-block {
+      position: sticky;
+      z-index: 1;
+      top: $banner-height;
+      margin-top: 0.75em;
+    }
 
     #grader-feedback-text {
       padding-bottom: 8px;
@@ -82,7 +97,7 @@ sakai-grader {
         }
       }
     }
-  }
+  } // #gradable
 
   #grader-rubric-link {
     margin-left: 10px;
@@ -108,27 +123,32 @@ sakai-grader {
     cursor: pointer;
   }
 
-  .grader {
-    flex: 0 0 auto;
-    padding: 10px;
-    width: 400px;
-    background-color: var(--sakai-title-bar-bg-color);
+  #grader-submitted-block {
+    margin: 10px 0 0 5px;
 
-    #grader-submitted-block {
-
-      #grader-photo {
-        flex: 1;
-        min-width: 64px;
-        max-width: 64px;
-        width: 64px;
-        height: 64px;
-        float: left;
-        background-position: 50%;
-        background-size: auto 100%;
-        border-radius: 0;
-        margin-right: 6px;
-      }
+    #grader-submitted-label {
+      margin-top: 5px;
+      color: var(--successBanner-color);
     }
+
+    .grader-photo {
+      flex: 1;
+      min-width: 48px;
+      width: 48px;
+      height: 48px;
+      float: left;
+      background-position: 50%;
+      background-size: auto 100%;
+      margin-right: 10px;
+    }
+  }
+
+  #grader {
+
+    // We need this to be able to use @container queries
+    container-type: size;
+
+    background-color: var(--sakai-title-bar-bg-color);
 
     .draft-submission {
         margin-left: 8px;
@@ -142,20 +162,6 @@ sakai-grader {
     .points-input {
       width: 60px;
     }
-
-    .grader-photo {
-      flex: 1;
-      min-width: 64px;
-      max-width: 64px;
-      width: 64px;
-      height: 64px;
-      float: left;
-      background-position: 50%;
-      background-size: auto 100%;
-      border-radius: 0;
-      margin-right: 6px;
-    }
-
 
     #grader-grade-block {
       border-bottom: 1px solid var(--sakai-border-color);
@@ -181,6 +187,21 @@ sakai-grader {
       &.unsaved {
         background: var(--warnBanner-color);
       }
+    }
+
+    #grader-media-feedback {
+
+      display: none;
+
+      margin-top: 10px;
+      margin-bottom: 10px;
+
+      .media-feedback-label {
+        margin-right: 10px;
+        font-weight: bold;
+      }
+      .fa-video-camera { margin-left: 10px; margin-right: 10px; }
+      .fa-microphone { margin-left: 10px; }
     }
 
     .resubmission-checkbox {
@@ -342,9 +363,8 @@ sakai-grader {
   }
 
   .submitted-time {
-    font-style: italic;
-    display: flex;
-    flex-direction: column;
+    font-size: 12px;
+    font-weight: 550;
   }
 
   .draft-time {
@@ -353,11 +373,13 @@ sakai-grader {
 
   .attachments-header {
     margin-top: 7px;
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: 550;
+    margin-bottom: 5px;
   }
 
   .attachment-link {
-    margin-left: 7px;
+    //margin-left: 7px;
   }
 
   .grader-label {
@@ -403,6 +425,7 @@ sakai-grader {
   .grader-late {
     margin-left: 5px;
     font-weight: bold;
+    font-size: 12px;
     color: var(--errorBanner-color);
   }
 
@@ -424,7 +447,7 @@ sakai-grader {
   }
 
   .grader-returned {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     color: var(--successBanner-color);
     margin-top: auto;
@@ -435,43 +458,48 @@ sakai-grader {
       padding: 7px 9px;
     }
   }
-}
 
-.grader-panel {
-  max-width: 550px;
+  @media #{$tablet} {
 
-  button {
-    margin-top: 8px;
-  }
-}
+    #grader-topbar {
+      display: block;
 
-/* Needs to be outside sakai-grader as it's launched by jquery */
-#feedback-panel {
+      #grader-navigator {
+        button > i {
+          font-size: 24px;
+        }
 
-  .grader-label {
-    font-weight: bold;
-  }
+        #grader-settings-link > i {
+          font-size: 20px;
+        }
+      }
 
-  .feedback-label {
-    font-weight: bold;
-  }
+      #grader-title-block {
+        justify-content: center;
+        text-align: center;
+      }
 
-  .feedback-title {
-    font-weight: bold;
-  }
-
-  .media-feedback {
-
-    display: none;
-
-    margin-top: 10px;
-    margin-bottom: 10px;
-
-    .media-feedback-label {
-      margin-right: 10px;
-      font-weight: bold;
+      #grader-total {
+        text-align: center;
+        margin-top: 12px;
+        margin-bottom: 6px;
+      }
     }
-    .fa-video-camera { margin-left: 10px; margin-right: 10px; }
-    .fa-microphone { margin-left: 10px; }
-  }
+
+    #grader-submitted-block {
+      margin-top: 12px;
+    }
+
+    #gradable {
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 3px solid var(--sakai-border-color);
+    }
+
+    #grader-save-buttons > button {
+      display: block;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+  } //media tablet
 }

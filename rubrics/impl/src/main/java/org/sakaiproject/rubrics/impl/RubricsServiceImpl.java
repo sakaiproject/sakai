@@ -22,6 +22,7 @@
 
 package org.sakaiproject.rubrics.impl;
 
+import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
 
 import java.awt.Color;
@@ -840,13 +841,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             final String optionRubricAssociate = Optional.ofNullable(params.get(RubricsConstants.RBCS_ASSOCIATE)).orElse(StringUtils.EMPTY);
             final Optional<ToolItemRubricAssociation> existingAssociation = getRubricAssociation(toolId, toolItemId);
 
-            Long requestedRubricId;
-            try {
-                requestedRubricId = NumberUtils.createLong(optionRubricId);
-            } catch (NumberFormatException nfe) {
-                log.warn("requested rubric id [{}] could not be converted to a long", optionRubricId, nfe);
-                return Optional.empty();
-            }
+            Long requestedRubricId = NumberUtils.toLong(optionRubricId);
 
             if (existingAssociation.isPresent()) {
                 final ToolItemRubricAssociation association = existingAssociation.get();
@@ -876,9 +871,20 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                             }
                         }
                     }
+                } else if (requestedRubricId.equals(0L)){
+                    //deactivating an association without making a new one
+                    association.setActive(false);
+                    associationRepository.save(association);
+                    return Optional.empty();
                 }
             } else {
-                // first association for this rubric
+                // if existingAssociation is not present, it could just mean that it was deactivated previously
+                // the specific getRubricAssociation impl that we used earlier to load it will ignore deactivated ones.
+                Optional<ToolItemRubricAssociation> optionalExistingAssociation = findAssociationByItemIdAndRubricId(toolItemId, requestedRubricId);    // this will include inactive [soft-deleted] ones
+                if (optionalExistingAssociation.isPresent()) {  // if there's already an old association for the requested rubric that was deactivated previously, reuse it
+                    optionalExistingAssociation.get().setActive(true);
+                    return Optional.of(associationRepository.save(optionalExistingAssociation.get()));
+                }
                 Optional<ToolItemRubricAssociation> newAssociation = createToolItemRubricAssociation(toolId, toolItemId, params, requestedRubricId);
                 if (newAssociation.isPresent()) {
                     return Optional.of(associationRepository.save(newAssociation.get()));
@@ -937,21 +943,15 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         Map<String, Boolean> merged = new HashMap<>();
 
         //Get the parameters
-        params.forEach((name, value1) -> {
-            if (name.startsWith(RubricsConstants.RBCS_CONFIG)) {
-                Boolean value = Boolean.FALSE;
-                if ((value1 != null) && (value1.equals("1"))) {
-                    value = Boolean.TRUE;
-                }
-                merged.put(name.substring(12), value);
+        params.forEach((k, v) -> {
+            if (k.startsWith(RBCS_CONFIG)) {
+                merged.put(StringUtils.remove(k, RBCS_CONFIG), BooleanUtils.toBooleanObject(v));
             }
         });
 
-        for (String name : oldParams.keySet()) {
-            if (!(params.containsKey(RubricsConstants.RBCS_CONFIG + name))) {
-                merged.put(name, Boolean.FALSE);
-            }
-        }
+        oldParams.keySet().stream()
+                .filter(name -> !(params.containsKey(RBCS_CONFIG + name)))
+                .forEach(name -> merged.put(name, Boolean.FALSE));
         return merged;
     }
 
@@ -1075,12 +1075,12 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     public byte[] createPdf(String siteId, Long rubricId, String toolId, String itemId, String evaluatedItemId)
             throws IOException {
 
-        if (!isEvaluator(siteId) && !isEvaluee(siteId)) {
+        Rubric rubric = rubricRepository.findById(rubricId)
+                .orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
+
+        if (!isEvaluator(siteId) && !isEvaluee(siteId) && !rubric.getShared()) {
             throw new SecurityException("You must be either an evaluator or evaluee to create PDFs");
         }
-
-        Rubric rubric = rubricRepository.findById(rubricId)
-            .orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
 
         Optional<Evaluation> optEvaluation = Optional.empty();
         if (toolId != null && itemId != null && evaluatedItemId != null) {
@@ -1296,9 +1296,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                                 .filter(ToolItemRubricAssociation::getActive)
                                 .forEach(association -> {
 
-                            //2b get association params
-                            Map<String,Boolean> originalParams = association.getParameters();
-
                             String tool = association.getToolId();
                             String itemId = association.getItemId();
                             Long newRubricId = NumberUtils.toLong(transversalMap.get(RBCS_PREFIX + rubricId).substring(RBCS_PREFIX.length()));
@@ -1343,10 +1340,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
                             //4 save new association
                             if (newItemId != null) {
-                                Map<String, String> params = originalParams.entrySet().stream()
-                                        .map(e -> Map.entry(e.getKey(), BooleanUtils.toString(e.getValue(), "1", "0")))
-                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                                createToolItemRubricAssociation(tool, newItemId, params, newRubricId).ifPresent(associationRepository::save);
+                                createToolItemRubricAssociation(tool, newItemId, association.getFormattedAssociation(), newRubricId).ifPresent(associationRepository::save);
                             }
                         });
                     } catch (Exception ex) {

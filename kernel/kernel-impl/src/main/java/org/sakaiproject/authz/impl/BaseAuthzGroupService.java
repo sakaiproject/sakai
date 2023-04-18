@@ -632,7 +632,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		boolean allowed = false;
 		if ("sakai:site".equals(ref.getType())) {
 			if ("group".equals(ref.getSubType())) {
-				allowed = siteService.allowUpdateGroupMembership(ref.getContainer());
+				allowed = siteService.allowUpdateGroupMembership(ref.getContainer()) || siteService.allowUpdateGroupMembership(ref.getContainer(),ref.getId());
 			} else {
 				allowed = siteService.allowUpdateSiteMembership(ref.getId());
 			}

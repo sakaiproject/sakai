@@ -1,16 +1,27 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
+import { rubricsApiMixin } from "./sakai-rubrics-api-mixin.js";
 
-class SakaiRubricStudentButton extends RubricsElement {
+class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
 
   constructor() {
 
     super();
 
+    this.hidden = true;
     this.instructor = false;
     this.forcePreview = false;
     this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+
+    super.attributeChangedCallback(name, oldValue, newValue);
+
+    if (this.toolId && this.entityId) {
+      this.setupHidden();
+    }
   }
 
   static get properties() {
@@ -21,6 +32,7 @@ class SakaiRubricStudentButton extends RubricsElement {
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
+      hidden: { attribute: false, type: Boolean },
       instructor: Boolean,
       forcePreview: { attribute: "force-preview", type: Boolean },
       dontCheckAssociation: { attribute: "dont-check-association", type: Boolean },
@@ -37,9 +49,9 @@ class SakaiRubricStudentButton extends RubricsElement {
 
   render() {
 
-    return html`
+    return html`${this.hidden ? "" : html`
       <a @click=${this.showRubric} href="javascript:;" title="${tr("preview_rubric")}"><span class="si si-sakai-rubrics" /></a>
-    `;
+    `}`;
   }
 
   showRubric() {
@@ -83,6 +95,19 @@ class SakaiRubricStudentButton extends RubricsElement {
       }
     })
     .catch (error => console.error(error));
+  }
+
+  setupHidden() {
+
+    if (this.dontCheckAssociation) {
+      this.hidden = !this.instructor;
+    } else {
+      this.apiGetAssociation()
+        .then(association => {
+          this.hidden = association.parameters.hideStudentPreview && !this.instructor;
+        })
+        .catch(error => console.error(error));
+    }
   }
 }
 

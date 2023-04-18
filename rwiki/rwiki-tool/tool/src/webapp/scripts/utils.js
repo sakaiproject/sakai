@@ -75,39 +75,6 @@ rearrangeBreadCrumb = function(){
     });
 };
 
-// IE8 has a bug with textareas whose widths are set in css  - see SAK-16714
-utils.fixIE8TextArea = function(){
-    var initIETaWidth;
-    var initIETaCols;
-    var autoIETaWidth;
-    var theseCols;
-    var ta = $('#content');
-    
-    if ($(ta).length) {
-        //get init width and cols values
-        initIETaWidth = $(ta).width();
-        initIETaCols = $(ta).attr('cols');
-        
-        //set the width to auto to fix IE 8 textarea bugs
-        $(ta).css('width', 'auto');
-        
-        //check the new width
-        autoIETaWidth = $(ta).width();
-        
-        theseCols = initIETaCols;
-        /*
-         is it smaller than the init? Add a column till it is about the same
-         size as the initial size
-         */
-        while (autoIETaWidth < (initIETaWidth - 20)) {
-            $(ta).attr('cols', theseCols + 1);
-            theseCols = $(ta).attr('cols');
-            autoIETaWidth = $(ta).width();
-        }
-        
-    }
-};
-
 utils.setuphelplinks = function(){
     $('.rwiki_help_popup_link').hover(function(){
         showPopupHere(this, this.name);

@@ -7498,8 +7498,8 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Object> rubricAssociationMap = new HashMap<>();
             rubricAssociationMap.put("rubricId", rubricId);
             Map<String, String> rubricAssociationParameters = new HashMap<>();
-            rubricAssociationParameters.put("fineTunePoints", params.getString("rbcs-config-fineTunePoints"));
-            rubricAssociationParameters.put("hideStudentPreview", params.getString("rbcs-config-hideStudentPreview"));
+            rubricAssociationParameters.put("fineTunePoints", params.getString(RubricsConstants.RBCS_CONFIG + "fineTunePoints"));
+            rubricAssociationParameters.put("hideStudentPreview", params.getString(RubricsConstants.RBCS_CONFIG + "hideStudentPreview"));
             rubricAssociationMap.put("parameters", rubricAssociationParameters);
             try {
                 state.setAttribute(RUBRIC_ASSOCIATION, (new ObjectMapper()).writeValueAsString(rubricAssociationMap));
@@ -11508,8 +11508,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String privateNotes = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_PRIVATE_NOTES), true);
             // private notes value changed?
-            hasChange = submission != null && valueDiffFromStateAttribute(state, privateNotes, submission.getPrivateNotes());
-            if (feedbackComment != null) {
+            hasChange = !hasChange && submission != null ? valueDiffFromStateAttribute(state, privateNotes, submission.getPrivateNotes()) : hasChange;
+            if (privateNotes != null) {
                 state.setAttribute(GRADE_SUBMISSION_PRIVATE_NOTES, privateNotes);
             }
 

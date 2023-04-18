@@ -48,6 +48,7 @@
 			<input wicket:id="gradePoints" type="hidden" id="gradePoints"/>
 		</form>
 
+		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		<script id="updateUngradedConfirmationModalTemplate" type="text/template">
 			<div class="modal gb-update-ungraded-confirmation">
 				<div class="modal-dialog">
@@ -63,7 +64,9 @@
 							{/if}
 						</div>
 						<div class="modal-footer act">
-							<button type="button" class="button_color gb-update-ungraded-continue active" data-dismiss="modal"><wicket:message key="label.updateungradeditems.confirmation.continue" /></button>
+							<button type="button" class="button_color gb-update-ungraded-continue active" data-dismiss="modal" onclick="SPNR.disableElementAndSpin('', this, true);">
+								<wicket:message key="label.updateungradeditems.confirmation.continue" />
+							</button>
 							<button type="button" class="btn-link gb-update-ungraded-cancel" data-bs-dismiss="modal"><wicket:message key="label.updateungradeditems.confirmation.cancel" /></button>
 						</div>
 					</div>

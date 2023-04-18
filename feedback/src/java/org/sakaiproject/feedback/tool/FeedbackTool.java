@@ -99,19 +99,13 @@ public class FeedbackTool extends HttpServlet {
         }
         boolean siteExists = site != null;
 
-        Map<String, String> siteUpdaters = new HashMap<String, String>();
-        Map<String, String> emailRecipients = new LinkedHashMap<String, String>();
+        Map<String, String> emailRecipients = new LinkedHashMap<>();
 
         String serviceName = sakaiProxy.getConfigString("ui.service", "Sakai");
         boolean hasViewPermission = false;
-        if (siteExists){
-            hasViewPermission = securityService.unlock("roster.viewallmembers", site.getReference());
-            if(hasViewPermission) {
-                siteUpdaters = sakaiProxy.getSiteUpdaters(siteId);
-            }
-            addRecipients(site, emailRecipients, siteUpdaters, serviceName);
-        }
-        else {
+        if (siteExists) {
+            addRecipients(site, emailRecipients, sakaiProxy.getSiteUpdaters(siteId), serviceName);
+        } else {
             String serviceContactName = rb.getFormattedMessage("technical_team_name", new String[]{serviceName});
             String serviceContactEmail = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
             emailRecipients.put(serviceContactEmail, serviceContactName);
@@ -273,7 +267,7 @@ public class FeedbackTool extends HttpServlet {
 
 	private void setMapAttribute(HttpServletRequest request, String key, Map<String, String> map){
 		for (String s : map.keySet()) {
-			map.put(s, StringEscapeUtils.escapeEcmaScript( map.get(s)));
+			map.put(s, StringEscapeUtils.escapeEcmaScript(map.get(s)));
 		}
 		request.setAttribute(key, map);
 	}

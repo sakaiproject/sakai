@@ -9,7 +9,7 @@
 		  aria-controls="portal-nav-sidebar"
 		  aria-label="$rloader.sit_navigation"
 		  title="$rloader.sit_navigation">
-        <i class="bi-grid"></i>
+        <i class="bi-list"></i>
       </button>
     </li>
 
@@ -55,6 +55,7 @@
     </li>
     #end
 
+#* Quick links doesn't look good in mobile view right now so we're hiding it
   #if ($quickLinks)
     <li>
       <button class="btn icon-button"
@@ -68,6 +69,7 @@
       </button>
     </li>
   #end
+*#  
 
     #if ($pageColumn0Tools && !$pageColumn0Tools.isEmpty())
         #set ($helpLink = $pageColumn0Tools.get(0).toolHelpActionUrl)

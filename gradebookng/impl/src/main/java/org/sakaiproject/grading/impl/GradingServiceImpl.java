@@ -1804,7 +1804,8 @@ public class GradingServiceImpl implements GradingService {
             gradeDef.setGradeComment(commentText);
         }
 
-        gradeDef.setExcused(gradeRecord.getExcludedFromGrade());
+	Boolean excludedFromGrade = (gradeRecord.getExcludedFromGrade() != null) ? gradeRecord.getExcludedFromGrade() : Boolean.FALSE;
+        gradeDef.setExcused(excludedFromGrade);
 
         return gradeDef;
     }
@@ -5111,6 +5112,11 @@ public class GradingServiceImpl implements GradingService {
 
     @Deprecated
     private GradebookAssignment getAssignmentWithoutStats(String gradebookUid, String assignmentName) {
+        // Check if assignmentName is really an assignmentId. If not get assignment by assignmentName (i.e., title).
+        if (NumberUtils.isCreatable(assignmentName)) {
+            final Long assignmentId = new Long(NumberUtils.toLong(assignmentName));
+            return getAssignmentWithoutStats(gradebookUid, new Long(assignmentId));
+        }
         return gradingPersistenceManager.getAssignmentByNameAndGradebook(assignmentName, gradebookUid).orElse(null);
     }
 

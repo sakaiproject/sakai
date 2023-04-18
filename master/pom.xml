@@ -37,8 +37,8 @@
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.opensearch.version>1.3.8</sakai.opensearch.version>
-    <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
-    <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
+    <sakai.hibernate.version>5.6.15.Final</sakai.hibernate.version>
+    <sakai.hikaricp.version>5.0.1</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
@@ -65,7 +65,7 @@
     <sakai.openpdf.version>1.3.28</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
-    <sakai.spring.version>5.3.25</sakai.spring.version>
+    <sakai.spring.version>5.3.27</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.3</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.3</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.6</sakai.spring.data.rest.version>
@@ -73,7 +73,7 @@
     <sakai.spring.hateoas.version>1.3.3</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.28.5</sakai.tika.version>
-    <sakai.tomcat.version>9.0.73</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.74</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.20.0</sakai.log4j.version>
@@ -82,7 +82,7 @@
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.12.1</joda.time.version>
+    <joda.time.version>2.12.5</joda.time.version>
     <sakai.weld.shaded.version>3.1.8.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.7.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
@@ -586,7 +586,7 @@
       <dependency>
         <groupId>net.minidev</groupId>
         <artifactId>json-smart</artifactId>
-        <version>2.4.7</version>
+        <version>2.4.10</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -751,7 +751,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-configuration2</artifactId>
-        <version>2.8.0</version>
+        <version>2.9.0</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -822,7 +822,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.22</version>
+        <version>1.23.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -889,12 +889,6 @@
         <groupId>org.dspace</groupId>
         <artifactId>cql-java</artifactId>
         <version>1.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.dom4j</groupId>
-        <artifactId>dom4j</artifactId>
-        <version>2.1.3</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -987,7 +981,7 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.11.9</version>
+        <version>1.14.3</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1048,7 +1042,7 @@
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
-        <version>3.4.2.Final</version>
+        <version>3.4.3.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1060,7 +1054,7 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jandex</artifactId>
-        <version>2.3.0.Final</version>
+        <version>2.4.3.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1073,12 +1067,6 @@
         <groupId>javax.persistence</groupId>
         <artifactId>javax.persistence-api</artifactId>
         <version>2.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.javassist</groupId>
-        <artifactId>javassist</artifactId>
-        <version>3.28.0-GA</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1186,7 +1174,7 @@
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-test</artifactId>
         <version>${sakai.version}</version>
-        <scope>provided</scope>
+        <scope>test</scope>
       </dependency>
 
       <!-- Tika includes asm-debug-all which it really shouldn't

@@ -16,10 +16,6 @@
     <packaging>jar</packaging>
     <name>Sakai Kernel Test</name>
 
-    <properties>
-        <deploy.target>shared</deploy.target>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>

@@ -39,6 +39,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
       <div tabindex="0" style="cursor: pointer;" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active" : ""}" @click=${this.toggleEditor} @keypress=${this.toggleEditor} title="${tr("criterion_comment")}"></div>
 
       <!-- popover -->
+
       <div id="criterion-editor-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left rubrics-comment-popover">
         <div class="arrow-comment"></div>
         <div class="popover-title" style="display: flex;">

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Web;
 
@@ -54,14 +55,9 @@ public class PageResetHandler extends BasePortalHandler
 			{
 				String pagelUrl = req.getContextPath() + "/page"
 						+ Web.makePath(parts, 2, parts.length);
-				// Make sure to add the parameters such as panel=Main
-				String queryString = req.getQueryString();
-				if (queryString != null)
-				{
-					pagelUrl = pagelUrl + "?" + queryString;
-				}
 				portalService.setResetState("true");
-				res.sendRedirect(pagelUrl);
+				res.addHeader("Cache-Control", "no-cache");
+				res.sendRedirect(URLUtils.sanitisePath(pagelUrl));
 				return RESET_DONE;
 			}
 			catch (Exception ex)

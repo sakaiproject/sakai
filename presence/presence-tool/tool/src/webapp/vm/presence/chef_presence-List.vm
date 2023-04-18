@@ -29,13 +29,13 @@
 					<td>
 						<span title="$tlang.getString("presence.session.name")">$formattedText.escapeHtml($entry.UserDisplayId)</span>
 					</td>
-					<td class="hidden-xs">
+					<td class="d-none d-sm-table-cell">
 						<span title="$tlang.getString("presence.session.session")">$formattedText.escapeHtml($entry.Id)</span>
 					</td>
 					<td>
 						<span title="$tlang.getString("presence.session.adress")">$formattedText.escapeHtml($entry.IpAddress)</span>
 					</td>
-					<td class="hidden-xs">
+					<td class="d-none d-sm-table-cell">
 						<span title="$tlang.getString("presence.session.agent")" class="textPanelFooter">$formattedText.escapeHtml($entry.UserAgent)</span>
 					</td>
 					<td>

@@ -104,6 +104,8 @@
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
       </map>     
     </property>
+    <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+    <property name="renderService" ref="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/>
   </bean>
   
   <!-- these are EntityProducer handler beans, the config is bean dependant -->
@@ -146,7 +148,9 @@
       </map>     
     </property>
     <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
-    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+    <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+    <property name="renderService" ref="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/>
   </bean>
   <bean id="rwikiPDFHandler" 
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
@@ -185,7 +189,9 @@
         </map>
     </property>
     <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
-	<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
+	<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+    <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+    <property name="renderService" ref="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/>
   </bean>
   
   <!--<bean id="rwikiRTFHandler" 
@@ -248,12 +254,14 @@
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
+    <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+    <property name="renderService" ref="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/>
 
-<!--
-NOT VISABLE ON FEEDS
+    <!--
+    NOT VISABLE ON FEEDS
 
-    <property name="feedFormat"><value>&lt;a href="{0}fop" target="feeds"&gt;&lt;img src="/library/image/sakai/fop.gif" border="0"  alt="FOP" /&gt;&lt;/a&gt;</value></property>
--->
+        <property name="feedFormat"><value>&lt;a href="{0}fop" target="feeds"&gt;&lt;img src="/library/image/sakai/fop.gif" border="0"  alt="FOP" /&gt;&lt;/a&gt;</value></property>
+    -->
     <property name="responseHeaders">
       <map>
         <entry key="content-type"><value>text/xml</value></entry>

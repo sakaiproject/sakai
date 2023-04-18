@@ -194,8 +194,6 @@
   includeWebjarLibrary('select2');
 
   $(document).ready(function() {
-    // Initialize popovers
-    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(b => (new bootstrap.Popover(b)));
 
     const groupTitle = document.getElementById("groupTitle");
 
@@ -240,7 +238,8 @@
     $('#groupMembers').select2({
       placeholder: searchPlaceHolderText,
       allowClear: true,
-      closeOnSelect: false
+      closeOnSelect: false,
+      width: '100%'
     });
 
     // Button spinners

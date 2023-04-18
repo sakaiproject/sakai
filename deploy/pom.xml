@@ -627,11 +627,6 @@
             <artifactId>aopalliance</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- apache -->
         <dependency>
@@ -847,11 +842,6 @@
         </dependency>
 
         <!-- xml -->
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>

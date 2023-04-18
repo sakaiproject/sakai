@@ -614,7 +614,7 @@
         </ul>
         <div id="feedbackByDatePanel" class="feedbackByDatePanel" style="display:none;">
             <h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}"/> <h:inputText value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" />
-            <div class="hidden-lg"><div class="clearfix"></div></div>
+            <div class="d-lg-none"><div class="clearfix"></div></div>
             <h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}"/> <h:inputText value="#{assessmentSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" />
             <div class="clearfix"></div><br/>
             <h:selectBooleanCheckbox value="#{assessmentSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/> <h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}"/> <h:inputText id="feedbackScoreThreshold" size="4" value="#{assessmentSettings.feedbackScoreThreshold}"/>&#37;
@@ -787,11 +787,10 @@
             <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
         </div>
     </h:panelGroup>
-</div>
 </h:panelGroup>
 
-</div><!-- This is the end of the sub-accordion -->
 </samigo:hideDivision><!-- END Layout and Appearance Category -->
+</div> <!-- END of #jqueryui-accordion -->
 
  <p class="act">
 
@@ -824,7 +823,6 @@
 </p>
 </h:form>
 <!-- end content -->
-</div>
 </div>
       </body>
     </html>

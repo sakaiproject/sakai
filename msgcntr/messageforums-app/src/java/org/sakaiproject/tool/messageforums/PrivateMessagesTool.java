@@ -80,6 +80,7 @@ import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
+import org.sakaiproject.tool.messageforums.util.PrivateMessagesToolHelper;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -1175,7 +1176,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  setBooleanEmailOut(draft.getExternalEmail());
 	  }
 
-	  if(draft.getScheduler() != null && draft.getScheduler()) {
+	  if(draft.getScheduler() != null && draft.getScheduler() && draft.getScheduledDate() != null) {
 		  setSchedulerSendDateString(draft.getScheduledDate().toString());
 		  setBooleanSchedulerSend(draft.getScheduler());
 	  }
@@ -1254,7 +1255,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
         	this.getDetailMsg().getMsg().setRecipientsAsTextBcc("");
         }
 
-        this.getDetailMsg().getMsg().setRecipientsAsText(dMsg.getMsg().getRecipientsAsText());
+        this.getDetailMsg().getMsg().setRecipientsAsText(PrivateMessagesToolHelper.removeRecipientUndisclosed(
+                dMsg.getMsg().getRecipientsAsText(),
+                getResourceBundleString(RECIPIENTS_UNDISCLOSED))
+        );
+
       }
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP

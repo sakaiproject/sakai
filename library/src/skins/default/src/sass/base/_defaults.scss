@@ -79,7 +79,6 @@ a{
     &.btn-primary{
       @include sakai_primary_button();
     }
-    text-decoration: none;  // TODO
   }
   &.url{
     @media #{$phone}{
@@ -132,6 +131,10 @@ h3{
 
 h4{
   font-size: #{$default-font-size + 2};
+}
+
+h3.popover-header {
+  margin-top: 0;
 }
 
 .skip{
@@ -334,4 +337,11 @@ button.icon-button {
 
 .accordion-collapse {
   background-color: var(--sakai-background-color-1);
+}
+
+// Changed hidden class in Bootstrap 5 to d-none.
+// I updated all instances, but may have missed some.
+// Adding this to ensure all hidden classes are hidden.
+.hidden {
+  display: none !important;
 }

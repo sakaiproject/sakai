@@ -61,7 +61,7 @@ class SakaiDocumentViewer extends SakaiElement {
   get preview() { return this._preview; }
 
   shouldUpdate() {
-    return this.i18n;
+    return this.i18n && this.documentMarkup;
   }
 
   renderWithoutBorders() {
