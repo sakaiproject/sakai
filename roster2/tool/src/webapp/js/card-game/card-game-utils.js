@@ -5,13 +5,13 @@
 
 // Calculates weather a given user can be considered learned
 export function isUserLearned(user, config) {
-    const { hits, misses } = user;
+    const { hits, misses, markedAsLearned } = user;
     const { minAttempts, minHitRatio } = config;
 
     const attempts = hits + misses;
     const hitRatio = hits / attempts;
 
-    return attempts >= minAttempts && hitRatio >= minHitRatio;
+    return markedAsLearned || attempts >= minAttempts && hitRatio >= minHitRatio;
 }
 
 // Calculates the weight that influences the likelihood of the user being rolled

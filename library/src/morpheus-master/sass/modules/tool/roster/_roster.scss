@@ -244,15 +244,26 @@
             flex-grow: 1;
         }
 
+        .act > button {
+            margin-bottom: $standard-space;
+        }
+
+        .feedback-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
         @media #{$smallPhone} {
             .user-image-wrapper {
                 display: flex;
                 justify-content: center;
             }
-        }
 
-        .user-image {
-            margin-bottom: $standard-spacing;
+            .act {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     }
 }

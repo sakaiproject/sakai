@@ -19,26 +19,29 @@ import org.sakaiproject.user.api.User;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Builder
-@Slf4j
 public class CardGameUserRestBean {
 
 
     public String id;
     public String displayName;
-    public int hits;
-    public int misses;
+    public Integer hits;
+    public Integer misses;
+    public Boolean markedAsLearned;
 
 
     public static CardGameUserRestBean of(@NonNull User user, CardGameStatItem statItem) {
+        // If passed statItem is null create one with defaults
+        CardGameStatItem userStatItem = statItem != null ? statItem : CardGameStatItem.builderWithDefaults().build();
+
         return CardGameUserRestBean.builder()
                 .id(user.getId())
                 .displayName(user.getDisplayName())
-                .hits(statItem != null ? statItem.getHits() : 0)
-                .misses(statItem != null ? statItem.getMisses() : 0)
+                .hits(userStatItem.getHits())
+                .misses(userStatItem.getMisses())
+                .markedAsLearned(userStatItem.getMarkedAsLearned())
                 .build();
     }
 

@@ -24,12 +24,14 @@ public interface CardGameService {
 
     void init();
 
-    List<CardGameStatItem> findByPlayerId(String playerId);
+    List<CardGameStatItem> findStatItemByPlayerId(String playerId);
 
     void addHit(String playerId, String userId);
 
     void addMiss(String playerId, String userId);
 
     void resetGameForPlayer(String playerId);
+
+    void markUserAsLearnedForPlayer(String playerId, String userId);
 
 }

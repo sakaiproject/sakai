@@ -4,8 +4,8 @@
 /////////////////////////////////////
 
 import BaseGame from "./base-game.js";
-import { isUserLearned, rollUser, playSound} from "./card-game-utils.js";
-import { fetchCheckResult, fetchReset } from "./card-game-api.js";
+import { isUserLearned, rollUser, playSound } from "./card-game-utils.js";
+import { fetchCheckResult, fetchReset, fetchMarkAsLearned } from "./card-game-api.js";
 
 const VIEWS = {
     GAME: "VIEW_GAME",
@@ -95,6 +95,14 @@ export default class CardGame extends BaseGame {
                             this.mutateMute();
                             this.effectRemoveFeedbackBanner();
                         });
+                document.querySelector("[data-reset]").addEventListener("click",
+                        (event) => this.resetGame());
+                document.querySelector("[data-mark-learned]")?.addEventListener("click",
+                        (event) => {
+                            this.markAsLearned();
+                            this.mutateRerollUser();
+                            this.effectRemoveFeedbackBanner();
+                        });
 
                 // Unfortunately we can't listen to jQuery internal events without jQuery
                 const select = document.getElementById(this.selectId);
@@ -124,13 +132,26 @@ export default class CardGame extends BaseGame {
             return {
                 ...user,
                 hits: 0,
-                misses: 0
+                misses: 0,
+                markedAsLearned: false,
             }
         });
 
         this.initState({ allUsers: users });
 
         super.start();
+    }
+
+    markAsLearned() {
+        const userId = this.state.previousUser?.id;
+
+        if (userId) {
+            fetchMarkAsLearned(this.siteId, userId);
+
+            this.mutateMarkAsLearned(userId)
+        } else {
+            console.error("User to be marked as leaned is not defined");
+        }
     }
 
     // Checks if the selected user is correct
@@ -182,6 +203,7 @@ export default class CardGame extends BaseGame {
                     <div class="act">
                         <button class="active btn-check" disabled data-check>${this.tr("check")}</button>
                         <button class="button" data-reroll>${this.tr("reroll_user")}</button>
+                        <button class="button" data-toggle="modal" data-target="#confirm-reset-modal">${this.tr("reset_game")}</button>
                         ${this.renderMuteButton()}
                     </div>
                     ${this.renderFeedbackBanner()}
@@ -197,6 +219,7 @@ export default class CardGame extends BaseGame {
                     </div>
                 </div>
             </div>
+            ${this.renderGameResetModal()}
         `;
     }
 
@@ -207,6 +230,18 @@ export default class CardGame extends BaseGame {
             <div class="act">
                 <button class="active" data-toggle="modal" data-target="#confirm-reset-modal">${this.tr("reset_game")}</button>
             </div>
+            ${this.renderGameResetModal()}
+        `;
+    }
+
+    // Renders the NO_STUDENTS view
+    renderNoStudentsInfo() {
+        return `<div class="sak-banner-info">${this.tr("no_student_info")}</div>`;
+    }
+
+    // Renders the GAME_OVER view
+    renderGameResetModal() {
+        return `
             <div id="confirm-reset-modal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -229,14 +264,17 @@ export default class CardGame extends BaseGame {
         `;
     }
 
-    // Renders the NO_STUDENTS view
-    renderNoStudentsInfo() {
-        return `<div class="sak-banner-info">${this.tr("no_student_info")}</div>`;
-    }
-
     // Renders the feedback banner component
     renderFeedbackBanner() {
-        const strongUserName = `<strong>${this.state.previousUser?.displayName}</strong>`;
+        const user =  this.state.previousUser ?? {};
+
+        const strongUserName = `<strong>${user.displayName}</strong>`;
+
+        const { hits, misses } = user;
+
+        const attempts = hits || misses ? hits + misses : null;
+
+        const userNotLearned = !isUserLearned(user, this.config);
 
         switch(this.state.feedbackState) {
             case FEEDBACK_STATES.NO:
@@ -244,13 +282,20 @@ export default class CardGame extends BaseGame {
             case FEEDBACK_STATES.OK:
                 return `
                     <div id="feedback-banner" class="sak-banner-success">
-                        ${this.tr("check_hit_info", strongUserName)}
+                        <div class="feedback-content">
+                            <span>${this.tr("check_hit_info", strongUserName)}</span>
+                            <span>${this.tr("user_progress", hits, attempts)}</span>
+                        </div>
+                        ${userNotLearned ? `<a href="#" role="button" data-mark-learned>${this.tr("mark_learned")}</a>` : ""}
                     </div>
                 `;
             case FEEDBACK_STATES.KO:
                 return `
                     <div id="feedback-banner" class="sak-banner-error">
-                        ${this.tr("check_miss_info", strongUserName)}
+                        <div class="feedback-content">
+                            <span>${this.tr("check_miss_info", strongUserName)}</span>
+                            <span>${this.tr("user_progress", hits, attempts)}</span>
+                        </div>
                     </div>
                 `;
             default:
@@ -350,6 +395,16 @@ export default class CardGame extends BaseGame {
         });
     }
 
+    mutateMarkAsLearned(userId) {
+        this.mutate((state) => {
+            const user = state.allUsers.find((user) => user.id === userId);
+
+            if (user) {
+                user.markedAsLearned = true;
+            }
+        });
+    }
+
     // EFFECT METHODS - Methods directly altering the dom, without mutating the state
 
     effectEnableCheckButton() {
@@ -364,6 +419,9 @@ export default class CardGame extends BaseGame {
         $("#" + this.selectId).select2({
             data: this.state.userOptionsData,
             placeholder: this.tr("user_name_select_placeholder"),
+            language: {
+                noResults: () => this.tr("no_name_found")
+            },
         });
     }
 
