@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build-dev": "vite build --outDir $TOMCAT_HOME/webapps/meetings-ui --base=/meetings-ui --watch",
-    "build": "vite build --base=/meetings-ui/ --outDir ../webapp/",
+    "build": "vite build --base=/meetings-ui/ --outDir ../../../target/webapp/",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -2,6 +2,8 @@ package org.sakaiproject.meetings.api.model;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -69,4 +71,19 @@ public class Meeting {
     @OneToMany(mappedBy="meeting", cascade = CascadeType.ALL)
     private List<MeetingAttendee> attendees;
     
+    /**
+     * Extract meeting ID from URL
+     * @return meetingId
+     */
+    public String getMeetingId() {
+    	String ret = null;
+    	if(!"".equals(this.url)) {
+    		Pattern teamPattern = Pattern.compile("^https://teams.microsoft.com/l/meetup-join/([^/]+)/.*$");
+			Matcher matcher = teamPattern.matcher(this.url);
+			if(matcher.find()) {
+				ret = matcher.group(1);
+			}
+    	}
+    	return ret;
+    }
 }

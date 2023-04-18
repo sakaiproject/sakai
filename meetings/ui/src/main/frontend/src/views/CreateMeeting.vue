@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-5 mt-lg-0">
     <SakaiAccordion>
       <SakaiAccordionItem :title="i18n.section_meeting_information" :open="true">
         <div class="pb-4">
@@ -92,7 +92,7 @@
               }"
             />
           </div>
-          <div class="row align-items-md-end mb-3" v-if="displayCalendarCheck">
+          <div class="row align-items-md-end mb-3">
             <div class="form-check">
               <input
                 class="form-check-input"
@@ -200,7 +200,8 @@ export default {
         },
       ],
       validations: { title: false, description: true, provider: true, dateOpen: true, dateClose: true },
-      hadDateInput: false
+      hadDateInput: false,
+      saveEnabled: true
     };
   },
   props: {
@@ -227,10 +228,7 @@ export default {
       return !this.groups || this.groups.length === 0;
     },
     allValid() {
-      return !Object.values(this.validations).includes(false);
-    },
-    displayCalendarCheck() {
-      return this.savedToCalendar === "true" ? false : true;
+      return this.saveEnabled && !Object.values(this.validations).includes(false);
     },
     participantOptions() {
       return [
@@ -268,6 +266,7 @@ export default {
       this.validations[field] = valid;
     },
     async handleSave() {
+      this.saveEnabled = false;
       let saveData = {
         id: this.id,
         title: this.formdata.title,
@@ -304,6 +303,7 @@ export default {
       } else {
         this.showError(this.i18n.error_create_meeting_unknown);
       }
+      this.saveEnabled = true;
     },
     handleCancel() {
       this.$router.push({ name: "Main" });

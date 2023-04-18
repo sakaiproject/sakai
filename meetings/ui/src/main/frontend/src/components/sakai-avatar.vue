@@ -98,6 +98,9 @@ export default {
       return [this.borderRadius, aux];
     },
     imageUrl() {
+      if(!this.userId){
+        return "";
+      }
       var url = window.location.protocol + "//" + window.location.host;
       url += "/direct/profile/";
       url += this.userId + "/image";

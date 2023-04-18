@@ -16,6 +16,7 @@ const iconsFontawsome = {
   edit: "fa-pencil",
   error: "fa-ban",
   fileImage: "fa-file-image-o",
+  fileVideo: "fa-file-video-o",
   hourglassEmty: "fa-hourglass-o",
   link: "fa-link",
   maximize: "fa-arrows-alt",
@@ -32,7 +33,9 @@ const iconsFontawsome = {
   live: "fa-circle-o",
   play: "fa-play",
   presentation: "fa-desktop",
-  remove: "fa-trash"
+  remove: "fa-trash",
+  refresh: "fa-refresh",
+  spinner: "fa-spinner fa-spin"
 };
 const iconsBootstrap = {
 };

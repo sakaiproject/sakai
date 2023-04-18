@@ -326,13 +326,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 			Calendar calendar = calendarService.getCalendar(calendarReference);
 			CalendarEventEdit eventRemove = calendar.getEditEvent(calendarEventId, CalendarService.EVENT_REMOVE_CALENDAR_EVENT);
 			calendar.removeEvent(eventRemove);
+			return true;
 		} catch (PermissionException | InUseException e) {
 			log.warn("Error removing meeting from the calendar", e);
 			throw e;
 		} catch (IdUnusedException e) {
-			log.warn("Error removing meeting from the calendar. The calendar event does not exist", e);
+			log.warn("Error removing meeting from the calendar. The calendar event does not exist");
 		}
-		return true;
+		return false;
 	}
 	
 	// --------------------------------------------- EMAIL -----------------------------------------------------
@@ -353,7 +354,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 				log.warn("Given email is not a valid email address: {}", s);
 			}
 			return null;
-		}).toArray(InternetAddress[]::new);
+		}).filter(s -> s != null)
+		  .toArray(InternetAddress[]::new);
 		emailService.sendMail(ia_from, ia_to, subject, content, null, null, null, null);
 	}
 	

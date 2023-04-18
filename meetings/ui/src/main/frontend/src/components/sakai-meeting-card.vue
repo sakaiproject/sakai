@@ -4,7 +4,6 @@
       <div class="mt-1 mb-2 contextTitle">{{ contextTitle }}</div>
       <h2 id="title" class="card-title" :title="title">{{ title }}</h2>
       <SakaiDropdownButton
-        v-if="showMenu" 
         :items="menuitems"
         :circle="true"
         :clear="true"
@@ -296,13 +295,11 @@ export default {
     },
     menuitems() { 
       return [
-        { "string": this.i18n.edit_action, "icon": "edit", "action": this.editMeeting },
-        { "string": this.i18n.get_link_action, "icon": "link", "action": this.getMeetingLink, "url": this.url },
-        { "string": this.i18n.delete_action, "icon": "delete", "action": this.askDeleteMeeting }
+        { "string": this.i18n.edit_action, "icon": "edit", "action": this.editMeeting, "show": this.editable },
+        { "string": this.i18n.get_link_action, "icon": "link", "action": this.getMeetingLink, "url": this.url, "show": this.editable },
+        { "string": this.i18n.check_recordings_action, "icon": "videocamera", "action": this.checkMeetingRecordings, "show": true },
+        { "string": this.i18n.delete_action, "icon": "delete", "action": this.askDeleteMeeting, "show": this.editable}
       ];
-    },
-    showMenu() {
-      return this.editable;
     },
     showJoinButton() {
       return this.currentStatus !== this.status.over; 
@@ -373,6 +370,13 @@ export default {
       this.showBannerInfo = true;
       setTimeout(function(){ this.showBannerInfo = false; }.bind(this), 3000);
       return false;
+    },
+    checkMeetingRecordings() {
+      let parameters = {
+          meetingId: this.id,
+          title: this.title
+      };
+      this.$router.push({name: "CheckRecordings", params: parameters});
     }
   },
   mounted () {

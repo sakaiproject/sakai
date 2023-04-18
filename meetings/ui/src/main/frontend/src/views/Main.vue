@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-5 mt-lg-0">
     <div class="header-menu d-flex flex-column flex-md-row gap-2 div-heigth" :class="editPermission ? 'mb-4' : ''">
       <div class="order-1 me-md-auto">
         <SakaiButton
@@ -300,7 +300,7 @@ export default {
       if (!this.searching) { return []; }
       return this.meetingsList.filter(
         (meeting) =>
-          meeting.title.toLowerCase().search(searchString) > -1 || meeting.description.toLowerCase().search(searchString) > -1
+          meeting.title.toLowerCase().indexOf(searchString) > -1 || meeting.description.toLowerCase().indexOf(searchString) > -1
       );
     },
   },

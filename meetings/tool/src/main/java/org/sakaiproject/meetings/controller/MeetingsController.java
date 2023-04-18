@@ -42,6 +42,7 @@ import org.sakaiproject.meetings.controller.data.ParticipantData;
 import org.sakaiproject.meetings.exceptions.MeetingsException;
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.SakaiProxy;
+import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.SakaiCalendarEvent;
 import org.sakaiproject.microsoft.api.data.TeamsMeetingData;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
@@ -58,6 +59,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -505,6 +507,10 @@ public class MeetingsController {
 					&& StringUtils.isNotBlank(data.getStartDate()) && StringUtils.isNotBlank(data.getEndDate())) {
 				this.saveToCalendar(meeting);
 			}
+			if(!data.isSaveToCalendar() && StringUtils.isNotBlank(meetingService.getMeetingProperty(meeting, CALENDAR_EVENT_ID))) {
+				removeFromCalendar(meetingId);
+				meetingService.removeMeetingProperty(meeting, CALENDAR_EVENT_ID);
+			}
 			
 			// Notifications
 			this.sendNotification(meeting, data.getNotificationType());
@@ -666,6 +672,22 @@ public class MeetingsController {
 				}
 			}
 		} catch (Exception e) {
+			throw new MeetingsException(e.getLocalizedMessage());
+		}
+	}
+	
+	// ------------------------------- RECORDINGS -----------------------------------------------
+	@GetMapping(value = "/meeting/{meetingId}/recordings", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<MeetingRecordingData> getMeetingRecordings(@PathVariable String meetingId, @RequestParam(defaultValue = "false") Boolean force) throws MeetingsException {
+		checkCurrentUserInMeeting(meetingId);
+		try {
+			Meeting meeting = meetingService.getMeeting(meetingId);
+			return microsoftCommonService.getOnlineMeetingRecordings(meeting.getMeetingId(), force);
+		} catch (MicrosoftCredentialsException  e) {
+			log.error("Error getting meeting recordings", e);
+			throw new MeetingsException(e.getLocalizedMessage());
+		} catch (Exception e) {
+			log.error("Error getting meeting recordings", e);
 			throw new MeetingsException(e.getLocalizedMessage());
 		}
 	}

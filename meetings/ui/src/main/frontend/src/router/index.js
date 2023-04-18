@@ -19,6 +19,14 @@ const routes = [
   },
   {
     path: routeprefix + '/',
+    name: 'CheckRecordings',
+    props: true,
+    component () {
+      return import('../views/MeetingRecordings.vue');
+    }
+  },
+  {
+    path: routeprefix + '/',
     name: 'Permissions',
     props: true,
     component () {

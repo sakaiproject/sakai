@@ -26,5 +26,13 @@ public class MeetingPropertyRepositoryImpl extends BasicSerializableRepository<M
     public void deletePropertiesByMeetingId(String meetingId) {
         getCurrentSession().createQuery("delete from MeetingProperty where meeting.id = :id").setParameter("id", meetingId).executeUpdate();
     }
+    
+    @Override
+    public void deletePropertyByMeetingIdAndName(String meetingId, String propertyName) {
+        getCurrentSession().createQuery("delete from MeetingProperty where meeting.id = :id and name = :name")
+        	.setParameter("id", meetingId)
+        	.setParameter("name", propertyName)
+        	.executeUpdate();
+    }
 
 }

@@ -6,6 +6,7 @@
     <ul class="dropdown-menu" role="menu" :id="menuid">
       <li v-for="item in items" :key="item.id" class="divider">
         <a
+          v-if="item.show"
           class="dropdown-item"
           :role="getAnchorRole(item)"
           :tabindex="!item.url ? '0' : undefined"

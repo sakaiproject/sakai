@@ -96,11 +96,7 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     public void removeMeetingProperty(Meeting meeting, String property) {
-        Optional<MeetingProperty> optMeetingProp = meetingPropertyRepository.findFirstByMeetingIdAndName(meeting.getId(), property);
-        if (optMeetingProp.isPresent()) {
-            MeetingProperty prop = optMeetingProp.get();
-            meetingPropertyRepository.delete(prop);
-        }
+    	meetingPropertyRepository.deletePropertyByMeetingIdAndName(meeting.getId(), property);
     }
 	
 }

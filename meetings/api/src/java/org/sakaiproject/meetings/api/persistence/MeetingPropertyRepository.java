@@ -9,5 +9,6 @@ public interface MeetingPropertyRepository  extends SerializableRepository<Meeti
 
     public Optional<MeetingProperty> findFirstByMeetingIdAndName(String meetingId, String name);
     public void deletePropertiesByMeetingId(String meetingId);
+    public void deletePropertyByMeetingIdAndName(String meetingId, String propertyName);
 
 }

@@ -50,10 +50,14 @@ Directory.ReadWrite.All
 Group.Read.All
 OnlineMeetings.ReadWrite.All
 Teamwork.Migrate.All
-User.Read
 User.Read.All
-.....
-//TODO:(RECORDINGS related)
+-- Chat Messages
+Chat.Read.All
+ChatMessage.Read.All
+-- Create link
+Files.ReadWrite.All
+Sites.ReadWrite.All
+Sites.Manage.All
 ```
 
 Then you must click on the _Grant admin consent_ button for your Azure directory.
@@ -89,6 +93,9 @@ https://docs.microsoft.com/en-us/graph/cloud-communication-online-meeting-applic
 
     #(Optional)Grant Global
     Grant-CsApplicationAccessPolicy -PolicyName Test-policy -Global
+
+### Access to Protected APIs
+To get Microsoft chat messages using application permissions, we need to request access to this protected API: https://learn.microsoft.com/en-us/graph/teams-protected-apis
 
 ## Future plans and Roadmap
 
