@@ -39,7 +39,7 @@ public class CardGameServiceImpl implements CardGameService {
         log.info("Initializing Card Game Service");
     }
 
-    public List<CardGameStatItem> findByPlayerId(String playerId) {
+    public List<CardGameStatItem> findStatItemByPlayerId(String playerId) {
         return statItemRepository.findByPlayerId(playerId);
     }
 
@@ -49,13 +49,14 @@ public class CardGameServiceImpl implements CardGameService {
 
         if (optStatItem.isPresent()) {
             CardGameStatItem statItem = optStatItem.get();
-            statItem.setHits(statItem.getHits() != null ? statItem.getHits() + 1 : 1);
+            statItem.setHits(statItem.getHits() != null
+                    ? statItem.getHits() + 1
+                    : CardGameStatItem.HITS_DEFAULT + 1);
         } else {
-            statItemRepository.save(CardGameStatItem.builder()
+            statItemRepository.save(CardGameStatItem.builderWithDefaults()
                 .playerId(playerId)
                 .userId(userId)
-                .hits(1)
-                .misses(0)
+                .hits(CardGameStatItem.HITS_DEFAULT + 1)
                 .build());
         }
     }
@@ -66,21 +67,36 @@ public class CardGameServiceImpl implements CardGameService {
 
         if (optStatItem.isPresent()) {
             CardGameStatItem statItem = optStatItem.get();
-            statItem.setMisses(statItem.getMisses() != null ? statItem.getMisses() + 1 : 1);
+            statItem.setMisses(statItem.getMisses() != null
+                    ? statItem.getMisses() + 1
+                    : CardGameStatItem.MISSES_DEFAULT + 1);
         } else {
-            statItemRepository.save(CardGameStatItem.builder()
+            statItemRepository.save(CardGameStatItem.builderWithDefaults()
                 .playerId(playerId)
                 .userId(userId)
-                .hits(0)
-                .misses(1)
+                .misses(CardGameStatItem.MISSES_DEFAULT + 1)
                 .build());
         }
     }
 
     @Transactional
     public void resetGameForPlayer(String playerId) {
-        //statItemRepository.delete(statItemRepository.findByPlayerId(playerId));
         statItemRepository.deleteByPlayerId(playerId);
+    }
+
+    @Transactional
+    public void markUserAsLearnedForPlayer(String playerId, String userId) {
+        Optional<CardGameStatItem> optStatItem = statItemRepository.findByPlayerIdAndUserId(playerId, userId);
+
+        if (optStatItem.isPresent()) {
+            optStatItem.get().setMarkedAsLearned(true);
+        } else {
+            statItemRepository.save(CardGameStatItem.builderWithDefaults()
+                .playerId(playerId)
+                .userId(userId)
+                .markedAsLearned(true)
+                .build());
+        }
     }
 
 }

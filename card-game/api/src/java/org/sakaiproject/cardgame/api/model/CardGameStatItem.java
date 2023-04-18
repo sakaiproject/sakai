@@ -18,7 +18,6 @@ package org.sakaiproject.cardgame.api.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
@@ -43,8 +42,6 @@ public class CardGameStatItem {
 
 
     @Id
-    //@Column(name = "ID", nullable = false)
-    //@GeneratedValue(strategy = GenerationType.AUTO, generator = "card_game_stat_item_sequence")
     @Column(name = "ID", nullable = false, length = 36)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
@@ -56,10 +53,26 @@ public class CardGameStatItem {
     @Column(name = "USER_ID", nullable = false)
     private String userId;
 
-    @Column(name = "HITS", nullable = true)
+    @Column(name = "HITS", nullable = false)
     private Integer hits;
 
-    @Column(name = "MISSES", nullable = true)
+    @Column(name = "MISSES", nullable = false)
     private Integer misses;
+
+    @Column(name = "MARKED_AS_LEARNED", nullable = false)
+    private Boolean markedAsLearned;
+
+
+    public static final Integer HITS_DEFAULT = 0;
+    public static final Integer MISSES_DEFAULT = 0;
+    public static final Boolean MARKED_AS_LEARNED_DEFAULT = false;
+
+
+    public static CardGameStatItemBuilder builderWithDefaults() {
+        return CardGameStatItem.builder()
+                .hits(HITS_DEFAULT)
+                .misses(MISSES_DEFAULT)
+                .markedAsLearned(MARKED_AS_LEARNED_DEFAULT);
+    }
 
 }

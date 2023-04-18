@@ -39,6 +39,22 @@ export async function fetchConfig(siteId) {
     }
 }
 
+// Persists that the provided user is marked as learned
+export async function fetchMarkAsLearned(siteId, userId) {
+    if (typeof siteId !== "string" || typeof userId !== "string") {
+        console.error(`Passed value siteId [${siteId}] or userId [${userId}] is invalid.`);
+        return false;
+    }
+
+    const response = await fetch(`/api/sites/${siteId}/card-game/users/${userId}/markAsLearned`, { method: "PUT" });
+
+    if (!response.ok) {
+        console.error(`User [${userid}] could not be marked as learned:`, response.statusText);
+    }
+
+    return response.ok;
+}
+
 // Performs a reset - this will delete all stats for the users of this site
 export async function fetchReset(siteId) {
     if (typeof siteId !== "string") {
@@ -75,6 +91,7 @@ export async function fetchUsers(siteId) {
 export default {
     fetchCheckResult,
     fetchConfig,
+    fetchMarkAsLearned,
     fetchReset,
     fetchUsers,
 };

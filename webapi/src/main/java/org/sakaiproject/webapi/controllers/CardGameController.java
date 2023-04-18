@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -82,7 +81,7 @@ public class CardGameController extends AbstractSakaiApiController {
         Site site = checkSite(siteId);
 
         String currentUserId = session.getUserId();
-        HashMap<String, CardGameStatItem> statItems = cardGameService.findByPlayerId(currentUserId).stream()
+        HashMap<String, CardGameStatItem> statItems = cardGameService.findStatItemByPlayerId(currentUserId).stream()
                 .collect(Collectors.toMap(statItem -> statItem.getUserId(), statItem -> statItem, (prev, next) -> next, HashMap::new));
 
         Set<String> userIds = site.getMembers().stream()
@@ -110,6 +109,17 @@ public class CardGameController extends AbstractSakaiApiController {
             log.debug("{} made miss for {}", currentUserId, userId);
             cardGameService.addMiss(currentUserId, userId);
         }
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(value = "/sites/{siteId}/card-game/users/{userId}/markAsLearned", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> markUserAsLearned(@PathVariable String siteId, @PathVariable String userId) {
+        String currentUserId = checkSakaiSession().getUserId();
+        checkSite(siteId);
+
+        log.debug("Marking user {} as learned", userId);
+        cardGameService.markUserAsLearnedForPlayer(currentUserId, userId);
 
         return ResponseEntity.ok().build();
     }
