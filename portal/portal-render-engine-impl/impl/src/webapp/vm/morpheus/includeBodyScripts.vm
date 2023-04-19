@@ -159,7 +159,7 @@
     if (Modernizr.touch) {
       document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
     }
-    console.info('Portal scripts loaded JQ+MI+UI');
+    console.debug('Portal scripts loaded JQ+MI+UI');
   } else {
     if (typeof jQuery.migrateWarnings == 'undefined') {
       document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
