@@ -605,6 +605,42 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(originalComment, etb.getOverallComment());
     }
 
+    @Test
+    public void contextualFilenameNoEvaluation() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = "sakai.assignment";
+        String toolItem1 = "item1";
+        Map<String, String> rbcsParams = new HashMap<>();
+        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams.put(RubricsConstants.RBCS_LIST, rubric.getId().toString());
+        Optional<ToolItemRubricAssociation> optAssociation1 = rubricsService.saveRubricAssociation(toolId, toolItem1, rbcsParams);
+        assertTrue(optAssociation1.isPresent());
+        String filename = rubricsService.createContextualFilename(rubric, toolId, toolItem1, null, siteId);
+        assertEquals(rubric.getTitle(), filename);
+    }
+
+    @Test
+    public void contextualFilename() throws UserNotDefinedException {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = "sakai.assignment";
+        String toolItem1 = "item1";
+        Map<String, String> rbcsParams = new HashMap<>();
+        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams.put(RubricsConstants.RBCS_LIST, rubric.getId().toString());
+        Optional<ToolItemRubricAssociation> optAssociation1 = rubricsService.saveRubricAssociation(toolId, toolItem1, rbcsParams);
+        assertTrue(optAssociation1.isPresent());
+        ToolItemRubricAssociation association1 = optAssociation1.get();
+        EvaluationTransferBean evaluation1 = buildEvaluation(association1.getId(), rubric, toolItem1);
+        evaluation1.setEvaluatedItemOwnerId(user1User.getId());
+        rubricsService.saveEvaluation(evaluation1, siteId);
+        assertNotNull(evaluation1);
+        when(userDirectoryService.getUser("user1")).thenReturn(user1User);
+        String filename = rubricsService.createContextualFilename(rubric, toolId, toolItem1, evaluation1.getEvaluatedItemId(), siteId);
+        assertEquals(rubric.getTitle() + '_' + user1SortName, filename);
+    }
+
     private EvaluationTransferBean buildEvaluation(Long associationId, RubricTransferBean rubricBean, String toolItemId) {
 
         EvaluationTransferBean etb = new EvaluationTransferBean();

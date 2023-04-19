@@ -34,6 +34,7 @@ import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
+import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 
 public interface RubricsService {
@@ -127,6 +128,8 @@ public interface RubricsService {
      * @param params A hashmap with all the rbcs params comming from the component. The tool should generate it.
      */
     Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params);
+
+    String createContextualFilename(RubricTransferBean rubric, String toolId, String itemId, String evaluatedItemId, String siteId);
 
     byte[] createPdf(String siteId, Long rubricId, String toolId, String itemId, String evaluatedItemId)
             throws IOException;

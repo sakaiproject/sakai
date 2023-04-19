@@ -28,6 +28,8 @@ import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -46,6 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -57,6 +60,7 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
@@ -83,8 +87,11 @@ import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -115,6 +122,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private static final Font BOLD_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD);
     private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 7, Font.NORMAL);
 
+    private AssignmentService assignmentService;
     private AuthzGroupService authzGroupService;
     private CriterionRepository criterionRepository;
     private EntityManager entityManager;
@@ -122,6 +130,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private EventTrackingService eventTrackingService;
     private FormattedText formattedText;
     private FunctionManager functionManager;
+    private GradingService gradingService;
+    @Setter private PersistenceService assessmentPersistenceService;
+    @Setter private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueriesAPI;
     private RatingRepository ratingRepository;
     private ResourceLoader resourceLoader;
     private ReturnedEvaluationRepository returnedEvaluationRepository;
@@ -144,6 +155,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_EDITOR, true);
         functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_EVALUEE, true);
         functionManager.registerFunction(RubricsConstants.RBCS_PERMISSIONS_MANAGER_VIEW, true);
+
+        setPublishedAssessmentFacadeQueriesAPI(assessmentPersistenceService.getPublishedAssessmentFacadeQueries());
     }
 
     public RubricTransferBean createDefaultRubric(String siteId) {
@@ -1071,6 +1084,30 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
+    public String createContextualFilename(RubricTransferBean rubric, String toolId, String itemId, String evaluatedItemId, String siteId){
+        String filename = StringUtils.trimToEmpty(rubric.getTitle()).replace(".", "_");
+        Optional<Evaluation> optEvaluation = Optional.empty();
+        if (toolId != null && itemId != null && evaluatedItemId != null) {
+            ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
+                    .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
+            optEvaluation = evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
+        }
+        if(optEvaluation.isPresent()){
+            boolean showEvaluated = canViewEvaluation(optEvaluation.get(), siteId);
+            if (showEvaluated) {
+                Evaluation eval = optEvaluation.get();
+                String studentName = "";
+                try {
+                    studentName = userDirectoryService.getUser(eval.getEvaluatedItemOwnerId()).getSortName();
+                } catch (UserNotDefinedException ex) {
+                    log.error("No user for id {} : {}", eval.getEvaluatedItemOwnerId(), ex.toString());
+                }
+                filename = filename + '_' + studentName;
+            }
+        }
+        return filename;
+    }
+
     @Transactional(readOnly = true)
     public byte[] createPdf(String siteId, Long rubricId, String toolId, String itemId, String evaluatedItemId)
             throws IOException {
@@ -1092,6 +1129,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         // Count points
         double points = 0;
         String studentName = "";
+        String itemName = "";
         boolean showEvaluated = optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId);
 
         if (showEvaluated) {
@@ -1102,6 +1140,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             } catch (UserNotDefinedException ex) {
                 log.error("No user for id {} : {}", eval.getEvaluatedItemOwnerId(), ex.toString());
             }
+            itemName = getAssociatedName(eval, siteId).get();
         }
 
         // Create pdf document
@@ -1121,6 +1160,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             paragraph.add(Chunk.NEWLINE);
         } catch (IdUnusedException ex) {
             log.error("No site for id {}", rubric.getOwnerId());
+        }
+        if (StringUtils.isNotBlank(itemName)){
+            paragraph.add(resourceLoader.getFormattedMessage("export_rubric_association", itemName));
+            paragraph.add(Chunk.NEWLINE);
         }
         if (StringUtils.isNotBlank(studentName)) {
             paragraph.add(resourceLoader.getFormattedMessage("export_rubric_student", studentName));
@@ -1142,7 +1185,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         for (Criterion cri : rubric.getCriteria()) {
             PdfPCell criterionCell = new PdfPCell();
-            PdfPTable criterionTable = new PdfPTable(cri.getRatings().size() + 1);
+            Optional<Double> adjustedScoreCell = optEvaluation.isPresent() ? getAdjustedScore(cri, optEvaluation.get()) : Optional.empty();
+            Optional<String> criterionComment = optEvaluation.isPresent() ? getCriterionComment(cri, optEvaluation.get()) : Optional.empty();
+            PdfPTable criterionTable = new PdfPTable(cri.getRatings().size() + 1 + (criterionComment.isEmpty() ? 0 : 1) + (adjustedScoreCell.isEmpty() ? 0 : 1));
             Paragraph criterionParagraph = new Paragraph();
             criterionParagraph.setFont(BOLD_FONT);
             boolean isCriterionGroup = cri.getRatings().isEmpty();
@@ -1214,7 +1259,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             criterionTable.addCell(criterionCell);
             for (Rating rating : cri.getRatings()) {
                 Paragraph ratingsParagraph = new Paragraph("", BOLD_FONT);
-                String ratingPoints = resourceLoader.getFormattedMessage("export_rubrics_points", rating.getTitle(), rating.getPoints());
+                String weightString = "";
+                if(rubric.getWeighted()){
+                    weightString = "(" + BigDecimal.valueOf(rating.getPoints() * (cri.getWeight()/100.0D)).setScale(2, RoundingMode.HALF_UP) + ") ";
+                }
+                String ratingPoints = resourceLoader.getFormattedMessage("export_rubrics_points", rating.getTitle(), weightString + rating.getPoints());
                 ratingsParagraph.add(ratingPoints);
                 ratingsParagraph.add(Chunk.NEWLINE);
                 Paragraph ratingsDesc = new Paragraph("", NORMAL_FONT);
@@ -1229,14 +1278,26 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     for (CriterionOutcome outcome : optEvaluation.get().getCriterionOutcomes()) {
                         if (cri.getId().equals(outcome.getCriterionId()) && rating.getId().equals(outcome.getSelectedRatingId())) {
                             newCell.setBackgroundColor(Color.LIGHT_GRAY);
-                            if (outcome.getComments() != null && !outcome.getComments().isEmpty()) {
-                                ratingsParagraph.add(Chunk.NEWLINE);
-                                ratingsParagraph.add(resourceLoader.getFormattedMessage("export_comments", Jsoup.parse(outcome.getComments()).text() + "\n"));
-                            }
                         }
                     }
                 }
                 newCell.addElement(ratingsParagraph);
+                criterionTable.addCell(newCell);
+            }
+            if(adjustedScoreCell.isPresent()){
+                PdfPCell newCell = new PdfPCell();
+                newCell.setBackgroundColor(Color.GRAY);
+                Paragraph adjustedParagraph = new Paragraph(resourceLoader.getFormattedMessage("export_adjusted", adjustedScoreCell.get().toString()), BOLD_FONT);
+                newCell.addElement(adjustedParagraph);
+                criterionTable.addCell(newCell);
+            }
+            if(criterionComment.isPresent()){
+                PdfPCell newCell = new PdfPCell();
+                newCell.setBackgroundColor(Color.GRAY);
+                Paragraph commentHeader = new Paragraph(resourceLoader.getFormattedMessage("export_comments", ""), BOLD_FONT);
+                newCell.addElement(commentHeader);
+                Paragraph commentParagraph = new Paragraph(Jsoup.parse(criterionComment.get()).text(), NORMAL_FONT);
+                newCell.addElement(commentParagraph);
                 criterionTable.addCell(newCell);
             }
 
@@ -1246,6 +1307,53 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         document.close();
         return out.toByteArray();
+    }
+
+    private Optional<Double> getAdjustedScore(Criterion criterion, Evaluation evaluation){
+        if(criterion==null || evaluation==null) {
+            return Optional.empty();
+        }
+        for(CriterionOutcome outcome: evaluation.getCriterionOutcomes()){
+            if(outcome.getPointsAdjusted() && outcome.getCriterionId().equals(criterion.getId())){
+                return Optional.of(outcome.getPoints());
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<String> getCriterionComment(Criterion criterion, Evaluation evaluation){
+        if(criterion==null || evaluation==null){
+            return Optional.empty();
+        }
+        for(CriterionOutcome outcome: evaluation.getCriterionOutcomes()){
+            if(outcome.getCriterionId().equals(criterion.getId()) && StringUtils.isNotBlank(outcome.getComments())){
+                return Optional.of(outcome.getComments());
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<String> getAssociatedName(Evaluation evaluation, String siteId){
+        if(evaluation==null || StringUtils.isEmpty(siteId)){
+            return Optional.empty();
+        }
+        Optional<ToolItemRubricAssociation> optAssociation = associationRepository.findById(evaluation.getAssociationId());
+        if(optAssociation.isPresent()){
+            ToolItemRubricAssociation association = optAssociation.get();
+            try {
+                if(association.getToolId().equals(AssignmentConstants.TOOL_ID)){
+                    return Optional.of(assignmentService.getAssignment(association.getItemId()).getTitle());
+                } else if (association.getToolId().equals(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)){
+                    return Optional.of(gradingService.getAssignment(siteId,Long.valueOf(association.getItemId())).getName());
+                } else if (association.getToolId().equals(RubricsConstants.RBCS_TOOL_SAMIGO)){
+                    String[] idParts = association.getItemId().split("\\.");
+                    return Optional.of(publishedAssessmentFacadeQueriesAPI.getPublishedAssessment(Long.valueOf(idParts[1])).getTitle());
+                }
+            } catch (Exception e){  //on any kind of exception, just leave the item name out.
+                log.debug("Could not get graded item name for tool {} and item id {}", association.getToolId(), association.getItemId());
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

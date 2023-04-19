@@ -370,7 +370,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
         checkSakaiSession();
 
         ContentDisposition contentDisposition = rubricsService.getRubric(rubricId).map(rubric -> {
-            String filename = StringUtils.trimToEmpty(rubric.getTitle()).replace(".", "_");
+            String filename = rubricsService.createContextualFilename(rubric, toolId, itemId, evaluatedItemId, siteId);
             filename = StringUtils.isNotBlank(filename) ? filename : "_";
             return ContentDisposition.builder("attachment").filename(String.format("%s.pdf", filename)).build();
         }).orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
