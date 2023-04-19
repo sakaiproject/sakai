@@ -700,7 +700,7 @@ function includeLatestJQuery(where) {
 		document.write('\x3Cscript src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
-		console.info(`jQuery+migrate+UI Loaded by ${where} from ${webjars}`);
+		console.debug(`jQuery+migrate+UI Loaded by ${where} from ${webjars}`);
 	}
 }
 
