@@ -1337,11 +1337,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         if(evaluation==null || StringUtils.isEmpty(siteId)){
             return Optional.empty();
         }
-        Optional<ToolItemRubricAssociation> optAssociation = associationRepository.findByAssociationId(evaluation.getAssociationId());
+        Optional<ToolItemRubricAssociation> optAssociation = associationRepository.findById(evaluation.getAssociationId());
         if(optAssociation.isPresent()){
             ToolItemRubricAssociation association = optAssociation.get();
             try {
-                if(association.getToolId().equals(RubricsConstants.RBCS_TOOL_ASSIGNMENTS)){
+                if(association.getToolId().equals(AssignmentConstants.TOOL_ID)){
                     return Optional.of(assignmentService.getAssignment(association.getItemId()).getTitle());
                 } else if (association.getToolId().equals(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)){
                     return Optional.of(gradingService.getAssignment(siteId,Long.valueOf(association.getItemId())).getName());

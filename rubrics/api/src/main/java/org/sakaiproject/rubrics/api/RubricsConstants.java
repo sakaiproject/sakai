@@ -28,7 +28,6 @@ public interface RubricsConstants {
 	public static final String RBCS_TOOL_FORUMS = "sakai.forums";
 	public static final String RBCS_TOOL_GRADEBOOKNG = "sakai.gradebookng";
 	public static final String RBCS_TOOL_SAMIGO = "sakai.samigo";
-	public static final String RBCS_TOOL_ASSIGNMENTS = "sakai.assignment.grades";
 
 	public static final String RBCS_PREFIX = "rbcs-";
 	public static final String RBCS_CONFIG_PREFIX = "config-";
