@@ -41,6 +41,7 @@
     <bean id="org.sakaiproject.rubrics.api.RubricsService"
         class="org.sakaiproject.rubrics.impl.RubricsServiceImpl"
         init-method="init">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
         <property name="associationRepository" ref="org.sakaiproject.rubrics.api.repository.AssociationRepository"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="criterionRepository" ref="org.sakaiproject.rubrics.api.repository.CriterionRepository"/>
@@ -49,6 +50,8 @@
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+        <property name="assessmentPersistenceService" ref="PersistenceService" />
         <property name="ratingRepository" ref="org.sakaiproject.rubrics.api.repository.RatingRepository"/>
         <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.rubrics"/>
         <property name="returnedEvaluationRepository" ref="org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository"/>
