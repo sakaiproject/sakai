@@ -159,7 +159,7 @@
     if (Modernizr.touch) {
       document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
     }
-    console.debug('Portal scripts loaded JQ+MI+UI');
+    console.info('Portal scripts loaded JQ+MI+UI');
   } else {
     if (typeof jQuery.migrateWarnings == 'undefined') {
       document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
@@ -273,7 +273,7 @@
     //Just set jQuery to be the same thing since it didn't exist before
     jQuery = ${d}PBJQ;
   }
-  console.debug('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+dollarVersion);
+  console.info(`Portal script load complete PBJQ=${d}PBJQ.fn.jquery jQuery=${jQuery.fn.jquery} ${d}=${dollarVersion}`);
 
   // Listen for notifications-loaded on the body element. This is fired by the sui-notifications
   // component when it has an update to its list of notifications
