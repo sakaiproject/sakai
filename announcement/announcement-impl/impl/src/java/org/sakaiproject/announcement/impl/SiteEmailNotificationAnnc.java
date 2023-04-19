@@ -446,12 +446,12 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		users.removeIf( u -> {
 			if (site.getMember(u.getId()) != null) {
 				for (String role : msg.getProperties().getPropertyList("selectedRoles")) {
-					if (!role.equals(site.getUserRole(u.getId()).getId())) {
-						return true;
+					if (role.equals(site.getUserRole(u.getId()).getId())) {
+						return false;
 					}
 				}
 			}
-			return false;
+			return true;
 		});
 	}
 

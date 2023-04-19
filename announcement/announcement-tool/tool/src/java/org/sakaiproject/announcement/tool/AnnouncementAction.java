@@ -1775,6 +1775,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			for (Role role: siteRoles){
 				siteRolesIds.add(role.getId());
 			}
+			Collections.sort(siteRolesIds); 
 			context.put("siteRolesIds", siteRolesIds);
 		} catch (IdUnusedException ex) {
 			log.error("Failed to get site from id {}", siteId);
