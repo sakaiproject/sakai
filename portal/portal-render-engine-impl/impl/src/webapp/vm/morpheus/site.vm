@@ -75,6 +75,8 @@
     #set ( $d = "$")
         #parse("/vm/morpheus/includeAnalytics.vm")
 
+        #parse("/vm/morpheus/includeBodyScripts.vm")
+
         #parse("/vm/morpheus/includePASystem.vm")
 
         #parse("/vm/morpheus/includeCookieNotice.vm")
@@ -88,7 +90,6 @@
         #end
 
     *#
-        #parse("/vm/morpheus/includeBodyScripts.vm")
 
     </body>
 </html>
