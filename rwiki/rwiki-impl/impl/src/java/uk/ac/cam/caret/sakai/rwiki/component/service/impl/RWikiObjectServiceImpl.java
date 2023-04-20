@@ -485,11 +485,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		RWikiCurrentObject rwo = getRWikiObject(name, realm);
 		RWikiHistoryObject rwho = null;
 
-		String pageGroupsString = null;
 		if (pageGroups != null) {
-			pageGroupsString = StringUtils.join(pageGroups, ",");
+			rwo.setPageGroupsAsString(StringUtils.join(pageGroups, ","));
 		}
-		rwo.setPageGroupsAsString(pageGroupsString);
 		if (wikiSecurityService.checkUpdate((RWikiEntity) getEntity(rwo)))
 		{
 			rwho = updateContent(rwo, content, version);
