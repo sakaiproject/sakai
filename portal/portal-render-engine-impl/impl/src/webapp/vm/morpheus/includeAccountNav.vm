@@ -30,10 +30,10 @@ For opening help sidebar
   #end
   <li class="d-none d-md-inline">
     <button class="btn icon-button"
-        data-bs-toggle="modal"
-        data-bs-target="#select-site-modal"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#select-site-sidebar"
         aria-label="$rloader.sit_allsites"
-        aria-controls="select-site-modal"
+        aria-controls="select-site-sidebar"
         title="$rloader.sit_allsites">
       <i class="bi bi-grid-3x3-gap-fill"></i>
     </button>
