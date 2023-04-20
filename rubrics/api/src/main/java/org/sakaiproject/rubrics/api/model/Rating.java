@@ -72,7 +72,6 @@ public class Rating implements PersistableEntity<Long>, Serializable {
     @Column(nullable = false)
     private Double points;
 
-    @Getter @Setter
     private Double weightedPoints;
 
     @EqualsAndHashCode.Exclude
