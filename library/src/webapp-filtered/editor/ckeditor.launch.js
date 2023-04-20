@@ -298,7 +298,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js');
         CKEDITOR.plugins.addExternal('widget',basePath+'widget/', 'plugin.js');
         CKEDITOR.plugins.addExternal('iframedialog',basePath+'iframedialog/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('html5video',webJars+'github-com-bahriddin-ckeditor-html5-video/${ckeditor.html5video.version}/html5video/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('html5video',webJars+'ckeditor-html5-video/${ckeditor.html5video.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');

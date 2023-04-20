@@ -93,8 +93,8 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>github-com-bahriddin-ckeditor-html5-video</artifactId>
+			<groupId>org.webjars</groupId>
+			<artifactId>ckeditor-html5-video</artifactId>
 			<version>${ckeditor.html5video.version}</version>
 			<scope>runtime</scope>
 		</dependency>
