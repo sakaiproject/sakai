@@ -686,7 +686,7 @@ function includeLatestJQuery(where) {
 	}
 
 	if ( window.jQuery ) {
-		console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
+		console.debug('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
 		if (typeof jQuery.migrateWarnings == 'undefined') { 
 			document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
 			console.debug('Adding jQuery migrate');
