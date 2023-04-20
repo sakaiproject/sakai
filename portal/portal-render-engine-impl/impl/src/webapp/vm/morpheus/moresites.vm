@@ -30,200 +30,202 @@
   <div id="refresh-notification-text" style="display: none">${rloader.sit_refresh_favorites}</div>
   <div id="maxFavoritesLimitReachedText" style="display: none">$rloader.getFormattedMessage("sit_favorite_limit_reached", $tabsSites.maxFavoritesShown)</div>
 
-  <div id="select-site-modal"
-        class="modal"
-        role="dialog"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        aria-hidden="true"
-        aria-label="${rloader.sit_allsites_dialog_label}">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-      <div class="modal-content border-0">
-        <div class="modal-header">
-          <h5 class="modal-title">All My Sites</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div id="allsites-refresh-notification" class="sak-banner-info" style="display: none">${rloader.sit_refresh_favorites}</div>
-          <div class="d-none" id="max-favorite-entries">${tabsSites.maxFavoritesShown}</div>
-          <ul id="otherSitesMenu" role="menubar">
-            #if (${tabsSites.worksiteToolUrl})
+  <div id="select-site-sidebar"
+      class="offcanvas offcanvas-end"
+      data-bs-backdrop="static"
+      tabindex="-1"
+      aria-labelledby="select-site-label">
+    <div class="offcanvas-header">
+      <h2 class="offcanvas-title" id="select-site-label">${rloader.sit_allsites}</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="$rloader.sit_close}"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div id="allsites-refresh-notification" class="sak-banner-info" style="display: none">${rloader.sit_refresh_favorites}</div>
+      <div class="d-none" id="max-favorite-entries">${tabsSites.maxFavoritesShown}</div>
+      <ul id="otherSitesMenu" role="menubar">
+        #if (${tabsSites.worksiteToolUrl})
 
-              <li role="menuitem"><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
+          <li role="menuitem">
+            <a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}">
+              <span>${rloader.sit_editsites}</span>
+            </a>
+          </li>
 
-              #if ($allowAddSite)
-                <li role="menuitem"><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
-              #end ## END of IF ($allowAddSite)
+          #if ($allowAddSite)
+            <li role="menuitem">
+              <a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp">
+                <span>${rloader.sit_newsite}</span>
+              </a>
+            </li>
+          #end ## END of IF ($allowAddSite)
 
-            #end ## END of IF (${tabsSites.worksiteToolUrl})
+        #end ## END of IF (${tabsSites.worksiteToolUrl})
 
-          </ul>
-          <div id="selectSite">
-            <ul class="nav nav-tabs" role="tablist">
-              <li class="nav-item" id="tab-othersites" role="presentation">
-                <button class="nav-link active"
-                    id="allsites-other-sites-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#other-sites-category-wrap"
-                    type="button"
-                    role="tab"
-                    aria-controls="other-sites-category-wrap"
-                    aria-selected="true">
-                  ${rloader.sit_worksites}
-                </button>
-              </li>
-              <li class="nav-item" id="tab-favorites" role="presentation">
-                <button class="nav-link"
-                    id="allsites-organize-favourites-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#organize-favorites"
-                    type="button"
-                    role="tab"
-                    aria-controls="organize-favorites"
-                    aria-selected="false">
-                  <span class="favorites-desktop">${rloader.moresite_organize_favorites}</span>
-                  <span class="favorites-mobile">${rloader.moresite_favorites}</span>
-                </button>
-              </li>
-            </ul>
+      </ul>
+      <div id="selectSite">
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item" id="tab-othersites" role="presentation">
+            <button class="nav-link active"
+                id="allsites-other-sites-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#other-sites-category-wrap"
+                type="button"
+                role="tab"
+                aria-controls="other-sites-category-wrap"
+                aria-selected="true">
+              ${rloader.sit_worksites}
+            </button>
+          </li>
+          <li class="nav-item" id="tab-favorites" role="presentation">
+            <button class="nav-link"
+                id="allsites-organize-favourites-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#organize-favorites"
+                type="button"
+                role="tab"
+                aria-controls="organize-favorites"
+                aria-selected="false">
+              <span class="favorites-desktop">${rloader.moresite_organize_favorites}</span>
+              <span class="favorites-mobile">${rloader.moresite_favorites}</span>
+            </button>
+          </li>
+        </ul>
 
-            <div class="tab-content">
-              <div class="tab-pane show active" id="other-sites-category-wrap" aria-labelledby="tab-othersites" role="tabpanel">
+        <div class="tab-content">
+          <div class="tab-pane show active" id="other-sites-category-wrap" aria-labelledby="tab-othersites" role="tabpanel">
 
-                <hr />
+            <hr />
 
-                <div id="otherSiteSearch">
-                  <label for="search-all-sites">${rloader.sit_search}</label>
-                  <input type="text" id="search-all-sites" maxlength="50">
-                </div>
-                <div id="all-sites-no-search-results" class="is-hidden">${rloader.sit_search_none}</div>
+            <div id="otherSiteSearch">
+              <label for="search-all-sites">${rloader.sit_search}</label>
+              <input type="text" id="search-all-sites" maxlength="50">
+            </div>
+            <div id="all-sites-no-search-results" class="is-hidden">${rloader.sit_search_none}</div>
 
-                <div class="moresites-left-col">
-                  #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
-                    #if ($tabsSites.tabsMoreTermsLeftPane.get($termKey).size() > 0)
-                      <div class="fav-sites-term">
-                        #if ( !$termKey || $termKey == "" )
-                          <h3 class="favorites-term-header">
-                            <span class="favorites-select-container">
-                              <button class="favorites-select-all-none icon-button"
-                                  title="${rloader.moresite_toggle_all_as_favorites_no_term}"
-                                  aria-label="${rloader.moresite_toggle_all_as_favorites_no_term}">
-                                <i class="bi-pin-fill" style="display: none"></i>
-                                <i class="bi-pin" style="display: none"></i>
-                              </button>
-                            </span>
-                            <span>${rloader.sit_notermkey}</span>
-                          </h3>
-                        #else
-                          <h3 class="favorites-term-header">
-                            <span class="favorites-select-container">
-                              <button class="favorites-select-all-none icon-button"
-                                  title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
-                                  aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
-                                <i class="bi-pin-fill" style="display: none"></i>
-                                <i class="bi-pin" style="display: none"></i>
-                              </button>
-                            </span>
-                            <span>$termKey</span>
-                          </h3>
-                        #end
+            <div class="moresites-left-col">
+              #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
+                #if ($tabsSites.tabsMoreTermsLeftPane.get($termKey).size() > 0)
+                  <div class="fav-sites-term">
+                    #if ( !$termKey || $termKey == "" )
+                      <h3 class="favorites-term-header">
+                        <span class="favorites-select-container">
+                          <button class="favorites-select-all-none icon-button"
+                              title="${rloader.moresite_toggle_all_as_favorites_no_term}"
+                              aria-label="${rloader.moresite_toggle_all_as_favorites_no_term}">
+                            <i class="bi-pin-fill" style="display: none"></i>
+                            <i class="bi-pin" style="display: none"></i>
+                          </button>
+                        </span>
+                        <span>${rloader.sit_notermkey}</span>
+                      </h3>
+                    #else
+                      <h3 class="favorites-term-header">
+                        <span class="favorites-select-container">
+                          <button class="favorites-select-all-none icon-button"
+                              title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
+                              aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
+                            <i class="bi-pin-fill" style="display: none"></i>
+                            <i class="bi-pin" style="display: none"></i>
+                          </button>
+                        </span>
+                        <span>$termKey</span>
+                      </h3>
+                    #end
 
-                        <ul class="other-sites-category-list favorite-site-list" role="presentation">
-                          #foreach( $site in $tabsSites.tabsMoreTermsLeftPane.get($termKey))
+                    <ul class="other-sites-category-list favorite-site-list" role="presentation">
+                      #foreach( $site in $tabsSites.tabsMoreTermsLeftPane.get($termKey))
+                        #displaySite($site)
+                      #end
+                    </ul>
+                  </div>
+                #end
+              #end
+            </div>
+
+            <div class="moresites-right-col">
+              #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
+                #if ($tabsSites.tabsMoreTermsRightPane.get($termKey).size() > 0)
+                  <div class="fav-sites-term">
+                    #if ( $termKey && $termKey != "" )
+                      <h3 class="favorites-term-header">
+                        <span class="favorites-select-container">
+                          <button class="favorites-select-all-none icon-button"
+                              title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
+                              aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
+                            <i class="bi-pin-fill" style="display: none"></i>
+                            <i class="bi-pin" style="display: none"></i>
+                          </button>
+                        </span>
+                        <span>$termKey</span>
+                      </h3>
+
+                      <ul class="other-sites-category-list favorite-site-list" role="presentation">
+                        <!-- anchor "my workspace" to the top of the list -->
+                        #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
+                          #if (${site.isMyWorkspace})
                             #displaySite($site)
                           #end
-                        </ul>
-                      </div>
-                    #end
-                  #end
-                </div>
-
-                <div class="moresites-right-col">
-                  #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
-                    #if ($tabsSites.tabsMoreTermsRightPane.get($termKey).size() > 0)
-                      <div class="fav-sites-term">
-                        #if ( $termKey && $termKey != "" )
-                          <h3 class="favorites-term-header">
-                            <span class="favorites-select-container">
-                              <button class="favorites-select-all-none icon-button"
-                                  title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
-                                  aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
-                                <i class="bi-pin-fill" style="display: none"></i>
-                                <i class="bi-pin" style="display: none"></i>
-                              </button>
-                            </span>
-                            <span>$termKey</span>
-                          </h3>
-
-                          <ul class="other-sites-category-list favorite-site-list" role="presentation">
-                            <!-- anchor "my workspace" to the top of the list -->
-                            #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
-                              #if (${site.isMyWorkspace})
-                                #displaySite($site)
-                              #end
-                            #end
-
-                            #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
-                              #if (${site.siteType} != #"course" && !${site.isMyWorkspace})
-                                #displaySite($site)
-                              #end
-                            #end
-                          </ul>
                         #end
+
+                        #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
+                          #if (${site.siteType} != #"course" && !${site.isMyWorkspace})
+                            #displaySite($site)
+                          #end
+                        #end
+                      </ul>
+                    #end
+                  </div>
+                #end
+              #end
+            </div>
+
+          </div><!--  end of #other-sites-category-wrap -->
+
+          <div class="tab-pane" id="organize-favorites" aria-labelledby="tab-favorites" role="tabpanel">
+            <div id="organize-favorites-pane">
+              <h2 class="heading">${rloader.moresite_organize_favorites}</h2>
+
+              <p style="display: none" id="pinned-to-show">$rloader.getFormattedMessage("sit_drag_sites_to_reorder", $tabsSites.maxFavoritesShown)</p>
+
+              <p style="display: none" id="no-pinnned-to-show">${rloader.sit_no_favorites_selected}</p>
+
+              <ul id="organize-favorites-list" class="favorite-site-list">
+                #foreach( $site in $tabsSites.pinned )
+                  #if (!${site.isMyWorkspace})
+                  <li class="organize-favorite-item" data-site-id="$site.siteId" data-sortable-id="$site.siteId">
+                    <div>
+                      <div class="pinned-drag-handle">
+                        <i class="bi-grip-horizontal"></i>
                       </div>
-                    #end
-                  #end
-                </div>
-
-              </div><!--  end of #other-sites-category-wrap -->
-
-              <div class="tab-pane" id="organize-favorites" aria-labelledby="tab-favorites" role="tabpanel">
-                <div id="organize-favorites-pane">
-                  <h2 class="heading">${rloader.moresite_organize_favorites}</h2>
-
-                  <p style="display: none" id="pinned-to-show">$rloader.getFormattedMessage("sit_drag_sites_to_reorder", $tabsSites.maxFavoritesShown)</p>
-
-                  <p style="display: none" id="no-pinnned-to-show">${rloader.sit_no_favorites_selected}</p>
-
-                  <ul id="organize-favorites-list" class="favorite-site-list">
-                    #foreach( $site in $tabsSites.pinned )
-                      #if (!${site.isMyWorkspace})
-                      <li class="organize-favorite-item" data-site-id="$site.siteId" data-sortable-id="$site.siteId">
+                      <div class="organize-pinned-arrow-buttons">
                         <div>
-                          <div class="pinned-drag-handle">
-                            <i class="bi-grip-horizontal"></i>
-                          </div>
-                          <div class="organize-pinned-arrow-buttons">
-                            <div>
-                              <button class="icon-button up-btn #if ($velocityCount == 1)d-none#end"
-                                  title="${rloader.sit_move_pinned_up}"
-                                  aria-label="${rloader.sit_move_pinned_up}"
-                              >
-                                <i class="bi-arrow-up pe-none"></i>
-                              </button>
-                            </div>
-                            <div>
-                              <button class="icon-button down-btn #if ($velocityCount == $tabsSites.pinned.size())d-none#end"
-                                  title="${rloader.sit_move_pinned_down}"
-                                  aria-label="${rloader.sit_move_pinned_down}"
-                              >
-                                <i class="bi-arrow-down pe-none"></i>
-                              </button>
-                            </div>
-                          </div>
-                          <div>
-                          ${site.siteTitleTrunc}
-                          </div>
+                          <button class="icon-button up-btn #if ($velocityCount == 1)d-none#end"
+                              title="${rloader.sit_move_pinned_up}"
+                              aria-label="${rloader.sit_move_pinned_up}"
+                          >
+                            <i class="bi-arrow-up pe-none"></i>
+                          </button>
                         </div>
-                      </li>
-                      #end
-                    #end
-                  </ul>
-                </div>
-              </div>
-            </div><!-- end of tab-content -->
+                        <div>
+                          <button class="icon-button down-btn #if ($velocityCount == $tabsSites.pinned.size())d-none#end"
+                              title="${rloader.sit_move_pinned_down}"
+                              aria-label="${rloader.sit_move_pinned_down}"
+                          >
+                            <i class="bi-arrow-down pe-none"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                      ${site.siteTitleTrunc}
+                      </div>
+                    </div>
+                  </li>
+                  #end
+                #end
+              </ul>
+            </div>
           </div>
-        </div>
+        </div><!-- end of tab-content -->
       </div>
     </div>
   </div>

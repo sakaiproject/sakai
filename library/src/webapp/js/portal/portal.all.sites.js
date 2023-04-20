@@ -55,9 +55,9 @@ portal.allsites.updatePinned = function () {
 
 portal.allsites.setAllOrNoneStarStates = function () {
 
-  const modal = document.getElementById("select-site-modal");
+  const sidebar = document.getElementById("select-site-sidebar");
 
-  modal.querySelectorAll(".favorites-select-all-none").forEach(function (selectAllNone) {
+  sidebar.querySelectorAll(".favorites-select-all-none").forEach(function (selectAllNone) {
 
     const termContainer = selectAllNone.closest(".fav-sites-term");
 
@@ -106,7 +106,7 @@ portal.allsites.setButton = function (btn, state) {
 
 portal.allsites.loadFromServer = function (attempt) {
 
-  const pinButtons = document.querySelectorAll("#select-site-modal .site-favorite-btn");
+  const pinButtons = document.querySelectorAll("#select-site-sidebar .site-favorite-btn");
   pinButtons.forEach(el => el.style.display = "none");
 
   portal.allsites.getUserFavourites().then(favourites => {
@@ -139,13 +139,13 @@ portal.allsites.loadFromServer = function (attempt) {
 
 portal.allsites.setup = function () {
 
-  const modal = document.getElementById("select-site-modal");
+  const sidebar = document.getElementById("select-site-sidebar");
 
-  modal.querySelectorAll("button, a")[0]?.focus();
+  sidebar.querySelectorAll("button, a")[0]?.focus();
 
   portal.allsites.loadFromServer();
 
-  modal.querySelectorAll(".site-favorite-btn").forEach(btn => {
+  sidebar.querySelectorAll(".site-favorite-btn").forEach(btn => {
 
     btn.addEventListener("click", function () {
 
@@ -177,7 +177,7 @@ portal.allsites.setup = function () {
     });
   });
 
-  modal.querySelectorAll(".favorites-select-all-none").forEach(btn => {
+  sidebar.querySelectorAll(".favorites-select-all-none").forEach(btn => {
 
     btn.addEventListener("click", function (e) {
 
@@ -195,7 +195,7 @@ portal.allsites.setup = function () {
       buttons.forEach(button => portal.allsites.setButton(button, newState));
 
       portal.allsites.pinnedQueue.favoriteSiteIds
-        = Array.from(modal.querySelectorAll(".site-favorite-btn[aria-pressed='true']"))
+        = Array.from(sidebar.querySelectorAll(".site-favorite-btn[aria-pressed='true']"))
           .map(btn => btn.dataset.siteId);
       portal.allsites.updatePinned();
 
@@ -256,7 +256,7 @@ portal.allsites.setup = function () {
   //document.getElementById('pinned-to-show').style.display = numPinned ? "block" : "none";
 
   // Setup the search field
-  const searchInput = modal.querySelector("#search-all-sites");
+  const searchInput = sidebar.querySelector("#search-all-sites");
   searchInput?.addEventListener("keyup", event => {
 
     if (event.keyCode == 27) {
@@ -289,7 +289,7 @@ portal.allsites.setup = function () {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  document.getElementById("select-site-modal")?.addEventListener("shown.bs.modal", function() {
+  document.getElementById("select-site-sidebar")?.addEventListener("shown.bs.offcanvas", function() {
 
     portal.allsites.setup();
   });
