@@ -251,7 +251,8 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
   _doesScoreMatchRating(score, criterionId, ratingId) {
 
     const criterion = this.criteria.find(c => c.id === criterionId);
-    return criterion.ratings.some(r => r.weightedPoints === parseFloat(score) && r.id === ratingId);  //we can always use weightedPoints because it will simply be the normal value if the rubric is not weighted.
+    //We can always use weightedPoints because it will simply be the normal value if the rubric is not weighted.
+    return criterion.ratings.some(r => r.weightedPoints === parseFloat(score) && r.id === ratingId);
   }
 
   _getPointsAverage(criterionId) {

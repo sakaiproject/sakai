@@ -295,6 +295,15 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 log.warn("Failed to set the siteTitle on rubric bean: {}", iue.toString());
             }
         }
+        for (CriterionTransferBean criterion : bean.getCriteria()) {
+            for (RatingTransferBean rating : criterion.getRatings()) {
+                if (bean.getWeighted()){
+                    rating.setWeightedPoints(rating.getPoints() * (criterion.getWeight() / 100D));
+                } else {
+                    rating.setWeightedPoints(rating.getPoints());
+                }
+            }
+        }
         return bean;
     }
 
@@ -468,7 +477,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 criterion.setDescription(c.getDescription());
                 criterion.setWeight(c.getWeight());
                 criterion.setRatings(c.getRatings().stream()
-                        .map(r -> new Rating(null, r.getTitle(), r.getDescription(), r.getPoints(), null, criterion))
+                        .map(r -> new Rating(null, r.getTitle(), r.getDescription(), r.getPoints(), criterion))
                         .collect(Collectors.toList()));
                 return criterion;
             }).collect(Collectors.toList()));
@@ -606,7 +615,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return rubricRepository.findById(rubricId).map(rubric -> {
 
             String currentUserId = userDirectoryService.getCurrentUser().getId();
-            loadRatingWeightedPoints(rubric.getCriteria(), rubric.getWeighted());
             if (rubric.getShared()
                 || isEditor(rubric.getOwnerId())
                 || isEvaluee(rubric.getOwnerId())
@@ -1442,17 +1450,5 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }, Double::sum);
         rubric.setMaxPoints(maxPoints);
         return rubric;
-    }
-
-    private void loadRatingWeightedPoints(List<Criterion> criteria, boolean weighted){
-        for (Criterion criterion: criteria){
-            for (Rating rating: criterion.getRatings()){
-                if(weighted){
-                    rating.setWeightedPoints(rating.getPoints() * (criterion.getWeight() / 100D));
-                } else {
-                    rating.setWeightedPoints(rating.getPoints());
-                }
-            }
-        }
     }
 }

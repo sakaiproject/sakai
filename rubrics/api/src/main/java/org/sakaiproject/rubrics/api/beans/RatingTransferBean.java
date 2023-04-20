@@ -36,7 +36,7 @@ public class RatingTransferBean {
         criterionId = rating.getCriterion().getId();
         description = rating.getDescription();
         points = rating.getPoints();
-        weightedPoints = rating.getWeightedPoints();
+        weightedPoints = 0D;
         title = rating.getTitle();
     }
 }
