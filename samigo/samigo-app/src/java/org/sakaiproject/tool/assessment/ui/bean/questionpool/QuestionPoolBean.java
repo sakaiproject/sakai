@@ -1568,6 +1568,7 @@ public String getAddOrEdit()
 		setActionType("item");
 	}
 
+
 // Pool level actions
   public String startCopyPool()
   {

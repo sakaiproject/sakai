@@ -473,7 +473,7 @@ public class XMLImportBean implements Serializable {
         FacesMessage message = new FacesMessage(sizeTooBigMessage);
         FacesContext.getCurrentInstance().addMessage(null, message);
         // remove unsuccessful file
-        log.debug("****Clean up file:"+uploadFile);
+        log.debug("****Clean up file: {}", uploadFile);
         File upload = new File(uploadFile);
         upload.delete();
         authorBean.setImportOutcome("importPool");
@@ -513,7 +513,7 @@ public class XMLImportBean implements Serializable {
     if (isCP) {
         ImportService importService = new ImportService();
         unzipLocation = importService.unzipImportFile(uploadFile);
-        fileName = unzipLocation + "/" + importService.getQtiFilename();
+        fileName = unzipLocation + File.separator + importService.getQtiFilename();
     }
 
     try {
@@ -530,25 +530,25 @@ public class XMLImportBean implements Serializable {
         boolean success = false;
         // remove unsuccessful file
         if (!fileNotFound) {
-          log.debug("****Clean up file: " + fileName);
+          log.debug("****Clean up file: {}", fileName);
           File f1 = new File(fileName);
           success = f1.delete();
           if (!success) {
-            log.error ("Failed to delete file " + fileName);
+            log.error("Failed to delete file {}", fileName);
           }
         }
         if (isCP) {
             File f2 = new File(uploadFile);
             success = f2.delete();
             if (!success) {
-                log.error ("Failed to delete file " + uploadFile);
+                log.error("Failed to delete file {}", uploadFile);
             }
             File f3 = new File(unzipLocation);
             deleteDirectory(f3);
         }
     }
   }
-
+  
   /**
    * Create questionpool from uploaded QTI XML
    * @param fullFileName file name and path
@@ -556,16 +556,16 @@ public class XMLImportBean implements Serializable {
    * @param isRespondus true/false
    * @param failedMatchingQuestions
    * @return
-   * @throws Exception
+ * @throws Exception 
    */
   private QuestionPoolFacade createImportedQuestionPool(String fullFileName, int qti, boolean isRespondus, List failedMatchingQuestions) throws Exception {
     //trim = true so that xml processing instruction at top line, even if not.
     Document document;
-    try {
-        document = XmlUtil.readDocument(fullFileName, true);
-    } catch (Exception e) {
-        throw(e);
-    }
+	try {
+		document = XmlUtil.readDocument(fullFileName, true);
+	} catch (Exception e) {
+		throw(e);
+	}
     QTIService qtiService = new QTIService();
     if (isCP) {
         return qtiService.createImportedQuestionPool(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions);
@@ -573,7 +573,7 @@ public class XMLImportBean implements Serializable {
         return qtiService.createImportedQuestionPool(document, qti, null, isRespondus, failedMatchingQuestions);
     }
   }
-
+  
   public QuestionPoolBean getQuestionPoolBean()
   {
     return questionPoolBean;
