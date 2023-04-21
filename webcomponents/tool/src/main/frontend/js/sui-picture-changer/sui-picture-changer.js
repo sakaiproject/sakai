@@ -253,9 +253,9 @@ export class SuiPictureChanger extends SakaiElement {
             </div>
         </div>
         <div class="modal-footer">
-          <button class="btn pull-left" @click=${this._save} ?disabled=${!this.needsSave}>${this.i18n.save}</button>
-          <button class="btn pull-right" @click="${this._remove}">${this.i18n.remove}</button>
-          <button class="btn pull-left" data-bs-dismiss="modal">${this.i18n.done}</button>
+          <button class="btn pull-left" data-bs-dismiss="modal" @click=${this._save} ?disabled=${!this.needsSave}>${this.i18n.save}</button>
+          <button class="btn float-start" @click="${this._remove}">${this.i18n.remove}</button>
+          <button class="btn float-start" data-bs-dismiss="modal">${this.i18n.cancel}</button>
         </div>
       </div>
     </div>
