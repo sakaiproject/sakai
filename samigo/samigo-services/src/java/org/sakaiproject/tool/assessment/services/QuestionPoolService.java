@@ -60,6 +60,9 @@ import lombok.extern.slf4j.Slf4j;
  @Slf4j
  public class QuestionPoolService
 {
+  public static final String newLine = "\n";
+  public static final String FBOK = "#FBOK:";
+  public static final String FBNOK = "#FBNOK:";
 
   /**
    * Creates a new QuestionPoolService object.
@@ -636,7 +639,7 @@ import lombok.extern.slf4j.Slf4j;
 		List<ItemDataIfc> items = this.getAllItems(questionPool.getQuestionPoolId());
 
 		// only exports questions items on currentItemIdsString
-		if (StringUtils.isNotEmpty(currentItemIdsString)) {
+		if (StringUtils.isNotBlank(currentItemIdsString)) {
 			List<String> currentItemIdsList = Arrays.asList(currentItemIdsString.split(","));
 			items.removeIf(item -> !currentItemIdsList.contains(item.getItemIdString()));
 		}
@@ -655,7 +658,7 @@ import lombok.extern.slf4j.Slf4j;
 			}
 
 			for (ItemTextIfc itemText : item.getItemTextArray()) {
-				markupText.append("\n");
+				markupText.append(newLine);
 				if (TypeIfc.FILL_IN_BLANK.intValue() == item.getTypeId()
 						|| TypeIfc.FILL_IN_NUMERIC.intValue() == item.getTypeId()) {
 					markupText.append(itemText.getText().replaceAll("\\{\\}", ""));
@@ -670,7 +673,7 @@ import lombok.extern.slf4j.Slf4j;
 				}
 
 				for (AnswerIfc answer : itemText.getAnswerArray()) {
-					markupText.append("\n");
+					markupText.append(newLine);
 
 					if (answer.getIsCorrect()) {
 						markupText.append("*");
@@ -685,9 +688,9 @@ import lombok.extern.slf4j.Slf4j;
 						markupText.append("{").append(answer.getText()).append("}");
 					}
 					else if (TypeIfc.TRUE_FALSE.intValue() == item.getTypeId()) {
-						String boolText = bundle.get("false");
+						String boolText = bundle.get(Boolean.FALSE.toString());
 						if (Boolean.parseBoolean(answer.getText())) {
-							boolText = bundle.get("true");
+							boolText = bundle.get(Boolean.TRUE.toString());
 						}
 						markupText.append(boolText);
 					}
@@ -699,25 +702,25 @@ import lombok.extern.slf4j.Slf4j;
 
 			String randomized = item.getItemMetaDataByLabel(ItemMetaDataIfc.RANDOMIZE);
 			if (randomized != null && Boolean.valueOf(randomized)) {
-				markupText.append("\n");
+				markupText.append(newLine);
 				markupText.append(bundle.get("randomize"));
 			}
 
 			if (item.getHasRationale() != null && item.getHasRationale()) {
-				markupText.append("\n");
+				markupText.append(newLine);
 				markupText.append(bundle.get("rationale"));
 			}
 
 			if (StringUtils.isNotEmpty(item.getCorrectItemFeedback())) {
-				markupText.append("\n");
-				markupText.append("#FBOK:").append(item.getCorrectItemFeedback());
+				markupText.append(newLine);
+				markupText.append(FBOK).append(item.getCorrectItemFeedback());
 			}
 
 			if (StringUtils.isNotEmpty(item.getInCorrectItemFeedback())) {
-				markupText.append("\n");
-				markupText.append("#FBNOK:").append(item.getInCorrectItemFeedback());
+				markupText.append(newLine);
+				markupText.append(FBNOK).append(item.getInCorrectItemFeedback());
 			}
-			markupText.append("\n");
+			markupText.append(newLine);
 
 			nQuestion++;
 		}

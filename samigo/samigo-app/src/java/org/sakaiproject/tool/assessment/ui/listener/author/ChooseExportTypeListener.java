@@ -57,15 +57,15 @@ public class ChooseExportTypeListener implements ActionListener
     String assessmentId = (String) ContextUtil.lookupParam("assessmentId");
     String qpid = (String) ContextUtil.lookupParam("qpid");
 
-    if (StringUtils.isNotEmpty(assessmentId)) {
-        log.info("ExportAssessmentListener assessmentId=" + assessmentId);
+    if (StringUtils.isNotBlank(assessmentId)) {
+        log.info("ExportAssessmentListener assessmentId= {}", assessmentId);
         AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
         AssessmentService assessmentService = new AssessmentService();
         AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
         assessmentBean.setAssessmentId(assessment.getAssessmentBaseId().toString());
         assessmentBean.setTitle(assessment.getTitle());
-    } else if (StringUtils.isNotEmpty(qpid)) {
-        log.info("ExportAssessmentListener qpid=" + qpid);
+    } else if (StringUtils.isNotBlank(qpid)) {
+        log.info("ExportAssessmentListener qpid= {}", qpid);
         QuestionPoolBean questionPoolBean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
         QuestionPoolService questionPoolService = new QuestionPoolService();
         QuestionPoolFacade questionPool = questionPoolService.getPool(Long.parseLong(qpid), AgentFacade.getAgentString());

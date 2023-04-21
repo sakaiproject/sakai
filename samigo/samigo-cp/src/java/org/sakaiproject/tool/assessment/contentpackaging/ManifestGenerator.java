@@ -162,7 +162,7 @@ public class ManifestGenerator {
 
 	private void getAttachments() {
 		try {
-			if (StringUtils.isNotEmpty(assessmentId)) {
+			if (StringUtils.isNotBlank(assessmentId)) {
 				AssessmentService assessmentService = new AssessmentService();
 				AssessmentFacade assessment = assessmentService
 						.getAssessment(assessmentId);
@@ -205,7 +205,7 @@ public class ManifestGenerator {
 						}
 					}
 				}
-			} else if (StringUtils.isNotEmpty(questionPoolId.toString())) {
+			} else if (StringUtils.isNotBlank(questionPoolId.toString())) {
 				QuestionPoolService questionPoolService = new QuestionPoolService();
 
 				// Question pool attachment
@@ -224,6 +224,7 @@ public class ManifestGenerator {
 					}
 				}
 			}
+
 		} catch (PermissionException e) {
 			log.error(e.getMessage());
 		} catch (IdUnusedException e) {
@@ -234,9 +235,9 @@ public class ManifestGenerator {
 			log.error(e.getMessage());
 		}
 	}
-
+	
 	private void getFCKAttachments() {
-		if (StringUtils.isNotEmpty(assessmentId)) {
+		if (StringUtils.isNotBlank(assessmentId)) {
 			AssessmentService assessmentService = new AssessmentService();
 			AssessmentFacade assessment = assessmentService
 					.getAssessment(assessmentId);
@@ -257,7 +258,7 @@ public class ManifestGenerator {
 					processItemData(itemData);
 				}
 			}
-		} else if (StringUtils.isNotEmpty(questionPoolId.toString())) {
+		} else if (StringUtils.isNotBlank(questionPoolId.toString())) {
 			QuestionPoolService questionPoolService = new QuestionPoolService();
 			QuestionPoolFacade questionPool = questionPoolService.getPool(questionPoolId, AgentFacade.getAgentString());
 
