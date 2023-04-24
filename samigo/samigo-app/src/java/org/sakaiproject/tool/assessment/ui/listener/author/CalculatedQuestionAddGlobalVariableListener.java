@@ -19,6 +19,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -36,6 +37,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class CalculatedQuestionAddGlobalVariableListener implements ActionListener{
     private static final String ERROR_MESSAGE_BUNDLE = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
+    private static final Pattern CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES = Pattern.compile("[a-zA-ZÀ-ÿ\\u00f1\\u00d1]\\w*", Pattern.UNICODE_CHARACTER_CLASS);
 
     /**
      * This listener will read in the instructions, parse any variables and 
@@ -79,6 +81,19 @@ public class CalculatedQuestionAddGlobalVariableListener implements ActionListen
      */
     public List<String> validate(ItemBean item, String globalVariableName, boolean fromui) {
         List<String> errors = new ArrayList<String>();
+
+        // validating globalVariableName
+        if (globalVariableName == null || globalVariableName.length() == 0) {
+            errors.add(getErrorMessage("global_variable_name_empty"));
+        } else {
+            if (!CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES.matcher(globalVariableName).matches()) {
+                errors.add(getErrorMessage("global_variable_name_invalid"));
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            return errors;
+        }
 
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();

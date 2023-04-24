@@ -2814,7 +2814,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       for (Iterator<String> iterator = calculations.iterator(); iterator.hasNext();) {
         String calc = iterator.next();
         if (!StringUtils.containsAny(calc, "{}()+-*/")) {
-            iterator.remove();
+            //checking global variable pattern
+            if (!CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(calc).find()) {
+                iterator.remove();
+            }
         }
       }
       return calculations;

@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,8 +61,8 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     private static final Pattern CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES = Pattern.compile("[a-zA-ZÀ-ÿ\\u00f1\\u00d1]\\w*", Pattern.UNICODE_CHARACTER_CLASS);
     private static final String VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS = "10";
     private static final String VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS = "11";
-    private static final String GLOBAL_VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS = "12";
-    private static final String GLOBAL_VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS = "13";
+    private static final String GLOBAL_VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_GLOBAL_VARIABLES_LIST = "12";
+    private static final String GLOBAL_VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_GLOBAL_VARIABLES_LIST = "13";
 
     /**
      * This listener will read in the instructions, parse any variables and 
@@ -138,6 +139,11 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         // checking if there are variable names on feedback which are not in instructions.
         errors.addAll(checkVariableNamesOnFeedback(variableNames, corrvariableNames, VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS));
         errors.addAll(checkVariableNamesOnFeedback(variableNames, incorrvariableNames, VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS));
+
+        // checking if there are global variable names on feedback which are not defined on global variables map
+        Map<String, CalculatedQuestionGlobalVariableBean> globalVariables = item.getCalculatedQuestion().getGlobalvariables();
+        errors.addAll(checkGlobalVariableNamesFeedabackOnGlobalVariables(globalVariables, corrGlobalVariableNames, GLOBAL_VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_GLOBAL_VARIABLES_LIST));
+        errors.addAll(checkGlobalVariableNamesFeedabackOnGlobalVariables(globalVariables, incorrGlobalVariableNames, GLOBAL_VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_GLOBAL_VARIABLES_LIST));
 
         // add new variables and formulas
         // verify that at least one variable and formula are defined
@@ -803,7 +809,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     /**
      * checkVariableNamesOnFeedback() retrieves the variables or global variables which are on feedback and are missing on instructions
      * the errorCode
-     * @param variableNames feedback
+     * @param variableNames
+     * @param feedback
+     * @param nerror
      * @return
      */
     private static List<String> checkVariableNamesOnFeedback(List<String> variableNames, List<String> feedback, String nerror) {
@@ -816,6 +824,31 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         if (!result.isEmpty()){
             String msg = getErrorMessage("samigo_formula_error_" + nerror);
             errors.add(msg + " :" + result.toString());
+        }
+        return errors;
+    }
+
+    /**
+     * checkGlobalVariableNamesFeedabackOnGlobalVariables() retrieves global variables which are on feedback and are missing on global variables map
+     * the errorCode
+     * @param globalVariables
+     * @param feedback
+     * @param nerror
+     * @return
+     */
+    private static List<String> checkGlobalVariableNamesFeedabackOnGlobalVariables(Map<String, CalculatedQuestionGlobalVariableBean> globalVariables, List<String> feedback, String nerror) {
+        List<String> errors = new ArrayList<String>();
+
+        List<String> undefinedGlobalVariables = new ArrayList<>();
+        for (String value : feedback) {
+            if (!globalVariables.containsKey(value)) {
+                undefinedGlobalVariables.add(value);
+            }
+        }
+
+        if (!undefinedGlobalVariables.isEmpty()){
+            String msg = getErrorMessage("samigo_formula_error_" + nerror);
+            errors.add(msg + " :" + undefinedGlobalVariables.toString());
         }
         return errors;
     }
