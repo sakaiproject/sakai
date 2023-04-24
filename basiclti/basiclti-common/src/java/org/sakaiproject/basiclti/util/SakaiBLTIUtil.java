@@ -2946,8 +2946,12 @@ public class SakaiBLTIUtil {
 				org.sakaiproject.grading.api.Assignment aColumn = (org.sakaiproject.grading.api.Assignment) i.next();
 
 				if (title.trim().equalsIgnoreCase(aColumn.getName().trim())) {
-					returnColumn = aColumn;
-					break;
+					if (returnColumn == null) {
+						returnColumn = aColumn;
+					} else {
+						// removing other items with same name
+						g.removeAssignment(aColumn.getId());
+					}
 				}
 			}
 		} finally {
