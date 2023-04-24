@@ -744,6 +744,14 @@ public class ItemModifyListener implements ActionListener
 
     CalculatedQuestionBean calcQuestionBean = new CalculatedQuestionBean();
     String instructions = itemfacade.getInstruction();
+    String corrFeedback = itemfacade.getCorrectItemFeedback();
+    if (corrFeedback == null ) {
+        corrFeedback = "";
+    }
+    String incorrFeedback = itemfacade.getInCorrectItemFeedback();
+    if (incorrFeedback == null ) {
+        incorrFeedback = "";
+    }
     GradingService gs = new GradingService();
     List<String> variables = gs.extractVariables(instructions);
     List<String> globalvariables = gs.extractGlobalVariables(instructions);
@@ -833,6 +841,8 @@ public class ItemModifyListener implements ActionListener
     }
     // extract the calculation formulas and populate the calcQuestionBean (we are ignoring the error returns for now)
     CalculatedQuestionExtractListener.createCalculationsFromInstructionsOrFeedback(calcQuestionBean, instructions, gs);
+    CalculatedQuestionExtractListener.createCalculationsFromInstructionsOrFeedback(calcQuestionBean, corrFeedback, gs);
+    CalculatedQuestionExtractListener.createCalculationsFromInstructionsOrFeedback(calcQuestionBean, incorrFeedback, gs);
     CalculatedQuestionExtractListener.validateCalculations(calcQuestionBean, gs);
     bean.setCalculatedQuestion(calcQuestionBean);
   }
