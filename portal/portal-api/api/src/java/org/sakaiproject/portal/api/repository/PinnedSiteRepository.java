@@ -22,7 +22,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface PinnedSiteRepository extends SpringCrudRepository<PinnedSite, Long> {
 
-    List<PinnedSite> findByUserId(String userId);
+    List<PinnedSite> findByUserIdOrderByPosition(String userId);
     List<PinnedSite> findBySiteId(String siteId);
     Integer deleteByUserId(String userId);
     Integer deleteBySiteId(String siteId);

@@ -47,4 +47,7 @@ public class PinnedSite implements PersistableEntity<Long> {
 
     @Column(name = "SITE_ID", length = 99, nullable = false)
     private String siteId;
+
+    @Column(name = "POSITION", nullable = false)
+    private int position;
 }

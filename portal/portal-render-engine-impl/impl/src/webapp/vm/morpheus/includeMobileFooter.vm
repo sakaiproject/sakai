@@ -4,12 +4,12 @@
   <ul class="nav flex-nowrap align-items-center justify-content-around w-100">
     <li>
       <button class="btn icon-button"
-		  data-bs-toggle="offcanvas"
-		  data-bs-target="#portal-nav-sidebar"
-		  aria-controls="portal-nav-sidebar"
-		  aria-label="$rloader.sit_navigation"
-		  title="$rloader.sit_navigation">
-        <i class="bi-list"></i>
+          data-bs-toggle="offcanvas"
+          data-bs-target="#select-site-sidebar"
+          aria-label="$rloader.sit_allsites"
+          aria-controls="select-site-sidebar"
+          title="$rloader.sit_allsites">
+          <i class="si si-all-sites"></i>
       </button>
     </li>
 
@@ -31,14 +31,11 @@
 
     #if (!${loginTopLogin})
     <li>
-      <button class="btn icon-button"
-		  data-bs-toggle="offcanvas"
-		  data-bs-target="#sakai-accountPanel"
-		  aria-controls="sakai-accountPanel"
-          aria-label="$rloader.sit_account"
-          title="$rloader.sit_account">
+      <a class="btn icon-button"
+          href="/portal"
+          title="$rloader.portal_home">
         <i class="bi-house"></i>
-      </button>
+      </a>
     </li>
     #end
 

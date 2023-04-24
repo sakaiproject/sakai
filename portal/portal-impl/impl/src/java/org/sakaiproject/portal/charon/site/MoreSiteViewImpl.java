@@ -174,7 +174,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			renderContextMap.put("tutorial", false);
 		}
 
-		renderContextMap.put("themeSwitcher", serverConfigurationService.getBoolean("portal.themes.switcher", false));
+		renderContextMap.put("themeSwitcher", serverConfigurationService.getBoolean("portal.themes.switcher", true));
 
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
 				currentSiteId, myWorkspaceSiteId,
@@ -188,7 +188,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		renderContextMap.put("maxFavoritesShown", tabsToDisplay);
 
 		List<Map> pinned
-			= l.stream().filter(map -> map.containsKey("favorite") && (Boolean) map.get("favorite"))
+			= l.stream().filter(map -> map.containsKey("isPinned") && (Boolean) map.get("isPinned"))
 				.collect(Collectors.toList());
 
 		renderContextMap.put("pinned", pinned);

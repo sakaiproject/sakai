@@ -19,7 +19,10 @@
                         "enabled": $!{neoChatVideo}
                     }
                 },
-                "i18n": {},
+                "i18n": {
+                    "theme_switch_to_light": "$rloader.sit_theme_switch_to_light",
+                    "theme_switch_to_dark": "$rloader.sit_theme_switch_to_dark",
+                },
                 "loggedIn": $!{loggedIn},
                 "portalPath": "$!{portalPath}",
                 "loggedOutUrl": "$!{loggedOutUrl}",

@@ -331,16 +331,23 @@ public interface PortalService
 	/**
 	 * Update the list of pinned site ids for the current user
 	 *
-	 * @param siteIds The set of site ids to pin
+	 * @param siteIds The list of site ids to pin
 	 */
-	public void savePinnedSites(Set<String> siteIds);
+	public void savePinnedSites(List<String> siteIds);
+
+	/**
+	 * Replace the pinned sites in the list order
+	 *
+	 * @param siteIds The list of site ids to pin
+	 */
+	public void reorderPinnedSites(List<String> siteIds);
 
 	/**
 	 * Get the list of pinned site ids for the current user
 	 *
-	 * @return the set of pinned site ids for the supplied user
+	 * @return the list of pinned site ids for the supplied user
 	 */
-	public Set<String> getPinnedSites();
+	public List<String> getPinnedSites();
 
 	/**
 	 * Get the list of recent site ids for the current user
