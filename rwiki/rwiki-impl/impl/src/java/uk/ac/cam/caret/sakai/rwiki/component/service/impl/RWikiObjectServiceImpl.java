@@ -1831,6 +1831,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean checkAdminPermission(RWikiObject rwo)
+	{
+		return wikiSecurityService.checkAdminPermission(((RWikiEntity) getEntity(rwo)).getReference());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List findAllPageNames()
 	{
 		return cdao.findAllPageNames();
