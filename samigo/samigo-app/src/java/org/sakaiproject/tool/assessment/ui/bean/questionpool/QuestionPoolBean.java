@@ -51,6 +51,8 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -90,11 +92,13 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
+import org.sakaiproject.tool.assessment.ui.listener.author.ChooseExportTypeListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.user.api.User;
@@ -209,6 +213,10 @@ public class QuestionPoolBean implements Serializable {
   //SAM-3049
   private boolean notCurrentPool;
   private String displayNameNotCPool;
+
+  //S2U-25
+  @Getter @Setter private String questionPoolId;
+  @Getter @Setter private String currentItemIdsString; //currentItemIds separated by comma
 
   /**
    * Creates a new QuestionPoolBean object.
@@ -1615,7 +1623,8 @@ public String getAddOrEdit()
 	List<Long> itemIds = new ArrayList<>();
 	itemIds.add(itemId);
 	setCurrentItemIds(itemIds);
-	 
+	setCurrentItemIdsString(String.join(",", itemIds.stream().map(Object::toString).toArray(String[]::new)));
+
 	List itemFacades = new ArrayList();
 	itemFacades.add(itemfacade);
 	setCurrentItems(itemFacades);
@@ -1641,6 +1650,8 @@ public String getAddOrEdit()
 
 		setCurrentItemIds(itemIds);
 		setCurrentItems(itemFacades);
+
+		setCurrentItemIdsString(String.join(",", itemIds.stream().map(Object::toString).toArray(String[]::new)));
 
 		setActionType("item");
 	}
@@ -3348,5 +3359,40 @@ String poolId = ContextUtil.lookupParam("qpid");
 			setOutcome(outcome);
 		}
 		setOutcomePool((getCurrentPool()!=null)?getCurrentPool().getId():0);
+	}
+
+	public String startExportPool() {
+		log.debug("inside startExportPool()");
+		setOutComeParams();
+
+		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+		ChooseExportTypeListener chooseExportTypeListener = new ChooseExportTypeListener();
+		chooseExportTypeListener.processAction(null);
+		author.setOutcome("chooseExportType");
+
+		return "choosePoolExportType";
+	}
+
+	public boolean getExportable2MarkupText() {
+		QuestionPoolService questionPoolService = new QuestionPoolService();
+		boolean result = false;
+		if (questionPoolId != null) {
+			QuestionPoolFacade questionPool = questionPoolService.getPool(Long.parseLong(questionPoolId), AgentFacade.getAgentString());
+			result = questionPoolService.isExportable(questionPool);
+		}
+		return result;
+	  }
+
+	public String startExportQuestions() {
+		log.debug("inside startExportQuestions()");
+		setOutComeParams("editPool");
+		getCheckedQuestions();
+
+		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+		ChooseExportTypeListener chooseExportTypeListener = new ChooseExportTypeListener();
+		chooseExportTypeListener.processAction(null);
+		author.setOutcome("chooseExportType");
+
+		return "choosePoolExportType";
 	}
 }
