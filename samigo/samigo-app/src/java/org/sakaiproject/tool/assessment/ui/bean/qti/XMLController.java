@@ -97,10 +97,10 @@ public class XMLController implements Serializable {
     return "xmlDisplay";
   }
 
-  public String displayItemBankXml()
+  public String displayItemBankXml(String displayName)
   {
-    this.itemBank();
-    return "xmlDisplay";
+    this.itemBank(displayName);
+    return "xmlDisplayPool";
   }
 
   public String display()
@@ -292,7 +292,7 @@ public class XMLController implements Serializable {
   /**
    * read in XML from item list (comma separated id string)
    */
-  private void itemBank()
+  private void itemBank(String displayName)
   {
     xmlBean.setId(id); // this will be an item list
     if (id != null && id.length() > 0)
@@ -305,7 +305,7 @@ public class XMLController implements Serializable {
       {
         ids[i] = st.nextToken();
       }
-      Document doc = qtiService.getExportedItemBank(ids, qtiVersion);
+      Document doc = qtiService.getExportedItemBank(ids, qtiVersion, displayName);
       xmlBean.setDescription(
         "Exported QTI XML produced by Sakai's Tests and Quizzes tool (Samigo)");
       xmlBean.setName("object bank for items " + id); // get from document later
