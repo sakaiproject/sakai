@@ -36,8 +36,6 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
 @AllArgsConstructor
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
