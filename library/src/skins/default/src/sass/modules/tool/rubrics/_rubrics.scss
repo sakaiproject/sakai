@@ -678,6 +678,15 @@ div.collapse-toggle-buttons > button {
     padding: 0.5rem;
 }
 
+sakai-rubric-summary{
+    div.summary-top-card {
+        margin-top: 1em;
+    }
+    div.card-body {
+        background-color: var(--sakai-background-color-2);
+    }
+}
+
 // TODO: This is a hack to get the rubrics working in the new UI(Boosttrap-5)
 .arrow-1 {
     position: absolute;

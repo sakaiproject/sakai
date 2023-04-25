@@ -78,10 +78,15 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
                         <tr>
                           ${c.ratings.map(r => html`
                             <th class="rubrics-summary-table-cell">
-                                <div>${r.points} <sr-lang key="points">points</sr-lang></div>
+                                <div>
+                                    ${this.rubric.weighted ? html`
+                                      (${r.weightedPoints})        
+                                    ` : html``}
+                                    ${r.points} 
+                                    <sr-lang key="points">points</sr-lang></div>
                                 <div class="summary-rating-name" title="${r.title}">${this._limitCharacters(r.title, 20)}</div>
                             </th>
-                            ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.points) > 0 ? html`
+                            ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.weightedPoints) > 0 ? html`
                               <th class="rubrics-summary-table-cell"><sr-lang key="adjusted_score">adjustedscore</sr-lang></th>
                             ` : ""}
                           `)}
@@ -92,8 +97,8 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
                         <tr>
                           ${c.ratings.map(r => html`
                             <td class="points-${r.points} rubrics-summary-table-cell point-cell-${c.id}">${this._getACount(c.id, r.id)}</td>
-                            ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.points) > 0 ? html`
-                              <td class="rubrics-summary-table-cell">${this._getCustomCount(c.id, r.points)}</td>
+                            ${this.association.parameters.fineTunePoints && this._getCustomCount(c.id, r.weightedPoints) > 0 ? html`
+                              <td class="rubrics-summary-table-cell">${this._getCustomCount(c.id, r.weightedPoints)}</td>
                             ` : html``}
                           `)}
                           <td class="rubrics-summary-table-cell rubrics-summary-average-cell d-none">${this._getPointsAverage(c.id)}</td>
@@ -246,7 +251,8 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
   _doesScoreMatchRating(score, criterionId, ratingId) {
 
     const criterion = this.criteria.find(c => c.id === criterionId);
-    return criterion.ratings.some(r => r.points === parseInt(score) && r.id === ratingId);
+    //We can always use weightedPoints because it will simply be the normal value if the rubric is not weighted.
+    return criterion.ratings.some(r => r.weightedPoints === parseFloat(score) && r.id === ratingId);
   }
 
   _getPointsAverage(criterionId) {
@@ -305,14 +311,15 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
     return Math.sqrt(total).toFixed(2);
   }
 
-  _getCustomCount(criterionId, floorPoints) {
+  _getCustomCount(criterionId, floorPointsParam) {
 
     let ceilingPoints = 5000;
     const criterion = this.criteria.find(c => c.id === criterionId);
+    const floorPoints = parseFloat(floorPointsParam);
     criterion.ratings.every(r => {
 
-      if (r.points > parseInt(floorPoints)) {
-        ceilingPoints = r.points;
+      if (r.weightedPoints > floorPoints) {
+        ceilingPoints = r.weightedPoints;
         return false;
       }
       return true;
@@ -322,7 +329,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
 
       ev.criterionOutcomes.forEach(oc => {
 
-        if (oc.criterionId === parseInt(criterionId) && oc.points > parseInt(floorPoints) && oc.points < ceilingPoints) {
+        if (oc.criterionId === parseFloat(criterionId) && oc.points > floorPoints && oc.points < ceilingPoints) {
           total = total + 1;
         }
       });
