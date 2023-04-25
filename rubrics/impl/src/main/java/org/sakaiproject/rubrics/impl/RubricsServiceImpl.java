@@ -308,6 +308,15 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 log.warn("Failed to set the siteTitle on rubric bean: {}", iue.toString());
             }
         }
+        for (CriterionTransferBean criterion : bean.getCriteria()) {
+            for (RatingTransferBean rating : criterion.getRatings()) {
+                if (bean.getWeighted()){
+                    rating.setWeightedPoints(rating.getPoints() * (criterion.getWeight() / 100D));
+                } else {
+                    rating.setWeightedPoints(rating.getPoints());
+                }
+            }
+        }
         return bean;
     }
 
@@ -619,7 +628,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return rubricRepository.findById(rubricId).map(rubric -> {
 
             String currentUserId = userDirectoryService.getCurrentUser().getId();
-
             if (rubric.getShared()
                 || isEditor(rubric.getOwnerId())
                 || isEvaluee(rubric.getOwnerId())
