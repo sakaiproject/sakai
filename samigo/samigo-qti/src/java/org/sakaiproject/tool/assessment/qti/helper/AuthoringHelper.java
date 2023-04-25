@@ -308,24 +308,36 @@ public class AuthoringHelper
    * Get an object bank of items in Document form.
    *
    * @param itemIds array of the the item ids
+   * @param displayName question pool name
    * @return the Document with the item bank data
    */
-  public Document getItemBank(String[] itemIds)
+  public Document getItemBank(String[] itemIds, String displayName)
   {
     Document objectBank = XmlUtil.createDocument();
 
     Element root = objectBank.createElement("questestinterop");
-    Element ob = objectBank.createElement("objectbank");
+    Element assessment = objectBank.createElement("assessment");
     String objectBankIdent = "object" + Math.random();
-    ob.setAttribute("ident", objectBankIdent);
+    assessment.setAttribute("ident", objectBankIdent);
+    assessment.setAttribute("title", displayName);
+
+    //creating a fictitious section which include question pool items
+    Element section = objectBank.createElement("section");
+    String sectionIdent = "section";
+    section.setAttribute("ident", sectionIdent);
+    String sectionTitle = "Default";
+    section.setAttribute("title", sectionTitle);
+
     for (int i = 0; i < itemIds.length; i++)
     {
       Document itemDoc = getItem(itemIds[i]);
       Element itemElement = itemDoc.getDocumentElement();
       Node itemImport = objectBank.importNode(itemElement, true);
-      ob.appendChild(itemImport);
+      section.appendChild(itemImport);
     }
-    root.appendChild(ob);
+
+    assessment.appendChild(section);
+    root.appendChild(assessment);
     objectBank.appendChild(root);
 
     return objectBank;
@@ -747,17 +759,39 @@ public class AuthoringHelper
       throw new RuntimeException(e);
     }
   }
-  
+
   /**
-  * Import an assessment XML document in QTI format, extract & persist the data.
+   * Import an XML document in QTI format, extract & persist the data.
+   * @param document the XML document in QTI format
+   * @return a persisted pool
+   */
+  public QuestionPoolFacade createImportedQuestionPool(Document document) {
+      return createImportedQuestionPool(document, null);
+  }
+
+  public QuestionPoolFacade createImportedQuestionPool(Document document, String unzipLocation) {
+      return createImportedQuestionPool(document, unzipLocation, false, null);
+  }
+
+  public QuestionPoolFacade createImportedQuestionPool(Document document, String unzipLocation, boolean isRespondus, List failedMatchingQuestions) {
+      return createImportedQuestionPool(document, unzipLocation, null, isRespondus, failedMatchingQuestions, null);
+  }
+
+  public QuestionPoolFacade createImportedQuestionPool(Document document, String unzipLocation, String templateId, String siteId) {
+      return createImportedQuestionPool(document, unzipLocation, templateId, false, null, siteId);
+  }
+
+  /**
+  * Import an XML document in QTI format, extract & persist the data.
   * import process assumes assessment structure, not objectbank or itembank
-  * @param document the assessment XML document in QTI format
-  * @return a persisted assessment
+  * @param document the XML document in QTI format
+  * @return a persisted pool
   */
-   public QuestionPoolFacade createImportedQuestionPool(Document document) 
+  public QuestionPoolFacade createImportedQuestionPool(Document document, String unzipLocation, String templateId, boolean isRespondus, List failedMatchingQuestions, String siteId)
    {
  	QuestionPoolFacade questionpool = new QuestionPoolFacade();
  	QuestionPoolService questionPoolService = new QuestionPoolService();
+    ItemFacade item = new ItemFacade();
  	
  	try
  	{
@@ -766,6 +800,7 @@ public class AuthoringHelper
 
  	  // create the questionpool as an assessment
  	  ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
+ 	  exHelper.setUnzipLocation(unzipLocation);
  	  ItemService itemService = new ItemService();
  	  // we need to remove a default namespace if present
   	  Document removeNamespace = exHelper.getTransformDocument(exHelper.REMOVE_NAMESPACE_TRANSFORM);
@@ -779,7 +814,7 @@ public class AuthoringHelper
   	  }
   	  // else continue;
 
- 	  Map assessmentMap = exHelper.mapAssessment(assessmentXml);
+ 	  Map assessmentMap = exHelper.mapAssessment(assessmentXml, isRespondus);
  	  String title = (String) assessmentMap.get("title");
  	  
  	  // save questionpool with required info only at this point
@@ -826,7 +861,7 @@ public class AuthoringHelper
        
       for (int sec = 0; sec < sectionListSize; sec++) {
            Section sectionXml = (Section) sectionList.get(sec);
-           Map sectionMap = exHelper.mapSection(sectionXml);
+           //Map sectionMap = exHelper.mapSection(sectionXml, isRespondus);
            // for single section, do not create subpool
 
            List itemList = exHelper.getItemXmlList(sectionXml);
@@ -835,14 +870,24 @@ public class AuthoringHelper
                log.debug("items=" + itemList.size());
                Item itemXml = (Item) itemList.get(itm);
 
-               ItemFacade item = new ItemFacade();
-               exHelper.updateItem(item, itemXml);
+               item = new ItemFacade();
+               try {
+                   exHelper.updateItem(item, itemXml, isRespondus);
+               } catch (RespondusMatchingException rme) {
+                   if (failedMatchingQuestions != null) {
+                       failedMatchingQuestions.add(itm + 1);
+                   }
+               }
                // make sure required fields are set
                item.setCreatedBy(me);
                item.setCreatedDate(questionpool.getLastModified());
                item.setLastModifiedBy(me);
                item.setLastModifiedDate(questionpool.getLastModified());
                item.setStatus(ItemDataIfc.ACTIVE_STATUS);
+
+               // Item Attachment
+               exHelper.makeItemAttachmentSet(item);
+
                item = itemService.saveItem(item);
                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
                
@@ -856,10 +901,15 @@ public class AuthoringHelper
       // need error message if more than one section, for now
        
       // update the questionpoool with all sections and items
-      questionPoolService.savePool(questionpool);
+      questionpool = questionPoolService.savePool(questionpool);
        
  	  return questionpool;		
  	}
+    catch (RespondusMatchingException rme) {
+        log.error(rme.getMessage(), rme);
+        questionPoolService.removeQuestionFromPool(item.getItemId(), questionpool.getQuestionPoolId());
+        throw new RespondusMatchingException(rme);
+    }
  	catch (Exception e)
  	{
  		log.error(e.getMessage(), e);
