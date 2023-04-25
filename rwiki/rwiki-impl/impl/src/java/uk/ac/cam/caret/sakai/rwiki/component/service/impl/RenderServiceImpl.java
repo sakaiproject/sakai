@@ -120,7 +120,7 @@ public class RenderServiceImpl implements RenderService
 				
 				boolean showGroups;
 				try {
-					showGroups = objectService.checkUpdate(objectService.getRWikiObject(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm()));
+					showGroups = objectService.checkAdminPermission(objectService.getRWikiObject(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm()));
 				} catch (ReadPermissionException ex) {
 					showGroups = false;
 				} catch (UpdatePermissionException ex) {

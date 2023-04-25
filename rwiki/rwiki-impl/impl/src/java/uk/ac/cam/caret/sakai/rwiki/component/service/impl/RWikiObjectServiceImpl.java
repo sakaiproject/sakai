@@ -332,35 +332,34 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				}
 				return returnable;
 			}
-			else if(returnable.getPageGroupsAsArray() != null && name.indexOf("/home") == -1)
-			{
-				Site site = null;
-				String siteId = wikiSecurityService.getSiteId();
-				try {
-					site = siteService.getSite(siteId);
-				} catch (IdUnusedException idEx) {
-					log.warn("Site not found for id: {}", siteId);
-				}
-				String[] groupIds = returnable.getPageGroupsAsArray();
-				String owner = returnable.getOwner();
-				if (user.equals(owner) || securityService.isSuperUser()) {
-					return returnable;
-				} else {
-					for (String groupId : groupIds) {
-						Group group = site.getGroup(groupId);
-						if (group != null) {
-							Member currentMember = group.getMember(user);
-							if (currentMember != null) {
-								return returnable;
-							}
-						}
-					}
-				}
-				throw new ReadPermissionException(user, returnable);
-			}
 			else if (wikiSecurityService
 					.checkRead((RWikiEntity) getEntity(returnable)))
 			{
+				if(returnable.getPageGroupsAsArray() != null && name.indexOf("/home") == -1) {
+					Site site = null;
+					String siteId = wikiSecurityService.getSiteId();
+					try {
+						site = siteService.getSite(siteId);
+					} catch (IdUnusedException idEx) {
+						log.warn("Site not found for id: {}", siteId);
+					}
+					String[] groupIds = returnable.getPageGroupsAsArray();
+					String owner = returnable.getOwner();
+					if (user.equals(owner) || securityService.isSuperUser()) {
+						return returnable;
+					} else {
+						for (String groupId : groupIds) {
+							Group group = site.getGroup(groupId);
+							if (group != null) {
+								Member currentMember = group.getMember(user);
+								if (currentMember != null) {
+									return returnable;
+								}
+							}
+						}
+					}
+					throw new ReadPermissionException(user, returnable);
+				}
 				// Allowed to read this object
 				return returnable;
 			}
@@ -486,7 +485,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		RWikiHistoryObject rwho = null;
 
 		if (pageGroups != null) {
-			rwo.setPageGroupsAsString(StringUtils.join(pageGroups, ","));
+			if (pageGroups.length == 0) {
+				rwo.setPageGroupsAsString(null);
+			} else {
+				rwo.setPageGroupsAsString(StringUtils.join(pageGroups, ","));
+			}
 		}
 		if (wikiSecurityService.checkUpdate((RWikiEntity) getEntity(rwo)))
 		{
