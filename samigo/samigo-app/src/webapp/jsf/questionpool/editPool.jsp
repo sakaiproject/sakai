@@ -173,6 +173,14 @@ function textCounter(field, maxlimit) {
   <h:outputText id="previewq" value="#{questionPoolMessages.preview}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
 </h:commandLink>
+<!-- Export Pool -->
+<h:outputText title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring != 'true'}" action="#{questionpool.startExportPool}" >
+  <h:outputText id="export" value="#{questionPoolMessages.t_exportPool}"/>
+  <f:param name="action" value="exportPool" />
+  <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+  <f:param name="outCome" value="editPool"/>
+</h:commandLink>
 </h:panelGroup>
 </h:panelGrid>
 </h4>
@@ -220,6 +228,13 @@ function textCounter(field, maxlimit) {
  <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />
  
  <h:commandButton title="#{questionPoolMessages.t_moveQuestion}" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring != 'true'}" id="moveSubmit" immediate="true" action="#{questionpool.startMoveQuestions}" value="#{questionPoolMessages.move}">
+ </h:commandButton>
+ 
+ <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />
+ 
+ <h:commandButton title="#{questionPoolMessages.exp_q}" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring != 'true'}" id="exportSubmit" immediate="true" action="#{questionpool.startExportQuestions}" value="#{questionPoolMessages.t_exportPool}">
+  <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+  <f:param name="outCome" value="editPool"/>
  </h:commandButton>
  
  </div>

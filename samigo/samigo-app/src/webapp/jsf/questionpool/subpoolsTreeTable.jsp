@@ -114,6 +114,15 @@
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 
+<%-- Export Pool --%>
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring != 'true'}" action="#{questionpool.startExportPool}" >
+  <h:outputText id="export" value="#{questionPoolMessages.t_exportPool}"/>
+  <f:param name="action" value="exportPool" />
+  <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="outCome" value="editPool"/>
+</h:commandLink>
+
  <f:verbatim></span></f:verbatim>
 
 </h:panelGroup>
