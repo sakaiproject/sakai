@@ -48,6 +48,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
@@ -56,6 +57,7 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -462,59 +464,102 @@ public class XMLImportBean implements Serializable {
    * Value change on upload
    * @param e the event
    */
-  public void importPoolFromQti(ValueChangeEvent e)
-  {
+  public void importPool(ValueChangeEvent e) {
+    String sourceType = ContextUtil.lookupParam("sourceType");
     String uploadFile = (String) e.getNewValue();
 
-    try
-    {
-    	processAsPoolFile(uploadFile);
+    if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
+        Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "20480"));
+        String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
+        FacesMessage message = new FacesMessage(sizeTooBigMessage);
+        FacesContext.getCurrentInstance().addMessage(null, message);
+        // remove unsuccessful file
+        log.debug("****Clean up file: {}", uploadFile);
+        File upload = new File(uploadFile);
+        upload.delete();
+        authorBean.setImportOutcome("importPool");
+        return;
     }
-    catch (Exception ex)
-    {
-      FacesMessage message = new FacesMessage( rb.getString("import_err_pool") );
-      FacesContext.getCurrentInstance().addMessage(null, message);
+    authorBean.setImportOutcome("author");
+
+    if ("2".equals(sourceType)) {
+        if(uploadFile.toLowerCase().endsWith(".zip")) {
+            isCP = true;
+            importPool(uploadFile, true, true);
+        } else {
+            isCP = false;
+            importPool(uploadFile, false, true);
+        }
+    } else {
+         if(uploadFile.toLowerCase().endsWith(".zip")) {
+             isCP = true;
+             importPool(uploadFile,true, false);
+         } else {
+             isCP = false;
+             importPool(uploadFile, false, false);
+         }
     }
   }
-   
-  
+
   /**
    * Process uploaded QTI XML 
    * assessment as question pool
- * @throws Exception 
    */
-  private void processAsPoolFile(String uploadFile) throws Exception
-  {
-    itemAuthorBean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL); // save to questionpool
+  private void importPool(String uploadFile, boolean isCP, boolean isRespondus) {
 
     // Get the file name
     String fileName = uploadFile;
-
-    // Create a questionpool based on the uploaded assessment file
-    QuestionPoolFacade questionPool = createImportedQuestionPool(fileName, qtiVersion);
-
-    // remove uploaded file
-    try{
-      log.debug("****filename="+fileName);
-      File upload = new File(fileName);
-      boolean success = upload.delete();
-      if (!success)
-	log.error ("Failed to delete file " + fileName);
+    String unzipLocation = null;
+    boolean fileNotFound = false;
+    if (isCP) {
+        ImportService importService = new ImportService();
+        unzipLocation = importService.unzipImportFile(uploadFile);
+        fileName = unzipLocation + File.separator + importService.getQtiFilename();
     }
-    catch(Exception e){
-	log.error(e.getMessage(), e);
+
+    try {
+        processPoolFile(fileName, uploadFile, isRespondus);
+    } catch (FileNotFoundException fnfex) {
+        fileNotFound = true;
+        FacesMessage message = new FacesMessage( rb.getString("import_qti_not_found") );
+        FacesContext.getCurrentInstance().addMessage(null, message);
+    } catch (Exception ex) {
+        FacesMessage message = new FacesMessage( rb.getString("import_err") );
+        FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+    finally {
+        boolean success = false;
+        // remove unsuccessful file
+        if (!fileNotFound) {
+          log.debug("****Clean up file: {}", fileName);
+          File f1 = new File(fileName);
+          success = f1.delete();
+          if (!success) {
+            log.error("Failed to delete file {}", fileName);
+          }
+        }
+        if (isCP) {
+            File f2 = new File(uploadFile);
+            success = f2.delete();
+            if (!success) {
+                log.error("Failed to delete file {}", uploadFile);
+            }
+            File f3 = new File(unzipLocation);
+            deleteDirectory(f3);
+        }
     }
   }
   
   /**
-   * Create questionpool from uploaded QTI assessment XML
+   * Create questionpool from uploaded QTI XML
    * @param fullFileName file name and path
    * @param qti QTI version
+   * @param isRespondus true/false
+   * @param failedMatchingQuestions
    * @return
  * @throws Exception 
    */
-  private QuestionPoolFacade createImportedQuestionPool(String fullFileName, int qti) throws Exception
-  {
+  private QuestionPoolFacade createImportedQuestionPool(String fullFileName, int qti, boolean isRespondus, List failedMatchingQuestions) throws Exception {
     //trim = true so that xml processing instruction at top line, even if not.
     Document document;
 	try {
@@ -523,8 +568,12 @@ public class XMLImportBean implements Serializable {
 		throw(e);
 	}
     QTIService qtiService = new QTIService();
-    return qtiService.createImportedQuestionPool(document, qti);
-  }  
+    if (isCP) {
+        return qtiService.createImportedQuestionPool(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions);
+    } else {
+        return qtiService.createImportedQuestionPool(document, qti, null, isRespondus, failedMatchingQuestions);
+    }
+  }
   
   public QuestionPoolBean getQuestionPoolBean()
   {
@@ -544,5 +593,35 @@ public class XMLImportBean implements Serializable {
   public void setPathToData(String pathToData)
   {
     this.pathToData = pathToData;
-  }  
+  }
+
+  private void processPoolFile(String fileName, String uploadFile, boolean isRespondus) throws Exception {
+    itemAuthorBean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL); // save to questionpool
+
+    QuestionPoolService questionPoolService = new QuestionPoolService();
+    // Create a pool based on the uploaded file
+    List failedMatchingQuestions = new ArrayList();
+    QuestionPoolFacade questionPool = createImportedQuestionPool(fileName, qtiVersion, isRespondus, failedMatchingQuestions);
+    if (failedMatchingQuestions.size() > 0) {
+      String importedFilename = getImportedFilename(uploadFile);
+      StringBuffer sb = new StringBuffer("\"");
+      sb.append(importedFilename);
+      sb.append("\" ");
+      sb.append(rb.getString("respondus_matching_err_1"));
+      sb.append(" ");
+      for(int i = 0; i < failedMatchingQuestions.size() - 1; i++) {
+          sb.append(" ");
+          sb.append(failedMatchingQuestions.get(i));
+          sb.append(", ");
+      }
+      sb.append(failedMatchingQuestions.get(failedMatchingQuestions.size() - 1));
+      sb.append(". ");
+      sb.append(rb.getString("respondus_matching_err_2"));
+      FacesMessage message = new FacesMessage(sb.toString());
+      FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+    questionPool = questionPoolService.savePool(questionPool);
+    questionPoolBean.buildTree();
+  }
 }
