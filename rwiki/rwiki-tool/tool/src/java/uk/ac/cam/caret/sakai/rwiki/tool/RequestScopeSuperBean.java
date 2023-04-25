@@ -968,6 +968,6 @@ public class RequestScopeSuperBean
 	}
 
 	public boolean hasAdminPermission(){
-		return objectService.checkAdmin(getCurrentRWikiObject());
+		return objectService.checkAdminPermission(getCurrentRWikiObject());
 	}
 }

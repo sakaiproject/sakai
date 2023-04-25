@@ -350,6 +350,15 @@ public interface RWikiObjectService extends EntityProducer, EntityTransferrer, C
 	 * @return
 	 */
 	boolean checkAdmin(RWikiObject rwo);
+	
+	/**
+	 * check for admin permission (rwiki.admin) on the reference for the 
+	 * current user
+	 * 
+	 * @param rwo
+	 * @return
+	 */
+	boolean checkAdminPermission(RWikiObject rwo);
 
 	/**
 	 * Find all pages in the database just reture
