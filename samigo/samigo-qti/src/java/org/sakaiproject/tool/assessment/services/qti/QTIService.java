@@ -50,6 +50,8 @@ public class QTIService implements QTIServiceAPI
   {
   }
 
+    //IMPORTING ASSESSMENT
+
   /**
    * Import an assessment XML document in QTI format, extract & persist the data.
    * @param document the assessment XML document in QTI format
@@ -130,31 +132,76 @@ public class QTIService implements QTIServiceAPI
                                                 
     }
 
-  
-  /**
-   * Import an assessment XML document in QTI format, extract & persist the data.
-   * import process assumes assessment structure, not objectbank or itembank
-   * based on usage in other potential migration systems, Respondus, BlackBoard, etc.
-   * QTI version 2.x will probably focus on content packaging for question pools  
-   * @param document the assessment XML document in QTI format
-   * @param qtiVersion QTIVersion.VERSION_1_2;
-   * @return a persisted assessment
-   */  
-  public QuestionPoolFacade createImportedQuestionPool(Document document, int qtiVersion)
-  {
-	  testQtiVersion(qtiVersion);
+    // IMPORTING QUESTION POOL
 
-	  try
-	  {
-		  AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-	      return helper.createImportedQuestionPool(document);
-	  }
-	  catch (Exception ex)
-	  {
-		  throw new QTIServiceException(ex);
-	  }
-  } 
-  
+    /**
+     * Import an XML document in QTI format, extract & persist the data.
+     * @param document the assessment XML document in QTI format
+     * @param qtiVersion either QTIVersion.VERSION_1_2 or QTIVersion.VERSION_2_0;
+     * @return a persisted pool
+     */
+    public QuestionPoolFacade createImportedQuestionPool(Document document, int qtiVersion) {
+      testQtiVersion(qtiVersion);
+
+      try {
+          AuthoringHelper helper = new AuthoringHelper(qtiVersion);
+          return helper.createImportedQuestionPool(document);
+      }
+      catch (Exception ex) {
+          throw new QTIServiceException(ex);
+      }
+    }
+
+    public QuestionPoolFacade createImportedQuestionPool(Document document, int qtiVersion, String unzipLocation, String templateId) {
+      return createImportedQuestionPool(document, qtiVersion, unzipLocation, templateId, null);
+    }
+
+    public QuestionPoolFacade createImportedQuestionPool(Document document, int qtiVersion, String unzipLocation, String templateId, String siteId) {
+      testQtiVersion(qtiVersion);
+
+      try {
+          AuthoringHelper helper = new AuthoringHelper(qtiVersion);
+          return helper.createImportedQuestionPool(document, unzipLocation, templateId, siteId);
+      } catch (Exception ex) {
+          throw new QTIServiceException(ex);
+      }
+    }
+
+    /**
+     * Import an XML document in QTI format, extract & persist the data.
+     * @param document the XML document in QTI format
+     * @param qtiVersion either QTIVersion.VERSION_1_2 or QTIVersion.VERSION_2_0;
+     * @return a persisted pool
+     */
+    public QuestionPoolFacade createImportedQuestionPool(Document document, int qtiVersion, String unzipLocation) {
+      return createImportedQuestionPool(document, qtiVersion, unzipLocation, false, null);
+    }
+
+    public QuestionPoolFacade createImportedQuestionPool(Document document, int qtiVersion, String unzipLocation, boolean isRespondus, List failedMatchingQuestions) {
+      testQtiVersion(qtiVersion);
+
+      try {
+          AuthoringHelper helper = new AuthoringHelper(qtiVersion);
+          return helper.createImportedQuestionPool(document, unzipLocation, isRespondus, failedMatchingQuestions);
+      } catch (Exception ex) {
+          throw new QTIServiceException(ex);
+      }
+    }
+
+    /**
+     * Import an assessment XML document in QTI format, extract & persist the data.
+     * @param documentPath the pathname to a file with the assessment XML document in QTI format
+     * @param qtiVersion either 1=QTI VERSION 1.2  or 2=QTI Version 2.0
+     * @param siteId the site the pool will be associated with
+     * @return a persisted pool
+     */
+    public QuestionPoolFacade createImportedQuestionPool(String documentPath, int qtiVersion, String siteId) {
+      try {
+          return createImportedQuestionPool(XmlUtil.readDocument(documentPath, true), qtiVersion, null, null, siteId);
+      } catch (Exception e) {
+          throw new QTIServiceException(e);
+      }
+    }
 
   /**
    * Import an item XML document in QTI format, extract & persist the data.
@@ -249,16 +296,17 @@ public class QTIService implements QTIServiceAPI
    *
    * @param itemIds an array of item ids
    * @param qtiVersion either QTIVersion.VERSION_1_2 or QTIVersion.VERSION_2_0;
+   * @param displayName question pool name
    * @return the Document with the item bank
    */
-  public Document getExportedItemBank(String itemIds[], int qtiVersion)
+  public Document getExportedItemBank(String itemIds[], int qtiVersion, String displayName)
   {
     testQtiVersion(qtiVersion);
 
     try
     {
       AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-      return helper.getItemBank( itemIds);
+      return helper.getItemBank( itemIds, displayName);
     }
     catch (Exception ex)
     {
