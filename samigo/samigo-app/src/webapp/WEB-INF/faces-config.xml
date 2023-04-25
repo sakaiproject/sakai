@@ -430,6 +430,10 @@
       <to-view-id>/jsf/qti/chooseExportType.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>choosePoolExportType</from-outcome>
+      <to-view-id>/jsf/qti/choosePoolExportType.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>exportDenied</from-outcome>
       <to-view-id>/jsf/qti/exportDenied.jsp</to-view-id>
     </navigation-case>

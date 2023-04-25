@@ -25,11 +25,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -46,16 +48,23 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.w3c.dom.Document;
-import org.w3c.dom.Text;
 import org.w3c.dom.Element;
+import org.w3c.dom.Text;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -78,11 +87,16 @@ public class ManifestGenerator {
 	private static final String EXPORT_ASSESSMENT_XML = EXPORT_ASSESSMENT + ".xml";
 	private Document document;
 	private String assessmentId;
+	private Long questionPoolId;
 	private HashMap contentMap = new HashMap();
 	private ContentHostingService contentHostingService;
 
 	public ManifestGenerator(String assessmentId) {
 		this.assessmentId = assessmentId;
+	}
+
+	public ManifestGenerator(Long questionPoolId) {
+		this.questionPoolId = questionPoolId;
 	}
 
 	public String getManifest() {
@@ -148,68 +162,65 @@ public class ManifestGenerator {
 
 	private void getAttachments() {
 		try {
-			AssessmentService assessmentService = new AssessmentService();
-			AssessmentFacade assessment = assessmentService
-					.getAssessment(assessmentId);
+			if (StringUtils.isNotBlank(assessmentId)) {
+				AssessmentService assessmentService = new AssessmentService();
+				AssessmentFacade assessment = assessmentService
+						.getAssessment(assessmentId);
 
-			// Assessment attachment
-			AssessmentData assessmentData = (AssessmentData) assessment
-					.getData();
-			Set assessmentAttachmentSet = assessmentData
-					.getAssessmentAttachmentSet();
-			Iterator assessmentAttachmentIter = assessmentAttachmentSet
-					.iterator();
-			byte[] content = null;
-			String resourceId = null; // resoureId is also the filename (whole
-			// path) in the zip file
-			while (assessmentAttachmentIter.hasNext()) {
-				AssessmentAttachment assessmentAttachment = (AssessmentAttachment) assessmentAttachmentIter
-						.next();
-				resourceId = assessmentAttachment.getResourceId();
-				content = contentHostingService.getResource(resourceId)
-						.getContent();
-				contentMap.put(resourceId.replace(" ", ""), content);
-			}
-
-			// Section attachment
-			Set sectionSet = assessment.getSectionSet();
-			Iterator sectionIter = sectionSet.iterator();
-			SectionData sectionData = null;
-			Set sectionAttachmentSet = null;
-			Iterator sectionAttachmentIter = null;
-			SectionAttachment sectionAttachment = null;
-			Set itemSet = null;
-			ItemData itemData = null;
-			Set itemAttachmentSet = null;
-			Iterator itemAttachmentIter = null;
-			ItemAttachment itemAttachment = null;
-			while (sectionIter.hasNext()) {
-				sectionData = (SectionData) ((SectionFacade) sectionIter.next())
+				// Assessment attachment
+				AssessmentData assessmentData = (AssessmentData) assessment
 						.getData();
-				sectionAttachmentSet = sectionData.getSectionAttachmentSet();
-				sectionAttachmentIter = sectionAttachmentSet.iterator();
-				while (sectionAttachmentIter.hasNext()) {
-					sectionAttachment = (SectionAttachment) sectionAttachmentIter
+				Set assessmentAttachmentSet = assessmentData
+						.getAssessmentAttachmentSet();
+				Iterator assessmentAttachmentIter = assessmentAttachmentSet
+						.iterator();
+				byte[] content = null;
+				String resourceId = null; // resoureId is also the filename (whole
+				// path) in the zip file
+				while (assessmentAttachmentIter.hasNext()) {
+					AssessmentAttachment assessmentAttachment = (AssessmentAttachment) assessmentAttachmentIter
 							.next();
-					resourceId = sectionAttachment.getResourceId();
+					resourceId = assessmentAttachment.getResourceId();
 					content = contentHostingService.getResource(resourceId)
 							.getContent();
 					contentMap.put(resourceId.replace(" ", ""), content);
 				}
 
-				itemSet = sectionData.getItemSet();
-				Iterator itemIter = itemSet.iterator();
-				while (itemIter.hasNext()) {
-					itemData = (ItemData) itemIter.next();
-					itemAttachmentSet = itemData.getItemAttachmentSet();
-					itemAttachmentIter = itemAttachmentSet.iterator();
-					while (itemAttachmentIter.hasNext()) {
-						itemAttachment = (ItemAttachment) itemAttachmentIter
-								.next();
-						resourceId = itemAttachment.getResourceId();
-						content = contentHostingService.getResource(resourceId)
-								.getContent();
-						contentMap.put(resourceId.replace(" ", ""), content);
+				// Section attachment
+				Set<SectionFacade> sectionSet = assessment.getSectionSet();
+				for (SectionFacade sectionFacade : sectionSet) {
+					SectionData sectionData = (SectionData) sectionFacade.getData();
+					Set<SectionAttachment> sectionAttachmentSet = sectionData.getSectionAttachmentSet();
+					for (SectionAttachment sectionAttachment : sectionAttachmentSet) {
+						contentMap.put(sectionAttachment.getResourceId().replace(" ", ""), 
+							contentHostingService.getResource(sectionAttachment.getResourceId()).getContent());
+					}
+					for (ItemData itemData : (Set<ItemData>) sectionData.getItemSet()) {
+						Set<ItemAttachment> attachments = itemData.getItemAttachmentSet().stream()
+								.map(attachment -> (ItemAttachment) attachment)
+								.collect(Collectors.toSet());
+						for (ItemAttachment itemAttachment : attachments) {
+							contentMap.put(itemAttachment.getResourceId().replace(" ", ""), 
+								contentHostingService.getResource(itemAttachment.getResourceId()).getContent());
+						}
+					}
+				}
+			} else if (StringUtils.isNotBlank(questionPoolId.toString())) {
+				QuestionPoolService questionPoolService = new QuestionPoolService();
+
+				// Question pool attachment
+				List<ItemFacade> items = questionPoolService.getAllItems(questionPoolId);
+				for (ItemFacade itemFacade : items) {
+					for (ItemAttachment itemAttachment : (Set<ItemAttachment> ) itemFacade.getItemAttachmentSet()) {
+						contentMap.put(itemAttachment.getResourceId().replace(" ", ""), 
+							contentHostingService.getResource(itemAttachment.getResourceId()).getContent());
+					}
+					Set<ItemAttachment> attachments = itemFacade.getData().getItemAttachmentSet().stream()
+							.map(attachment -> (ItemAttachment) attachment)
+							.collect(Collectors.toSet());
+					for (ItemAttachment itemAttachment : attachments) {
+						contentMap.put(itemAttachment.getResourceId().replace(" ", ""), 
+							contentHostingService.getResource(itemAttachment.getResourceId()).getContent());
 					}
 				}
 			}
@@ -226,70 +237,73 @@ public class ManifestGenerator {
 	}
 	
 	private void getFCKAttachments() {
-		AssessmentService assessmentService = new AssessmentService();
-		AssessmentFacade assessment = assessmentService
-				.getAssessment(assessmentId);
+		if (StringUtils.isNotBlank(assessmentId)) {
+			AssessmentService assessmentService = new AssessmentService();
+			AssessmentFacade assessment = assessmentService
+					.getAssessment(assessmentId);
 
-		// Assessment FCK attachment
-		AssessmentData assessmentData = (AssessmentData) assessment.getData();
-		processDescription(assessmentData.getDescription());
-		processDescription(assessmentData.getAssessmentAccessControl().getSubmissionMessage());
-		
-		// Section FCK attachment
-		Set sectionSet = assessment.getSectionSet();
-		Iterator sectionIter = sectionSet.iterator();
-		SectionData sectionData = null;
-		Set itemSet = null;
-		ItemData itemData = null;
+			// Assessment FCK attachment
+			AssessmentData assessmentData = (AssessmentData) assessment.getData();
+			processDescription(assessmentData.getDescription());
+			processDescription(assessmentData.getAssessmentAccessControl().getSubmissionMessage());
 
-		while (sectionIter.hasNext()) {
-			sectionData = (SectionData) ((SectionFacade) sectionIter.next())
-					.getData();
-			processDescription(sectionData.getDescription());
+			// Section FCK attachment
+			Set<SectionFacade> sectionSet = assessment.getSectionSet();
+			for (SectionFacade section : sectionSet) {
+				SectionData sectionData = (SectionData) section.getData();
+				processDescription(sectionData.getDescription());
 
-			itemSet = sectionData.getItemSet();
-			Iterator itemIter = itemSet.iterator();
-			while (itemIter.hasNext()) {
-				itemData = (ItemData) itemIter.next();
-				// Question Text
-				if (itemData.getTypeId().equals(TypeIfc.MATCHING) || itemData.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
-					processDescription(itemData.getInstruction());
-				}
-				Set itemTextSet = itemData.getItemTextSet();
-				ItemText itemText = null;
-				Iterator itemTextIter = itemTextSet.iterator();
-				while (itemTextIter.hasNext()) {
-					itemText = (ItemText) itemTextIter.next();
-					processDescription(itemText.getText());
-					
-					// Answer
-					Set answerSet = itemText.getAnswerSet();
-					Answer answer = null;
-					Iterator answerIter = answerSet.iterator();
-					while (answerIter.hasNext()) {
-						answer = (Answer) answerIter.next();
-						processDescription(answer.getText());
-						
-						// Answer Feedback
-						Set answerFeedbackSet = answer.getAnswerFeedbackSet();
-						AnswerFeedback answerFeedback = null;
-						Iterator answerFeedbackIter = answerFeedbackSet.iterator();
-						while (answerFeedbackIter.hasNext()) {
-							answerFeedback = (AnswerFeedback) answerFeedbackIter.next();
-							processDescription(answerFeedback.getText());
-						}
-					}
-				}
-				
-				// Feedback
-				Set itemFeedbackSet = itemData.getItemFeedbackSet();
-				ItemFeedback itemFeedback = null;
-				Iterator itemFeedbackIter = itemFeedbackSet.iterator();
-				while (itemFeedbackIter.hasNext()) {
-					itemFeedback = (ItemFeedback) itemFeedbackIter.next();
-					processDescription(itemFeedback.getText());
+				Set itemSet = sectionData.getItemSet();
+				for (ItemData itemData : (Set<ItemData>) itemSet) {
+					processItemData(itemData);
 				}
 			}
+		} else if (StringUtils.isNotBlank(questionPoolId.toString())) {
+			QuestionPoolService questionPoolService = new QuestionPoolService();
+			QuestionPoolFacade questionPool = questionPoolService.getPool(questionPoolId, AgentFacade.getAgentString());
+
+			// Question pool FCK attachment
+			QuestionPoolData questionPoolData = (QuestionPoolData) questionPool.getData();
+			processDescription(questionPoolData.getDescription());
+
+			List<ItemFacade> items = questionPoolService.getAllItems(questionPoolId);
+			Set<ItemFacade> itemSetFacade = new HashSet<>(items);
+
+			for (ItemFacade itemFacade : itemSetFacade) {
+				ItemData itemData = (ItemData) itemFacade.getData();
+				processItemData(itemData);
+			}
+		}
+	}
+
+	private void processItemData (ItemData itemData) {
+
+		// Question Text
+		if (itemData.getTypeId().equals(TypeIfc.MATCHING) || itemData.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+			processDescription(itemData.getInstruction());
+		}
+
+		Set itemTextSet = itemData.getItemTextSet();
+		for (ItemText itemText : (Set<ItemText>) itemTextSet) {
+			processDescription(itemText.getText());
+
+			// Answer
+			Set answerSet = itemText.getAnswerSet();
+			for (Answer answer : (Set<Answer>)answerSet) {
+				processDescription(answer.getText());
+
+				// Answer Feedback
+				Set answerFeedbackSet = answer.getAnswerFeedbackSet();
+				for (AnswerFeedback answerFeedback : (Set<AnswerFeedback>) answerFeedbackSet) {
+					processDescription(answerFeedback.getText());
+				}
+			}
+		}
+
+		// Feedback
+		Set itemFeedbackSet = itemData.getItemFeedbackSet();
+		for (ItemFeedback itemFeedback : (Set<ItemFeedback>) itemFeedbackSet) {
+			processDescription(itemFeedback.getText());
 		}
 	}
 

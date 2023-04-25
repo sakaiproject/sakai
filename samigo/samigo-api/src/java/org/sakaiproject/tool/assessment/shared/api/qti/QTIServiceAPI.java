@@ -96,8 +96,9 @@ public interface QTIServiceAPI
    *
    * @param itemIds an array of item ids
    * @param qtiVersion either 1=QTI VERSION 1.2  or 2=QTI Version 2.0
+   * @param displayName question pool name
    * @return the Document with the item bank
    */
-  public Document getExportedItemBank(String itemIds[], int qtiVersion);
+  public Document getExportedItemBank(String itemIds[], int qtiVersion, String displayName);
 
 }
