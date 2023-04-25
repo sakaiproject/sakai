@@ -27,9 +27,15 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -49,14 +55,27 @@ public class ChooseExportTypeListener implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     String assessmentId = (String) ContextUtil.lookupParam("assessmentId");
-    log.info("ExportAssessmentListener assessmentId="+assessmentId);
-    
-    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
-    "assessmentBean");
-    AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
-    assessmentBean.setAssessmentId(assessment.getAssessmentBaseId().toString());
-    assessmentBean.setTitle(assessment.getTitle());
+    String qpid = (String) ContextUtil.lookupParam("qpid");
+
+    if (StringUtils.isNotBlank(assessmentId)) {
+        log.info("ExportAssessmentListener assessmentId= {}", assessmentId);
+        AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+        AssessmentService assessmentService = new AssessmentService();
+        AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
+        assessmentBean.setAssessmentId(assessment.getAssessmentBaseId().toString());
+        assessmentBean.setTitle(assessment.getTitle());
+    } else if (StringUtils.isNotBlank(qpid)) {
+        log.info("ExportAssessmentListener qpid= {}", qpid);
+        QuestionPoolBean questionPoolBean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
+        QuestionPoolService questionPoolService = new QuestionPoolService();
+        QuestionPoolFacade questionPool = questionPoolService.getPool(Long.parseLong(qpid), AgentFacade.getAgentString());
+        questionPoolBean.setQuestionPoolId(questionPool.getQuestionPoolId().toString());
+        questionPoolBean.setName(questionPool.getTitle());
+        // set current pool
+        QuestionPoolDataBean pool = new QuestionPoolDataBean();
+        pool.setId(Long.parseLong(qpid));
+        questionPoolBean.setCurrentPool(pool);
+    }
   }
 
 }

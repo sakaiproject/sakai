@@ -100,19 +100,20 @@
 
 <!-- Share Pool -->
 <h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" value=" #{questionPoolMessages.separator} " />
-  <h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" id="sharelink" immediate="true" action="#{questionpoolshare.startSharePool}" >
+  <h:commandLink title="#{questionPoolMessages.t_sharePool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" id="sharelink" immediate="true" action="#{questionpoolshare.startSharePool}" >
   <h:outputText value="#{questionPoolMessages.t_sharePool}" />
   <f:param name="qpid" value="#{pool.questionPoolId}"/>           
 </h:commandLink>
 
-<%--
-<h:outputText value=" #{questionPoolMessages.separator} " />
-
-<h:commandLink title="" id="exportlink" immediate="true" action="#{questionpool.exportPool}">
-  <h:outputText id="export" value=""/>
+<%-- Export Pool --%>
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring != 'true'}" action="#{questionpool.startExportPool}" >
+  <h:outputText id="export" value="#{questionPoolMessages.t_exportPool}"/>
+  <f:param name="action" value="exportPool" />
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="outCome" value="poolList"/>
 </h:commandLink>
---%>
+
  </span>
 </h:panelGroup>
     </h:column>
