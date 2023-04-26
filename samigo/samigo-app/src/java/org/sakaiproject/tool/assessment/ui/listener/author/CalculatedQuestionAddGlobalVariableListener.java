@@ -76,10 +76,10 @@ public class CalculatedQuestionAddGlobalVariableListener implements ActionListen
      * @param item - an ItemBean, which contains all of the needed information 
      * about the CalculatedQuestion
      * @param globalVariableName
-     * @param fromui - boolean. Indicate if global variable has been added from ui.
+     * @param addedButNotExtracted - boolean. Indicate if global variable has been added but not extracted on UI.
      * @returns a List<String> of error messages to be displayed in the context messager.
      */
-    public List<String> validate(ItemBean item, String globalVariableName, boolean fromui) {
+    public List<String> validate(ItemBean item, String globalVariableName, boolean addedButNotExtracted) {
         List<String> errors = new ArrayList<String>();
 
         // validating globalVariableName
@@ -103,7 +103,7 @@ public class CalculatedQuestionAddGlobalVariableListener implements ActionListen
         if (!globalVariables.containsKey(globalVariableName)) {
             CalculatedQuestionGlobalVariableBean bean = new CalculatedQuestionGlobalVariableBean(globalVariableName);
             bean.setName(globalVariableName);
-            bean.setFromui(fromui);
+            bean.setAddedButNotExtracted(addedButNotExtracted);
             bean.setActive(true);
             bean.setSequence(++maxSequenceValue);
             item.getCalculatedQuestion().addGlobalVariable(bean);

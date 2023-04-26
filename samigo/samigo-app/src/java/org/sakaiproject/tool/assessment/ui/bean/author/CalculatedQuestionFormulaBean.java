@@ -38,7 +38,7 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     private String tolerance;
     private String decimalPlaces;
     private boolean active;
-    private boolean fromui;
+    private boolean addedButNotExtracted;
     private transient boolean validatedFormula;
     private transient boolean validatedTolerance;
     
@@ -155,12 +155,12 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
         return match;
     }
 
-    public boolean isFromui() {
-        return fromui;
+    public boolean isAddedButNotExtracted() {
+        return addedButNotExtracted;
     }
 
-    public void setFromui(boolean fromui) {
-        this.fromui = fromui;
+    public void setAddedButNotExtracted(boolean addedButNotExtracted) {
+        this.addedButNotExtracted = addedButNotExtracted;
     }
 
 }

@@ -1647,7 +1647,7 @@ public class ItemAddListener implements ActionListener {
 	          choiceText.setText(varFormula.getName());
 	          Long sequence = varFormula.getSequence();
 	          choiceText.setSequence(sequence);
-	          choiceText.setFromui(varFormula.isFromui());
+	          choiceText.setAddedButNotExtracted(varFormula.isAddedButNotExtracted());
 	          
 	          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
 	          

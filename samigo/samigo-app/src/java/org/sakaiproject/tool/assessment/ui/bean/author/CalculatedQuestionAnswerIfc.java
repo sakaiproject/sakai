@@ -56,6 +56,6 @@ public interface CalculatedQuestionAnswerIfc {
      */
     public String getMatch();
 
-    public boolean isFromui();
+    public boolean isAddedButNotExtracted();
 
 }

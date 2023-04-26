@@ -95,7 +95,7 @@ public interface ItemTextIfc
 
     public boolean getHasAttachment();
 
-    public boolean isFromui();
+    public boolean isAddedButNotExtracted();
 
-    public void setFromui(boolean fromui);
+    public void setAddedButNotExtracted(boolean addedButNotExtracted);
 }

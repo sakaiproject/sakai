@@ -39,7 +39,7 @@ public class CalculatedQuestionVariableBean implements Serializable, CalculatedQ
     private String max;
     private String decimalPlaces;
     private boolean active;
-    private boolean fromui;
+    private boolean addedButNotExtracted;
     private transient boolean validMin;
     private transient boolean validMax;
     public static final String DEFAULT_DECIMAL_PLACES = "3";
@@ -146,11 +146,11 @@ public class CalculatedQuestionVariableBean implements Serializable, CalculatedQ
         
     }
 
-    public boolean isFromui() {
-        return fromui;
+    public boolean isAddedButNotExtracted() {
+        return addedButNotExtracted;
     }
 
-    public void setFromui(boolean fromui) {
-        this.fromui = fromui;
+    public void setAddedButNotExtracted(boolean addedButNotExtracted) {
+        this.addedButNotExtracted = addedButNotExtracted;
     }
 }

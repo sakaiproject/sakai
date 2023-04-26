@@ -3088,10 +3088,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       List<String> formulaNames = this.extractFormulas(instructions);
       // first adding from instructions
       List<String> globalVariableNames = this.extractGlobalVariables(instructions);
-      // second adding from global variables fromui
+      // second adding from global variables addeButNotExtracted
       List<ItemTextIfc> items = item.getItemTextArray();
       for (ItemTextIfc itemText : items) {
-          if(itemText.isFromui()) {
+          if(itemText.isAddedButNotExtracted()) {
               globalVariableNames.add(itemText.getText());
           }
       }

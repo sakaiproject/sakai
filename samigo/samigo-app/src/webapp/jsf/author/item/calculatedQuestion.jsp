@@ -361,7 +361,7 @@ confirmation dialog
 		    		<h:outputText value="#{authorMessages.calc_question_globalvardelete_col}" />
 	    	    </f:facet>
 	        	<h:commandLink styleClass="sam-deleteglobalvariable" title="#{authorMessages.calc_question_delete_global_variable_link}" action="calculatedQuestion" immediate="true" rendered="true" >
-		        	<h:panelGroup rendered="#{globalvariable.fromui}">
+		        	<h:panelGroup rendered="#{globalvariable.addedButNotExtracted}">
 		        		<span class="fa fa-trash" aria-hidden="true"></span>
 		        		<span class="sr-only"><h:outputText value="#{authorMessages.calc_question_delete_global_variable_link}" /></span>
 		        	</h:panelGroup>

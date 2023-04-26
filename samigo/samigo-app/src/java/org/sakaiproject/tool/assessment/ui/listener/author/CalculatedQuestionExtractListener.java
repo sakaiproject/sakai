@@ -331,7 +331,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 // avoid formulas which contains the same key. Ex: x1 = @x1@ + 3
                 if (!bean.getFormula().contains(GradingService.AT + bean.getName() + GradingService.AT)) {
                     bean.setActive(true);
-                    bean.setFromui(false);
+                    bean.setAddedButNotExtracted(false);
                 } else {
                     errors.add(getErrorMessage("global_variable_formula_contains_key"));
                 }
@@ -350,7 +350,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                  bean.setSequence(++maxSequenceValue);
                  bean.setFormula(entry.getValue().getFormula());
                  bean.setActive(true);
-                 bean.setFromui(true);
+                 bean.setAddedButNotExtracted(true);
                  item.getCalculatedQuestion().addGlobalVariable(bean);
              } else {
                  errors.add(getErrorMessage("global_variable_formula_contains_key"));
