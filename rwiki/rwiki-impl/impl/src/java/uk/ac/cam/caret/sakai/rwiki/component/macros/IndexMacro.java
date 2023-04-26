@@ -190,7 +190,7 @@ public class IndexMacro extends BaseMacro
 							count++;
 						}
 					}
-					boolean showGroups = objectService.checkUpdate(next);
+					boolean showGroups = objectService.checkAdminPermission(next);
 
 					if (count != 0 && showGroups) {
 						pageGroupsString = "<b class='little-subtitle'>(*" + Messages.getString("availableTo.Groups") + StringUtils.join(groupNames, ", ") + ")</b>";

@@ -264,6 +264,8 @@ public class SaveCommand implements HttpCommand
 	{
 		if (pageGroups != null && StringUtils.equals("groupsel", displayTo)) {
 			objectService.update(name, realm, versionDate, content, pageGroups, null);
+		} else if (StringUtils.equals("sitesel", displayTo)) {
+			objectService.update(name, realm, versionDate, content, new String[0], null);
 		} else {
 			objectService.update(name, realm, versionDate, content);
 		}
