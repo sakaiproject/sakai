@@ -744,25 +744,14 @@
     line-height: initial;
   }
   #toggleGradeItemsToolbarItem:after {
-    font-family: 'bootstrap-icons';
-    content: '\F282';
     font-size: 0.9em;
     margin-left: 6px
   }
-  #toggleGradeItemsToolbarItem.on:after {
-    content: '\F286';
-  }
   #toggleCategories:before,
   #toggleCategoriesToolbarItem:before {
-    font-family: 'bootstrap-icons';
-    content: '\F271';
     font-size: 15px;
     margin-right: 6px;
     vertical-align: middle;
-  }
-  #toggleCategories.on:before,
-  #toggleCategoriesToolbarItem.on:before {
-    content: '\f046';
   }
   #filterByGroup {
     line-height: 1em;
