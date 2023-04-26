@@ -7537,6 +7537,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, String> rubricAssociationParameters = new HashMap<>();
             rubricAssociationParameters.put("fineTunePoints", params.getString(RubricsConstants.RBCS_CONFIG + "fineTunePoints"));
             rubricAssociationParameters.put("hideStudentPreview", params.getString(RubricsConstants.RBCS_CONFIG + "hideStudentPreview"));
+            rubricAssociationParameters.put("studentSelfReport", params.getString(RubricsConstants.RBCS_CONFIG + "studentSelfReport"));
             rubricAssociationParameters.put("studentSelfReportMode", params.getString("rbcs-multiple-options-config-studentSelfReportMode"));
             rubricAssociationMap.put("parameters", rubricAssociationParameters);
             try {
