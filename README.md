@@ -1,5 +1,7 @@
 # Sakai Collaboration and Learning Environment (Sakai CLE)
 
+JI: Public github change
+
 This is the source code for the Sakai CLE.
 
 The master branch is the most current development release, Sakai 23.
