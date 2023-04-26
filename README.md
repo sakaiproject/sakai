@@ -1,6 +1,7 @@
 # Sakai Collaboration and Learning Environment (Sakai CLE)
 
 JI: Public github change
+JI: Public github change 26/04/2023 09:15
 
 This is the source code for the Sakai CLE.
 
