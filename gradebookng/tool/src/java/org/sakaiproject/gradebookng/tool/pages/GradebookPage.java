@@ -325,9 +325,8 @@ public class GradebookPage extends BasePage {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
-				if (settings.isGroupedByCategory()) {
-					add(new AttributeAppender("class", " on"));
-				}
+				String iconCssClass = settings.isGroupedByCategory() ? " si-check-square" : " si-empty-square";
+				add(new AttributeAppender("class", iconCssClass));
 				add(new AttributeModifier("aria-pressed", settings.isGroupedByCategory()));
 				setWillRenderOnClick(true);
 			}
