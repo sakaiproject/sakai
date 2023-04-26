@@ -33,7 +33,7 @@ public class CalculatedQuestionGlobalVariableBean implements Serializable, Calcu
     @Getter @Setter private String name;
     @Getter @Setter private String formula;
     @Getter @Setter private boolean active;
-    @Getter @Setter private boolean fromui;
+    @Getter @Setter private boolean addedButNotExtracted;
     private transient boolean validatedFormula;
 
     private static final String DEFAULT_FORMULA = "0";

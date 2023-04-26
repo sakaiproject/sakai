@@ -830,7 +830,7 @@ public class ItemModifyListener implements ActionListener
                 CalculatedQuestionGlobalVariableBean globalvariableformula = new CalculatedQuestionGlobalVariableBean();
                 globalvariableformula.setName(itemBean.getText());
                 globalvariableformula.setSequence(itemBean.getSequence());
-                globalvariableformula.setFromui(itemBean.isFromui());
+                globalvariableformula.setAddedButNotExtracted(itemBean.isAddedButNotExtracted());
                 globalvariableformula.setText(answer.getText());
                 calcQuestionBean.addGlobalVariable(globalvariableformula);
                 break;

@@ -55,7 +55,7 @@ public class ItemText
 
   private Set<ItemTextAttachmentIfc> itemTextAttachmentSet;
   private Integer requiredOptionsCount;
-  private boolean fromui = false;
+  private boolean addedButNotExtracted = false;
   
   public ItemText() {}
 
@@ -305,11 +305,11 @@ public class ItemText
 		return getText();
 	}
 
-	public boolean isFromui() {
-		return fromui;
+	public boolean isAddedButNotExtracted() {
+		return addedButNotExtracted;
 	}
 
-	public void setFromui(boolean fromui) {
-		this.fromui = fromui;
+	public void setAddedButNotExtracted(boolean addedButNotExtracted) {
+		this.addedButNotExtracted = addedButNotExtracted;
 	}
 }
