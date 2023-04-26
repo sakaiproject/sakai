@@ -117,6 +117,7 @@ class SuiNotifications extends SakaiElement {
   }
 
   _decorateAssignmentNotification(noti) {
+
     if (noti.event === "asn.new.assignment" || noti.event === "asn.revise.access") {
       noti.title = this.i18n.assignmentCreated.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
     } else if (noti.event === "asn.grade.submission") {
