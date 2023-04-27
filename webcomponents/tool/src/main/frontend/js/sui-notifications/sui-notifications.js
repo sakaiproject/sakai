@@ -118,9 +118,9 @@ class SuiNotifications extends SakaiElement {
 
   _decorateAssignmentNotification(noti) {
     if (noti.event === "asn.new.assignment" || noti.event === "asn.revise.access") {
-      noti.title = this.i18n.assignmentCreated.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
+      noti.title = this.i18n.assignment_created.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
     } else if (noti.event === "asn.grade.submission") {
-      noti.title = this.i18n.assignmentSubmissionGraded.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
+      noti.title = this.i18n.assignment_submissionGraded.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
     }
   }
 
@@ -131,7 +131,7 @@ class SuiNotifications extends SakaiElement {
   }
 
   _decorateCommonsNotification(noti) {
-    noti.title = this.i18n.academicCommentCreated.replace('{0}', noti.siteTitle);
+    noti.title = this.i18n.academic_commentCreated.replace('{0}', noti.siteTitle);
   }
 
   fireLoadedEvent() {
