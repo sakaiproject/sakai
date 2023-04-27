@@ -135,7 +135,7 @@ public abstract class BaseCitationService implements CitationService, Observer
 
 	/** Dependency:  eventTrackingService*/
 	@Setter
-	private EventTrackingService eventTrackingService;
+	private EventTrackingService m_eventTrackingService;
 
 
 	protected static final List<String> AUTHOR_AS_KEY = new Vector<String>();
@@ -4736,7 +4736,7 @@ public abstract class BaseCitationService implements CitationService, Observer
 		{
 			registerResourceType();
 		}
-		eventTrackingService.addLocalObserver(this);
+		m_eventTrackingService.addLocalObserver(this);
 
 	}
 
