@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -40,7 +41,14 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.grading.api.GradeMappingDefinition;
+import org.sakaiproject.grading.api.GradingCategoryType;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -121,14 +129,13 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		// <GradebookConfig>
 		Element gradebookConfigEl = doc.createElement("GradebookConfig");
-		Gradebook gradebook = null;
-		try {
-			gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
-		} catch (GradebookNotFoundException e) {
+
+		Gradebook gradebook =  this.gradingService.getGradebook(siteId);
+		if (gradebook == null) {
 			return "ERROR: Gradebook not found in site\n";
 		}
 
-		GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
+		GradebookInformation settings = this.gradingService.getGradebookInformation(gradebook.getUid());
 		List<GradeMappingDefinition> gradeMappings = settings.getGradeMappings();
 		String configuredGradeMappingId = settings.getSelectedGradeMappingId();
 		GradeMappingDefinition configuredGradeMapping = gradeMappings.stream()
@@ -149,33 +156,48 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		gradebookConfigEl.appendChild(gradeMappingsEl);
 
+		// FIXME
+		/*
 		Element courseGradeDisplayedEl = doc.createElement("CourseGradeDisplayed");
 		courseGradeDisplayedEl.setTextContent(String.valueOf(settings.isCourseGradeDisplayed()));
 		gradebookConfigEl.appendChild(courseGradeDisplayedEl);
+		*/
 
+		// FIXME
+		/*
 		Element courseLetterGradeDisplayedEl = doc.createElement("CourseLetterGradeDisplayed");
 		courseLetterGradeDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
 		gradebookConfigEl.appendChild(courseLetterGradeDisplayedEl);
+		*/
 
+		// FIXME
+		/*
 		Element coursePointsDisplayedEl = doc.createElement("CoursePointsDisplayed");
 		coursePointsDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
 		gradebookConfigEl.appendChild(coursePointsDisplayedEl);
+		*/
 
+		// FIXME
+		/*
 		Element totalPointsDisplayedEl = doc.createElement("TotalPointsDisplayed");
 		totalPointsDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
 		gradebookConfigEl.appendChild(totalPointsDisplayedEl);
+		*/
 
+		// FIXME
+		/*
 		Element courseAverageDisplayedEl = doc.createElement("CourseAverageDisplayed");
 		courseAverageDisplayedEl.setTextContent(String.valueOf(settings.isCourseAverageDisplayed()));
 		gradebookConfigEl.appendChild(courseAverageDisplayedEl);
+		*/
 
 		Element categoryTypeEl = doc.createElement("CategoryType");
 		String categoryCode = null;
-		if (settings.getCategoryType() == 1) {
+		if (settings.getCategoryType() == GradingCategoryType.NO_CATEGORY) {
 			categoryCode = "NO_CATEGORIES";
-		} else if (settings.getCategoryType() == 2) {
+		} else if (settings.getCategoryType() == GradingCategoryType.ONLY_CATEGORY) {
 			categoryCode = "CATEGORIES_APPLIED";
-		} else if (settings.getCategoryType() == 3) {
+		} else if (settings.getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY) {
 			categoryCode = "WEIGHTED_CATEGORIES_APPLIED";
 		} else {
 			categoryCode = "UNKNOWN";
@@ -186,13 +208,13 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		Element gradeTypeEl = doc.createElement("GradeType");
 		String gradeTypeCode = null;
 		switch(settings.getGradeType()) {
-			case 1:
+			case POINTS:
 				gradeTypeCode = "POINTS";
 				break;
-			case 2:
+			case PERCENTAGE:
 				gradeTypeCode = "PERCENTAGE";
 				break;
-			case 3:
+			case LETTER:
 				gradeTypeCode = "LETTER";
 				break;
 			default:
@@ -201,14 +223,14 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		gradeTypeEl.setTextContent(gradeTypeCode);
 		gradebookConfigEl.appendChild(gradeTypeEl);
 
-		if (settings.getCategoryType() > 1) {
+		if (settings.getCategoryType() != GradingCategoryType.NO_CATEGORY) {
 			Element categoriesEl = doc.createElement("categories");
 			for (CategoryDefinition category : settings.getCategories()) {
 				Element categoryEl = doc.createElement("category");
 				categoryEl.setAttribute("id", String.valueOf(category.getId()));
 				categoryEl.setAttribute("name", category.getName());
 				categoryEl.setAttribute("extraCredit", String.valueOf(category.getExtraCredit()));
-				if (settings.getCategoryType() == 3) {
+				if (settings.getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY) {
 					categoryEl.setAttribute("weight", String.valueOf(category.getWeight()));
 				} else {
 					categoryEl.setAttribute("weight", "");
@@ -227,18 +249,12 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		// <GradebookItems>
 		List<Assignment> gradebookItems = this.gradebookNgBusinessService.getGradebookAssignments(siteId);
 
-		// apply external app denylist
-		List<String> blockedExternalAppNames = Arrays.asList(ServerConfigurationService.getString("gradebookng.archive.external_app_name.deny", "").split(","));
+		// FIXME - check this
+		/*
 		gradebookItems = gradebookItems.stream().filter(item -> {
-			return !item.isExternallyMaintained() || !blockedExternalAppNames.contains(item.getExternalAppName());
+			return !item.isExternallyMaintained();
 		}).collect(Collectors.toList());
-
-//		Disable allowlist.
-//		// apply external app allowlist
-//		List<String> allowedExternalAppNames = Arrays.asList(ServerConfigurationService.getString("gradebookng.archive.external_app_name.allow", "").split(","));
-//		gradebookItems = gradebookItems.stream().filter(item -> {
-//			return !item.isExternallyMaintained() || allowedExternalAppNames.contains(item.getExternalAppName());
-//		}).collect(Collectors.toList());
+		*/
 
 		Element gradebookItemsEl = doc.createElement("GradebookItems");
 		for (Assignment gradebookItem : gradebookItems) {
@@ -251,17 +267,17 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 			} else {
 				gradebookItemEl.setAttribute("dueDate", dateFormat.format(gradebookItem.getDueDate()));
 			}
-			gradebookItemEl.setAttribute("countedInCourseGrade", String.valueOf(gradebookItem.isCounted()));
-			gradebookItemEl.setAttribute("externallyMaintained", String.valueOf(gradebookItem.isExternallyMaintained()));
+			// gradebookItemEl.setAttribute("countedInCourseGrade", String.valueOf(gradebookItem.isCounted()));
+			// gradebookItemEl.setAttribute("externallyMaintained", String.valueOf(gradebookItem.isExternallyMaintained()));
 			gradebookItemEl.setAttribute("externalAppName", gradebookItem.getExternalAppName());
 			gradebookItemEl.setAttribute("externalId", gradebookItem.getExternalId());
-			gradebookItemEl.setAttribute("releasedToStudent", String.valueOf(gradebookItem.isReleased()));
+			// gradebookItemEl.setAttribute("releasedToStudent", String.valueOf(gradebookItem.isReleased()));
 			if (gradebookItem.getCategoryId() == null) {
 				gradebookItemEl.setAttribute("categoryId", "");
 			} else {
 				gradebookItemEl.setAttribute("categoryId", String.valueOf(gradebookItem.getCategoryId()));
 			}
-			gradebookItemEl.setAttribute("extraCredit", String.valueOf(gradebookItem.isExtraCredit()));
+			// gradebookItemEl.setAttribute("extraCredit", String.valueOf(gradebookItem.isExtraCredit()));
 			gradebookItemEl.setAttribute("order", String.valueOf(gradebookItem.getSortOrder()));
 			gradebookItemEl.setAttribute("categorizedOrder", String.valueOf(gradebookItem.getCategorizedSortOrder()));
 			gradebookItemsEl.appendChild(gradebookItemEl);
