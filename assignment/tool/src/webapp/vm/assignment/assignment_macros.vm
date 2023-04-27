@@ -47,10 +47,10 @@
 ## Macro for the paginator
 #macro( paginator $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
     <nav class="assignment-pager panel panel-default">
-        <div class="panel-heading" id="pagingHeader">
+        <div class="card text-center bg-light" id="pagingHeader">
             $tlang.getString( "gen.viewing" ) $topMsgPos - $btmMsgPos $tlang.getString( "gen.of" ) $allMsgNumber $tlang.getString( "gen.items" )
         </div>
-        <div class="panel-body">
+        <div class="card-body">
         #if( $pagesize != 0 )
             <form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
                     <span class="skip">$tlang.getString( "gen.first" )</span>
@@ -194,12 +194,12 @@
         <li class="firstToolBarItem">
         #if( $current == "Assignment" )
             <span id="tabAssignmentCurrent" class="current">$!tlang.getString( "ts.tab.assignment" )</span>
-            <span id="tabAssignmentRef" class="hidden">
+            <span id="tabAssignmentRef" class="d-none">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.assignment" )" onclick="ASN.switchTimesheetTab( 'tabAssignment' ); return false;">
                 $!tlang.getString( "ts.tab.assignment" ) </a>
             </span>
         #else
-            <span id="tabAssignmentCurrent" class="current hidden">$!tlang.getString( "ts.tab.assignment" )</span>
+            <span id="tabAssignmentCurrent" class="current d-none">$!tlang.getString( "ts.tab.assignment" )</span>
             <span id="tabAssignmentRef" class="">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.assignment" )" onclick="ASN.switchTimesheetTab( 'tabAssignment' ); return false;">
                 $!tlang.getString( "ts.tab.assignment" )</a>
@@ -209,12 +209,12 @@
         <li class="firstToolBarItem">
         #if( $current == "timeSheet" )
             <span id="tabTimeSheetCurrent" class="current">$!tlang.getString( "ts.tab.timesheet" )</span>
-            <span id="tabTimeSheetRef" class="hidden">
+            <span id="tabTimeSheetRef" class="d-none">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">
                 $!tlang.getString( "ts.tab.timesheet" )</a>
             </span>
         #else
-            <span id="tabTimeSheetCurrent" class="current hidden">$!tlang.getString( "ts.tab.timesheet" )</span>
+            <span id="tabTimeSheetCurrent" class="current d-none">$!tlang.getString( "ts.tab.timesheet" )</span>
             <span id="tabTimeSheetRef" class="">
                 <a href="javascript:void(0)""$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">
                 $!tlang.getString( "ts.tab.timesheet" )</a>

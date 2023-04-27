@@ -27,7 +27,7 @@ Generally when you make a change you will create a pull request that allows othe
  * Code style - Does it match the existing code in the file?
  * Indentation - Are you keeping to the same indentation format (tabs/spaces) and aligning it?
  * Internationalisation - Does your code support running in a different language?
- * Accessibility - Are you supporting accessability best practices?
+ * Accessibility - Are you supporting accessibility best practices?
  * Technical Approach - Is this a sensible technical approach? are there any obvious performance implications?
  * Minimal Changes - Are you changing only the lines needed to fix this bug add this feature (no bulk reformatting)?
  * Single Issue - Are you fixing one issue?

@@ -64,6 +64,7 @@ public interface SakaiProxy {
 	public final static Boolean DEFAULT_VIEW_CONNECTIONS = true;
 	public final static Boolean DEFAULT_VIEW_USER_DISPLAY_ID = true;
 	public final static Boolean DEFAULT_VIEW_USER_PROPERTIES = true;
+	public final static Boolean DEFAULT_VIEW_CANDIDATE_DETAILS = true;
 	public final static Boolean DEFAULT_VIEW_USER_NAME_PRONUNCIATION = true;
 	public final static Integer DEFAULT_ROSTER_STATE = 0;
 	
@@ -187,6 +188,21 @@ public interface SakaiProxy {
 	public Boolean getViewUserProperty(String siteId);
 
 	/**
+	 * Returns the value of the <code>roster_view_candidate_details</code> Sakai property.
+	 *
+	 * @return the value of the <code>roster_view_candidate_details</code> Sakai property.
+	 */
+	public Boolean getViewCandidateDetails();
+
+	/**
+	 * Returns the value of the <code>roster_view_candidate_details</code> Sakai property.
+	 *
+	 * @param siteId a site
+	 * @return the value of the <code>roster_view_candidate_details</code> Sakai property.
+	 */
+	public Boolean getViewCandidateDetails(String siteId);
+
+	/**
 	 * Returns the value of the <code>roster.display.officialPicturesByDefault</code> Sakai property.
 	 * 
 	 * @return the value of the <code>roster.display.officialPicturesByDefault</code> Sakai property.
@@ -284,6 +300,11 @@ public interface SakaiProxy {
     public Boolean getViewPronouns();
 
     /**
+     * @return the value of the <code>roster.display.profilelink</code> Sakai property.
+     */
+    public Boolean getViewProfileLink();
+
+    /**
      * Returns the value of the <code>roster.display.user.name.pronunciation</code> Sakai property.
      *
      * @return the value of the <code>roster.display.user.name.pronunciation</code> Sakai property.
@@ -295,5 +316,5 @@ public interface SakaiProxy {
      *
      * @return the profile tool link. Null if user doesn't have profile tool.
      */
-    public String getProfileToolLink();
+    public String getProfileToolLink(String otherUserId);
 }

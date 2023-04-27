@@ -193,9 +193,9 @@ RESTful, ActionsExecutable {
         try {
             siteService.unjoin(siteId);
             //String user = sessionManager().getCurrentSessionUserId();
-            String currentUserEid = userEntityProvider.getCurrentUser(view).getEid(); //userDirectoryService.getCurrentUser().getEid();
+            String currentUserId = userEntityProvider.getCurrentUser(view).getId(); //userDirectoryService.getCurrentUser().getEid();
             String roleId = siteService.getSite(siteId).getJoinerRole();
-            List<String[]> userAuditList = Collections.singletonList(new String[]{siteId,currentUserEid,roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid});
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteId,currentUserId,roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId});
             userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("The siteId provided (" + siteId
@@ -886,8 +886,8 @@ RESTful, ActionsExecutable {
                 catch (UserNotDefinedException e) {
                     log.error(".createEntity: User with id {} doesn't exist", userIds[i]);
                 }
-                userAuditString = new String[]{sg.site.getId(),user.getEid(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
-                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getEid()};
+                userAuditString = new String[]{sg.site.getId(),user.getId(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
+                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getId()};
                 userAuditList.add(userAuditString);
             } else {
                 // group and site
@@ -953,15 +953,8 @@ RESTful, ActionsExecutable {
 
                 // Add change to user_audits_log table.
                 String role = site.getUserRole(userIds[i]).getId();
-                String userEid = null;
-                try {
-                    userEid = userDirectoryService.getUser(userIds[i]).getEid();
-                } catch (UserNotDefinedException e) {
-                    log.error(".deleteEntity: User with id {} not defined", userIds[i]);
-                }
-
-                userAuditString = new String[]{site.getId(), userEid, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
-                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getEid()};
+                userAuditString = new String[]{site.getId(), userId, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
+                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getId()};
                 userAuditList.add(userAuditString);
 
                 site.removeMember(userIds[i]);

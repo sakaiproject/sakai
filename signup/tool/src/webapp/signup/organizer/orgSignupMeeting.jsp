@@ -470,7 +470,7 @@
 			 	</div>
 
 
-				<div class="table-responsive">
+				<div class="table">
 				<h:panelGrid columns="1">					
 					<%-- control email and the expand-collapse --%>			
 					<h:panelGrid  id="orgMeeting_191" columns="3" rendered="#{!OrganizerSignupMBean.announcementType}" columnClasses="titleColumn,valueColumn,alignRightColumn" styleClass="emailTable">										
@@ -635,7 +635,7 @@
 						   					</h:outputLink>
 						   				</h:panelGroup>
 						   				
-								   		<h:panelGroup  id="editAttendeesList" style="display: none;">		
+								   		<h:panelGroup  id="editAttendeesList" style="display: #{OrganizerSignupMBean.isShortList(timeSlotWrapper.positionInTSlist, 1) ? 'block' : 'none'}">		
 							   				<h:dataTable id="availableSpots" value="#{timeSlotWrapper.attendeeWrappers}" var="attendeeWrapper">
 							   					<h:column>
 							   						<h:panelGrid columns="2" columnClasses="editAddImages,attName"  rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" id="editLink">
@@ -812,7 +812,7 @@
 								   					</h:outputLink>
 								   				</h:panelGroup>
 								   				
-									   			<h:panelGroup  id="editWaitingList" style="display: none;">
+									   			<h:panelGroup  id="editWaitingList" style="display: #{OrganizerSignupMBean.isShortList(timeSlotWrapper.positionInTSlist, 2) ? 'block' : 'none'}">
 										   			<h:dataTable id="waiterSpots" value="#{timeSlotWrapper.waitingList}" binding="#{OrganizerSignupMBean.waiterWrapperTable}" var="waiterWrapper">
 										   				<h:column>
 										   					<h:panelGrid columns="2" border="0" columnClasses="editAddImages,attName" rendered="#{waiterWrapper.signupAttendee.attendeeUserId !=null}">

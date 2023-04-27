@@ -38,6 +38,8 @@ import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
@@ -87,14 +89,15 @@ import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
+import org.tsugi.oauth2.objects.ClientAssertion;
 import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.ags2.objects.Result;
 import org.tsugi.ags2.objects.Score;
 import org.tsugi.lti13.objects.LaunchJWT;
-import org.tsugi.lti13.objects.PlatformConfiguration;
+import org.tsugi.lti13.objects.OpenIDProviderConfiguration;
 import org.tsugi.lti13.objects.LTIPlatformConfiguration;
-import org.tsugi.lti13.objects.LTIPlatformMessage;
+import org.tsugi.lti13.objects.LTILaunchMessage;
 
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti13.util.SakaiLineItem;
@@ -134,6 +137,8 @@ public class LTI13Servlet extends HttpServlet {
 	private static final String CACHE_NAME = LTI13Servlet.class.getName() + "_cache";
 	private static final String CACHE_PUBLIC = "key::public";
 	private static final String CACHE_PRIVATE = "key::private";
+
+	private static final String PLUS_NRPS_PAGING = "plus:nrps_paging";
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -323,7 +328,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
+		// /imsblis/lti13/lineitems/{signed-placement}
 		if (parts.length == 5 && "lineitem".equals(parts[3])) {
 			log.error("Attempt to modify on-demand line item request={}", uri);
 			LTI13Util.return400(response, "Attempt to modify an 'on-demand' line item");
@@ -360,6 +365,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Set score for auto-created line item
 		// /imsblis/lti13/lineitem/{signed-placement}
+		// SAK-47261 - This pattern with no lineItem does not work post SAK-47621
 		if (parts.length == 6 && "lineitem".equals(parts[3]) && "scores".equals(parts[5])) {
 			String signed_placement = parts[4];
 			String lineItem = null;
@@ -670,7 +676,7 @@ public class LTI13Servlet extends HttpServlet {
       ["RS256", "ES256"],
     "claims_supported":
       ["sub", "iss", "name", "given_name", "family_name", "nickname", "picture", "email", "locale"],
-     "https://purl.imsglobal.org/spec/lti-platform-configuration ": {
+     "https://purl.imsglobal.org/spec/lti-platform-configuration": {
         "product_family_code": "ExampleLMS",
         "messages_supported": [
             {"type": "LtiResourceLinkRequest"},
@@ -715,18 +721,18 @@ public class LTI13Servlet extends HttpServlet {
 		lpc.product_family_code = "sakailms.org";
 		lpc.version = sakaiVersion;
 
-		LTIPlatformMessage mp = new LTIPlatformMessage();
+		LTILaunchMessage mp = new LTILaunchMessage();
 		mp.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
 		lpc.messages_supported.add(mp);
 
-		mp = new LTIPlatformMessage();
+		mp = new LTILaunchMessage();
 		mp.type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 		lpc.messages_supported.add(mp);
 
 		lpc.variables.add(LTICustomVars.USER_ID);
 		lpc.variables.add(LTICustomVars.PERSON_EMAIL_PRIMARY);
 
-		PlatformConfiguration pc = new PlatformConfiguration();
+		OpenIDProviderConfiguration pc = new OpenIDProviderConfiguration();
 		pc.issuer = issuerURL;
 		pc.authorization_endpoint = authOIDC;
 		pc.token_endpoint = tokenUrl;
@@ -796,9 +802,9 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String grant_type = request.getParameter(AccessToken.GRANT_TYPE);
-		String client_assertion = request.getParameter(AccessToken.CLIENT_ASSERTION);
-		String scope = request.getParameter(AccessToken.SCOPE);
+		String grant_type = request.getParameter(ClientAssertion.GRANT_TYPE);
+		String client_assertion = request.getParameter(ClientAssertion.CLIENT_ASSERTION);
+		String scope = request.getParameter(ClientAssertion.SCOPE);
 		String missing = "";
 		if (grant_type == null) {
 			missing += " " + "grant_type";
@@ -876,57 +882,57 @@ public class LTI13Servlet extends HttpServlet {
 		HashSet<String> returnScopeSet = new HashSet<String> ();
 
 		// Work through requested scopes
-		if (scope.contains(Endpoint.SCOPE_LINEITEM_READONLY)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
 			if (allowLineItems != 1) {
-				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_LINEITEM_READONLY);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(Endpoint.SCOPE_LINEITEM_READONLY);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
 		}
 
-		if (scope.contains(Endpoint.SCOPE_LINEITEM)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
 			if (allowLineItems != 1) {
-				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_LINEITEM);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(Endpoint.SCOPE_LINEITEM);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_LINEITEM);
 
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS);
 			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
 		}
 
-		if (scope.contains(Endpoint.SCOPE_SCORE)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
 			if (allowOutcomes != 1 || allowLineItems != 1) {
-				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_SCORE);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_SCORE);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(Endpoint.SCOPE_SCORE);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_SCORE);
 
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
 
-		if (scope.contains(Endpoint.SCOPE_RESULT_READONLY)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
 			if (allowOutcomes != 1 || allowLineItems != 1) {
-				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_RESULT_READONLY);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(Endpoint.SCOPE_RESULT_READONLY);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
 
-		if (scope.contains(LaunchLIS.SCOPE_NAMES_AND_ROLES)) {
+		if (scope.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
 			if (allowRoster != 1) {
-				LTI13Util.return400(response, "invalid_scope", LaunchLIS.SCOPE_NAMES_AND_ROLES);
+				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
-			returnScopeSet.add(LaunchLIS.SCOPE_NAMES_AND_ROLES);
+			returnScopeSet.add(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
 
 			sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
 		}
@@ -1143,6 +1149,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		log.debug("jsonString={}", jsonString);
 
+		// TODO: Make this be a RegistrationRequest
 		Object js = JSONValue.parse(jsonString);
 		if (js == null || !(js instanceof JSONObject)) {
 			LTI13Util.return400(response, "Badly formatted JSON");
@@ -1193,6 +1200,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		jso.put("client_id", client_id);
 
+		// TODO: Make this be a RegistrationResponse
 		Object toolConfigurationObj = jso.get("https://purl.imsglobal.org/spec/lti-tool-configuration");
 		if ( toolConfigurationObj instanceof JSONObject ) {
 			JSONObject toolConfiguration = (JSONObject) toolConfigurationObj;
@@ -1283,6 +1291,9 @@ public class LTI13Servlet extends HttpServlet {
 		// HttpUtil.printParameters(request);
 		log.debug("signed_placement={}", signed_placement);
 
+		int start = NumberUtils.toInt(request.getParameter("start"), 0);
+		int limit = NumberUtils.toInt(request.getParameter("limit"), -1);
+
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
 		if (sat == null) {
@@ -1306,7 +1317,7 @@ public class LTI13Servlet extends HttpServlet {
 				log.error("Could not load content from signed placement = {}", signed_placement);
 				return;
 			}
-  
+
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
@@ -1339,6 +1350,10 @@ public class LTI13Servlet extends HttpServlet {
 
 		}
 
+		String pagingstr = (String) site.getProperties().get(PLUS_NRPS_PAGING);
+		int paging = NumberUtils.toInt(pagingstr, -1);
+		if ( paging > 0 && ( limit < 0 || limit > paging ) ) limit = paging;
+
 		int releaseName = getInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseEmail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		// int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
@@ -1350,20 +1365,9 @@ public class LTI13Servlet extends HttpServlet {
 		}
 		*/
 
-		JSONObject context_obj = new JSONObject();
-		context_obj.put("id", site.getId());
-		context_obj.put("title", site.getTitle());
-
 		String maintainRole = site.getMaintainRole();
 
- 		response.setContentType(APPLICATION_JSON);
-		PrintWriter out = response.getWriter();
-		out.println("{");
-		out.println(" \"id\" : \"http://TODO.wtf.com/we_eliminated_json_ld_but_forgot_to_remove_this\",");
-		out.println(" \"context\" : ");
-		out.print(JacksonUtil.prettyPrint(context_obj));
-		out.println(",");
-		out.println(" \"members\": [");
+		PrintWriter out = null;
 
 		SakaiBLTIUtil.pushAdvisor();
 		try {
@@ -1381,12 +1385,56 @@ public class LTI13Servlet extends HttpServlet {
 			}
 
 			List<User> users = UserDirectoryService.getUsers(userIds);
-			boolean first = true;
 
 			String roleMapProp = (String) tool.get(LTIService.LTI_ROLEMAP);
-			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+			Map<String, String> toolRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
 
+			// Hoist these out of the loop
+			Map<String, String> propRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP)
+			);
+			Map<String, String> defaultRoleMap = SakaiBLTIUtil.convertOutboundRoleMapPropToMap(
+				SakaiBLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT
+			);
+
+			Map<String, String> propLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
+				ServerConfigurationService.getString(SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP)
+			);
+			Map<String, String> defaultLegacyMap = SakaiBLTIUtil.convertLegacyRoleMapPropToMap(
+				SakaiBLTIUtil.LTI_LEGACY_ROLE_MAP_DEFAULT
+			);
+
+			// Do we need a Link header
+			// https://www.imsglobal.org/spec/lti-nrps/v2p0#limit-query-parameter
+			// https://www.w3.org/Protocols/9707-link-header.html
+			int user_count = users.size();
+			if ( start < 0 ) start = 0;
+			if ( limit < 0 ) limit = user_count;
+			int next = start+limit;
+
+			if ( next >= user_count) {
+				log.debug("No Link header start={} limit={} count={} next={}", start, limit, user_count, next);
+			} else {
+				log.debug("Link header start={} limit={} count={} next={}", start, limit, user_count, next);
+				// /imsblis/lti13/namesandroles/context:6
+				String linkHeader = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement + "?start=" + next;
+				if ( limit > 0 ) linkHeader += "&limit=" + limit;
+				linkHeader = "<" + linkHeader + ">; rel=\"next\"";
+				log.debug("Link: {}", linkHeader);
+			    response.addHeader("Link", linkHeader);
+			}
+
+			int current = 0;
 			for (User user : users) {
+				if ( current < start) {
+					current++;
+					continue;
+				}
+				if ( current == next) {
+					log.debug("Limit reached current={} next={} start={} limit={}", current, next, start, limit);
+					break;
+				}
+
 				JSONObject jo = new JSONObject();
 				jo.put("status", "Active");
 				String lti11_legacy_user_id = user.getId();
@@ -1408,18 +1456,23 @@ public class LTI13Servlet extends HttpServlet {
 				Map<String, Object> mm = new TreeMap<>();
 				Role role = member.getRole();
 				String ims_user_id = member.getUserId();
+				String outboundRole = null;
+				String sakaiRole = role.getId();
+
+				if (StringUtils.isNotBlank(sakaiRole)) {
+					outboundRole = SakaiBLTIUtil.mapOutboundRole(sakaiRole, toolRoleMap, propRoleMap, defaultRoleMap, propLegacyMap, defaultLegacyMap);
+					log.debug("SakaiBLTIUtil.mapOutboundRole sakaiRole={} outboundRole={}", sakaiRole, outboundRole);
+				}
 
 				JSONArray roles = new JSONArray();
-
-				// If there is a role mapping, it has precedence over site.update
-				String sakai_role = role.getId();
-				if ( roleMap.containsKey(sakai_role) ) {
-					roles.add(SakaiBLTIUtil.upgradeRoleString(roleMap.get(sakai_role)));
+				if ( StringUtils.isNotBlank(outboundRole) ) {
+					roles.add(outboundRole);
 				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
 					roles.add(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 				} else {
 					roles.add(LTI13ConstantsUtil.ROLE_LEARNER);
 				}
+
 				jo.put("roles", roles);
 
 				JSONObject sakai_ext = new JSONObject();
@@ -1432,7 +1485,7 @@ public class LTI13Servlet extends HttpServlet {
 					if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
 				}
 				*/
-				sakai_ext.put("sakai_role", sakai_role);
+				sakai_ext.put("sakai_role", sakaiRole);
 
 				Collection groups = site.getGroupsWithMember(ims_user_id);
 
@@ -1450,15 +1503,31 @@ public class LTI13Servlet extends HttpServlet {
 
 				jo.put("sakai_ext", sakai_ext);
 
-				if (!first) {
-					out.println(",");
+				if (out == null) {
+						JSONObject context_obj = new JSONObject();
+						context_obj.put("id", site.getId());
+						context_obj.put("title", site.getTitle());
+
+						response.setContentType(APPLICATION_JSON);
+						out = response.getWriter();
+						out.println("{");
+						out.println(" \"id\" : \"http://TODO.wtf.com/we_eliminated_json_ld_but_forgot_to_remove_this\",");
+						out.println(" \"context\" : ");
+						out.print(JacksonUtil.prettyPrint(context_obj));
+						out.println(",");
+						out.println(" \"members\": [");
+				} else {
+						out.println(",");
 				}
-				first = false;
+
 				out.print(JacksonUtil.prettyPrint(jo));
+				current++;
 
 			}
-			out.println("");
-			out.println(" ] }");
+			if ( out != null ) {
+				out.println("");
+				out.println(" ] }");
+			}
 		} finally {
 			SakaiBLTIUtil.popAdvisor();
 		}
@@ -1781,7 +1850,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		SakaiLineItem item = (SakaiLineItem) getObjectFromPOST(request, response, SakaiLineItem.class);
 		if ( item == null )  {
-			return; // Error alredy handled
+			return; // Error already handled
 		}
 
 		Site site = null;
@@ -1937,23 +2006,14 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// TODO: Does PUT need to return the entire line item - I think the code below
-		// actually is wrong - we just need to do a GET to get the entire line
-		// item after the PUT.  It seems wasteful to always do the GET after PUT
-		// when the tool can do it if it wants the newly updated item.  So
-		// For now I am sending nothing back for a pUT request.
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT
-
-		/*
 		// Add the link to this lineitem
 		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
 
 		log.debug("Lineitem item={}",item);
-		response.setContentType(LineItem.CONTENT_TYPE);
+		response.setContentType(SakaiLineItem.CONTENT_TYPE);
 
 		PrintWriter out = response.getWriter();
 		out.print(JacksonUtil.prettyPrint(item));
-		*/
 	}
 
 	/**
@@ -2197,9 +2257,9 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Indicate "who" is reading this grade - needs to be a real user account
 		String gb_user_id = ServerConfigurationService.getString(
-				"basiclti.outcomes.userid", "admin");
+				"lti.outcomes.userid", "admin");
 		String gb_user_eid = ServerConfigurationService.getString(
-				"basiclti.outcomes.usereid", gb_user_id);
+				"lti.outcomes.usereid", gb_user_id);
 		sess.setUserId(gb_user_id);
 		sess.setUserEid(gb_user_eid);
 

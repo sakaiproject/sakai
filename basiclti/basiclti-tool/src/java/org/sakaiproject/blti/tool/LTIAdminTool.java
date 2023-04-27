@@ -769,7 +769,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return retval;
 	}
 
-	// Make a tool with a title and sent to tool_insert (update) to provision
+	// Make a tool with a title and sent to tool_insert (update) to dynamic register
 	public void doAutoInsert(RunData data, Context context)
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
@@ -793,7 +793,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Map<String, Object> tool = new HashMap<String, Object>();
 		tool.put(LTIService.LTI_TITLE, title);
 		tool.put(LTIService.LTI_PAGETITLE, title);
-		tool.put(LTIService.LTI_LAUNCH, "https://example.com/auto-provision-will-replace");
+		tool.put(LTIService.LTI_LAUNCH, "https://example.com/dynamic-registration-will-replace");
 		tool.put(LTIService.LTI13_CLIENT_ID, clientId);
 
 		minimalLTI13(tool);
@@ -847,6 +847,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		String toolConfigUrl = data.getParameters().getString("toolConfigUrl");
+		if ( StringUtils.isNotBlank(toolConfigUrl) ) toolConfigUrl = toolConfigUrl.trim();
 
 		// Retrieve the tool
 		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
@@ -2523,7 +2524,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// In this flow we are only asking for one CI/DL Response
 		Placement placement = toolManager.getCurrentPlacement();
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-				+ "/sakai.basiclti.admin.helper.helper"
+				+ "/sakai.lti.admin.helper.helper"
 				+ "?eventSubmit_doSingleContentItemResponse=Save"
 				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)
@@ -2554,6 +2555,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		contentData.setProperty("flow", flow);  // An example
 		contentData.setProperty("remember", "always bring a towel");  // An example
+
+		// Run the contentreturn through the forward servlet
+		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
+			URLEncoder.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
 
 		contentLaunch = ContentItem.buildLaunch(contentLaunch, contentReturn, contentData);
 
@@ -2782,13 +2787,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// will go to afterwards, passing along the flow parameter
 		if (!doContent) {
 			String returnUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-					+ "/sakai.basiclti.admin.helper.helper"
+					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=PostContentConfig"
 					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix);
 
 			String configUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-					+ "/sakai.basiclti.admin.helper.helper"
+					+ "/sakai.lti.admin.helper.helper"
 					+ "?panel=ContentConfig"
 					+ "&" + FLOW_PARAMETER + "=" + flow
 					+ "&returnUrl=" + URLEncoder.encode(returnUrl)
@@ -2801,7 +2806,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// If this is a CI/DL producer, we proceed with launching the external tool
 		// to start the CI/DL flow
 		String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-				+ "/sakai.basiclti.admin.helper.helper"
+				+ "/sakai.lti.admin.helper.helper"
 				+ "?eventSubmit_doMultipleContentItemResponse=Save"
 				+ "&" + FLOW_PARAMETER + "=" + flow
 				+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix)
@@ -2832,6 +2837,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			contentData.setProperty(ContentItem.ACCEPT_MULTIPLE, "true");
 		}
 		contentData.setProperty("remember", "the answer is 42");  // An example
+
+		// Run the contentreturn through the forward servlet
+		contentReturn = serverConfigurationService.getServerUrl() + "/imsoidc/lti13/resigncontentitem?forward=" +
+			URLEncoder.encode(contentReturn) + "&tool_id=" + tool.get(LTIService.LTI_ID);
 
 		// This will forward to AccessServlet / BasicLTISecurityServiceImpl with a tool: url
 		// AccessServlet will detect if this is a CI or DL and handle it accordingly using

@@ -65,6 +65,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -293,60 +294,15 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 					int countForFolderNum = 0;// only three folder 
 					Iterator iterator = pvtTopics.iterator(); 
-					for (int indexlittlethanTHREE=0;indexlittlethanTHREE<3;indexlittlethanTHREE++)//Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)//only three times
-					{
-
-						PrivateTopic topic = (PrivateTopic) iterator.next();
-
-						if (topic != null)
-						{
-						    String CurrentTopicTitle= topic.getTitle();//folder name
-
-							/** filter topics by context and type*/                                                    
-							if (topic.getTypeUuid() != null
-									&& topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
-									&& topic.getContextId() != null && !topic.getContextId().equals(getPrivateMessageManager().getContextId())){
-								continue;
-							}       
-
-
-
-							String typeUuid="";  // folder uuid
-							if(getLanguage(CurrentTopicTitle).toString().equals(getLanguage(current_NAV).toString()))
-							{
-								typeUuid = getPrivateMessageTypeFromContext(topicsbyLocalization.get(countForFolderNum).toString());
-
-
-							}
-							else
-							{
-
-								typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
-
-							}
-							countForFolderNum++;
-
-							int totalNoMessages = getPrivateMessageManager().findMessageCount(typeUuid, aggregateList);
-
-							int totalUnreadMessages = getPrivateMessageManager().findUnreadMessageCount(typeUuid, aggregateList);
-
-                            // in this context, the topics are the folders in the Messages tool
-                            // they will never have attachments
-                            List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
-
-                            DecoratedTopicInfo dTopicInfo = new DecoratedTopicInfo(topic.getId(), topic.getTitle(), totalUnreadMessages, totalNoMessages, typeUuid, attachments, topic.getShortDescription(), topic.getExtendedDescription());
-							
-							dForum.addTopic(dTopicInfo);
-						}
-
-					}
-
-					while(iterator.hasNext())//add more folder 
+					String typeUuid = "";
+					int totalNoMessages;
+					int totalUnreadMessages;
+					while(iterator.hasNext())
 					{
 						PrivateTopic topic = (PrivateTopic) iterator.next();
 						if (topic != null)
 						{
-
+							String CurrentTopicTitle= topic.getTitle();//folder name
 
 							/** filter topics by context and type*/                                                    
 							if (topic.getTypeUuid() != null
@@ -355,18 +311,22 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 								continue;
 							}       
 
-							String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());          
+							if ((getLanguage(CurrentTopicTitle).toString().equals(getLanguage(current_NAV).toString())) && (countForFolderNum < 3))
+							{
+								typeUuid = getPrivateMessageTypeFromContext(topicsbyLocalization.get(countForFolderNum).toString());
+							}
+							else
+							{
+								typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
+							}
+							countForFolderNum++;
 
-							int totalNoMessages = getPrivateMessageManager().findMessageCount(typeUuid, aggregateList);
-							int totalUnreadMessages = getPrivateMessageManager().findUnreadMessageCount(typeUuid,aggregateList);
+							totalNoMessages = getPrivateMessageManager().findMessageCount(typeUuid, aggregateList);
+							totalUnreadMessages = getPrivateMessageManager().findUnreadMessageCount(typeUuid,aggregateList);
 
-                            // in this context, the topics are the folders in the Messages tool
-                            // they will never have attachments
-                            List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
-
-                            DecoratedTopicInfo dTopicInfo = new DecoratedTopicInfo(topic.getId(), topic.getTitle(), totalUnreadMessages, totalNoMessages, typeUuid, attachments, topic.getShortDescription(), topic.getExtendedDescription());							
+							DecoratedTopicInfo dTopicInfo = new DecoratedTopicInfo(topic.getId(), topic.getTitle(), totalUnreadMessages, totalNoMessages, typeUuid, new ArrayList<DecoratedAttachment>(), topic.getShortDescription(), topic.getExtendedDescription());
 							dForum.addTopic(dTopicInfo);
-						}          
+						}
 
 					}
 				} 
@@ -376,25 +336,30 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 				List<DiscussionForum> forums = new ArrayList<DiscussionForum>();
 				if(forumId != null && !"".equals(forumId)){
-					DiscussionForum forum = forumManager.getForumByIdWithTopicsAttachmentsAndMessages(new Long(forumId));					
-					siteId = forumManager.getContextForForumById(forum.getId());
-					forums.add(forum);
+					DiscussionForum forum = forumManager.getForumByIdWithTopicsAttachmentsAndMessages(new Long(forumId));
+					if (forum != null ) {
+						siteId = forumManager.getContextForForumById(forum.getId());
+						forums.add(forum);
+					}
 				}else{
 					forums = forumManager.getDiscussionForumsWithTopics(siteId);
 				}
-				
+
 				// retrieve all of the gradebook items here so we aren't checking repeatedly
 				Map<String, Long> gbItemNameToId = new HashMap<String, Long>();
-				try {
-				    GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-				    List<Assignment> gbItems = gradingService.getAssignments(siteId);
-				    if (gbItems != null) {
-				        for (Assignment gbItem : gbItems) {
-				            gbItemNameToId.put(gbItem.getName(), gbItem.getId());
-				        }
-				    }
-				} catch (Exception e) {
-				    log.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
+				if (siteId != null) {
+					try {
+					    GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+					    final Gradebook gradebook = (Gradebook) gradingService.getGradebook(siteId);
+					    List<Assignment> gbItems = gradingService.getAssignments(gradebook.getUid());
+					    if (gbItems != null) {
+					        for (Assignment gbItem : gbItems) {
+					            gbItemNameToId.put(gbItem.getName(), gbItem.getId());
+					        }
+					    }
+					} catch (Exception e) {
+					    log.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
+						}
 				}
 
 				for (DiscussionForum forum : forums) {

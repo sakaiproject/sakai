@@ -57,7 +57,7 @@ GradebookUpdateUngraded.prototype.setupConfirmation = function(){
         $confirmationModal.find(".gb-update-ungraded-cancel").focus();
       });
 
-      $confirmationModal.modal().modal('show');
+      const modal = new bootstrap.Modal($confirmationModal).toggle();
   };
 
 

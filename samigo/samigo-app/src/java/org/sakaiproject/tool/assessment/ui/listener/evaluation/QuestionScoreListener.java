@@ -334,7 +334,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 			// now we need filter by sections selected
 			List scores = new ArrayList(); // filtered list
-			Map useridMap = totalBean.getUserIdMap(TotalScoresBean.CALLED_FROM_QUESTION_SCORE_LISTENER);
+			Map useridMap = totalBean.getUserIdMap(TotalScoresBean.CALLED_FROM_QUESTION_SCORE_LISTENER, AgentFacade.getCurrentSiteId());
 			bean.setUserIdMap(useridMap);
 			log.debug("questionScores(): useridMap.size = " + useridMap.size());
 
@@ -763,7 +763,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					String correct = evaluationMessages.getString("alt_correct");
 					String incorrect = evaluationMessages.getString("alt_incorrect");
 					String checkmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--check feedBackCheck\"></span>", correct);
-					String crossmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--delete feedBackCross\"></span>", incorrect);
+					String crossmarkGif = String.format("<span title=\"%s\" class=\"si si-remove feedBackCross\"></span>", incorrect);
 					if (gdataAnswer != null) {
 						answerText = ComponentManager.get(FormattedText.class).escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {

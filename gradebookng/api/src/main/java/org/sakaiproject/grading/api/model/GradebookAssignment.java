@@ -126,6 +126,9 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
     @Column(name = "IS_NULL_ZERO")
     private Boolean countNullsAsZeros = Boolean.FALSE;
 
+    @Column(name = "PLUS_LINE_ITEM")
+    private String lineItem;
+
     @Transient
     private String itemType;
 

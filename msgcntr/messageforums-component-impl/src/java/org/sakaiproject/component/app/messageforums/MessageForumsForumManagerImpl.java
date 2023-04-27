@@ -617,14 +617,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             return (Topic) q.getSingleResult();
         };
 
-        Topic res = getHibernateTemplate().execute(hcb);
+        Topic topic = (Topic) Hibernate.unproxy(getHibernateTemplate().execute(hcb));
 
-        if (res != null) {
-            BaseForum parentForum = open ? (BaseForum) Hibernate.unproxy(res.getOpenForum()) : (BaseForum) Hibernate.unproxy(res.getPrivateForum());
-            res.setBaseForum(parentForum);
+        if (topic != null) {
+            BaseForum parentForum = open ? (BaseForum) Hibernate.unproxy(topic.getOpenForum()) : (BaseForum) Hibernate.unproxy(topic.getPrivateForum());
+            topic.setBaseForum(parentForum);
         }
 
-        return res;
+        return topic;
     }
 
     public Topic getTopicByUuid(final String uuid) {
@@ -832,7 +832,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
            }
         }
         //make sure availability flag is set properly
-        forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate()));
+        forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate(), forum.getLockedAfterClosed()));
 
         forum = getHibernateTemplate().merge(forum);
 
@@ -893,7 +893,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         transformNullsToFalse(topic, currentUser);
 
         //make sure availability is set properly
-        topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
+        topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate(), topic.getLockedAfterClosed()));
 
         DiscussionTopic topicReturn = topic;
         if (isNew) {

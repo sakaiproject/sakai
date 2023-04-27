@@ -5,10 +5,10 @@
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
-        <version>23-SNAPSHOT</version>
+        <version>24-SNAPSHOT</version>
     </parent>
 
-    <name>BasicLTI API (basiclti-api)</name>
+    <name>LTI API (basiclti-api)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-api</artifactId>
     <packaging>jar</packaging>

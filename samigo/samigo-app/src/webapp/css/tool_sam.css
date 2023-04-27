@@ -54,9 +54,6 @@ table.presentation p {
 .progress-bar {
   background-color: var(--sakai-active-color-1);
 }
-.progress-bar-success {
-  background-color: var(--successBanner-bgcolor);
-}
 .samigo-subheading {
   font-weight: 400;
   border-bottom: 1px solid var(--sakai-border-color);
@@ -1440,10 +1437,6 @@ div#eventSearchContainer {
 
 table.stats-bar {
   margin-bottom: 0px;
-}
-
-table.stats-bar td {
-  width: 50%;
 }
 
 table.stats-bar th {

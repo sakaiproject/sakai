@@ -38,8 +38,8 @@ export class SakaiRubricsList extends RubricsElement {
 
     this.querySelectorAll("sakai-rubric, sakai-rubric-readonly").forEach(rubric => {
 
-      rubric.classList.remove("hidden");
-      rubric.classList.toggle("hidden", !rubric.matches(search));
+      rubric.classList.remove("d-none");
+      rubric.classList.toggle("d-none", !rubric.matches(search));
     });
   }
 
@@ -166,13 +166,13 @@ export class SakaiRubricsList extends RubricsElement {
         this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
         break;
       case rubricTitle:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.siteName.localeCompare(b.metadata.siteName) : b.metadata.siteName.localeCompare(a.metadata.siteName));
+        this.rubrics.sort((a, b) => ascending ? a.siteTitle.localeCompare(b.siteTitle) : b.siteTitle.localeCompare(a.siteTitle));
         break;
       case rubricCreator:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.creatorName.localeCompare(b.metadata.creatorName) : b.metadata.creatorName.localeCompare(a.metadata.creatorName));
+        this.rubrics.sort((a, b) => ascending ? a.creatorDisplayName.localeCompare(b.creatorDisplayName) : b.creatorDisplayName.localeCompare(a.creatorDisplayName));
         break;
       case rubricModified:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.modified.localeCompare(b.metadata.modified) : b.metadata.modified.localeCompare(a.metadata.modified));
+        this.rubrics.sort((a, b) => ascending ? a.formattedModifiedDate.localeCompare(b.formattedModifiedDate) : b.formattedModifiedDate.localeCompare(a.formattedModifiedDate));
         break;
     }
     this.requestUpdate('rubrics');

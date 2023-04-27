@@ -103,7 +103,7 @@
 		<form id="sitesForm" name="sitesForm" action="#toolForm("SiteAction")" method="post">
 			<input type="hidden" name="sakai_action" id="sakai_action" value="" />
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			<div class="table-responsive">
+			<div class="table">
 				<table class="table table-striped table-hover table-bordered" summary="$tlang.getString('list.summary')" id="siteList">
 					<thead>
 						<tr>
@@ -123,7 +123,7 @@
 								</a>
 							</th>
 							#if($show_id_column)
-								<th id="id" scope="col" class="hidden-xs">
+								<th id="id" scope="col" class="d-none d-sm-table-cell">
 									<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_id)")" title="$tlang.getString('list.sortbyid')">
 										$tlang.getString("list.id")
 										#if ($currentSortedBy.equals($sortby_id))
@@ -136,7 +136,7 @@
 									</a>
 								</th>
 							#end
-							<th id="type" scope="col" class="hidden-xs">
+							<th id="type" scope="col" class="d-none d-sm-table-cell">
 								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_type)")" title="$tlang.getString('list.sortbytype')">
 									$tlang.getString("list.type")
 									#if ($currentSortedBy.equals($sortby_type))
@@ -148,7 +148,7 @@
 									#end
 								</a>
 							</th>
-							<th id="createdBy" scope="col" class="hidden-xs">
+							<th id="createdBy" scope="col" class="d-none d-sm-table-cell">
 								<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$formattedText.escapeUrl($sortby_createdby)")" title="$tlang.getString('list.sortbycreator')">
 									$tlang.getString("list.creator")
 									#if ($currentSortedBy.equals($sortby_createdby))
@@ -160,7 +160,7 @@
 									#end
 								</a>
 							</th>
-							<th id="term" scope="col" class="hidden-xs">
+							<th id="term" scope="col" class="d-none d-sm-table-cell">
 								$tlang.getString("list.term")
 							</th>
 							<th id="published" scope="col">
@@ -217,21 +217,21 @@
 									</a>
 								</td>
 								#if($show_id_column)
-									<td headers="id" class="hidden-xs">
+									<td headers="id" class="d-none d-sm-table-cell">
 										$formattedText.escapeHtml($site.getId())
 									</td>
 								#end
-								<td headers="type" class="hidden-xs">
+								<td headers="type" class="d-none d-sm-table-cell">
 									#set($type="")
 									#set($type = $site.getType())
 									$!type
 								</td>
-								<td headers="createdBy" class="hidden-xs">
+								<td headers="createdBy" class="d-none d-sm-table-cell">
 									#if ($site.CreatedBy)
 										$formattedText.escapeHtml($site.CreatedBy.DisplayId)
 									#end
 								</td>
-								<td headers="term" class="hidden-xs">
+								<td headers="term" class="d-none d-sm-table-cell">
 									#if($!courseSiteTypeStrings.contains($site.getType()))
 										#set($term = "")
 										#set($term = $properties.getProperty('term'))

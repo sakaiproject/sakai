@@ -247,7 +247,7 @@ $Id$
         </table>
         </h:panelGroup>
         <h:panelGroup layout="block" styleClass="panel panel-default">
-          <div class="panel-heading" style="padding-top: 1px;padding-bottom: 1px;">
+          <div class="card text-center bg-light" style="padding-top: 1px;padding-bottom: 1px;">
             <strong>
               <h2>
                 <h:outputText value="#{evaluationMessages.fsd}" />
@@ -325,7 +325,7 @@ $Id$
               <h3 class="part-title">
                 <h:outputText value="#{item.title}" escape="false" />
               </h3>
-              <div class="panel panel-default" />
+              <div class="card" />
               <div class="question-text panel-heading">
                 <strong>
                   <h:outputText value="#{item.questionText}" escape="false" /></strong>
@@ -367,7 +367,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'progress-bar-success' : '' }
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : '' }
                         test\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\"
                         aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">"
                         escape="false" />
@@ -403,7 +403,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar progress-bar-success\" role=\"progressbar\"
+                      <h:outputText value="<div class=\" progress-bar bg-success\" role=\"progressbar\"
                         aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
                         #{bar.columnHeight}%;\">"
                         escape="false">
@@ -443,7 +443,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar progress-bar-success\" role=\"progressbar\"
+                      <h:outputText value="<div class=\" progress-bar bg-success\" role=\"progressbar\"
                         aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
                         #{bar.columnHeight}%;\">"
                         escape="false">
@@ -578,7 +578,7 @@ $Id$
                 </h:column>
                 <h:column>
                   <h:panelGroup>
-                    <div class="table-responsive question-thirteen-holder">
+                    <div class="table question-thirteen-holder">
                       <t:dataList layout="unorderedList" styleClass="question-with-progress" value="#{bar.itemBars}"
                         var="itemBar">
                       </t:dataList>

@@ -30,8 +30,8 @@
 		</div>
 
 		<form action="#toolForm("$action")" method="post">
-			<div class="table-responsive">
-				<table id="joinableSites" class="table table-responsive table-bordered table-striped table-hover" summary="$tlang.getString("mb.list.joinable.summary")">
+			<div class="table">
+				<table id="joinableSites" class="table table table-bordered table-striped table-hover" summary="$tlang.getString("mb.list.joinable.summary")">
 					<thead>
 						<tr>
 							<th id="worksite" class="attach">

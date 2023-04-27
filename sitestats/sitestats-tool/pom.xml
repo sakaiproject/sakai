@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.sakaiproject.sitestats</groupId>
     <artifactId>sitestats</artifactId>
-    <version>23-SNAPSHOT</version><!-- sitestats.version --> 
+    <version>24-SNAPSHOT</version><!-- sitestats.version --> 
   </parent>
   
   <!-- Packaging -->
@@ -148,7 +148,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>yuicompressor-maven-plugin</artifactId>
-        <version>1.2</version>
+        <version>1.5.1</version>
         <executions>
           <execution>
             <goals>

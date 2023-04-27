@@ -28,8 +28,8 @@
 				
 			<div class="act">
 				<button id="gb-bulk-edit-fake-submit" class="active"><wicket:message key="button.savechanges" /></button>
-				<button id="gb-bulk-edit-real-submit" type="submit" wicket:id="submit" class="hide active"><wicket:message key="button.savechanges" /></button>
-				<button type="submit" wicket:id="cancel"><wicket:message key="button.cancel" /></button>
+				<button id="gb-bulk-edit-real-submit" type="submit" wicket:id="submit" class="d-none active"><wicket:message key="button.savechanges" /></button>
+				<button type="submit" wicket:id="cancel" class="btn-link"><wicket:message key="button.cancel" /></button>
 			</div>
 
 		</form>
@@ -39,7 +39,7 @@
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 							<h3 class="modal-title"><wicket:message key="bulkedit.confirmation.title" /></h3>
 						</div>
 						<div class="modal-body">

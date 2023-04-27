@@ -5,7 +5,7 @@
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
-        <version>23-SNAPSHOT</version>
+        <version>24-SNAPSHOT</version>
     </parent>
 
     <name>BasicLIS Implementation (imsblis)</name>
@@ -69,7 +69,6 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>${json.simple.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -78,6 +77,10 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

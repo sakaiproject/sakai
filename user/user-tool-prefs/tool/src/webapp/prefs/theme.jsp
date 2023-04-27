@@ -10,15 +10,14 @@
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-	<link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 		<h:form id="theme_form" rendered="#{UserPrefsTool.prefShowThemePreferences==true}">
 
 			<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 
-			<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
-			<script type="text/javascript" src="/library/js/spinner.js"></script>
-			<script type="text/javascript">
+			<script src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+			<script src="/library/js/spinner.js"></script>
+			<script>
 				$PBJQ(document).ready(function(){
 					fixImplicitLabeling();
 				})

@@ -420,6 +420,10 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String SORTED_BY_OPENDATE = "opendate";
     /**
+     * sort by assignment soft removed date
+     */
+    private static final String SORTED_BY_SOFT_REMOVED_DATE = "softremoveddate";
+    /**
      * sort by group modified 
      */
     static final String SORTED_BY_MODIFIEDUSER = "modifieduser";
@@ -2854,7 +2858,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 Optional<AssociationTransferBean> optAssociation
                     = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, a.getId(), a.getContext());
                 if (optAssociation.isPresent()) {
-                    rubricMap.put(a.getId(), optAssociation.get().rubricId);
+                    rubricMap.put(a.getId(), optAssociation.get().getRubricId());
                 }
             } catch (Exception e) {
                 log.error("Failed to load rubric map", e);
@@ -3479,7 +3483,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Placement placement = toolManager.getCurrentPlacement();
         // String contentReturn = SakaiBLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() +
         String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId()
-                + "/sakai.basiclti.admin.helper.helper"
+                + "/sakai.lti.admin.helper.helper"
                 + "?panel=AssignmentsMain"
 				+ "&flow=assignment";
          context.put("findExternalToolUrl", contentReturn);
@@ -3559,7 +3563,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (!gAssignment.getExternallyMaintained() || gAssignment.getExternallyMaintained() && gAssignment.getExternalAppName().equals(assignmentService.getToolId())) {
 
                 // gradebook item has been associated or not
-                String gaId = gAssignment.getExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getName();
+                String gaId = gAssignment.getExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getId().toString();
                 String status = "";
                 if (gAssignmentIdTitles.containsKey(gaId)) {
                     String assignmentTitle = gAssignmentIdTitles.get(gaId);
@@ -4813,7 +4817,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Optional<AssociationTransferBean> optAssociation
                 = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignment.getId(), assignment.getContext());
             if (optAssociation.isPresent()) {
-                context.put("rubricId", optAssociation.get().rubricId);
+                context.put("rubricId", optAssociation.get().getRubricId());
             }
         } catch (Exception e) {
             log.error("Failed to get association", e);
@@ -7494,8 +7498,8 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Object> rubricAssociationMap = new HashMap<>();
             rubricAssociationMap.put("rubricId", rubricId);
             Map<String, String> rubricAssociationParameters = new HashMap<>();
-            rubricAssociationParameters.put("fineTunePoints", params.getString("rbcs-config-fineTunePoints"));
-            rubricAssociationParameters.put("hideStudentPreview", params.getString("rbcs-config-hideStudentPreview"));
+            rubricAssociationParameters.put("fineTunePoints", params.getString(RubricsConstants.RBCS_CONFIG + "fineTunePoints"));
+            rubricAssociationParameters.put("hideStudentPreview", params.getString(RubricsConstants.RBCS_CONFIG + "hideStudentPreview"));
             rubricAssociationMap.put("parameters", rubricAssociationParameters);
             try {
                 state.setAttribute(RUBRIC_ASSOCIATION, (new ObjectMapper()).writeValueAsString(rubricAssociationMap));
@@ -7775,6 +7779,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 // check the date is valid
                 if (!resubmitCloseTime.isAfter(openTime)) {
                     addAlert(state, rb.getString("acesubdea6"));
+                }
+                if (resubmitCloseTime.isBefore(dueTime)) {
+                	addAlert(state, rb.getString("acesubdea7"));
                 }
             }
         } else if (Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION != Assignment.SubmissionType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)]) {
@@ -11501,8 +11508,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String privateNotes = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_PRIVATE_NOTES), true);
             // private notes value changed?
-            hasChange = submission != null && valueDiffFromStateAttribute(state, privateNotes, submission.getPrivateNotes());
-            if (feedbackComment != null) {
+            hasChange = !hasChange && submission != null ? valueDiffFromStateAttribute(state, privateNotes, submission.getPrivateNotes()) : hasChange;
+            if (privateNotes != null) {
                 state.setAttribute(GRADE_SUBMISSION_PRIVATE_NOTES, privateNotes);
             }
 
@@ -15470,6 +15477,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 Instant t1 = ((Assignment) o1).getDueDate();
                 Instant t2 = ((Assignment) o2).getDueDate();
                 result = compareInstant(t1, t2);
+            } else if (m_criteria.equals(SORTED_BY_SOFT_REMOVED_DATE)) {
+                // sorted by the assignment due date
+                Instant t1 = ((Assignment) o1).getSoftRemovedDate();
+                Instant t2 = ((Assignment) o2).getSoftRemovedDate();
+                result = compareInstant(t1, t2);
             } else if (m_criteria.equals(SORTED_BY_MODIFIEDDATE)) {
                 Instant t1 = ((Assignment) o1).getDateModified();
                 Instant t2 = ((Assignment) o2).getDateModified();
@@ -15504,27 +15516,13 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             } else if (m_criteria.equals(SORTED_BY_NUM_SUBMISSIONS)) {
                 // sort by numbers of submissions
+                Assignment assignment1 = (Assignment) o1;
+                String assignment1reference = AssignmentReferenceReckoner.reckoner().assignment(assignment1).reckon().getReference();
+                int subNum1 = assignment1.getDraft() ? -1 : assignmentService.countSubmissions(assignment1reference, null);
 
-                // initialize
-                int subNum1 = 0;
-                int subNum2 = 0;
-                Instant t1, t2;
-
-                Iterator submissions1 = assignmentService.getSubmissions((Assignment) o1).iterator();
-                while (submissions1.hasNext()) {
-                    AssignmentSubmission submission1 = (AssignmentSubmission) submissions1.next();
-                    t1 = submission1.getDateSubmitted();
-
-                    if (t1 != null) subNum1++;
-                }
-
-                Iterator submissions2 = assignmentService.getSubmissions((Assignment) o2).iterator();
-                while (submissions2.hasNext()) {
-                    AssignmentSubmission submission2 = (AssignmentSubmission) submissions2.next();
-                    t2 = submission2.getDateSubmitted();
-
-                    if (t2 != null) subNum2++;
-                }
+                Assignment assignment2 = (Assignment) o2;
+                String assignment2reference = AssignmentReferenceReckoner.reckoner().assignment(assignment2).reckon().getReference();
+                int subNum2 = assignment2.getDraft() ? -1 : assignmentService.countSubmissions(assignment2reference, null);
 
                 result = (subNum1 > subNum2) ? 1 : -1;
 

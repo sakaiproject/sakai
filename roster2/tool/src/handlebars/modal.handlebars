@@ -1,0 +1,21 @@
+<!-- roster modal -->
+<div id="roster-modal" class="modal fade" role="dialog" aria-labelledby="roster-modal-title">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="roster-modal-title" class="modal-title">{{title}}</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{tr 'roster_modal_close'}}"></button>
+      </div>
+      {{#if htmlContent}}
+      <div class="modal-body">
+        {{{htmlContent}}}
+      </div>
+      {{/if}}
+      {{#if htmlFooter}}
+      <div class="modal-footer">
+        {{{htmlFooter}}}
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>

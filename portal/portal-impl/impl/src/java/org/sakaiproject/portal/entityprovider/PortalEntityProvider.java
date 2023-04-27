@@ -42,8 +42,8 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.messaging.api.MessagingService;
-import org.sakaiproject.messaging.api.BullhornAlert;
+import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.portal.beans.PortalNotifications;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
@@ -81,7 +81,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	private final static String WORKSPACE_IDS_KEY = "workspaceIds";
 
 	private MemoryService memoryService;
-	private MessagingService messagingService;
+	private UserMessagingService userMessagingService;
 	private SearchService searchService;
 	private SessionManager sessionManager;
 	private SiteService siteService;
@@ -143,50 +143,68 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		return noti;
 	}
 
-	@EntityCustomAction(action = "bullhornAlerts", viewKey = EntityView.VIEW_LIST)
-	public ActionReturn getBullhornAlerts(EntityView view) {
+	@EntityCustomAction(action = "notifications", viewKey = EntityView.VIEW_LIST)
+	public ActionReturn getNotifications(EntityView view) {
+
+		String currentUserId = getCheckedCurrentUser();
 
 		ResourceLoader rl = new ResourceLoader("bullhorns");
-		List<BullhornAlert> alerts = messagingService.getAlerts(getCheckedCurrentUser());
+		List<UserNotification> notifications = userMessagingService.getNotifications();
 
 		Map<String, Object> data = new HashMap<>();
 		data.put("i18n", rl);
 
-		if (alerts.size() > 0) {
-			data.put("alerts", alerts);
+		if (notifications.size() > 0) {
+			data.put("notifications", notifications);
 		}
 
 		return new ActionReturn(data);
 	}
 
-	@EntityCustomAction(action = "clearBullhornAlert", viewKey = EntityView.VIEW_LIST)
-	public boolean clearBullhornAlert(Map<String, Object> params) {
+	@EntityCustomAction(action = "clearNotification", viewKey = EntityView.VIEW_LIST)
+	public boolean clearNotification(Map<String, Object> params) {
 
 		String currentUserId = getCheckedCurrentUser();
 
 		try {
-			long alertId = Long.parseLong((String) params.get("id"));
-			return messagingService.clearAlert(currentUserId, alertId);
+			long id = Long.parseLong((String) params.get("id"));
+			return userMessagingService.clearNotification(id);
 		} catch (Exception e) {
-			log.error("Failed to clear bullhorn alert", e);
+			log.error("Failed to clear notification: {}", e.toString());
 		}
 
 		return false;
 	}
 
-	@EntityCustomAction(action = "clearAllBullhornAlerts", viewKey = EntityView.VIEW_LIST)
-	public boolean clearAllBullhornAlerts(Map<String, Object> params) {
+	@EntityCustomAction(action = "clearAllNotifications", viewKey = EntityView.VIEW_LIST)
+	public boolean clearAllNotifications(Map<String, Object> params) {
 
 		String currentUserId = getCheckedCurrentUser();
 
 		try {
-			return messagingService.clearAllAlerts(currentUserId);
+			return userMessagingService.clearAllNotifications();
 		} catch (Exception e) {
-			log.error("Failed to clear all bullhorn alerts", e);
+			log.error("Failed to clear all notifications", e);
 		}
 
 		return false;
 	}
+
+	@EntityCustomAction(action = "markAllNotificationsViewed", viewKey = EntityView.VIEW_LIST)
+	public boolean markAllNotificationsViewed(Map<String, Object> params) {
+
+		String currentUserId = getCheckedCurrentUser();
+
+		try {
+			userMessagingService.markAllNotificationsViewed();
+		    return true;
+		} catch (Exception e) {
+			log.error("Failed to mark all notifications as viewed: {}", e.toString());
+		}
+
+		return false;
+	}
+
 
 	private String getCheckedCurrentUser() throws SecurityException {
 

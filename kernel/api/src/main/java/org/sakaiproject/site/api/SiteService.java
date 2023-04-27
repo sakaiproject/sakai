@@ -78,9 +78,6 @@ public interface SiteService extends EntityProducer
 	/** Name for the event of adding a course site */ 
 	static final String SECURE_ADD_COURSE_SITE = "site.add.course";
 	
-	/** Name for the event of adding a portfolio site */ 
-	static final String SECURE_ADD_PORTFOLIO_SITE = "site.add.portfolio";
-	
 	/** Name for the event of adding a project site */ 
 	static final String SECURE_ADD_PROJECT_SITE = "site.add.project";
 
@@ -488,6 +485,17 @@ public interface SiteService extends EntityProducer
 	boolean allowUpdateGroupMembership(String id);
 
 	/**
+	 * check permissions for updating a site's groups' memberships
+	 *
+	 * @param siteId
+	 *        The site id.
+	 * @param groupId
+	 *        The group id.
+	 * @return true if is allowed to update the group memberships, false if not.
+	 */
+	boolean allowUpdateGroupMembership(String siteId, String groupId);
+
+	/**
 	 * Save any updates to this site - it must be a defined site (the id must exist) and the user must have update permissions.
 	 * 
 	 * @param site
@@ -555,12 +563,6 @@ public interface SiteService extends EntityProducer
 	boolean allowAddCourseSite();
 
 	/**
-	 *  Can the user add sites of type Portfolio as defined by portfolioSiteType in sakai.properties
-	 * @return
-	 */
-	boolean allowAddPortfolioSite();
-	
-	/**
 	 *  Can the user add sites of type Project as defined by projectSiteType in sakai.properties
 	 * @return
 	 */
@@ -605,6 +607,30 @@ public interface SiteService extends EntityProducer
 	 *            if the current user does not have permission to add a site.
 	 */
 	Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException;
+
+	/**
+	 * Add a new site. Will be structured just like <other>, if the other site has no realm, we use the realm template.
+	 *
+	 * Most normal sites created with Site Info have a realm.   But some template sites that are hand-inserted into
+	 * the database like !worksite - do not have a realm.   We could hand insert lots of realms that are in effect
+	 * copies of !site.template or !site.template.course - which then have to be maintained separately, or just allow
+	 * a realmless site to be "other" and have a realm template as a fall back option if a site does not have a realm.
+	 *
+	 * @param id
+	 *        The site id.
+	 * @param other
+	 *        The site to make this site a structural copy of.
+	 * @param realmTemplate
+	 *        A realm template to use if the other site does not have a realm
+	 * @return The new site object.
+	 * @exception IdInvalidException
+	 *            if the site id is invalid.
+	 * @exception IdUsedException
+	 *            if the site id is already used.
+	 * @exception PermissionException
+	 *            if the current user does not have permission to add a site.
+	 */
+	Site addSite(String id, Site other, String realmTemplate) throws IdInvalidException, IdUsedException, PermissionException;
 
 	/**
 	 * check permissions for removeSite().

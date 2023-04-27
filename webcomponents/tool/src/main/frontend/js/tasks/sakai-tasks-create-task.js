@@ -42,6 +42,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.task = { ...this.defaultTask};
     this.assignationType = "user";
     this.mode = "create";
+    this.optionsGroup = [];
     loadProperties("tasks").then(r => this.i18n = r);
   }
 
@@ -402,6 +403,9 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       }
       sakai-editor {
         width: 100%;
+      }
+      .global-overlays {
+        z-index: 1200;
       }
     `];
   }

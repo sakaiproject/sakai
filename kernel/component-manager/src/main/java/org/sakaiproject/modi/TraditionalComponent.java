@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2003-2022 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.modi;
 
 import lombok.Getter;
@@ -46,7 +61,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
      * At a minimum, it must have a WEB-INF/ directory containing a components.xml file. Optionally, it may have:
      * <p>
      * - a classes/ directory to put on the classpath - a lib/ directory with .jar files to put on the classpath - a
-     * demo-components.xml file for special beans or properties in "demo mode" (when sakai.demo is true)
+     * components-demo.xml file for special beans or properties in "demo mode" (when sakai.demo is true)
      *
      * @param path absolute path on disk to the component directory
      * @throws MalformedComponentException if the component is not well-formed
@@ -58,7 +73,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
         this.classes = webInf.resolve("classes");
         this.lib = webInf.resolve("lib");
         this.componentsXml = webInf.resolve("components.xml");
-        this.demoComponentsXml = webInf.resolve("demo-components.xml");
+        this.demoComponentsXml = webInf.resolve("components-demo.xml");
         validate();
     }
 
@@ -80,7 +95,7 @@ public class TraditionalComponent implements BeanDefinitionSource {
 
     /**
      * Set up a ClassLoader for this components packaged classes/jars, and register the bean definitions from
-     * components.xml (and demo-components.xml, if in demo mode) with the Spring context.
+     * components.xml (and components-demo.xml, if in demo mode) with the Spring context.
      *
      * @param registry the bean registry for the active application context
      */

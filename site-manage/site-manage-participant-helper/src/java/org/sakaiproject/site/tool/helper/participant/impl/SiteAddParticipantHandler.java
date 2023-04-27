@@ -587,8 +587,7 @@ public class SiteAddParticipantHandler {
 								addedUserInfos.add("uid=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false;siteId=" + site.getId());
 								
 								// Add the user to the list for the User Auditing Event Logger
-								String currentUserId = userDirectoryService.getUserEid(sessionManager.getCurrentSessionUserId());
-								String[] userAuditString = {site.getId(),eId,role,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+								String[] userAuditString = {site.getId(),user.getId(),role,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),sessionManager.getCurrentSessionUserId()};
 								userAuditList.add(userAuditString);
 
 								// send notification

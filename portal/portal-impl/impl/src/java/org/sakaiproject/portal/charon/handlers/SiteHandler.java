@@ -22,8 +22,11 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,7 +44,9 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -64,6 +69,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -73,6 +79,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -99,8 +106,9 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final String INCLUDE_TABS = "include-tabs";
 
-	private static final String URL_FRAGMENT = "site";
-	
+	// Cannot be static to allow for this class to be extended at a different fragment
+	protected String URL_FRAGMENT = "site";
+
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -137,22 +145,31 @@ public class SiteHandler extends WorksiteHandler
 	private static final boolean SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT = true;
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
+	private static final String SELECTED_PAGE_PROP = "selectedPage";
 
 	protected ProfileImageLogic imageLogic;
+	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
+
+	private UserTimeService userTimeService;
 
 	public SiteHandler()
 	{
-		setUrlFragment(SiteHandler.URL_FRAGMENT);
+		// Allow any sub-classes to register their own URL_FRAGMENT
+		// https://stackoverflow.com/questions/41566202/possible-to-avoid-default-call-to-super-in-java
+		if(this.getClass() == SiteHandler.class) {
+			setUrlFragment(URL_FRAGMENT);
+		}
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 		imageLogic = ComponentManager.get(ProfileImageLogic.class);
+		userTimeService = ComponentManager.get(UserTimeService.class);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals(SiteHandler.URL_FRAGMENT)))
+		if ((parts.length >= 2) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			// This is part of the main portal so we simply remove the attribute
 			session.setAttribute(PortalService.SAKAI_CONTROLLING_PORTAL, null);
@@ -203,13 +220,9 @@ public class SiteHandler extends WorksiteHandler
 			toolId = parts[4];
 			String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
 					+ Web.makePath(parts, 4, parts.length);
-			String queryString = Validator.generateQueryString(req);
-			if (queryString != null)
-			{
-				toolUrl = toolUrl + "?" + queryString;
-			}
 			portalService.setResetState("true");
-			res.sendRedirect(toolUrl);
+			res.addHeader("Cache-Control", "no-cache");
+			res.sendRedirect(URLUtils.sanitisePath(toolUrl));
 			return RESET_DONE;
 		}
 
@@ -247,18 +260,12 @@ public class SiteHandler extends WorksiteHandler
 				}
 			}
 
-			String pageUrl = req.getContextPath() + "/site/" + siteId + "/page"
-					+ Web.makePath(parts, 4, parts.length);
+			String pageUrl = URLUtils.sanitisePath(req.getContextPath() + "/site/" + siteId + "/page"
+					+ Web.makePath(parts, 4, parts.length));
 
-			String queryString = Validator.generateQueryString(req);
-			if (queryString != null)
-			{
-				pageUrl = pageUrl + "?" + queryString;
-				if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
-			} else {
-				if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
-			}
+			if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
 			portalService.setResetState("true");
+			res.addHeader("Cache-Control", "no-cache");
 			res.sendRedirect(pageUrl);
 			return RESET_DONE;
 		}
@@ -343,6 +350,7 @@ public class SiteHandler extends WorksiteHandler
 					userId != null && portal.getSiteHelper().isJoinable(siteId, userId))
 			{
 				String redirectUrl = Web.returnUrl(req, "/join/"+siteId);
+				res.addHeader("Cache-Control", "no-cache");
 				res.sendRedirect(redirectUrl);
 				return;
 			}
@@ -444,10 +452,10 @@ public class SiteHandler extends WorksiteHandler
 			// http://localhost:8080/portal/site/963b28b/tool/0996adf
 			String[] pieces = pagerefUrl.split("/");
 			if ( pieces.length > 6 && "tool".equals(pieces[6]) ) {
-				// SAK-25503 - This probably should be a log.debug later
 				String queryString = req.getQueryString();
-				if ( queryString != null ) pagerefUrl = pagerefUrl + '?' + queryString;
-				log.warn("Redirecting tool inline url: "+pagerefUrl);
+				if ( queryString != null ) pagerefUrl = URLUtils.sanitisePath(pagerefUrl) + '?' + queryString;
+				log.debug("Redirecting tool inline url: "+pagerefUrl);
+				res.addHeader("Cache-Control", "no-cache");
 				res.sendRedirect(pagerefUrl);
 				return;
 			}
@@ -562,6 +570,15 @@ public class SiteHandler extends WorksiteHandler
 		addLocale(rcontext, site, session.getUserId());
 
 		addTimeInfo(rcontext);
+
+		try {
+			PreferencesEdit prefs = PreferencesService.edit(session.getUserId());
+			ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			props.addProperty(SELECTED_PAGE_PROP, page.getId());
+			PreferencesService.commit(prefs);
+		} catch (Exception any) {
+			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
+		}
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
@@ -593,7 +610,43 @@ public class SiteHandler extends WorksiteHandler
 
 		//Show a confirm dialog when publishing an unpublished site.
 		rcontext.put("publishSiteDialogEnabled", ServerConfigurationService.getBoolean("portal.publish.site.confirm.enabled", false));
+		Map<String, String> toolTitles = new HashMap<>();
+		site.getPages().forEach(pageNow -> {
 
+			ToolConfiguration firstTool = pageNow.getTools().get(0);
+			toolTitles.put(firstTool.getToolId(), firstTool.getTitle());
+			if (firstTool.getToolId().equals("sakai.siteinfo")) {
+				rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
+			}
+		});
+		rcontext.put("toolTitles", toolTitles);
+
+		if (StringUtils.equals(site.getProperties().getProperty("publish_type"), "scheduled")) {	// custom-scheduled availability date
+			Date scheduledDate = userTimeService.parseISODateInUserTimezone(site.getProperties().getProperty("publish_date"));
+			if (scheduledDate.toInstant().isAfter(Instant.now())) {
+				rcontext.put("scheduledate", userTimeService.dateTimeFormat(scheduledDate, rb.getLocale(), DateFormat.SHORT));
+			} else {
+				// schedule date is in the past so set to false
+				rcontext.put("scheduledate", false);
+			}
+		} else if (StringUtils.equals(site.getProperties().getProperty("publish_type"), "auto")) {	// automatically-managed publishing
+			try {
+				if (cms.getAcademicSession(site.getProperties().getProperty("term_eid")).getStartDate() != null) {
+					long leadtime = ServerConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0) * 1000L * 60L * 60L * 24L;
+					Date publishDate = new Date(cms.getAcademicSession(site.getProperties().getProperty("term_eid")).getStartDate().getTime() - leadtime);
+					if (publishDate.toInstant().isAfter(Instant.now())) {
+						rcontext.put("scheduledate", userTimeService.dateFormat(publishDate, rb.getLocale(), DateFormat.LONG));
+					} else {
+						rcontext.put("scheduledate", false);
+					}
+				} else {
+					rcontext.put("scheduledate", false);
+				}
+			} catch(IdNotFoundException ignored) {
+				log.debug("Error getting term for auto start term date.");
+				rcontext.put("scheduledate", false);
+			}
+		}
 		//Find any quick links ready for display in the top navigation bar,
 		//they can be set per site or for the whole portal.
 		if (userId != null) {
@@ -605,6 +658,7 @@ public class SiteHandler extends WorksiteHandler
 				rcontext.put("quickLinks", quickLinks);
 			}
 		}
+
 		doSendResponse(rcontext, res, null);
 
 		StoredState ss = portalService.getStoredState();
@@ -613,7 +667,6 @@ public class SiteHandler extends WorksiteHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
-
 	}
 
 	/*
@@ -685,6 +738,13 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
+			ResourceProperties resourceProperties = PreferencesService.getPreferences(session.getUserId())
+				.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			
+
+			rcontext.put("currentSiteId", siteId);
+			rcontext.put("sidebarSites", portal.getSiteHelper().getContextSitesWithPages(req, siteId, null, null, loggedIn));
+
 			try
 			{
 				if (loggedIn)
@@ -739,10 +799,6 @@ public class SiteHandler extends WorksiteHandler
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
 			rcontext.put("logoSkinRepo", skinRepo);
-			String siteType = portal.calcSiteType(siteId);
-			String cssClass = (siteType != null) ? siteType : "undeterminedSiteType";
-			rcontext.put("logoSiteType", siteType);
-			rcontext.put("logoSiteClass", cssClass);
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
@@ -898,6 +954,7 @@ public class SiteHandler extends WorksiteHandler
 			
 			int tabDisplayLabel = 1;
 			boolean toolsCollapsed = false;
+			String selectedPage = "";
 			boolean toolMaximised = false;
 
 			if (loggedIn) 
@@ -916,15 +973,26 @@ public class SiteHandler extends WorksiteHandler
 
 				try {
 					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
-				} catch (Exception any) {}
+				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
+					toolsCollapsed = false;
+				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
+					log.warn("Exception caught whilst getting toolsCollapsed: {}", any.toString());
+				}
+
+				selectedPage = props.getProperty(SELECTED_PAGE_PROP);
 
 				try {
 					toolMaximised = props.getBooleanProperty("toolMaximised");
-				} catch (Exception any) {}
+				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
+					toolMaximised = false;
+				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
+					log.warn("Exception caught whilst getting toolMaximised: {}", any.toString());
+				}
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("sidebarCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put(SELECTED_PAGE_PROP, selectedPage);
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
@@ -947,8 +1015,6 @@ public class SiteHandler extends WorksiteHandler
 
 			boolean allowAddSite = false;
 			if(SiteService.allowAddCourseSite()) {
-				allowAddSite = true;
-			} else if (SiteService.allowAddPortfolioSite()) {
 				allowAddSite = true;
 			} else if (SiteService.allowAddProjectSite()) {
 				allowAddSite = true;

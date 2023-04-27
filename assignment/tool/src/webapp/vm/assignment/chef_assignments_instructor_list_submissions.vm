@@ -1,8 +1,8 @@
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 #rubricsRequirements
 #set( $H = '-' )
+#set( $T = 'T' )
 <script>includeLatestJQuery('assignments');</script>
-#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 #module("/webcomponents/grader/grader-toggle.js")
 #module("/webcomponents/sakai-user-photo.js")
 
@@ -65,10 +65,10 @@ function printView(url) {
 							##for non-point-based grading, choose the default grade from drop-down
 						<div class="form-group">
 							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")&nbsp;
+								<input type="checkbox" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")&nbsp;
 							</label>
 							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notSubmit" value="true"/> $tlang.getString("defaultGrade.notSubmit")<br/>
+								<input type="checkbox" name="notSubmit" value="true"/> $tlang.getString("defaultGrade.notSubmit")<br/>
 							</label>
 						</div>
 						<div class="flex-wrap">
@@ -231,25 +231,12 @@ function printView(url) {
 								<label>
 									$tlang.getString("gen.acesubunt")
 								</label>
-
-  <input type="text" id="allowResubmitDate" name="allowResubmitDate" class="datepicker" value="">
- 
-                            <script type="text/javascript">
-                                localDatePicker({
-                                    input:'#allowResubmitDate', 
-                                    useTime:1, 
-                                    val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-                                    parseFormat: 'YYYY-MM-DD HH:mm',
-                                    ashidden:{
-                                        month:"allow_resubmit_closeMonth",
-                                        day:"allow_resubmit_closeDay",
-                                        year:"allow_resubmit_closeYear",
-                                        hour:"allow_resubmit_closeHour",
-                                        minute:"allow_resubmit_closeMin"
-                                    }
-                                });
-                            </script>
-
+								<sakai-date-picker
+									label="$tlang.getString("gen.acesubunt")"
+									iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
+									hidden-prefix="allow_resubmit_close"
+									add-hidden-fields>
+								</sakai-date-picker>
 								## for save the resubmission choice
 								<div class="act">
 									<input type="submit" class="active" onclick="SPNR.disableControlsAndSpin( this, escapeList );" name="eventSubmit_doSave_resubmission_option" value="$tlang.getString("update")" accesskey="s" />
@@ -446,7 +433,7 @@ function printView(url) {
 								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
-								#if ($!userSubmission.hasVisibleAttachments && $submission.submitted)
+								#if ($!userSubmission.hasVisibleAttachments)
 									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
 								#end
 							</td>

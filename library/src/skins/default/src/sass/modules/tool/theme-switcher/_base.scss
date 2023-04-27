@@ -1,0 +1,42 @@
+#sakai-darkThemeSwitcher {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--sakai-background-color-1);
+    font-size: 16px;
+    line-height: 30px;
+    border: 1px solid var(--sakai-border-color);
+    font-weight: normal;
+    padding: 0;
+    border-radius: inherit;
+
+    span {
+        padding: 0 $standard-spacing;
+        pointer-events: none;
+    }
+}
+
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="false"] :first-child,
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="true"] :last-child {
+    display: inline-block;
+    border-radius: $button-radius; 
+    background: var(--sakai-primary-color-1);
+    color: var(--sakai-text-color-inverted);
+
+}
+
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="false"] :last-child,
+#sakai-darkThemeSwitcher[role="switch"][aria-checked="true"] :first-child {
+    background: none;
+    color: var(--sakai-text-color-1);
+}
+
+.sakaiThemeSwitch {
+    margin-bottom: 0;
+    font-weight: normal;
+    color: var(--sakai-text-color-1);
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}

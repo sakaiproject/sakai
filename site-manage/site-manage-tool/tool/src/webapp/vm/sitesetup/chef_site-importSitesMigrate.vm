@@ -15,7 +15,7 @@
 	$tlang.getString("sitinfimp.choose")
 	</p>
 	<form name="importSitesForm" action="#toolForm("$action")" method="post">
-		<div class="table-responsive">
+		<div class="table">
 			<table class ="table table-bordered table-hover table-striped" summary="$tlang.getString("import.choose.list.summary")">
 				<tr>
 					<th>
@@ -106,7 +106,7 @@
 													<input type="checkbox" class="siteimport-option" name="import-option-${option}-tool-${toolId}" title="$tlang.getString(${optionPropHelpKey})" value="true"/>
 													$tlang.getString(${optionPropKey})
 												</label>
-												<span class="import-option-help fa fa-question-circle" data-toggle="popover" data-content="$tlang.getString(${optionPropHelpKey})"/>
+												<span class="import-option-help si si-question-circle" data-bs-toggle="popover" data-bs-content="$tlang.getString(${optionPropHelpKey})"/>
 											</div>
 											#end
 										</div>
@@ -126,8 +126,9 @@
 		<input type="hidden" name="back" value="59" />
 		<input type="hidden" name="templateIndex" value="60" />
 		<input type="hidden" name="continue" value="$continue" />
+		<input type="hidden" id="import-confirm-message" value="$tlang.getFormattedMessage('sitinfimp.replace.confirm', $formattedText.escapeHtml($currentSite.getTitle()))" />
 		<p class="act">
-			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.finish')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" id="siteimport-finish-button" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.finish')" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>

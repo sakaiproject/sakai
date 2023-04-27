@@ -119,16 +119,28 @@ commons.switchState = function (state, arg) {
             editor.click(function (e) {
                 if (this.innerHTML == commons.i18n['post_editor_initial_text']) {
                     this.innerHTML = '';
-                    $('#commons-editor-post-button').prop('disabled', false);
                     editorPostButton.prop('disabled', false);
                     editorCancelButton.prop('disabled', false);
                 }
                 editor.focus();
+            }).on('drop', function (e) {
+                // clear placeholder text
+                if (this.innerHTML == commons.i18n['post_editor_initial_text']) {
+                    this.innerHTML = '';
+                    editorPostButton.prop('disabled', false);
+                    editorCancelButton.prop('disabled', false);
+                }
+                editor.focus();
+
+                // get data
+                const dt = e.originalEvent.dataTransfer || window.dataTransfer;
+                const dropped = dt.getData('text');
+                wrapAndInsert(dropped, true);
+                e.preventDefault();
             }).on('paste', function (e) {
 
-                var cd = e.originalEvent.clipboardData;
-                if (!cd) cd = window.clipboardData;
-                var pasted = cd.getData('text');
+                const cd = e.originalEvent.clipboardData || window.clipboardData;
+                const pasted = cd.getData('text');
                 wrapAndInsert(pasted, true);
                 e.preventDefault();
             }).blur(function (e) {
@@ -139,7 +151,9 @@ commons.switchState = function (state, arg) {
             });
             if(commons.currentUserPermissions.postDeleteAny){   //if the user can delete any post, we will give them access to Hi-Priority posting too.
                 document.getElementById('commons-editor-priority-container').removeAttribute('style');
-                $('[data-toggle="popover"]').popover(); //we need the popover to work only when Hi-Priority is exposed.
+                document.querySelectorAll("[data-bs-toggle='popover']").forEach(t => {
+                  (new bootstrap.Popover(t));
+                });
             }
             editorPostButton.click(function (e) {
 

@@ -1,0 +1,5 @@
+<noscript class="d-block text-center p-5 vh-100">
+    <div class="alert alert-danger js-warn-no-js shadow-lg">
+        ${rloader.sit_noscript_message}
+    </div>
+</noscript>

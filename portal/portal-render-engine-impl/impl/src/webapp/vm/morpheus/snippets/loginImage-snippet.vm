@@ -1,19 +1,15 @@
-<div id="loginLinksImage" class="Mrphs-loginUser">
+<div id="loginLinksImage" class="mx-2">
 
     #if (${loginHasImage1})
 
-        <p class="Mrphs-loginUser__menuitem">
-            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__image" data-warning="${logoutWarningMessage}"><img src="${loginImage1}" alt="${loginMessage}"></a>
-        </p>
+        <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-dark btn-outline-light mb-1 p-3 my-1" role="button" data-warning="${logoutWarningMessage}"><img src="${loginImage1}" alt="${loginMessage}"></a>
 
     #else
 
-        <p class="Mrphs-loginUser__menuitem">
-            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message" data-warning="${logoutWarningMessage}">
-                <i class="login-Icon"></i>
-                <span class="Mrphs-login-Message">${loginMessage}</span>
-            </a>
-        </p>
+        <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-dark btn-outline-light mb-1 p-3 my-1" role="button" data-warning="${logoutWarningMessage}">
+            <i class="login-Icon"></i>
+            <span>${loginMessage}</span>
+        </a>
 
     #end ## END of IF (${loginHasImage1})
 
@@ -21,18 +17,14 @@
 
         #if (${loginHasImage2})
 
-            <p class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitem--alt">
-                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__image"><img src="${loginImage2}" alt="${loginMessage2}"></a>
-            </p>
+            <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="btn btn-dark btn-outline-light mb-1 p-3 my-1" role="button"><img src="${loginImage2}" alt="${loginMessage2}"></a>
 
         #else
 
-            <p class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitemk--alt">
-                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__message">
-                    <i class="login-Icon"></i>
-                    <span class="Mrphs-login-Message">${loginMessage2}</span>
-                </a>
-            </p>
+            <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="btn btn-dark btn-outline-light mb-1 p-3 my-1" role="button">
+                <i class="login-Icon"></i>
+                <span>${loginMessage2}</span>
+            </a>
 
         #end ## END of IF (${loginHasImage2})
 

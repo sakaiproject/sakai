@@ -29,10 +29,29 @@
 		<property name="userNotificationProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider"/>
 	</bean>
 
+	<bean id="org.sakaiproject.sitemanage.api.SiteManageService.webservice"
+		  parent="org.sakaiproject.sitemanage.api.SiteManageService"
+		  class="org.sakaiproject.sitemanage.impl.SiteManageServiceImpl"
+		  init-method="init">
+	</bean>
+
 	<bean id="org.sakaiproject.sitemanage.api.SiteTypeProvider"
 			class="org.sakaiproject.sitemanage.impl.SiteTypeProviderImpl"
 			init-method="init"
 			destroy-method="destroy">
+	</bean>
+
+	<bean id="org.sakaiproject.sitemanage.api.UnpublishingSiteScheduleService"
+		  class="org.sakaiproject.sitemanage.impl.UnpublishingSiteScheduleServiceImpl">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+	<bean id="org.sakaiproject.sitemanage.api.PublishingSiteScheduleService"
+		  class="org.sakaiproject.sitemanage.impl.PublishingSiteScheduleServiceImpl">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 	</bean>
 	
 	<bean id="org.sakaiproject.sitemanage.api.SectionFieldProvider"
@@ -129,6 +148,15 @@
 		  init-method="init">
 		<property name="bundleLocation"><value>UserAuditService</value></property>
 		<property name="databaseSourceKey"><value>D</value></property>
+		<property name="hasParameters"><value>true</value></property>
+	</bean>
+
+	<bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.webservice"
+		  parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
+		  class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
+		  init-method="init">
+		<property name="bundleLocation"><value>UserAuditService</value></property>
+		<property name="databaseSourceKey"><value>W</value></property>
 		<property name="hasParameters"><value>true</value></property>
 	</bean>
 

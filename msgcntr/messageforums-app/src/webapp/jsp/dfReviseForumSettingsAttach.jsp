@@ -42,6 +42,7 @@
 
 	function setDatesEnabled(radioButton){
 		$(".calWidget").fadeToggle('slow');
+		$(".lockForumAfterCloseDateSpan").fadeToggle('slow');
 	}
 
 	function updateGradeAssignment(){
@@ -305,7 +306,10 @@
 						<h:outputLabel for="sendOpenCloseDateToCalendar" value="#{msgs.sendOpenCloseToCalendar}" />
 					</h:panelGroup>
 				</p>
-
+               <h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+                   <h:selectBooleanCheckbox id="lockForumAfterCloseDate" value="#{ForumTool.selectedForum.forum.lockedAfterClosed}"/>
+                   <h:outputLabel for="lockForumAfterCloseDate" value="#{msgs.lockForumAfterCloseDate}" />
+               </h:panelGroup>
 			</h:panelGroup>
 
 			<script>

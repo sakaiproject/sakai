@@ -3172,7 +3172,7 @@
       <value>/sakai_screensteps_discussionsUserGuide/whatistheDiscussionstool.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.discussions</value>
+      <value>sakai.forums</value>
     </property>
   </bean>
   <bean id="howdoIcreateanewdiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -7113,6 +7113,8 @@
         <ref bean="howdostudentsviewassessmentietestorquizfeedback"/>
         <ref bean="howcananinstructorretrieveassessmentsthatweresavedbutnotsubmitted"/>
         <ref bean="howdoIgivestudentsachoiceofquestionstoanswerinanassessment"/>
+        <ref bean="howdoIeditapublishedassessment"/>
+        <ref bean="howdoIeditanassessmenttoupdatethequestionsfromaquestionpool"/>
       </list>
     </property>
   </bean>
@@ -7678,6 +7680,28 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_testsandQuizzesUserGuide/howdoIgivestudentsachoiceofquestionstoanswerinanassessment.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIeditapublishedassessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIeditapublishedassessment</value>
+    </property>
+    <property name="name">
+      <value>How do I edit a published assessment?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_testsandQuizzesUserGuide/howdoIeditapublishedassessment.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIeditanassessmenttoupdatethequestionsfromaquestionpool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIeditanassessmenttoupdatethequestionsfromaquestionpool</value>
+    </property>
+    <property name="name">
+      <value>How do I edit an assessment to update the questions from a question pool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_testsandQuizzesUserGuide/howdoIeditanassessmenttoupdatethequestionsfromaquestionpool.html</value>
     </property>
   </bean>
   <bean id="webContentUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">

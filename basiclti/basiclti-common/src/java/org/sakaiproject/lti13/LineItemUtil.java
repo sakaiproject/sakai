@@ -54,7 +54,7 @@ import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.parseIMS8601;
 
 /**
- * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
+ * Some Sakai Utility code for IMS LTI This is mostly code to support the
  * Sakai conventions for making and launching BLTI resources within Sakai.
  */
 @SuppressWarnings("deprecation")
@@ -162,73 +162,78 @@ public class LineItemUtil {
 
 		String external_id = constructExternalId(tool_id, content, lineItem);
 
-		Assignment assignmentObject = null;
+		Assignment gradebookColumn = null;
+		Long gradebookColumnId = null;
 
 		// Check for duplicate labels
-		List<Assignment> assignments = getColumnsForToolDAO(context_id, tool_id);
+		List<Assignment> assignments = getColumnsForContextDAO(context_id);
 		if ( assignments == null ) {
 			throw new RuntimeException("Could not list columns for "+context_id+" tool="+tool_id+" (is the gradebook in the site?)");
 		}
 
+		boolean createNew = true;
 		for (Iterator i = assignments.iterator(); i.hasNext();) {
 			Assignment gbColumn = (Assignment) i.next();
 
 			if (lineItem.label.equals(gbColumn.getName())) {
-				throw new RuntimeException("Duplicate label while adding line item " + lineItem.label);
+				gradebookColumn = gbColumn;
+				gradebookColumnId = gbColumn.getId();
+				createNew = false;
+				break;
 			}
 		}
+
+		if ( gradebookColumn == null ) gradebookColumn = new Assignment();
 
 		pushAdvisor();
 		String failure = null;
 		try {
-			Long assignmentId = null;
-			// Attempt to add assignment to grade book
-			if (assignmentObject == null) {
-				try {
-					assignmentObject = new Assignment();
-					assignmentObject.setPoints(Double.valueOf(lineItem.scoreMaximum));
-					// We are using the actual grade and points possible in the GB
-					assignmentObject.setExternallyMaintained(false);
-					assignmentObject.setExternalId(external_id);
-					assignmentObject.setExternalAppName(GB_EXTERNAL_APP_NAME);
-					assignmentObject.setName(lineItem.label);
-					Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
-					Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
-					assignmentObject.setReleased(releaseToStudent); // default true
-					assignmentObject.setCounted(includeInComputation); // default true
-					assignmentObject.setUngraded(false);
-					Date endDateTime = parseIMS8601(lineItem.endDateTime);
-					assignmentObject.setDueDate(endDateTime);
-					// NOTE: addAssignment does *not* set the external values - Update *does* store them
-					assignmentId = g.addAssignment(context_id, assignmentObject);
-					assignmentObject.setId(assignmentId);
-					g.updateAssignment(context_id, assignmentId, assignmentObject);
-					log.info("Added assignment: {} with Id: {}", lineItem.label, assignmentId);
-				} catch (ConflictingAssignmentNameException e) {
-					failure = "ConflictingAssignmentNameException while adding assignment " + e.getMessage();
-					assignmentObject = null; // Just to make sure
-				} catch (Exception e) {
-					failure = "Exception (may be because GradeBook has not yet been added to the Site) "+ e.getMessage();
-					assignmentObject = null; // Just to make double sure
-				}
+			if (lineItem.scoreMaximum != null ) {
+				gradebookColumn.setPoints(Double.valueOf(lineItem.scoreMaximum));
+			} else {
+				gradebookColumn.setPoints(100.0D);
 			}
+			// We are using the actual grade and points possible in the GB
+			gradebookColumn.setExternallyMaintained(false);
+			gradebookColumn.setExternalId(external_id);
+			gradebookColumn.setExternalAppName(GB_EXTERNAL_APP_NAME);
+			gradebookColumn.setName(lineItem.label);
+			Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
+			Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
+			gradebookColumn.setReleased(releaseToStudent); // default true
+			gradebookColumn.setCounted(includeInComputation); // default true
+			gradebookColumn.setUngraded(false);
+			Date endDateTime = parseIMS8601(lineItem.endDateTime);
+			if ( endDateTime != null ) gradebookColumn.setDueDate(endDateTime);
 
-			if (assignmentObject == null || assignmentObject.getId() == null) {
-				if ( failure == null ) failure = "assignmentObject or Id is null.";
-				assignmentObject = null;
+			if ( createNew ) {
+				gradebookColumnId = g.addAssignment(context_id, gradebookColumn);
+				gradebookColumn.setId(gradebookColumnId);
+				log.info("Added assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
+			} else {
+				g.updateAssignment(context_id, gradebookColumnId, gradebookColumn);
+				log.info("Updated assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
 			}
-		} catch (Throwable e) {
-			failure = "Unexpected Throwable " + e.getMessage();
-			log.error("Unexpected Throwable", e);
+		} catch (ConflictingAssignmentNameException e) {
+			failure = "ConflictingAssignmentNameException while adding assignment " + e.getMessage();
+			gradebookColumn = null; // Just to make sure
+		} catch (Exception e) {
+			failure = "Exception (may be because GradeBook has not yet been added to the Site) "+ e.getMessage();
+			gradebookColumn = null; // Just to make double sure
 		}  finally {
 			popAdvisor();
+		}
+
+		if (gradebookColumn == null || gradebookColumn.getId() == null) {
+			if ( failure == null ) failure = "gradebookColumn or Id is null.";
+			gradebookColumn = null;
 		}
 
 		if ( failure != null ) {
 			throw new RuntimeException(failure);
 		}
 
-		return assignmentObject;
+		return gradebookColumn;
 	}
 
 	public static Assignment updateLineItem(Site site, Long tool_id, Long column_id, SakaiLineItem lineItem) {
@@ -245,8 +250,8 @@ public class LineItemUtil {
 			throw new RuntimeException("tool_id is required");
 		}
 
-		Assignment assignmentObject = getColumnByKeyDAO(context_id, tool_id, column_id);
-		if ( assignmentObject == null ) return null;
+		Assignment gradebookColumn = getColumnByKeyDAO(context_id, tool_id, column_id);
+		if ( gradebookColumn == null ) return null;
 
 		/*
 			{
@@ -258,31 +263,31 @@ public class LineItemUtil {
 		*/
 
 		if ( lineItem.scoreMaximum != null ) {
-			assignmentObject.setPoints(Double.valueOf(lineItem.scoreMaximum));
+			gradebookColumn.setPoints(Double.valueOf(lineItem.scoreMaximum));
 		}
 
 		String external_id = constructExternalId(tool_id, null, lineItem);
-		assignmentObject.setExternalId(external_id);
+		gradebookColumn.setExternalId(external_id);
 		if ( lineItem.label != null ) {
-			assignmentObject.setName(lineItem.label);
+			gradebookColumn.setName(lineItem.label);
 		}
 
 		Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
 		Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
-		assignmentObject.setReleased(releaseToStudent); // default true
-		assignmentObject.setCounted(includeInComputation); // default true
-		assignmentObject.setUngraded(false);
+		gradebookColumn.setReleased(releaseToStudent); // default true
+		gradebookColumn.setCounted(includeInComputation); // default true
+		gradebookColumn.setUngraded(false);
 		Date dueDate = org.tsugi.basiclti.BasicLTIUtil.parseIMS8601(lineItem.endDateTime);
-		if ( dueDate != null ) assignmentObject.setDueDate(dueDate);
+		if ( dueDate != null ) gradebookColumn.setDueDate(dueDate);
 
 		pushAdvisor();
 		try {
-			g.updateAssignment(context_id, column_id, assignmentObject);
+			g.updateAssignment(context_id, column_id, gradebookColumn);
 		} finally {
 			popAdvisor();
 		}
 
-		return assignmentObject;
+		return gradebookColumn;
 	}
 
 	/**
@@ -298,7 +303,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List gradebookColumns = g.getAssignments(context_id);
+			List<Assignment> gradebookColumns = g.getAssignments(context_id);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
@@ -321,6 +326,30 @@ public class LineItemUtil {
 		}
 		return retval;
 	}
+
+	/**
+	 * Return a list of assignments in a site
+	 * @param context_id - The site id
+	 * @return A list of Assignment objects (perhaps empty) or null on failure
+	 */
+	protected static List<Assignment> getColumnsForContextDAO(String context_id) {
+		List retval = new ArrayList();
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
+
+		pushAdvisor();
+		try {
+			List<Assignment> gradebookColumns = g.getAssignments(context_id);
+			return gradebookColumns;
+		} catch (Throwable e) {
+			log.error("Unexpected Throwable", e.getMessage());
+			retval = null;
+		} finally {
+			popAdvisor();
+		}
+		return retval;
+	}
+
 	/**
 	 * Load a particular assignment by its internal Sakai GB key
 	 * @param context_id

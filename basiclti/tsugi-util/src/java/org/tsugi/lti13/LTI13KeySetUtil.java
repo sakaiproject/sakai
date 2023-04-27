@@ -88,18 +88,32 @@ public class LTI13KeySetUtil {
 		return getKeySetJSON(keys);
 	}
 
-	public static RSAPublicKey getKeyFromKeySet(String kid, String url) 
+	public static com.nimbusds.jose.jwk.JWKSet getKeySetFromUrl(String url)
 		throws java.text.ParseException, com.nimbusds.jose.JOSEException, java.net.MalformedURLException, java.io.IOException
 	{
 		com.nimbusds.jose.jwk.JWKSet localKeys = com.nimbusds.jose.jwk.JWKSet.load(new java.net.URL(url));
 
+		return localKeys;
+	}
+
+	public static RSAPublicKey getKeyFromKeySet(String kid, com.nimbusds.jose.jwk.JWKSet localKeys)
+		throws java.text.ParseException, com.nimbusds.jose.JOSEException, java.net.MalformedURLException, java.io.IOException
+	{
 		com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
 
 		RSAPublicKey publicKey = nimbusPublic.toRSAPublicKey();
 		return publicKey;
 	}
 
-	public static RSAPublicKey getKeyFromKeySetString(String kid, String json) 
+	public static RSAPublicKey getKeyFromKeySet(String kid, String url)
+		throws java.text.ParseException, com.nimbusds.jose.JOSEException, java.net.MalformedURLException, java.io.IOException
+	{
+		com.nimbusds.jose.jwk.JWKSet localKeys = getKeySetFromUrl(url);
+
+		return getKeyFromKeySet(kid, localKeys);
+	}
+
+	public static RSAPublicKey getKeyFromKeySetString(String kid, String json)
 		throws java.text.ParseException, com.nimbusds.jose.JOSEException
 	{
 		com.nimbusds.jose.jwk.JWKSet localKeys = com.nimbusds.jose.jwk.JWKSet.parse(json);

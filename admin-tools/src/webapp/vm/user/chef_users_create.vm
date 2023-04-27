@@ -1,10 +1,8 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_create.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
 
-#css("/admin-tools/css/sakai-user-tool.css" 'media="screen"')
-
 ${includeLatestJQuery}
 #javascript("/admin-tools/js/userValidationCommon.js")
-<script type="text/javascript">USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
+<script>USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
 #javascript("/admin-tools/js/userCreateValidation.js")
 #javascript("/library/js/spinner.js")
 
@@ -35,7 +33,7 @@ ${includeLatestJQuery}
 
 			#if ($displayEid)
 				<div class="form-group">
-					<label class="control-label col-sm-2" for="user_eid">
+					<label class="form-control-label col-sm-2" for="user_eid">
 						#if(!$user)<span class="red">*</span>#end $tlang.getString("useconrem.useid")
 					</label>
 					<div class="col-sm-3">
@@ -46,7 +44,7 @@ ${includeLatestJQuery}
 
 			#if (!$isValidatedWithAccountValidator)
 				<div class="form-group">
-					<label class="control-label col-sm-2" for="first-name">
+					<label class="form-control-label col-sm-2" for="first-name">
 						$tlang.getString("usecre.firnam")
 					</label>
 					<div class="col-sm-3">
@@ -55,7 +53,7 @@ ${includeLatestJQuery}
 				</div>
 
 				<div class="form-group">
-					<label class="control-label col-sm-2" for="last-name">
+					<label class="form-control-label col-sm-2" for="last-name">
 						$tlang.getString("usecre.lasnam")
 					</label>
 					<div class="col-sm-3">
@@ -65,7 +63,7 @@ ${includeLatestJQuery}
 			#end
 
 			<div class="form-group">
-				<label class="control-label col-sm-2" for="email">
+				<label class="form-control-label col-sm-2" for="email">
 					#if ($emailRequired) <span class="red">*</span> #end $tlang.getString("useconrem.ema")
 				</label>
 				<div class="col-sm-3">
@@ -80,7 +78,7 @@ ${includeLatestJQuery}
 
 			#if (!$isValidatedWithAccountValidator)
 				<div class="form-group">
-					<label class="control-label col-sm-2" for="user_pw">
+					<label class="form-control-label col-sm-2" for="user_pw">
 						#if ($pwRequired) <span class="red">*</span>#end $tlang.getString("usecre.crenewpass")
 					</label>
 					<div class="col-sm-3">
@@ -90,32 +88,33 @@ ${includeLatestJQuery}
 
 				<div class="form-group forPopover" id="strengthBar" style="display:none;" >
 					<div class="row status-row">
-						<label class="control-label col-sm-2" for="strengthBarMeter">
+						<label class="form-control-label col-sm-2" for="strengthBarMeter">
 							 <span class="red">*</span> $tlang.getString("pw.strength")
 						</label>
-						<div class="status-display col-sm-3">
+						<div id="status-display" class="col-sm-3">
 							<div class="sak-banner-success" id="strongMsg" style="display:none">
-								<strong>$tlang.getString("pw.strong")</strong>
+								<span>$tlang.getString("pw.strong")</span>
 								<i class="fa fa-question-circle" aria-hidden="true"></i>
 							</div>
 							<div class="sak-banner-warn" id="moderateMsg" style="display:none">
-								<strong>$tlang.getString("pw.moderate")</strong>
+								<span>$tlang.getString("pw.moderate")</span>
 								<i class="fa fa-question-circle" aria-hidden="true"></i>
 							</div>
 							<div class="sak-banner-error" id="weakMsg" style="display:none">
-								<strong>$tlang.getString("pw.weak")</strong>
+								<span>$tlang.getString("pw.weak")</span>
 								<i class="fa fa-question-circle" aria-hidden="true"></i>
 							</div>
 							<div class="sak-banner-error" id="failMsg" style="display:none;">
-								<strong>$tlang.getString("pw.fail")</strong>
+								<span>$tlang.getString("pw.fail")</span>
 								<i class="fa fa-question-circle" aria-hidden="true"></i>
 							</div>
 						</div>
 					</div>
 					<div class="row status-row">
 						<script>
-							$(document).ready(function(){
-								$('.status-display').popover({
+							window.addEventListener("DOMContentLoaded", () => {
+								
+								new bootstrap.Popover(document.getElementById("status-display"), {
 									placement:"bottom",
 									container: ".forPopover",
 									content: "$tlang.getString("pw.strengthInfo")"
@@ -134,7 +133,7 @@ ${includeLatestJQuery}
 				</div>
 
 				<div class="form-group">
-					<label class="control-label col-sm-2" for="user_pw0">
+					<label class="form-control-label col-sm-2" for="user_pw0">
 						#if ($pwRequired) <span class="red">*</span>#end $tlang.getString("usecre.vernewpass")
 					</label>
 					<div class="col-sm-3">
@@ -153,7 +152,7 @@ ${includeLatestJQuery}
 				</div>
 
 				<div class="form-group">
-					<label class="control-label col-sm-2" for="dtype">
+					<label class="form-control-label col-sm-2" for="dtype">
 						$tlang.getString("usecre.typ")
 					</label>
 					<div class="col-sm-3">

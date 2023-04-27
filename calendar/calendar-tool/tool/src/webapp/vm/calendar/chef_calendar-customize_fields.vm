@@ -107,7 +107,7 @@
 		</table>
 		<div class="act">
 			<input id="removeFieldButton" type="button" value="$tlang.getString('cust.rem.btn')" accesskey="d" />
-			<input id="removeFieldSubmission" type="submit" name="eventSubmit_doDeletefield" class="hidden" />
+			<input id="removeFieldSubmission" type="submit" name="eventSubmit_doDeletefield" class="d-none" />
 		</div >
 		<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="confirmation-modal">
 			<div class="modal-dialog modal-md">

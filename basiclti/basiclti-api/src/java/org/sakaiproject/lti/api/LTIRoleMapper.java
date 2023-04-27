@@ -33,8 +33,13 @@ public interface LTIRoleMapper {
      *  @param trustedConsumer This indicates whether or not all the Sakai
      *              sites and users are already mirrored onto the launching
      *              consumer.
+     *  @param inboundMapStr A optional serialized Map of an LTI role mapped to
+     *              a prioritized list Sakai site roles like:
+     *
+     *              http://purl.imsglobal.org/vocab/lis/v2/membership#Learner=Learner,Student,access;
+     *
      *  @return A tuple of ltirole and site role.
      *  @author Adrian Fish <a.fish@lancaster.ac.uk>
      */
-    public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer) throws LTIException;
+    public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer, String inboundMapStr) throws LTIException;
 }

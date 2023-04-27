@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>23-SNAPSHOT</version>
+		<version>24-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Tool (samigo-app)</name>
@@ -82,6 +82,10 @@
             <artifactId>sakai-portal-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-api</artifactId>
         </dependency>
@@ -119,10 +123,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
         </dependency>
 		<dependency>
             <groupId>jakarta.activation</groupId>

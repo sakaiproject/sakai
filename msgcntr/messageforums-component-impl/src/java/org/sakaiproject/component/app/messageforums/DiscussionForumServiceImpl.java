@@ -36,6 +36,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.TimeZone;
 
 
 import org.apache.commons.codec.binary.Base64;
@@ -132,12 +133,16 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String DRAFT = "draft";
 	private static final String LOCKED = "locked";
 	private static final String MODERATED = "moderated";
+	private static final String POST_ANONYMOUS = "anonymous";
 	private static final String POST_FIRST = "post_first";
 	private static final String SORT_INDEX = "sort_index";
 	private static final String PROPERTIES = "properties";
 	private static final String PROPERTY = "property";
 	private static final String TOPIC_SHORT_DESC = "Classic:bboardForums_description";
 	private static final String TOPIC_LONG_DESC = "Classic:bboardForums_content";
+	private static final String GRADE_ASSIGNMENT = "grade_assignment";
+	private static final String OPEN_DATE = "available_open";
+	private static final String CLOSE_DATE = "available_close";
 	private static final String NAME = "name";
 	private static final String ENCODE = "enc";
 	private static final String BASE64 = "BASE64";
@@ -152,6 +157,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String CUSTOM_PERMISSIONS = "permission_levels";
 	private static final String DIRECT_TOOL = "/directtool/";
 
+	private static final String ARCHIVE_DATE_FORMAT = "yyyy-MM-dd'T'HH:mmZ"; // ISO8601 with timezone
 	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
 	private static final String VERSION_ATTR = "version";
 
@@ -213,7 +219,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					Element messageForumElement = doc.createElement(MESSAGEFORUM);
 
 					// APPEND DISCUSSION FORUM ELEMENTS
-					int discussionForumCount = appendDiscussionForumElements(siteId, doc, messageForumElement);
+					int discussionForumCount = appendDiscussionForumElements(siteId, doc, messageForumElement, attachments);
 
 					results.append(ARCHIVING).append(getLabel()).append(": (").append(discussionForumCount)
 							.append(") messageforum DF items archived successfully.\n");
@@ -232,7 +238,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return results.toString();
 	}
 
-	private int appendDiscussionForumElements(String siteId, Document doc, Element messageForumElement) {
+	private int appendDiscussionForumElements(String siteId, Document doc, Element messageForumElement, List attachments) {
+		SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
+
 		int discussionForumCount = 0;
 		List<DiscussionForum> discussionForums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
 		if (CollectionUtils.isNotEmpty(discussionForums)) {
@@ -245,22 +253,34 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					discussionForumElement.setAttribute(DRAFT, discussionForum.getDraft().toString());
 					discussionForumElement.setAttribute(LOCKED, discussionForum.getLocked().toString());
 					discussionForumElement.setAttribute(MODERATED, discussionForum.getModerated().toString());
+					discussionForumElement.setAttribute(POST_FIRST, discussionForum.getPostFirst().toString());
 					discussionForumElement.setAttribute(SORT_INDEX, discussionForum.getSortIndex().toString());
 					discussionForumElement.setAttribute(DISCUSSION_FORUM_DESC,
 							getEncodedString(discussionForum.getExtendedDescription()));
 					discussionForumElement.setAttribute(DISCUSSION_FORUM_SHORT_DESC,
 							getEncodedString(discussionForum.getShortDescription()));
+					if (discussionForum.getDefaultAssignName() != null) {
+						discussionForumElement.setAttribute(GRADE_ASSIGNMENT, discussionForum.getDefaultAssignName());
+					}
+					if (discussionForum.getAvailabilityRestricted()) {
+						if (discussionForum.getOpenDate() != null) {
+							discussionForumElement.setAttribute(OPEN_DATE, formatter.format(discussionForum.getOpenDate()));
+						}
+						if (discussionForum.getCloseDate() != null) {
+							discussionForumElement.setAttribute(CLOSE_DATE, formatter.format(discussionForum.getCloseDate()));
+						}
+					}
 
 					// attachments
-					List<Attachment> atts = discussionForum.getAttachments();
-					appendAttachmentElements(doc, discussionForumElement, atts);
+					List<Attachment> forumAttachments = discussionForum.getAttachments();
+					appendAttachmentElements(doc, discussionForumElement, forumAttachments, attachments);
 
 					// permissions
 					Set<DBMembershipItem> forumMembershipItems = discussionForum.getMembershipItemSet();
 					appendPermissionsElement(doc, discussionForumElement, forumMembershipItems);
 
 					// APPEND DISCUSSION TOPIC ELEMENTS
-					appendDiscussionTopicElements(doc, discussionForum, discussionForumElement);
+					appendDiscussionTopicElements(doc, discussionForum, discussionForumElement, attachments);
 					messageForumElement.appendChild(discussionForumElement);
 				}
 			}
@@ -268,7 +288,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return discussionForumCount;
 	}
 
-	private void appendDiscussionTopicElements(Document doc, DiscussionForum forum, Element discussionForumElement) {
+	private void appendDiscussionTopicElements(Document doc, DiscussionForum forum, Element discussionForumElement, List attachments) {
+		SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
+
 		List<DiscussionTopic> discussionTopics = dfManager
 				.getTopicsByIdWithMessagesMembershipAndAttachments(forum.getId());
 		if (CollectionUtils.isNotEmpty(discussionTopics)) {
@@ -279,6 +301,19 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				discussionTopicElement.setAttribute(DRAFT, discussionTopic.getDraft().toString());
 				discussionTopicElement.setAttribute(LOCKED, discussionTopic.getLocked().toString());
 				discussionTopicElement.setAttribute(MODERATED, discussionTopic.getModerated().toString());
+				discussionTopicElement.setAttribute(POST_ANONYMOUS, discussionTopic.getPostAnonymous().toString());
+				discussionTopicElement.setAttribute(POST_FIRST, discussionTopic.getPostFirst().toString());
+				if (discussionTopic.getDefaultAssignName() != null) {
+					discussionTopicElement.setAttribute(GRADE_ASSIGNMENT, discussionTopic.getDefaultAssignName());
+				}
+				if (discussionTopic.getAvailabilityRestricted()) {
+					if (discussionTopic.getOpenDate() != null) {
+						discussionTopicElement.setAttribute(OPEN_DATE, formatter.format(discussionTopic.getOpenDate()));
+					}
+					if (discussionTopic.getCloseDate() != null) {
+						discussionTopicElement.setAttribute(CLOSE_DATE, formatter.format(discussionTopic.getCloseDate()));
+					}
+				}
 				if (discussionTopic.getSortIndex() != null) {
 					discussionTopicElement.setAttribute(SORT_INDEX, discussionTopic.getSortIndex().toString());
 				} else {
@@ -293,12 +328,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				appendPermissionsElement(doc, discussionTopicElement, membershipItems);
 
 				// attachments
-				final List<Attachment> attachments = discussionTopic.getAttachments();
-				appendAttachmentElements(doc, discussionTopicElement, attachments);
+				final List<Attachment> topicAttachments = discussionTopic.getAttachments();
+				appendAttachmentElements(doc, discussionTopicElement, topicAttachments, attachments);
 
 				// APPEND MESSAGE ELEMENTS
 				Element messagesElement = appendMessagesElements(doc, discussionTopic.getMessages(), null,
-						discussionTopicElement);
+						discussionTopicElement, attachments);
 				if (messagesElement != null) {
 					discussionTopicElement.appendChild(messagesElement);
 				}
@@ -308,7 +343,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private Element appendMessagesElements(Document doc, List<Message> messages, Message parentMessage,
-										   Element discussionTopicElement) {
+		   Element discussionTopicElement, List attachments) {
 		Element messagesElement = null;
 		if (CollectionUtils.isNotEmpty(messages)) {
 			List<Message> startConversationMessages = null;
@@ -323,14 +358,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				messagesElement = doc.createElement(MESSAGES);
 				for (Message startConversationMessage : startConversationMessages) {
 					appendMessageElement(doc, messages, discussionTopicElement, messagesElement,
-							startConversationMessage);
+							startConversationMessage, attachments);
 				}
 			}
 		}
 		return messagesElement;
 	}
 	private void appendMessageElement(Document doc, List<Message> messages, Element discussionTopicElement,
-									  final Element messagesElement, Message message) {
+			  final Element messagesElement, Message message, List attachments) {
 		final Element messageElement = doc.createElement(MESSAGE);
 		messageElement.setAttribute(ID, message.getId().toString());
 		if (message.getInReplyTo() != null) {
@@ -349,10 +384,14 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		messageElement.setAttribute(MESSAGE_LABEL, message.getLabel());
 		messageElement.setAttribute(MESSAGE_TYPE_UUID, message.getTypeUuid());
 		messageElement.setAttribute(MESSAGE_UUID, message.getUuid());
-		messageElement.setAttribute(MESSAGE_APPROVED, message.getApproved().toString());
+		if (message.getApproved() != null) {
+			messageElement.setAttribute(MESSAGE_APPROVED, message.getApproved().toString());
+		}
 		messageElement.setAttribute(MESSAGE_DELETED, message.getDeleted().toString());
 		messageElement.setAttribute(MESSAGE_HAS_ATTACHMENTS, message.getHasAttachments().toString());
-		messageElement.setAttribute(MESSAGE_NUM_READER, message.getNumReaders().toString());
+		if (message.getNumReaders() != null) {
+			messageElement.setAttribute(MESSAGE_NUM_READER, message.getNumReaders().toString());
+		}
 		if (message.getThreadId() != null) {
 			messageElement.setAttribute(MESSAGE_THREAD_ID, message.getThreadId().toString());
 		} else {
@@ -373,10 +412,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		// attachments
 		final List<Attachment> messageAttachments = message.getAttachments();
-		appendAttachmentElements(doc, messageElement, messageAttachments);
+		appendAttachmentElements(doc, messageElement, messageAttachments, attachments);
 
 		messages.remove(message);
-		Element childMessagesElement = appendMessagesElements(doc, messages, message, discussionTopicElement);
+		Element childMessagesElement = appendMessagesElements(doc, messages, message, discussionTopicElement, attachments);
 		if (childMessagesElement != null) {
 			messageElement.appendChild(childMessagesElement);
 		}
@@ -408,14 +447,17 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return discussionTopicPropertiesElement;
 	}
 
-	private void appendAttachmentElements(Document doc, Element parentElement, List<Attachment> attachments) {
-		if (CollectionUtils.isNotEmpty(attachments)) {
-			for (Attachment attachment : attachments) {
-				final Element attachmentElement = doc.createElement(ATTACHMENT);
-				String attachId = attachment.getAttachmentId();
-				attachmentElement.setAttribute(ATTACH_ID, attachId);
-				parentElement.appendChild(attachmentElement);
-			}
+	private void appendAttachmentElements(Document doc, Element parentElement, List<Attachment> itemAttachments, List archiveAttachments) {
+		for (Attachment attachment : itemAttachments) {
+			// Append to the XML doc
+			final Element attachmentElement = doc.createElement(ATTACHMENT);
+			String attachId = attachment.getAttachmentId();
+			attachmentElement.setAttribute(ATTACH_ID, attachId);
+			parentElement.appendChild(attachmentElement);
+
+			// Append to the attachment reference list for archive
+			Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getAttachmentId()));
+			archiveAttachments.add(ref);
 		}
 	}
 

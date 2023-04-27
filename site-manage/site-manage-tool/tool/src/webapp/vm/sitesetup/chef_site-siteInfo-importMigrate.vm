@@ -2,8 +2,9 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<h3>
-		$tlang.getString("sitinfimp.reuse")
+		$tlang.getString("sitinfimp.replace.heading")
 	</h3>
+	<h4>$tlang.getString("sitinfimp.replace.subheading")</h4>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 	#end
@@ -11,18 +12,18 @@
 		## import is possible when use has maintain rights on at least one site other than the current one
 		#if ($!sites && $sites.size()>1)
 			<p class="instruction">
-				$tlang.getString("sitinfimp.replace")
+				$tlang.getFormattedMessage("sitinfimp.replace", $formattedText.escapeHtml($currentSite.getTitle()))
 			</p>
-			<div class="panel-group" id="sitesAccordion">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
+			<div id="sitesAccordion">
+				<div class="card">
+					<div class="card text-center bg-light">
+						<h4 class="card-title">
 							#set ($sitesSize = $sites.size() - 1)
-							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
+							<a data-bs-toggle="collapse" data-bs-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
 						</h4>
 					</div>
-					<div id="mysites" class="panel-collapse collapse in">
-						<div class="panel-body">
+					<div id="mysites" class="collapse in">
+						<div class="card-body">
 							#set ($siteIDCounter =0)
 							#foreach($site in $sites)
 								#set ($siteIDCounter = $siteIDCounter + 1)
@@ -40,14 +41,14 @@
 				</div>
 
 			#if ($!hiddenSites && $hiddenSites.size() > 0)
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
+				<div class="card">
+					<div class="card text-center bg-light">
+						<h4 class="card-title">
+							<a data-bs-toggle="collapse" data-bs-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
 						</h4>
 					</div>
-					<div id="hiddenSites" class="panel-collapse collapse">
-						<div class="panel-body">
+					<div id="hiddenSites" class="collapse">
+						<div class="card-body">
 							<p class="instruction">
 								$tlang.getString("sitinfimp.hiddensites.info")
 							</p>

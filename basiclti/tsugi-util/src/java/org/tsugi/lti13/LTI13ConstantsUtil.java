@@ -74,6 +74,12 @@ public class LTI13ConstantsUtil {
 	public static final String MESSAGE_TYPE_LTI_RESOURCE = "LtiResourceLinkRequest";
 	public static final String MESSAGE_TYPE_LTI_DEEP_LINKING_REQUEST = "LtiDeepLinkingRequest";
 	public static final String MESSAGE_TYPE_LTI_DEEP_LINKING_RESPONSE = "LtiDeepLinkingResponse";
+	// Context Launch (Draft)
+	public static final String MESSAGE_TYPE_LTI_CONTEXT = "LtiContextLaunchRequest";
+	// Submission Review (Draft)
+	public static final String MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST = "LtiSubmissionReviewRequest";
+	// Data Privacy Launch (Draft)
+	public static final String MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST = "LtiDataPrivacyLaunchRequest";
 	public static final String CONTENT_ITEM_DOC_TARGET_IFRAME = "iframe";
 	public static final String CONTENT_ITEM_DOC_TARGET_WINDOW = "window";
 	public static final String CONTENT_ITEM_MEDIA_TYPES = "*/*";
@@ -81,5 +87,17 @@ public class LTI13ConstantsUtil {
 	//Deep Linking
 	public static final String DEEP_LINKING_RETURN_URL = "return_url";
 
+	// Access Token
+	public static final String SCOPE_RESULT_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly";
+	public static final String SCOPE_SCORE = "https://purl.imsglobal.org/spec/lti-ags/scope/score";
+	public static final String SCOPE_LINEITEM = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
+	public static final String SCOPE_LINEITEM_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly";
+	public static final String SCOPE_NAMES_AND_ROLES = "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly";
+
+	public static final String MEDIA_TYPE_MEMBERSHIPS = "application/vnd.ims.lti-nrps.v2.membershipcontainer+json";
+	public static final String MEDIA_TYPE_LINEITEM = "application/vnd.ims.lis.v2.lineitem+json";
+	public static final String MEDIA_TYPE_LINEITEMS = "application/vnd.ims.lis.v2.lineitemcontainer+json";
+	public static final String SCORE_TYPE = "application/vnd.ims.lis.v1.score+json";
+	public static final String RESULTS_TYPE = "application/vnd.ims.lis.v2.resultcontainer+json";
 
 }

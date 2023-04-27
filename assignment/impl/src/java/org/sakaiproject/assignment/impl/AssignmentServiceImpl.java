@@ -315,6 +315,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         int assignmentsArchived = 0;
         for (Assignment assignment : getAssignmentsForContext(siteId)) {
             String xml = assignmentRepository.toXML(assignment);
+            log.debug(xml);
 
             try {
                 InputSource in = new InputSource(new StringReader(xml));
@@ -324,7 +325,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 element.appendChild(assignmentNode);
                 assignmentsArchived++;
             } catch (Exception e) {
-                log.warn("could not append assignment {} to archive, {}", assignment.getId(), e.getMessage());
+                String error = String.format("could not append assignment %s to archive: %s", assignment.getId(), e.getMessage());
+                log.error(error, e);
+                throw new RuntimeException(error);
             }
         }
 
@@ -1311,7 +1314,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
-            List<String> submitterIds = new ArrayList<>();
             Optional<String> groupId = Optional.empty();
             if (site != null) {
                 if (a.getIsGroup()) {
@@ -1325,7 +1327,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
                                     ass.setSubmitter(member.getUserId());
                                     submissionSubmitters.add(ass);
-                                    submitterIds.add(member.getUserId());
                                 });
                         groupId = Optional.of(submitter);
                     } else {
@@ -1336,7 +1337,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
                         submissionSubmitter.setSubmitter(submitter);
                         submissionSubmitters.add(submissionSubmitter);
-                        submitterIds.add(submitter);
                     } else {
                         log.warn("Cannot add a submission for submitter {} to assignment {} as they are not a member of the site", submitter, assignmentId);
                     }
@@ -1351,8 +1351,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // identify who the submittee is using the session
             String currentUser = sessionManager.getCurrentSessionUserId();
             submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
-
-            taskService.completeUserTaskByReference(assignmentReference, submitterIds);
 
             AssignmentSubmission submission = assignmentRepository.newSubmission(a.getId(), groupId, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
@@ -1459,20 +1457,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         assignment.setDateModified(Instant.now());
         assignment.setModifier(sessionManager.getCurrentSessionUserId());
-        assignmentRepository.merge(assignment);
+        Assignment updatedAssingment = assignmentRepository.merge(assignment);
 
         Task task = new Task();
-        task.setSiteId(assignment.getContext());
+        task.setSiteId(updatedAssingment.getContext());
         task.setReference(reference);
         task.setSystem(true);
-        task.setDescription(assignment.getTitle());
-        task.setGroups(assignment.getGroups());
+        task.setDescription(updatedAssingment.getTitle());
+        task.getGroups().addAll(updatedAssingment.getGroups());
 
-        if (!assignment.getHideDueDate()) {
-            task.setDue(assignment.getDueDate());
+        if (!updatedAssingment.getHideDueDate()) {
+            task.setDue(updatedAssingment.getDueDate());
         }
 
-        if (!assignment.getDraft()) {
+        if (!updatedAssingment.getDraft()) {
             taskService.createTask(task, allowAddSubmissionUsers(reference)
                     .stream().map(User::getId).collect(Collectors.toSet()),
                     Priorities.HIGH);
@@ -1480,7 +1478,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
-        Map<String, String> assignmentProperties = assignment.getProperties();
+        Map<String, String> assignmentProperties = updatedAssingment.getProperties();
         String resubmitNumber = StringUtils.trimToNull(assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
         String resubmitCloseTime = StringUtils.trimToNull(assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
         if (StringUtils.isNotBlank(resubmitNumber)) {
@@ -1535,7 +1533,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.isAfter(dateSubmitted) || dateSubmitted.isAfter(dateReturned) && submission.getDateModified().isAfter(dateSubmitted))) {
             if (submission.getGraded()) {
-                // Send a non LRS event for other listeners to handle, bullhorns for instance.
+                // Send a non LRS event for other listeners to handle, user notifications for instance.
                 Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_NONE, true);
                 eventTrackingService.post(event);
 
@@ -1581,6 +1579,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 // student notification, whether the student gets email notification once he submits an assignment
                 notificationToStudent(submission, a);
+
+                List<String> submitterIds
+                    = submission.getSubmitters().stream()
+                        .map(ass -> ass.getSubmitter()).collect(Collectors.toList());
+                taskService.completeUserTaskByReference(assignmentReference, submitterIds);
             }
         }
     }
@@ -1637,17 +1640,27 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         //   - if assignment is restricted to groups only those in the group
         //   - minimally user needs read permission
         for (Assignment assignment : assignmentRepository.findAssignmentsBySite(context)) {
-            if (assignment.getDraft()) {
-                if (isDraftAssignmentVisible(assignment)) {
-                    // only those who can see a draft assignment
+        	String currentUserId = sessionManager.getCurrentSessionUserId();
+        	boolean canViewAssigment = false;
+        	try {
+                checkAssignmentAccessibleForUser(assignment, currentUserId);
+                canViewAssigment = true;
+            } catch (PermissionException e) {
+            	canViewAssigment = false;
+            }
+            if(canViewAssigment) {
+                if (assignment.getDraft()) {
+                    if (isDraftAssignmentVisible(assignment)) {
+                        // only those who can see a draft assignment
+                        assignments.add(assignment);
+                    }
+                } else if (assignment.getTypeOfAccess() == GROUP) {
+                    if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
+                        assignments.add(assignment);
+                    }
+                } else if (allowGetAssignment(context)) {
                     assignments.add(assignment);
                 }
-            } else if (assignment.getTypeOfAccess() == GROUP) {
-                if (permissionCheckWithGroups(SECURE_ACCESS_ASSIGNMENT, assignment, null)) {
-                    assignments.add(assignment);
-                }
-            } else if (allowGetAssignment(context)) {
-                assignments.add(assignment);
             }
         }
 
@@ -4306,7 +4319,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // mark the link as "add to gradebook" for the new imported assignment, since the assignment is still of draft state
                                 // later when user posts the assignment, the corresponding assignment will be created in gradebook.
                                 nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                                nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                                nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
                             }
                         } else {
                             // If this is an internal gradebook item then it should be associated with the assignment
@@ -4330,16 +4343,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         }
 
                                         gradingService.addAssignment(nAssignment.getContext(), gbAssignment);
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbAssignment.getName());
+                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbAssignment.getId().toString());
                                     } else {
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference());
-                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                                        nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                     }
                                 } else {
-                                    // migrate to gradebook assignment id (vs title)
-                                    associatedGradebookAssignment = gbAssignment.getId().toString();
-                                    nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
-                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associatedGradebookAssignment);
+                                    if (!nAssignment.getDraft()) {
+                                        // migrate to gradebook assignment id (vs title)
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+                                        associatedGradebookAssignment = gbAssignment.getId().toString();
+                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associatedGradebookAssignment );
+                                    } else {
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                                        nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                    }
                                 }
                             } catch (AssessmentNotFoundException anfe) {
                                 log.info("While importing assignment {} the associated gradebook item {} was missing, " +
@@ -4623,7 +4641,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immediately
                 userMessagingService.message(filteredUsers,
                         Message.builder().tool(AssignmentConstants.TOOL_ID).type("releasegrade").build(),
-                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getReleaseGradeReplacements(assignment, siteId), NotificationService.NOTI_REQUIRED);
+                        Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getReleaseGradeReplacements(assignment, siteId), NotificationService.NOTI_REQUIRED);
             }
         }
         if (StringUtils.isNotBlank(resubmitNumber) && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE))) {
@@ -4632,7 +4650,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immidiately
                 userMessagingService.message(filteredUsers,
                         Message.builder().tool(AssignmentConstants.TOOL_ID).type("releaseresubmission").build(),
-                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getReleaseResubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
+                        Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getReleaseResubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
             }
         }
     }
@@ -4654,7 +4672,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // send the message immediately
                 userMessagingService.message(new HashSet<>(receivers),
                     Message.builder().tool(AssignmentConstants.TOOL_ID).type("submission").build(),
-                    Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_REQUIRED);
+                    Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), replacements, NotificationService.NOTI_REQUIRED);
             } else if (notiOption.equals(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST)) {
                 // digest the message to each user
                 userMessagingService.message(new HashSet<>(receivers),
@@ -4690,7 +4708,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             userMessagingService.message(users,
                 Message.builder().tool(AssignmentConstants.TOOL_ID).type("submission").build(),
-                Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), emailUtil.getSubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
+                Arrays.asList(new MessageMedium[] { MessageMedium.EMAIL }), emailUtil.getSubmissionReplacements(submission), NotificationService.NOTI_REQUIRED);
         }
     }
 

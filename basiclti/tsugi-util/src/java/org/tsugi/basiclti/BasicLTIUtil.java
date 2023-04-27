@@ -1,4 +1,5 @@
 /*
+ *
  * $URL$
  * $Id$
  *
@@ -48,6 +49,7 @@ import java.util.regex.Pattern;
 import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
@@ -127,6 +129,7 @@ public class BasicLTIUtil {
 	public static final String EXTRA_HTTP_POPUP = "http_popup";
 	public static final String EXTRA_HTTP_POPUP_FALSE = "false";
 	public static final String EXTRA_JAVASCRIPT = "extra_javascript";
+	public static final String EXTRA_FORM_ID = "extra_form_id";
 
 	/** To turn on really verbose debugging */
 	private static boolean verbosePrint = false;
@@ -136,7 +139,7 @@ public class BasicLTIUtil {
 
 	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
-	// Returns true if this is a Basic LTI message with minimum values to meet the protocol
+	// Returns true if this is a LTI message with minimum values to meet the protocol
 	public static boolean isRequest(HttpServletRequest request) {
 
 		String message_type = request.getParameter(LTI_MESSAGE_TYPE);
@@ -181,7 +184,7 @@ public class BasicLTIUtil {
 		try {
 			base_string = OAuthSignatureMethod.getBaseString(oam);
 		} catch (Exception e) {
-            return "Unable to find base string";
+			return "Unable to find base string";
 		}
 
 		try {
@@ -561,15 +564,20 @@ public class BasicLTIUtil {
 		} else {
 			newMap = cleanProperties;
 		}
+		if ( extra == null ) extra = new TreeMap<String, String>();
+
 		StringBuilder text = new StringBuilder();
 		// paint form
 		String submit_uuid = UUID.randomUUID().toString().replace("-","_");
+		String submit_form_id = extra.get(EXTRA_FORM_ID);
+		if ( submit_form_id == null ) submit_form_id = "ltiLaunchForm_"+submit_uuid;
+
 		text.append("<div id=\"ltiLaunchFormArea_");
 		text.append(submit_uuid);
 		text.append("\">\n");
 		text.append("<form action=\"");
 		text.append(endpoint);
-		text.append("\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm_"+submit_uuid+"\" method=\"post\" ");
+		text.append("\" name=\"ltiLaunchForm\" id=\""+submit_form_id+"\" method=\"post\" ");
 		text.append(" encType=\"application/x-www-form-urlencoded\" accept-charset=\"utf-8\">\n");
 		if ( debug ) {
 		}
@@ -620,14 +628,13 @@ public class BasicLTIUtil {
 			error_timeout = extra.get(EXTRA_ERROR_TIMEOUT);
 			http_popup = extra.get(EXTRA_HTTP_POPUP);
 		}
-		if ( extra == null ) error_timeout = "Unable to send launch to remote URL: "+endpoint;
-		error_timeout += endpoint;
+		if ( extra == null ) error_timeout = "Unable to send launch to remote URL";
 		text.append("<script type=\"text/javascript\">\n");
 		text.append("var open_in_new_window = false;\n");
 		if ( ! EXTRA_HTTP_POPUP_FALSE.equals(http_popup) ) {
 			text.append("if (window.top!=window.self) {\n");
-			text.append("  var theform = document.getElementById('ltiLaunchForm_");
-			text.append(submit_uuid);
+			text.append("  var theform = document.getElementById('");
+			text.append(submit_form_id);
 			text.append("');\n");
 			text.append("  if ( theform && theform.action ) {\n");
 			text.append("    var formAction = theform.action;\n");
@@ -647,10 +654,10 @@ public class BasicLTIUtil {
 			text.append("<pre id=\"ltiLaunchDebug_");
 			text.append(submit_uuid);
 			text.append("\" style=\"display: none\">\n");
-			text.append("<b>BasicLTI Endpoint</b>\n");
+			text.append("<b>LTI Endpoint</b>\n");
 			text.append(endpoint);
 			text.append("\n\n");
-			text.append("<b>BasicLTI Parameters:</b>\n");
+			text.append("<b>LTI Parameters:</b>\n");
 			for (Entry<String, String> entry : newMap.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
@@ -676,8 +683,8 @@ public class BasicLTIUtil {
 			text.append("    document.getElementById('ltiLaunchFormArea_");
 			text.append(submit_uuid);
 			text.append("').style.display = \"none\";\n");
-			text.append("    document.getElementById('ltiLaunchForm_");
-			text.append(submit_uuid);
+			text.append("    document.getElementById('");
+			text.append(submit_form_id);
 			text.append("').submit(); \n");
 			text.append("if ( ! open_in_new_window ) {\n");
 			text.append("   setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(error_timeout)+"\"); }, 4000);\n");
@@ -742,7 +749,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * getOAuthURL - Form a GET request signed by OAuth
+		 * getOAuthURL - Form a GET request signed by OAuth
 	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
@@ -780,7 +787,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * getResponseCode - Read the HTTP Response
+		 * getResponseCode - Read the HTTP Response
 	 * @param connection
 	 */
 	public static int getResponseCode(HttpURLConnection connection)
@@ -794,7 +801,7 @@ public class BasicLTIUtil {
 
 
 	/**
-         * readHttpResponse - Read the HTTP Response
+		 * readHttpResponse - Read the HTTP Response
 	 * @param connection
 	 */
 	public static String readHttpResponse(HttpURLConnection connection)
@@ -1058,36 +1065,36 @@ public class BasicLTIUtil {
 
 	/**
 	 * Simple utility method deal with a request that has the wrong URL when behind
-     * a proxy.
+	 * a proxy.
 	 *
 	 * @param servletUrl
-     * @param extUrl
-     *   The url that the external world sees us as responding to.  This needs to be
-     *   up to but not including the last slash like and not include any path information
-     *   https://www.sakailms.org/ - although we do compensate for extra stuff at the end.
+	 * @param extUrl
+	 *   The url that the external world sees us as responding to.  This needs to be
+	 *   up to but not including the last slash like and not include any path information
+	 *   https://www.sakailms.org/ - although we do compensate for extra stuff at the end.
 	 * @return
-     *   The full path of the request with extUrl in place of whatever the request
-     *   thinks is the current URL.
+	 *   The full path of the request with extUrl in place of whatever the request
+	 *   thinks is the current URL.
 	 */
-    static public String getRealPath(String servletUrl, String extUrl)
-    {
-        Pattern pat = Pattern.compile("^https??://[^/]*");
-        // Deal with potential bad extUrl formats
-        Matcher m = pat.matcher(extUrl);
-        if (m.find()) {
-            extUrl = m.group(0);
-        }
+	static public String getRealPath(String servletUrl, String extUrl)
+	{
+		Pattern pat = Pattern.compile("^https??://[^/]*");
+		// Deal with potential bad extUrl formats
+		Matcher m = pat.matcher(extUrl);
+		if (m.find()) {
+			extUrl = m.group(0);
+		}
 
-        String retval = pat.matcher(servletUrl).replaceFirst(extUrl);
-        return retval;
-    }
+		String retval = pat.matcher(servletUrl).replaceFirst(extUrl);
+		return retval;
+	}
 
 	static public String getRealPath(HttpServletRequest request, String extUrl)
-    {
-        String URLstr = request.getRequestURL().toString();
-        String retval = getRealPath(URLstr, extUrl);
-        return retval;
-    }
+	{
+		String URLstr = request.getRequestURL().toString();
+		String retval = getRealPath(URLstr, extUrl);
+		return retval;
+	}
 
 	/**
 	 * Simple utility method to help with the migration from Properties to
@@ -1236,7 +1243,7 @@ public class BasicLTIUtil {
 	}
 
 	/**
-         * Return a ISO 8601 formatted date
+	 * Return a ISO 8601 formatted date
 	 */
 	public static String getISO8601() {
 		return getISO8601(null);
@@ -1327,6 +1334,24 @@ public class BasicLTIUtil {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Shift a date from the JVM Timezone to Another Timezone
+	 *
+	 * Usually the resulting date is then usually moved into UTC for transport
+	 */
+	public static Date shiftJVMDateToTimeZone(Date date, String timeZone) {
+		if ( date == null || timeZone == null ) return null;
+
+		// Get the JVM TimeZone
+		TimeZone tzJVM = TimeZone.getDefault();
+		TimeZone tzNew = TimeZone.getTimeZone(timeZone);
+		long dueTime = date.getTime();
+		// Shift into UTC and then back to the destination timezone
+		dueTime = dueTime - tzJVM.getRawOffset() + tzNew.getRawOffset();
+		Date retval = new Date(dueTime);
+		return retval;
 	}
 
 	// Parse and return a JSONObject (empty if necessary)
@@ -1434,5 +1459,48 @@ public class BasicLTIUtil {
 		}
 		return null;
 	}
+
+	public static String getBrowserSignature(HttpServletRequest request) {
+		String [] look_at = { "x-forwarded-proto", "x-forwarded-port", "host",
+			"accept-encoding", "cf-ipcountry", "user-agent", "accept", "accept-language"};
+		StringBuilder text = new StringBuilder();
+		for (String s: look_at) {
+			String value = request.getHeader(s);
+			if ( isBlank(value) ) continue;
+			text.append(":::");
+			text.append(s);
+			text.append("=");
+			text.append(value);
+		}
+		return text.toString();
+	}
+
+	public static void sendHTMLPage(HttpServletResponse res, String body)
+	{
+		try
+		{
+			res.setContentType("text/html; charset=UTF-8");
+			res.setCharacterEncoding("utf-8");
+			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+			res.addDateHeader("Last-Modified", System.currentTimeMillis());
+			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+			res.addHeader("Pragma", "no-cache");
+			java.io.PrintWriter out = res.getWriter();
+
+			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+			out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+			out.println("<html>\n<head>");
+			out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
+			out.println("</head>\n<body>\n");
+			out.println(body);
+			out.println("\n</body>\n</html>");
+		}
+		catch (Exception e)
+		{
+			log.warn("Failed to send HTML page.", e);
+		}
+
+	}
+
 
 }

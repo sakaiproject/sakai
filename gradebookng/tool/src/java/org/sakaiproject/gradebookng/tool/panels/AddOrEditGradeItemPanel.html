@@ -10,13 +10,23 @@
             <div class="form-group">
                 <div wicket:id="subComponents"></div>
 
-				<div class="col-xs-offset-3 col-xs-8">
-					<button wicket:id="submit" type="submit" class="btn-primary fc-button gb-create-or-save"><wicket:container wicket:id="submitLabel" /></button>
-					<button wicket:id="createAnother" type="submit" class="button_color gb-create-another" wicket:message="title:label.addgradeitem.createanother">
-						<span aria-hidden="true" class="glyphicon glyphicon-plus"></span>
-						<span class="sr-only"><wicket:message key="label.addgradeitem.createanother"/></span>
-					</button>
-					<button wicket:id="cancel" type="button"><wicket:message key="button.cancel" /></button>
+				<div class="d-flex justify-content-start">
+					<div class="ms-2 btn-group">
+						<button wicket:id="submit"
+								type="submit"
+								class="btn btn-primary fc-button gb-create-or-save">
+							<wicket:container wicket:id="submitLabel" />
+						</button>
+						<button wicket:id="createAnother"
+								type="submit"
+								class="btn btn-outline btn-link gb-create-another"
+								wicket:message="title:label.addgradeitem.createanother,aria-label:label.addgradeitem.createanother">
+							<i class="si si-plus-lg gb-create-another-icon"></i>
+						</button>
+					</div>
+					<div class="ms-2">
+						<button wicket:id="cancel" type="button" class="btn-link"><wicket:message key="button.cancel" /></button>
+					</div>
 				</div>
 			</div>
 		

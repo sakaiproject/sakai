@@ -40,6 +40,7 @@ import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -80,6 +81,7 @@ public class RemoveAssessmentListener implements ActionListener
     private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
     private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+    private SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
     private TaskService taskService;
     
     public RemoveAssessmentListener()
@@ -241,6 +243,7 @@ public class RemoveAssessmentListener implements ActionListener
                     else {
                         author.setIsAnyAssessmentRetractForEdit(false);
                     }
+                    samigoAvailableNotificationService.removeScheduledAssessmentNotification(assessmentId);	//remove the existing scheduled notification for this published assessment if it exists
                 }
             }
             List allAssessments = new ArrayList<>();

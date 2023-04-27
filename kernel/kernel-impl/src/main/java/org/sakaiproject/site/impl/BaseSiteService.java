@@ -535,7 +535,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SITE_VISIT_UNPUBLISHED);
 			functionManager().registerFunction(SECURE_ADD_SITE);
 			functionManager().registerFunction(SECURE_ADD_USER_SITE);
-			functionManager().registerFunction(SECURE_ADD_PORTFOLIO_SITE);
 			functionManager().registerFunction(SECURE_REMOVE_SITE);
 			functionManager().registerFunction(SECURE_UPDATE_SITE);
 			functionManager().registerFunction(SECURE_VIEW_ROSTER);
@@ -907,6 +906,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 	/**
 	 * @inheritDoc
 	 */
+	public boolean allowUpdateGroupMembership(String siteId, String groupId)
+	{
+		return unlockCheck(SECURE_UPDATE_GROUP_MEMBERSHIP, siteGroupReference(siteId, groupId));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public boolean allowRoleSwap(String id)
 	{
 		return unlockCheck(SITE_ROLE_SWAP, siteReference(id));
@@ -1178,9 +1185,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		else if (id != null && isCourseSite(id)) {
 			return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(id));
 		}
-		else if (id != null && isPortfolioSite(id)) {
-			return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
-		}
 		else if (id != null && isProjectSite(id)) {
 			return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(id));
 		}
@@ -1255,21 +1259,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return rv;
 	}
 
-	private boolean isPortfolioSite(String siteId) {
-		boolean rv = false;
-		try {
-			Site s = getSite(siteId);
-			List<String> portfolioSiteTypes = getSiteTypeStrings("portfolio");
-			if (portfolioSiteTypes.contains(s.getType())) 
-				return true;
-				
-		} catch (IdUnusedException e) {
-			log.warn("isPortfolioSite(): no site with id: " + siteId);
-		}
-		
-		return rv;
-	}
-	
 	private boolean isProjectSite(String siteId) {
 		boolean rv = false;
 		try {
@@ -1289,10 +1278,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(null));
 	}
 
-	public boolean allowAddPortfolioSite() {
-		return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(null));
-	}
-	
 	public boolean allowAddProjectSite() {
 		return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(null));
 	}
@@ -1335,11 +1320,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
 		}
 
-		// KNL-703
-		if (getSiteTypeStrings("portfolio").contains(type)) {
-			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
-		}
-		
 		// KNL-952
 		if (getSiteTypeStrings("project").contains(type)) {
 			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));
@@ -1365,10 +1345,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return site;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException
+	{
+		return addSite(id, other, null);
+	}
+
+	public Site addSite(String id, Site other, String realmTemplate) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
@@ -1392,11 +1374,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));			
 		}
 
-		// KNL-703
-		if ( isPortfolioSite(other.getId()) ) {
-			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));			
-		}
-		
 		// KNL-952
 		if ( isProjectSite(other.getId()) ) {
 			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));			
@@ -1412,10 +1389,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// make this site a copy of other, but with new ids (not an exact copy)
 		((BaseSite) site).set((BaseSite) other, false);
 
-		// copy the realm (to get permissions settings)
+		// copy the realm from the other site (to get permissions settings)
+		// however, some sites are created without a realm assiciated with it, so we can take
+		// the realm configuration from one of the template realms like !site.template
+		AuthzGroup realm = null;
 		try
 		{
-			AuthzGroup realm = authzGroupService().getAuthzGroup(other.getReference());
+			try {
+				realm = authzGroupService().getAuthzGroup(other.getReference());
+			} catch (GroupNotDefinedException e) {
+				if ( realmTemplate != null ) {
+					realm = authzGroupService().getAuthzGroup(realmTemplate);
+				} else {
+					throw e;
+				}
+			}
+
 			AuthzGroup re = authzGroupService().addAuthzGroup(site.getReference(), realm,
 					userDirectoryService().getCurrentUser().getId());
 

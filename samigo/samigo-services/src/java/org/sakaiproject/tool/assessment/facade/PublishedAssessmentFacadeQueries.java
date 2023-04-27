@@ -48,6 +48,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -218,7 +219,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			return null;
 		}
 		PublishedFeedback publishedFeedback = new PublishedFeedback(a
-				.getFeedbackDelivery(), a.getFeedbackComponentOption(), a.getCorrectAnswerOption(), a.getFeedbackAuthoring(), a
+				.getFeedbackDelivery(), a.getFeedbackComponentOption(),a.getFeedbackAuthoring(), a
 				.getEditComponents(), a.getShowQuestionText(), a
 				.getShowStudentResponse(), a.getShowCorrectResponse(), a
 				.getShowStudentScore(), a.getShowStudentQuestionScore(), a
@@ -754,6 +755,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				}
 			}
 		}
+
+		PublishedAssessmentFacade publishedAssessmentFacade = new PublishedAssessmentFacade(publishedAssessment);
+
 		// add to gradebook
 		if (publishedAssessment.getEvaluationModel() != null) {
 			String toGradebook = publishedAssessment.getEvaluationModel()
@@ -772,6 +776,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			if (toGradebook != null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 				try {
+                    Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+                    String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p")
+                                    .id(publishedAssessmentFacade.getPublishedAssessmentId().toString()).reckon().getReference();
+                    publishedAssessment.setReference(ref);
 					gbsHelper.addToGradebook(publishedAssessment, publishedAssessment.getCategoryId(), g);
 				} catch (Exception e) {
 					log.error("Removing published assessment: " + e);
@@ -783,7 +791,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 		// write authorization
 		createAuthorization(publishedAssessment);
-		return new PublishedAssessmentFacade(publishedAssessment);
+		return publishedAssessmentFacade;
 	}
 
 	// This method is specific for publish an assessment for preview assessment,
@@ -1326,7 +1334,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		if (groupIds.size() > 0) {
 			query = "select distinct new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.correctAnswerOption, f.feedbackAuthoring, c.lateHandling, "
+				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
 				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
@@ -1340,7 +1348,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		else {
 			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.correctAnswerOption, f.feedbackAuthoring, c.lateHandling, "
+				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
 				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit, c.feedbackEndDate, c.feedbackScoreThreshold) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
@@ -1384,7 +1392,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p.getPublishedAssessmentId(), p.getTitle(),
 					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p
 							.getRetractDate(), p.getFeedbackDate(), p
-							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getCorrectAnswerOption(), p.getFeedbackAuthoring(), p
+							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
 							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate(), p.getTimeLimit(), p.getFeedbackEndDate(), p.getFeedbackScoreThreshold());
 			pubList.add(f);
@@ -1578,7 +1586,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
                 data.setSectionSet(getSectionSetForAssessment(data));
                 PublishedAssessmentFacade assessment = new PublishedAssessmentFacade(data);
                 assessment.setFeedbackComponentOption(data.getAssessmentFeedback().getFeedbackComponentOption());
-                assessment.setCorrectAnswerOption(data.getAssessmentFeedback().getCorrectAnswerOption());
                 return assessment;
             default:
                 log.warn("More than 1 assessment found with the same ALIAS = {}, this should be unique.", entry);
@@ -1600,9 +1607,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 	}
 
-	public Map<Long, PublishedFeedback> getFeedbackHash() {
+	public Map<Long, PublishedFeedback> getFeedbackHash(String siteId) {
 		final List listAgentId = new ArrayList();
-		String siteId = AgentFacade.getCurrentSiteId();
 		listAgentId.add(siteId);
 
 		try {
@@ -1622,7 +1628,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 		final String query = "select new PublishedFeedback("
 				+ " p.assessment.publishedAssessmentId,"
-				+ " p.feedbackDelivery,p.feedbackComponentOption,  p.correctAnswerOption, p.feedbackAuthoring, p.editComponents, p.showQuestionText,"
+				+ " p.feedbackDelivery,p.feedbackComponentOption,  p.feedbackAuthoring, p.editComponents, p.showQuestionText,"
 				+ " p.showStudentResponse, p.showCorrectResponse,"
 				+ " p.showStudentScore," + " p.showStudentQuestionScore,"
 				+ " p.showQuestionLevelFeedback, p.showSelectionLevelFeedback,"
@@ -2096,7 +2102,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> session.createQuery(
 					"select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 							+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-							+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.correctAnswerOption, f.feedbackAuthoring, c.lateHandling, "
+							+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
 							+ " c.unlimitedSubmissions, c.submissionsAllowed, c.feedbackEndDate, c.feedbackScoreThreshold) "
 							+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 							+ " PublishedFeedback as f"

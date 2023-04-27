@@ -3,7 +3,7 @@
         <input type="hidden" name="back" value="$!back" />
         <input type="hidden" name="eventSubmit_doManage_overview_option" value="x" />
         <input type="hidden" name="option" value="cancel" />
-        <div class="page-header">
+        <div>
             <h1>$tlang.getString("manover.header") <span class="highlight">$!site.Title</span></h1>
             <p class="instruction"> $tlang.getString("manover.instr") </p>
         </div>
@@ -46,12 +46,12 @@
                                 <td headers="move" class="buttonCol">
                                     #if ($toolCount > 1)
                                         <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.up")">
-                                            <span class="fa fa-arrow-up"></span>
+                                            <span class="si si-up"></span>
                                         </a>
                                     #end
                                     #if ($toolCount < $tools.size())
                                         <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title ="$tlang.getString("manover.down")">
-                                            <span class="fa fa-arrow-down"></span>
+                                            <span class="si si-down"></span>
                                         </a>
                                     #end
                                 </td>
@@ -60,7 +60,7 @@
                                 </td>
                                 <td headers="Remove" class="removeCol">
                                     <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
-                                        <span class="fa fa-times fa-lg text-danger" aria-hidden="true"></span>
+                                        <span class="si si-close text-danger" aria-hidden="true"></span>
                                     </a>
                                 </td>
                             </tr>
@@ -96,24 +96,24 @@
                                     </td>
                                     <td headers="Remove" class="removeCol">
                                         <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
-                                            <span class="fa fa-times fa-lg text-danger" aria-hidden="true"></span>
+                                            <span class="si si-close text-danger" aria-hidden="true"></span>
                                         </a>
                                     </td>
                                     <td headers="move" class="buttonCol">
                                         #if ($leftToolCount > 1)
                                             <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
-                                                <span class="fa fa-arrow-up"></span>
+                                                <span class="si si-up"></span>
                                             </a>
                                         #end
                                         #if ($leftToolCount < $leftTools.size())
                                             <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
-                                                <span class="fa fa-arrow-down"></span>
+                                                <span class="si si-down"></span>
                                            </a>
                                         #end
                                     </td>
                                     <td headers="move" class="buttonCol">
                                         <a href="#toolLinkParam("$action" "doEdit_tool_right" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("manover.right")">
-                                            <span class="fa fa-arrow-right"></span>
+                                            <span class="si si-right"></span>
                                         </a>
                                     </td>
                                 </tr>
@@ -138,18 +138,18 @@
                                 <tr>
                                     <td headers="move" class="buttonCol">
                                         <a href="#toolLinkParam("$action" "doEdit_tool_left" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("manover.left")">
-                                            <span class="fa fa-arrow-left"></span>
+                                            <span class="si si-left"></span>
                                         </a>
                                     </td>
                                     <td headers="move" class="buttonCol">
                                         #if ($rightToolCount > 1)
                                             <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
-                                                <span class="fa fa-arrow-up"></span>
+                                                <span class="si si-up"></span>
                                             </a>
                                         #end
                                         #if ($rightToolCount < $rightTools.size())
                                             <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
-                                                <span class="fa fa-arrow-down"></span>
+                                                <span class="si si-down"></span>
                                             </a>
                                         #end
                                     </td>
@@ -158,7 +158,7 @@
                                     </td>
                                     <td headers="Remove" class="removeCol">
                                         <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
-                                            <span class="fa fa-times fa-lg text-danger " aria-hidden="true"></span>
+                                            <span class="si si-close text-danger " aria-hidden="true"></span>
                                         </a>
                                     </td>
                                 </tr>
@@ -190,9 +190,9 @@
                         #set ($widgetCount = 0)
                         #foreach ($widget in $availWidgets)
                             #set ($widgetCount=$widgetCount + 1)
-                            <li class="list-group-item">
+                            <li class="list-group-item-action">
                                 <a href="#toolLinkParam("$action" "doAdd_widget" "id=$formattedText.escapeUrl($widget.Id)")" title="$tlang.getString("manover.add.full")">
-                                    <span class="fa fa-plus" aria-hidden="true"></span>
+                                    <span class="si si-add" aria-hidden="true"></span>
                                 </a>
                                 <span class="widgetName">$formattedText.escapeHtml($widget.Title)</span>
                             </li>
@@ -217,8 +217,8 @@
                          #set ($widgetCount=$widgetCount + 1)
                          #set ($currentTool = $toolIds.contains($widget.Id))
                          #if ($currentTool == false)
-                             <li class="disabled list-group-item">
-                                 <span class="fa fa-ban fa-lg"></span>
+                             <li class="disabled list-group-item-action">
+                                 <span class="fa si-ban"></span>
                                  <span class="widgetName">$formattedText.escapeHtml($widget.Title)</span>
                              </li>
                          #end
@@ -253,12 +253,12 @@
 
 <script>
     $('input:radio[id="layout1"]').click(function() {
-        $('#single-col').removeClass("hidden");
-        $('#double-col').addClass("hidden");
+        $('#single-col').removeClass("d-none");
+        $('#double-col').addClass("d-none");
     });
 
     $('input:radio[id="layout2"]').click(function() {
-        $('#double-col').removeClass("hidden");
-        $('#single-col').addClass("hidden");
+        $('#double-col').removeClass("d-none");
+        $('#single-col').addClass("d-none");
     });
 </script>

@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -371,6 +372,19 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     public String getUrl() {
         return "/samigo-app/servlet/Login?id=" + getAssessmentAlias(id);
     }
+
+	public boolean showAdditionalLink() {
+		String userId = SessionManager.getCurrentSession().getUserId();
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+
+		List<AssessmentGradingData> publishedAssessmentList =  pService.getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(userId, siteId, true);
+		publishedAssessmentList = publishedAssessmentList.stream()
+			.filter(publishedAssessment -> publishedAssessment.getPublishedAssessmentId().equals(id))
+			.collect(Collectors.toList());
+		log.debug("publishedAssessmentList {} / {}", publishedAssessmentList != null ? publishedAssessmentList.size() : null , publishedAssessmentList);
+
+		return publishedAssessmentList.size() > 0;
+	}
 
     // I don't think they have this
     public Date getDueDate() {

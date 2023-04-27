@@ -1,67 +1,102 @@
+/*
+ * Copyright (c) 2003-2022 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.messaging.impl;
 
-import org.apache.ignite.IgniteCluster;
-import org.apache.ignite.IgniteMessaging;
-import org.apache.ignite.cluster.ClusterGroup;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.ignite.EagerIgniteSpringBean;
-import org.sakaiproject.messaging.api.BullhornHandler;
+import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.impl.UserMessagingServiceImpl;
+import org.sakaiproject.messaging.api.UserNotificationHandler;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.test.SakaiTests;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Observable;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RuntimeRegistrationTest {
-    @Mock public EventTrackingService eventTrackingService;
-    @Mock public EagerIgniteSpringBean ignite;
-    @Mock public IgniteCluster igniteCluster;
-    @Mock public ClusterGroup clusterGroup;
-    @Mock public IgniteMessaging messaging;
-    @Mock public ServerConfigurationService serverConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.AopTestUtils;
 
-    MessagingServiceImpl messagingService;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {UserMessagingServiceTestConfiguration.class})
+public class RuntimeRegistrationTest extends SakaiTests {
+
+    @Autowired private EventTrackingService eventTrackingService;
+    @Autowired private EntityManager entityManager;
+    @Autowired private EagerIgniteSpringBean ignite;
+    @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private UserMessagingService userMessagingService;
 
     @Before
     public void setup() {
-        messagingService = new MessagingServiceImpl();
-        messagingService.eventTrackingService = eventTrackingService;
-        messagingService.serverConfigurationService = serverConfigurationService;
-        messagingService.ignite = ignite;
+
         when(serverConfigurationService.getBoolean(eq("portal.bullhorns.enabled"), anyBoolean())).thenReturn(true);
-        when(ignite.cluster()).thenReturn(igniteCluster);
-        when(igniteCluster.forLocal()).thenReturn(clusterGroup);
-        when(ignite.message(any())).thenReturn(messaging);
     }
 
     @Test
     public void givenNoHandlers_whenInitializing_thenItStartsUp() {
-        assertThatNoException().isThrownBy(() -> {
-            messagingService.init();
-        });
+
+        try {
+            ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).init();
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
     public void givenARegisteredHandler_whenMatchingEventOccurs_thenTheHandlerReceivesIt() {
+
         // GIVEN
-        messagingService.init();
-        BullhornHandler handler = mock(BullhornHandler.class);
+        UserNotificationHandler handler = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handler.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handler);
+        assertNotNull(userMessagingService);
+        userMessagingService.registerHandler(handler);
+        when(entityManager.getTool(any())).thenReturn(Optional.of("sakai.assignments"));
+
+        Site site = mock(Site.class);
+        when(site.isPublished()).thenReturn(true);
+
+        try {
+            when(siteService.getSite(event.getContext())).thenReturn(site);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // WHEN
-        messagingService.update(noop, event);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).update(noop, event);
         // THEN
         verify(handler).handleEvent(event);
     }
@@ -69,14 +104,14 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenARegisteredHandler_whenNonMatchingEventOccurs_thenTheHandlerDoesNotReceiveIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handler = mock(BullhornHandler.class);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).init();
+        UserNotificationHandler handler = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handler.getHandledEvents()).thenReturn(List.of("other.event"));
-        messagingService.registerHandler(handler);
+        userMessagingService.registerHandler(handler);
         // WHEN
-        messagingService.update(noop, event);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).update(noop, event);
         // THEN
         verify(handler, never()).handleEvent(event);
     }
@@ -84,15 +119,15 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenAUnregisteredHandler_whenAMatchingEventOccurs_thenTheHandlerDoesNotReceiveIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handler = mock(BullhornHandler.class);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).init();
+        UserNotificationHandler handler = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handler.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handler);
-        messagingService.unregisterHandler(handler);
+        userMessagingService.registerHandler(handler);
+        userMessagingService.unregisterHandler(handler);
         // WHEN
-        messagingService.update(noop, event);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).update(noop, event);
         // THEN
         verify(handler, never()).handleEvent(event);
     }
@@ -100,17 +135,27 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenARegisteredHandler_whenWeRegisterForTheSameEvent_thenTheNewHandlerReceivesIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handlerOne = mock(BullhornHandler.class);
-        BullhornHandler handlerTwo = mock(BullhornHandler.class);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).init();
+        UserNotificationHandler handlerOne = mock(UserNotificationHandler.class);
+        UserNotificationHandler handlerTwo = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handlerOne.getHandledEvents()).thenReturn(List.of("test.event"));
         when(handlerTwo.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handlerOne);
-        messagingService.registerHandler(handlerTwo);
+        userMessagingService.registerHandler(handlerOne);
+        userMessagingService.registerHandler(handlerTwo);
+
+        Site site = mock(Site.class);
+        when(site.isPublished()).thenReturn(true);
+
+        try {
+            when(siteService.getSite(event.getContext())).thenReturn(site);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // WHEN
-        messagingService.update(noop, event);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).update(noop, event);
         // THEN
         verify(handlerTwo).handleEvent(event);
     }
@@ -120,17 +165,27 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenARegisteredHandler_whenWeRegisterForTheSameEvent_thenTheOldHandlerDoesNotReceiveIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handlerOne = mock(BullhornHandler.class);
-        BullhornHandler handlerTwo = mock(BullhornHandler.class);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).init();
+        UserNotificationHandler handlerOne = mock(UserNotificationHandler.class);
+        UserNotificationHandler handlerTwo = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handlerOne.getHandledEvents()).thenReturn(List.of("test.event"));
         when(handlerTwo.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handlerOne);
+        userMessagingService.registerHandler(handlerOne);
+
+        Site site = mock(Site.class);
+        when(site.isPublished()).thenReturn(true);
+
+        try {
+            when(siteService.getSite(event.getContext())).thenReturn(site);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // WHEN
-        messagingService.registerHandler(handlerTwo);
-        messagingService.update(noop, event);
+        userMessagingService.registerHandler(handlerTwo);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).update(noop, event);
         // THEN
         verify(handlerOne, never()).handleEvent(event);
     }
@@ -138,17 +193,27 @@ public class RuntimeRegistrationTest {
     @Test
     public void givenADifferentHandlerIsRegisteredForAnEvent_whenWeUnregisterForThatEvent_thenTheOldHandlerStillReceivesIt() {
         // GIVEN
-        messagingService.init();
-        BullhornHandler handlerOne = mock(BullhornHandler.class);
-        BullhornHandler handlerTwo = mock(BullhornHandler.class);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).init();
+        UserNotificationHandler handlerOne = mock(UserNotificationHandler.class);
+        UserNotificationHandler handlerTwo = mock(UserNotificationHandler.class);
         Event event = ATestEvent();
         Observable noop = new Observable();
         when(handlerOne.getHandledEvents()).thenReturn(List.of("test.event"));
         when(handlerTwo.getHandledEvents()).thenReturn(List.of("test.event"));
-        messagingService.registerHandler(handlerOne);
+        userMessagingService.registerHandler(handlerOne);
+
+        when(entityManager.getTool(any())).thenReturn(Optional.of("sakai.assignments"));
+        Site site = mock(Site.class);
+        when(site.isPublished()).thenReturn(true);
+
+        try {
+            when(siteService.getSite(any())).thenReturn(site);
+        } catch (Exception e) {
+        }
+
         // WHEN
-        messagingService.unregisterHandler(handlerTwo);
-        messagingService.update(noop, event);
+        userMessagingService.unregisterHandler(handlerTwo);
+        ((UserMessagingServiceImpl) AopTestUtils.getTargetObject(userMessagingService)).update(noop, event);
         // THEN
         verify(handlerOne).handleEvent(event);
     }

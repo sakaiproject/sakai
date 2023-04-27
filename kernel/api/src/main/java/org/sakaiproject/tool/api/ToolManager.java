@@ -192,6 +192,16 @@ public interface ToolManager
 	 * @return <code>true</code> if the current placement is hidden.
 	 */
 	public boolean isHidden(Placement placement);
+
+	/**
+	 * Check if the FIRST tool configuration for specified siteId and toolId is hidden.
+	 * @param siteId
+	 * @param toolId
+	 * @return <code>true</code> if the current placement is hidden.
+	 * @return <code>false</code> if the specified placement is hidden or not found.
+	 */
+	public boolean isToolHidden(String siteId, String toolId);
+
 	/**
 	 * The optional tool configuration tag "functions.require" describes a
 	 * set of permission lists which decide the visibility of the tool link

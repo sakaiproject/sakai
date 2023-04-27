@@ -57,6 +57,7 @@ import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -119,10 +120,12 @@ public class PublishAssessmentListener
 
   private RubricsService rubricsService;
   private TaskService taskService;
+  private SamigoAvailableNotificationService samigoAvailableNotificationService;
 
   public PublishAssessmentListener() {
     rubricsService = ComponentManager.get(RubricsService.class);
     taskService = ComponentManager.get(TaskService.class);
+	samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -349,6 +352,8 @@ public class PublishAssessmentListener
       publishedAssessmentService.saveOrUpdateMetaData(meta);
     }  
 
+    // Now that everything is updated schedule an open notification email
+    samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));
   }
 
   private boolean checkTitle(AssessmentFacade assessment){
@@ -404,7 +409,7 @@ public class PublishAssessmentListener
 	  }
 
 	  totalScoresBean.setPublishedId(pub.getPublishedAssessmentId().toString());
-	  Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER); 
+	  Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER, AgentFacade.getCurrentSiteId()); 
 	  AgentFacade agent = null;
 
 	  AgentFacade instructor = new AgentFacade();

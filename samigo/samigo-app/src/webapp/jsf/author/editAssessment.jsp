@@ -193,13 +193,13 @@ $(window).load( function() {
 
 <h:panelGroup>
   <h:commandButton id="republish" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
-      action="#{author.getOutcome}" >
+      action="#{author.getOutcome}" onclick="SPNR.disableControlsAndSpin(this, null);">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
 
   <h:commandButton id="republishRegrade" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
-      action="#{author.getOutcome}" >
+      action="#{author.getOutcome}" onclick="SPNR.disableControlsAndSpin(this, null);">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
@@ -221,7 +221,7 @@ $(window).load( function() {
   </h:outputLink>
 </h:panelGrid>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="d-none">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
 </h:commandLink>
 
@@ -325,7 +325,7 @@ $(window).load( function() {
         </h:selectOneMenu>
       </div>
     </div>
-    <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+    <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="d-none">
     </h:commandLink>
 </h:panelGroup>
 
@@ -466,7 +466,7 @@ $(window).load( function() {
             <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{question.itemData.sequence}"/>
             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
           </h:selectOneMenu>
-          <h:commandLink id="hiddenlink" styleClass="hidden" action="#{itemauthor.doit}" value="">
+          <h:commandLink id="hiddenlink" styleClass="d-none" action="#{itemauthor.doit}" value="">
           </h:commandLink>
         </div>
       </h:panelGroup>
@@ -477,11 +477,11 @@ $(window).load( function() {
   </h:column>
 </h:dataTable>
 <div class="act">
-<h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
+<h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}" onclick="SPNR.disableControlsAndSpin(this, null);">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />
 </h:commandButton>
 <h:outputText value="&#160;" escape="false" />
-<h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
+<h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}" onclick="SPNR.disableControlsAndSpin(this, null);">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentQuestionsOrder" />
 </h:commandButton>
 </div>
@@ -490,13 +490,13 @@ $(window).load( function() {
 <h:panelGrid columns="1" width="100%" columnClasses="navList" border="0">
 <h:panelGroup>
   <h:commandButton id="republish1" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
-      action="#{author.getOutcome}">
+      action="#{author.getOutcome}" onclick="SPNR.disableControlsAndSpin(this, null);">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
 
   <h:commandButton id="republishRegrade1" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
-      action="#{author.getOutcome}">
+      action="#{author.getOutcome}" onclick="SPNR.disableControlsAndSpin(this, null);">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>

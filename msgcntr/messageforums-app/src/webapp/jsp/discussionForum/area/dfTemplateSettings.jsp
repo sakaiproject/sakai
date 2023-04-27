@@ -61,6 +61,7 @@
 	function setDatesEnabled(radioButton){
 		$(".openDateSpan").toggle();
 		$(".closeDateSpan").toggle();
+		$(".lockForumAfterCloseDateSpan").toggle();
 		resize();
 	}
 

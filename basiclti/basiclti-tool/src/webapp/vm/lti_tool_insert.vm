@@ -148,6 +148,7 @@ function importLTI13Config() {
 
     jQuery.getJSON( importUrl, function(data) {
         console.log(data);
+        jQuery("#lti13_on-input").prop('checked', true);
         if ( data.initiate_login_uri ) jQuery("#lti13_oidc_endpoint").val(data.initiate_login_uri);
         if ( data.jwks_uri ) jQuery("#lti13_tool_keyset").val(data.jwks_uri);
         if ( data.client_id ) jQuery("#lti13_client_id").val(data.client_id);
@@ -227,7 +228,7 @@ function importLTI13Config() {
                         jQuery("#pl_launch").prop("checked", false);
                         jQuery("#pl_lessonsselection").prop("checked", true);
                     }
-                    if ( message.type == 'DataPrivacyLaunchRequest' ) {
+                    if ( message.type == 'LtiDataPrivacyLaunchRequest' ) {
                         jQuery("#pl_privacy").prop("checked", true);
                     }
                     if ( message.placements && Array.isArray(message.placements) ) {

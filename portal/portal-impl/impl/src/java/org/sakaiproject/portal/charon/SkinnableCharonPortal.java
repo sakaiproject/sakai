@@ -22,8 +22,11 @@ package org.sakaiproject.portal.charon;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
+import java.text.Collator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
@@ -33,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -59,8 +63,8 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
-import org.sakaiproject.messaging.api.BullhornAlert;
-import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
@@ -94,6 +98,7 @@ import org.sakaiproject.portal.charon.handlers.RoleSwitchHandler;
 import org.sakaiproject.portal.charon.handlers.RoleSwitchOutHandler;
 import org.sakaiproject.portal.charon.handlers.RssHandler;
 import org.sakaiproject.portal.charon.handlers.SiteHandler;
+import org.sakaiproject.portal.charon.handlers.PlusHandler;
 import org.sakaiproject.portal.charon.handlers.SiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.StaticScriptsHandler;
 import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
@@ -162,7 +167,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * messages.
 	 */
 	private static ResourceLoader rloader = new ResourceLoader("sitenav");
-	private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
+	private static ResourceLoader toolsRloader = new ResourceLoader("sitesetupgeneric");
+
+	// TODO: This is commented out as the new trinity portal doesn't load the connection
+	// manager UI. It may in the future, hence this is left here.
+	//private static ResourceLoader cmLoader = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
 	/**
 	 * Parameter value to indicate to look up a tool ID within a site
@@ -173,11 +182,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private boolean enableDirect = false;
 
-	private MessagingService messagingService;
+	private UserMessagingService userMessagingService;
 
 	private PortalService portalService;
 	
 	private SecurityService securityService = null;
+
+	private SiteNeighbourhoodService siteNeighbourhoodService;
 
 	//Get user preferences
 	private PreferencesService preferencesService;
@@ -219,6 +230,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private WorksiteHandler worksiteHandler;
 
 	private SiteHandler siteHandler;
+	private PlusHandler plusHandler;
 
 	private String portalContext;
 
@@ -1033,25 +1045,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Portal"));
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
-		rcontext.put("cmLoader", cmLoader);
-		//rcontext.put("browser", new BrowserDetector(request));
+		// TODO: This is commented out as the new trinity portal doesn't load the connection manager
+		//rcontext.put("cmLoader", cmLoader);
+
 		// Allow for inclusion of extra header code via property
 		String includeExtraHead = ServerConfigurationService.getString("portal.include.extrahead", "");
 		rcontext.put("includeExtraHead",includeExtraHead);
 
 		String universalAnalyticsId =  ServerConfigurationService.getString("portal.google.universal_analytics_id", null);
+		rcontext.put("googleAnonymizeIp", ServerConfigurationService.getBoolean("portal.google.anonymize.ip", false));
+
 		if ( universalAnalyticsId != null ) {
 			rcontext.put("googleUniversalAnalyticsId", universalAnalyticsId);
-			rcontext.put("googleAnonymizeIp", ServerConfigurationService.getBoolean("portal.google.anonymize.ip", false));
 		}
 
-		String analyticsId =  ServerConfigurationService.getString("portal.google.analytics_id", null);
-		if ( analyticsId != null ) {
-			rcontext.put("googleAnalyticsId", analyticsId);
-			rcontext.put("googleAnalyticsDomain", 
-				ServerConfigurationService.getString("portal.google.analytics_domain"));
-			rcontext.put("googleAnalyticsDetail", 
-				ServerConfigurationService.getBoolean("portal.google.analytics_detail", false));
+		String googleGA4Id =  ServerConfigurationService.getString("portal.google.ga4_id", null);
+		if ( googleGA4Id != null ) {
+			rcontext.put("googleGA4Id", googleGA4Id);
 		}
 
 		//SAK-29668
@@ -1074,6 +1084,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("userSiteRole", role != null ? role.getId() : "");
 		rcontext.put("editorType", editorType);
 
+                Session session = SessionManager.getCurrentSession();
+                boolean justLoggedIn = session.getAttribute(Session.JUST_LOGGED_IN) != null;
+                if (justLoggedIn) {
+			session.removeAttribute(Session.JUST_LOGGED_IN);
+		}
+		rcontext.put("justLoggedIn", justLoggedIn);
+
 		rcontext.put("loggedOutUrl",ServerConfigurationService.getLoggedOutUrl());
 		rcontext.put("portalPath",ServerConfigurationService.getPortalUrl());
 		rcontext.put("timeoutDialogEnabled",Boolean.valueOf(ServerConfigurationService.getBoolean("timeoutDialogEnabled", true)));
@@ -1086,14 +1103,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("cookieNoticeEnabled", ServerConfigurationService.getBoolean("portal.cookie.policy.warning.enabled",false));
 		rcontext.put("cookieNoticeText", cookieNoticeText);
 
-		if (siteType != null && siteType.length() > 0)
-		{
-			siteType = "class=\"" + siteType + "\"";
-		}
-		else
-		{
-			siteType = "";
-		}
 		rcontext.put("pageSiteType", siteType);
 		rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
@@ -1114,6 +1123,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
+
+		rcontext.put("homeToolTitle", rloader.getString("sitenav_home_tool_title"));
 		
 		//SAK-32224. Ability to disable the animated tool menu by property
 		rcontext.put("scrollingToolbarEnabled", ServerConfigurationService.getBoolean("portal.scrolling.toolbar.enabled",true));
@@ -1121,6 +1132,29 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// Format properties for MathJax.
 		String [] mathJaxFormat = ServerConfigurationService.getStrings("mathjax.config.format");
 		rcontext.put("mathJaxFormat", mathJaxFormat);
+
+		boolean notificationsPushEnabled = ServerConfigurationService.getBoolean("portal.notifications.push.enabled", true);
+		rcontext.put("notificationsPushEnabled", notificationsPushEnabled);
+
+		boolean debugNotifications = ServerConfigurationService.getBoolean("portal.notifications.debug", false);
+		rcontext.put("debugNotifications", debugNotifications);
+
+		try {
+			Site userSite = SiteService.getSite(SiteService.getUserSiteId(currentUser.getId()));
+			String preferencesToolId = ServerConfigurationService.getString("portal.preferencestool","sakai.preferences");
+			ToolConfiguration toolConfig = userSite.getToolForCommonId(preferencesToolId);
+			if (toolConfig != null) {
+				rcontext.put("prefsToolUrl", "/portal/directtool/" + toolConfig.getId());
+			}
+
+			String profileToolId = ServerConfigurationService.getString("portal.profiletool","sakai.profile2");
+			toolConfig = userSite.getToolForCommonId(profileToolId);
+			if (toolConfig != null) {
+				rcontext.put("profileToolUrl", "/portal/directtool/" + toolConfig.getId());
+			}
+		} catch (Exception e) {
+			log.error("Failed to set profile urls on render context: {}", e.toString());
+		}
 
 		return rcontext;
 	}
@@ -1608,8 +1642,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Preferences prefs = preferencesService.getPreferences(thisUser);
 
 			boolean showServerTime = ServerConfigurationService.getBoolean("portal.show.time", true);
+			rcontext.put("showServerTime", showServerTime);
+
 			if (showServerTime) {
-					rcontext.put("showServerTime","true");
 					Calendar now = Calendar.getInstance();
 					Date nowDate = new Date(now.getTimeInMillis());
 
@@ -1644,7 +1679,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 							now.setTimeZone(preferredTz);
 
-							rcontext.put("showPreferredTzTime", "true");
+							rcontext.put("showPreferredTzTime", true);
 
 							//now set up the portal information
 							rcontext.put("preferredTzDisplay",
@@ -1660,14 +1695,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 													)
 											);
 					} else {
-							rcontext.put("showPreferredTzTime", "false");
+							rcontext.put("showPreferredTzTime", false);
 					}
 			}
 			
 			rcontext.put("pagepopup", false);
 
-			String copyright = ServerConfigurationService
-			.getString("bottom.copyrighttext");
+			String copyright = ServerConfigurationService.getString("bottom.copyrighttext");
 
 			/**
 			 * Replace keyword in copyright message from sakai.properties 
@@ -1678,88 +1712,87 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			copyright = copyright.replaceAll(SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD, currentServerYear);
 
 			String service = ServerConfigurationService.getString("ui.service", "Sakai");
-			String serviceVersion = ServerConfigurationService.getString(
-					"version.service", "?");
-			String sakaiVersion = ServerConfigurationService.getString("version.sakai",
-			"?");
+			String serviceVersion = ServerConfigurationService.getString("version.service", "?");
+			String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
 			String server = ServerConfigurationService.getServerId();
-			String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
+			String[] footerLinks = ServerConfigurationService.getStrings("footerlinks");
+			List<HashMap<String, String>> footerLinksList = Arrays.asList(footerLinks).stream()
+					.map((footerlink) -> {
+						String[] linkValues = StringUtils.split(footerlink, ";");
+						if (linkValues.length < 2) {
+							return null;
+						} else {
+							HashMap<String, String> linkMap = new HashMap();
+							linkMap.put("text", linkValues[0]);
+							linkMap.put("href", linkValues[1]);
+							if (linkValues.length >= 3) {
+								linkMap.put("target", linkValues[2]);
+							}
+							return linkMap;
+						}
+					})
+				.filter((link) -> link != null)
+			.collect(Collectors.toList());
+			rcontext.put("footerLinks", footerLinksList);
 			String[] poweredByUrl = ServerConfigurationService.getStrings("powered.url");
-			String[] poweredByImage = ServerConfigurationService
-			.getStrings("powered.img");
-			String[] poweredByAltText = ServerConfigurationService
-			.getStrings("powered.alt");
+			String[] poweredByImage = ServerConfigurationService.getStrings("powered.img");
+			String[] poweredByAltText = ServerConfigurationService.getStrings("powered.alt");
 
-			{
-				List<Object> l = new ArrayList<Object>();
-				if ((bottomNav != null) && (bottomNav.length > 0))
-				{
-					for (int i = 0; i < bottomNav.length; i++)
-					{
-						l.add(bottomNav[i]);
+			String neoChatProperty = ServerConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never");
+			boolean neoChatAvailable = false;
+
+			if ("true".equals(neoChatProperty) || "false".equals(neoChatProperty)) {
+				neoChatAvailable = Boolean.valueOf(neoChatProperty);
+				if (site != null) {
+					String siteNeoChatStr = site.getProperties().getProperty(Site.PROP_SITE_PORTAL_NEOCHAT);
+					if (siteNeoChatStr != null) {
+						neoChatAvailable = Boolean.valueOf(siteNeoChatStr);
 					}
 				}
-				rcontext.put("bottomNav", l);
 			}
 
-                        String neoChatProperty = ServerConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never");
-                        boolean neoChatAvailable = false;
- 
-                        if ("true".equals(neoChatProperty) || "false".equals(neoChatProperty)) {
-                            neoChatAvailable = Boolean.valueOf(neoChatProperty);
-                            if (site != null) {
-                                String siteNeoChatStr = site.getProperties().getProperty(Site.PROP_SITE_PORTAL_NEOCHAT);
-                                if (siteNeoChatStr != null) {
-                                    neoChatAvailable = Boolean.valueOf(siteNeoChatStr);
-                                }
-                            }
-                        }
+			if ("always".equals(neoChatProperty)) {
+				neoChatAvailable = true;
+			}
 
-                        if ("always".equals(neoChatProperty)) {
-                            neoChatAvailable = true;
-                        }
+			if (!chatHelper.checkChatPermitted(thisUser)) {
+				neoChatAvailable = false;
+			}
 
-                        if (!chatHelper.checkChatPermitted(thisUser)) {
-                            neoChatAvailable = false;
-                        }
+			rcontext.put("neoChat", neoChatAvailable);
+			rcontext.put("portalChatPollInterval", ServerConfigurationService.getInt("portal.chat.pollInterval", 5000));
+			rcontext.put("neoAvatar", ServerConfigurationService.getBoolean("portal.neoavatar", true));
+			rcontext.put("neoChatVideo", ServerConfigurationService.getBoolean("portal.chat.video", true));
+			rcontext.put("portalVideoChatTimeout", ServerConfigurationService.getInt("portal.chat.video.timeout", 25));
 
-                        rcontext.put("neoChat", neoChatAvailable);
-                        rcontext.put("portalChatPollInterval", 
-				ServerConfigurationService.getInt("portal.chat.pollInterval", 5000));
-                        rcontext.put("neoAvatar", 
-				ServerConfigurationService.getBoolean("portal.neoavatar", true));
-                        rcontext.put("neoChatVideo", 
-				ServerConfigurationService.getBoolean("portal.chat.video", true));
-                        rcontext.put("portalVideoChatTimeout", 
-				ServerConfigurationService.getInt("portal.chat.video.timeout", 25));
+			if (sakaiTutorialEnabled && thisUser != null) {
+				if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
+					rcontext.put("tutorial", true);
+					//now save this in the user's preferences so we don't show it again
+					PreferencesEdit preferences = null;
+					try {
+						preferences = preferencesService.edit(thisUser);
+						ResourcePropertiesEdit props = preferences.getPropertiesEdit();
+						props.addProperty("sakaiTutorialFlag", "1");
+						preferencesService.commit(preferences);   
+					} catch (SakaiException e1) {
+						log.error(e1.getMessage(), e1);
+					}
+				}
+			}
 
-                        if(sakaiTutorialEnabled && thisUser != null) {
-                        	if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
-                        		rcontext.put("tutorial", true);
-                        		//now save this in the user's preferences so we don't show it again
-                        		PreferencesEdit preferences = null;
-                        		try {
-                        			preferences = preferencesService.edit(thisUser);
-                        			ResourcePropertiesEdit props = preferences.getPropertiesEdit();
-                        			props.addProperty("sakaiTutorialFlag", "1");
-                        			preferencesService.commit(preferences);   
-                        		} catch (SakaiException e1) {
-                        			log.error(e1.getMessage(), e1);
-                        		}
-                        	}
-                        }
-
-			if(sakaiThemesEnabled) {
+			if (sakaiThemesEnabled) {
 				rcontext.put("sakaiThemesEnabled", true);
 
-				if(sakaiThemeSwitcherEnabled) {
+				if (sakaiThemeSwitcherEnabled) {
 					rcontext.put("themeSwitcher", true);
 				}
 				
-				if(sakaiThemesAutoDetectDarkEnabled) {
+				if (sakaiThemesAutoDetectDarkEnabled) {
 					rcontext.put("themesAutoDetectDark", true);
 				}
-				String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+				String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS)
+					.getProperty("theme"), "sakaiUserTheme-notSet");
 				rcontext.put("userTheme", userTheme);
 			}
 
@@ -1800,7 +1833,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
 			rcontext.put("useBullhornAlerts", useBullhornAlerts);
-			rcontext.put("bullhornAlertCount", useBullhornAlerts ? messagingService.getAlerts(thisUser).size() : 0);
+			rcontext.put("bullhornAlertCount", useBullhornAlerts ? userMessagingService.getNotifications().size() : 0);
 
 			String faviconURL = ServerConfigurationService.getString("portal.favicon.url");
 			rcontext.put("faviconURL", faviconURL);
@@ -1932,6 +1965,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
+			rcontext.put("topLogin", topLogin);
 
 			if (!topLogin)
 			{
@@ -1952,30 +1986,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			else
 			{
-				String eidWording = null;
-				String pwWording = null;
-				eidWording = StringUtils.trimToNull(rloader.getString("log.userid"));
-				pwWording = StringUtils.trimToNull(rloader.getString("log.pass"));
-				String eidPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputuserplaceholder"));
-				String pwPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputpasswordplaceholder"));
 
-				if (eidWording == null) eidWording = "eid";
-				if (pwWording == null) pwWording = "pw";
-				if (eidPlaceholder == null ) eidPlaceholder = "";
-				if (pwPlaceholder == null ) pwPlaceholder = "";
-				String loginWording = rloader.getString("log.login");
-
-				rcontext.put("loginPortalPath", ServerConfigurationService
-						.getString("portalPath"));
-				rcontext.put("loginEidWording", eidWording);
-				rcontext.put("loginPwWording", pwWording);
-				rcontext.put("loginWording", loginWording);
-				rcontext.put("eidPlaceholder", eidPlaceholder);
-				rcontext.put("pwPlaceholder", pwPlaceholder);
+				rcontext.put("loginPortalPath", ServerConfigurationService.getString("portalPath"));
 
 				// setup for the redirect after login
-				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
-						.getPortalUrl());
+				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService.getPortalUrl());
 			}
 
 			if (displayUserloginInfo)
@@ -2031,8 +2046,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
-		messagingService = ComponentManager.get(MessagingService.class);
-		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
+		userMessagingService = ComponentManager.get(UserMessagingService.class);
+		portalService = ComponentManager.get(PortalService.class);
+		siteNeighbourhoodService = ComponentManager.get(SiteNeighbourhoodService.class);
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
 		preferencesService = ComponentManager.get(PreferencesService.class);
@@ -2064,8 +2080,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		worksiteHandler = new WorksiteHandler();
 		siteHandler = new SiteHandler();
-
 		addHandler(siteHandler);
+
+		plusHandler = new PlusHandler();
+		addHandler(plusHandler);
+
 		addHandler(new SiteResetHandler());
 
 		addHandler(new ToolHandler());
@@ -2300,12 +2319,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return this.siteHelper;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.Portal#getSiteNeighbourhoodService()
-	 */
 	public SiteNeighbourhoodService getSiteNeighbourhoodService()
 	{
-		return portalService.getSiteNeighbourhoodService();
+		return siteNeighbourhoodService;
 	}
 	
 	/**

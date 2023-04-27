@@ -21,6 +21,7 @@
 
 package org.sakaiproject.component.common.type;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.HibernateException;
@@ -30,7 +31,7 @@ import org.hibernate.Session;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 import org.sakaiproject.component.common.manager.PersistableHelper;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -62,7 +63,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 
 	private boolean cacheFindTypeById = true;
 
-	private PersistableHelper persistableHelper; // dep inj
+	@Setter private PersistableHelper persistableHelper; // dep inj
+	
+	@Setter private IdManager idManager;
 
 	/**
 	 * @see org.sakaiproject.api.type.TypeManager#createType(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
@@ -82,13 +85,13 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 
 		TypeImpl ti = new TypeImpl();
 		persistableHelper.createPersistableFields(ti);
-		ti.setUuid(IdManager.createUuid());
+		ti.setUuid(idManager.createUuid());
 		ti.setAuthority(authority);
 		ti.setDomain(domain);
 		ti.setKeyword(keyword);
 		ti.setDisplayName(displayName);
 		ti.setDescription(description);
-		getHibernateTemplate().save(ti);
+		ti = getHibernateTemplate().merge(ti);
 		return ti;
 	}
 
@@ -221,14 +224,4 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 
 		throw new UnsupportedOperationException("Types should never be deleted!");
 	}
-
-	/**
-	 * @param persistableHelper
-	 *        The persistableHelper to set.
-	 */
-	public void setPersistableHelper(PersistableHelper persistableHelper)
-	{
-		this.persistableHelper = persistableHelper;
-	}
-
 }

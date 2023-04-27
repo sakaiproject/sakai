@@ -86,7 +86,7 @@ should be included in file importing DeliveryMessages
 		  </h:panelGroup>
 		  <h:panelGroup id="ximage"
 			rendered="#{!matching.isCorrect}"
-			styleClass="icon-sakai--delete feedBackCross">
+			styleClass="si si-remove feedBackCross">
 		  </h:panelGroup>
 		  <h:graphicImage id="image2"
 			width="16" height="16"

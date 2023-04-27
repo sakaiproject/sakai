@@ -44,6 +44,12 @@ public interface ContentResourceEdit
 	public void setContentType(String type);
 
 	/**
+	* Set the resource SHA256 checksum
+	* @param type The resource SHA256 checksum.
+	*/
+	public void setContentSha256(String type);
+
+	/**
 	* Set the resource content.
 	* @param content An array containing the bytes of the resource's content.
 	*/

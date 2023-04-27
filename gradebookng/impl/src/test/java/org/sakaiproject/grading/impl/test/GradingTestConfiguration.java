@@ -18,8 +18,9 @@ package org.sakaiproject.grading.impl.test;
 import static org.mockito.Mockito.mock;
 
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.grading.api.repository.GradebookRepository;
+import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
@@ -60,10 +61,13 @@ public class GradingTestConfiguration extends SakaiTestConfiguration {
         return mock(FunctionManager.class);
     }
 
-    /*
-    @Bean(name = "org.sakaiproject.grading.api.repository.GradebookRepository")
-    public GradebookRepository gradebookRepository() {
-        return mock(GradebookRepository.class);
+    @Bean(name = "org.sakaiproject.plus.api.PlusService")
+    public PlusService plusService() {
+        return mock(PlusService.class);
     }
-    */
+
+    @Bean(name = "org.sakaiproject.entity.api.EntityManager")
+    public EntityManager entityManager() {
+        return mock(EntityManager.class);
+    }
 }

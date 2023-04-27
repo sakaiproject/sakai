@@ -184,7 +184,7 @@ CREATE INDEX IE_SAKAI_SITE_USER_USER ON SAKAI_SITE_USER
 
 -- Create sites for the administrator.
 
-INSERT INTO SAKAI_SITE VALUES('~admin', 'Administration Workspace', null, null, 'Administration Workspace', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 0, 1, 0, 0, null);
+INSERT INTO SAKAI_SITE VALUES('~admin', 'Admin Home', null, null, 'Admin Home', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 0, 1, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-100', '~admin', 'Home', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('~admin', '~admin-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-110', '~admin-100', '~admin', 'sakai.motd', 1, 'Message of the Day', NULL );
@@ -263,6 +263,12 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1220', 'sitePage.c
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1230', '!admin', 'External Tools', '0', 17, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1235', '!admin-1230', '!admin', 'sakai.basiclti.admin', 1, 'External Tools', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1230', 'sitePage.customTitle', 'true');
+
+-- Sakai Plus
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1237', '!admin', 'Plus Admin', '0', 23, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1237', '!admin-1237', '!admin', 'sakai.plus', 1, 'Plus Admin', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1237', 'sitePage.customTitle', 'true');
+
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1300', '!admin', 'Delegated Access', '0', 18, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1350', '!admin-1300', '!admin', 'sakai.delegatedaccess', 1, 'Delegated Access', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1300', 'sitePage.customTitle', 'true');
@@ -394,6 +400,47 @@ INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-810', 'displ
 -- INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-910', '!worksite-900', '!worksite', 'sakai.mailbox', 1, 'Email Archive', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-1000', '!worksite', 'Site Info', '0', 11, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-1010', '!worksite-1000', '!worksite', 'sakai.siteinfo', 1, 'Site Info', NULL );
+
+INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-950', '!worksite', 'Site Info', '0', 10, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-960', '!worksite-950', '!worksite', 'sakai.siteinfo', 1, 'Site Info', NULL );
+
+-- Create the !plussite site.
+
+INSERT INTO SAKAI_SITE VALUES('!plussite', 'plussite', null, 'SakaiPlus Template', 'Default template used when SakaiPlus creates a new site', null, null, null, 0, 0, 0, 'access', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-100', '!plussite', 'Dashboard', '1', 1, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-110', '!plussite-100', '!plussite', 'sakai.dashboard', 1, 'Dashboard', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-200', '!plussite', 'Announcements', '0', 2, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-210', '!plussite-200', '!plussite', 'sakai.announcements', 1, 'Announcements', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-300', '!plussite', 'Assignments', '0', 3, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-310', '!plussite-300', '!plussite', 'sakai.assignment.grades', 1, 'Assignments', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-400', '!plussite', 'Grades', '0', 4, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-410', '!plussite-400', '!plussite', 'sakai.gradebookng', 1, 'Grades', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-500', '!plussite', 'Lessons', '0', 5, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-510', '!plussite-500', '!plussite', 'sakai.lessonbuildertool', 1, 'Lessons', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-600', '!plussite', 'Resources', '0', 6, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-610', '!plussite-600', '!plussite', 'sakai.resources', 1, 'Resources', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-700', '!plussite', 'Conversations', '0', 7, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-710', '!plussite-700', '!plussite', 'sakai.conversations', 1, 'Conversations', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-800', '!plussite', 'Chat', '0', 8, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-810', '!plussite-800', '!plussite', 'sakai.chat', 1, 'Chat', NULL );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-810', 'display-date', 'true' );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-810', 'filter-param', '3' );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-810', 'display-time', 'true' );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-810', 'sound-alert', 'true' );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-810', 'filter-type', 'SelectMessagesByTime' );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-810', 'display-user', 'true' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-900', '!plussite', 'Calendar', '0', 9, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-910', '!plussite-900', '!plussite', 'sakai.schedule', 1, 'Calendar', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-1000', '!plussite', 'Roster', '0', 10, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-1010', '!plussite-1000', '!plussite', 'sakai.site.roster2', 1, 'Roster', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-1100', '!plussite', 'Site Info', '0', 11, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-1110', '!plussite-1100', '!plussite', 'sakai.siteinfo', 1, 'Site Info', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-1200', '!plussite', 'Sakai Plus', '0', 12, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-1210', '!plussite-1200', '!plussite', 'sakai.plus', 1, 'Sakai Plus', NULL );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-1210', 'sakai-portal:visible', 'false' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!plussite-1300', '!plussite', 'Statistics', '0', 13, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!plussite-1310', '!plussite-1300', '!plussite', 'sakai.sitestats', 1, 'Statistics', NULL );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!plussite', '!plussite-1310', 'sakai-portal:visible', 'false' );
 
 -- Create the mercury site.
 

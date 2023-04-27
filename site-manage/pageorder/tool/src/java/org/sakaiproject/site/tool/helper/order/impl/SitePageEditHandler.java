@@ -508,6 +508,7 @@ public class SitePageEditHandler {
      * @throws IdUnusedException, PermissionException
      */
     public boolean enablePage(String pageId) throws SakaiException {
+
         EventTrackingService.post(
             EventTrackingService.newEvent(PAGE_ENABLE, "/site/" + site.getId() +
                                          "/page/" + pageId, false));

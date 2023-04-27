@@ -17,18 +17,33 @@
 package org.tsugi.http;
 
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.List;
+import java.util.Date;
+import java.time.Instant;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Cookie;
+
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import org.apache.commons.httpclient.util.DateUtil;
+
 /**
- * Some Tsugi Utility code for to make using Jackson easier to use.
+ * Some Tsugi Utility code for to make using Http easier to use.
  */
 @SuppressWarnings("deprecation")
 @Slf4j
 public class HttpUtil {
+
+	private static final Pattern p = Pattern.compile("<(.*)>; *rel=\"(.*)\"");
 
 	// https://stackoverflow.com/questions/18944302/how-do-i-print-the-content-of-httprequest-request
 	public static void printHeaders(HttpServletRequest request) {
@@ -64,6 +79,49 @@ public class HttpUtil {
 				return cookieValue;
 			}
 		}
+		return null;
+	}
+
+	public static String augmentGetURL(String url, Map<String, String> data) {
+
+		if ( data == null || data.size() < 1 ) return url;
+
+		var builder = new StringBuilder();
+		builder.append(url);
+		boolean questionMark = url.contains("?");
+
+		for (Map.Entry<String, String> entry : data.entrySet()) {
+			if (! questionMark ) {
+				builder.append("?");
+			} else {
+				builder.append("&");
+			}
+			builder.append(URLEncoder.encode(entry.getKey().toString(), StandardCharsets.UTF_8));
+			builder.append("=");
+			builder.append(URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
+		}
+		return builder.toString();
+	}
+
+    // https://www.imsglobal.org/spec/lti-nrps/v2p0#limit-query-parameter
+    // All values of Link: [<http://localhost:8080/imsblis/lti13/namesandroles/8b206920-d4d9-4df5-9aba-bd100a2a0af0?start=2&limit=2>; rel="next"]
+	public static String extractLinkByRel(List<String> allValuesOfLink, String rel)
+	{
+		if ( rel == null || allValuesOfLink == null ) return null;
+		for(String value: allValuesOfLink) {
+			Matcher m = p.matcher(value);
+			if (m.find() && rel.equals(m.group(2)) ) {
+				return m.group(1);
+			}
+		}
+		return null;
+	}
+
+	// Retry-After: Date: Wed, 21 Oct 2015 07:28:00 GMT
+	//
+	public static Instant getInstantFromHttp(String headerDate)
+	{
+		// TODO: Work this out
 		return null;
 	}
 }

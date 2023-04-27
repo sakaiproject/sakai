@@ -211,8 +211,6 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private String feedbackComponentOption;
   @Getter @Setter
-  private boolean onlyShowingIncorrect = false;
-  @Getter @Setter
   private boolean feedbackOnDate;
   @Getter @Setter
   private String errorMessage;
@@ -349,6 +347,8 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private boolean hasTimeLimit;
   private boolean isMoreThanOneQuestion;
+  @Getter @Setter
+  private boolean toolHidden;
   @Getter @Setter
   private Integer scoringType;
   
@@ -1959,6 +1959,19 @@ public class DeliveryBean implements Serializable {
         hasAttachment = true;
     }
     return hasAttachment;
+  }
+
+  public boolean getShowFeedbackLink() {
+      return ("reviewAssessment".equals(getActionString())
+              || "takeAssessment".equals(getActionString())
+              || "takeAssessmentViaUrl".equals(getActionString())
+              || "previewAssessment".equals(getActionString()))
+             && ! ("1".equals(getNavigation()) && getPageContents().getIsNoParts())
+             && (getFeedbackComponent().getShowImmediate() || feedbackOnDate);
+  }
+
+  public boolean getShowReturnToAssessmentLink() {
+    return "reviewAssessment".equals(getActionString()) && !isAnonymousLogin() && !isToolHidden();
   }
 
   public String checkBeforeProceed(boolean isSubmitForGrade, boolean isFromTimer, boolean isViaUrlLogin){

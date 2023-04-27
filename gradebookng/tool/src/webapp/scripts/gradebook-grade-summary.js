@@ -75,7 +75,7 @@ GradebookGradeSummary.prototype.setupTabs = function() {
         $otherTab.trigger("click");
       });
       $(document.body).append($confirmationModal);
-      $confirmationModal.modal().modal('show');
+      const modal = new bootstrap.Modal($confirmationModal).toggle();
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
         $cloneOfTab.focus();
@@ -198,7 +198,7 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
         self.$modal.find(".gb-summary-close").trigger("click");
       });
       $(document.body).append($confirmationModal);
-      $confirmationModal.modal().modal('show');
+      const modal = new bootstrap.Modal($confirmationModal).toggle();
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
         self.$content.find(".gb-summary-fake-close").focus();
@@ -229,7 +229,10 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
 
 
 GradebookGradeSummary.prototype.setupPopovers = function() {
-  this.$content.find('[data-toggle="popover"]').popover();
+
+  this.$content[0].querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+    (new bootstrap.Popover(el));
+  });
 };
 
 
@@ -294,7 +297,7 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
 
   $table.tablesorter({
     theme : "bootstrap",
-    widthFixed: true,
+    widthFixed: false,
     headerTemplate : '{content} {icon}',
     widgets : [ "uitheme", "zebra", "stickyHeaders" ],
     widgetOptions : {

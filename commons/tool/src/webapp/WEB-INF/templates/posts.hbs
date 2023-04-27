@@ -2,18 +2,32 @@
         <div class="commons-photo-text-wrapper">
             <sakai-user-photo user-id="{{currentUserId}}"></sakai-user-photo>
             <div class="commons-editor-text-wrapper">
-                <div class="commons-editor-text"><div id="commons-post-creator-editor" contenteditable="true">{{tr 'post_editor_initial_text'}}</div></div>
+                <div class="commons-editor-text"><span id="commons-post-creator-editor" contenteditable="true">{{tr 'post_editor_initial_text'}}</span></div>
             </div>
         </div>
         <div id="commons-editor-toolbar" class="act">
-            <button id="commons-editor-post-button" class="active" disabled="true">{{tr 'post'}}</button>
-            <button id="commons-editor-cancel-button" disabled="true">{{tr 'cancel'}}</button>
-            <button id="commons-editor-link-button" class="commons-editor-special-button" title="{{tr 'link_button_tooltip'}}"><span class="fa fa-link"></span></button>
-            <button id="commons-editor-image-button" class="commons-editor-special-button" title="{{tr 'image_button_tooltip'}}"><span class="fa fa-picture-o"></span></button>
+            <button id="commons-editor-post-button" class="btn btn-link active" disabled="true">{{tr 'post'}}</button>
+            <button id="commons-editor-cancel-button" class="btn btn-link" disabled="true">{{tr 'cancel'}}</button>
+            <button id="commons-editor-link-button"
+                    class="btn btn-link commons-editor-special-button"
+                    title="{{tr 'link_button_tooltip'}}">
+                <i class="si si-link"></i>
+            </button>
+            <button id="commons-editor-image-button" class="btn btn-link commons-editor-special-button" title="{{tr 'image_button_tooltip'}}">
+                <i class="si si-image"></i>
+            </button>
             <span id="commons-editor-priority-container" style="display:none;">
                 <input type="checkbox" id="commons-editor-priority" class="commons-editor-priority"></input>
                 <label for="commons-editor-priority" class="commons-editor-priority-label">{{tr 'priority'}}</label>
-                <a href="javascript://" data-toggle="popover" data-placement="top" data-trigger="focus" data-html="true" data-content="{{tr 'priorityHelp'}}" id="commons-editor-priority-help" class="fa fa-question-circle" ></a>
+                <button id="commons-editor-priority-help"
+                        class="btn icon-button"
+                        data-bs-toggle="popover"
+                        data-placement="top"
+                        data-trigger="focus"
+                        data-html="true"
+                        data-content="{{tr 'priorityHelp'}}">
+                    <i class="si si-question-circle"></i>
+                </button>
                 <br>
             </span>
         </div>
@@ -28,35 +42,37 @@
         <img src="/commons-tool/images/ajax-loader.gif" />
     </div>
     <div id="commons-link-dialog">
-        <div class="commons-dialog-container">
-            <div id="commons-link-dialog-table">
-                <div class="commons-link-dialog-row">
-                    <div>{{tr 'display_text'}}</div>
-                    <div><input type="text" id="commons-link-dialog-text" /></div>
+        <div>
+            <div class="container">
+                <div class="row">
+                    <div class="col">{{tr 'display_text'}}</div>
+                    <div class="col"><input type="text" id="commons-link-dialog-text" /></div>
                 </div>
-                <div class="commons-link-dialog-row">
-                    <div>{{tr 'link_to'}}</div>
-                    <div><input type="text" id="commons-link-dialog-url" /></div>
+                <div class="row mt-1">
+                    <div class="col">{{tr 'link_to'}}</div>
+                    <div class="col"><input type="text" id="commons-link-dialog-url" /></div>
+                </div>
+                <div class="row mt-1">
+                    <div id="commons-link-dialog-thumbnail-setting">
+                        <input type="checkbox" id="commons-link-dialog-load-thumbnail"/ >
+                        <label for="commons-link-dialog-load-thumbnail">{{tr 'load_thumbnail'}}</label>
+                    </div>
                 </div>
             </div>
-            <div id="commons-link-dialog-thumbnail-setting">
-                <input type="checkbox" id="commons-link-dialog-load-thumbnail"/ >
-                <label for="commons-link-dialog-load-thumbnail">{{tr 'load_thumbnail'}}</label>
-            </div>
-            <button id="commons-link-dialog-insert-button" disabled="true">{{tr 'insert'}}</button>
-            <button id="commons-link-dialog-cancel-button">{{tr 'cancel'}}</button>
+            <button id="commons-link-dialog-insert-button" class="btn btn-link" disabled="true">{{tr 'insert'}}</button>
+            <button id="commons-link-dialog-cancel-button" class="btn btn-link">{{tr 'cancel'}}</button>
         </div>
     </div>
     <div id="commons-image-dialog">
-        <div class="commons-dialog-container">
-            <div id="commons-link-dialog-table">
-                <div class="commons-link-dialog-row">
-                    <label for="commons-image-dialog-file" id="commons-imagefile-instruction">{{tr 'choose_image_file' max=maxUploadSize}}</label>
+        <div>
+            <div class="container">
+                <div class="row">
+                    <label for="commons-image-dialog-file" id="commons-imagefile-instruction" class="mb-2">{{tr 'choose_image_file' max=maxUploadSize}}</label>
                     <input type="file" id="commons-image-dialog-file" accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/jpg,image/gif" />
                 </div>
             </div>
-            <button id="commons-image-dialog-insert-button" disabled="true">{{tr 'insert'}}</button>
-            <button id="commons-image-dialog-cancel-button">{{tr 'cancel'}}</button>
+            <button id="commons-image-dialog-insert-button" class="btn btn-link" disabled="true">{{tr 'insert'}}</button>
+            <button id="commons-image-dialog-cancel-button" class="btn btn-link">{{tr 'cancel'}}</button>
             <span id="commons-image-dialog-message"></span>
         </div>
     </div>

@@ -5,7 +5,7 @@
   <div th:replace="fragments/common :: jQuery" />
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (autogroups)" />
-    <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
+    <div><h1 th:text="#{autogroups.header.wizard}"></h1></div>
     <div th:replace="fragments/wizard :: step (step1)"></div>
     <br/>
     <div class="row" th:if="${step1ErrorMessage != null}">
@@ -37,7 +37,7 @@
             </table>
             <div class="act">
               <input accesskey="x" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}" />
-              <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" th:text="#{autogroups.button.cancel}">Cancel</button>
+              <button type="button" class="btn btn-link" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" th:text="#{autogroups.button.cancel}">Cancel</button>
             </div>
           </form>
       </div>

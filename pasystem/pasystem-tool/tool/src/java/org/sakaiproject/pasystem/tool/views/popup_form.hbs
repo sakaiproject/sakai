@@ -1,43 +1,44 @@
-<div class="container-fluid">
 <form enctype="multipart/form-data" class="form-horizontal" method="POST" action="{{{actionURL this 'popups' popup.uuid mode}}}">
-  <div class="form-group">
-    <label class="col-sm-2 control-label" for="descriptor">{{{t this "Description"}}}</label>
+<fieldset class="border p-2">
+  <legend class="w-auto">{{{t this "Create Popup"}}}</legend>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label class="form-control-label mx-4" for="descriptor">{{{t this "Description"}}}</label>
     <div class="col-sm-10">
       <input class="form-control" type="text" name="descriptor" id="descriptor" value="{{popup.descriptor}}" required />
     </div>
   </div>
-  <div class="form-group">
-    <label class="col-sm-2 control-label" for="template">{{{t this "Template"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label class="form-control-label mx-4" for="template">{{{t this "Template"}}}</label>
     <div class="col-sm-10">
       <input type="file" name="template" id="template" {{#if templateRequired}}required{{/if}} />
     </div>
   </div>
-  <div class="form-group">
-    <label  class="col-sm-2 control-label" for="start_time">{{{t this "Start Time"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label  class="form-control-label mx-4" for="start_time">{{{t this "Start Time"}}}</label>
     <div class="col-sm-10">
       <div class="input-group">
         <input class="form-control datepicker" type="text" name="start_time" id="start_time" data-init-date="{{popup.startTime}}"/>
         <span class="input-group-btn">
-          <button class="btn btn-primary invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
-          <button class="btn btn-danger clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+          <button class="btn btn-primary invoke-datepicker-btn" type="button"><i class="si si-sakai-schedule"></i></button>
+          <button class="btn btn-danger clear-datepicker-btn" type="button"><i class="si si-square-x"></i></button>
         </span>
       </div>
     </div>
   </div>
-  <div class="form-group">
-    <label  class="col-sm-2 control-label" for="end_time">{{{t this "End Time"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label  class="form-control-label mx-4" for="end_time">{{{t this "End Time"}}}</label>
     <div class="col-sm-10">
       <div class="input-group">
         <input class="form-control datepicker" type="text" name="end_time" id="end_time" data-init-date="{{popup.endTime}}"/>
         <span class="input-group-btn">
-          <button class="btn btn-primary invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
-          <button class="btn btn-danger clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+          <button class="btn btn-primary invoke-datepicker-btn" type="button"><i class="si si-sakai-schedule"></i></button>
+          <button class="btn btn-danger clear-datepicker-btn" type="button"><i class="si si-square-x"></i></button>
         </span>
       </div>
     </div>
   </div>
-  <div class="form-group">
-    <label class="col-sm-2 control-label" for="distribution">{{{t this "Distribution"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label class="form-control-label mx-4" for="distribution">{{{t this "Distribution"}}}</label>
     <div class="col-sm-10">
         <div>
             <label>
@@ -57,9 +58,9 @@
     </div>
   </div>
 
-  <div class="col-sm-offset-2 col-sm-10">
+  <div class="d-flex align-items-start justify-content-end m-3">
     <input class="btn btn-primary" type="submit" name="create" value="{{{t this "Save Popup"}}}">
     <input class="btn btn-primary pasystem-cancel-btn" data-target="{{baseURL}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
   </div>
+</fieldset>
 </form>
-</div>

@@ -65,8 +65,8 @@
 		</div>
 
 		#set ($siteCount = 0)
-		<div class="table-responsive">
-			<table id="siteList" summary="$tlang.getString("list.summary")" class="table table-responsive table-bordered table-striped table-hover">
+		<div class="table">
+			<table id="siteList" summary="$tlang.getString("list.summary")" class="table table table-bordered table-striped table-hover">
 				<thead>
 					<tr>
 						#if ($helperMode)

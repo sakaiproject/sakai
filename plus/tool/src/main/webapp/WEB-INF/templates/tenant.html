@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    [(${sakaiHtmlHead})]
+  </head>
+  <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
+    <div class="portletBody">
+        <h1><span th:text="#{plus.tool.tenant.title}">Tenant:</span>
+        <span th:text="${tenant.title}">Sakai</span>
+        <span th:if="${tenant.isDraft}" th:text="#{plus.tool.tenant.draft}">(draft)</span>
+        </h1>
+        <p>
+        <a th:href="@{/}" th:text="#{plus.tool.all.tenants}"  class="btn btn-secondary">All Tenants</a>
+        <a th:href="@{/contexts/{id}(id=${tenant.id})}" th:text="#{plus.tool.all.contexts}" class="btn btn-secondary">View Contexts</a>
+        </p>
+        <p>
+        (<a href="https://github.com/sakaiproject/sakai/blob/master/plus/README.md#sakaiplus-tenants" target="_blank" th:text="#{plus.tenant.documentation.url}">SakaiPlus Tenant Documentation</a>)
+        </p>
+        <p><b th:text="#{plus.tool.issuer}">Issuer:</b> <span th:text="${tenant.issuer}">Issuer</span></p>
+        <p><b th:text="#{plus.tool.clientid}">Client Id:</b> <span th:text="${tenant.clientId}">clientId</span></p>
+        <p><b th:text="#{plus.tool.deploymentid}">Deployment Id:</b> <span th:text="${tenant.deploymentId}">deploymentId</span></p>
+        <p><b th:text="#{plus.tool.allowedtools}">Allowed Tools:</b> <span th:text="${tenant.allowedTools}">allowedTools</span></p>
+        <p th:if="*{tenant.newWindowTools!=null and #strings.length(tenant.newWindowTools)>0}">
+          <b th:text="#{plus.tool.newwindowtools}">New Window Tools:</b> <span th:text="${tenant.newWindowTools}">newWindowTools</span>
+        </p>
+        <p>
+            <b th:text="#{plus.tool.trustemail}">Trust Email:</b>
+            <span th:if="${tenant.trustEmail}" th:text="#{plus.tool.on}">On</span>
+            <span th:if="${!tenant.trustEmail}" th:text="#{plus.tool.off}">On</span>
+        </p>
+        <p><b th:text="#{plus.tool.timezone}">Time Zone:</b> <span th:text="${tenant.timeZone}">timeZone</span></p>
+        <p th:if="*{tenant.siteTemplate!=null and #strings.length(tenant.siteTemplate)>0}">
+          <b th:text="#{plus.tool.sitetemplate}">Site Template:</b> <span th:text="${tenant.siteTemplate}">siteTemplate</span>
+        </p>
+        <p th:if="*{tenant.realmTemplate!=null and #strings.length(tenant.realmTemplate)>0}">
+          <b th:text="#{plus.tool.realmtemplate}">Realm Template:</b> <span th:text="${tenant.realmTemplate}">realmTemplate</span>
+        </p>
+        <p th:if="*{tenant.inboundRoleMap!=null and #strings.length(tenant.inboundRoleMap)>0}">
+          <b th:text="#{plus.tool.inboundrolemap}">Inbound Role Map:</b> <span th:text="${tenant.inboundRoleMap}">inboundRoleMap</span>
+        </p>
+        <p>
+            <b th:text="#{plus.tool.verbose}">Verbose:</b>
+            <span th:if="${tenant.verbose}" th:text="#{plus.tool.on}">On</span>
+            <span th:if="${!tenant.verbose}" th:text="#{plus.tool.off}">Off</span>
+        </p>
+        <b th:text="#{plus.tool.oidcauth}">LMS Authorization URL:</b> <span th:text="${tenant.oidcAuth}">oidcAuth</span></p>
+        <p><b th:text="#{plus.tool.oidckeyset}">LMS KeySet URL:</b> <a th:href="${tenant.oidcKeySet}" target="_blank"><span th:text="${tenant.oidcKeySet}">oidcKeySet</span></a></p>
+        <p><b th:text="#{plus.tool.oidctoken}">LMS Token URL:</b> <span th:text="${tenant.oidcToken}">oidcToken</span></p>
+        <p th:if="*{tenant.oidcAudience!=null and #strings.length(tenant.oidcAudience)>0}">
+          <b th:text="#{plus.tool.oidaudience}">LMS Token Audience:</b> <span th:text="${tenant.oidcAudience}">oidcAudience</span>
+        </p>
+        <div th:if="*{imsURL==null or #strings.length(imsURL)==0}">
+            <p><b th:text="#{plus.tool.imsurl}">LTI Dynamic Provisioning URL:</b>
+            <b class="text-info" th:text="#{plus.tool.error.missing.unlock}">Missing unlock code</b>
+            </p>
+        </div>
+        <div th:if="*{imsURL!=null and #strings.length(imsURL)>0}">
+        <p><b th:text="#{plus.tool.imsurl}">LTI Dynamic Provisioning URL:</b>
+        <a href="#" onclick="$('#imsURL').toggle();return false;">Hide/Show</a> <br/>
+            <span id="imsURL" style="display:none;" th:text="${imsURL}">imsURL</span> </p>
+        </div>
+        <div th:if="*{canvasURL!=null and #strings.length(canvasURL)>0}">
+            <p><b th:text="#{plus.tool.canvasurl}">Canvas Configuration URL:</b>
+            <a href="#" onclick="$('#canvasURL').toggle();return false;">Hide/Show</a> <br/>
+            <a th:href="${canvasURL}" target="_blank"  id="canvasURL" style="display: none;" th:text="${canvasURL}">canvasURL</a></p>
+        </div>
+        <p><b th:text="#{plus.tool.plusurls}">Manual Configuration URLs:</b>
+        <a href="#" onclick="$('#manual').toggle();return false;">Hide/Show</a> <br/>
+            <ul id="manual" style="display:none;">
+                <li><b th:text="#{plus.tool.plus.keyset}">Keyset:</b> <br/> <a th:href="${oidcKeySet}" target="_blank" th:text="${oidcKeySet}">oidcKeySet</a></li>
+                <li><b th:text="#{plus.tool.plus.login}">Login:</b> <br/> <span th:text="${oidcLogin}">oidcLogin</span></li>
+                <li><b th:text="#{plus.tool.plus.launch}">Launch:</b> <br/> <span th:text="${oidcLaunch}">oidcLaunch</span></li>
+            </ul>
+        </p>
+        <hr/>
+        <p><b th:text="#{plus.tool.job.status}">Last operation status:</b> <span th:text="${tenant.status}">status</span></p>
+        <div th:if="*{tenant.debugLog!=null and #strings.length(tenant.debugLog)>0}">
+        <p><b th:text="#{plus.tool.job.log}">Most Recent Debug Log</b> <a href="#" onclick="$('#debuglog').toggle();return false;">Hide/Show</a></p>
+        <span id="debuglog" style="display: none; white-space: pre-line; font-family: monospace;" th:text="${tenant.debugLog}"></span>
+        </div>
+    </div>
+  </body>
+</html>

@@ -805,7 +805,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
 
 
-  private List getEnrollmentListForSelectedSections(int calledFrom) {
+  private List getEnrollmentListForSelectedSections(int calledFrom, String siteId) {
     List enrollments;
 /*
     if (this.getSelectedSectionFilterValue().trim().equals(this.ALL_SECTIONS_SELECT_VALUE)
@@ -819,7 +819,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     ) {
 */  
     if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER_STUDENT){
-    	enrollments = getAvailableEnrollments(true);
+    	enrollments = getAvailableEnrollments(true, siteId);
     }
     else if (this.getSelectedSectionFilterValue().trim().equals(this.ALL_SECTIONS_SELECT_VALUE)
     		|| (calledFrom==CALLED_FROM_TOTAL_SCORE_LISTENER 
@@ -832,40 +832,40 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	    	        && "true".equalsIgnoreCase(anonymous))
     	    || (calledFrom==CALLED_FROM_EXPORT_LISTENER
     	    	    && "true".equalsIgnoreCase(anonymous))) {
-        enrollments = getAvailableEnrollments(false);
+        enrollments = getAvailableEnrollments(false, siteId);
     }
     else if (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE)) {
-    	enrollments = getGroupReleaseEnrollments();
+    	enrollments = getGroupReleaseEnrollments(siteId);
     }
     else {
         // The user has selected a particular section.
-        enrollments = getSectionEnrollments(getSelectedSectionUid(this.getSelectedSectionFilterValue()));
+        enrollments = getSectionEnrollments(getSelectedSectionUid(this.getSelectedSectionFilterValue()), siteId);
     }
 	return enrollments;
   }
 
 
-  public List getSectionEnrollments(String sectionid) {
+  public List getSectionEnrollments(String sectionid, String siteId) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
-    return service.getSectionEnrollments(AgentFacade.getCurrentSiteId(), sectionid , AgentFacade.getAgentString());
+    return service.getSectionEnrollments(siteId, sectionid , AgentFacade.getAgentString());
   }
 
 
-  public List getAvailableEnrollments(boolean fromStudentStatistics) {
+  public List getAvailableEnrollments(boolean fromStudentStatistics, String siteId) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     List list = null;
     if (fromStudentStatistics) {
-    	list = service.getAvailableEnrollments(AgentFacade.getCurrentSiteId(), "-1");
+    	list = service.getAvailableEnrollments(siteId, "-1");
     }
     else {
-    	list = service.getAvailableEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString());
+    	list = service.getAvailableEnrollments(siteId, AgentFacade.getAgentString());
     }
     return list; 
   }  
 
-  private List getGroupReleaseEnrollments() {
+  private List getGroupReleaseEnrollments(String siteId) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
-    return service.getGroupReleaseEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString(), publishedId);
+    return service.getGroupReleaseEnrollments(siteId, AgentFacade.getAgentString(), publishedId);
   }
   
 
@@ -887,8 +887,8 @@ public class TotalScoresBean implements Serializable, PhaseAware {
    * @param calledFrom - where this method is called from
    * @return
    */
-  public Map getUserIdMap(int calledFrom) {
-        List enrollments = getEnrollmentListForSelectedSections(calledFrom);
+  public Map getUserIdMap(int calledFrom, String siteId) {
+        List enrollments = getEnrollmentListForSelectedSections(calledFrom, siteId);
 
 // for debugging
 /*

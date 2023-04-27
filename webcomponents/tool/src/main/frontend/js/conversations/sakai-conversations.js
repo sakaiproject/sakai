@@ -1,6 +1,7 @@
 import { html } from "../assets/lit-element/lit-element.js";
 import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 import { SakaiElement } from "../sakai-element.js";
+import { setupSearch } from "../sakai-portal-utils.js";
 import "./sakai-topic-list.js";
 import "./sakai-add-topic.js";
 import "./sakai-conversations-tag-manager.js";
@@ -298,6 +299,8 @@ export class SakaiConversations extends SakaiElement {
     } else {
       this.state = STATE_NOTHING_SELECTED;
     }
+
+    location.reload();
   }
 
   resetState() {
@@ -386,6 +389,10 @@ export class SakaiConversations extends SakaiElement {
     return this.i18n && this.data;
   }
 
+  _handleSearch() {
+    setupSearch({ tool: "sakai.conversations" });
+  }
+
   renderNoTopicsBlock() {
 
     return html`
@@ -408,19 +415,19 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <div class=${ifDefined(this.state === STATE_SETTINGS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click="${this._setStateSettings}"></a>
+        <button class="btn btn-transparent" @click="${this._setStateSettings}">${this.i18n.general_settings}</button>
       </div>
       <div class=${ifDefined(this.state === STATE_PERMISSIONS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click="${this._setStatePermissions}">${this.i18n.permissions}</a>
+        <button class="btn btn-transparent" @click="${this._setStatePermissions}">${this.i18n.permissions}</button>
       </div>
       ${this.data.canEditTags ? html`
       <div class=${ifDefined(this.state === STATE_MANAGING_TAGS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click="${this._setStateManagingTags}">${this.i18n.manage_tags}</a>
+        <button class="btn btn-transparent" @click="${this._setStateManagingTags}">${this.i18n.manage_tags}</button>
       </div>
       ` : ""}
       ${this.data.canViewSiteStatistics ? html`
       <div class=${ifDefined(this.state === STATE_STATISTICS ? "setting-active" : undefined)}>
-        <a href="javascript:;" @click="${this._setStateStatistics}">${this.i18n.statistics}</a>
+        <button class="btn btn-transparent" @click="${this._setStateStatistics}">${this.i18n.statistics}</button>
       </div>
       ` : ""}
     `;
@@ -429,7 +436,7 @@ export class SakaiConversations extends SakaiElement {
   renderTopbar(renderBackButton, mobile) {
 
     return html`
-      <div class="conv-topbar" style="${renderBackButton ? "grid-template-columns: min-content 1fr min-content;" : "grid-template-columns: 1fr min-content;"}">
+      <div class="conv-topbar d-flex align-items-center">
 
         ${renderBackButton ? html`
         <div id="conv-back-button-block">
@@ -441,24 +448,26 @@ export class SakaiConversations extends SakaiElement {
         </div>
         ` : ""}
 
-        <div>
-          <sakai-search id="conv-search"
-              @showing-search-results="${this._dimBackground}"
-              @hiding-search-results="${this._undimBackground}"
-              site-id="${this.siteId}"
-              tool="sakai.conversations">
-          </sakai-search>
-        </div>
-              
-        <div class="conv-settings-and-create">
+        <div class="conv-settings-and-create d-flex align-items-center">
           ${this.data.canUpdatePermissions ? html`
+          <div>
+            <button type="button"
+                @click=${this._handleSearch}
+                class="btn btn-link icon-button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#sakai-search-panel"
+                aria-controls="sakai-search-panel">
+              <i class="si si-sakai-search"></i>
+              <span>Search</span>
+            </button>
+          </div>
           ${mobile ? html`
-
             <options-menu icon="menu" placement="bottom-left">
               <div slot="trigger">
-                <a href="javascript:;">
-                  <sakai-icon type="cog" size="small"></sakai-icon>
-                </a>
+                <button type="button" class="btn icon-button">
+                  <i class="si si-settings"></i>
+                  <span>${this.i18n.settings}</span>
+                </button>
               </div>
               <div slot="content" id="settings-menu" class="options-menu" role="dialog">
                 ${this.renderSettingsMenu()}
@@ -466,12 +475,10 @@ export class SakaiConversations extends SakaiElement {
             </options-menu>
           ` : html`
           <div class="conv-settings-link">
-            <a href="javascript:;" @click="${this._setStateSettings}">
-              <div id="conv-settings-label-wrapper">
-                <div><sakai-icon type="cog" size="small"></sakai-icon></div>
-                <div id="conv-settings-label">${this.i18n.settings}</div>
-              </div>
-            </a>
+            <button type="button" class="btn icon-button text-nowrap" @click="${this._setStateSettings}">
+              <i class="si si-settings"></i>
+              <span>${this.i18n.settings}</span>
+            </button>
           </div>
           `}
           ` : ""}
@@ -554,6 +561,8 @@ export class SakaiConversations extends SakaiElement {
         @topic-add-cancelled=${this.cancelAddTopic}
         @topic-dirty=${this.topicDirty}
         @edit-tags=${this.editTags}
+        ?can-create-discussion=${this.data.canCreateDiscussion}
+        ?can-create-question=${this.data.canCreateQuestion}
         ?can-pin=${this.data.canPin}
         ?can-edit-tags=${this.data.canEditTags}
         ?can-anon=${this.data.settings.allowAnonPosting}

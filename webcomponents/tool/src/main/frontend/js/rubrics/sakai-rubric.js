@@ -124,9 +124,9 @@ export class SakaiRubric extends RubricsElement {
           }
         </div>
 
-        <div class="hidden-xs rubric-site-title">${this.rubric.siteTitle}</div>
-        <div class="hidden-xs rubric-creator-name">${this.rubric.creatorDisplayName}</div>
-        <div class="hidden-xs">${this.rubric.formattedModifiedDate}</div>
+        <div class="d-none d-sm-block rubric-site-title">${this.rubric.siteTitle}</div>
+        <div class="d-none d-sm-block rubric-creator-name">${this.rubric.creatorDisplayName}</div>
+        <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
           ${!this.rubric.locked ? html`
@@ -274,7 +274,7 @@ export class SakaiRubric extends RubricsElement {
   handleSaveWeights() {
 
     const saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
-    const saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-success`);
+    const saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
 
     if (saveWeightsBtn) saveWeightsBtn.setAttribute('disabled', true);
 
@@ -288,20 +288,15 @@ export class SakaiRubric extends RubricsElement {
         if (r.ok) {
 
           if (saveSuccessLbl) {
-            saveSuccessLbl.classList.remove('hidden');
-            saveSuccessLbl.classList.add('in');
+            saveSuccessLbl.classList.remove('d-none');
+            setTimeout(() => {
+              saveSuccessLbl.classList.add('d-none');
+            },5000);
           }
 
           setTimeout(() => {
             if (saveWeightsBtn) saveWeightsBtn.removeAttribute('disabled');
           }, 1000);
-
-          setTimeout(() => {
-            if (saveSuccessLbl) {
-              saveSuccessLbl.classList.remove('in');
-              saveSuccessLbl.classList.add('hidden');
-            }
-          }, 5000);
 
           this.requestUpdate();
           this.dispatchEvent(new SharingChangeEvent());

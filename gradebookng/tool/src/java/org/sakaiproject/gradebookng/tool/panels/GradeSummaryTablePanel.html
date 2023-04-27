@@ -5,7 +5,7 @@
 
 <wicket:panel>
 	<wicket:enclosure child="categoriesList">
-		<div wicket:id="toggleActions" class="pull-right">
+		<div wicket:id="toggleActions" class="float-end">
 			<a href="javascript:void(0);" class="button" id="toggleCategories" wicket:id="toggleCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.toolbar.togglecategories"></wicket:message></a>
 			<a href="javascript:void(0);" class="gb-summary-expand-all" wicket:id="expandCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
 			<a href="javascript:void(0);" class="gb-summary-collapse-all" wicket:id="collapseCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
@@ -50,7 +50,7 @@
 					<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
 						<th scope="row">
 							<span class="gb-summary-grade-title" wicket:id="title"></span>
-							<span><a href="javascript:void(0);" class="gb-summary-grade-stats pull-right" wicket:message="title:studentsummary.gradebookitem.assignmentstats" wicket:id="assignmentStatsLink"></a></span>
+							<span><a href="javascript:void(0);" class="gb-summary-grade-stats float-end" wicket:message="title:studentsummary.gradebookitem.assignmentstats" wicket:id="assignmentStatsLink"></a></span>
 							<span class="gb-summary-grade-flags" wicket:id="flags">
 								<span wicket:id="isExtraCredit" class="gb-flag-extra-credit"></span>
 								<span wicket:id="isNotCounted" class="gb-flag-not-counted"></span>

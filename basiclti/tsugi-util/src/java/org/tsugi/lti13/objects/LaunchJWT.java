@@ -4,31 +4,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 
 import org.tsugi.lti13.LTI13ConstantsUtil;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 
 public class LaunchJWT extends BaseJWT {
 
 	public static String CLAIM_PREFIX = "https://purl.imsglobal.org/spec/lti/claim/";
 
-	public static String MESSAGE_TYPE_LAUNCH = "LtiResourceLinkRequest";
-	public static String MESSAGE_TYPE_DEEP_LINK = "LtiDeepLinkingRequest";
-	public static String ROLE_LEARNER = LTI13ConstantsUtil.ROLE_LEARNER;
-	public static String ROLE_INSTRUCTOR = LTI13ConstantsUtil.ROLE_INSTRUCTOR;
-
-	// Submission Review (Draft)
-	public static final String MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST = "LtiSubmissionReviewRequest";
-
-	// Data Privacy Launch (Draft)
-	public static final String MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST = "DataPrivacyLaunchRequest";
+	public static final String MESSAGE_TYPE_LAUNCH = LTI13ConstantsUtil.MESSAGE_TYPE_LTI_RESOURCE;
+	public static final String MESSAGE_TYPE_DEEP_LINK = LTI13ConstantsUtil.MESSAGE_TYPE_LTI_DEEP_LINKING_REQUEST;
+	public static final String ROLE_LEARNER = LTI13ConstantsUtil.ROLE_LEARNER;
+	public static final String ROLE_INSTRUCTOR = LTI13ConstantsUtil.ROLE_INSTRUCTOR;
+	public static final String MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST = LTI13ConstantsUtil.MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST;
+	public static final String MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST = LTI13ConstantsUtil.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST;
+	public static final String MESSAGE_TYPE_LTI_CONTEXT = LTI13ConstantsUtil.MESSAGE_TYPE_LTI_CONTEXT;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/deployment_id")
 	public String deployment_id;
@@ -94,6 +89,10 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/for_user")
 	public ForUser for_user;
 
+	// This is in LaunchJWTs
+	@JsonProperty("nonce")
+	public String nonce;
+
 	// Constructor
 	public LaunchJWT() {
 		this(MESSAGE_TYPE_LAUNCH);
@@ -101,9 +100,49 @@ public class LaunchJWT extends BaseJWT {
 
 	// Constructor
 	public LaunchJWT(String messageType) {
+		super();
 		this.message_type = messageType;
 		this.version = "1.3.0";
 		this.launch_presentation = new LaunchPresentation();
+		this.nonce = this.jti;
+	}
+
+	// Encode the rules for constructing a name
+	@JsonIgnore
+	public String getDisplayName() {
+		if ( name != null ) return name;
+
+		String display_name = "";
+		if ( given_name != null ) display_name = given_name;
+		if ( middle_name != null ) {
+			if ( display_name.length() > 0 ) display_name = display_name + " ";
+			display_name = display_name + middle_name;
+		}
+		if ( family_name != null ) {
+			if ( display_name.length() > 0 ) display_name = display_name + " ";
+			display_name = display_name + family_name;
+		}
+		display_name = display_name.trim();
+		if ( display_name.length() < 1 ) display_name = null;
+		return display_name;
+	}
+
+	@JsonIgnore
+	public boolean isInstructor() {
+		if ( roles == null ) return false;
+		return roles.contains(ROLE_INSTRUCTOR);
+	}
+
+	@JsonIgnore
+	public String getLTI11Roles() {
+		if ( roles == null ) return null;
+
+		StringBuilder roleStr = new StringBuilder();
+		for (String role : roles) {
+			if ( roleStr.length() > 0 ) roleStr.append(',');
+			roleStr.append(role);
+		}
+		return roleStr.toString();
 	}
 
 }

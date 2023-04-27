@@ -127,6 +127,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradeType;
@@ -1486,14 +1487,14 @@ public class DiscussionForumTool {
 	  if (newTarget instanceof DiscussionForum && oldTarget instanceof DiscussionForum){
 		  DiscussionForum forum = ((DiscussionForum) newTarget);
 		  DiscussionForum oldForum = ((DiscussionForum) oldTarget);
-		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate());
-		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldForum.getAvailabilityRestricted(), oldForum.getOpenDate(), oldForum.getCloseDate());
+		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate(), forum.getLockedAfterClosed());
+		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldForum.getAvailabilityRestricted(), oldForum.getOpenDate(), oldForum.getCloseDate(), oldForum.getLockedAfterClosed());
 		  return newAvailable != oldAvailable;			
 	  }else if (newTarget instanceof Topic && oldTarget instanceof Topic){
 		  DiscussionTopic topic = ((DiscussionTopic) newTarget);
 		  DiscussionTopic oldTopic = ((DiscussionTopic) oldTarget);
-		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate());
-		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldTopic.getAvailabilityRestricted(), oldTopic.getOpenDate(), oldTopic.getCloseDate());
+		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate(), topic.getLockedAfterClosed());
+		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldTopic.getAvailabilityRestricted(), oldTopic.getOpenDate(), oldTopic.getCloseDate(), oldTopic.getLockedAfterClosed());
 		  return newAvailable != oldAvailable;	
 	  }
 	  return false;
@@ -4470,13 +4471,36 @@ public class DiscussionForumTool {
       selectedForum.setGradeAssign(forumDefaultAssignment);
     }
 
-    if (selAssignmentName != null) {
-      setUpGradeInformation(gradebookUid, selAssignmentName, userId);
-    } else {
-      // this is the "Select a gradebook item" selection
-      allowedToGradeItem = false;
-      selGBItemRestricted = true;
-    }
+
+
+    try {
+    	if (selAssignmentName != null) {
+    		setUpGradeInformation(gradebookUid, selAssignmentName, userId);
+    	} else {
+    		// this is the "Select a gradebook item" selection
+    		allowedToGradeItem = false;
+    		selGBItemRestricted = true;
+    	}
+    	}catch (AssessmentNotFoundException e) {
+    		if (msgAssignmentName !=null && msgAssignmentName.trim().length()>0) {
+    			Message msg = selectedMessage.getMessage();
+    			msg.setGradeAssignmentName(null);
+    			msg = forumManager.saveMessage(msg);
+    			selectedMessage.setMessage(msg);
+    		} else if (topicDefaultAssignment != null && topicDefaultAssignment.trim().length() > 0) {
+    			DiscussionTopic dt = selectedTopic.getTopic();
+    			dt.setDefaultAssignName(null);
+    			dt = forumManager.saveTopic(dt);
+    			selectedTopic.setTopic(dt);
+    		} else if (forumDefaultAssignment != null && forumDefaultAssignment.trim().length() > 0) {
+    			DiscussionForum df = selectedForum.getForum();
+    			df.setDefaultAssignName(null);
+    			df = forumManager.saveForum(df);
+    			selectedForum.setForum(df);
+    		}
+    		allowedToGradeItem = false;
+    		selGBItemRestricted = true;
+    	}
 
     return GRADE_MESSAGE;
   }
@@ -7972,6 +7996,7 @@ public class DiscussionForumTool {
 		newTopic.setAvailabilityRestricted(true);
 		newTopic.setOpenDate(fromTopic.getOpenDate());
 		newTopic.setCloseDate(fromTopic.getCloseDate());
+		newTopic.setLockedAfterClosed(fromTopic.getLockedAfterClosed());
 	}
 
 	newTopic.setBaseForum(forum);
@@ -8075,10 +8100,11 @@ public class DiscussionForumTool {
     String fromAssignmentTitle = oldForum.getDefaultAssignName();
     forum.setDefaultAssignName(fromAssignmentTitle);
 
-		if(oldForum.getAvailabilityRestricted()){
+		if(oldForum.getAvailabilityRestricted()) {
 			forum.setAvailabilityRestricted(true);
 			forum.setOpenDate(oldForum.getOpenDate());
 			forum.setCloseDate(oldForum.getCloseDate());
+			forum.setLockedAfterClosed(oldForum.getLockedAfterClosed());
 		}
 
 		forum = saveForumSettings(oldForum.getDraft());

@@ -2,7 +2,7 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	## header for import from archived page
-	<div class="page-header">
+	<div>
 		<h1>$tlang.getString("java.importFile")</h1>
 	</div>
 

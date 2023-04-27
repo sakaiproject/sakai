@@ -41,7 +41,7 @@ public class SitePermsController extends AbstractController {
     public static String[] templates = {
         "!site.template",
         "!site.template.course",
-        "!site.template.portfolio",
+        "!site.template.lti",
         "!site.user"
     };
 

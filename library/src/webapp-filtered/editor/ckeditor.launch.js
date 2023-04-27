@@ -226,7 +226,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         },
         disallowedContent: 'table[cellspacing,cellpadding,border,summary]',
 
-        contentsCss: [(webJars+'bootstrap/3.3.7/css/bootstrap.min.css')],
+        contentsCss: [(webJars+'bootstrap/5.2.0/css/bootstrap.min.css')],
 
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder plugin.
@@ -461,7 +461,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
         //These could be applicable to the basic toolbar
         CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('html5video',webJars+'github-com-bahriddin-ckeditor-html5-video/${ckeditor.html5video.version}/html5video/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('html5video',webJars+'ckeditor-html5-video/${ckeditor.html5video.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
@@ -543,10 +543,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 ] 
                 {id} .cke_resizer [
                     border-right-color:{ckeResizer}
-                ] 
-                {id} .cke_wysiwyg_frame,
-                {id} .cke_wysiwyg_div [
-                    background:{defaultBackground}
                 ] 
                 {id} textarea.cke_source [
                     background-color: {lightBackground};

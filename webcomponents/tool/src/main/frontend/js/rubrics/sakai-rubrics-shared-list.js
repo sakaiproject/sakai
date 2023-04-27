@@ -35,7 +35,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     return html`
       <div role="tablist">
       ${this.rubrics.map(r => html`
-        <sakai-rubric-readonly rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric-readonly>
+        <sakai-rubric-readonly rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric-readonly>
       `)}
       </div>
     `;

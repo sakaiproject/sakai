@@ -55,11 +55,12 @@
                 <h:messages rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
             </h:panelGroup>
 
-            <div id="samigo-create-new-box" class="col-md-6">
+            <div class="col-md-6">
                 <h2><h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" /></h2>
 
-                <div class="form-group form-inline">
+                <div class="form-group form-inline form-control-required">
                     <h:outputLabel for="title" value="#{authorFrontDoorMessages.assessment_create}"/>
+                    <span class="text-danger">*</span>
                     <h:inputText id="title" maxlength="255" value="#{author.assessTitle}" styleClass="form-control" />
                 </div>
 
@@ -94,11 +95,13 @@
                 </div>
             </div>
 
-            <div id="samigo-create-or-box" class="col-md-1">
-                <h:outputText value="#{authorFrontDoorMessages.label_or}"/>
+            <div class="or-line col-md-4 my-4">
+                <span>
+                    <h:outputText value="#{authorFrontDoorMessages.label_or}"/>
+                </span>
             </div>
 
-            <div id="samigo-create-import-box" class="col-md-5">
+            <div class="col-md-5">
                 <h2><h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/></h2>
                 <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" rendered="#{authorization.createAssessment}" action="importAssessment" />
             </div>

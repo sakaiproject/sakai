@@ -95,6 +95,9 @@ public class JoinHandler extends BasePortalHandler
 		{
 			if (req.getParameter("join") != null) {
 				Site site = portal.getSiteHelper().getSite(siteId);
+				if (site == null) {
+					throw new IdUnusedException(siteId);
+				}
 				SiteService.getInstance().join(site.getId());
 				sendToSite(res, site);
 			} else {
@@ -138,6 +141,9 @@ public class JoinHandler extends BasePortalHandler
 				String siteId = parts[2];
 				// We use this as it 
 				Site site = portal.getSiteHelper().getSite(siteId);
+				if (site == null) {
+					throw new IdUnusedException(siteId);
+				}
 				// Check that the current user can access the site before we redirect.
 				if (site.getUserRole(session.getUserId()) != null && SiteService.allowAccessSite(site.getId()))
 				{

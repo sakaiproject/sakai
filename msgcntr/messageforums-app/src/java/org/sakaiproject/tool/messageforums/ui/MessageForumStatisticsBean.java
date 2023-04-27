@@ -797,6 +797,60 @@ public class MessageForumStatisticsBean {
 				}
 			}
 
+			List<Object[]> studentAuthoredNewStats;
+			if (selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) {
+				studentAuthoredNewStats =
+						messageManager.findAuthoredNewMessageCountForAllStudentsByTopicId(
+								Long.parseLong(selectedAllTopicsTopicId));
+			} else {
+				studentAuthoredNewStats =
+						messageManager.findAuthoredNewMessageCountForAllStudentsByForumId(
+								Long.parseLong(selectedAllTopicsForumId));
+			}
+			for (Object[] authoredStat : studentAuthoredNewStats) {
+				DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+				if (userStats == null) {
+					userStats = new DecoratedCompiledMessageStatistics();
+					tmpStatistics.put((String) authoredStat[0], userStats);
+				}
+				Integer totalForum = 0;
+				if (userMessageTotal.containsKey((String) authoredStat[0])) {
+					totalForum = userMessageTotal.get((String) authoredStat[0]);
+				}
+				if (totalForum > 0) {
+					userStats.setAuthoredForumsNewAmt(((Long) authoredStat[1]).intValue());
+				} else {
+					userStats.setAuthoredForumsNewAmt(0);
+				}
+			}
+
+			List<Object[]> studentAuthoredRepliesStats;
+			if (selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) {
+				studentAuthoredRepliesStats =
+						messageManager.findAuthoredRepliesMessageCountForAllStudentsByTopicId(
+								Long.parseLong(selectedAllTopicsTopicId));
+			} else {
+				studentAuthoredRepliesStats =
+						messageManager.findAuthoredRepliesMessageCountForAllStudentsByForumId(
+								Long.parseLong(selectedAllTopicsForumId));
+			}
+			for (Object[] authoredStat : studentAuthoredRepliesStats) {
+				DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+				if (userStats == null) {
+					userStats = new DecoratedCompiledMessageStatistics();
+					tmpStatistics.put((String) authoredStat[0], userStats);
+				}
+				Integer totalForum = 0;
+				if (userMessageTotal.containsKey((String) authoredStat[0])) {
+					totalForum = userMessageTotal.get((String) authoredStat[0]);
+				}
+				if (totalForum > 0) {
+					userStats.setAuthoredForumsRepliesAmt(((Long) authoredStat[1]).intValue());
+				} else {
+					userStats.setAuthoredForumsRepliesAmt(0);
+				}
+			}
+
 			// now process the users from the list of site members to add display information
 			// this will also prune the list of members so only the papropriate ones are displayed
 			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
@@ -1504,7 +1558,18 @@ public class MessageForumStatisticsBean {
 		toggleSort(AUTHORED_SORT);	    
 		return FORUM_STATISTICS_BY_TOPIC;
 	}
-	
+
+	public String toggleTopicAuthoredNewSort() {
+		toggleSort(AUTHORED_NEW_SORT);
+		return FORUM_STATISTICS_BY_TOPIC;
+	}
+
+	public String toggleTopicAuthoredRepliesSort() {
+		toggleSort(AUTHORED_REPLIES_SORT);
+		return FORUM_STATISTICS_BY_TOPIC;
+	}
+
+
 	public String toggleTopicReadSort()	{    
 		toggleSort(READ_SORT);	    
 		return FORUM_STATISTICS_BY_TOPIC;
@@ -2770,7 +2835,7 @@ public class MessageForumStatisticsBean {
 					Assignment assignment = getGradingService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
 					setDefaultSelectedAssign(assignment.getName());
 				} catch (Exception ex) {
-					log.error("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
+					log.warn("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
 				}
 			}
 		}

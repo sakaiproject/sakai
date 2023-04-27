@@ -3,10 +3,48 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ContentTypeRegistyBean" class="org.sakaiproject.content.types.ContentTypeRegistryBean"
-	init-method="init">
+	<bean id="org.sakaiproject.content.types.FileUploadType"
+		  class="org.sakaiproject.content.types.FileUploadType"
+		  init-method="init">
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>
 		<property name="resourceTypeRegistry" ref="org.sakaiproject.content.api.ResourceTypeRegistry"/>
-		<property name="useContentTypeRegistry"><value>true</value></property>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+	</bean>
+
+	<bean id="org.sakaiproject.content.types.FolderType"
+		  class="org.sakaiproject.content.types.FolderType"
+		  init-method="init">
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="resourceTypeRegistry" ref="org.sakaiproject.content.api.ResourceTypeRegistry"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.content.types.HtmlDocumentType"
+		  class="org.sakaiproject.content.types.HtmlDocumentType"
+		  init-method="init">
+		<property name="contentPrintService" ref="org.sakaiproject.content.api.ContentPrintService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="resourceTypeRegistry" ref="org.sakaiproject.content.api.ResourceTypeRegistry"/>
+	</bean>
+
+	<bean id="org.sakaiproject.content.types.TextDocumentType"
+		  class="org.sakaiproject.content.types.TextDocumentType"
+		  init-method="init">
+		<property name="contentPrintService" ref="org.sakaiproject.content.api.ContentPrintService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="resourceTypeRegistry" ref="org.sakaiproject.content.api.ResourceTypeRegistry"/>
+	</bean>
+
+	<bean id="org.sakaiproject.content.types.UrlResourceType"
+		  class="org.sakaiproject.content.types.UrlResourceType"
+		  init-method="init">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="resourceTypeRegistry" ref="org.sakaiproject.content.api.ResourceTypeRegistry"/>
 	</bean>
 
 </beans>

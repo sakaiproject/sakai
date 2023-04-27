@@ -1,13 +1,10 @@
 package org.tsugi.lti13.objects;
 
-import javax.annotation.Generated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-@Generated("com.googlecode.jsonschema2pojo")
 
 /*
  
@@ -31,7 +28,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 	}
 
 */
-public class LTI11Transition {
+public class LTI11Transition extends org.tsugi.jackson.objects.JacksonBase {
 	@JsonProperty("user_id")
 	public String user_id;
 	@JsonProperty("oauth_consumer_key")

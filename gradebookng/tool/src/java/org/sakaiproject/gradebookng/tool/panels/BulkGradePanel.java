@@ -4,7 +4,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -52,11 +51,5 @@ public class BulkGradePanel extends Panel {
             }
         };
         add(cancel);
-    }
-
-    @Override
-    public void renderHead(final IHeaderResponse response) {
-        super.renderHead(response);
-        response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css%s", PortalUtils.getCDNQuery())));
     }
 }

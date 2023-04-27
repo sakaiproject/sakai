@@ -24,6 +24,10 @@
         <property name="timeMinutes" column="TIME_MINUTES" type="java.lang.Integer" />
     </class>
 
+    <query name="getEntry">
+        <![CDATA[FROM ExtendedTime eTime WHERE eTime.id =:entryId]]>
+    </query>
+
     <query name="getEntriesForAss">
         <![CDATA[FROM ExtendedTime eTime JOIN FETCH eTime.assessment WHERE eTime.assessment =:assessmentId]]>
     </query>

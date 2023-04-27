@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.messaging.api;
 
+import org.sakaiproject.messaging.api.model.UserNotification;
+
 public interface MessageListener {
 
-    public void read(BullhornAlert ba);
+    public void read(UserNotification un);
 }
 

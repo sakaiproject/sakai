@@ -170,10 +170,13 @@
         discriminator-value="OT">
       <property name="locked">
         <column name="LOCKED" not-null="false" />
-      </property>      
+      </property>
       <property name="draft">
         <column name="DRAFT" not-null="false" />
-      </property>      
+      </property>
+      <property name="lockedAfterClosed" type="boolean">
+        <column name="LOCKED_AFTER_CLOSED" not-null="true" default="0" />
+      </property>
 
 	  <!-- DiscussionTopic fields -->
 	  <subclass

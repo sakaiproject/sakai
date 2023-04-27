@@ -12,7 +12,7 @@
         <script src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>
         <script src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
 
-        #parse("/vm/morpheus/snippets/styleable-snippet.vm")
+        ##parse("/vm/morpheus/snippets/styleable-snippet.vm")
 
     </head>
     <!-- START VM join.vm -->

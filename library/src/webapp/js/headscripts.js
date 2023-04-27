@@ -249,13 +249,14 @@ var MainFrameHeightTimeOut = false;
 // pass -1 for no max
 function setMainFrameHeightWithMax(id, maxHeight)
 {
-	if ( ! inIframe() ) return;
-	// some browsers need a moment to finish rendering so the height and scroll are correct
-	if ( MainFrameHeightTimeOut ) {
-		clearTimeout(MainFrameHeightTimeOut);
-		MainFrameHeightTimeOut = false;
-	}
-	MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
+	if ( inIframe() ) {
+	    // some browsers need a moment to finish rendering so the height and scroll are correct
+	    if ( MainFrameHeightTimeOut ) {
+		    clearTimeout(MainFrameHeightTimeOut);
+		    MainFrameHeightTimeOut = false;
+	    }
+	    MainFrameHeightTimeOut = setTimeout( function() { setMainFrameHeightNow(id, maxHeight); }, 1000);
+    }
 }
 
 function setMainFrameHeight(id)
@@ -290,7 +291,7 @@ function setMainFrameHeightNow(id, maxHeight)
 	}
 
 	//SAK-21209 check we can access the document, 
-	//ie this could be a Basic LTI request and therefore we are not allowed
+	//ie this could be a LTI request and therefore we are not allowed
 	try {
 		var frame = parent.document.getElementById(id);
 	} catch (e) {
@@ -685,27 +686,21 @@ function includeLatestJQuery(where) {
 	}
 
 	if ( window.jQuery ) {
-		window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
+		console.debug('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
 		if (typeof jQuery.migrateWarnings == 'undefined') { 
 			document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
-			window.console && console.log('Adding jQuery migrate');
-		}
-		if ( typeof jQuery.fn.popover == 'undefined') {
-			document.write('\x3Cscript src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
-			window.console && console.log('Adding Bootstrap');
+			console.debug('Adding jQuery migrate');
 		}
 		if (typeof jQuery.ui == 'undefined') {
 			document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
 			document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
-			window.console && console.log('Adding jQuery UI');
+			console.debug('Adding jQuery UI');
 		}
 	} else {
 		document.write('\x3Cscript src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
-		window.console && console.log("jQuery+migrate+BootStrap+UI Loaded by "+where+" from "+webjars);
+		console.debug(`jQuery+migrate+UI Loaded by ${where} from ${webjars}`);
 	}
 }
 
@@ -718,12 +713,12 @@ function includeWebjarLibrary(library) {
 
 	switch(library) {
 		case 'bootstrap':
-			libraryVersion = "3.3.7";
-			jsReferences.push('/js/bootstrap.min.js');
+			libraryVersion = "5.2.0";
+			jsReferences.push('/js/bootstrap.bundle.min.js');
 			cssReferences.push('/css/bootstrap.min.css');
 			break;
 		case 'bootstrap-multiselect':
-			libraryVersion = "0.9.15";
+			libraryVersion = "1.1.1";
 			jsReferences.push('/js/bootstrap-multiselect.js');
 			cssReferences.push('/css/bootstrap-multiselect.css');
 			break;
@@ -757,8 +752,8 @@ function includeWebjarLibrary(library) {
 		case 'datatables':
 			libraryVersion = "1.10.25";
 			jsReferences.push('/js/jquery.dataTables.min.js');
-			jsReferences.push('/js/dataTables.bootstrap.min.js');
-			cssReferences.push('/css/dataTables.bootstrap.min.css');
+			jsReferences.push('/js/dataTables.bootstrap5.min.js');
+			cssReferences.push('/css/dataTables.bootstrap5.min.css');
 			break;
 		case 'datatables-rowgroup':
 			libraryVersion = "1.1.3";
@@ -936,4 +931,12 @@ function copyToClipboardNoScroll(parent_element, textToCopy) {
   input.remove();
 }
 
+// From tsugiscripts.js
+function tsugi_window_close(message)
+{
+    window.close();
+    try { window.open('', '_self').close(); } catch(e) {};
+    setTimeout(function(){ console.log("Attempting self.close"); self.close(); }, 1000);
+    setTimeout(function(){ console.log("Notifying the user."); alert(message); open("about:blank", '_self').close(); }, 2000);
+}
 

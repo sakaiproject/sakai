@@ -23,6 +23,10 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 --%>
 -->
 
+<h:panelGroup rendered="#{delivery.actionString!='previewAssessment' && delivery.hasTimeLimit}" >
+  <f:verbatim><div style="height:60px;">&nbsp;&nbsp;</div></f:verbatim>
+</h:panelGroup>
+
 <%-- TITLE --%>
 <h1>
    <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
@@ -32,17 +36,14 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <%-- NAV BAR --%>
   <ul class="navIntraTool actionToolbar" role="menu">
-  <h:panelGroup rendered="#{(delivery.feedbackComponent.showImmediate || delivery.feedbackOnDate) 
-                         && (delivery.actionString=='previewAssessment'
-                             || delivery.actionString=='takeAssessment'
-                             || delivery.actionString=='takeAssessmentViaUrl')}">
+  <h:panelGroup rendered="#{delivery.showFeedbackLink}">
     <li role="menuitem" class="firstToolBarItem"><span>
 
 <!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
     <h:commandLink title="#{commonMessages.feedback}" action="#{delivery.getOutcome}" 
        id="showFeedback" onclick="questionProgress.blockLink(this); saveTime(); serializeImagePoints();"
        rendered="#{(delivery.actionString=='takeAssessment'
-                || delivery.actionString=='takeAssessmentViaUrl') && !(delivery.pageContents.isNoParts && delivery.navigation eq '1')}" >
+                || delivery.actionString=='takeAssessmentViaUrl')}" >
      <h:outputText value="#{deliveryMessages.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.ShowFeedbackActionListener" />
@@ -50,7 +51,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT -->
     <h:outputText value="#{deliveryMessages.show_feedback_preview}" 
-         rendered="#{delivery.actionString=='previewAssessment' && !(delivery.pageContents.isNoParts && delivery.navigation eq '1')}" />
+         rendered="#{delivery.actionString=='previewAssessment'}" />
 
   </span></li>
   </h:panelGroup >
@@ -79,8 +80,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- RETURN TO ASSESSMENT PAGE LINK FOR REVIEW ASSESSMENT -->
   <h:commandLink action="select" title="#{deliveryMessages.t_returnAssessmentList}"
-     rendered="#{delivery.actionString=='reviewAssessment'&&
-!delivery.anonymousLogin}">
+     rendered="#{delivery.showReturnToAssessmentLink}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
     <h:outputText value="#{deliveryMessages.button_return_select}" />
   </h:commandLink>

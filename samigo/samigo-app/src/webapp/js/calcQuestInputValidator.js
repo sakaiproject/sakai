@@ -3,7 +3,7 @@ includeWebjarLibrary('mathjs');
 $( document ).ready(function() {
 
   $('.calculatedQuestionInput').each( function() {
-    $(this).attr('data-toggle', 'popover'); 
+    $(this).attr('data-bs-toggle', 'popover'); 
     $(this).attr('data-content', calcqFormatError);
     $(this).attr('data-trigger', 'focus');
   });
@@ -15,8 +15,8 @@ $( document ).ready(function() {
     });
   });
 
-  $('.calculatedQuestionInput').popover({
-    trigger: 'focus'
+  $('.calculatedQuestionInput').on('shown.bs.popover', function () {
+    $(this).delay(3000).popover('hide');
   });
 
   $('.calculatedQuestionInput').change( function() {

@@ -4,7 +4,7 @@
   <parent>
     <artifactId>providers-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>23-SNAPSHOT</version>
+    <version>24-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-unboundid-provider</name>
@@ -12,7 +12,7 @@
   <artifactId>sakai-unboundid-provider</artifactId>
   <packaging>jar</packaging>
   <properties>
-    <sakai.unboundid.version>6.0.4</sakai.unboundid.version>
+    <sakai.unboundid.version>6.0.8</sakai.unboundid.version>
     <deploy.target />
   </properties>
   <dependencies>
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>org.zapodot</groupId>
       <artifactId>embedded-ldap-junit</artifactId>
-      <version>0.8.1</version>
+      <version>0.9.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

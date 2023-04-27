@@ -39,15 +39,16 @@ export class SakaiRubricGradingComment extends RubricsElement {
       <div tabindex="0" style="cursor: pointer;" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active" : ""}" @click=${this.toggleEditor} @keypress=${this.toggleEditor} title="${tr("criterion_comment")}"></div>
 
       <!-- popover -->
-      <div id="criterion-editor-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left">
-        <div class="arrow"></div>
+
+      <div id="criterion-editor-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left rubrics-comment-popover">
+        <div class="arrow-comment"></div>
         <div class="popover-title" style="display: flex;">
           <div style="flex: auto;">
             <span class="criterion-title">
               <sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}" />
             </span>
           </div>
-          <div class="buttons act" style="flex: 0">
+          <div class="buttons act mt-0" style="flex: 0">
             <button class="active btn-xs done" @click="${this.hideTooltip}"><sr-lang key="done" /></button>
           </div>
         </div>
@@ -83,8 +84,8 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
       const popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
 
-      popover[0].style.left = `${e.target.offsetLeft - 270  }px`;
-      popover[0].style.top = `${e.target.offsetTop + e.target.offsetHeight / 2 + 20 - popover.height() / 2  }px`;
+      popover[0].style.left = `${e.target.offsetLeft - 280  }px`;
+      popover[0].style.top = `${e.target.offsetTop + e.target.offsetHeight / 2 + 20 - popover.height() / 2 - 46  }px`;
 
       Object.keys(CKEDITOR.instances)
         .filter(n => n.includes("criterion-")).forEach(n => CKEDITOR.instances[n].destroy(true));

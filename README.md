@@ -24,7 +24,7 @@ Sakai runs on Apache Tomcat 9. Download the latest version from http://tomcat.ap
 *Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.*
 
 You **must** configure Tomcat according to the instructions on this page:
-https://confluence.sakaiproject.org/display/BOOT/Install+Tomcat+9
+https://sakaiproject.atlassian.net/wiki/spaces/DOC/pages/17310646930/Sakai+21+Install+Guide+Source
 
 When you are done, deploy Sakai to Tomcat:
 ```
@@ -70,10 +70,10 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
-Sakai 22.1 ([release](http://source.sakaiproject.org/release/22.1/) | [fixes](https://confluence.sakaiproject.org/display/DOC/22.1+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+22+Release+Notes))
+Sakai 22.2 ([release](http://source.sakaiproject.org/release/22.2/) | [fixes](https://confluence.sakaiproject.org/display/DOC/22.2+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+22+Release+Notes))
 Is the community supported release of Sakai 22.
 
-Sakai 21.4 ([release](http://source.sakaiproject.org/release/21.4/) | [fixes](https://confluence.sakaiproject.org/display/DOC/21.4+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+21+Release+Notes))
+Sakai 21.5 ([release](http://source.sakaiproject.org/release/21.5/) | [fixes](https://confluence.sakaiproject.org/display/DOC/21.5+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+21+Release+Notes))
 Is the community supported release of Sakai 21.
 
 Sakai 20.6 ([release](http://source.sakaiproject.org/release/20.6/) | [fixes](https://confluence.sakaiproject.org/display/DOC/20.6+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
@@ -92,9 +92,9 @@ For full history of supported releases please see our [release information on co
 
 ## Under Development
 
-[Sakai 22.2](https://confluence.sakaiproject.org/display/REL/Sakai+22+Straw+person) is the current development release of Sakai 22. It is expected to release Q4 2022.
+[Sakai 22.3](https://confluence.sakaiproject.org/display/REL/Sakai+22+Straw+person) is the current development release of Sakai 22. It is expected to release Q2 2023.
 
-[Sakai 21.5](https://confluence.sakaiproject.org/display/REL/Sakai+21+Straw+person) is the current development release of Sakai 21. It is expected to release Q4 2022.
+[Sakai 21.6](https://confluence.sakaiproject.org/display/REL/Sakai+21+Straw+person) is the current development release of Sakai 21.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.

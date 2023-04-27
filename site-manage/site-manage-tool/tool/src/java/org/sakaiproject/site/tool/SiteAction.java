@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.site.tool;
 
+import static org.sakaiproject.site.util.SiteConstants.SITE_PUBLISH_DATE;
 import static org.sakaiproject.site.util.SiteConstants.STATE_TEMPLATE_INDEX;
 
 import java.io.File;
@@ -25,8 +26,12 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.Year;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -71,6 +76,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.archive.api.ImportMetadata;
@@ -207,6 +213,10 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
 	private static final ResourceLoader cfgRb = new ResourceLoader("multipletools");
+
+	private static org.sakaiproject.sitemanage.api.UnpublishingSiteScheduleService unpublishingSiteScheduleService = (org.sakaiproject.sitemanage.api.UnpublishingSiteScheduleService) ComponentManager.get(org.sakaiproject.sitemanage.api.UnpublishingSiteScheduleService.class);
+
+	private static org.sakaiproject.sitemanage.api.PublishingSiteScheduleService publishingSiteScheduleService = (org.sakaiproject.sitemanage.api.PublishingSiteScheduleService) ComponentManager.get(org.sakaiproject.sitemanage.api.PublishingSiteScheduleService.class);
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -379,10 +389,6 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private static final String STATE_SITE_ADD_COURSE = "canAddCourse";
 	
-	private static final String STATE_SITE_ADD_PORTFOLIO = "canAddPortfolio";
-	
-	private static final String STATE_PORTFOLIO_SITE_TYPE = "portfolio";
-		
 	private static final String STATE_SITE_ADD_PROJECT = "canAddProject";
 		
 	private static final String STATE_PROJECT_SITE_TYPE = "project";
@@ -889,6 +895,8 @@ public class SiteAction extends PagedResourceActionII {
 		m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.siteService.userSiteCache");
 	}
 
+	private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;
+
 	/**
 	 * what are the tool ids within Home page?
 	 * If this is for a newly added Home tool, get the tool ids from template site or system set default
@@ -1097,7 +1105,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		// store current userId in state
 		User user = userDirectoryService.getCurrentUser();
-		String userId = user.getEid();
+		String userId = user.getId();
 		state.setAttribute(STATE_CM_CURRENT_USERID, userId);
 		PortletConfig config = portlet.getPortletConfig();
 
@@ -1521,15 +1529,10 @@ public class SiteAction extends PagedResourceActionII {
 
 		// all site types
 		context.put("courseSiteTypeStrings", siteService.getSiteTypeStrings("course"));
-		context.put("portfolioSiteTypeStrings", siteService.getSiteTypeStrings("portfolio"));
 		context.put("projectSiteTypeStrings", siteService.getSiteTypeStrings("project"));
 		
 		//can the user create course sites?
 		context.put(STATE_SITE_ADD_COURSE, siteService.allowAddCourseSite());
-		
-		// can the user create portfolio sites?
-		context.put("portfolioSiteType", STATE_PORTFOLIO_SITE_TYPE);
-		context.put(STATE_SITE_ADD_PORTFOLIO, siteService.allowAddPortfolioSite());
 		
 		// can the user create project sites?
 		context.put("projectSiteType", STATE_PROJECT_SITE_TYPE);
@@ -2586,6 +2589,14 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("authAllowed", serverConfigurationService.getBoolean("sitemanage.grant.auth", false));
 			context.put("anonAllowed", serverConfigurationService.getBoolean("sitemanage.grant.anon", false));
 
+			int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0);
+			int daysafter = serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14);
+			if(daysbefore > 0){
+				context.put("daysbefore", daysbefore);
+			}
+			if(daysafter > 0){
+				context.put("daysafter",daysafter);
+			}
 			if (site != null) {
 				// editing existing site
 				context.put("site", site);
@@ -2604,10 +2615,72 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
 				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
+				context.put("sitetype", siteType);
+				if(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE) == null){	//default to Automatic for older sites or if it became Null another way
+					context.put("publishType", SiteConstants.SITE_PUBLISH_TYPE_AUTO);
+				} else {
+					context.put("publishType", site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE));
+				}
+				Date termPublishDate = new Date();
+				try{
+					AcademicSession academicSession = courseManagementService.getAcademicSession(site.getProperties().getProperty(Site.PROP_SITE_TERM_EID));
+					long courseStartTime = academicSession.getStartDate().getTime();
+					long courseEndTime = academicSession.getEndDate().getTime();
+					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
+
+					termPublishDate = new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore));
+					context.put("termStartDate", termPublishDate.toInstant().atZone(localZoneId).toString());
+					context.put("termEndDate", new Date(courseEndTime).toInstant().atZone(localZoneId).toString());
+					context.put("termUnpublishDate", new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId).toString());
+					context.put("readableTermStartDate", userTimeService.dateFormat(termPublishDate, rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
+					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(termPublishDate, rb.getLocale(), DateFormat.SHORT));
+					context.put("readableTermEndDate", userTimeService.dateFormat(academicSession.getEndDate(), rb.getLocale(), DateFormat.LONG));
+					context.put("readableTermUnpublishDate", userTimeService.dateFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.LONG));
+					context.put("readableTermUnpublishDateTime", userTimeService.dateTimeFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.SHORT));
+				} catch(IdNotFoundException i) {	//no session ID means this is Project, or term-free
+
+				}
 
 				context.put("shoppingPeriodInstructorEditable", serverConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
 				context.put("viewDelegatedAccessUsers", serverConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
 
+				if(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE) != null) {
+					context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+					context.put("unpublishDate", site.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE));
+				} else {
+					context.put("readableUnpublishDate", "");
+					context.put("unpublishDate", "");
+				}
+				
+				String sitePublishDate = site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE);
+				String readablePublishDate = "";
+				Date publishingDate = new Date();
+
+				if(sitePublishDate != null){
+					publishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(sitePublishDate));
+					readablePublishDate = userTimeService.dateTimeFormat(publishingDate, rb.getLocale(), DateFormat.SHORT);
+					context.put("publishDate", sitePublishDate);
+				}
+				else {
+					context.put("publishDate", "");
+				}
+
+				context.put("readablePublishDate", readablePublishDate);
+
+				if(site.isPublished()){
+					context.put("existingStatus", "Published");
+					context.put("statusLabel", rb.getString("list.publi"));
+				} else if(StringUtils.equals(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED) && publishingDate.toInstant().isAfter(Instant.now())){
+					context.put("existingStatus", "Scheduled");
+					context.put("statusLabel", rb.getString("pubuncon.sched") + ' ' + readablePublishDate);
+				} else if (StringUtils.equals(site.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_AUTO)
+						&& termPublishDate.toInstant().isAfter(Instant.now())) {
+					context.put("existingStatus", "Scheduled");
+					context.put("statusLabel", rb.getString("pubuncon.auto") + ' ' + userTimeService.dateFormat(termPublishDate, rb.getLocale(), DateFormat.LONG));
+				} else {
+					context.put("existingStatus", "Unpublished");
+					context.put("statusLabel", rb.getString("list.unpub"));
+				}
 				// SAK-24423 - add joinable site settings to context
 				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNotNull( context, state, site, !unJoinableSiteTypes.contains( siteType ) );
 
@@ -2650,9 +2723,22 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("publicChangeable", Boolean.FALSE);
 				}
 				context.put("include", Boolean.valueOf(siteInfo.getInclude()));
-				context.put("published", Boolean.valueOf(siteInfo
-						.getPublished()));
 
+				// If this site is a course site, publish if we're inside the term dates
+				if (siteInfo.site_type != null && SiteTypeUtil.isCourseSite(siteInfo.site_type)) {
+					AcademicSession academicSession
+						= courseManagementService.getAcademicSession(siteInfo.term);
+					if (Instant.now().isAfter(new Date(academicSession.getStartDate().getTime()).toInstant())
+						&& Instant.now().isBefore(new Date(academicSession.getEndDate().getTime()).toInstant())) {
+						// We are currently inside the term dates, so publish.
+						context.put("published", true);
+					} else {
+						context.put("published", false);
+					}
+				} else {
+					context.put("published", true);
+				}
+				context.put("sitetype", siteInfo.site_type);
 				if (siteInfo.site_type != null
 						&& !unJoinableSiteTypes.contains(siteInfo.site_type)) {
 					// site can be set as joinable
@@ -2668,13 +2754,92 @@ public class SiteAction extends PagedResourceActionII {
 				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNull( context, siteInfo, true );
 				
 				// the template site, if using one
-				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);			
+				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
+				try {
+					AcademicSession academicSession = courseManagementService.getAcademicSession(siteInfo.term);
+					long courseStartTime = academicSession.getStartDate().getTime();
+					long courseEndTime = academicSession.getEndDate().getTime();
+					ZoneId localZoneId = userTimeService.getLocalTimeZone().toZoneId();
 
+					context.put("termStartDate", new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)).toInstant().atZone(localZoneId).toString());
+					context.put("termEndDate", new Date(courseEndTime).toInstant().atZone(localZoneId).toString());
+					context.put("termUnpublishDate", new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)).toInstant().atZone(localZoneId).toString());
+					context.put("readableTermStartDate", userTimeService.dateFormat(new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.LONG));	//create readable versions of all dates
+					context.put("readableTermEndDate", userTimeService.dateFormat(academicSession.getEndDate(), rb.getLocale(), DateFormat.LONG));
+					context.put("readableTermUnpublishDate", userTimeService.dateFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.LONG));
+					context.put("readableTermStartDateTime", userTimeService.dateTimeFormat(new Date(courseStartTime - (ONE_DAY_IN_MS * daysbefore)), rb.getLocale(), DateFormat.SHORT));
+					context.put("readableTermUnpublishDateTime", userTimeService.dateTimeFormat(new Date(courseEndTime + (ONE_DAY_IN_MS * daysafter)), rb.getLocale(), DateFormat.SHORT));
+
+					if (templateSite!=null && templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE) != null) {
+						//when we need to get settings from a template site
+						context.put("basedOnTemplate", true);
+						context.put("publishType", templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_TYPE));
+						Date publishingDate = new Date();
+						String publishingDateReadable = "";
+						try {
+							if (templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE))){
+								context.put("readablePublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+								context.put("publishDate", templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE));
+							} else {
+								context.put("readablePublishDate", "");
+								context.put("publishDate", "");
+							}
+							if(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE))){
+								context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+								context.put("unpublishDate", templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE));
+							} else {
+								context.put("readableUnpublishDate", "");
+								context.put("unpublishDate", "");
+							}
+						} catch (java.lang.NullPointerException ignored) {
+							// nothing needed for NPE
+						}
+					} else {
+						context.put("publishType", SiteConstants.SITE_PUBLISH_TYPE_AUTO);	//default to Automatic publishing management
+						context.put("readableUnpublishDate", "");	//clear dates
+						context.put("unpublishDate", "");
+						context.put("readablePublishDate", "");
+						context.put("publishDate", "");
+					}
+					if (academicSession.getStartDate().before(new Date())){
+						context.put("existingStatus", "Published");
+						context.put("statusLabel", rb.getString("list.publi"));
+					} else {
+						context.put("existingStatus", "Scheduled");
+						context.put("statusLabel", rb.getString("pubuncon.sched") + ' ' + userTimeService.dateTimeFormat(academicSession.getStartDate(), rb.getLocale(), DateFormat.SHORT));
+					}
+				} catch(IdNotFoundException i) {	//no session ID means this is Project, or term-free
+					context.put("publishType", SiteConstants.SITE_PUBLISH_TYPE_MANUAL);	//default to Manual for these situations,
+					try {																//but we still need to handle the possibility of dates coming in from the template.
+						if(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE))){
+							context.put("readablePublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+							context.put("publishDate", templateSite.getProperties().getProperty(SiteConstants.SITE_PUBLISH_DATE));
+						} else {
+							context.put("readablePublishDate", "");
+							context.put("publishDate", "");
+						}
+						if(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE))){
+							context.put("readableUnpublishDate", userTimeService.dateTimeFormat(userTimeService.parseISODateInUserTimezone(templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE)), rb.getLocale(), DateFormat.SHORT));
+							context.put("unpublishDate", templateSite.getProperties().getProperty(SiteConstants.SITE_UNPUBLISH_DATE));
+						} else {
+							context.put("readableUnpublishDate", "");
+							context.put("unpublishDate", "");
+						}
+					} catch (java.lang.NullPointerException n) {	// but if we get an NPE we need to just clear the dates as we're most likely in new site creation from scratch.
+						context.put("readableUnpublishDate", "");	//clear dates
+						context.put("unpublishDate", "");
+						context.put("readablePublishDate", "");
+						context.put("publishDate", "");
+					}
+					context.put("existingStatus", "Published");
+					context.put("statusLabel", rb.getString("list.publi"));
+				}
 				// use the type's template, if defined
 				String realmTemplate = "!site.template";
 				// if create based on template, use the roles from the template
 				if (templateSite != null) {
 					realmTemplate = siteService.siteReference(templateSite.getId());
+					context.put("basedOnTemplate", true);	//tell the page if this is template-based site creation
 				} else if (siteInfo.site_type != null) {
 					realmTemplate = realmTemplate + "." + siteInfo.site_type;
 				}
@@ -4478,7 +4643,7 @@ public class SiteAction extends PagedResourceActionII {
 		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), "sakai.basiclti.admin.helper");
+		startHelper(data.getRequest(), "sakai.lti.admin.helper");
 	}
 	
 	public void doUserAuditEventLog(RunData data) {
@@ -5877,7 +6042,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (state.getAttribute(STATE_TEMPLATE_SITE) != null)
 					{
 						// create site based on template
-						doFinish(data);
+						state.setAttribute(STATE_TEMPLATE_INDEX, "18");
 					}
 					else
 					{
@@ -6947,6 +7112,34 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			{
 				// for non course type site, send notification email
 				sendSiteNotification(state, getStateSite(state), null);
+			}
+
+			if(rp.getProperty(SiteConstants.SITE_PUBLISH_TYPE)==null || rp.getProperty(SiteConstants.SITE_PUBLISH_TYPE).equals(SiteConstants.SITE_PUBLISH_TYPE_AUTO)){
+				Date termstart = new Date(courseManagementService.getAcademicSession(rp.getProperty(Site.PROP_SITE_TERM_EID)).getStartDate().getTime() + (ONE_DAY_IN_MS * serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0)));
+				Date termend = new Date(courseManagementService.getAcademicSession(rp.getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime() + (ONE_DAY_IN_MS * serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14)));
+				if(Instant.now().isAfter(termstart.toInstant()) && Instant.now().isBefore(termend.toInstant())) {
+					site.setPublished(true);
+				} else {
+					site.setPublished(false);
+				}
+				rp.addProperty(SiteConstants.SITE_PUBLISH_TYPE, SiteConstants.SITE_PUBLISH_TYPE_AUTO);	//update flag in case it was null
+			} else if(rp.getProperty(SiteConstants.SITE_PUBLISH_TYPE).equals(SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED)){
+				Date publishingDate;
+				Date unpublishingDate;
+				if(rp.getProperty(SiteConstants.SITE_PUBLISH_DATE) != null) {
+					publishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE)));
+					if(Instant.now().isAfter(publishingDate.toInstant())){
+						site.setPublished(true);
+					}
+					if(rp.getProperty(SiteConstants.SITE_UNPUBLISH_DATE) != null){
+						unpublishingDate = userTimeService.parseISODateInUserTimezone(String.valueOf(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE)));
+						if(Instant.now().isAfter(unpublishingDate.toInstant())){
+							site.setPublished(false);
+						}
+					}
+				}
+			} else if(rp.getProperty(SiteConstants.SITE_PUBLISH_TYPE).equals(SiteConstants.SITE_PUBLISH_TYPE_MANUAL)){
+				site.setPublished((boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
 			}
 
 			// commit site
@@ -8258,6 +8451,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	} // doMenu_edit_site_tools
 
+    public void doMenu_edit_access(RunData data){
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        if (state.getAttribute(STATE_MESSAGE) == null) {
+            state.setAttribute(STATE_TEMPLATE_INDEX, "18");
+            if (state.getAttribute(STATE_INITIALIZED) == null) {
+                state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "18");
+            }
+        }
+    }
+
 	/**
 	 * doMenu_edit_site_access
 	 * 
@@ -8436,6 +8639,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
+		if ( StringUtils.isBlank(site_type) ) return true;
 		return site_type != null 
 				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null 
 					&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
@@ -8970,7 +9174,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								realmEdit.addMember(id, roleId, activeGrant,
 									fromProvider);
 							String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
-							String[] userAuditString = {s.getId(),participant.getEid(),roleId,userAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+							String[] userAuditString = {s.getId(),id,roleId,userAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
 							userAuditList.add(userAuditString);
 							
 								// construct the event string
@@ -9021,7 +9225,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									realmEdit.removeMember(userId);
 									usersDeleted.add("uid=" + userId);
 									String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
-									String[] userAuditString = {s.getId(),user.getEid(),role.getId(),userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+									String[] userAuditString = {s.getId(),userId,role.getId(),userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
 									userAuditList.add(userAuditString);
 								}
 							}
@@ -9202,7 +9406,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
 		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
 		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
-		
+		readInputAndUpdateStateVariable(state, params, "startdate_iso8601", SiteConstants.SITE_PUBLISH_DATE, false);
+		readInputAndUpdateStateVariable(state, params, "enddate_iso8601", SiteConstants.SITE_UNPUBLISH_DATE, false);
+		readInputAndUpdateStateVariable(state, params, "publishType", SiteConstants.SITE_PUBLISH_TYPE, false);
+        String publishType = String.valueOf(state.getAttribute(SiteConstants.SITE_PUBLISH_TYPE));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        sdf.setTimeZone(userTimeService.getLocalTimeZone());
 		// SAK-24423 - get all joinable site settings from the form input
 		JoinableSiteSettings.getAllFormInputs( state, params );
 		
@@ -9212,12 +9421,69 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		boolean currentSitePublished = sEdit != null ? sEdit.isPublished():false;
 		
 		boolean include = state.getAttribute(STATE_SITE_ACCESS_INCLUDE) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_INCLUDE)).booleanValue() : false;
-
+		int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0);
+		int daysafter = serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14);
 		if (sEdit != null) {
 			// editing existing site
 			// publish site or not
-			sEdit.setPublished(publishUnpublish);
-
+			sEdit.getPropertiesEdit().addProperty(SiteConstants.SITE_PUBLISH_TYPE, (String) state.getAttribute(SiteConstants.SITE_PUBLISH_TYPE));
+			if(StringUtils.equals(publishType, SiteConstants.SITE_PUBLISH_TYPE_MANUAL)) {	//for manual publishing: just use value from the form, no other info needed.
+				sEdit.setPublished(publishUnpublish);
+				sEdit.getPropertiesEdit().removeProperty(SiteConstants.SITE_PUBLISH_DATE);
+				sEdit.getPropertiesEdit().removeProperty(SiteConstants.SITE_UNPUBLISH_DATE);
+			} else if(StringUtils.equals(publishType, SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED)) {	//for Scheduled date-based publishing, do it either now or scheduled based on the dates
+				sEdit.setPublished(false);	//don't publish for now; we will publish later if necessary
+				if(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE) == null){
+					addAlert(state, rb.getString("ediacc.errorblank"));
+				}
+				sEdit.getPropertiesEdit().addProperty(SiteConstants.SITE_PUBLISH_DATE, (String) state.getAttribute(SiteConstants.SITE_PUBLISH_DATE));	//use toString, not nullable, to trigger an error
+				if(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE) != null){
+					sEdit.getPropertiesEdit().addProperty(SiteConstants.SITE_UNPUBLISH_DATE, String.valueOf(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE)));	//use valueOf, nullable, because unpublish may be blank
+				} else {
+					sEdit.getPropertiesEdit().addProperty(SiteConstants.SITE_UNPUBLISH_DATE, null);
+				}
+				try {
+					Date publishingDate = null;
+					Date unpublishingDate = null;
+					if(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE) != null){
+						publishingDate = sdf.parse(String.valueOf(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE)));
+					} else {
+						addAlert(state, rb.getString("ediacc.errorblank"));
+					}
+					if(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE) != null){
+						unpublishingDate = sdf.parse(String.valueOf(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE)));
+						if(unpublishingDate.toInstant().isBefore(publishingDate.toInstant())){	//make sure unpublish date is actually after publish date
+							addAlert(state, rb.getString("ediacc.errorafter"));
+						}
+					}
+                    if(Instant.now().isAfter(publishingDate.toInstant()) && (unpublishingDate == null || Instant.now().isBefore(unpublishingDate.toInstant()))){
+						sEdit.setPublished(true);	//publish right now if we're between the dates, or without unpublishing
+					} else {
+                        publishingSiteScheduleService.schedulePublishing(publishingDate.toInstant(), sEdit.getId());	//make future publishing event
+					}
+                    if(unpublishingDate!=null) {
+						if (Instant.now().isAfter(unpublishingDate.toInstant())) {
+							sEdit.setPublished(false);    //unpublish now if it's after the closing date
+						} else {
+							unpublishingSiteScheduleService.scheduleUnpublishing(unpublishingDate.toInstant(), sEdit.getId());    //make future unpublishing event.
+						}
+					}
+				} catch (java.text.ParseException p){
+					addAlert(state, rb.getString("ediacc.errorparse"));
+				}
+			} else {	//auto publishing, "1"
+				try{
+					Date termstart = new Date(courseManagementService.getAcademicSession(sEdit.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getStartDate().getTime() - (ONE_DAY_IN_MS * daysbefore));
+					Date termend = new Date(courseManagementService.getAcademicSession(sEdit.getProperties().getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter));
+					if(Instant.now().isAfter(termstart.toInstant()) && Instant.now().isBefore(termend.toInstant())) {
+						sEdit.setPublished(true);	//go ahead and publish when it's within the term's window
+					} else {
+						sEdit.setPublished(false);
+					}
+				} catch(IdNotFoundException i) {
+					addAlert(state, rb.getString("ediacc.errorparse"));
+				}
+			}
 			// site public choice
 			List publicChangeableSiteTypes = (List) state.getAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES);
 			if (publicChangeableSiteTypes != null && sEdit.getType() != null && !publicChangeableSiteTypes.contains(sEdit.getType()))
@@ -9268,12 +9534,47 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 		} else {
 			// adding new site
+			boolean erroradded = false;
 			if (state.getAttribute(STATE_SITE_INFO) != null) {
 				SiteInfo siteInfo = (SiteInfo) state
 						.getAttribute(STATE_SITE_INFO);
-
-				siteInfo.published = publishUnpublish;
-
+                siteInfo.properties.addProperty(SiteConstants.SITE_PUBLISH_TYPE, (String) state.getAttribute(SiteConstants.SITE_PUBLISH_TYPE));
+                if(StringUtils.equals(publishType, SiteConstants.SITE_PUBLISH_TYPE_MANUAL)) {	//for manual publishing: just use value from the form, no other info needed.
+                    siteInfo.published = publishUnpublish;
+					siteInfo.properties.removeProperty(SiteConstants.SITE_PUBLISH_DATE);
+					siteInfo.properties.removeProperty(SiteConstants.SITE_UNPUBLISH_DATE);
+                } else if(StringUtils.equals(publishType, SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED)) {	//for Scheduled date-based publishing, do it either now or scheduled based on the dates
+                    siteInfo.published = false;	//don't publish for now; we will publish later if necessary
+                    Date publishDate = null;
+					if(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE)==null || StringUtils.isBlank(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE).toString())){
+                        addAlert(state, rb.getString("ediacc.errorblank"));
+						erroradded = true;
+                    } else {	//if it's not blank, we need to also make sure it parses.
+						try{
+							publishDate = sdf.parse(state.getAttribute(SiteConstants.SITE_PUBLISH_DATE).toString());
+						} catch (java.text.ParseException p){
+							addAlert(state, rb.getString("ediacc.errorparse"));
+							erroradded = true;
+						}
+					}
+					siteInfo.properties.addProperty(SiteConstants.SITE_PUBLISH_DATE, (String) state.getAttribute(SiteConstants.SITE_PUBLISH_DATE));
+                    if(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE) != null && !StringUtils.isBlank(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE).toString())){
+						Date unpublishDate = null;
+						try{
+							unpublishDate = sdf.parse(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE).toString());
+							if(unpublishDate.toInstant().isBefore(publishDate.toInstant())){	//make sure unpublish date is actually after publish date
+								addAlert(state, rb.getString("ediacc.errorafter"));
+								erroradded = true;
+							}
+						} catch (java.text.ParseException p){
+							addAlert(state, rb.getString("ediacc.errorparse"));
+							erroradded = true;
+						}
+						siteInfo.properties.addProperty(SiteConstants.SITE_UNPUBLISH_DATE, String.valueOf(state.getAttribute(SiteConstants.SITE_UNPUBLISH_DATE)));	//use valueOf, nullable, because unpublish may be blank
+                    } else {
+						siteInfo.properties.addProperty(SiteConstants.SITE_UNPUBLISH_DATE, null);
+                    }
+                }
 				// site public choice
 				siteInfo.include = include;
 
@@ -9314,6 +9615,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			if (state.getAttribute(STATE_MESSAGE) == null) {
 				if (state.getAttribute(STATE_CREATE_FROM_ARCHIVE) == Boolean.TRUE) {
 					state.setAttribute(STATE_TEMPLATE_INDEX, "62");
+				} else if(state.getAttribute(STATE_TEMPLATE_SITE) != null){	//go ahead and Finish if this is duplicating from a template
+					if(erroradded){	//on errors, reload the same page
+						state.setAttribute(STATE_TEMPLATE_INDEX, "18");
+					}
+					doFinish(data);
 				} else {
 					state.setAttribute(STATE_TEMPLATE_INDEX, "10");
 				}
@@ -10082,7 +10388,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					if (state.getAttribute(STATE_TEMPLATE_SITE) != null && (find_course == null || !"true".equals(find_course)))
 					{
 						// creating based on template
-						doFinish(data);
+						state.setAttribute(STATE_TEMPLATE_INDEX, "18");
 					}
 				}
 			}
@@ -11947,6 +12253,42 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			siteInfo.site_id = id;
 		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
+		if(StringUtils.equals(siteInfo.properties.getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_SCHEDULED)) {	//see if the site is set to publish on a custom Schedule
+			siteInfo.published = false;	//don't publish for now; we will publish later if necessary
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			sdf.setTimeZone(userTimeService.getLocalTimeZone());
+
+			try {
+				Date publishingDate = sdf.parse(String.valueOf(siteInfo.properties.getProperty(SiteConstants.SITE_PUBLISH_DATE)));
+				Date unpublishingDate = null;
+				if(siteInfo.properties.getProperty(SiteConstants.SITE_UNPUBLISH_DATE)!=null && !StringUtils.isBlank(siteInfo.properties.getProperty(SiteConstants.SITE_UNPUBLISH_DATE).toString())){
+					unpublishingDate = sdf.parse(String.valueOf(siteInfo.properties.getProperty(SiteConstants.SITE_UNPUBLISH_DATE)));
+				}
+				if(Instant.now().isAfter(publishingDate.toInstant()) && (unpublishingDate == null ||Instant.now().isBefore(unpublishingDate.toInstant()))){
+					siteInfo.published = true;	//publish right now if we're between the dates, or without unpublishing
+				} else {
+					publishingSiteScheduleService.schedulePublishing(publishingDate.toInstant(), id);	//make future publishing event
+				}
+				if(unpublishingDate!=null) {
+					if (Instant.now().isAfter(unpublishingDate.toInstant())) {
+						siteInfo.published = false;    //unpublish now if it's after the closing date
+					} else {
+						unpublishingSiteScheduleService.scheduleUnpublishing(unpublishingDate.toInstant(), id);    //make future unpublishing event.
+					}
+				}
+			} catch (java.text.ParseException p){
+				addAlert(state, rb.getString("ediacc.errorparse"));
+			}
+		} else if(StringUtils.equals(siteInfo.properties.getProperty(SiteConstants.SITE_PUBLISH_TYPE), SiteConstants.SITE_PUBLISH_TYPE_AUTO)){
+			int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0);
+			int daysafter = serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14);
+			siteInfo.published = false;
+			Date publishingDate = new Date(courseManagementService.getAcademicSession(siteInfo.term).getStartDate().getTime() - (ONE_DAY_IN_MS * daysbefore));
+			Date unpublishingDate = new Date(courseManagementService.getAcademicSession(siteInfo.term).getEndDate().getTime() + (ONE_DAY_IN_MS * daysafter));
+			if(Instant.now().isAfter(publishingDate.toInstant()) && Instant.now().isBefore(unpublishingDate.toInstant())){	//if we're within the auto-publishing window, go ahead and publish now
+				siteInfo.published = true;
+			}
+		}
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
 				Site site = null;
@@ -14700,7 +15042,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						{
 							// if creating site using template, stop here and generate the new site
 							// create site based on template
-							doFinish(data);
+							state.setAttribute(STATE_TEMPLATE_INDEX, "18");
 						}
 						else
 						{
@@ -15058,7 +15400,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		readCreateSiteTemplateInformation(params, state);
 		
 		// create site
-		doFinish(data);
+		state.setAttribute(STATE_TEMPLATE_INDEX, "18");
 	}
 	
 	/**

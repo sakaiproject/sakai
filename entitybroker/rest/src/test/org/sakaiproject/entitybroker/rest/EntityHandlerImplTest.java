@@ -21,6 +21,7 @@
 package org.sakaiproject.entitybroker.rest;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,6 +57,7 @@ public class EntityHandlerImplTest extends TestCase {
         td = new TestData();
 
         entityHandler = new ServiceTestManager(td).entityRequestHandler;
+        Locale.setDefault(new Locale("en", "US"));
     }
 
     /**
@@ -204,23 +206,6 @@ public class EntityHandlerImplTest extends TestCase {
             assertTrue(html.contains(TestData.IDS6[3]));
         } catch (RuntimeException e) {
             fail("failure trying to get string content");
-        }
-    }
-
-    public void testHandleEntityAccessNOFORMAT() {
-        EntityHttpServletRequest req = null;
-        EntityHttpServletResponse res = null;
-
-        // test get an entity space
-        req = new EntityHttpServletRequest("GET", DIRECT_PREFIX + TestData.SPACE6);
-        res = new EntityHttpServletResponse();
-
-        try {
-            entityHandler.handleEntityAccess(req, res, null);
-            fail("Should have thrown exception");
-        } catch (EntityException e) {
-            assertNotNull(e.getMessage());
-            assertEquals(HttpServletResponse.SC_NOT_ACCEPTABLE, e.responseCode);
         }
     }
 

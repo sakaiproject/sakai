@@ -94,7 +94,7 @@
 		  </h:column>
 		</h:dataTable>
 		
-	  <div class="table-responsive">
+	  <div class="table">
 	  <mf:hierPvtMsgDataTable  styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0"  id="threaded_pvtmsgs" width="100%" 
 	  	value="#{PrivateMessagesTool.searchPvtMsgs}" 
 	  	var="rcvdItems" 

@@ -12,7 +12,7 @@
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionTZFrmEdit}" _value="#{msgs.prefs_timezone_title}" _rendered="#{UserPrefsTool.timezone_selection == 1}" current="#{cTemplate == 'timezone' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionLocFrmEdit}" _value="#{msgs.prefs_lang_title}" _rendered="#{UserPrefsTool.language_selection == 1}" current="#{cTemplate == 'locale' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionPrivFrmEdit}" _value="#{msgs.prefs_privacy}"  _rendered="#{UserPrefsTool.privacy_selection == 1}" current="#{cTemplate == 'privacy' ? true : false}" />
-		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hidden_selection == 1}" current="#{cTemplate == 'hidden' ? true : false}" />
+		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hiddenSelection == 1}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionEditorFrmEdit}" _value="#{msgs.prefs_editor}"  _rendered="#{UserPrefsTool.editor_selection == 1}" current="#{cTemplate == 'editor' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionThemeFrmEdit}" _value="#{msgs.prefs_theme}"  _rendered="#{UserPrefsTool.theme_selection == 1 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
@@ -20,7 +20,7 @@
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionTZFrmEdit}" _value="#{msgs.prefs_timezone_title}" _rendered="#{UserPrefsTool.timezone_selection == 2}" current="#{cTemplate == 'timezone' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionLocFrmEdit}" _value="#{msgs.prefs_lang_title}" _rendered="#{UserPrefsTool.language_selection == 2}" current="#{cTemplate == 'locale' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionPrivFrmEdit}" _value="#{msgs.prefs_privacy}"  _rendered="#{UserPrefsTool.privacy_selection == 2}" current="#{cTemplate == 'privacy' ? true : false}" />
-		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hidden_selection == 2}" current="#{cTemplate == 'hidden' ? true : false}" />
+		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hiddenSelection == 2}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionEditorFrmEdit}" _value="#{msgs.prefs_editor}"  _rendered="#{UserPrefsTool.editor_selection == 2}" current="#{cTemplate == 'editor' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionThemeFrmEdit}" _value="#{msgs.prefs_theme}"  _rendered="#{UserPrefsTool.theme_selection == 2 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
@@ -28,7 +28,7 @@
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionTZFrmEdit}" _value="#{msgs.prefs_timezone_title}" _rendered="#{UserPrefsTool.timezone_selection == 3}" current="#{cTemplate == 'timezone' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionLocFrmEdit}" _value="#{msgs.prefs_lang_title}" _rendered="#{UserPrefsTool.language_selection == 3}" current="#{cTemplate == 'locale' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionPrivFrmEdit}" _value="#{msgs.prefs_privacy}"  _rendered="#{UserPrefsTool.privacy_selection == 3}" current="#{cTemplate == 'privacy' ? true : false}" />
-		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hidden_selection == 3}" current="#{cTemplate == 'hidden' ? true : false}" />
+		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hiddenSelection == 3}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionEditorFrmEdit}" _value="#{msgs.prefs_editor}"  _rendered="#{UserPrefsTool.editor_selection == 3}" current="#{cTemplate == 'editor' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionThemeFrmEdit}" _value="#{msgs.prefs_theme}"  _rendered="#{UserPrefsTool.theme_selection == 3 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
@@ -36,7 +36,7 @@
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionTZFrmEdit}" _value="#{msgs.prefs_timezone_title}" _rendered="#{UserPrefsTool.timezone_selection == 4}" current="#{cTemplate == 'timezone' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionLocFrmEdit}" _value="#{msgs.prefs_lang_title}" _rendered="#{UserPrefsTool.language_selection == 4}" current="#{cTemplate == 'locale' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionPrivFrmEdit}" _value="#{msgs.prefs_privacy}"  _rendered="#{UserPrefsTool.privacy_selection == 4}" current="#{cTemplate == 'privacy' ? true : false}" />
-		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hidden_selection == 4}" current="#{cTemplate == 'hidden' ? true : false}" />
+		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hiddenSelection == 4}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionEditorFrmEdit}" _value="#{msgs.prefs_editor}"  _rendered="#{UserPrefsTool.editor_selection == 4}" current="#{cTemplate == 'editor' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionThemeFrmEdit}" _value="#{msgs.prefs_theme}"  _rendered="#{UserPrefsTool.theme_selection == 4 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
@@ -44,7 +44,7 @@
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionTZFrmEdit}" _value="#{msgs.prefs_timezone_title}" _rendered="#{UserPrefsTool.timezone_selection == 5}" current="#{cTemplate == 'timezone' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionLocFrmEdit}" _value="#{msgs.prefs_lang_title}" _rendered="#{UserPrefsTool.language_selection == 5}" current="#{cTemplate == 'locale' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionPrivFrmEdit}" _value="#{msgs.prefs_privacy}"  _rendered="#{UserPrefsTool.privacy_selection == 5}" current="#{cTemplate == 'privacy' ? true : false}" />
-		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hidden_selection == 5}" current="#{cTemplate == 'hidden' ? true : false}" />
+		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hiddenSelection == 5}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionEditorFrmEdit}" _value="#{msgs.prefs_editor}"  _rendered="#{UserPrefsTool.editor_selection == 5}" current="#{cTemplate == 'editor' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionThemeFrmEdit}" _value="#{msgs.prefs_theme}"  _rendered="#{UserPrefsTool.theme_selection == 5 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
@@ -52,7 +52,7 @@
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionTZFrmEdit}" _value="#{msgs.prefs_timezone_title}" _rendered="#{UserPrefsTool.timezone_selection == 6}" current="#{cTemplate == 'timezone' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionLocFrmEdit}" _value="#{msgs.prefs_lang_title}" _rendered="#{UserPrefsTool.language_selection == 6}" current="#{cTemplate == 'locale' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionPrivFrmEdit}" _value="#{msgs.prefs_privacy}"  _rendered="#{UserPrefsTool.privacy_selection == 6}" current="#{cTemplate == 'privacy' ? true : false}" />
-		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hidden_selection == 6}" current="#{cTemplate == 'hidden' ? true : false}" />
+		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hiddenSelection == 6}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionEditorFrmEdit}" _value="#{msgs.prefs_editor}"  _rendered="#{UserPrefsTool.editor_selection == 6}" current="#{cTemplate == 'editor' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionThemeFrmEdit}" _value="#{msgs.prefs_theme}"  _rendered="#{UserPrefsTool.theme_selection == 6 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
@@ -60,7 +60,7 @@
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionTZFrmEdit}" _value="#{msgs.prefs_timezone_title}" _rendered="#{UserPrefsTool.timezone_selection == 7}" current="#{cTemplate == 'timezone' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionLocFrmEdit}" _value="#{msgs.prefs_lang_title}" _rendered="#{UserPrefsTool.language_selection == 7}" current="#{cTemplate == 'locale' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionPrivFrmEdit}" _value="#{msgs.prefs_privacy}"  _rendered="#{UserPrefsTool.privacy_selection == 7}" current="#{cTemplate == 'privacy' ? true : false}" />
-		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hidden_selection == 7}" current="#{cTemplate == 'hidden' ? true : false}" />
+		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionHiddenFrmEdit}" _value="#{msgs.prefs_sites}"  _rendered="#{UserPrefsTool.hiddenSelection == 7}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionEditorFrmEdit}" _value="#{msgs.prefs_editor}"  _rendered="#{UserPrefsTool.editor_selection == 7}" current="#{cTemplate == 'editor' ? true : false}" />
 		<prefs:tool_bar_item _action="#{UserPrefsTool.processActionThemeFrmEdit}" _value="#{msgs.prefs_theme}"  _rendered="#{UserPrefsTool.theme_selection == 7 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 </sakai:tool_bar>

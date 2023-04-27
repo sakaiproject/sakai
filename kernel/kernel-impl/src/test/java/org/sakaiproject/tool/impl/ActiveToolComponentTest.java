@@ -41,6 +41,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.impl.BasicConfigurationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
@@ -58,6 +59,7 @@ public class ActiveToolComponentTest {
 	private ThreadLocalComponent threadLocalComponent;
 	private SecurityService securityService;
 	private SessionManager sessionManager;
+	private SiteService siteService;
 	private FunctionManager functionManager;
 	private BasicConfigurationService serverConfigurationService;
 	private ActiveToolManager activeToolManager;
@@ -89,6 +91,11 @@ public class ActiveToolComponentTest {
 			protected SessionManager sessionManager() {
 				return sessionManager;
 			}
+
+			@Override
+			protected SiteService siteService() {
+				return siteService;
+			}
 			
 			@Override
 			protected FunctionManager functionManager() {
@@ -118,7 +125,7 @@ public class ActiveToolComponentTest {
 		
 		// Got the configuration
 		Properties registeredConfig = tool.getRegisteredConfig();
-		assertEquals("course,project,portfolio", registeredConfig.getProperty("siteTypes"));
+		assertEquals("course,project", registeredConfig.getProperty("siteTypes"));
 		assertEquals("project", registeredConfig.getProperty("defaultSiteType"));
 		assertEquals("project", registeredConfig.getProperty("publicChangeableSiteTypes"));
 		assertEquals("course", registeredConfig.getProperty("publicSiteTypes"));
@@ -131,7 +138,6 @@ public class ActiveToolComponentTest {
 		Set<String> categories = tool.getCategories();
 		assertTrue(categories.contains("course"));
 		assertTrue(categories.contains("project"));
-		assertTrue(categories.contains("portfolio"));
 		assertFalse(categories.contains("other"));
 		
 		// Check the default.

@@ -19,6 +19,8 @@ import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import java.util.Optional;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +32,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
  * Sorts assignment submissions by the submitter's sort name.
@@ -41,6 +44,7 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
     private SiteService siteService;
     private AssignmentService assignmentService;
     private UserDirectoryService userDirectoryService;
+    private static final UserSortNameComparator userSortNameComparator = new UserSortNameComparator();
 
     // private to prevent no arg instantiation
     private AssignmentSubmissionComparator() {
@@ -62,11 +66,48 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
 
     @Override
     public int compare(AssignmentSubmission a1, AssignmentSubmission a2) {
-        int result;
+        // Compare by UserSortNameComparator if appropriate
+        Optional<User> u1 = getIndividualSubmitterAsUser(a1);
+        Optional<User> u2 = getIndividualSubmitterAsUser(a2);
+        if (u1.isPresent() && u2.isPresent()) {
+            return userSortNameComparator.compare(u1.get(), u2.get());
+        }
+
         String name1 = getSubmitterSortname(a1);
         String name2 = getSubmitterSortname(a2);
-        result = compareString(name1, name2);
-        return result;
+        return compareString(name1, name2);
+    }
+
+    /**
+     * Gets the submitter of a submission for a non-group assignment.
+     * @return Optional<User> of the submission's submitter.
+     * Returns Optional.empty() if:
+     *     the submission is associated with a group assignment
+     *     the submission does not have exactly 1 associated submitter
+     *     the submitter cannot be retrieved via the UserDirectoryService
+     */
+    private Optional<User> getIndividualSubmitterAsUser(AssignmentSubmission submission) {
+        if (submission.getAssignment().getIsGroup()) {
+            return Optional.empty();
+        }
+
+        Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
+        /*
+         * On a non-group assignment, there should be precisely one submitter.
+         * Even when an instructor submits on behalf of a student, they do not create a new submitter entry (rather a submission property is created).
+         * So expect the submitters set to contain only one user: the student. Log and return empty otherwise.
+         */
+        if (submitters.size() != 1) {
+            log.warn("Submission for a non-group assignment has multiple submitters. SubmissionID: {}", submission.getId());
+            return Optional.empty();
+        }
+
+        String submitterId = submitters.iterator().next().getSubmitter();
+        try {
+            return Optional.of(userDirectoryService.getUser(submitterId));
+        } catch (UserNotDefinedException e) {
+            return Optional.empty();
+        }
     }
 
     private int compareString(String s1, String s2) {

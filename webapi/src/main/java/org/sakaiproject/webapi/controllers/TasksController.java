@@ -20,6 +20,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -89,12 +90,14 @@ public class TasksController extends AbstractSakaiApiController {
     private SecurityService securityService;
 
     @GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserTaskAdapterBean> getTasks() throws UserNotDefinedException {
+    public Map<String, Object> getTasks() throws UserNotDefinedException {
 
         checkSakaiSession();
 
+        Map<String, Object> data = new HashMap<>();
+
         // Flatten the UserTask objects into a more compact form and return.
-        return taskService.getAllTasksForCurrentUser()
+        data.put("tasks", taskService.getAllTasksForCurrentUser()
             .stream().map(bean -> {
                 try {
                     Site site = siteService.getSite(bean.getSiteId());
@@ -107,18 +110,24 @@ public class TasksController extends AbstractSakaiApiController {
                     log.warn("No site for id {}", bean.getSiteId());
                 }
                 return bean;
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()));
+
+        data.put("canAddTask", taskService.canCurrentUserAddTask(null));
+
+        return data;
     }
     
     @GetMapping(value = "/tasks/site/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserTaskAdapterBean> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
+    public Map<String, Object> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
 
         checkSakaiSession();
         
         final Site site = siteService.getSite(siteId);
 
+        Map<String, Object> data = new HashMap<>();
+
         // Flatten the UserTask objects into a more compact form and return.
-        return taskService.getAllTasksForCurrentUserOnSite(siteId)
+        data.put("tasks", taskService.getAllTasksForCurrentUserOnSite(siteId)
             .stream().map(bean -> {
                 if (site != null) {
                 	bean.setSiteTitle(site.getTitle());
@@ -128,19 +137,23 @@ public class TasksController extends AbstractSakaiApiController {
                     entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
                 }
                 return bean;
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()));
+
+        data.put("canAddTask", taskService.canCurrentUserAddTask(siteId));
+
+        return data;
     }
     
     @GetMapping(value = "/sites/{siteId}/users/current/isSiteUpdater", produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean isInstructorUser(@PathVariable String siteId) {
-        checkSakaiSession();
+        Session session = checkSakaiSession();
 
         try {
             Site site = siteService.getSite(siteId);
             // Returns a boolean value which depends if an user is an instructor or not
             return securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
         } catch (Exception e) {
-            log.warn("Error retrieving role on site {} for user {} : {}", siteId, e.toString());
+            log.warn("Error retrieving role on site {} for user {} : {}", siteId, session.getUserId(), e.toString());
         }
         return false;
     }

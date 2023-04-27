@@ -43,7 +43,7 @@
 							#end
 				#end
 				<p>$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p>
-				<div class="table-responsive course-section">
+				<div class="table course-section">
 					<table class="table table-striped table-bordered table-hover" summary="todo: summary">
 						#foreach ($item in $!selectedProviderCourseTitles.keySet())
 							<tr>
@@ -105,7 +105,7 @@
 						$tlang.getString("man.enter2") <span class="reqStarInline">*</span> $tlang.getString("man.means")
 					#end
 				</p>
-				<div class="table-responsive course-section">
+				<div class="table course-section">
 					<table  class="table table-bordered table-hover table-striped" summary="$tlang.getString("man.list.summary")">
 						<tr>
 							#set($bound = $!form_requiredFields.size())
@@ -170,7 +170,7 @@
 				</div>
 				#if (!$!isFutureTerm)
 				  #if ($requireAuthorizer)
-					<div class="shorttext required  form-group row">
+					<div class="shorttext required  row">
 						<label for="uniqname"  class="col-sm-3 form-control-label">
                             <span class="reqStar">*</span>
 						   $tlang.getString("man.authoriz")
@@ -182,7 +182,7 @@
 					<p class="labelindnt">
 					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
 					</p>
-					<div class="shorttext form-group row">
+					<div class="shorttext row">
 						<label for="additional" class="block col-sm-3 form-control-label">
 							$tlang.getString("man.spec")
 						</label>
@@ -203,15 +203,9 @@
 			<input type="hidden" name="back" value="$!backIndex" />
 			<input type="hidden" name="templateIndex" value="$!templateIndex" />
 			<input type="hidden" name="continue" value="4" />
-			## if site creation is based on template, this could be the final step!
-			#if ($!basedOnTemplate && !$publishTemplate) 
-				<div class="instruction" id ="nextInstructions">
-					<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
-				</div>
-			#end
 			<p class="act">
 				<input type="button" name="Add" id="addButton" name="addButton"
-						#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
+						value="$tlang.getString('gen.continue')"
 						class="active" 
 						accesskey="s" 
 						onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='add'; document.requestCourseForm.submit(); return false;" />

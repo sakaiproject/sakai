@@ -1,5 +1,5 @@
-<div th:fragment="tool_fragment" th:id="${collapseId}" class="panel-collapse collapse">
-	<div class="panel-body">
+<div th:fragment="tool_fragment" th:id="${collapseId}" class="collapse">
+	<div class="card-body">
 		<p th:if="${items == null or items.isEmpty()}" th:text="#{items.empty}">There are no items to modify in this tool.</p>
 		<table th:unless="${items == null or items.isEmpty()}" class="table table-condensed table-striped table-bordered table-datemanager">
 			<thead>
@@ -29,7 +29,7 @@
 					</th:block>
 					<th:block th:switch="${toolId}">
 						<th th:case="'assignments'" th:text="#{column.accept.until}">Accept Until Date</th>
-						<th th:case="'assessments'" th:text="#{column.accept.until}">Accept Until Date</th>
+						<th th:case="'assessments'" th:text="#{column.assessments.accept.until}">Late Submission Deadline</th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 					<th:block th:switch="${toolId}">

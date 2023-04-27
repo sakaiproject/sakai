@@ -4,16 +4,19 @@
 <body>
 <wicket:panel>
 
-	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="settingsCategoriesHeader">
-			<h3 class="panel-title">
-				<a role="button" data-toggle="collapse" href="#settingsCategories" aria-expanded="false" aria-controls="settingsCategories">
-					<wicket:message key="settingspage.categories.heading">Categories & Weighting</wicket:message>
-				</a>
-			</h3>
-		</div>
-		<div wicket:id="settingsCategoriesPanel" id="settingsCategories" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsCategoriesHeader">
-			<div class="panel-body">
+	<div class="accordion-item" id="settingsCategoriesHeader">
+		<h2 class="accordion-header">
+			<button class="accordion-button collapsed fw-bold"
+				type="button"
+				data-bs-toggle="collapse"
+				data-bs-target="#settingsCategories"
+				aria-expanded="false"
+				aria-controls="settingsCategories">
+				<wicket:message key="settingspage.categories.heading">Categories & Weighting</wicket:message>
+			</button>
+		</h2>
+		<div wicket:id="settingsCategoriesPanel" id="settingsCategories" class="accordion-collapse collapse" aria-labelledby="settingsCategoriesHeader">
+			<div class="accordion-body">
 			
 				<div wicket:id="categoryType">
 					<div class="radio"><label><input wicket:id="none" type="radio"/><span><wicket:message key="settingspage.categories.none" /></span></label></div>
@@ -82,7 +85,7 @@
 						</tbody>
 					</table>
 					<div>
-						<button wicket:id="addCategory" type="button" class="btn-add-category btn btn-default btn-sm"><wicket:message key="settingspage.categories.add" /></button>
+						<button wicket:id="addCategory" type="button" class="btn-link btn-add-category btn btn-default btn-sm"><wicket:message key="settingspage.categories.add" /></button>
 					</div>
 				</div>
 			</div>

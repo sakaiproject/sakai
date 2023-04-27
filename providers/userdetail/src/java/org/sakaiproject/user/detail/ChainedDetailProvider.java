@@ -44,6 +44,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 			providers = new ArrayList<>();
 		return providers;
 	}
+
 	public Optional<String> getCandidateID(User user, Site site) {
 		if(site == null) {
 			log.error("getCandidateID: Null site.");
@@ -81,6 +82,29 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 		return Optional.empty();
 	}
 
+	public boolean isSpecialNeedsEnabled(Site site) {
+		for (CandidateDetailProvider provider : getProviders()) {
+			if (provider.isSpecialNeedsEnabled(site)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Optional<List<String>> getSpecialNeeds(User user, Site site) {
+		if (site == null) {
+			log.error("getSpecialNeeds: Null site.");
+			return Optional.empty();
+		}
+		for (CandidateDetailProvider provider : getProviders()) {
+			Optional<List<String>> notes = provider.getSpecialNeeds(user, site);
+			if (notes.isPresent()) {
+				return notes;
+			}
+		}
+		return Optional.empty();
+	}
+
 	public boolean isAdditionalNotesEnabled(Site site) {
 		for(CandidateDetailProvider provider : getProviders()) {
 			if(provider.isAdditionalNotesEnabled(site)){
@@ -89,7 +113,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public Optional<String> getInstitutionalNumericId(User user, Site site)
 	{
@@ -104,7 +128,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 		
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
 	{
@@ -119,7 +143,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 		
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public boolean isInstitutionalNumericIdEnabled(Site site)
 	{

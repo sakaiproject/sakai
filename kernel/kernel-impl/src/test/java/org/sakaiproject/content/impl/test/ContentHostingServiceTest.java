@@ -22,6 +22,11 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Iterator;
+import java.sql.Connection;
+import java.sql.Statement;
+
+import java.security.MessageDigest;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +52,8 @@ import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.BasicConfigItem;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.util.StorageUtils;
 
 @FixMethodOrder(NAME_ASCENDING)
 @Slf4j
@@ -215,6 +222,50 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		}
 	}
 
+	@Test
+	public void testSha256Is64Characters() {
+		String plainText = "Sakaiger for the win!";
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(plainText.getBytes());
+			String hex = StorageUtils.bytesToHex(md.digest());
+			Assert.assertTrue(hex.length() == 64);
+			Assert.assertEquals(hex, "5bda9b8aca332e256d310e8f052c088c33c7782e1fe7898f19d05af007026ac0");
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testDuplicateUpload() throws Exception {
+		ContentHostingService ch = getService(ContentHostingService.class);
+		SessionManager sm = getService(SessionManager.class);
+		Session session = sm.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
+
+		ContentResource cr;
+		InputStream stream;
+		//Insert the same resource 4 times
+		for (int i=0;i<4;i++) {
+			String UploadFile = "/testTXT.txt";
+			String DisplayName = "/testTXT_"+i+".txt";
+			log.debug("Loading up file: {} as {}", UploadFile, DisplayName);
+			stream = this.getClass().getResourceAsStream("/test-documents"+UploadFile);
+			Assert.assertNotNull(stream);
+			ResourcePropertiesEdit props = ch.newResourceProperties();
+			props.addProperty (ResourceProperties.PROP_DISPLAY_NAME, DisplayName);
+			//Put it on the root of the filesystem
+			ch.addResource(DisplayName, "", stream, props ,0);
+			//Now get it back and check the mime type
+			cr = ch.getResource(DisplayName);
+			Assert.assertEquals(cr.getContentLength(), 49);
+			Assert.assertNotNull(ch);
+			Assert.assertNotNull(stream);
+			stream.close();
+		}
+	}
+
 	//Resources for this from http://svn.apache.org/repos/asf/tika/trunk/tika-parsers/src/test/resources/test-documents/
 	//Test mime type detector, might be useful to test it off as well
 	@Test
@@ -264,4 +315,92 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			stream.close();
 		}
     }
+
+    @Test
+    public void testSqlSanity() {
+        ContentHostingService ch = getService(ContentHostingService.class);
+        SqlService m_sqlService = getService(SqlService.class);
+
+        // Make sure that the structure of the CONTENT_ tables passes the "modern schema" test
+        try {
+            Connection connection = m_sqlService.borrowConnection();
+            Statement statement = connection.createStatement();
+
+           try {
+                statement.execute("select BINARY_ENTITY from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' " );
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+            try {
+                statement.execute("select XML from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' ");
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+
+            try {
+                statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+            try {
+                statement.execute("select XML from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+            try {
+                statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+            try {
+                statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+           try {
+                statement.execute("select RESOURCE_SHA256 from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
+            } catch ( Exception ex ) {
+                Assert.fail();
+            }
+
+            // Yes, these are a bit less than exciting, post autoDDL - but what they heck -
+            // they should not fail and be correct
+            checkCount("select count(*) from CONTENT_COLLECTION where BINARY_ENTITY IS NULL ", 0);
+            checkCount("select count(*) from CONTENT_RESOURCE where BINARY_ENTITY IS NULL ", 0);
+            checkCount("select count(*) from CONTENT_RESOURCE_DELETE where BINARY_ENTITY IS NULL ", 0);
+
+            checkCount("select count(*) from CONTENT_COLLECTION where XML IS NOT NULL ", 0);
+
+        } catch ( Exception ex ) {
+            Assert.fail();
+        }
+    }
+
+    protected void checkCount(String sql, int expected) throws Exception
+    {
+
+        SqlService m_sqlService = getService(SqlService.class);
+        List list = m_sqlService.dbRead(sql, null, null);
+        if (list == null) Assert.fail("Nothing returned for: "+sql);
+
+        Iterator iter = list.iterator();
+        if (iter.hasNext())
+        {
+            Object val = null;
+            try
+            {
+                val = iter.next();
+                Integer found = Integer.parseInt((String) val);
+                if ( found == expected ) return;
+                Assert.fail("Mismatch expecting: " + expected + " found: " + found + " sql: "+sql);
+            }
+            catch (Exception ignore)
+            {
+                Assert.fail("Bad integer: " + val + " from: "+sql);
+            }
+        }
+        Assert.fail("Empty list for: "+sql);
+        return;
+    }
+
 }

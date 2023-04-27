@@ -29,15 +29,17 @@ import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitia
 import org.hsqldb.jdbcDriver;
 
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.rubrics.api.repository.CriterionRepository;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.rubrics.api.repository.CriterionRepository;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RatingRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
@@ -51,6 +53,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -226,4 +229,20 @@ public class RubricsTestConfiguration {
     public FormattedText formattedText() {
         return mock(FormattedText.class);
     }
+
+    @Bean(name = "org.sakaiproject.assignment.api.AssignmentService")
+    public AssignmentService assignmentService() {
+        return mock(AssignmentService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.grading.api.GradingService")
+    public GradingService gradingService() {
+        return mock(GradingService.class);
+    }
+
+    @Bean(name = "PersistenceService")
+    public PersistenceService assessmentPersistenceService() {
+        return mock(PersistenceService.class);
+    }
+
 }

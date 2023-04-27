@@ -16,24 +16,14 @@
 package org.sakaiproject.tasks.impl.test;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
-import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.SessionFactory;
-import org.hsqldb.jdbcDriver;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tasks.api.Task;
-import org.sakaiproject.tasks.api.TaskAssigned;
+import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.tasks.api.TaskService;
-import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.repository.TaskAssignedRepository;
 import org.sakaiproject.tasks.api.repository.TaskRepository;
 import org.sakaiproject.tasks.api.repository.UserTaskRepository;
@@ -41,108 +31,51 @@ import org.sakaiproject.tasks.impl.TaskServiceImpl;
 import org.sakaiproject.tasks.impl.repository.TaskAssignedRepositoryImpl;
 import org.sakaiproject.tasks.impl.repository.TaskRepositoryImpl;
 import org.sakaiproject.tasks.impl.repository.UserTaskRepositoryImpl;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
-import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
+import org.sakaiproject.test.SakaiTestConfiguration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import lombok.Getter;
 
 @Configuration
 @EnableTransactionManagement
+@ImportResource("classpath:/WEB-INF/tasks-components.xml")
 @PropertySource("classpath:/hibernate.properties")
-public class TaskServiceTestConfiguration {
+public class TaskServiceTestConfiguration extends SakaiTestConfiguration {
 
     @Autowired
     private Environment environment;
 
-    @Bean(name = "org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.taskservice")
-    public AdditionalHibernateMappings hibernateMappings() {
-
-        Class[] annotatedClasses = new Class[] {Task.class, UserTask.class, TaskAssigned.class};
-        AdditionalHibernateMappings mappings = new AdditionalHibernateMappingsImpl();
-        mappings.setAnnotatedClasses(annotatedClasses);
-        return mappings;
-    }
-
-    @Bean
-    public Properties hibernateProperties() {
-
-        return new Properties() {
-            {
-                setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
-                setProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO, environment.getProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO));
-                setProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true"));
-                setProperty(org.hibernate.cfg.Environment.USE_SECOND_LEVEL_CACHE, environment.getProperty(org.hibernate.cfg.Environment.USE_SECOND_LEVEL_CACHE));
-            }
-        };
-    }
-
-    @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    public SessionFactory sessionFactory() throws IOException {
-
-        LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
-        hibernateMappings().processAdditionalMappings(sfb);
-        sfb.addProperties(hibernateProperties());
-        return sfb.buildSessionFactory();
-    }
-
-    @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
-    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
-
-        HibernateTransactionManager txManager = new HibernateTransactionManager();
-        txManager.setSessionFactory(sessionFactory);
-        return txManager;
-    }
-
-    @Bean(name = "javax.sql.DataSource")
-    public DataSource dataSource() {
-
-        DriverManagerDataSource db = new DriverManagerDataSource();
-        db.setDriverClassName(environment.getProperty(org.hibernate.cfg.Environment.DRIVER, jdbcDriver.class.getName()));
-        db.setUrl(environment.getProperty(org.hibernate.cfg.Environment.URL, "jdbc:hsqldb:mem:test"));
-        db.setUsername(environment.getProperty(org.hibernate.cfg.Environment.USER, "sa"));
-        db.setPassword(environment.getProperty(org.hibernate.cfg.Environment.PASS, ""));
-        return db;
-    }
+    @Autowired
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.taskservice")
+    @Getter
+    private AdditionalHibernateMappings additionalHibernateMappings;
 
     @Bean
     public AuthzGroupService authzGroupService() {
-
         return mock(AuthzGroupService.class);
     }
 
     @Bean
     public EntityManager entityManager() {
-
         return mock(EntityManager.class);
     }
 
     @Bean
     public EventTrackingService eventTrackingService() {
-
         return mock(EventTrackingService.class);
     }
 
     @Bean
-    public SiteService siteService() {
-
-        return mock(SiteService.class);
-    }
-
-    @Bean
-    public SessionManager sessionManager() {
-
-        SessionManager sessionManager = mock(SessionManager.class);
-        when(sessionManager.getCurrentSessionUserId()).thenReturn("abcde");
-        return sessionManager;
+    public FunctionManager functionManager() {
+        return mock(FunctionManager.class);
     }
 
     @Bean
@@ -152,6 +85,7 @@ public class TaskServiceTestConfiguration {
 
     @Bean
     public TaskRepository taskRepository(SessionFactory sessionFactory) {
+
         TaskRepositoryImpl tr = new TaskRepositoryImpl();
         tr.setSessionFactory(sessionFactory);
         return tr;
@@ -159,6 +93,7 @@ public class TaskServiceTestConfiguration {
 
     @Bean
     public UserTaskRepository userTaskRepository(SessionFactory sessionFactory) {
+
         UserTaskRepositoryImpl utr = new UserTaskRepositoryImpl();
         utr.setSessionFactory(sessionFactory);
         return utr;
@@ -166,9 +101,9 @@ public class TaskServiceTestConfiguration {
     
     @Bean
     public TaskAssignedRepository taskAssignedRepository(SessionFactory sessionFactory) {
+
         TaskAssignedRepositoryImpl tar = new TaskAssignedRepositoryImpl();
         tar.setSessionFactory(sessionFactory);
         return tar;
     }
-
 }

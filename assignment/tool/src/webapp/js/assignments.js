@@ -330,7 +330,7 @@ ASN.setupToggleAreas = function(toggler, togglee, openInit, speed){
     }
     else {
         $('.' + togglee).hide();
-        $('.collapse').hide();
+        $('.Mrphs-sakai-assignment-grades .collapse').hide();
         ASN.resizeFrame();
     }
     $('.' + toggler).click(function(){
@@ -984,7 +984,8 @@ ASN.disableTimesheetSetupSection = function()
 
 $(document).ready(() => {
 
-  $("#infoImg").popover({html : true});
+  const infoLink = document.getElementById("infoImg");
+  infoLink && (new bootstrap.Popover(document.getElementById("infoImg")));
 
   const saveRubric = e => {
     [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());

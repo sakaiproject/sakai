@@ -20,5 +20,6 @@ public interface BltiInterface {
     public boolean isPopUp();
     public int frameSize();
     public String doImportTool(String launchUrl, String bltiTitle, String strXml, String custom);
+    public String getIcon();
 }
 

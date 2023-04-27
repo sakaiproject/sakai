@@ -81,7 +81,6 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
-import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.antivirus.api.VirusScanIncompleteException;
@@ -198,7 +197,6 @@ import org.xml.sax.SAXException;
 import org.zwobble.mammoth.DocumentConverter;
 import org.zwobble.mammoth.Result;
 
-import fr.opensagres.odfdom.converter.xhtml.XHTMLConverter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -810,42 +808,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		return useResourceTypeRegistry;
 	}
 
-	protected boolean filesizeColumnExists = false;
-	protected boolean filesizeColumnReady = false;
-
-	public boolean readyToUseFilesizeColumn()
-	{
-		return filesizeColumnExists && filesizeColumnReady;
-	}
-
-	public boolean m_useContextQueryForCollectionSize = false;
-
-	/**
-	 * @return the useContextQueryForCollectionSize
-	 */
-	public boolean isUseContextQueryForCollectionSize() 
-	{
-		return m_useContextQueryForCollectionSize;
-	}
-
-	/**
-	 * @param useContextQueryForCollectionSize the useContextQueryForCollectionSize to set
-	 */
-	public void setUseContextQueryForCollectionSize(boolean useContextQueryForCollectionSize) 
-	{
-		this.m_useContextQueryForCollectionSize = useContextQueryForCollectionSize;
-	}
-
-	protected boolean convertToContextQueryForCollectionSize;
-
-	/**
-	 * @param convertToContextQueryForCollectionSize the convertToContextQueryForCollectionSize to set
-	 */
-	public void setConvertToContextQueryForCollectionSize(boolean convertToContextQueryForCollectionSize) 
-	{
-		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
-	}
-
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -1217,50 +1179,28 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		 */
 		public Object[] storageFields(Entity r)
 		{
-			if(filesizeColumnExists)
+			// include the file path field if we are doing body in the file system
+			if (m_bodyPath != null)
 			{
-				// include the file path field if we are doing body in the file system
-				if (m_bodyPath != null)
-				{
-					Object[] rv = new Object[5];
-					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-					rv[1] = ((BasicGroupAwareEdit) r).getContext();
-					rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
-					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
-					rv[4] = StringUtils.trimToEmpty(((BaseResourceEdit) r).m_filePath);
-					return rv;
-				}
-
-				// otherwise don't include the file path field
-				else
-				{
-					Object[] rv = new Object[4];
-					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-					rv[1] = ((BasicGroupAwareEdit) r).getContext();
-					rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
-					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
-					return rv;
-				}
+				Object[] rv = new Object[6];
+				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+				rv[1] = ((BasicGroupAwareEdit) r).getContext();
+				rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
+				rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
+				rv[4] = StringUtils.trimToEmpty(((BaseResourceEdit) r).m_filePath);
+				rv[5] = StringUtils.trimToEmpty(((ContentResource) r).getContentSha256());
+				return rv;
 			}
+			// otherwise don't include the file path field
 			else
 			{
-				// include the file path field if we are doing body in the file system
-				if (m_bodyPath != null)
-				{
-					Object[] rv = new Object[2];
-					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-					rv[1] = StringUtils.trimToEmpty(((BaseResourceEdit) r).m_filePath);
-					return rv;
-				}
-
-				// otherwise don't include the file path field
-				else
-				{
-					Object[] rv = new Object[1];
-					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-					return rv;
-				}
-
+				Object[] rv = new Object[5];
+				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+				rv[1] = ((BasicGroupAwareEdit) r).getContext();
+				rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
+				rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
+				rv[4] = StringUtils.trimToEmpty(((ContentResource) r).getContentSha256());
+				return rv;
 			}
 		}
 
@@ -1871,6 +1811,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		p.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(r.getContentLength()));
 		p.addProperty(ResourceProperties.PROP_CONTENT_TYPE, r.getContentType());
+		p.addProperty(ResourceProperties.PROP_CONTENT_SHA256, r.getContentSha256());
 
 		p.addProperty(ResourceProperties.PROP_IS_COLLECTION, "false");
 	} // addLiveResourceProperties
@@ -1893,6 +1834,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		p.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(r.getContentLength()));
 		p.addProperty(ResourceProperties.PROP_CONTENT_TYPE, r.getContentType());
+		p.addProperty(ResourceProperties.PROP_CONTENT_SHA256, r.getContentSha256());
 
 	} // addLiveUpdateResourceProperties
 
@@ -1932,6 +1874,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// these can just be set
 		p.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(r.getContentLength()));
 		p.addProperty(ResourceProperties.PROP_CONTENT_TYPE, r.getContentType());
+		p.addProperty(ResourceProperties.PROP_CONTENT_SHA256, r.getContentSha256());
 		p.addProperty(ResourceProperties.PROP_IS_COLLECTION, "false");
 
 	} // assureResourceProperties
@@ -4592,11 +4535,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
 
-		if(! readyToUseFilesizeColumn())
-		{
-			removeSizeCache(edit);
-		}
-
 		((BaseResourceEdit) edit).setRemoved();
 
 		// remove old version of this edit from thread-local cache
@@ -4706,6 +4644,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				throw iue;
 			}
 			newResource.setContentType(deleResource.getContentType());
+			newResource.setContentSha256(deleResource.getContentSha256());
 			newResource.setContentLength(deleResource.getContentLength());
 			newResource.setResourceType(deleResource.getResourceType());
 			newResource.setAvailability(deleResource.isHidden(), deleResource.getReleaseDate(),deleResource.getRetractDate());
@@ -4794,6 +4733,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
 		String id = edit.getId();
 		String content_type = edit.getContentType();
+		String content_sha256 = edit.getContentSha256();
 
 		String resource_type = edit.getResourceType();
 
@@ -4806,7 +4746,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		{
 			content = edit.streamContent();
 			addDeleteResource(id, 
-				content_type, content, resource_type, edit.getReleaseDate(), edit.getRetractDate(), 
+				content_type, content_sha256, content, resource_type, edit.getReleaseDate(), edit.getRetractDate(),
 				properties, uuid, userId,
 				NotificationService.NOTI_OPTIONAL);
 		}
@@ -4826,8 +4766,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
 	}
 
-	public ContentResource addDeleteResource(String id, String type, InputStream inputStream, String resourceType, Time releaseDate, Time retractDate, ResourceProperties properties, String uuid, String userId, int priority) throws PermissionException, ServerOverloadException
-			{
+	public ContentResource addDeleteResource(String id, String type, String sha256, InputStream inputStream, String resourceType, Time releaseDate, Time retractDate, ResourceProperties properties, String uuid, String userId, int priority) throws PermissionException, ServerOverloadException
+	{
 		id = (String) fixTypeAndId(id, type).get("id");
 		// resource must also NOT end with a separator characters (fix it)
 		if (id.endsWith(Entity.SEPARATOR))
@@ -4860,6 +4800,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		edit.setEvent(EVENT_RESOURCE_ADD);
 
 		edit.setContentType(type);
+		edit.setContentSha256(sha256);
 		edit.setResourceType(resourceType);
 		edit.setReleaseDate(releaseDate);
 		edit.setRetractDate(retractDate);
@@ -4877,7 +4818,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		return edit;
 
-			} // addDeleteResource
+	} // addDeleteResource
 
 	/**
 	 * check permissions for rename(). Note: for just this collection, not the members on down.
@@ -6078,11 +6019,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			throw new OverQuotaException(edit.getReference());
 		}
 		
-		if(! readyToUseFilesizeColumn())
-		{
-			addSizeCache(edit);
-		}
-
 	} // commitResource
 
     /**
@@ -8332,6 +8268,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 								// add resource
 								ContentResourceEdit edit = addResource(nId);
 								edit.setContentType(((ContentResource) oResource).getContentType());
+								edit.setContentSha256(((ContentResource) oResource).getContentSha256());
 								edit.setResourceType(((ContentResource) oResource).getResourceType());
 								edit.setContent(((ContentResource) oResource).streamContent());
 								edit.setAvailability(((ContentResource) oResource).isHidden(), ((ContentResource) oResource).getReleaseDate(), ((ContentResource) oResource).getRetractDate());
@@ -9107,11 +9044,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// complete the edit
 		m_storage.commitResource(edit);
 
-		if(! readyToUseFilesizeColumn())
-		{
-			addSizeCache(edit);
-		}
-
 		// track it
 		String ref = edit.getReference(null);
 		eventTrackingService.post(eventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), ref, true,
@@ -9243,17 +9175,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			return false;
 		}
 
-		long size = 0;
-
-		if(readyToUseFilesizeColumn())
-		{
-			size = collection.getBodySizeK();
-		}
-		else
-		{
-			log.error("File size column is not ready. Unable to calculate size of collection. Something is wrong with this instance of Sakai. Please check for other startup errors.");
-			return false;
-		}
+		long size = collection.getBodySizeK();
 
 		// find the resource being edited
 		ContentResource inThere = null;
@@ -11682,44 +11604,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		{
 			long size = 0;
 
-			if(readyToUseFilesizeColumn())
+			String context = getContext();
+			if(context != null || m_id.startsWith(COLLECTION_DROPBOX))
 			{
-				String context = getContext();
-				if(context != null || m_id.startsWith(COLLECTION_DROPBOX))
-				{
-					size = getSizeForContext(context!=null?context:m_id)/1000L;
-				}
+				size = getSizeForContext(context!=null?context:m_id)/1000L;
 			}
-			else
-			{
-				// get the member objects
-				List members = getMemberResources();
 
-				// for each member
-				for (Iterator it = members.iterator(); it.hasNext();)
-				{
-					Object obj = it.next();
-					if (obj == null) continue;
-
-					// do not count the size of virtual objects
-					if (obj instanceof BaseCollectionEdit && ((BaseCollectionEdit)obj).getVirtualContentEntity() != null) continue;
-
-					// if a resource, add the body size
-					if (obj instanceof ContentResource)
-					{
-						size += bytes2k(((ContentResource) obj).getContentLength());
-					}
-
-					// if a collection, count it's size
-					else
-					{
-						size += ((BaseCollectionEdit) obj).getBodySizeK();
-					}
-				}
-			}
-			// if (log.isDebugEnabled())
-			// log.debug("getBodySizeK(): collection: " + getId() + " size: " + size);
-
+			log.debug("getBodySizeK(): collection: {} size: {}",getId(),size);
 			return size;
 
 		} // getBodySizeK
@@ -12278,6 +12169,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		/** The content type. */
 		protected String m_contentType = null;
 
+		/** The content type. */
+		protected String m_contentSha256 = null;
+
 		/** The body. May be missing - not yet read (null) */
 		protected byte[] m_body = null;
 
@@ -12392,6 +12286,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
         protected void set(ContentResource other, boolean reference) {
 			m_id = other.getId();
 			m_contentType = other.getContentType();
+			m_contentSha256 = other.getContentSha256();
 			m_contentLength = other.getContentLength();
 			m_resourceType = other.getResourceType();
 			chh = other.getContentHandler();
@@ -12860,6 +12755,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		} // getContentType
 
 		/**
+		 * Access the resource Sha256 digest (may not be set yet)
+		 *
+		 * @return The resource Sha256 digest (may not be set yet)
+		 */
+		public String getContentSha256()
+		{
+			// Use the CHH delegate, if there is one.
+			if (chh_vce != null && chh_vce instanceof ContentResource) return ((ContentResource)chh_vce).getContentSha256();
+
+			return ((m_contentSha256 == null) ? "" : m_contentSha256);
+		} // getContentType
+
+		/**
 		 * Access the content bytes of the resource. As this reads the entire content into memory, only use this method
 		 * when the resource is known to be relatively small. For larger files and all files that exceed 2G in size, use
 		 * streamContent() instead.
@@ -12965,6 +12873,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			m_contentType = type;
 
 		} // setContentType
+
+		/**
+		 * Set the resource SHA256 checksum
+		 *
+		 * @param type
+		 *        The resource SHA256 checksum
+		 */
+		public void setContentSha256(String sha256)
+		{
+			m_contentSha256 = sha256;
+
+		} // setContentType
+
 
 		/**
 		 * Set the resource content.

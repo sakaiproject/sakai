@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>24-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -29,8 +29,8 @@
             <id>mysql</id>
             <dependencies>
                 <dependency>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
+                    <groupId>com.mysql</groupId>
+                    <artifactId>mysql-connector-j</artifactId>
                     <scope>compile</scope>
                 </dependency>
             </dependencies>
@@ -576,22 +576,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.reactivestreams</groupId>
-            <artifactId>reactive-streams</artifactId>
-            <version>1.0.3</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <version>3.3.9.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webflux</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
             <scope>compile</scope>
@@ -641,11 +625,6 @@
         <dependency>
             <groupId>aopalliance</groupId>
             <artifactId>aopalliance</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -858,21 +837,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-hibernate-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gridgain</groupId>
-            <artifactId>ignite-hibernate_5.3</artifactId>
+            <artifactId>ignite-hibernate-ext</artifactId>
             <scope>compile</scope>
         </dependency>
 
         <!-- xml -->
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
@@ -1011,6 +980,11 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *		 http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,11 +30,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Observer;
+import java.util.Observable;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
@@ -44,6 +50,8 @@ import org.exolab.castor.util.LocalConfiguration;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.BaseEditor;
 import org.sakaiproject.portal.api.Editor;
@@ -57,12 +65,19 @@ import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.api.StyleAbleProvider;
+import org.sakaiproject.portal.api.model.PinnedSite;
+import org.sakaiproject.portal.api.model.RecentSite;
+import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
+import org.sakaiproject.portal.api.repository.RecentSiteRepository;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,28 +87,47 @@ import lombok.extern.slf4j.Slf4j;
  * @version $Rev$
  */
 @Slf4j
-public class PortalServiceImpl implements PortalService
+public class PortalServiceImpl implements PortalService, Observer
 {
 	/**
 	 * Parameter to force state reset
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
 
-	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<String, PortalRenderEngine>();
+	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 
-	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<String, Map<String, PortalHandler>>();
+	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<>();
 
-	private Map<String, Portal> portals = new ConcurrentHashMap<String, Portal>();
+	private Map<String, Portal> portals = new ConcurrentHashMap<>();
+
+	@Autowired
+	private EventTrackingService eventTrackingService;
+
+	@Autowired
+	private PinnedSiteRepository pinnedSiteRepository;
+
+	@Autowired
+	private RecentSiteRepository recentSiteRepository;
 	
+	@Autowired
 	private ServerConfigurationService serverConfigurationService;
 
 	private StyleAbleProvider stylableServiceProvider;
 
+	@Autowired
 	private SiteNeighbourhoodService siteNeighbourhoodService;
+
+	@Autowired
+	private SiteService siteService;
 	
+	@Autowired
 	private ContentHostingService contentHostingService;
 	
+	@Autowired
 	private EditorRegistry editorRegistry;
+
+	@Autowired
+	private SessionManager sessionManager;
 	
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 
@@ -102,9 +136,7 @@ public class PortalServiceImpl implements PortalService
 		try
 		{
 			stylableServiceProvider = (StyleAbleProvider) ComponentManager
-					.get(StyleAbleProvider.class.getName());
-			serverConfigurationService = (ServerConfigurationService) ComponentManager
-					.get(ServerConfigurationService.class.getName());
+				.get(StyleAbleProvider.class.getName());
 
 			try
 			{	
@@ -130,11 +162,71 @@ public class PortalServiceImpl implements PortalService
 		{
 			log.info("No Styleable Provider found, the portal will not be stylable");
 		}
+
+		eventTrackingService.addLocalObserver(this);
+	}
+
+	public void update(Observable observable, Object o) {
+
+		if (!(o instanceof Event)) {
+			return;
+		}
+
+		Event e = (Event) o;
+
+		String event = e.getEvent();
+
+        switch (event) {
+            case SiteService.SECURE_UPDATE_SITE_MEMBERSHIP:
+
+                Set<String> pinnedUserIds
+                    = pinnedSiteRepository.findBySiteId(e.getContext()).stream()
+                        .map(ps -> ps.getUserId()).collect(Collectors.toSet());
+
+                Set<String> recentUserIds
+                    = recentSiteRepository.findBySiteId(e.getContext()).stream()
+                        .map(ps -> ps.getUserId()).collect(Collectors.toSet());
+
+                if (recentUserIds.isEmpty() && pinnedUserIds.isEmpty()) {
+                    return;
+                }
+
+                Site site = null;
+                try {
+                    site = siteService.getSite(e.getContext());
+                } catch (IdUnusedException idue) {
+                    log.error("No site for {} while cleaning up pinned sites : {}", e.getContext(), e.toString());
+                    return;
+                }
+
+                Set<String> siteUsers = site.getUsers();
+
+                pinnedUserIds.forEach(userId -> {
+
+                    if (!siteUsers.contains(userId)) {
+                        pinnedSiteRepository.deleteByUserIdAndSiteId(userId, e.getContext());
+                    }
+                });
+
+                recentUserIds.forEach(userId -> {
+
+                    if (!siteUsers.contains(userId)) {
+                        recentSiteRepository.deleteByUserIdAndSiteId(userId, e.getContext());
+                    }
+                });
+
+                break;
+            case SiteService.SECURE_REMOVE_SITE:
+                pinnedSiteRepository.deleteBySiteId(e.getContext());
+                recentSiteRepository.deleteBySiteId(e.getContext());
+                break;
+            default:
+        }
 	}
 
 	public StoredState getStoredState()
 	{
-		Session s = SessionManager.getCurrentSession();
+		Session s = sessionManager.getCurrentSession();
 		StoredState ss = (StoredState) s.getAttribute("direct-stored-state");
 		log.debug("Got Stored State as [" + ss + "]");
 		return ss;
@@ -142,7 +234,7 @@ public class PortalServiceImpl implements PortalService
 
 	public void setStoredState(StoredState ss)
 	{
-		Session s = SessionManager.getCurrentSession();
+		Session s = sessionManager.getCurrentSession();
 		if (s.getAttribute("direct-stored-state") == null || ss == null)
 		{
 			StoredState ssx = (StoredState) s.getAttribute("direct-stored-state");
@@ -184,14 +276,14 @@ public class PortalServiceImpl implements PortalService
 	// To allow us to retain reset state across redirects
 	public String getResetState()
 	{
-		Session s = SessionManager.getCurrentSession();
+		Session s = sessionManager.getCurrentSession();
 		String ss = (String) s.getAttribute("reset-stored-state");
 		return ss;
 	}
 
 	public void setResetState(String ss)
 	{
-		Session s = SessionManager.getCurrentSession();
+		Session s = sessionManager.getCurrentSession();
 		if (s.getAttribute("reset-stored-state") == null || ss == null)
 		{
 			s.setAttribute("reset-stored-state", ss);
@@ -378,7 +470,7 @@ public class PortalServiceImpl implements PortalService
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.portal.api.PortalService#addHandler(java.lang.String,
-	 *      org.sakaiproject.portal.api.PortalHandler)
+	 *		org.sakaiproject.portal.api.PortalHandler)
 	 */
 	public void addHandler(Portal portal, PortalHandler handler)
 	{
@@ -441,8 +533,8 @@ public class PortalServiceImpl implements PortalService
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.portal.api.PortalService#removeHandler(java.lang.String,
-	 *      java.lang.String) This method it NOT thread safe, but the likelyhood
-	 *      of a co
+	 *		java.lang.String) This method it NOT thread safe, but the likelyhood
+	 *		of a co
 	 */
 	public void removeHandler(Portal portal, String urlFragment)
 	{
@@ -514,45 +606,12 @@ public class PortalServiceImpl implements PortalService
 		return stylableServiceProvider;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.api.PortalService#getSiteNeighbourhoodService()
-	 */
-	public SiteNeighbourhoodService getSiteNeighbourhoodService()
-	{
-		return siteNeighbourhoodService;
-	}
-
-	/**
-	 * @param siteNeighbourhoodService the siteNeighbourhoodService to set
-	 */
-	public void setSiteNeighbourhoodService(SiteNeighbourhoodService siteNeighbourhoodService)
-	{
-		this.siteNeighbourhoodService = siteNeighbourhoodService;
-	}
-
-	public ContentHostingService getContentHostingService() {
-		return contentHostingService;
-	}
-
-	/**
-	 * @param portalLinks the portal icons to set
-	 * @superseded by quickLinks functionality also in this class.
-	 * @setter left as portalLinks is in the component.xml file.
-	 */
-	public void setPortalLinks(String portalLinks) {
-		log.warn("Attempted to call PortalServiceImpl.setPortalLinks, method superseded by quickLinks functionality.");
-	}
-
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
-
 	public String getContentItemUrl(Site site) {
 
 		if ( site == null ) return null;
-                ToolConfiguration toolConfig = site.getToolForCommonId("sakai.siteinfo");
+				ToolConfiguration toolConfig = site.getToolForCommonId("sakai.siteinfo");
 
-                if (toolConfig == null) return null;
+				if (toolConfig == null) return null;
 
 		// SAK-32656 For now we always show the cart.
 		// Un-comment these lines to make the cart only appear when tools are
@@ -567,17 +626,17 @@ public class PortalServiceImpl implements PortalService
 		*/
 
 		// Now we are in good shape, make the URL
-		String helper_url = "/portal/tool/"+toolConfig.getId()+"/sakai.basiclti.admin.helper.helper?panel=CKEditor";
+		String helper_url = "/portal/tool/"+toolConfig.getId()+"/sakai.lti.admin.helper.helper?panel=CKEditor";
 		return helper_url;
 	}
 
 	public String getBrowserCollectionId(Placement placement) {
 		String collectionId = null;
 		if (placement != null) {
-			collectionId = getContentHostingService().getSiteCollection(placement.getContext());
+			collectionId = contentHostingService.getSiteCollection(placement.getContext());
 		}
 		if (collectionId == null) {
-			collectionId = getContentHostingService().getSiteCollection("~" + SessionManager.getCurrentSessionUserId());
+			collectionId = contentHostingService.getSiteCollection("~" + sessionManager.getCurrentSessionUserId());
 		}
 		return collectionId;
 	}
@@ -593,7 +652,7 @@ public class PortalServiceImpl implements PortalService
 		if (placement != null) {
 			//Allow tool- or user-specific editors?
 			try {
-				Site site = SiteService.getSite(placement.getContext());
+				Site site = siteService.getSite(placement.getContext());
 				Object o = site.getProperties().get("wysiwyg.editor");
 				if (o != null) {
 					activeEditor = o.toString();
@@ -606,13 +665,13 @@ public class PortalServiceImpl implements PortalService
 			}
 		}
 		
-		Editor editor = getEditorRegistry().getEditor(activeEditor);
+		Editor editor = editorRegistry.getEditor(activeEditor);
 		if (editor == null) {
 			// Load a base no-op editor so sakai.editor.launch calls succeed.
 			// We may decide to offer some textarea infrastructure as well. In
 			// this case, there are editor and launch files being consulted
 			// already from /library/, which is easier to patch and deploy.
-			editor = getEditorRegistry().getEditor("textarea");
+			editor = editorRegistry.getEditor("textarea");
 		}
 		if (editor == null) {
 			// If, for some reason, our stub editor is null, give an instance
@@ -626,14 +685,6 @@ public class PortalServiceImpl implements PortalService
 		return editor;
 	}
 
-	public EditorRegistry getEditorRegistry() {
-		return editorRegistry;
-	}
-
-	public void setEditorRegistry(EditorRegistry editorRegistry) {
-		this.editorRegistry = editorRegistry;
-	}
-	
 	public String getSkinPrefix() {
 		return "";
 	}
@@ -721,5 +772,79 @@ public class PortalServiceImpl implements PortalService
 		}
 		return Collections.unmodifiableList(quickLinks);
 
+	}
+
+	@Transactional
+	public void savePinnedSites(Set<String> siteIds) {
+
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		if (StringUtils.isBlank(userId)) {
+			return;
+		}
+
+		pinnedSiteRepository.deleteByUserId(userId);
+
+		siteIds.forEach(siteId -> {
+
+			PinnedSite pin = new PinnedSite();
+			pin.setUserId(userId);
+			pin.setSiteId(siteId);
+			pinnedSiteRepository.save(pin);
+		});
+	}
+
+	public Set<String> getPinnedSites() {
+
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		if (StringUtils.isBlank(userId)) {
+			return Collections.<String>emptySet();
+		}
+
+		return pinnedSiteRepository.findByUserId(userId).stream()
+				.map(ps -> ps.getSiteId()).collect(Collectors.toSet());
+	}
+
+	public List<String> getRecentSites() {
+
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		if (StringUtils.isBlank(userId)) {
+			return Collections.<String>emptyList();
+		}
+
+		return recentSiteRepository.findByUserId(userId).stream()
+				.map(ps -> ps.getSiteId()).collect(Collectors.toList());
+	}
+
+	@Transactional
+	public void addRecentSite(String siteId) {
+
+		if (SiteService.SITE_ERROR.equals(siteId)) {
+			return;
+		}
+
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		if (StringUtils.isBlank(userId)) {
+			return;
+		}
+
+		recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
+
+		List<String> current = getRecentSites();
+
+		if (current.size() == 3) {
+			// Oldest is last
+			String last = current.toArray(new String[] {})[current.size() - 1];
+			recentSiteRepository.deleteByUserIdAndSiteId(userId, last);
+		}
+
+		RecentSite recentSite = new RecentSite();
+		recentSite.setUserId(userId);
+		recentSite.setSiteId(siteId);
+		recentSite.setCreated(Instant.now());
+		recentSiteRepository.save(recentSite);
 	}
 }

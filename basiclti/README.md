@@ -1,7 +1,7 @@
-Sakai's Support for IMS Standards
----------------------------------
+Sakai's Support for 1EdTech Standards
+-------------------------------------
 
-This folder holds the Sakai code for IMS Learning Tools Interoperability and other standards.
+This folder holds the Sakai code for Learning Tools Interoperability and other standards.
 This area has many different contributors.
 
 There are several internal documents that you might find useful ranging from
@@ -12,8 +12,8 @@ Aditional Documentation
 
 * [Using Tsugi in Sakai with LTI Advantage](https://www.tsugi.org/md/ADVANTAGE.md)
 * [Using LTI ContentItem](docs/CONTENTITEM.md)
-* [Using IMS Auto Provisioning](docs/PROVISION.md)
-* [LTI 1.1 to LTI Advantage Auto Migration](docs/MIGRATION.md)
+* [Using LTI Dynamic Registration](docs/PROVISION.md)
+* [LTI 1.1 to LTI Advantage Migration](docs/MIGRATION.md)
 * [Using the IMS Reference Implementation with Sakai](docs/IMS_RI.md)
 * [Setting up Tsugi in Sakai for Testing](docs/TSUGI.md)
 * [Windows PostMessage Support in Sakai](docs/POSTMESSAGE.md)
@@ -65,9 +65,9 @@ BASE_URL/portal/site/SITE_ID/tool/TOOL_ID?panel=ToolSite&sakai_action=doSearch&f
 
 New URLs used in export service :
 --------------------------------------------------------------------------------
-- CSV : BASE_URL/access/basiclti/site/SITE_ID/export:CSV
-- Excel : BASE_URL/access/basiclti/site/SITE_ID/export:EXCEL
+- CSV : BASE_URL/access/lti/site/SITE_ID/export:CSV
+- Excel : BASE_URL/access/lti/site/SITE_ID/export:EXCEL
 
 You can also specify a filter with a TOOL_ID
-- CSV : BASE_URL/access/basiclti/site/SITE_ID/export:CSV:TOOL_ID
-- Excel : BASE_URL/access/basiclti/site/SITE_ID/export:EXCEL:TOOL_ID
+- CSV : BASE_URL/access/lti/site/SITE_ID/export:CSV:TOOL_ID
+- Excel : BASE_URL/access/lti/site/SITE_ID/export:EXCEL:TOOL_ID

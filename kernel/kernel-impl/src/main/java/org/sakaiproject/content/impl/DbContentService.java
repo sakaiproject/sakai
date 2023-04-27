@@ -44,6 +44,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -137,7 +140,7 @@ public class DbContentService extends BaseContentService
     /**
      * The extra field(s) to write to the database - resources - when we are doing bodys in files with the context-query conversion.
      */
-    public static final String[] RESOURCE_FIELDS_FILE_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "FILE_PATH"};
+    public static final String[] RESOURCE_FIELDS_FILE_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "FILE_PATH", "RESOURCE_SHA256"};
 
     /**
      * The extra field(s) to write to the database - resources - when we are doing bodys the db without the context-query conversion.
@@ -147,7 +150,7 @@ public class DbContentService extends BaseContentService
     /**
      * The extra field(s) to write to the database - resources - when we are doing bodys the db with the context-query conversion.
      */
-    protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID"};
+    protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "RESOURCE_SHA256"};
 
     /**
      * The ID that is used in the content_resource table to test UTF8
@@ -169,6 +172,10 @@ public class DbContentService extends BaseContentService
 
     /** Property name used in sakai.properties to turn on/off Content Hosting Handler support */
     private static final String CHH_ENABLE_FLAG = "content.useCHH";
+
+    /** Property name used in sakai.properties to turn on/off Content Hosting Handler support */
+    private static final String PROP_SINGLE_INSTANCE = "content.singleInstanceStore";
+    private static final boolean PROP_SINGLE_INSTANCE_DEFAULT = true;
 
     /*************************************************************************************************************************************************
      * Constructors, Dependencies and their setter methods
@@ -386,9 +393,6 @@ public class DbContentService extends BaseContentService
 
         try
         {
-            // system property to manually set conversion completion status.
-            filesizeColumnReady = m_serverConfigurationService.getBoolean("content.filesizeColumnReady", true);				
-
             setContentServiceSql(m_sqlService.getVendor());
 
             // if we are auto-creating our schema, check and create
@@ -398,27 +402,6 @@ public class DbContentService extends BaseContentService
 
                 // add the delete table
                 m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_delete");
-            }
-
-            // Check for the existence of the FILE_SIZE column
-            filesizeColumnExists = filesizeColumnExists();
-
-            if (!filesizeColumnExists)
-            {
-            	//See KNL-487 - DH
-                //if the columns don't exist we need to exit - updat needs to be run
-            	log.error("The filesize column doesn't exit. Please make sure you ran the 2.4-2.5 DB Conversion");
-            	throw new Error("The filesize column doesn't exit. Please make sure you ran the 2.4-2.5 DB Conversion");
-            }
-
-            if (filesizeColumnExists && !readyToUseFilesizeColumn())
-            {
-                // if the convert flag is set to add CONTEXT and FILE_SIZE columns
-                // start doing the conversion
-                if (convertToContextQueryForCollectionSize)
-                {
-                    populateNewColumns();
-                }
             }
 
             try
@@ -613,58 +596,7 @@ public class DbContentService extends BaseContentService
         }
     }
 
-    protected long filesizeColumnCheckExpires = 0L;
-
     public boolean migrateData = true;
-
-    protected static final long TWENTY_MINUTES = 20L * 60L * 1000L;
-
-    protected boolean filesizeColumnExists() 
-    {
-        boolean ok = false;
-        if(m_sqlService.getVendor().toLowerCase().contains("hsql"))
-        {
-            ok = m_autoDdl || addNewColumnsCompleted;
-        }
-        else
-        {
-            String sql = contentServiceSql.getFilesizeColumnExistsSql();
-            List list = m_sqlService.dbRead(sql);
-            ok = list != null && ! list.isEmpty();
-        }		
-        return ok;
-    }
-
-    public boolean readyToUseFilesizeColumn()
-    {
-        if (filesizeColumnExists && !filesizeColumnReady)
-        {
-            long now = System.currentTimeMillis();
-            if(now > filesizeColumnCheckExpires)
-            {
-                // cached value has expired -- time to renew
-                if(hasNullFilesizeValues())
-                {
-                    filesizeColumnCheckExpires = now + TWENTY_MINUTES;
-                    log.debug("Conversion of the ContentHostingService database tables is needed to improve performance");
-                }
-                else
-                {
-                    String highlight = "\n====================================================\n====================================================\n";
-                    log.info(highlight + "Conversion of the ContentHostingService database tables is complete.\nUsing new filesize column" + highlight);
-                    filesizeColumnReady = true;
-                }
-            }
-        }
-        return filesizeColumnReady;
-    }
-
-    protected boolean hasNullFilesizeValues() 
-    {
-        String sql = contentServiceSql.getFilesizeExistsSql();
-        List list = m_sqlService.dbRead(sql);
-        return (list != null && !list.isEmpty());
-    }
 
     /**
      *
@@ -697,6 +629,35 @@ public class DbContentService extends BaseContentService
             return rv;
         }
         throw new IdUnusedException(param);
+    }
+
+    /**
+     *
+     */
+    protected String singleColumnSingleRow(String sql, String param)
+    {
+
+        Object[] fields = new Object[1];
+        fields[0] = param;
+
+        List list = m_sqlService.dbRead(sql, fields, null);
+
+		if ( list == null ) return null;
+
+        Iterator iter = list.iterator();
+        while (iter.hasNext())
+        {
+            try
+            {
+                String val = (String) iter.next();
+                if ( val != null ) return val;
+            }
+            catch (Exception ignore)
+            {
+                continue;
+            }
+        }
+        return null;
     }
 
     public int getCollectionSize(String id) throws IdUnusedException, TypeException, PermissionException
@@ -991,7 +952,6 @@ public class DbContentService extends BaseContentService
                 }
 
                 if ( migrateData && binaryCollection && xmlCollection ) {
-
                     // migrate the base XML entities
                     Type1BlobCollectionConversionHandler t1ch = new Type1BlobCollectionConversionHandler();
 
@@ -2014,7 +1974,6 @@ public class DbContentService extends BaseContentService
 		*/
 	   public void commitDeletedResource(ContentResourceEdit edit, String uuid) throws ServerOverloadException
 	   {
-
 		   if (m_bodyPathDeleted == null) { 
 			   return;
 		   }
@@ -2124,10 +2083,25 @@ public class DbContentService extends BaseContentService
 				   {
 					   // if we have been configured to use an external file system
 					   if (removeContent) {
-						   log.info("Removing resource ("+edit.getId()+") content: "+m_bodyPath);
-						   delResourceBodyFilesystem(m_bodyPath, edit);
+							String filePath = ((BaseResourceEdit) edit).m_filePath;
+							log.info("Removing resource ("+edit.getId()+") content: "+m_bodyPath+" file:"+filePath);
+
+							String statement = "SELECT COUNT(FILE_PATH) FROM "+m_resourceTableName+" WHERE FILE_PATH = ?;";
+							int references = -1;
+							try {
+								references = countQuery(statement, filePath);
+							} catch ( IdUnusedException e ) {
+								log.warn("Unexpected error {}", e.getMessage());
+							}
+
+							if ( references > 1 ) {
+								log.info("Retaining file blob for resource_id={} because {} reference(s)", edit.getId(), references);
+							} else {
+								log.debug("Removing resource ("+edit.getId()+") content: "+m_bodyPath+" file:"+filePath);
+								delResourceBodyFilesystem(m_bodyPath, edit);
+							}
 					   } else {
-						   log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+m_bodyPath);
+							log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+m_bodyPath);
 					   }
 				   }
 				   else
@@ -2413,6 +2387,10 @@ public class DbContentService extends BaseContentService
             // add the new
             statement = contentServiceSql.getInsertContentSql(resourceBodyTableName);
 
+            fields = new Object[2];
+            fields[0] = resource.getId();
+			fields[1] = resource.getContentSha256();
+
             boolean success = m_sqlService.dbWriteBinary(statement, fields, body, 0, body.length);
             if (log.isDebugEnabled()) log.debug("putResourceBodyDb: resource ("+resource.getId()+") put success="+success);
             return success;
@@ -2442,15 +2420,23 @@ public class DbContentService extends BaseContentService
             int lenRead;
             try
             {
-                while ((lenRead = stream.read(chunk)) != -1)
+		        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		        DigestInputStream dstream = new DigestInputStream(stream, digest);
+
+                while ((lenRead = dstream.read(chunk)) != -1)
                 {
                     bstream.write(chunk, 0, lenRead);
                     byteCount += lenRead;
                 }
 
+		        MessageDigest md2 = dstream.getMessageDigest();
+				String hex = StorageUtils.bytesToHex(md2.digest());
+
                 edit.setContentLength(byteCount);
+                edit.setContentSha256(hex);
                 ResourcePropertiesEdit props = edit.getPropertiesEdit();
                 props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+                props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, hex);
                 if (edit.getContentType() != null)
                 {
                     props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, edit.getContentType());
@@ -2460,6 +2446,11 @@ public class DbContentService extends BaseContentService
             {
                 // TODO Auto-generated catch block
                 log.error("IOException ", e);
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                // Unlikely
+                log.error("NoSuchAlgorithmException ", e);
             }
             finally
             {
@@ -2501,19 +2492,50 @@ public class DbContentService extends BaseContentService
         {
             try
             {
-                long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, ((BaseResourceEdit) resource).m_filePath, stream);
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                DigestInputStream dstream = new DigestInputStream(stream, digest);
+
+                String filePath = ((BaseResourceEdit) resource).m_filePath;
+                long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, filePath, dstream);
+
+                MessageDigest md2 = dstream.getMessageDigest();
+                String hex = StorageUtils.bytesToHex(md2.digest());
+
                 resource.setContentLength(byteCount);
+                resource.setContentSha256(hex);
                 ResourcePropertiesEdit props = resource.getPropertiesEdit();
                 props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+                props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, hex);
                 if (resource.getContentType() != null)
                 {
                     props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
                 }
+
+                // Check if there already is an identical file (most recent if there is > 1)
+                boolean singleInstanceStore = m_serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
+                if ( singleInstanceStore && m_bodyPath != null && m_bodyPath.equals(rootFolder)) {
+                    String statement = "SELECT FILE_PATH FROM "+m_resourceTableName+" WHERE RESOURCE_SHA256 = ? ORDER BY FILE_PATH DESC LIMIT 1;";
+                    String duplicateFilePath = singleColumnSingleRow(statement, hex);
+
+                    if ( duplicateFilePath != null ) {
+                        delResourceBodyFilesystem(rootFolder, resource);
+                        ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
+                        log.info("Duplicate body found path={}",duplicateFilePath);
+                    } else {
+                        log.debug("Content body us unique id={}",resource.getId());
+                    }
+                }
+
                 return true;
             }
             catch (IOException e)
             {
                 log.error("IOException", e);
+                return false;
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                log.error("NoSuchAlgorithmException", e);
                 return false;
             }
         }
@@ -2558,7 +2580,7 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * Delete the resource body from the external file system. The file name is the m_bodyPath with the resource id appended.
+         * Delete the resource body from the external file system. The file name is the m_bodyPath with the resource filePath appended.
          * 
          * @param resource
          *        The resource whose body is being written.
@@ -3194,152 +3216,6 @@ public class DbContentService extends BaseContentService
             return null;
         }
 
-    }
-
-    public void populateNewColumns()
-    {
-        String sql1 = contentServiceSql.getAccessResourceIdAndXmlSql(m_resourceTableName);
-        m_sqlService.dbRead(sql1, null, new ContextAndFilesizeReader(m_resourceTableName));
-
-        String sql2 = contentServiceSql.getAccessResourceIdAndXmlSql(m_resourceDeleteTableName);
-        m_sqlService.dbRead(sql2, null, new ContextAndFilesizeReader(m_resourceDeleteTableName));
-    }
-
-
-    public class ContextAndFilesizeReader implements SqlReader
-    {
-        protected IdManager uuidManager = (IdManager) ComponentManager.get(IdManager.class);
-        protected Pattern filesizePattern1 = Pattern.compile("\\scontent-length=\"(\\d+)\"\\s");
-        protected Pattern filesizePattern2 = Pattern.compile("\\s*DAV:getcontentlength\\s+(\\d+)\\s*");
-        protected Pattern typeidPattern1 = Pattern.compile("\\sresource-type=\"([0-9A-Za-z.]+)\"\\s");
-        protected Pattern typeidPattern2 = Pattern.compile("\\s+%(.*)\\s+");
-        protected String table;
-
-        public ContextAndFilesizeReader(String table)
-        {
-            this.table = table;
-        }
-
-        public Object readSqlResultRecord(ResultSet result) 
-        {
-            try
-            {
-                boolean addingUuid = false;
-                String resourceId = result.getString(1);
-                String uuid = result.getString(2);
-                String xml = result.getString(3);
-
-                if(uuid == null)
-                {
-                    addingUuid = true;
-                    uuid = uuidManager.createUuid();
-                }
-                String context = null;
-                int filesize = 0;
-                String resourceType = null;
-
-                String sql = contentServiceSql.getContextFilesizeValuesSql(table, addingUuid);
-
-                Matcher contextMatcher = contextPattern.matcher(resourceId);
-                if(xml == null)
-                {
-                    ResultSetMetaData rsmd = result.getMetaData();
-                    int numberOfColumns = rsmd.getColumnCount();
-
-                    if(numberOfColumns > 3)
-                    {
-                        Blob binary_entity = result.getBlob(4);
-                        // this is meant to match against the binary-entity value in cases where 
-                        // xml is null (meaning xml may have already been converted). 
-                        //						Matcher filesizeMatcher = filesizePattern2.matcher(xml);
-                        //						if(filesizeMatcher.find())
-                        //						{
-                        //							try
-                        //							{
-                        //								filesize = Integer.parseInt(filesizeMatcher.group(1));
-                        //							}
-                        //							catch(Exception e)
-                        //							{
-                        //								// do nothing
-                        //							}
-                        //						}
-                        //						Matcher typeidMatcher = typeidPattern2.matcher(xml);
-                        //						if(typeidMatcher.find())
-                        //						{
-                        //							resourceType = typeidMatcher.group(1);
-                        //						}
-                    }
-                    else
-                    {
-                        // Do nothing.  The binary-entity value is not available here.  
-                        // Best to skip the record until we provide a query that gets 
-                        // the binary-entity value in this context.
-                    }
-                }
-                else
-                {
-                    Matcher filesizeMatcher = filesizePattern1.matcher(xml);
-                    if(filesizeMatcher.find())
-                    {
-                        try
-                        {
-                            filesize = Integer.parseInt(filesizeMatcher.group(1));
-                        }
-                        catch(Exception e)
-                        {
-                            // do nothing
-                        }
-                    }
-                    Matcher typeidMatcher = typeidPattern1.matcher(xml);
-                    if(typeidMatcher.find())
-                    {
-                        resourceType = typeidMatcher.group(1);
-                    }
-                }
-
-                if(contextMatcher.find())
-                {
-                    String root = contextMatcher.group(1);
-                    context = contextMatcher.group(2);
-                    if(! root.equals("group/"))
-                    {
-                        context = "~" + context;
-                    }
-                }
-
-                log.info("adding new field values: resourceId == \"" + resourceId + "\" uuid == \"" + uuid + "\" context == \"" + context + "\" filesize == \"" + filesize + "\" addingUuid == " + addingUuid);
-
-                if(addingUuid)
-                {
-                    // "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ?, RESOURCE_UUID = ? where RESOURCE_ID = ?"
-                    // update the record
-                    Object [] fields = new Object[5];
-                    fields[0] = context;
-                    fields[1] = Integer.valueOf(filesize);
-                    fields[2] = resourceType;
-                    fields[3] = uuid;
-                    fields[4] = resourceId;
-                    m_sqlService.dbWrite(sql, fields);
-                }
-                else
-                {
-                    // "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ? where RESOURCE_UUID = ?"
-                    // update the record
-                    Object [] fields = new Object[4];
-                    fields[0] = context;
-                    fields[1] = Integer.valueOf(filesize);
-                    fields[2] = resourceType;
-                    fields[3] = uuid;
-                    m_sqlService.dbWrite(sql, fields);
-                }
-            }
-            catch(Exception e)
-            {
-                log.error("ContextAndFilesizeReader.readSqlResultRecord() failed. result skipped", e);
-            }
-
-            return null;
-        }
     }
 
     protected long getSizeForContext(String context) 

@@ -71,5 +71,18 @@ public class ServerCookieTest {
         result = new StringBuffer();
         ServerCookie.appendCookieValue(result, 0, "JSESSIONID", "0f91340e-60ba-4560-9e42-fed0d05bd95d.localhost", "/", null, null, -1, true, false, "none", UC_BROWSER_12_13_5);
         Assert.assertTrue(StringUtils.contains(result.toString(), "SameSite=None"));
+
+        // non secure checks
+        result = new StringBuffer();
+        ServerCookie.appendCookieValue(result, 0, "JSESSIONID", "0f91340e-60ba-4560-9e42-fed0d05bd95d.localhost", "/", null, null, -1, false, false, "none", StringUtils.EMPTY);
+        Assert.assertFalse(StringUtils.contains(result.toString(), "SameSite="));
+
+        result = new StringBuffer();
+        ServerCookie.appendCookieValue(result, 0, "JSESSIONID", "0f91340e-60ba-4560-9e42-fed0d05bd95d.localhost", "/", null, null, -1, false, false, "lax", StringUtils.EMPTY);
+        Assert.assertTrue(StringUtils.contains(result.toString(), "SameSite=Lax"));
+
+        result = new StringBuffer();
+        ServerCookie.appendCookieValue(result, 0, "JSESSIONID", "0f91340e-60ba-4560-9e42-fed0d05bd95d.localhost", "/", null, null, -1, false, false, "strict", StringUtils.EMPTY);
+        Assert.assertTrue(StringUtils.contains(result.toString(), "SameSite=Strict"));
     }
 }

@@ -47,7 +47,7 @@
                             </li>
                         </ul>
 
-                        <ul id="mailsender-roles" class="rolesArea hidden" role="tabpanel" aria-labelledBy="mailsender-tab-roles">
+                        <ul id="mailsender-roles" class="rolesArea d-none" role="tabpanel" aria-labelledBy="mailsender-tab-roles">
                             <li th:if="${comp.getEmailRoles().size() == 0}" class="not-found">
                                 <span th:text="#{no.role.found}" aria-live="polite"/>
                             </li>
@@ -57,7 +57,7 @@
                                     <b th:text="${rol.getRoleId()} "></b>
                                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                                 </button>
-                                <ul class="hidden scrollable-list" th:aria-label="${rol.getRoleId()}" tabindex="-1">
+                                <ul class="d-none scrollable-list" th:aria-label="${rol.getRoleId()}" tabindex="-1">
                                     <li th:if="${comp.getUsersByRole(rol.getRoleId()).size() == 0}" aria-live="polite">
                                         <span th:text="#{no.role.members.found}"/>
                                     </li>
@@ -68,7 +68,7 @@
                                 </ul> 
                             </li>
                         </ul>
-                        <ul id="mailsender-sections" class="rolesArea hidden" role="tabpanel" aria-labelledBy="mailsender-tab-sections">
+                        <ul id="mailsender-sections" class="rolesArea d-none" role="tabpanel" aria-labelledBy="mailsender-tab-sections">
                             <li th:if="${comp.getEmailSections().size() == 0}" class="not-found">
                                 <span th:text="#{no.role.found}" aria-live="polite"/>
                             </li>
@@ -78,7 +78,7 @@
                                     <b th:text="${rolsec.getRoleSingular()} "></b>
                                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                                 </button>
-                                <ul class="hidden scrollable-list" th:aria-label="${rolsec.getRoleSingular()}" tabindex="-1">
+                                <ul class="d-none scrollable-list" th:aria-label="${rolsec.getRoleSingular()}" tabindex="-1">
                                     <li th:if="${comp.countUsersByGroup(rolsec.getRoleId()) == 0}" aria-live="polite">
                                         <span th:text="#{no.role.members.found}"/>
                                     </li>
@@ -89,7 +89,7 @@
                                 </ul>
                             </li>
                         </ul>
-                        <ul id="mailsender-groups" class="rolesArea hidden" role="tabpanel" aria-labelledBy="mailsender-tab-groups">
+                        <ul id="mailsender-groups" class="rolesArea d-none" role="tabpanel" aria-labelledBy="mailsender-tab-groups">
                             <li th:if="${comp.getEmailGroups().size() == 0}" class="not-found">
                                 <span th:text="#{no.role.found}" aria-live="polite"/>
                             </li>
@@ -99,7 +99,7 @@
                                     <b th:text="${rolg.getRoleSingular()} "></b>
                                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                                 </button>
-                                <ul class="hidden scrollable-list" th:aria-label="${rolg.getRoleSingular()}" tabindex="-1">
+                                <ul class="d-none scrollable-list" th:aria-label="${rolg.getRoleSingular()}" tabindex="-1">
                                     <li th:if="${comp.countUsersByGroup(rolg.getRoleId()) == 0}" aria-live="polite">
                                         <span th:text="#{no.role.members.found}"/>
                                     </li>
@@ -197,47 +197,47 @@
                         button.setAttribute("aria-expanded", "true");
                     }
 
-                    if (button.nextElementSibling.className.includes("hidden")) {
-                        button.nextElementSibling.classList.remove("hidden");
+                    if (button.nextElementSibling.className.includes("d-none")) {
+                        button.nextElementSibling.classList.remove("d-none");
                     } else {
-                        button.nextElementSibling.classList.add("hidden");
+                        button.nextElementSibling.classList.add("d-none");
                     }
                 };
 
                 function show(id) {
                     switch (id) {
                         case "mailsender-tab-roles":
-                            roles.classList.remove("hidden");
+                            roles.classList.remove("d-none");
                             troles.classList.add("selected");
                             troles.setAttribute("aria-selected", "true");
-                            sections.classList.add("hidden");
+                            sections.classList.add("d-none");
                             tsections.classList.remove("selected");
                             tsections.setAttribute("aria-selected", "false");
-                            groups.classList.add("hidden");
+                            groups.classList.add("d-none");
                             tgroups.classList.remove("selected");
                             tgroups.setAttribute("aria-selected", "false")
                             break;
 
                         case "mailsender-tab-sections":
-                            sections.classList.remove("hidden");
+                            sections.classList.remove("d-none");
                             tsections.classList.add("selected");
                             tsections.setAttribute("aria-selected", "true");
-                            roles.classList.add("hidden");
+                            roles.classList.add("d-none");
                             troles.classList.remove("selected");
                             troles.setAttribute("aria-selected", "false");
-                            groups.classList.add("hidden");
+                            groups.classList.add("d-none");
                             tgroups.classList.remove("selected");
                             tgroups.setAttribute("aria-selected", "false");
                             break;
 
                         case "mailsender-tab-groups":
-                            groups.classList.remove("hidden");
+                            groups.classList.remove("d-none");
                             tgroups.classList.add("selected");
                             tgroups.setAttribute("aria-selected", "true");
-                            sections.classList.add("hidden");
+                            sections.classList.add("d-none");
                             tsections.classList.remove("selected");
                             tsections.setAttribute("aria-selected", "false");
-                            roles.classList.add("hidden");
+                            roles.classList.add("d-none");
                             troles.classList.remove("selected");
                             troles.setAttribute("aria-selected", "false");
                             break;

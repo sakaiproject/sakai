@@ -46,12 +46,6 @@
       </head>
 	<body>
 
-    <h:panelGroup rendered="#{delivery.onlyShowingIncorrect}">
-      <div class="sak-banner-info">
-         <h:outputText value="#{deliveryMessages.only_showing_incorrect} " />
-      </div>
-    </h:panelGroup>
-
   <h:panelGroup rendered="#{delivery.assessmentSubmitted}">
     <%@ include file="/jsf/delivery/assessmentHasBeenSubmittedContent.jsp" %>
   </h:panelGroup>
@@ -590,7 +584,7 @@ document.links[newindex].onclick();
       />
 
   <%-- SUBMIT FOR DUE OR RETRACT DATE --%>
-  <h:commandButton id="submitNoCheck" type="submit" styleClass="hidden active" action="#{delivery.submitFromTimeoutPopup}" value="" />
+  <h:commandButton id="submitNoCheck" type="submit" styleClass="d-none active" action="#{delivery.submitFromTimeoutPopup}" value="" />
 
   </h:panelGrid>
 </h:panelGrid>

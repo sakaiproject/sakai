@@ -151,6 +151,10 @@ public interface MessageForumsMessageManager {
 
     public List<Object[]> findAuthoredMessageCountForAllStudentsByTopicId(final Long topicId);
     public List<Object[]> findAuthoredMessageCountForAllStudentsByForumId(final Long forumId);
+    public List<Object[]> findAuthoredNewMessageCountForAllStudentsByTopicId(final Long topicId);
+    public List<Object[]> findAuthoredNewMessageCountForAllStudentsByForumId(final Long forumId);
+    public List<Object[]> findAuthoredRepliesMessageCountForAllStudentsByTopicId(final Long topicId);
+    public List<Object[]> findAuthoredRepliesMessageCountForAllStudentsByForumId(final Long forumId);
     
     public int findUnreadMessageCountByTopicIdByUserId(Long topicId, String userId);
     

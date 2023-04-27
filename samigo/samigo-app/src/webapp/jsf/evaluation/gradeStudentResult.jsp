@@ -220,12 +220,12 @@ function toPoint(id)
       <h:panelGroup rendered="#{question.hasAssociatedRubric}">
         <ul class="nav nav-tabs">
           <li class="active">
-            <a data-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
+            <a data-bs-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
               <h:outputText value="#{commonMessages.student_response}" />
             </a>
           </li>
           <li>
-            <a data-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
+            <a data-bs-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
               <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
             </a>
           </li>
@@ -322,6 +322,7 @@ function toPoint(id)
             <sakai-rubric-grading
               id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               tool-id="sakai.samigo"
+              enable-pdf-export="true"
               site-id='<h:outputText value="#{totalScores.siteId}"/>'
               entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'

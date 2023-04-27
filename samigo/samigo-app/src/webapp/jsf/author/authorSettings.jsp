@@ -40,6 +40,7 @@
       <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
       <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script src="/samigo-app/js/authoring.js"></script>
+      <script src="/library/js/spinner.js"></script>
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
       <script>
         $(document).ready(function() {
@@ -186,7 +187,10 @@
               selectAllText: selectAllText,
               nonSelectedText: nonSelectedText,
               allSelectedText: allSelectedText,
-              nSelectedText: nSelectedText
+              nSelectedText: nSelectedText,
+              templates: {
+                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>'
+              },
           });
       });
       </script>
@@ -521,7 +525,7 @@
   <!-- *** GRADING *** -->
   <!-- RECORDED SCORE AND MULTIPLES -->
     <div class="samigo-subheading">
-      <h:outputLabel value="Scoring and Grading"/>
+      <h:outputLabel value="#{assessmentSettingsMessages.grading_scoring_title}" />
     </div>
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.recorded_score} " />
@@ -610,7 +614,7 @@
         </ul>
         <div id="feedbackByDatePanel" class="feedbackByDatePanel" style="display:none;">
             <h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}"/> <h:inputText value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" />
-            <div class="hidden-lg"><div class="clearfix"></div></div>
+            <div class="d-lg-none"><div class="clearfix"></div></div>
             <h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}"/> <h:inputText value="#{assessmentSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" />
             <div class="clearfix"></div><br/>
             <h:selectBooleanCheckbox value="#{assessmentSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/> <h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}"/> <h:inputText id="feedbackScoreThreshold" size="4" value="#{assessmentSettings.feedbackScoreThreshold}"/>&#37;
@@ -629,11 +633,8 @@
                 <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
             </t:selectOneRadio>
             <div class="respChoice indent1" style="display:none;">
-                <h:panelGroup styleClass="" layout="block">
-                    <t:selectOneRadio id="correctAnswerOption" value="#{assessmentSettings.correctAnswerOption}" layout="pageDirection">
-                        <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_all_questions}"/>
-                        <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_incorrect_questions_only}"/>
-                    </t:selectOneRadio>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:outputLabel value="#{assessmentSettingsMessages.feedback_subheading_answers}" />
                 </h:panelGroup>
                 <h:panelGroup styleClass="" layout="block">
                     <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"/>
@@ -786,17 +787,16 @@
             <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
         </div>
     </h:panelGroup>
-</div>
 </h:panelGroup>
 
-</div><!-- This is the end of the sub-accordion -->
 </samigo:hideDivision><!-- END Layout and Appearance Category -->
+</div> <!-- END of #jqueryui-accordion -->
 
  <p class="act">
 
  <!-- save & publish -->
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);" >
+      action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);SPNR.disableControlsAndSpin(this, null);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
   </h:commandButton>
@@ -805,7 +805,7 @@
       action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
       
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);SPNR.disableControlsAndSpin(this, null);">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener"/>
   </h:commandButton>
@@ -823,7 +823,6 @@
 </p>
 </h:form>
 <!-- end content -->
-</div>
 </div>
       </body>
     </html>

@@ -37,21 +37,21 @@ export class SakaiRubricReadonly extends SakaiRubric {
           </span>
         </div>
 
-        <div class="hidden-xs rubric-site-title">${this.rubric.siteTitle}</div>
-        <div class="hidden-xs rubric-creator-name">${this.rubric.creatorDisplayName}</div>
-        <div class="hidden-xs">${this.rubric.formattedModifiedDate}</div>
+        <div class="d-none d-sm-block rubric-site-title">${this.rubric.siteTitle}</div>
+        <div class="d-none d-sm-block rubric-creator-name">${this.rubric.creatorDisplayName}</div>
+        <div class="d-none d-sm-block">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
           <div class="action-container">
-            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy" /></span>
+            <span class="d-none d-sm-none d-md-block visually-hidden"><sr-lang key="copy" /></span>
             <span role="button" title="${tr("copy_to_site", [this.rubric.title])}" tabindex="0" class="clone fa fa-copy" @click="${this.copyToSite}"></span>
           </div>
           ${this.enablePdfExport ? html`
             <div class="action-container">
               <sakai-rubric-pdf
-                  site-id="${this.siteId}"
+                  site-id="${this.rubric.ownerId}"
                   rubric-title="${this.rubric.title}"
-                  rubricId="${this.rubric.id}"
+                  rubric-id="${this.rubric.id}"
               />
             </div>
           ` : ""}

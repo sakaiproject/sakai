@@ -80,6 +80,7 @@ import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
+import org.sakaiproject.tool.messageforums.util.PrivateMessagesToolHelper;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -575,52 +576,19 @@ public class PrivateMessagesTool {
     	  
       if (getPvtAreaEnabled() && decoratedForum.getForum() != null){  
     	  
-    	int countForFolderNum = 0;// only three folder 
     	Iterator<PrivateTopic> iterator = pvtTopics.iterator(); 
-    	//MSGCNTR-472 we need the first three but need to guard against there being < 3 elements
-        for (int i = 0;i < 3 && iterator.hasNext(); i++)//only three times
-        {
-          PrivateTopic topic = iterator.next();
-          
-          if (topic != null)
-          {
-          	
-          	/** filter topics by context and type*/
-            if (topic.getTypeUuid() != null
-            		&& topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
-            	  && topic.getContextId() != null && !topic.getContextId().equals(prtMsgManager.getContextId())){
-               continue;
-            }       
-          	
-            PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
-           
-            // folder uuid
-            String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
-             
-            countForFolderNum++;
-            
-            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid, aggregateList));
-
-            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid, aggregateList));
-            totalUnreadMessages += decoTopic.getUnreadNoMessages();
-          
-            decoratedForum.addTopic(decoTopic);
-          }       
-        }
         
-        while(iterator.hasNext())//add more folders 
+        while(iterator.hasNext())
         {
                PrivateTopic topic = iterator.next();
                if (topic != null)
                {
-
-               
                /** filter topics by context and type*/                                                    
                  if (topic.getTypeUuid() != null
                  && topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
                    && topic.getContextId() != null && !topic.getContextId().equals(prtMsgManager.getContextId())){
                     continue;
-                 }       
+                 }
                
                  PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
                 
@@ -630,7 +598,7 @@ public class PrivateMessagesTool {
                  decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid,aggregateList));
                  totalUnreadMessages += decoTopic.getUnreadNoMessages();
                  decoratedForum.addTopic(decoTopic);
-               }          
+               }
         
         }
 
@@ -1208,7 +1176,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  setBooleanEmailOut(draft.getExternalEmail());
 	  }
 
-	  if(draft.getScheduler() != null && draft.getScheduler()) {
+	  if(draft.getScheduler() != null && draft.getScheduler() && draft.getScheduledDate() != null) {
 		  setSchedulerSendDateString(draft.getScheduledDate().toString());
 		  setBooleanSchedulerSend(draft.getScheduler());
 	  }
@@ -1287,7 +1255,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
         	this.getDetailMsg().getMsg().setRecipientsAsTextBcc("");
         }
 
-        this.getDetailMsg().getMsg().setRecipientsAsText(dMsg.getMsg().getRecipientsAsText());
+        this.getDetailMsg().getMsg().setRecipientsAsText(PrivateMessagesToolHelper.removeRecipientUndisclosed(
+                dMsg.getMsg().getRecipientsAsText(),
+                getResourceBundleString(RECIPIENTS_UNDISCLOSED))
+        );
+
       }
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP
@@ -1914,12 +1886,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if(StringUtils.isEmpty(getComposeSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
-      return null ;
+      return null;
     }
     if(StringUtils.isEmpty(getComposeBody()))
     {
       setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
-      return null ;
+      return null;
     }
     if(booleanSchedulerSend) {
 		setOpenDate(schedulerSendDateString);
@@ -1931,16 +1903,16 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     PrivateMessage dMsg = null;
     if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
-    	dMsg =constructMessage(true, getDetailMsg().getMsg()) ;
+	    dMsg = constructMessage(true, getDetailMsg().getMsg());
+	    PrivateMessageSchedulerService.removeScheduledReminder(dMsg.getId());
     }else{
-    	dMsg =constructMessage(true, null) ;
+	    dMsg = constructMessage(true, null);
     }
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setDeleted(Boolean.FALSE);
     dMsg.setExternalEmail(booleanEmailOut);
     dMsg.setScheduler(booleanSchedulerSend);
-    if(booleanSchedulerSend)
-	    dMsg.setScheduledDate(openDate);
+    dMsg.setScheduledDate(booleanSchedulerSend ? openDate : null);
 
     List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
     List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);

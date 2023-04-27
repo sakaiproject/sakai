@@ -43,7 +43,7 @@
 			value="#{SiteListBean.userSitesRows}"
 			var="row1"
 			styleClass="table table-hover table-striped table-bordered"
-			columnClasses="visible,visible,visible,hidden-xs,hidden-xs,hidden-xs,hidden-xs,visible"
+			columnClasses="d-table-cell d-none d-sm-table-cell d-none d-md-table-cell d-none d-lg-table-cell d-table-cell"
 			sortColumn="#{SiteListBean.sitesSortColumn}"
             sortAscending="#{SiteListBean.sitesSortAscending}"
             rendered="#{SiteListBean.renderTable}" >
@@ -69,7 +69,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.groups}"/>
 			</h:column>
-			<t:column id="siteType" headerstyleClass="hidden-xs">
+			<t:column id="siteType" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="siteType" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.site_type}"/>
@@ -77,7 +77,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.siteType}"/>
 			</t:column>
-			<t:column id="siteTerm" headerstyleClass="hidden-xs">
+			<t:column id="siteTerm" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="siteTerm" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.site_term}"/>
@@ -85,7 +85,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.siteTerm}"/>
 			</t:column>
-			<t:column id="roleID" headerstyleClass="hidden-xs">
+			<t:column id="roleID" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="roleId" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.role_name}"/>
@@ -93,7 +93,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.roleName}"/>
 			</t:column>
-			<t:column id="pubView" headerstyleClass="hidden-xs">
+			<t:column id="pubView" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="published" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.status}"/>

@@ -36,9 +36,14 @@ import javax.faces.event.ActionListener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -75,6 +80,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -93,6 +99,7 @@ implements ActionListener
 		IntegrationContextFactory.getInstance().isIntegrated();
 	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
 
 	public SavePublishedSettingsListener()
 	{
@@ -228,6 +235,8 @@ implements ActionListener
 				assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateString(), assessmentSettings.getFeedbackEndDateString(), assessmentSettings.getFeedbackScoreThreshold(),
 				assessmentSettings.getAutoSubmit(), assessmentSettings.getLateHandling(), assessmentSettings.getRetractDateString());
 		calendarService.updateAllCalendarEvents(assessment, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rb.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
+		// Update scheduled assessment available notification
+		samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(assessmentId));
 	}
 
 	public boolean checkPublishedSettings(PublishedAssessmentService assessmentService, PublishedAssessmentSettingsBean assessmentSettings, FacesContext context, boolean retractNow) {
@@ -652,10 +661,6 @@ implements ActionListener
 		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
 		    feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
 
-		if (StringUtils.isNotBlank(assessmentSettings.getCorrectAnswerOption())) {
-			feedback.setCorrectAnswerOption(new Integer(assessmentSettings.getCorrectAnswerOption()));
-		}
-
 		control.setFeedbackDate(assessmentSettings.getFeedbackDate());
 		control.setFeedbackEndDate(assessmentSettings.getFeedbackEndDate());
 		//Set the value if the checkbox is selected, wipe the value otherwise.
@@ -846,7 +851,11 @@ implements ActionListener
                         newCategory = Long.valueOf(assessmentSettings.getCategorySelected());
                     }
 
-                    gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), newCategory, g);
+                    PublishedAssessmentData data = (PublishedAssessmentData) assessment.getData();
+                    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+                    String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p").id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
+                    data.setReference(ref);
+                    gbsHelper.addToGradebook(data, newCategory, g);
 
                     // any score to copy over? get all the assessmentGradingData and copy over
                     GradingService gradingService = new GradingService();

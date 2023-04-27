@@ -228,7 +228,8 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
 
   var $td = $(td);
   var scoreState = GbGradeTable.getCellState(row, col, instance);
-  var cellKey = GbGradeTable.cleanKey([row, col, scoreState, value.join('_')].join('_'));
+  var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
+  var cellKey = GbGradeTable.cleanKey([row, col, scoreState, student.hasCourseGradeComment, value.join('_')].join('_'));
   var wasInitialised = $.data(td, 'cell-initialised');
 
   if (wasInitialised === cellKey) {
@@ -255,6 +256,8 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
   var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
 
   $.data(td, 'studentid', student.userId);
+  $.data(td, "courseGradeId", GbGradeTable.courseGradeId);
+  $.data(td, "gradebookId", GbGradeTable.gradebookId);
   $.data(td, 'cell-initialised', cellKey);
   $.data(td, "metadata", {
     id: cellKey,
@@ -272,6 +275,34 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
       $cellDiv.removeClass("gb-just-synced", 2000);
     }, 2000);
   }
+  // collect all the notification
+  var notifications = [];
+  // comment notification
+  var commentNotification = td.getElementsByClassName("gb-course-comment-notification")[0];
+  if (commentNotification) {
+    if (student.hasCourseGradeComment==1) {
+      commentNotification.style.display = 'block';
+      notifications.push({
+        type: 'comment',
+        comment: "..."
+      });
+    } else {
+      commentNotification.style.display = 'none';
+    }
+  }
+  // make metadata, including the notifications array in it
+  $.data(td, "metadata", {
+    id: cellKey,
+    student: student,
+    courseGrade: value[0],
+    hasCourseGradeComment: student.hasCourseGradeComment,
+    courseGradeId: GbGradeTable.courseGradeId,
+    gradebookId: GbGradeTable.gradebookId,
+    notifications: notifications,
+    readonly: false
+  });
+
+  $.data(td, 'cell-initialised', cellKey);
 };
 
 GbGradeTable.cleanKey = function(key) {
@@ -355,9 +386,9 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 
   var $gradeRubricOption = $(td).find(".gb-grade-rubric").parent();
   if (hasAssociatedRubric) {
-    $gradeRubricOption.removeClass("hidden");
+    $gradeRubricOption.removeClass("invisible");
   } else {
-    $gradeRubricOption.addClass("hidden");
+    $gradeRubricOption.addClass("invisible");
   }
 
   if (!valueCell) {
@@ -643,7 +674,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   let hiddenItems = JSON.parse(sessionStorage.getItem(GB_HIDDEN_ITEMS_KEY)) || [];
   GbGradeTable.columns.filter(c => hiddenItems.includes(c.assignmentId)).forEach(c => c.hidden = true);
   GbGradeTable.settings = tableData.settings;
-
+  GbGradeTable.courseGradeId = tableData.courseGradeId;
+  GbGradeTable.gradebookId = tableData.gradebookId;
   GbGradeTable._fixedColumns.push({
     renderer: GbGradeTable.studentCellRenderer,
     headerTemplate: GbGradeTable.templates.studentHeader,
@@ -994,69 +1026,56 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
   // append all dropdown menus to body to avoid overflows on table
-  var $dropdownMenu;
-  var $link;
-  $(window).on('show.bs.dropdown', function (event) {
-    $link = $(event.target);
+  let link;
+  let dropdownMenu;
+  window.addEventListener('show.bs.dropdown', function (event) {
 
-    if ($link.closest("#gradeTable").length == 0) {
+    link = event.target;
+
+    if (!link.closest("#gradeTable")) {
       return true;
     }
 
-    $dropdownMenu = $(event.target).find('.dropdown-menu');
+    dropdownMenu = link.nextElementSibling;
 
-    $dropdownMenu.addClass("gb-dropdown-menu");
+    if (!dropdownMenu) {
+      return;
+    }
 
-    $dropdownMenu.data("cell", $link.closest("td, th"));
+    dropdownMenu.classList.add("gb-dropdown-menu");
 
-    $dropdownMenu.width($dropdownMenu.outerWidth());
+    $(dropdownMenu).data("cell", $(link.closest("td, th")));
 
-    $('body').append($dropdownMenu.detach());
+    dropdownMenu.remove();
+    document.body.append(dropdownMenu);
 
     // Remove "Move left" menu option for the leftmost item and "Move right" for the rightmost item.
-    var $header = $link.closest("th.gb-item");
-    if ($header.length) {
-      var menuOption;
-      // Retrieve JQuery <a> element
-      if (!$header.prev("th.gb-item").length || $header.prev("th").hasClass("gb-item-category")) {
-        menuOption = $dropdownMenu.find(".gb-move-left");
+    const header = link.closest("th.gb-item");
+    if (header) {
+      let menuOption;
+      const previous = header.previousElementSibling;
+      if (!previous.classList.contains("gb-item") || previous.classList.contains("gb-item-category")) {
+        menuOption = dropdownMenu.querySelector(".gb-move-left");
       }
-      if (!$header.next("th.gb-item").length || $header.next("th").hasClass("gb-item-category")) {
-        menuOption = $dropdownMenu.find(".gb-move-right"); 
+      const next = header.nextElementSibling;
+      if (!next || next.classList.contains("gb-item-category")) {
+        menuOption = dropdownMenu.querySelector(".gb-move-right"); 
       }
-      // Remove DOM <li> element
-      if (menuOption != null && menuOption.length > 0) {
-        menuOption[0].parentElement.remove();
-      }
+      menuOption && menuOption.parentElement.remove();
     }
-
-    var linkOffset = $link.offset();
-
-    $dropdownMenu.css({
-        'display': 'block',
-        'top': linkOffset.top + $link.outerHeight(),
-        'left': linkOffset.left - $dropdownMenu.outerWidth() + $link.outerWidth()
-    });
   });
-  $(window).on('hide.bs.dropdown', function (event) {
-    if ($link.closest("#gradeTable").length == 0) {
-      return true;
-    }
-    $link.append($dropdownMenu.detach());
-    $dropdownMenu.hide();
-    $dropdownMenu = null;
-  });
-  $(".wtHolder").on('scroll', function (event) {
-    if ($dropdownMenu && $dropdownMenu.length > 0) {
-      var linkOffset = $link.offset();
 
-      $dropdownMenu.css({
-          'top': linkOffset.top + $link.outerHeight(),
-          'left': linkOffset.left - $dropdownMenu.outerWidth() + $link.outerWidth()
+  document.querySelector(".wtHolder")?.addEventListener("scroll", function (event) {
+
+    if (dropdownMenu) {
+      const linkOffset = $(link).offset();
+
+      Object.assign(dropdownMenu.style, {
+        top: linkOffset.top + $(link).outerHeight(),
+        left: linkOffset.left - $(dropdownMenu).outerWidth() + $(link).outerWidth(),
       });
     }
   });
-
 
   var filterTimeout;
   $("#studentFilterInput").on("keyup", function(event) {
@@ -1163,7 +1182,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     GbGradeTable.editComment($.data($cell[0], "studentid"), $.data($cell[0], "assignmentid"));
   }).
-
+  // Edit Course Grade Comment
+  on("click", ".gb-dropdown-menu .gb-edit-course-grade-comments", function() {
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    GbGradeTable.editCourseGradeComment($.data($cell[0], "studentid"), $.data($cell[0], "courseGradeId"), $.data($cell[0], "gradebookId"));
+  }).
   //Excuse Grade
   on("click", ".gb-dropdown-menu .gb-excuse-grade", function(){
     var $dropdown = $(this).closest(".gb-dropdown-menu");
@@ -1281,6 +1305,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
     GbGradeTable.ajax({
       action: 'viewCourseGradeStatistics',
+      siteId: GbGradeTable.container.data("siteid")
+    });
+  }).
+  on("click", ".gb-dropdown-menu .gb-course-grade-breakdown", function() {
+    GbGradeTable.ajax({
+      action: 'viewCourseGradeBreakdown',
       siteId: GbGradeTable.container.data("siteid")
     });
   });
@@ -1458,6 +1488,20 @@ GbGradeTable.editComment = function(studentId, assignmentId) {
   });
 };
 
+GbGradeTable.editCourseGradeComment = function(studentId, courseGradeId, gradebookId) {
+  GbGradeTable.ajax({
+    action: 'editCourseGradeComment',
+    studentId: studentId,
+    courseGradeId: courseGradeId,
+    gradebookId: gradebookId
+  });
+};
+
+GbGradeTable.updateHasCourseGradeComment = function(student, courseGradeId, comment) {
+  var flag = (comment == null || comment == "") ? '0' : '1';
+  student.hasCourseGradeComment = flag;
+};
+
 GbGradeTable.editExcuse = function(studentId, assignmentId) {
     var student = GbGradeTable.modelForStudent(studentId);
     var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
@@ -1630,6 +1674,14 @@ GbGradeTable.updateComment = function(assignmentId, studentId, comment) {
 
   GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
   GbGradeTable.redrawCell(row, col);
+};
+
+GbGradeTable.updateCourseGradeComment = function(courseGradeId, studentId, comment) {
+  var student = GbGradeTable.modelForStudent(studentId);
+  var row = GbGradeTable.rowForStudent(studentId);
+  student.hasCourseGradeComment = (comment == null || comment == "") ? '0' : '1';
+  GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
+  GbGradeTable.redrawCell(row, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
 };
 
 GbGradeTable.updateExcuse = function(assignmentId, studentId, excuse) {
@@ -2883,12 +2935,22 @@ GbGradeTable.setupCellMetaDataSummary = function() {
 
           GbGradeTable.editComment(studentId, assignmentId);
         });
+
+        $("#"+cellKey).hide().on("click", ".gb-edit-course-grade-comments", function(event) {
+          event.preventDefault();
+          var studentId = metadata.student.userId;
+          var courseGradeId = metadata.courseGradeId;
+          var gradebookId = metadata.gradebookId;
+          GbGradeTable.hideMetadata();
+          GbGradeTable.editCourseGradeComment(studentId, courseGradeId, gradebookId);
+          GbGradeTable.updateHasCourseGradeComment(metadata.student,courseGradeId,gradebookId);
+        });
       }
     }
   }
 
 
-  function showMetadata(cellKey, $td, showCellNotifications, showCommentNotification) {
+  function showMetadata(cellKey, $td, showCellNotifications, showCommentNotification, showCourseCommentNotification) {
     var cellOffset = $td.offset();
     var wrapperOffset = $("#gradeTableWrapper").offset();
     var cellHeight = $td.height();
@@ -2922,7 +2984,23 @@ GbGradeTable.setupCellMetaDataSummary = function() {
             $metadata.find("blockquote").html("Unable to load comment. Please try again later.").show();
           })
       });
-
+    } else if (showCourseCommentNotification && $metadata.find(".gb-metadata-comment-notification").length > 0) {
+      $metadata.find("blockquote").hide();
+      setTimeout(function () {
+        GradebookAPI.getCourseGradeComment(
+            GbGradeTable.container.data("siteid"),
+            $.data($td[0], "courseGradeId"),
+            $.data($td[0], "studentid"),
+            $.data($td[0], "gradebookId"),
+            function (comment) {
+              // success
+              $metadata.find("blockquote").html(comment).show();
+            },
+            function () {
+              // error
+              $metadata.find("blockquote").html("Unable to load comment. Please try again later.").show();
+            })
+      });
       $metadata.find(".gb-metadata-notifications li.gb-metadata-comment-notification").show()
     } else {
       $metadata.find(".gb-metadata-notifications li.gb-metadata-comment-notification").hide();
@@ -2964,7 +3042,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
   });
 
   // on mouse click on notification, toggle metadata summary
-  $(GbGradeTable.instance.rootElement).on("click", ".gb-notification, .gb-comment-notification", function(event){
+  $(GbGradeTable.instance.rootElement).on("click", ".gb-notification, .gb-comment-notification, .gb-course-comment-notification", function(event){
     var $cell = $(event.target).closest("td");
     if ($cell[0]) {
       var cellKey = $.data($cell[0], 'cell-initialised');
@@ -2972,7 +3050,8 @@ GbGradeTable.setupCellMetaDataSummary = function() {
       initializeMetadataSummary(coords.row, coords.col);
       var showCellNotifications = $(event.target).is(".gb-notification");
       var showCommentNotification = $(event.target).is(".gb-comment-notification");
-      showMetadata(cellKey, $cell, showCellNotifications, showCommentNotification);
+      var showCourseCommentNotification = $(event.target).is(".gb-course-comment-notification");
+      showMetadata(cellKey, $cell, showCellNotifications, showCommentNotification, showCourseCommentNotification);
     }
   });
 
@@ -3358,20 +3437,22 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
             
             var $selectedField = $('.current.highlight .relative');
           
-            $selectedField.attr('data-toggle','popover');
-            $selectedField.attr('data-placement','top');
-            $selectedField.attr('data-container','body');
-            $selectedField.attr('data-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
-            $selectedField.attr('data-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
+            $selectedField.attr('data-bs-toggle','popover');
+            $selectedField.attr('data-bs-placement','top');
+            $selectedField.attr('data-bs-container','body');
+            $selectedField.attr('data-bs-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
+            $selectedField.attr('data-bs-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
+            $selectedField.attr('data-bs-template','<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="mt-0 popover-header"></h3><div class="popover-body p-2"></div></div>');
 
             $('body, button').on('click keyup touchend', function (e) {
-              if ($(e.target).data('toggle') !== 'popover'
+              if ($(e.target).data("bs-toggle") !== 'popover'
                   && $(e.target).parents('.popover.in').length === 0) { 
-                  $('[data-toggle="popover"]').popover('hide');
+                  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+                    bootstrap.Popover.getInstance(el)?.hide();
+                  });
               }
-            });
-            $selectedField.popover();
-            $selectedField.popover('show');
+            })
+            new bootstrap.Popover($selectedField[0]).show();
           }
       });
   }
@@ -3526,6 +3607,16 @@ GradebookAPI.getComments = function(siteId, assignmentId, studentUuid, onSuccess
   GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };
 
+GradebookAPI.getCourseGradeComment = function(siteId, courseGradeId, studentUuid, gradebookId, onSuccess, onError) {
+  var endpointURL = "/direct/gbng/courseGradeComment";
+  var params = {
+    siteId: siteId,
+    courseGradeId: courseGradeId,
+    studentUuid: studentUuid,
+    gradebookId: gradebookId
+  };
+  GradebookAPI._GET(endpointURL, params, onSuccess, onError);
+};
 
 GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuccess, onError, onComplete) {
   GradebookAPI._POST("/direct/gbng/assignment-order", {

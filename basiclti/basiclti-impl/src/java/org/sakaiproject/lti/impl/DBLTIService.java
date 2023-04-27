@@ -310,7 +310,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// Copy to fa_icon across - If a tool is edited in the UI, an icon is added and
 		// removed, the icon ends up as "none" versus being set back to null
-		String fa_icon = (String) tool.get(LTI_FA_ICON);
+		String fa_icon = newProps.getProperty(LTI_FA_ICON);
+		fa_icon = (fa_icon == null) ? (String) tool.get(LTI_FA_ICON) : fa_icon;
 		if ( fa_icon != null && fa_icon.length() > 0 && ! "none".equals(fa_icon) ) {
 			newProps.put(LTI_FA_ICON, fa_icon);
 		}

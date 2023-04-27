@@ -157,4 +157,19 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
             return null;
         }
     }
+
+    public ExtendedTime getEntry(final String entryId){
+        log.debug("getEntry " + entryId);
+        try {
+            HibernateCallback hcb = (Session s) -> {
+                Query q = s.getNamedQuery(QUERY_GET_ENTRY);
+                q.setParameter(ENTRY_ID, Long.valueOf(entryId));
+                return q.uniqueResult();
+            };
+            return (ExtendedTime) getHibernateTemplate().execute(hcb);
+        } catch (DataAccessException e) {
+            log.error("Failed to get Extended Time Entries for Published Assessment: " + entryId, e);
+            return null;
+        }
+    }
 }

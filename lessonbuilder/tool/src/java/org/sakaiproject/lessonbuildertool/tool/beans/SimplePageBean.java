@@ -28,7 +28,9 @@ import com.opencsv.CSVParser;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -88,6 +90,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
+import org.sakaiproject.lessonbuildertool.tool.beans.helpers.SubpageBulkEditHelper;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
@@ -228,6 +231,7 @@ public class SimplePageBean {
     // generic entity stuff. selectedEntity is the string
     // coming from the picker. We'll use the same variable for any entity type
 	public String selectedEntity = null;
+	public String selectedSite = null;
 	public String[] selectedEntities = new String[] {};
 	public String[] selectedGroups = new String[] {};
 	public String[] studentSelectedGroups = new String[] {};
@@ -235,6 +239,9 @@ public class SimplePageBean {
 	public String selectedQuiz = null;
 
 	public String[] selectedChecklistItems = new String[] {};
+
+	private Map<Long, SubpageBulkEditHelper> subpageBulkEditTitleMap = new HashMap<>();
+	public String subpageBulkEditJson = null;
 	
 	public long removeId = 0;
 
@@ -509,6 +516,10 @@ public class SimplePageBean {
 	}
 	
 	public void setRubricRow(String rubricRow) {
+
+		if (StringUtils.isBlank(rubricRow)) {
+			return;
+		}
 		this.rubricRow = rubricRow;
 		
 		if(rubricRows==null) {
@@ -2932,6 +2943,13 @@ public class SimplePageBean {
 		return "selectpage";
 	}
 
+	public String selectSite(){
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute("lessonbuilder.selectedsite", selectedSite);
+		toolSession.setAttribute("lessonbuilder.loadFromSite", "loadFromSite");	//indicate that Load Pages From This Site has been clicked
+		return "selectsite";
+	}
+
     // called from "add subpage" dialog
     // create if itemId == null or -1, else update existing
 	public String createSubpage()   {
@@ -3410,6 +3428,10 @@ public class SimplePageBean {
 
 	public void setSelectedAssignment(String selectedAssignment) {
 		this.selectedAssignment = selectedAssignment;
+	}
+
+	public void setSelectedSite(String siteid){
+		this.selectedSite = siteid;
 	}
 
 	public void setSelectedEntity(String selectedEntity) {
@@ -5167,11 +5189,13 @@ public class SimplePageBean {
 		}
 
 		List <SimplePageItem> secondItems = null;
+		String otherSiteId = "";
 		if (selectedEntity != null && !selectedEntity.equals("")) {
 		    // second page is involved
 		    Long secondPageId = Long.parseLong(selectedEntity);
 		    SimplePage secondPage = getPage(secondPageId);
-		    if (secondPage != null && secondPage.getSiteId().equals(getCurrentPage().getSiteId())) {
+			otherSiteId = secondPage.getSiteId();	//we need this populated to check on inter-site copying later on.
+		    if (secondPage != null) {
 			secondItems = getItemsOnPage(secondPageId);
 			if (secondItems.isEmpty())
 			    secondItems = null;
@@ -5211,6 +5235,35 @@ public class SimplePageBean {
 			    // item from second page. add copy
 			    SimplePageItem oldItem = secondItems.get(Integer.parseInt(split[i].substring(1)) - 1);
 			    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
+				if (newItem.getType() == SimplePageItem.PAGE){	//if the new item is a page link, we need to see if that page is in another site.
+					SimplePage p = simplePageToolDao.getPage(Long.valueOf(newItem.getSakaiId()));
+					boolean fromOtherSite = !StringUtils.equals(getCurrentSiteId(), otherSiteId);	//identifies if the page is from another site
+					if (fromOtherSite){	//if the page is from another site, we will re-link to a new blank one for this site instead.
+						Long parent = getCurrentPage().getPageId();
+						Long topParent = getCurrentPage().getTopParent();
+						String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
+						SimplePage newPage = simplePageToolDao.makePage(toolId, getCurrentSiteId(), p.getTitle(), parent, topParent);
+						saveItem(newPage);
+						newItem.setSakaiId(Long.valueOf(newPage.getPageId()).toString());
+					}
+				} else if (newItem.getType()==SimplePageItem.MULTIMEDIA || newItem.getType()==SimplePageItem.RESOURCE){	//resource/multimedia links from other sites will reference their original site unless we change it
+					boolean fromOtherSite = !StringUtils.contains(newItem.getSakaiId(), getCurrentSiteId());
+					if (fromOtherSite){	//replace any reference to the other site with this site's ID.
+						String newSakaiId = newItem.getSakaiId().replace(otherSiteId, getCurrentSiteId());
+						newItem.setSakaiId(newSakaiId);
+					}
+				} else if (newItem.getType() == SimplePageItem.RESOURCE_FOLDER){	//links to Resource folders from other sites will have their site IDs in the attributes; we must change them
+					boolean fromOtherSite = !StringUtils.contains(newItem.getSakaiId(), getCurrentSiteId());
+					if (fromOtherSite){	//replace any reference to the other site with this site's ID.
+						String newSiteId = newItem.getAttribute("dataDirectory").replace(otherSiteId, getCurrentSiteId());
+						newItem.setAttribute("dataDirectory", newSiteId);
+					}
+				} else if (newItem.getType() == SimplePageItem.TEXT){	//look for the old site ID in text and replace it.
+					if (!StringUtils.isBlank(otherSiteId)){
+						String newText = newItem.getHtml().replace(otherSiteId, getCurrentSiteId());
+						newItem.setHtml(newText);
+					}
+				}
 			    newItem.setPageId(getCurrentPageId());
 			    newItem.setSequence(i + 1);
 			    saveItem(newItem);
@@ -5639,7 +5692,8 @@ public class SimplePageBean {
 				}
 				LessonSubmission submission = assignment.getSubmission(getCurrentUserId());
 
-				if (submission == null || !submission.getUserSubmission()) {
+				if (assignment.getSubmissionType() != AssignmentEntity.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION
+						&& (submission == null || BooleanUtils.isNotTrue(submission.getUserSubmission()))) {
 				    completeCache.put(itemId, false);
 				    return false;
 				}
@@ -5816,7 +5870,7 @@ public class SimplePageBean {
 				return requiredIndex >= currentIndex;
 			}
 		} else if (type == SimplePageItem.ASSIGNMENT) {
-			if (submission.getUserSubmission()) {
+			if (submission.getUserSubmission() || assEntity.getSubmissionType() == AssignmentEntity.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
 				if (submission.getGrade() != null) {
 					// assignment 2 uses gradebook, so we have a float value
 					// use some fuzz so 1.9999 is the same as 2
@@ -9301,5 +9355,59 @@ public class SimplePageBean {
 	private void completeUserTask(Long itemId, String userId) {
 		taskService.completeUserTaskByReference("/lessonbuilder/item/" + itemId, Arrays.asList(userId) );
 	}
-	
+
+	private void setSubpageTitleBulkEditData() {
+		final JSONParser parser = new JSONParser();
+		try {
+			JSONArray subpageArray = (JSONArray) parser.parse(subpageBulkEditJson);
+			for (Object obj : subpageArray) {
+				JSONObject subpageTitleInfo = (JSONObject) parser.parse((String) obj);
+				String itemId = (String) subpageTitleInfo.get("itemId");
+				String newTitle = (String) subpageTitleInfo.get("title");
+				String description = (String) subpageTitleInfo.get("description");
+				if (StringUtils.isNotBlank(itemId) && StringUtils.isNotBlank(newTitle)) {
+					SubpageBulkEditHelper subpageHelper = new SubpageBulkEditHelper(newTitle, description);
+					subpageBulkEditTitleMap.put(Long.valueOf(itemId), subpageHelper);
+				} else {
+					throw new RuntimeException("Page id is null or new title is blank");
+				}
+			}
+		} catch (ClassCastException e) {
+			log.error("Parser returned a non-JSONObject. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		} catch (ParseException e) {
+			log.error("Parser unable to parse json. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		} catch (RuntimeException e) {
+			log.error("Bad data. Null page id or blank page title. ", e);
+			subpageBulkEditTitleMap = new HashMap<>();
+		}
+	}
+
+	/**
+	 * Method to save subpage bulk edit changes
+	 */
+	public String subpageBulkEditSubmit() {
+		if (canEditPage() || !checkCsrf()) {
+			setSubpageTitleBulkEditData();
+			if (subpageBulkEditTitleMap.isEmpty()) {
+				setErrMessage(messageLocator.getMessage("simplepage.bulk-edit-pages.blank"));
+				return "failure";
+			}
+			subpageBulkEditTitleMap.forEach((itemId, subpageHelper) -> {
+				SimplePageItem item = simplePageToolDao.findItem(itemId);
+				if (item != null && (!StringUtils.equals(item.getName(), subpageHelper.getTitle()) || !StringUtils.equals(item.getDescription(), subpageHelper.getDescription()))) {
+					SimplePage subpage = getPage(Long.valueOf(item.getSakaiId()));
+					subpage.setTitle(subpageHelper.getTitle());
+					update(subpage);
+					item.setName(subpageHelper.getTitle());
+					item.setDescription(subpageHelper.getDescription());
+					update(item);
+				}
+			});
+			return "success";
+		} else {
+			return "permission-failed";
+		}
+	}
 }

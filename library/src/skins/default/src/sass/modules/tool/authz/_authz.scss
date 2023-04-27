@@ -1,0 +1,86 @@
+.checkGrid td h4:hover {
+  color:var(--sakai-active-color-1) !important;
+}
+.checkGrid th:hover {
+  color: var(--sakai-text-color-1);
+}
+.checkGrid a {
+  text-decoration: none !important;
+}
+.checkGrid {
+  border-top: 1px solid var(--sakai-border-color);
+  border-right: 1px solid var(--sakai-border-color);
+  border-collapse: collapse;
+}
+.checkGrid th {
+  background: var(--sakai-background-color-2);
+  text-align: center !important;
+  color: var(--sakai-text-color-1);
+}
+table.listHier.checkGrid th {
+  padding: calc( #{$standard-spacing} / 2) $standard-spacing; //additional selector needed to override tool_base  
+}
+
+.checkGrid th#permission {
+  text-align: left !important;
+}
+.checkGrid label {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  text-align: center;
+  padding: 0;
+}
+.checkGrid td {
+  border: 1px solid var(--sakai-border-color);
+  cursor: pointer;
+  padding: 0 !important;
+  text-align: center;
+  vertical-align: middle;
+  width: 10em;
+}
+
+.checkGrid td label:hover {
+  background: var(--sakai-background-color-2);
+  cursor: pointer;
+}
+.checkGrid td.permissionDescription {
+  width: auto;
+  background: var(--sakai-background-color-1);
+  text-align: left;
+  white-space: nowrap;
+}
+.checkGrid td.permissionDescription a,
+.checkGrid td.permissionDescription button {
+  padding: calc( #{$standard-spacing} / 2) $standard-spacing;
+  display: block;
+}
+.checkGrid tr.evenrow .permissionDescription {
+  background: var(--sakai-background-color-1);
+}
+.checkGrid tr.evenrow td {
+  background: var(--sakai-background-color-1);
+}
+.checkGrid td.active {
+  background: var(--sakai-active-color-1);
+}
+.checkGrid .rowHover,
+.checkGrid td.active:hover,
+.checkGrid td.permissionDescription:hover,
+.checkGrid td.active.rowHover,
+.checkGrid td:hover,
+.checkGrid tr.evenrow td:hover,
+.checkGrid tr.evenrow td.rowHover {
+  background: var(--sakai-active-color-2);
+}
+.checkGrid td.permissionDescription a:hover {
+  color: var(--sakai-text-color-2);
+}
+div#groupSelector {
+  margin-top: 0.5em;
+}
+
+.permissions-table {
+  --bs-table-hover-bg: var(--sakai-active-color-2);
+}

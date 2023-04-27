@@ -500,7 +500,7 @@ public class AssignmentToolUtils {
                         // add assignment into gradebook
                         try {
                             // add assignment to gradebook
-                            gradingService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null);
+                            gradingService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null, assignmentRef);
                         } catch (AssignmentHasIllegalPointsException e) {
                             alerts.add(rb.getString("addtogradebook.illegalPoints"));
                             log.warn("integrateGradebook: {}", e.toString());
@@ -581,7 +581,9 @@ public class AssignmentToolUtils {
                                             if (grade != null && gradingService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
                                                 gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, grade, "");
                                                 String comment = StringUtils.isNotEmpty(cm.get(submitterId)) ? cm.get(submitterId) : "";
-                                                gradingService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId, comment);
+                                                if (StringUtils.isNotBlank(comment)) {
+					            gradingService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId, comment);
+                                                }
                                             }
                                         }
                                     }

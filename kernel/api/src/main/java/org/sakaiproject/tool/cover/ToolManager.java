@@ -135,7 +135,13 @@ public class ToolManager
 		org.sakaiproject.tool.api.ToolManager manager = getInstance();
 		return manager.isVisible (site, config);
 	}
-	
+
+	public static boolean isHidden(org.sakaiproject.tool.api.Placement placement)
+	{
+		org.sakaiproject.tool.api.ToolManager manager = getInstance();
+		return manager.isHidden(placement);
+	}
+
 	public static String getLocalizedToolProperty(String toolId, String key){
 		org.sakaiproject.tool.api.ToolManager manager = getInstance();
 		if (manager == null) return null;

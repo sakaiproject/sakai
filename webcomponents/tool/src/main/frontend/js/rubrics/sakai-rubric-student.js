@@ -13,6 +13,8 @@ class SakaiRubricStudent extends RubricsElement {
 
     this.preview = false;
 
+    this.instanceSalt = Math.floor(Math.random() * Date.now());
+
     this.options = {};
     SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result);
   }
@@ -108,21 +110,21 @@ class SakaiRubricStudent extends RubricsElement {
         ${this.instructor === 'true' ? html`
         <div class="rubrics-tab-row">
           <a href="javascript:void(0);"
-              id="rubric-grading-or-preview-button"
+              id="rubric-grading-or-preview-${this.instanceSalt}-tab"
               class="rubrics-tab-button rubrics-tab-selected"
               @keypress=${this.openGradePreviewTab}
               @click=${this.openGradePreviewTab}>
             <sr-lang key="grading_rubric">gradingrubric</sr-lang>
           </a>
           <a href="javascript:void(0);"
-              id="rubric-student-summary-button"
+              id="rubric-student-summary-${this.instanceSalt}-tab"
               class="rubrics-tab-button"
               @keypress=${this.makeStudentSummary}
               @click=${this.makeStudentSummary}>
             <sr-lang key="student_summary">studentsummary</sr-lang>
           </a>
           <a href="javascript:void(0);"
-              id="rubric-criteria-summary-button"
+              id="rubric-criteria-summary-${this.instanceSalt}-tab"
               class="rubrics-tab-button"
               @keypress=${this.makeCriteriaSummary}
               @click=${this.makeCriteriaSummary}>
@@ -131,7 +133,7 @@ class SakaiRubricStudent extends RubricsElement {
         </div>
         ` : html``}
 
-        <div id="rubric-grading-or-preview" class="rubric-tab-content rubrics-visible">
+        <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible">
           ${this.preview || this.forcePreview ? html`
           <sakai-rubric-criterion-preview
             .criteria="${this.rubric.criteria}"
@@ -148,8 +150,8 @@ class SakaiRubricStudent extends RubricsElement {
           ></sakai-rubric-criterion-student>
           `}
       </div>
-      <div id="rubric-student-summary" class="rubric-tab-content"></div>
-      <div id="rubric-criteria-summary" class="rubric-tab-content"></div>
+      <div id="rubric-student-summary-${this.instanceSalt}" class="rubric-tab-content"></div>
+      <div id="rubric-criteria-summary-${this.instanceSalt}" class="rubric-tab-content"></div>
     `;
   }
 
