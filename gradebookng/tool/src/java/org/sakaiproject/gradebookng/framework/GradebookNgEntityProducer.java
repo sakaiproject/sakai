@@ -17,11 +17,9 @@ package org.sakaiproject.gradebookng.framework;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -156,40 +154,25 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		gradebookConfigEl.appendChild(gradeMappingsEl);
 
-		// FIXME
-		/*
 		Element courseGradeDisplayedEl = doc.createElement("CourseGradeDisplayed");
-		courseGradeDisplayedEl.setTextContent(String.valueOf(settings.isCourseGradeDisplayed()));
+		courseGradeDisplayedEl.setTextContent(String.valueOf(settings.getCourseGradeDisplayed()));
 		gradebookConfigEl.appendChild(courseGradeDisplayedEl);
-		*/
 
-		// FIXME
-		/*
 		Element courseLetterGradeDisplayedEl = doc.createElement("CourseLetterGradeDisplayed");
-		courseLetterGradeDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
+		courseLetterGradeDisplayedEl.setTextContent(String.valueOf(settings.getCoursePointsDisplayed()));
 		gradebookConfigEl.appendChild(courseLetterGradeDisplayedEl);
-		*/
 
-		// FIXME
-		/*
 		Element coursePointsDisplayedEl = doc.createElement("CoursePointsDisplayed");
-		coursePointsDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
+		coursePointsDisplayedEl.setTextContent(String.valueOf(settings.getCoursePointsDisplayed()));
 		gradebookConfigEl.appendChild(coursePointsDisplayedEl);
-		*/
 
-		// FIXME
-		/*
 		Element totalPointsDisplayedEl = doc.createElement("TotalPointsDisplayed");
-		totalPointsDisplayedEl.setTextContent(String.valueOf(settings.isCoursePointsDisplayed()));
+		totalPointsDisplayedEl.setTextContent(String.valueOf(settings.getCoursePointsDisplayed()));
 		gradebookConfigEl.appendChild(totalPointsDisplayedEl);
-		*/
 
-		// FIXME
-		/*
 		Element courseAverageDisplayedEl = doc.createElement("CourseAverageDisplayed");
-		courseAverageDisplayedEl.setTextContent(String.valueOf(settings.isCourseAverageDisplayed()));
+		courseAverageDisplayedEl.setTextContent(String.valueOf(settings.getCourseAverageDisplayed()));
 		gradebookConfigEl.appendChild(courseAverageDisplayedEl);
-		*/
 
 		Element categoryTypeEl = doc.createElement("CategoryType");
 		String categoryCode = null;
@@ -249,12 +232,9 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		// <GradebookItems>
 		List<Assignment> gradebookItems = this.gradebookNgBusinessService.getGradebookAssignments(siteId);
 
-		// FIXME - check this
-		/*
 		gradebookItems = gradebookItems.stream().filter(item -> {
-			return !item.isExternallyMaintained();
+			return !item.getExternallyMaintained();
 		}).collect(Collectors.toList());
-		*/
 
 		Element gradebookItemsEl = doc.createElement("GradebookItems");
 		for (Assignment gradebookItem : gradebookItems) {
@@ -267,17 +247,17 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 			} else {
 				gradebookItemEl.setAttribute("dueDate", dateFormat.format(gradebookItem.getDueDate()));
 			}
-			// gradebookItemEl.setAttribute("countedInCourseGrade", String.valueOf(gradebookItem.isCounted()));
-			// gradebookItemEl.setAttribute("externallyMaintained", String.valueOf(gradebookItem.isExternallyMaintained()));
+			gradebookItemEl.setAttribute("countedInCourseGrade", String.valueOf(gradebookItem.getCounted()));
+			gradebookItemEl.setAttribute("externallyMaintained", String.valueOf(gradebookItem.getExternallyMaintained()));
 			gradebookItemEl.setAttribute("externalAppName", gradebookItem.getExternalAppName());
 			gradebookItemEl.setAttribute("externalId", gradebookItem.getExternalId());
-			// gradebookItemEl.setAttribute("releasedToStudent", String.valueOf(gradebookItem.isReleased()));
+			gradebookItemEl.setAttribute("releasedToStudent", String.valueOf(gradebookItem.getReleased()));
 			if (gradebookItem.getCategoryId() == null) {
 				gradebookItemEl.setAttribute("categoryId", "");
 			} else {
 				gradebookItemEl.setAttribute("categoryId", String.valueOf(gradebookItem.getCategoryId()));
 			}
-			// gradebookItemEl.setAttribute("extraCredit", String.valueOf(gradebookItem.isExtraCredit()));
+			gradebookItemEl.setAttribute("extraCredit", String.valueOf(gradebookItem.getExtraCredit()));
 			gradebookItemEl.setAttribute("order", String.valueOf(gradebookItem.getSortOrder()));
 			gradebookItemEl.setAttribute("categorizedOrder", String.valueOf(gradebookItem.getCategorizedSortOrder()));
 			gradebookItemsEl.appendChild(gradebookItemEl);
