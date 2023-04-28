@@ -2956,17 +2956,18 @@ public class GradebookNgBusinessService {
 	 * Update the course grade (override) for this student
 	 *
 	 * @param studentUuid uuid of the student
-	 * @param grade the new grade
+	 * @param percentageGrade the new grade percentage or null for no percentage override
+	 * @param letterGrade the new letter grade from the schema set in the gradebook
 	 * @return
 	 */
-	public boolean updateCourseGrade(final String studentUuid, final String grade, final String gradeScale) {
+	public boolean updateCourseGrade(final String studentUuid, final String percentageGrade, final String letterGrade) {
 
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
 		try {
-			gradingService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade, gradeScale);
-			EventHelper.postOverrideCourseGradeEvent(gradebook, studentUuid, grade, grade != null);
+			gradingService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, percentageGrade, letterGrade);
+			EventHelper.postOverrideCourseGradeEvent(gradebook, studentUuid, percentageGrade, percentageGrade != null || letterGrade != null);
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred saving the course grade. {}: {}", e.getClass(), e.getMessage());

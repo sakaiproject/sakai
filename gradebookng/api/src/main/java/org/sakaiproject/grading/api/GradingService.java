@@ -849,9 +849,10 @@ public interface GradingService extends EntityProducer {
      *
      * @param gradebookUid uuid of the gradebook
      * @param studentUuid uuid of the student
-     * @param grade the new course grade
+     * @param percentageGrade the new grade percentage or null for no percentage override
+     * @param letterGrade the new letter grade from the schema set in the gradebook
      */
-    void updateCourseGradeForStudent(String gradebookUid, String studentUuid, String grade, String gradeScale);
+    void updateCourseGradeForStudent(String gradebookUid, String studentUuid, String percentageGrade, String letterGrade);
 
     /**
      * Updates the categorized order of an assignment

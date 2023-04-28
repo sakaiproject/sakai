@@ -3526,7 +3526,7 @@ public class GradingServiceImpl implements GradingService {
     }
 
     @Override
-    public void updateCourseGradeForStudent(final String gradebookUid, final String studentUuid, final String grade, final String gradeScale) {
+    public void updateCourseGradeForStudent(final String gradebookUid, final String studentUuid, final String percentageGrade, final String letterGrade) {
 
         // must be instructor type person
         if (!currentUserHasEditPerm(gradebookUid)) {
@@ -3553,17 +3553,17 @@ public class GradingServiceImpl implements GradingService {
 
         } else {
             // if passed in grade override is same as existing grade override, nothing to do
-            if (StringUtils.equals(courseGradeRecord.getEnteredGrade(), gradeScale) && Double.compare(courseGradeRecord.getEnteredPoints(), Double.parseDouble(grade)) == 0) {
+            if (StringUtils.equals(courseGradeRecord.getEnteredGrade(), letterGrade) && Double.compare(courseGradeRecord.getEnteredPoints(), Double.parseDouble(grade)) == 0) {
                 return;
             }
         }
 
         // set the grade override
-        courseGradeRecord.setEnteredGrade(gradeScale);
-        if (grade == null) {
+        courseGradeRecord.setEnteredGrade(letterGrade);
+        if (percentageGrade == null) {
             courseGradeRecord.setEnteredPoints(null);
         } else {
-            courseGradeRecord.setEnteredPoints(Double.parseDouble(grade));
+            courseGradeRecord.setEnteredPoints(Double.parseDouble(percentageGrade));
         }
         // record the last grade override date
         courseGradeRecord.setDateRecorded(new Date());

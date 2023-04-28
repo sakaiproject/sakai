@@ -112,7 +112,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 				String newGrade = (String) form.getModelObject();
-				String gradeScale = null;
+				String newLetterGrade = null;
 
 				// validate the grade entered is a valid one for the selected grading schema
 				// though we allow blank grades so the override is removed
@@ -124,7 +124,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 					
 					if (!schema.containsKey(newGrade)) {
 						try {
-							gradeScale = FormatHelper.getGradeFromNumber(newGrade, schema, currentUserLocale);
+							newLetterGrade = FormatHelper.getGradeFromNumber(newGrade, schema, currentUserLocale);
 							newGrade = FormatHelper.transformNewGrade(newGrade, currentUserLocale);
 						}
 						catch (NumberFormatException e)	{
@@ -133,13 +133,13 @@ public class CourseGradeOverridePanel extends BasePanel {
 							return;
 						}
 					} else {
-						gradeScale = newGrade;
-						newGrade = FormatHelper.getNumberFromGrade(gradeScale, schema, currentUserLocale);
+						newLetterGrade = newGrade;
+						newGrade = FormatHelper.getNumberFromGrade(newLetterGrade, schema, currentUserLocale);
 					}
 				}
 
 				// save
-				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, newGrade, gradeScale);
+				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, newGrade, newLetterGrade);
 
 				if (success) {
 					getSession().success(getString("message.addcoursegradeoverride.success"));
