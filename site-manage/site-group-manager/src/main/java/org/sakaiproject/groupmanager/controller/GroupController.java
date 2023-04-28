@@ -299,17 +299,18 @@ public class GroupController {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.sametitle", null, userLocale));
             return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription, joinableShowAllUsers);
         }
-        
-        //send message to (ignite) MicrosoftMessagingService
-        microsoftMessagingService.send(MicrosoftMessage.Topic.CHANGE_LISTEN_GROUP_EVENTS, MicrosoftMessage.builder()
-                .action(MicrosoftMessage.Action.DISABLE)
-                .siteId(site.getId())
-                .groupId(groupId)
-                .build()
-        );
 
         // If the group already exists, get it from the site and delete all the members.
         if (StringUtils.isNotBlank(groupId)) {
+            //send message to (ignite) MicrosoftMessagingService
+            //disable microsoft synchronization events before modify group members
+            microsoftMessagingService.send(MicrosoftMessage.Topic.CHANGE_LISTEN_GROUP_EVENTS, MicrosoftMessage.builder()
+                    .action(MicrosoftMessage.Action.DISABLE)
+                    .siteId(site.getId())
+                    .groupId(groupId)
+                    .build()
+            );
+            
             group = site.getGroup(groupId);
             // Save the current members first
             currentGroupMembers = new ArrayList<Member>(group.getMembers());
@@ -325,6 +326,15 @@ public class GroupController {
             group = site.addGroup();
             currentGroupMembers = new ArrayList<Member>();
             group.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+            
+            //send message to (ignite) MicrosoftMessagingService
+            //disable microsoft synchronization events before modify group members
+            microsoftMessagingService.send(MicrosoftMessage.Topic.CHANGE_LISTEN_GROUP_EVENTS, MicrosoftMessage.builder()
+                    .action(MicrosoftMessage.Action.DISABLE)
+                    .siteId(site.getId())
+                    .groupId(group.getId())
+                    .build()
+            );
         }
 
         // Set the title, description and properties of the group.
@@ -409,11 +419,13 @@ public class GroupController {
 
         sakaiService.saveSite(site);
         
+        String finalGroupId = group.getId();
         //send message to (ignite) MicrosoftMessagingService
+        //enable microsoft synchronization events to receive group members modifications
         microsoftMessagingService.send(MicrosoftMessage.Topic.CHANGE_LISTEN_GROUP_EVENTS, MicrosoftMessage.builder()
                 .action(MicrosoftMessage.Action.ENABLE)
                 .siteId(site.getId())
-                .groupId(groupId)
+                .groupId(finalGroupId)
                 .build()
         );
 
@@ -429,7 +441,7 @@ public class GroupController {
         				.action(MicrosoftMessage.Action.ADD)
         				.type(MicrosoftMessage.Type.GROUP)
         				.siteId(site.getId())
-          				.groupId(groupId)
+          				.groupId(finalGroupId)
         				.userId(addedUserId)
         				.owner(site.getMember(addedUserId).getRole().isAllowed(SiteService.SECURE_UPDATE_SITE))
         				.force(true)
@@ -450,7 +462,7 @@ public class GroupController {
         				.action(MicrosoftMessage.Action.REMOVE)
         				.type(MicrosoftMessage.Type.GROUP)
         				.siteId(site.getId())
-          				.groupId(groupId)
+          				.groupId(finalGroupId)
         				.userId(currentMember.getUserId())
         				.force(true)
         				.build()

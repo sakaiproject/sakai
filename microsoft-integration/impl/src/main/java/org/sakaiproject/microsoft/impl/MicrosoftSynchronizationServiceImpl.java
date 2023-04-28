@@ -16,8 +16,8 @@
 package org.sakaiproject.microsoft.impl;
 
 import java.time.ZonedDateTime;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -93,7 +93,9 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 	private MicrosoftMessagingService microsoftMessagingService;
 	
 	//used in hooks. Sometimes we need to stop listening some events
-	private Set<String> disabledGroupListeners = new HashSet<>();
+	private Set<String> disabledGroupListeners = ConcurrentHashMap.newKeySet();
+	//used in hooks to synchronize. "add users to group" must happen after "create group" 
+	private ConcurrentHashMap<String, Object> newGroupLock = new ConcurrentHashMap<>();
 
 	public void init() {
 		log.info("Initializing MicrosoftSynchService Service");
@@ -949,8 +951,10 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 			int count = 5;
 			String teamId = null;
 			while(teamId == null && count > 0) {
-				//wait 5 sec
-				try { Thread.sleep(5000); } catch (InterruptedException e) {}
+				//wait 1 sec
+				//site creation process in Sakai is done in two steps: 1) create empty site, 2) set title + update site
+				//hook is launched on creation, so at this point it's possible title is not establish yet... so, we wait a bit
+				try { Thread.sleep(1000); } catch (InterruptedException e) {}
 				
 				Site site = sakaiProxy.getSite(siteId);
 				if(site != null) {
@@ -994,65 +998,73 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 	//new group created
 	private void groupCreated(String siteId, String groupId) throws MicrosoftGenericException {
 		if(microsoftConfigRepository.isAllowedCreateChannel()) {
-			MicrosoftCredentials credentials = microsoftConfigRepository.getCredentials();
-			int count = 5;
-			String channelId = null;
-			while(channelId == null && count > 0) {
-				//wait 5 sec
-				try { Thread.sleep(5000); } catch (InterruptedException e) {}
-				
-				Site site = sakaiProxy.getSite(siteId);
-				if(site != null) {
-					Group group = site.getGroup(groupId);
-					if(group != null) {
-						//exclude automatic lesson groups
-						if(group.getTitle().startsWith("Access:")) {
-							return;
-						}
-						
-						//get all synchronizations linked to this site
-						List<SiteSynchronization> list = microsoftSiteSynchronizationRepository.findBySite(siteId);
-						if(list != null) {
-							//for every relationship found
-							for(SiteSynchronization ss : list) {
-								//create new channel
-								channelId = microsoftCommonService.createChannel(ss.getTeamId(), group.getTitle(), credentials.getEmail());
-								if(channelId != null) {
-									//create relationship
-									GroupSynchronization gs = GroupSynchronization.builder()
-											.siteSynchronization(ss)
-											.groupId(groupId)
-											.channelId(channelId)
-											.build();
+			log.debug("-> siteId={}, groupId={}", siteId, groupId);
+			
+			Object lock = newGroupLock.computeIfAbsent(groupId, k -> new Object());
+			synchronized(lock) {
+				MicrosoftCredentials credentials = microsoftConfigRepository.getCredentials();
+				int count = 5;
+				String channelId = null;
+				while(channelId == null && count > 0) {
+					//wait 1 sec
+					//group creation process in Sakai is done in two steps: 1) create empty group, 2) set title + update group
+					//hook is launched on creation, so at this point it's possible title is not establish yet... so, we wait a bit
+					try { Thread.sleep(1000); } catch (InterruptedException e) {}
 					
-									log.debug("saving NEW group-channel: siteId={}, groupId={}, channelId={}", siteId, groupId, channelId);
-									saveOrUpdateGroupSynchronization(gs);
-									
-									//save log
-									microsoftLoggingRepository.save(MicrosoftLog.builder()
-											.event(MicrosoftLog.EVENT_CHANNEL_CREATED)
-											.status(MicrosoftLog.Status.OK)
-											.addData("siteId", siteId)
-											.addData("teamId", ss.getTeamId())
-											.addData("groupId", groupId)
-											.addData("channelId", channelId)
-											.build());
+					Site site = sakaiProxy.getSite(siteId);
+					if(site != null) {
+						Group group = site.getGroup(groupId);
+						if(group != null) {
+							//exclude automatic lesson groups
+							if(group.getTitle().startsWith("Access:")) {
+								return;
+							}
+							
+							//get all synchronizations linked to this site
+							List<SiteSynchronization> list = microsoftSiteSynchronizationRepository.findBySite(siteId);
+							if(list != null) {
+								//for every relationship found
+								for(SiteSynchronization ss : list) {
+									//create new channel
+									channelId = microsoftCommonService.createChannel(ss.getTeamId(), group.getTitle(), credentials.getEmail());
+									if(channelId != null) {
+										//create relationship
+										GroupSynchronization gs = GroupSynchronization.builder()
+												.siteSynchronization(ss)
+												.groupId(groupId)
+												.channelId(channelId)
+												.build();
+						
+										log.debug("saving NEW group-channel: siteId={}, groupId={}, channelId={}", siteId, groupId, channelId);
+										saveOrUpdateGroupSynchronization(gs);
+										
+										//save log
+										microsoftLoggingRepository.save(MicrosoftLog.builder()
+												.event(MicrosoftLog.EVENT_CHANNEL_CREATED)
+												.status(MicrosoftLog.Status.OK)
+												.addData("siteId", siteId)
+												.addData("teamId", ss.getTeamId())
+												.addData("groupId", groupId)
+												.addData("channelId", channelId)
+												.build());
+									}
 								}
 							}
 						}
 					}
+					count--;
 				}
-				count--;
+
+				//save log
+				microsoftLoggingRepository.save(MicrosoftLog.builder()
+						.event(MicrosoftLog.EVENT_GROUP_CREATED)
+						.status((channelId != null) ? MicrosoftLog.Status.OK : MicrosoftLog.Status.KO)
+						.addData("siteId", siteId)
+						.addData("groupId", groupId)
+						.build());
+
+				newGroupLock.remove(groupId);
 			}
-			
-			//save log
-			microsoftLoggingRepository.save(MicrosoftLog.builder()
-					.event(MicrosoftLog.EVENT_GROUP_CREATED)
-					.status((channelId != null) ? MicrosoftLog.Status.OK : MicrosoftLog.Status.KO)
-					.addData("siteId", siteId)
-					.addData("groupId", groupId)
-					.build());
-			
 		}
 	}
 	
@@ -1243,57 +1255,61 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 	//User added to Group
 	private void userAddedToGroup(String userId, String siteId, String groupId, boolean owner) throws MicrosoftGenericException{
 		if(microsoftConfigRepository.isAllowedAddUserToChannel()) {
-			log.debug("-> userId={}, siteId={}, groupId={}, owner={}", userId, siteId, groupId, owner);
-			
-			//check if Microsoft Credentials are valid (will throw an exception if not)
-			microsoftCommonService.checkConnection();
-			
-			User user = sakaiProxy.getUser(userId);
-			
-			//get all synchronizations linked to this group
-			List<GroupSynchronization> list = microsoftGroupSynchronizationRepository.findByGroup(groupId);
-			if(list != null) {
-				SakaiUserIdentifier mappedSakaiUserId = microsoftConfigRepository.getMappedSakaiUserId();
-				MicrosoftUserIdentifier mappedMicrosoftUserId = microsoftConfigRepository.getMappedMicrosoftUserId();
+			Object lock = newGroupLock.computeIfAbsent(groupId, k -> new Object());
+			synchronized(lock) {
+				log.debug("-> userId={}, siteId={}, groupId={}, owner={}", userId, siteId, groupId, owner);
 				
-				//get user identifier
-				String identifier = sakaiProxy.getMemberKeyValue(user, mappedSakaiUserId);
+				//check if Microsoft Credentials are valid (will throw an exception if not)
+				microsoftCommonService.checkConnection();
 				
-				MicrosoftUser mu = null;
+				User user = sakaiProxy.getUser(userId);
 				
-				for(GroupSynchronization gs : list) {
-					SiteSynchronization ss = gs.getSiteSynchronization();
-
-					boolean res = false;
-					//check if channel exists
-					//check if user does not pertain to that channel
-					if(checkChannel(ss.getTeamId(), gs.getChannelId()) && microsoftCommonService.checkUserInChannel(identifier, ss.getTeamId(), gs.getChannelId(), mappedMicrosoftUserId) == null) {
-						//we assume all users added to a group, are previously added to a Site... so, we don't need to manage invitations here
-						//(only the first time) check if user exists
-						if(mu == null) {
-							//Getting Microsoft User with identifier
-							mu = microsoftCommonService.getUser(identifier, mappedMicrosoftUserId);
-						}
-						if(mu != null) {
-							res = (owner) ? addOwnerToMicrosoftChannel(ss, gs, mu) : addMemberToMicrosoftChannel(ss, gs, mu);
-						}
-					}
+				//get all synchronizations linked to this group
+				List<GroupSynchronization> list = microsoftGroupSynchronizationRepository.findByGroup(groupId);
+				if(list != null) {
+					SakaiUserIdentifier mappedSakaiUserId = microsoftConfigRepository.getMappedSakaiUserId();
+					MicrosoftUserIdentifier mappedMicrosoftUserId = microsoftConfigRepository.getMappedMicrosoftUserId();
 					
-					//save log
-					microsoftLoggingRepository.save(MicrosoftLog.builder()
-							.event(MicrosoftLog.EVENT_USER_ADDED_TO_GROUP)
-							.status((res) ? MicrosoftLog.Status.OK : MicrosoftLog.Status.KO)
-							.addData("email", (user != null) ? user.getEmail() : "-null-")
-							.addData("sakaiUserId", (user != null) ? user.getId() : "-null-")
-							.addData("microsoftUserId", (mu != null) ? mu.getId() : "-null-")
-							.addData("siteId", ss.getSiteId())
-							.addData("teamId", ss.getTeamId())
-							.addData("groupId", gs.getGroupId())
-							.addData("channelId", gs.getChannelId())
-							.addData("owner", Boolean.toString(owner))
-							.addData("guest", (mu != null) ? Boolean.toString(mu.isGuest()) : "-null-")
-							.build());
+					//get user identifier
+					String identifier = sakaiProxy.getMemberKeyValue(user, mappedSakaiUserId);
+					
+					MicrosoftUser mu = null;
+					
+					for(GroupSynchronization gs : list) {
+						SiteSynchronization ss = gs.getSiteSynchronization();
+	
+						boolean res = false;
+						//check if channel exists
+						//check if user does not pertain to that channel
+						if(checkChannel(ss.getTeamId(), gs.getChannelId()) && microsoftCommonService.checkUserInChannel(identifier, ss.getTeamId(), gs.getChannelId(), mappedMicrosoftUserId) == null) {
+							//we assume all users added to a group, are previously added to a Site... so, we don't need to manage invitations here
+							//(only the first time) check if user exists
+							if(mu == null) {
+								//Getting Microsoft User with identifier
+								mu = microsoftCommonService.getUser(identifier, mappedMicrosoftUserId);
+							}
+							if(mu != null) {
+								res = (owner) ? addOwnerToMicrosoftChannel(ss, gs, mu) : addMemberToMicrosoftChannel(ss, gs, mu);
+							}
+						}
+						
+						//save log
+						microsoftLoggingRepository.save(MicrosoftLog.builder()
+								.event(MicrosoftLog.EVENT_USER_ADDED_TO_GROUP)
+								.status((res) ? MicrosoftLog.Status.OK : MicrosoftLog.Status.KO)
+								.addData("email", (user != null) ? user.getEmail() : "-null-")
+								.addData("sakaiUserId", (user != null) ? user.getId() : "-null-")
+								.addData("microsoftUserId", (mu != null) ? mu.getId() : "-null-")
+								.addData("siteId", ss.getSiteId())
+								.addData("teamId", ss.getTeamId())
+								.addData("groupId", gs.getGroupId())
+								.addData("channelId", gs.getChannelId())
+								.addData("owner", Boolean.toString(owner))
+								.addData("guest", (mu != null) ? Boolean.toString(mu.isGuest()) : "-null-")
+								.build());
+					}
 				}
+				newGroupLock.remove(groupId);
 			}
 		} else {
 			log.debug("NOT allowed to add user to channel");
