@@ -70,7 +70,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	protected GradingService gradingService;
 
 	@Setter
-	protected GradebookNgBusinessService gradebookNgBusinessService;
+	protected GradebookNgBusinessService businessService;
 
 	@Setter
 	protected SiteService siteService;
@@ -230,7 +230,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		root.appendChild(gradebookConfigEl);
 
 		// <GradebookItems>
-		List<Assignment> gradebookItems = this.gradebookNgBusinessService.getGradebookAssignments(siteId);
+		List<Assignment> gradebookItems = this.businessService.getGradebookAssignments(siteId);
 
 		gradebookItems = gradebookItems.stream().filter(item -> {
 			return !item.getExternallyMaintained();
