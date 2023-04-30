@@ -90,7 +90,7 @@ public class MyNamePronunciationEdit extends Panel {
         //setup form
         Form form = new Form("form", new Model(userProfile));
         form.setMultiPart(true);
-        form.setMaxSize(Bytes.megabytes((double)sakaiProxy.getNamePronunciationDuration()) / 2);
+        form.setMaxSize(Bytes.megabytes((double)sakaiProxy.getNamePronunciationDuration() / 2));
 
         form.setOutputMarkupId(true);
 
