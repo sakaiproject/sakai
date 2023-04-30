@@ -1718,6 +1718,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return this.serverConfigurationService.getInt("profile2.profile.name.pronunciation.duration", 10);
 	}
 
+	public int getMaxNameRecordingSize() {
+		return this.serverConfigurationService.getInt("profile2.profile.name.pronunciation.maxsize", getNamePronunciationDuration());
+	}
+
 	/**
 	 * init
 	 */

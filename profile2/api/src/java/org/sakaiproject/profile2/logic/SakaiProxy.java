@@ -1094,4 +1094,10 @@ public interface SakaiProxy {
 	 * @return the name pronunciation duration in seconds. 10 seconds if it is not configured in sakai.properties
 	 */
 	public int getNamePronunciationDuration();
+
+	/**
+	 * Returns the max name pronunciation size
+	 * @return the name pronunciation max size in bytes
+	 */
+	 int getMaxNameRecordingSize();
 }
