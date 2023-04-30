@@ -135,9 +135,6 @@ public class UpgradeSchema
 		tds.setMaxWait(5);
 		tds.setDefaultAutoCommit(false);
 
-//		CheckConnection cc = new CheckConnection();
-//		cc.check(tds);
-
 		List<SchemaConversionDriver> sequence = new ArrayList<SchemaConversionDriver>();
 		int k = 0;
 		while(true) {
