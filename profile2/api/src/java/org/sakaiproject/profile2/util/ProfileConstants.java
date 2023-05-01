@@ -46,7 +46,9 @@ public class ProfileConstants {
 	 */
 	
 	//default if not specified in sakai.properties as profile.picture.max (megs)
-	public static final int MAX_IMAGE_UPLOAD_SIZE = 2; 
+	public static final int MAX_IMAGE_UPLOAD_SIZE = 2;
+	// Approx per second of pronouncation files in KB
+	public static final int PRONUNCIATION_SIZE_PER_SECOND = 500;
 	
 	//one side will be scaled to this if larger. 200 is large enough
 	public static final int MAX_IMAGE_XY = 200; 	

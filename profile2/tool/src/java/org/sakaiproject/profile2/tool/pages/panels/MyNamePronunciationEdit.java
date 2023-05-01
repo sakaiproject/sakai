@@ -48,6 +48,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -75,7 +76,6 @@ public class MyNamePronunciationEdit extends Panel {
 
     private final HiddenField audioBase64;
 
-
     public MyNamePronunciationEdit(final String id, final UserProfile userProfile) {
         super(id);
 
@@ -89,6 +89,9 @@ public class MyNamePronunciationEdit extends Panel {
 
         //setup form
         Form form = new Form("form", new Model(userProfile));
+        form.setMultiPart(true);
+        form.setMaxSize(Bytes.kilobytes(sakaiProxy.getNamePronunciationDuration() * ProfileConstants.PRONUNCIATION_SIZE_PER_SECOND));
+
         form.setOutputMarkupId(true);
 
         //form submit feedback
