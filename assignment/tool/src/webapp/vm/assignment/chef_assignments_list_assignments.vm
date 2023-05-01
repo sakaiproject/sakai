@@ -76,23 +76,23 @@
 			</div>
 		</div>
 		#end
-		<div class="sakai-table-filterContainer">
-			<div class="row">
-				<form name="filterForm" class="col-md-12 inlineForm" method="post" action="#toolForm("AssignmentAction")">
-					<input type="hidden" name="eventSubmit_doFilter" value="filterOption" />
-					<label for="filterOption">$tlang.getString("view.label")</label>
-					<span class="skip">$tlang.getString("gen.listnavselect")</span>
-					<select id="filterOption" name="filterOption" size="1" onchange="SPNR.disableControlsAndSpin(this, null);document.filterForm.submit();">
-					#foreach($filter in $!filterOptions)
-						#set($filterMessageKey = "listassig.filter." + $filter)
-						<option value="$!filter" #if($!filter.equals($!currentFilterOption)) selected="selected" #end>$!tlang.getString($!filterMessageKey)</option>
-					#end
-					</select>
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			</div>
-		</div>
 		#if ($hasAssignments)
+			<div class="sakai-table-filterContainer">
+				<div class="row">
+					<form name="filterForm" class="col-md-12 inlineForm" method="post" action="#toolForm("AssignmentAction")">
+						<input type="hidden" name="eventSubmit_doFilter" value="filterOption" />
+						<label for="filterOption">$tlang.getString("view.label")</label>
+						<span class="skip">$tlang.getString("gen.listnavselect")</span>
+						<select id="filterOption" name="filterOption" size="1" onchange="SPNR.disableControlsAndSpin(this, null);document.filterForm.submit();">
+						#foreach($filter in $!filterOptions)
+							#set($filterMessageKey = "listassig.filter." + $filter)
+							<option value="$!filter" #if($!filter.equals($!currentFilterOption)) selected="selected" #end>$!tlang.getString($!filterMessageKey)</option>
+						#end
+						</select>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				</div>
+			</div>
 			<div class="sakai-table-pagerContainer">
 				#pagerPanel("pager1")
 			</div>
