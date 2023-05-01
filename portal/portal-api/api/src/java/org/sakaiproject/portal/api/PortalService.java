@@ -313,6 +313,22 @@ public interface PortalService
 	public List<Map> getQuickLinks(String siteSkin);
 
 	/**
+	 * Add a single pinned site, for the specified user
+	 *
+	 * @param userId The user to pin the site for
+	 * @param siteId The site id to pin
+	 */
+	public void addPinnedSite(String userId, String siteId);
+
+	/**
+	 * Remove a single pinned site, for the specified user
+	 *
+	 * @param userId The user to unpin the site for
+	 * @param siteId The site id to unpin
+	 */
+	public void removePinnedSite(String userId, String siteId);
+
+	/**
 	 * Update the list of pinned site ids for the current user
 	 *
 	 * @param siteIds The set of site ids to pin

@@ -166,6 +166,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		eventTrackingService.addLocalObserver(this);
 	}
 
+	@Override
 	public void update(Observable observable, Object o) {
 
 		if (!(o instanceof Event)) {
@@ -176,54 +177,104 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		String event = e.getEvent();
 
-        switch (event) {
-            case SiteService.SECURE_UPDATE_SITE_MEMBERSHIP:
+		switch (event) {
+			case SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD:
 
-                Set<String> pinnedUserIds
-                    = pinnedSiteRepository.findBySiteId(e.getContext()).stream()
-                        .map(ps -> ps.getUserId()).collect(Collectors.toSet());
+				// Check if the site has been published
+				Site site = null;
+				try {
+					site = siteService.getSite(e.getContext());
+					if (!site.isPublished()) {
+						return;
+					}
+				} catch (IdUnusedException idue) {
+					log.error("No site for id {}", e.getContext());
+					return;
+				}
 
-                Set<String> recentUserIds
-                    = recentSiteRepository.findBySiteId(e.getContext()).stream()
-                        .map(ps -> ps.getUserId()).collect(Collectors.toSet());
+				String userInfo = e.getResource();
+				String[] parts = userInfo.split(";");
+				if (parts.length > 1) {
+					String userPart = parts[0];
+					String[] userParts = userPart.split("=");
+					if (userParts.length == 2) {
+						String userId = userParts[1];
+						addPinnedSite(userId, e.getContext());
+					}
+				}
+				break;
+			case SiteService.EVENT_SITE_PUBLISH:
 
-                if (recentUserIds.isEmpty() && pinnedUserIds.isEmpty()) {
-                    return;
-                }
+				try {
+					site = siteService.getSite(e.getContext());
+				} catch (IdUnusedException idue) {
+					log.error("No site for id {}", e.getContext());
+					return;
+				}
 
-                Site site = null;
-                try {
-                    site = siteService.getSite(e.getContext());
-                } catch (IdUnusedException idue) {
-                    log.error("No site for {} while cleaning up pinned sites : {}", e.getContext(), e.toString());
-                    return;
-                }
+				site.getUsers().forEach(userId -> addPinnedSite(userId, e.getContext()));
 
-                Set<String> siteUsers = site.getUsers();
+				break;
+			case SiteService.EVENT_SITE_UNPUBLISH:
 
-                pinnedUserIds.forEach(userId -> {
+				try {
+					site = siteService.getSite(e.getContext());
+				} catch (IdUnusedException idue) {
+					log.error("No site for id {}", e.getContext());
+					return;
+				}
 
-                    if (!siteUsers.contains(userId)) {
-                        pinnedSiteRepository.deleteByUserIdAndSiteId(userId, e.getContext());
-                    }
-                });
+				site.getMembers().forEach(m -> removePinnedSite(m.getUserId(), e.getContext()));
 
-                recentUserIds.forEach(userId -> {
+				break;
 
-                    if (!siteUsers.contains(userId)) {
-                        recentSiteRepository.deleteByUserIdAndSiteId(userId, e.getContext());
-                    }
-                });
+			case SiteService.SECURE_UPDATE_SITE_MEMBERSHIP:
 
-                break;
-            case SiteService.SECURE_REMOVE_SITE:
-                pinnedSiteRepository.deleteBySiteId(e.getContext());
-                recentSiteRepository.deleteBySiteId(e.getContext());
-                break;
-            default:
-        }
+				Set<String> pinnedUserIds
+					= pinnedSiteRepository.findBySiteId(e.getContext()).stream()
+						.map(ps -> ps.getUserId()).collect(Collectors.toSet());
+
+				Set<String> recentUserIds
+					= recentSiteRepository.findBySiteId(e.getContext()).stream()
+						.map(ps -> ps.getUserId()).collect(Collectors.toSet());
+
+				if (recentUserIds.isEmpty() && pinnedUserIds.isEmpty()) {
+					return;
+				}
+
+				try {
+					site = siteService.getSite(e.getContext());
+				} catch (IdUnusedException idue) {
+					log.error("No site for {} while cleaning up pinned sites : {}", e.getContext(), e.toString());
+					return;
+				}
+
+				Set<String> siteUsers = site.getUsers();
+
+				pinnedUserIds.forEach(userId -> {
+
+					if (!siteUsers.contains(userId)) {
+						pinnedSiteRepository.deleteByUserIdAndSiteId(userId, e.getContext());
+					}
+				});
+
+				recentUserIds.forEach(userId -> {
+
+					if (!siteUsers.contains(userId)) {
+						recentSiteRepository.deleteByUserIdAndSiteId(userId, e.getContext());
+					}
+				});
+
+				break;
+			case SiteService.SECURE_REMOVE_SITE:
+				pinnedSiteRepository.deleteBySiteId(e.getContext());
+				recentSiteRepository.deleteBySiteId(e.getContext());
+				break;
+			default:
+		}
 	}
 
+	@Override
 	public StoredState getStoredState()
 	{
 		Session s = sessionManager.getCurrentSession();
@@ -232,6 +283,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		return ss;
 	}
 
+	@Override
 	public void setStoredState(StoredState ss)
 	{
 		Session s = sessionManager.getCurrentSession();
@@ -257,6 +309,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		return TOOLSTATE_PARAM_PREFIX + placementId;
 	}
 
+	@Override
 	public String decodeToolState(Map<String, String[]> params, String placementId)
 	{
 		String attrname = computeToolStateParameterName(placementId);
@@ -264,6 +317,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		return attrval == null ? null : attrval[0];
 	}
 
+	@Override
 	public Map<String, String[]> encodeToolState(String placementId, String URLstub)
 	{
 		String attrname = computeToolStateParameterName(placementId);
@@ -274,6 +328,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	// To allow us to retain reset state across redirects
+	@Override
 	public String getResetState()
 	{
 		Session s = sessionManager.getCurrentSession();
@@ -281,6 +336,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		return ss;
 	}
 
+	@Override
 	public void setResetState(String ss)
 	{
 		Session s = sessionManager.getCurrentSession();
@@ -290,6 +346,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 	}
 
+	@Override
 	public boolean isEnableDirect()
 	{
 		boolean directEnable = "true".equals(serverConfigurationService.getString(
@@ -298,18 +355,21 @@ public class PortalServiceImpl implements PortalService, Observer
 		return directEnable;
 	}
 
+	@Override
 	public boolean isResetRequested(HttpServletRequest req)
 	{
 		return "true".equals(req.getParameter(PARM_STATE_RESET))
 				|| "true".equals(getResetState());
 	}
 
+	@Override
 	public String getResetStateParam()
 	{
 		// TODO Auto-generated method stub
 		return PARM_STATE_RESET;
 	}
 
+	@Override
 	public StoredState newStoredState(String marker, String replacement)
 	{
 		log.debug("Storing State for Marker=[" + marker + "] replacement=[" + replacement
@@ -317,6 +377,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		return new StoredStateImpl(marker, replacement);
 	}
 
+	@Override
 	public Iterator<PortletApplicationDescriptor> getRegisteredApplications()
 	{
 		PortletRegistryService registry = PortletContextManager.getManager();
@@ -427,11 +488,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		};
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#getRenderEngine(javax.servlet.http.HttpServletRequest)
-	 */
+	@Override
 	public PortalRenderEngine getRenderEngine(String context, HttpServletRequest request)
 	{
 		// at this point we ignore request but we might use ut to return more
@@ -445,33 +502,20 @@ public class PortalServiceImpl implements PortalService, Observer
 		return (PortalRenderEngine) renderEngines.get(context);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#addRenderEngine(org.sakaiproject.portal.api.PortalRenderEngine)
-	 */
+	@Override
 	public void addRenderEngine(String context, PortalRenderEngine vengine)
 	{
 
 		renderEngines.put(context, vengine);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#removeRenderEngine(org.sakaiproject.portal.api.PortalRenderEngine)
-	 */
+	@Override
 	public void removeRenderEngine(String context, PortalRenderEngine vengine)
 	{
 		renderEngines.remove(context);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#addHandler(java.lang.String,
-	 *		org.sakaiproject.portal.api.PortalHandler)
-	 */
+	@Override
 	public void addHandler(Portal portal, PortalHandler handler)
 	{
 		String portalContext = portal.getPortalContext();
@@ -492,6 +536,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	}
 	
+	@Override
 	public void addHandler(String portalContext, PortalHandler handler) 
 	{
 		Portal portal = portals.get(portalContext);
@@ -507,11 +552,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#getHandlerMap(java.lang.String)
-	 */
+	@Override
 	public Map<String, PortalHandler> getHandlerMap(Portal portal)
 	{
 		return getHandlerMap(portal.getPortalContext(), true);
@@ -529,13 +570,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		return handlerMap;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#removeHandler(java.lang.String,
-	 *		java.lang.String) This method it NOT thread safe, but the likelyhood
-	 *		of a co
-	 */
+	@Override
 	public void removeHandler(Portal portal, String urlFragment)
 	{
 		Map<String, PortalHandler> handlerMap = getHandlerMap(portal.getPortalContext(), false);
@@ -552,6 +587,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 	}
 	
+	@Override
 	public void removeHandler(String portalContext, String urlFragment)
 	{
 		Portal portal = portals.get(portalContext);
@@ -565,12 +601,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#addPortal(org.sakaiproject.portal.api.Portal)
-	 */
+	@Override
 	public void addPortal(Portal portal)
 	{
 		String portalContext = portal.getPortalContext();
@@ -585,27 +616,20 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#removePortal(org.sakaiproject.portal.api.Portal)
-	 */
+	@Override
 	public void removePortal(Portal portal)
 	{
 		String portalContext = portal.getPortalContext();
 		portals.remove(portalContext);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#getStylableService()
-	 */
+	@Override
 	public StyleAbleProvider getStylableService()
 	{
 		return stylableServiceProvider;
 	}
 
+	@Override
 	public String getContentItemUrl(Site site) {
 
 		if ( site == null ) return null;
@@ -630,6 +654,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		return helper_url;
 	}
 
+	@Override
 	public String getBrowserCollectionId(Placement placement) {
 		String collectionId = null;
 		if (placement != null) {
@@ -641,10 +666,12 @@ public class PortalServiceImpl implements PortalService, Observer
 		return collectionId;
 	}
 
+	@Override
 	public Editor getActiveEditor() {
 		return getActiveEditor(null);
 	}
 
+	@Override
 	public Editor getActiveEditor(Placement placement) {
 		String systemEditor = serverConfigurationService.getString("wysiwyg.editor", "ckeditor");
 		
@@ -685,16 +712,19 @@ public class PortalServiceImpl implements PortalService, Observer
 		return editor;
 	}
 
+	@Override
 	public String getSkinPrefix() {
 		return "";
 	}
 
+	@Override
 	public String getQuickLinksTitle(String siteSkin) {
 		//Try the skin .info first, then default to the regular, then if that fails just return an empty string
 		//A null siteSkin is fine but this would generally just return the defined default (like morpheus-default) and not return anything
 		return serverConfigurationService.getString("portal.quicklink." + siteSkin + ".info", serverConfigurationService.getString("portal.quicklink.info", ""));
 	}
 
+	@Override
 	public List<Map> getQuickLinks(String siteSkin){
 		/* Find the quick links (if they are in the properties file) ready for display in the top navigation bar.
 		 * First try with the skin name as there may be different quick links per site, then try with no skin. */
@@ -775,6 +805,32 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	@Transactional
+	@Override
+	public void addPinnedSite(String userId, String siteId) {
+
+		if (StringUtils.isBlank(userId)) {
+			return;
+		}
+
+		PinnedSite pin = new PinnedSite();
+		pin.setUserId(userId);
+		pin.setSiteId(siteId);
+		pinnedSiteRepository.save(pin);
+	}
+
+	@Transactional
+	@Override
+	public void removePinnedSite(String userId, String siteId) {
+
+		if (StringUtils.isBlank(userId)) {
+			return;
+		}
+
+		pinnedSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
+	}
+
+	@Transactional
+	@Override
 	public void savePinnedSites(Set<String> siteIds) {
 
 		String userId = sessionManager.getCurrentSessionUserId();
@@ -794,6 +850,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		});
 	}
 
+	@Override
 	public Set<String> getPinnedSites() {
 
 		String userId = sessionManager.getCurrentSessionUserId();
@@ -806,6 +863,7 @@ public class PortalServiceImpl implements PortalService, Observer
 				.map(ps -> ps.getSiteId()).collect(Collectors.toSet());
 	}
 
+	@Override
 	public List<String> getRecentSites() {
 
 		String userId = sessionManager.getCurrentSessionUserId();
@@ -819,6 +877,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	@Transactional
+	@Override
 	public void addRecentSite(String siteId) {
 
 		if (SiteService.SITE_ERROR.equals(siteId)) {

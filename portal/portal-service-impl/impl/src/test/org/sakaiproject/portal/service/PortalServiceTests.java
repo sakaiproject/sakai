@@ -19,11 +19,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTests;
 import org.sakaiproject.tool.api.SessionManager;
@@ -76,7 +79,29 @@ public class PortalServiceTests extends SakaiTests {
 
         assertEquals(2, portalService.getPinnedSites().size());
 
+        String site3Id = "site3";
+
+        Site site3 = mock(Site.class);
+        when(site3.isPublished()).thenReturn(false);
+        try {
+            when(siteService.getSite(site3Id)).thenReturn(site3);
+        } catch (IdUnusedException idue) {
+            System.out.println(idue.toString());
+        }
+
         Event event = mock(Event.class);
+
+        when(event.getEvent()).thenReturn(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD);
+        when(event.getContext()).thenReturn(site3Id);
+        when(event.getResource()).thenReturn("uid=user1;role=access;active=true;siteId=site3");
+        ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
+
+        assertEquals(2, portalService.getPinnedSites().size());
+
+        when(site3.isPublished()).thenReturn(true);
+        ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
+        assertEquals(3, portalService.getPinnedSites().size());
+
         when(event.getContext()).thenReturn(site1Id);
         when(event.getEvent()).thenReturn(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP);
 
@@ -85,10 +110,9 @@ public class PortalServiceTests extends SakaiTests {
 
         // Simulate user1 having been removed from site1
         when(site1.getUsers()).thenReturn(user2Set);
-
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
 
-        assertEquals(1, portalService.getPinnedSites().size());
+        assertEquals(2, portalService.getPinnedSites().size());
 
         when(event.getEvent()).thenReturn(SiteService.SECURE_REMOVE_SITE);
 
@@ -96,6 +120,55 @@ public class PortalServiceTests extends SakaiTests {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user2);
         assertEquals(0, portalService.getPinnedSites().size());
+    }
+
+    @Test
+    public void pinnedSites2() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
+
+        Set<String> siteIds = new HashSet<>();
+        siteIds.add(site1Id);
+
+        Set<String> users = new HashSet<>();
+        users.add(user1);
+
+        Member member1 = mock(Member.class);
+        when(member1.getUserId()).thenReturn(user1);
+        Set<Member> members = new HashSet<>();
+        members.add(member1);
+
+        Site site1 = mock(Site.class);
+        when(site1.getUsers()).thenReturn(users);
+        when(site1.getMembers()).thenReturn(members);
+        when(site1.isPublished()).thenReturn(false);
+        try {
+            when(siteService.getSite(site1Id)).thenReturn(site1);
+        } catch (IdUnusedException idue) {
+            System.out.println(idue.toString());
+        }
+
+        Event event = mock(Event.class);
+
+        when(event.getEvent()).thenReturn(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD);
+        when(event.getContext()).thenReturn(site1Id);
+        when(event.getResource()).thenReturn("uid=" + user1 + ";role=access;active=true;siteId=" + site1Id);
+        ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
+
+        assertEquals(0, portalService.getPinnedSites().size());
+
+        when(site1.isPublished()).thenReturn(true);
+        ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
+
+        assertEquals(1, portalService.getPinnedSites().size());
+
+        when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_UNPUBLISH);
+        ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
+        assertEquals(0, portalService.getPinnedSites().size());
+
+        when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_PUBLISH);
+        ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
+        assertEquals(1, portalService.getPinnedSites().size());
     }
 
     @Test
