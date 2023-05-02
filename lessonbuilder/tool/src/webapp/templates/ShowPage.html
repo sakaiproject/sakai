@@ -1893,7 +1893,13 @@
       </form>
     </div>
 
-    <div class="modal fade" id="import-cc-dialog" rsf:id="import-cc-dialog" tabindex="-1" aria-labelledby="importCCLabel" aria-hidden="true">
+    <div class="modal fade"
+        id="import-cc-dialog"
+        rsf:id="import-cc-dialog"
+        tabindex="-1"
+        aria-labelledby="importCCLabel"
+        data-bs-backdrop="static"
+        aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -1941,11 +1947,11 @@
                     <label for="assigntoolbox" rsf:id="assigntoollabel"></label><br />
                   </span>
                 </div>
-                <p>
+                <p class="mt-2">
                   <input class="bold" type="submit" id="import-cc-submit" rsf:id="import-cc-submit" />
-                  <input type="submit" rsf:id="mm-cancel" onclick="closeImportCcDialog(); return false" />
+                  <input type="submit" rsf:id="mm-cancel" data-bs-dismiss="modal" />
                 </p>
-                <p id="import-cc-loading" rsf:id="msg=simplepage.loading"></p>
+                <p id="import-cc-loading" rsf:id="msg=simplepage.loading" style="display: none;" class="mt-1"></p>
               </div>
             </form>
           </div>
@@ -1953,7 +1959,13 @@
       </div>
     </div>
 
-    <div id="export-cc-dialog" rsf:id="export-cc-dialog" class="modal fade" tabindex="-1" aria-labelledby="exportCCLabel" aria-hidden="true">
+    <div id="export-cc-dialog"
+        rsf:id="export-cc-dialog"
+        class="modal fade"
+        tabindex="-1"
+        aria-labelledby="exportCCLabel"
+        data-bs-backdrop="static"
+        aria-hidden="true">
       <form action="#" rsf:id="export-cc-form" method="post" enctype="multipart/form-data" class="controlPanel">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
@@ -1985,7 +1997,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-link" type="submit" id="export-cc-submit" rsf:id="export-cc-submit"></button>
+              <button class="btn btn-link" type="submit" id="export-cc-submit" data-bs-dismiss="modal" rsf:id="export-cc-submit"></button>
               <button type="button" class="btn btn-link" data-bs-dismiss="modal" rsf:id="export-cc-cancel"></button>
             </div>
           </div>

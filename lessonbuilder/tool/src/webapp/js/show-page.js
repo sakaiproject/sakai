@@ -1,6 +1,5 @@
 var oldloc;
 var requirementType = 0;
-var importccactive = false;
 var mmactive = false;
 var insist = false;
 var delbutton;
@@ -407,11 +406,6 @@ $(document).ready(function () {
 
     $('#import-cc-submit').click(function () {
 
-      // prevent double clicks
-      if (!importccactive) {
-          return false;
-      }
-      importccactive = false;
       $("#import-cc-loading").show();
       return true;
     });
