@@ -192,17 +192,19 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
         SamigoReferenceReckoner.SamigoReference samigoRef
             = SamigoReferenceReckoner.reckoner().reference(ref.getReference()).reckon();
-        Long id = Long.parseLong(samigoRef.getId());
         try {
+            Long id = Long.parseLong(samigoRef.getId());
             Site site = siteService.getSite(samigoRef.getSite());
             ToolConfiguration tc = site.getToolForCommonId(SamigoConstants.TOOL_ID);
             if (tc != null) {
                 return Optional.of("/portal/site/" + samigoRef.getSite() + "/tool/" + tc.getId() + "/jsf/evaluation/totalScores?publishedId=" + id);
             }
+        } catch (NumberFormatException nfe) {
+            log.error("{} is not a valid Samigo id", samigoRef.getId());
         } catch (IdUnusedException idue) {
             log.error("No site for id {}", samigoRef.getSite());
         }
-		return Optional.of("balls");
+		return Optional.empty();
 	}
 
 	public HttpAccess getHttpAccess() {
