@@ -138,7 +138,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		String configuredGradeMappingId = settings.getSelectedGradeMappingId();
 		GradeMappingDefinition configuredGradeMapping = gradeMappings.stream()
 				.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), configuredGradeMappingId))
-				.findFirst()
+				.findAny()
 				.get();
 
 		Map<String, Double> gradeMap = settings.getSelectedGradingScaleBottomPercents();
