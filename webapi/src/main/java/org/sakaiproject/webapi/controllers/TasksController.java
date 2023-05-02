@@ -129,6 +129,7 @@ public class TasksController extends AbstractSakaiApiController {
         // Flatten the UserTask objects into a more compact form and return.
         data.put("tasks", taskService.getAllTasksForCurrentUserOnSite(siteId)
             .stream().map(bean -> {
+
                 if (site != null) {
                 	bean.setSiteTitle(site.getTitle());
                 	bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
