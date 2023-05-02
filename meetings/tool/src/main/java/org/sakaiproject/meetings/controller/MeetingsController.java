@@ -41,6 +41,7 @@ import org.sakaiproject.meetings.controller.data.NotificationType;
 import org.sakaiproject.meetings.controller.data.ParticipantData;
 import org.sakaiproject.meetings.exceptions.MeetingsException;
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
+import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
 import org.sakaiproject.microsoft.api.SakaiProxy;
 import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.SakaiCalendarEvent;
@@ -84,6 +85,9 @@ public class MeetingsController {
 	
 	@Autowired
 	private MicrosoftCommonService microsoftCommonService;
+	
+	@Autowired
+	private MicrosoftSynchronizationService microsoftSynchronizationService;
 	
 	@Autowired
 	private SakaiProxy sakaiProxy;
@@ -682,7 +686,10 @@ public class MeetingsController {
 		checkCurrentUserInMeeting(meetingId);
 		try {
 			Meeting meeting = meetingService.getMeeting(meetingId);
-			return microsoftCommonService.getOnlineMeetingRecordings(meeting.getMeetingId(), force);
+			List<String> teamIdsList = microsoftSynchronizationService.getSiteSynchronizationsBySite(meeting.getSiteId()).stream()
+					.map(ss -> ss.getTeamId())
+					.collect(Collectors.toList());
+			return microsoftCommonService.getOnlineMeetingRecordings(meeting.getMeetingId(), teamIdsList, force);
 		} catch (MicrosoftCredentialsException  e) {
 			log.error("Error getting meeting recordings", e);
 			throw new MeetingsException(e.getLocalizedMessage());

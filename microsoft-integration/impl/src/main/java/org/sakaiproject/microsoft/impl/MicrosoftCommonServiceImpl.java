@@ -43,6 +43,7 @@ import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
+import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
 import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
@@ -73,9 +74,19 @@ import com.microsoft.graph.models.ChatMessage;
 import com.microsoft.graph.models.ConversationMember;
 import com.microsoft.graph.models.DirectoryObject;
 import com.microsoft.graph.models.DriveItem;
-import com.microsoft.graph.models.DriveItemCreateLinkParameterSet;
+import com.microsoft.graph.models.DriveItemInviteParameterSet;
+import com.microsoft.graph.models.DriveRecipient;
 import com.microsoft.graph.models.Group;
+import com.microsoft.graph.models.Identity;
+import com.microsoft.graph.models.IdentitySet;
 import com.microsoft.graph.models.Invitation;
+import com.microsoft.graph.models.LobbyBypassScope;
+import com.microsoft.graph.models.LobbyBypassSettings;
+import com.microsoft.graph.models.MeetingParticipantInfo;
+import com.microsoft.graph.models.MeetingParticipants;
+import com.microsoft.graph.models.OnlineMeeting;
+import com.microsoft.graph.models.OnlineMeetingPresenters;
+import com.microsoft.graph.models.OnlineMeetingRole;
 import com.microsoft.graph.models.Team;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.options.HeaderOption;
@@ -95,17 +106,6 @@ import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
 import com.microsoft.graph.requests.UserCollectionRequestBuilder;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
-
-import com.microsoft.graph.models.Identity;
-import com.microsoft.graph.models.IdentitySet;
-import com.microsoft.graph.models.LobbyBypassScope;
-import com.microsoft.graph.models.LobbyBypassSettings;
-import com.microsoft.graph.models.MeetingParticipantInfo;
-import com.microsoft.graph.models.MeetingParticipants;
-import com.microsoft.graph.models.OnlineMeeting;
-import com.microsoft.graph.models.OnlineMeetingPresenters;
-import com.microsoft.graph.models.OnlineMeetingRole;
-import com.microsoft.graph.models.Permission;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -133,6 +133,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	private static final String CACHE_TEAMS = "key::teams";
 	private static final String CACHE_CHANNELS = "key::channels::";
 	private static final String CACHE_RECORDINGS = "key::recordings::";
+	
+	private static final String PERMISSION_READ = "read";
+	private static final String PERMISSION_WRITE = "write";
 	
 	private String lock = "LOCK";
 
@@ -1313,7 +1316,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	}
 	
 	@Override
-	public List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, boolean force) throws MicrosoftCredentialsException{
+	public List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, List<String> teamIdsList, boolean force) throws MicrosoftCredentialsException{
 		List<MeetingRecordingData> ret = new ArrayList<>();
 		
 		//get from cache (if not forced)
@@ -1323,7 +1326,6 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 				return (List<MeetingRecordingData>)cachedValue.get();
 			}
 		}
-		
 		ChatMessageCollectionPage page = getGraphClient().chats(onlineMeetingId).messages()
 				.buildRequest()
 				.get();
@@ -1343,17 +1345,20 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 								.organizerId(details.initiator.user.id);
 							
 							//get driveItem (file in one-drive) from given webURL
-							String driveItemId = getDriveItemIdFromLink(details.callRecordingUrl);
-							if(StringUtils.isNotBlank(driveItemId)) {
-								//create a new link for sharing (we want all users to access the recording, not only the assistant ones)
-								String newURL = getNewLink(details.initiator.user.id, driveItemId);
-								if(newURL != null) {
-									builder.url(newURL);
+							//we will use this call to check if link is still valid
+							MicrosoftDriveItem driveItem = getDriveItemFromLink(details.callRecordingUrl);
+							if(driveItem != null) {
+								if(teamIdsList != null) {
+									for(String teamId : teamIdsList) {
+										//add permissions for sharing (we want all Team users to access the recording, not only the assistant ones)
+										if(grantReadPermissionToTeam(details.initiator.user.id, driveItem.getId(), teamId)) {
+											//granted permission to Team -> we replace shared URL (from chat) with basic URL
+											builder.url(driveItem.getUrl());
+										}
+									}
 								}
+								ret.add(builder.build());
 							}
-							
-							ret.add(builder.build());
-							
 						}catch(Exception e) {
 							log.debug("Error getting chat message chatId={}, messageId={}", onlineMeetingId, message.id);
 						}
@@ -1372,13 +1377,15 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	
 	// ---------------------------------------- ONE-DRIVE --------------------------------------------------------
 	@Override
-	public String getDriveItemIdFromLink(String link) throws MicrosoftCredentialsException {
-		String ret = null;
+	public MicrosoftDriveItem getDriveItemFromLink(String link) throws MicrosoftCredentialsException {
+		MicrosoftDriveItem ret = null;
 		try {
-			String base64Link = Base64.getUrlEncoder().encodeToString(link.getBytes());
-			String finalLink = "u!"+base64Link.replaceAll("=+$", "").replace('/', '_').replace('+','-');
-			DriveItem item = getGraphClient().shares(finalLink).driveItem().buildRequest().get();
-			ret = item.id;
+			DriveItem item = getGraphClient().shares(encodeWebURL(link)).driveItem().buildRequest().get();
+			ret = MicrosoftDriveItem.builder()
+					.id(item.id)
+					.name(item.name)
+					.url(item.webUrl)
+					.build();
 		}catch(MicrosoftCredentialsException e) {
 			throw e;
 		}catch (Exception e) {
@@ -1388,24 +1395,35 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	}
 	
 	@Override
-	public String getNewLink(String userId, String itemId) throws MicrosoftCredentialsException {
-		String ret = null;
+	public boolean grantReadPermissionToTeam(String userId, String itemId, String teamId) throws MicrosoftCredentialsException {
 		try {
-			Permission p = getGraphClient().users(userId).drive().items(itemId)
-				.createLink(DriveItemCreateLinkParameterSet
-					.newBuilder()
-					.withType("view")
-					.withScope("organization")
-					.build())
-				.buildRequest()
-				.post();
-			ret = p.link.webUrl;
+			DriveRecipient recipient = new DriveRecipient();
+			recipient.objectId = teamId;
+			
+			LinkedList<DriveRecipient> recipientsList = new LinkedList<DriveRecipient>();
+			recipientsList.add(recipient);
+			
+			LinkedList<String> rolesList = new LinkedList<String>();
+			rolesList.add(PERMISSION_READ);
+			
+			getGraphClient()
+					.users(userId).drive().items(itemId)
+					.invite(DriveItemInviteParameterSet
+							.newBuilder()
+							.withRequireSignIn(true)
+							.withSendInvitation(false)
+							.withRoles(rolesList)
+							.withRecipients(recipientsList)
+							.build())
+					.buildRequest()
+					.post();
+			return true;
 		}catch(MicrosoftCredentialsException e) {
 			throw e;
 		}catch (Exception e) {
-			log.debug("Error creating link for item={} from user={}", itemId, userId);
+			log.debug("Error adding permissions for itemId={} from user={} to teamId={}", itemId, userId, teamId);
 		}
-		return ret;
+		return false;
 	}
 	
 	// ---------------------------------------- PRIVATE FUNCTIONS ------------------------------------------------
@@ -1442,4 +1460,13 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return str;
 	}
 
+	private String encodeWebURL(String link) {
+		try {
+			String base64Link = Base64.getUrlEncoder().encodeToString(link.getBytes());
+			return "u!"+base64Link.replaceAll("=+$", "").replace('/', '_').replace('+','-');
+		}catch(Exception e) {
+			log.error("Error encoding link={}", link);
+		}
+		return null;
+	}
 }
