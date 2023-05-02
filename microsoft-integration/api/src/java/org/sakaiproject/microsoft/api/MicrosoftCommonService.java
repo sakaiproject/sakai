@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
+import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
 import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
@@ -99,9 +100,9 @@ public interface MicrosoftCommonService {
 	// ---------------------------------------- ONLINE MEETINGS --------------------------------------------------
 	TeamsMeetingData createOnlineMeeting(String userEmail, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
 	void updateOnlineMeeting(String userEmail, String meetingId, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
-	List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, boolean force) throws MicrosoftCredentialsException;
+	List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, List<String> teamIdsList, boolean force) throws MicrosoftCredentialsException;
 	
 	// ---------------------------------------- ONE-DRIVE --------------------------------------------------------
-	String getDriveItemIdFromLink(String link) throws MicrosoftCredentialsException;
-	String getNewLink(String userId, String itemId) throws MicrosoftCredentialsException;
+	MicrosoftDriveItem getDriveItemFromLink(String link) throws MicrosoftCredentialsException;
+	boolean grantReadPermissionToTeam(String userId, String itemId, String teamId) throws MicrosoftCredentialsException;
 }
