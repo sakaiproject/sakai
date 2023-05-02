@@ -219,20 +219,20 @@ function toPoint(id)
 
       <h:panelGroup rendered="#{question.hasAssociatedRubric}">
         <ul class="nav nav-tabs">
-          <li class="active">
-            <a data-bs-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
+          <li class="nav-item active">
+            <a class="nav-link" data-bs-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
               <h:outputText value="#{commonMessages.student_response}" />
             </a>
           </li>
-          <li>
-            <a data-bs-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
               <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
             </a>
           </li>
         </ul>
 
         <div class="tab-content">
-          <div id="<h:outputText value="submition#{question.itemData.itemId}" />" class="tab-pane active">
+          <div id="<h:outputText value="submition#{question.itemData.itemId}" />" class="tab-pane active" role="tabpanel">
       </h:panelGroup>
           <div class="samigo-question-callout">
             <h:panelGroup rendered="#{question.itemData.typeId == 7}">
@@ -318,7 +318,7 @@ function toPoint(id)
 
         <h:panelGroup rendered="#{question.hasAssociatedRubric}">
           </div>
-          <div class="tab-pane" id="<h:outputText value="rubric#{question.itemData.itemId}" />">
+          <div id="<h:outputText value="rubric#{question.itemData.itemId}" />" class="tab-pane" role="tabpanel">
             <sakai-rubric-grading
               id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               tool-id="sakai.samigo"
