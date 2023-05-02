@@ -175,7 +175,7 @@
 		<h:panelGroup id="div_selected_event" rendered="#{CalBean.viewingSelectedEvent}">
 			<f:verbatim><h4></f:verbatim><h:outputText value="#{CalBean.selectedEvent.displayName}"/><f:verbatim></h4></f:verbatim>
 
-			<div class="tableContainer">
+			<div class="mx-3">
 				<h:panelGrid id="panel_selected_event_error" styleClass="sectionContainerNav" style="width:100%; padding-top: 5px;" columns="1" columnClasses="calTop" rendered="#{CalBean.selectedEvent.openDateError}">
 					<h:outputText value="#{msgs['java.alert.opendate']} #{CalBean.selectedEvent.openDateErrorDescription}"
 											  styleClass="sak-banner-error"/>
