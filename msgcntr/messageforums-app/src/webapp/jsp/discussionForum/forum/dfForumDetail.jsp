@@ -19,9 +19,6 @@
 				var menuLinkSpan = menuLink.closest('span');
 				menuLinkSpan.addClass('current');
 				menuLinkSpan.html(menuLink.text());
-
-				setupLongDesc();
-
 			});
 		</script>
 <!--jsp/discussionForum/forum/dfForumDetail.jsp-->
