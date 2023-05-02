@@ -25,7 +25,6 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 <script>includeWebjarLibrary("qtip2");</script>
-<script src="/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js<h:outputText value="#{delivery.CDNQuery}" />"></script>
 
 
 <!-- ATTACHMENTS -->
