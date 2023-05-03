@@ -1,0 +1,31 @@
+/*
+Polyfill for Sakai 22 - Definitions of B5 utility classes, for use in B5 to make migration to master easier
+When needed, add more classes as needed below, just make sure they equal what we expect from the B5
+Usage - Use other, non bootstrap classes first, add the "b5" class, and then the added B5 class:
+<div class="any-other-class b5 d-flex flex-wrap">...</div>
+
+TODO Master merge: Remove this file
+*/
+
+.b5 {
+  &.d-flex {
+    display: flex !important;
+  }
+
+  &.flex-wrap {
+    flex-wrap: wrap !important;
+  }
+
+  &.justify-content-between {
+    justify-content: space-between !important;
+  }
+
+  &.me-0 {
+    margin-right: 0;
+  }
+
+  /* https://getbootstrap.com/docs/5.2/utilities/spacing/#maps */
+  &.gap-1 {
+    gap: $standard-spacing * 0.25 !important;
+  }
+}

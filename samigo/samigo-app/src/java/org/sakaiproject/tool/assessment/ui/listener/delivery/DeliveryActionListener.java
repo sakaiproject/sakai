@@ -97,6 +97,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionNavBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
@@ -323,7 +324,12 @@ public class DeliveryActionListener
               break;
  
       case 4: // Grade assessment
-    	  	  String gradingData = ContextUtil.lookupParam("gradingData");
+              // If we are navigating to another students submission,
+              // we need to get the according gradingId from the bean
+              String gradingData = delivery.getNextAssessmentGradingId() != null
+                  ? delivery.getNextAssessmentGradingId().toString()
+                  : ContextUtil.lookupParam("gradingData");
+              delivery.setNextAssessmentGradingId(null);
               itemGradingHash = service.getStudentGradingData(gradingData);
               delivery.setAssessmentGradingId(Long.valueOf(gradingData));
               ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);

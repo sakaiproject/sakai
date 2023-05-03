@@ -126,10 +126,13 @@ function toPoint(id)
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
   <h:panelGroup layout="block" styleClass="page-header">
-    <h1>
-      <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
-      <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
-    </h1>
+    <div class="b5 d-flex flex-wrap justify-content-between">
+      <h1>
+        <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
+        <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
+      </h1>
+      <%@ include file="/jsf/evaluation/submissionNav.jsp" %>
+    </div>
   </h:panelGroup>
 
   <!-- EVALUATION SUBMENU -->
