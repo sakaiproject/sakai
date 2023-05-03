@@ -14377,7 +14377,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		removeCollectionRecursive(collectionId);
     }
 
-	private void removeCollectionRecursive(String collectionId){
+	private void removeCollectionRecursive(String collectionId) {
 		ContentCollection collection = null;
 		try{
 			collection = getCollection(collectionId);
