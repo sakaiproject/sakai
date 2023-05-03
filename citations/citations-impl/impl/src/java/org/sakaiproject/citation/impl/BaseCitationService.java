@@ -4331,6 +4331,7 @@ public abstract class BaseCitationService implements CitationService, Observer
 			m_storage.close();
 			m_storage = null;
 		}
+		m_eventTrackingService.deleteObserver(this);
 	}
 
 	/**
