@@ -1,0 +1,62 @@
+.#{$namespace}bulk-user-membership {
+
+	$background-color_1: var(--sakai-primary-color-1);
+	$background-color_2: var(--sakai-background-color-2);
+	$color_1: #4d4d4d;
+
+	.wizard-step-active {
+		color: white;
+		background: $background-color_1;
+	}
+	
+	h4.title {
+		font-weight: bold;
+		margin-bottom: 0px;
+	}
+	label.subtitle {
+		display: block;
+		padding: 7px;
+		color: $color_1;
+		padding-top: 2px;
+	}
+	textarea.box {
+		background: $background-color_2;
+	}
+	
+	legend.nopad {
+		margin-bottom: 10px;
+		border: 0;
+		font-size: 18px;
+	}
+	
+	div {
+		&.title {
+			margin: 10px 0px;
+		}
+		&.options {
+			margin-left: 20px;
+		}
+		&.buttons{
+			margin-bottom: 15px;
+			margin-top: 14px;
+			>input[type="submit"].button-continue {
+				color: white;
+				background: $background-color_1;
+				font-weight: bold;
+				margin: 10px 0;
+			}
+		}
+	}
+
+	.pointer {
+		cursor: pointer;
+	}
+	.collapsable:after {
+		font-family: 'FontAwesome';  
+		content: "\23f6";
+	}
+	.collapsable.collapsed:after {
+		content: "\23f7"; 
+	}
+	
+}
