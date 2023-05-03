@@ -397,6 +397,9 @@ public class DeliveryBean implements Serializable {
   private Long assessmentGradingId;
 
   @Getter @Setter
+  private Long nextAssessmentGradingId;
+
+  @Getter @Setter
   private boolean fromTableOfContents;
   @Getter @Setter
   private int fileUploadSizeMax;
