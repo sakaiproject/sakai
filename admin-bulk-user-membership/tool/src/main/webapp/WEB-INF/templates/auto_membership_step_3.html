@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: bootstrap" />
+  <div class="portletBody">
+    <div class="page-header">
+      <h1 th:text="#{common_title}">Bulk User Membership</h1>
+    </div>
+    <div th:replace="fragments/wizard :: step (step3)"></div>
+    <form method="post" th:action="@{/step/3}" class="automembership-wizard-form">
+        <div class="row">
+          <div class="col-sm-6" th:each="summary : ${summaries}" th:id="${'summary-' + summary.getCleanedUserName()}" >
+            <h4 class="title pointer collapsable" data-toggle="collapse" th:href="${'#' + summary.getCleanedUserName()}" th:text="#{summary.user.title(${summary.getUserCriteria()})}" aria-expanded="true">Some title</h4>
+            <ul th:id="${summary.getCleanedUserName()}" class="collapse in" th:data-parent="${'#summary-' + summary.getCleanedUserName()}" aria-expanded="true">
+              <li class="fails" th:each="failedSite : ${summary.getFailedSites()}" th:text="#{summary.fail.site(#{'summary.' + ${action}},${failedSite})}"></li>
+              <li class="works" th:each="workedSite : ${summary.getWorkedSites()}" th:text="#{summary.work.site(#{'summary.' + ${action}},${workedSite})}"></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="buttons">
+              <input type="submit" id="start-membership-button" class="active button-continue" th:value="#{button.done}">
+            </div>
+          </div>
+        </div>
+    </form>
+  </div>
+</body>
+</html>

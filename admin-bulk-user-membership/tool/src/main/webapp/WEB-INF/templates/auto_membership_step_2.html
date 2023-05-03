@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: bootstrap" />
+  <div class="portletBody">
+    <div class="page-header">
+      <h1 th:text="#{common_title}">Bulk User Membership</h1>
+    </div>
+    <div th:replace="fragments/wizard :: step (step2)"></div>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="title sak-banner-warn" th:text="#{automembership.title.step2(#{${action}})}"></div>
+      </div>
+    </div>
+    <form method="post" th:action="@{/step/2}" class="automembership-wizard-form" >
+        <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
+        <div class="row">
+          <div th:replace="fragments/box_list :: box (title = #{box.users.list.title}, subtitle='', name = 'users', disabled = true, value = ${users})" />
+          <div th:replace="fragments/box_list :: box (title = #{box.sites.list.title}, subtitle='', name = 'sites', disabled = true, value = ${sitesIds})" />
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="buttons">
+              <button th:data-url="@{/back}" type="button" id="automembership-back-button" th:text="#{button.back}">Back</button>
+              <input type="submit" class="active button-continue" th:value="#{button.finish}">
+              <button type="button" th:data-url="@{/cancel}" id="automembership-cancel-button" th:text="#{button.cancel}">Cancel</button>
+            </div>
+          </div>
+        </div>
+    </form>
+  </div>
+  <script th:replace="fragments/javascript :: autoMembershipStep2Js"></script>
+</body>
+</html>
