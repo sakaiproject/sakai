@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+  <body>
+  <div class="row" th:fragment="step (current)">
+    <div class="col-sm-12">
+      <div th:class="${current} == 'step1' ? 'col-sm-4 bordered wizard-step-active' : 'col-sm-4 bordered'">
+        <a href="#" id="step1" th:if="${current} == 'step2'" th:text="#{automembership.wizard.step1}" onclick="bulkManager.previousWizardStep();">Step 1: Select action to apply</a>
+        <span th:if="${current} != 'step2'" th:text="#{automembership.wizard.step1}">Step 1: Select action to apply</span>
+      </div>
+      <div th:class="${current} == 'step2' ? 'col-sm-4 bordered wizard-step-active' : 'col-sm-4 bordered'">
+        <span th:text="#{automembership.wizard.step2}">Step 2: Confirmation</span>
+      </div>
+      <div th:class="${current} == 'step3' ? 'col-sm-4 bordered wizard-step-active' : 'col-sm-4 bordered'">
+        <span th:text="#{automembership.wizard.step3}">Step 3: Results Screen</span>
+      </div>
+    </div>
+    <script th:replace="fragments/javascript :: wizardJs" />
+  </div>
+</body>
+</html>
