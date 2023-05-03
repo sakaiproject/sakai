@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: bootstrap" />
+  <div class="portletBody">
+    <div class="page-header">
+      <h1 th:text="#{common_title}">Bulk User Membership</h1>
+    </div>
+    <div th:replace="fragments/wizard :: step (step1)"></div>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="title sak-banner-info" th:text="#{automembership.title.step1}"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="sak-banner-error" th:each="failedUser : ${failedUsers}" th:text="#{fail_user(${failedUser})}"></div>
+        <div class="sak-banner-error" th:each="duplicatedUser : ${duplicatedUsers}" th:text="#{fail_user_duplicated(${duplicatedUser})}"></div>
+        <div class="sak-banner-error" th:each="failedSite : ${failedSites}" th:text="#{fail_site(${failedSite})}"></div>
+        <div class="sak-banner-error" th:if="${noUsers}" th:text="#{no_users}"></div>
+        <div class="sak-banner-error" th:if="${noSites}" th:text="#{no_sites}"></div>
+        <div class="sak-banner-error" th:if="${noAction}" th:text="#{no_action}"></div>
+      </div>
+    </div>
+    <form method="post" th:action="@{/step/1}" class="automembership-wizard-form">
+        <div class="row">
+          <div th:replace="fragments/box_list :: box (title = #{box.users.list.title}, subtitle = #{box.users.list.subtitle}, name = 'users', disabled = false, value = ${users})" />
+          <div th:replace="fragments/box_list :: box (title = #{box.sites.list.title}, subtitle = #{box.sites.list.subtitle}, name = 'sites', disabled = false, value = ${sitesIds})" />
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <fieldset style="margin: 15px;">
+              <legend class="nopad" th:text="#{action.selection.title}">Action to perform</legend> 
+              <div class="options">
+                <div class="option">
+                  <input class="active" value="add" name="action" type="radio" th:checked="${action == 'add' || action == ''}"> <label for="action" th:text="#{action.selection.add}">Add users</label>
+                </div>
+                <div class="option">
+                  <input class="active" name="action" type="radio" value="remove" th:checked="${action == 'remove'}"> <label for="action" th:text="#{action.selection.remove}">Remove users</label>
+                </div>
+                <div class="option">
+                  <input class="active" name="action" type="radio" value="activate" th:checked="${action == 'activate'}"> <label for="action" th:text="#{action.selection.activate}">Activate users</label>
+                </div>
+                <div class="option">
+                  <input class="active" name="action" type="radio" value="deactivate" th:checked="${action == 'deactivate'}"> <label for="action" th:text="#{action.selection.deactivate}">Deactivate users</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="buttons">
+              <input type="submit" th:value="#{button.continue}" class="active button-continue">
+              <button type="button" th:data-url="@{/cancel}" id="automembership-cancel-button" value="Cancel" th:text="#{button.cancel}">Cancel</button>  
+            </div>
+          </div>
+        </div>
+    </form>
+  </div>
+  <script th:replace="fragments/javascript :: autoMembershipStep1Js"></script>
+</body>
+</html>
