@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: bootstrap" />
+  <div class="portletBody">
+    <div class="page-header">
+      <h1 th:text="#{common_title}">Bulk User Membership</h1>
+    </div>
+    <div th:replace="fragments/wizard :: step (step1)"></div>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="title sak-banner-warn" th:text="#{select.role.title(${siteId})}"></div>
+      </div>
+    </div>
+    <form method="post" th:action="@{/step/1_5}" class="automembership-wizard-form">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover table-striped">
+                <thead>
+                  <tr>
+                    <th th:text="#{site.title}">Site</th>
+                    <th th:text="#{role.title}">Role</th>
+                  </tr>
+                </thead>
+                <tbody th:each="site, index : ${sites}">
+                  <tr>
+                    <td th:text="#{id_title(${site.getId()}, ${site.getTitle()})}"></td>
+                    <td width="10%">
+                      <select name="roles[]" style="valign:top" id="roles" size="1" >
+                        <option th:each="role : ${site.getRoles()}" th:selected="${roles != null && roles[index.index].equals(role.getId())}" th:text="${role.getId()}" th:value="${role.getId()}" ></option>
+                      </select>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="buttons">
+              <button type="button" th:data-url="@{/back}" id="automembership-back-button" value="Back" th:text="#{button.back}">Back</button>  
+              <input type="submit" th:value="#{button.continue}" class="active button-continue">
+              <button type="button" th:data-url="@{/cancel}" id="automembership-cancel-button" value="Cancel" th:text="#{button.cancel}">Cancel</button>  
+            </div>
+          </div>
+        </div>
+    </form>
+  </div>
+  <script th:replace="fragments/javascript :: autoMembershipStep1_5Js"></script>
+</body>
+</html>
