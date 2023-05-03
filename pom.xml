@@ -124,6 +124,7 @@
                 <module>webjars</module>
                 <module>webservices</module>
                 <module>wicket</module>
+                <module>admin-bulk-user-membership</module>
             </modules>
         </profile>
         <profile>
