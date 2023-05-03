@@ -32,6 +32,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -41,7 +42,9 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.api.FormattedText;
@@ -75,13 +78,24 @@ import lombok.extern.slf4j.Slf4j;
     AbortProcessingException
   {
     log.debug("StudentScore LISTENER.");
-    StudentScoresBean bean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
 
     // we probably want to change the poster to be consistent
+    String itemId = ContextUtil.lookupParam("itemId");
+    String gradingId = ContextUtil.lookupParam("gradingId");
     String publishedId = ContextUtil.lookupParam("publishedIdd");
-    
-    log.debug("Calling studentScores.");
-    if (!studentScores(publishedId, bean, false))
+    log.debug("itemId: {}", itemId);
+    log.debug("gradingId: {}", gradingId);
+    log.debug("publishedId: {}", publishedId);
+
+    if (StringUtils.isBlank(gradingId)) {
+        gradingId = ContextUtil.lookupParam("gradingData");
+        log.debug("No 'gradingId' - picking up 'gradingData' with value [{}]", gradingId);
+    }
+
+    SubmissionNavListener submissionNavListener = new SubmissionNavListener();
+    submissionNavListener.submissionNav(gradingId);
+
+    if (!studentScores(publishedId, gradingId, itemId, false))
     {
       throw new RuntimeException("failed to call studentScores.");
     }
@@ -96,27 +110,25 @@ import lombok.extern.slf4j.Slf4j;
    * @param bean StudentScoresBean
    * @return boolean
    */
-  public boolean studentScores(
-    String publishedId, StudentScoresBean bean, boolean isValueChange)
-  {
+  public boolean studentScores(String publishedId, String gradingId, String itemId, boolean isValueChange) {
     log.debug("studentScores()");
     try
     {
 //  SAK-4121, do not pass studentName as f:param, will cause javascript error if name contains apostrophe 
 //    bean.setStudentName(cu.lookupParam("studentName"));
+      String studentId = findStudentId(gradingId);
 
+      StudentScoresBean bean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
       bean.setPublishedId(publishedId);
-      String studentId = ContextUtil.lookupParam("studentid");
       bean.setStudentId(studentId);
       AgentFacade agent = new AgentFacade(studentId);
       bean.setStudentName(agent.getFirstName() + " " + agent.getLastName());
       bean.setLastName(agent.getLastName());
       bean.setFirstName(agent.getFirstName());
-      bean.setAssessmentGradingId(ContextUtil.lookupParam("gradingData"));
-      bean.setItemId(ContextUtil.lookupParam("itemId"));
+      bean.setAssessmentGradingId(gradingId);
+      bean.setItemId(itemId);
       bean.setEmail(agent.getEmail());
       bean.setDisplayId(agent.getDisplayIdString());
-      
       DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
       dbean.setActionString("gradeAssessment");
 
@@ -162,5 +174,17 @@ import lombok.extern.slf4j.Slf4j;
                       }));
 
 	  dbean.setItemContentsMap(itemContentsMap);
+  }
+
+  private String findStudentId(String gradingId) {
+    TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+
+    AgentResults currentAgent = (AgentResults) totalScoresBean.getAllAgents().stream()
+        .filter(agentResults -> StringUtils.equals(gradingId,
+            ((AgentResults) agentResults).getAssessmentGradingId().toString()))
+        .findAny()
+        .orElse(null);
+
+    return currentAgent != null ? currentAgent.getAgentId() : null;
   }
 }
