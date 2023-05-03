@@ -14396,18 +14396,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				}
 			}
 			//remove leaf
-			try{
+			try {
 				log.debug("Removing collection: {}", collection.getId());
 				removeCollection(collectionId);
-			}catch (IdUnusedException e) {
+			} catch (IdUnusedException e) {
 				log.warn("collection {} does not exist.", collectionId);
 			} catch (TypeException  e1) {
 				log.warn("Not a collection {}.", collectionId, e1);
 			} catch (PermissionException e2) {
 				log.warn("No permission to remove collection {}.", collectionId);
-			}catch (InUseException e3){
+			} catch (InUseException e3) {
 				log.warn("collection {} is in use.", collectionId , e3);
-			}catch (ServerOverloadException e4){
+			} catch (ServerOverloadException e4) {
 				log.warn("failed to remove collection {}", collectionId , e4);
 			}
 		}
