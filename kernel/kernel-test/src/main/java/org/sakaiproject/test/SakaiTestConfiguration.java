@@ -49,12 +49,11 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
-public class SakaiTestConfiguration {
+public abstract class SakaiTestConfiguration {
 
-    @Autowired
-    private Environment environment;
+    @Autowired protected Environment environment;
 
-    protected AdditionalHibernateMappings getAdditionalHibernateMappings() { return null; };
+    protected abstract AdditionalHibernateMappings getAdditionalHibernateMappings();
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory() throws IOException {
