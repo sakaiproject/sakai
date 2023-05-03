@@ -27,6 +27,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.event.ValueChangeListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,9 +43,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 @Slf4j
-public class ResetTotalScoreListener implements ActionListener
+public class ResetTotalScoreListener implements ActionListener, ValueChangeListener
 {
-  private static ContextUtil cu;
 
   /**
    * ACTION.
@@ -53,7 +54,16 @@ public class ResetTotalScoreListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
-    bean.setAssessmentGradingList(new ArrayList());
+    resetTotalScore();
+  }
+
+  public void processValueChange(ValueChangeEvent valueChangeEvent) throws AbortProcessingException {
+    resetTotalScore();
+  }
+
+  private void resetTotalScore() {
+    log.debug("resetTotalScore()");
+    TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    totalScoresBean.setAssessmentGradingList(new ArrayList());
   }
 }
