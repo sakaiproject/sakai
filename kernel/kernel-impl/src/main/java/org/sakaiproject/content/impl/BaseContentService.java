@@ -14390,11 +14390,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
 		if(collection != null){
 			List<ContentCollectionEdit> members = m_storage.getCollections(collection);
-			if(members != null){
-				for(ContentCollectionEdit contentCollectionEdit:members){
-					removeCollectionRecursive(contentCollectionEdit.getId());
-				}
-			}
+			members.forEach(edit -> removeCollectionRecursive(edit.getId()));
 			//remove leaf
 			try {
 				log.debug("Removing collection: {}", collection.getId());
