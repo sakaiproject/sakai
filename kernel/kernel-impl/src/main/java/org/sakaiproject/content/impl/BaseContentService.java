@@ -14379,13 +14379,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 	private void removeCollectionRecursive(String collectionId) {
 		ContentCollection collection = null;
-		try{
+		try {
 			collection = getCollection(collectionId);
-		}catch (IdUnusedException ide){
+		} catch (IdUnusedException ide) {
 			log.warn("No resources in collection {}.", collectionId);
-		}catch (TypeException te){
+		} catch (TypeException te) {
 			log.warn("Not a collection {}.", collectionId);
-		}catch (PermissionException pe){
+		} catch (PermissionException pe) {
 			log.warn("No permission to remove collection {}.", collectionId);
 		}
 		if(collection != null){
