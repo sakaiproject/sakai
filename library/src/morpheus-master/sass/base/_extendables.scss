@@ -331,7 +331,7 @@ input::placeholder {
 		}
 	}
 
-	&[disabled="disabled"], &[disabled], &[disabled="true"], &[class="disabled"] {
+	&[disabled="disabled"], &[disabled], &[disabled="true"], &.disabled {
 		&, &:hover, &:active, &:focus {
 			color: var(--button-disabled-text-color);
 			text-decoration: none;

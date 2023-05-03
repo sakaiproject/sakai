@@ -126,10 +126,13 @@ function toPoint(id)
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
   <h:panelGroup layout="block" styleClass="page-header">
-    <h1>
-      <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
-      <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
-    </h1>
+    <div class="b5 d-flex flex-wrap justify-content-between">
+      <h1>
+        <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
+        <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
+      </h1>
+      <%@ include file="/jsf/evaluation/submissionNav.jsp" %>
+    </div>
   </h:panelGroup>
 
   <!-- EVALUATION SUBMENU -->
@@ -359,15 +362,11 @@ function toPoint(id)
 </h:panelGroup>
 
 <p class="act">
-   <h:commandButton id="save" styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit">
+   <h:commandButton id="save" styleClass="active" value="#{evaluationMessages.save_cont}" action="gradeStudentResult" type="submit">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
    <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
