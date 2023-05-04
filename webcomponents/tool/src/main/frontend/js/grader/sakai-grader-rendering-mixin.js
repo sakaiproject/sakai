@@ -157,9 +157,8 @@ export const graderRenderingMixin = Base => class extends Base {
 
   _renderFailed() {
 
-    return html`<span class="saved failed fa fa-times-circle"
-                  title="${this.i18n.failed_save}"
-                  style="display: ${this.saveFailed ? "inline" : "none"};">
+    return html`<span class="saved failed fa fa-times-circle ${this.saveFailed ? "d-inline" : "d-none"} text-danger"
+                  title="${this.i18n.failed_save}">
                 </span>`;
   }
 
