@@ -132,16 +132,26 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
       const datePicker = this.shadowRoot.getElementById("due");
       const disableFields = (this.task.owner !== this.userId && this.mode === "edit");
-      if (value.system) {
-        datePicker.disabled = true;
-      } else {
-        datePicker.disabled = false;
-        datePicker.epochMillis = value.due;
+      if (datePicker) {
+        if (value.system) {
+          datePicker.disabled = true;
+        } else {
+          datePicker.disabled = false;
+          datePicker.epochMillis = value.due;
+        }
       }
+
       const descriptionEl = this.shadowRoot.getElementById("description");
-      descriptionEl.disabled = value.system;
-      descriptionEl.value = value.description;
-      this.shadowRoot.getElementById("priority").value = value.priority;
+      if (descriptionEl) {
+        descriptionEl.disabled = value.system;
+        descriptionEl.value = value.description;
+      }
+
+      const priorityEl = this.shadowRoot.getElementById("priority");
+      if (priorityEl) {
+        priorityEl.value = value.priority;
+      }
+
       const editor = this.getEditor();
       if (editor) {
         editor.setContent(value.notes);
