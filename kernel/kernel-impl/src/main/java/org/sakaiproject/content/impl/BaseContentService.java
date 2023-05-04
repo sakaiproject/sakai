@@ -14388,7 +14388,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		} catch (PermissionException pe) {
 			log.warn("No permission to remove collection {}.", collectionId);
 		}
-		if(collection != null){
+		if (collection != null) {
 			List<ContentCollectionEdit> members = m_storage.getCollections(collection);
 			members.forEach(edit -> removeCollectionRecursive(edit.getId()));
 			//remove leaf
