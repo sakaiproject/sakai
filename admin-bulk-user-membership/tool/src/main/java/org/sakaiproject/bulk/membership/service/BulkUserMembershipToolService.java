@@ -82,8 +82,8 @@ public class BulkUserMembershipToolService {
         }
     }
 
-    public void applyAction(String action, Site site, String userCriteria, String role) throws Exception {
-        String userId = this.getUser(userCriteria).getId();
+    public void applyAction(String action, Site site, User user, String role) throws Exception {
+        String userId = user.getId();
         Member member = site.getMember(userId);
         switch (action) {
             case ADD:

@@ -9,7 +9,9 @@
     </div>
     <div th:replace="fragments/wizard :: step (step1)"></div>
     <div class="row">
-      <div class="col-sm-12 title" th:text="#{select.role.title(${siteId})}"></div>
+      <div class="col-sm-12">
+        <div class="title sak-banner-warn" th:text="#{select.role.title(${siteId})}"></div>
+      </div>
     </div>
     <form method="post" th:action="@{/step/1_5}" class="automembership-wizard-form">
         <div class="row">

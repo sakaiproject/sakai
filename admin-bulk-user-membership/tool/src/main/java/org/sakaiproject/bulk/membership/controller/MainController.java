@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.bulk.membership.service.BulkUserMembershipToolService;
 import org.sakaiproject.bulk.membership.exception.UsersByEmailException;
+import org.sakaiproject.bulk.membership.model.Summary;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.api.Site;
 
@@ -150,7 +151,7 @@ public class MainController {
                 duplicatedUsersError.add(userCriteriaAux);
                 duplicatedUser = true;
             }
-            if (user != null) {
+            if (user != null && !StringUtils.isBlank(userCriteriaAux)) {
                 boolean repeatedUser = false;
                 for (String userCriteria : users) {
                     if (StringUtils.equalsAny(userCriteria, user.getEid(), user.getEmail())) {
@@ -170,19 +171,21 @@ public class MainController {
         ArrayList<Site> sitesAux = new ArrayList<Site>();
         for (String siteId : sitesIdsAux) {
             Site site = bulkUserMembershipToolService.getSite(siteId);
-            if (site != null) {
-                boolean repeatedSite = false;
-                for (Site siteAux : sites) {
-                    if (StringUtils.equals(siteId, siteAux.getId())) {
-                        repeatedSite = true;
+            if (!StringUtils.isBlank(siteId)) {
+                if (site != null) {
+                    boolean repeatedSite = false;
+                    for (Site siteAux : sites) {
+                        if (StringUtils.equals(siteId, siteAux.getId())) {
+                            repeatedSite = true;
+                        }
                     }
+                    if (!repeatedSite) {
+                        sites.add(site);
+                    }
+                } else {
+                    failedSites.add(siteId);
+                    log.warn("Failing when getting the site: " + siteId);
                 }
-                if (!repeatedSite) {
-                    sites.add(site);
-                }
-            } else {
-                failedSites.add(siteId);
-                log.warn("Failing when getting the site: " + siteId);
             }
         }
         if (failedSites.size() > 0 || failedUsers.size() > 0 || duplicatedUsersError.size() > 0) {
@@ -201,26 +204,27 @@ public class MainController {
 
     @PostMapping(value = {"/step/2", "/auto_membership_step_2"})
     public String checkToFinalStep(Model model, RedirectAttributes redirectAttributes) {
-        String failedUsers = "";
-        int count = 0;
-        for (Site site : sites) {
-            boolean firstFail = true;
-            String role = ((roles != null && roles.length > 0) ? roles[count] : "");
-            for (String userCriteria : users) {
+        int count;
+        ArrayList<Summary> summaries = new ArrayList<Summary>();
+        for (String userCriteria : users) {
+            count = 0;
+            Summary summary = new Summary(userCriteria);
+            for (Site site : sites) {
+                String role = ((roles != null && roles.length > 0) ? roles[count] : "");
                 try {
-                    bulkUserMembershipToolService.applyAction(action, site, userCriteria, role);
+                    User user = bulkUserMembershipToolService.getUser(userCriteria);
+                    summary.setUserName(user.getEid());
+                    bulkUserMembershipToolService.applyAction(action, site, user, role);
+                    summary.addWorkedSite(site.getId());
                 } catch (Exception ex) {
-                    if (firstFail) {
-                        failedUsers += "\n===" + site.getId() + "===\n\r";
-                        firstFail = false;
-                    }
-                    failedUsers += userCriteria + "\n";
+                    summary.addFailedSite(site.getId());
                 }
+                count++;
             }
-            count++;
+            summaries.add(summary);
         }
         currentStep = STEP.THIRD.ordinal();
-        redirectAttributes.addFlashAttribute("failedUsers", failedUsers);
+        redirectAttributes.addFlashAttribute("summaries", summaries);
         return REDIRECT + usePage(model);
     }
 

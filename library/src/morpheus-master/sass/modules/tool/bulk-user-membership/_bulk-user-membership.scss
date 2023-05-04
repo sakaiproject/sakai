@@ -47,5 +47,16 @@
 			}
 		}
 	}
+
+	.pointer {
+		cursor: pointer;
+	}
+	.collapsable:after {
+		font-family: 'FontAwesome';  
+		content: "\23f6";
+	}
+	.collapsable.collapsed:after {
+		content: "\23f7"; 
+	}
 	
 }
