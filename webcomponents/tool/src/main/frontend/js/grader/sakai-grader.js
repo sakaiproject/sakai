@@ -525,9 +525,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _cancel() {
 
-    if (!this._canNavigate()) {
-      return;
-    }
+    if (!this._canNavigate()) return;
 
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this.submission.id));
     const i = this.submissions.findIndex(s => s.id === this.submission.id);
