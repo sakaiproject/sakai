@@ -197,9 +197,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     const curOverflow = el.style.overflow;
 
-    if (!curOverflow || curOverflow === "visible") {
-      el.style.overflow = "hidden";
-    }
+    if (!curOverflow || curOverflow === "visible") el.style.overflow = "hidden";
 
     const isOverflowing = el.clientWidth < el.scrollWidth
       || el.clientHeight < el.scrollHeight;
