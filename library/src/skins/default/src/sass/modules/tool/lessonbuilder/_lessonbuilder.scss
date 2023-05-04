@@ -4,7 +4,9 @@
 		margin: 0 0 0 0;
 		padding: 0 0 0 0;
 		border-bottom: 0px none;
-		li {
+		.contentButton {
+                        font-size: 12px;
+                        display: inline !important;
 			span {
 				a {
           text-decoration: none;
@@ -408,15 +410,6 @@
 				display: $lessons-item-edit-display;
 			}
 		}
-	}
-	.topaction {
-		position: absolute;
-		top: 0;
-		right: 0;
-		
-		@media #{$phone} {
-			top: 2em;	
-		}	
 	}
 	button.section-merge-link, button.column-merge-link {
 		padding: 0;
@@ -1392,13 +1385,6 @@
     padding-left: 2em !important
   }
 
-  /* negative bottom margin because we set a top margin for the section below for the case where there's no toolbar */
-  #toolbar {
-    margin: 0;
-    margin-bottom: -10px;
-    display: inline-block;
-  }
-
   /* Dropdown Menu */
   .dropDownDiv {
     position: absolute;
@@ -1538,13 +1524,8 @@
     background: var(--sakai-background-color-1);
   }
   .gradingarea {
-    margin-left: 1em;
-    padding: 1px 5px;
-    display: inline-block;
     font-size: 90%;
     border: solid 1px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     border-radius: 3px;
   }
   .backgroundHighlight {
@@ -2175,6 +2156,10 @@
   }
   .bottomRight {
     float:right
+  }
+  .contentButton span, .contentButton a {
+    color: var(--button-text-color) !important;
+    text-decoration: none;
   }
   .contentButton span {
     padding: 0px !important;
