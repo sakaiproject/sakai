@@ -150,9 +150,8 @@ export const graderRenderingMixin = Base => class extends Base {
 
   _renderSaved() {
 
-    return html`<span class="saved fa fa-check-circle"
-                  title="${this.i18n.saved_successfully}"
-                  style="display: ${this.saveSucceeded ? "inline" : "none"};">
+    return html`<span class="saved fa fa-check-circle ${this.saveSucceeded ? "d-inline" : "d-none"} text-success"
+                  title="${this.i18n.saved_successfully}">
                 </span>`;
   }
 
