@@ -36,7 +36,7 @@ class SakaiRubricEvaluationRemover extends RubricsElement {
 
   render() {
 
-    if (this.onlyShowIfEvaluated && !this.hasEvaluation) return; 
+    if (this.onlyShowIfEvaluated && !this.hasEvaluation) return;
 
     return html`
       <button class="btn btn-transparent text-decoration-underline"

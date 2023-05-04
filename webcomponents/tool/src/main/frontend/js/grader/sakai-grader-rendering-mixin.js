@@ -130,8 +130,19 @@ export const graderRenderingMixin = Base => class extends Base {
               <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>
               <textarea id="grader-feedback-text-editor" class="d-none">${this.submission.feedbackText}</textarea>
               <div id="grader-feedback-text">${unsafeHTML(this.submission.feedbackText)}</div>
-              <button id="edit-inline-feedback-button" class="btn btn-link inline-feedback-button" @click=${this._toggleInlineFeedback} aria-haspopup="true">${this.assignmentsI18n.addfeedback}</button>
-              <button id="show-inline-feedback-button" class="btn btn-link inline-feedback-button d-none" @click=${this._toggleInlineFeedback} aria-haspopup="true">${this.assignmentsI18n["gen.don"]}</button>
+              <button id="edit-inline-feedback-button"
+                  class="btn btn-link inline-feedback-button"
+                  @click=${this._toggleInlineFeedback}
+                  aria-haspopup="true">
+                ${this.assignmentsI18n.addfeedback}
+              </button>
+              <button id="show-inline-feedback-button"
+                  class="btn btn-link inline-feedback-button"
+                  @click=${this._toggleInlineFeedback}
+                  style="display: none;"
+                  aria-haspopup="true">
+                ${this.assignmentsI18n["gen.don"]}
+              </button>
             </div>
           ` : html`
             ${this.selectedAttachment || this.selectedPreview ? html`
