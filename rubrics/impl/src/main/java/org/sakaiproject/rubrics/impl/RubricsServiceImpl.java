@@ -1414,7 +1414,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
                             String tool = association.getToolId();
                             String itemId = association.getItemId();
-                            Long newRubricId = NumberUtils.toLong(transversalMap.get(RBCS_PREFIX + rubricId).substring(RBCS_PREFIX.length()));
+                            String newRubricId = transversalMap.get(RBCS_PREFIX + rubricId).substring(RBCS_PREFIX.length());
                             String newItemId = null;
                             //3 association type
                             if (AssignmentConstants.TOOL_ID.equals(tool)) {
@@ -1455,8 +1455,13 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                             }
 
                             //4 save new association
-                            if (newItemId != null) {
-                                createToolItemRubricAssociation(tool, newItemId, association.getFormattedAssociation(), newRubricId).ifPresent(associationRepository::save);
+                            if (StringUtils.isNoneBlank(newItemId, newRubricId)) {
+                                Map<String, String> params = association.getFormattedAssociation();
+                                params.put(RubricsConstants.RBCS_LIST, newRubricId);
+                                log.debug("Create association for the new rubric [{}] and new item [{}] in the tool [{}]", newRubricId, newItemId, tool);
+                                saveRubricAssociation(tool, newItemId, params);
+                            } else {
+                                log.warn("Cannot create association with blank rubric id [{}] or item [{}]", newRubricId, newItemId);
                             }
                         });
                     } catch (Exception ex) {
