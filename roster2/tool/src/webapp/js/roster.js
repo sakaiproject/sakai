@@ -48,28 +48,6 @@ roster.setupPrintButton = function () {
 };
 
 /**
- *   Check if there is no scroll rendered and there are more pages
- */
-roster.checkScroll = function () {
-
-  // Check if body height is lower than window height (scrollbar missed, maybe you need to get more pages automatically)
-  // -12 is to account for ajax loading image height
-  if (($("body").height() - 12) <= $(window).height()) {
-    setTimeout(function () {
-
-      var renderedMembers = $(".roster-member").size();
-      // Without filter conditions get more pages if there are more members than rendered and rendered > 0
-      // If you have an active filter maybe you could display less members than total
-      // So get more pages only if rendered match a page size
-      if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % roster.pageSize === 0) {
-        $("body").data("scroll-roster", true);
-        $(window).trigger('scroll.roster');
-      }
-    }, 100);
-  }
-};
-
-/**
  * Renders a handlebars template.
  */
 roster.render = function (template, data, outputId) {
@@ -244,7 +222,6 @@ roster.switchState = function (state, args) {
       });
     });
 
-    $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction({}));
   } else if (roster.STATE_ENROLLMENT_STATUS === state) {
 
     roster.nextPage = 0;
@@ -367,13 +344,10 @@ roster.renderMembership = function (options) {
       default:
         roster.render('members_container_cards', {}, "roster-members-content");
     }
-
-    $(window).off('scroll.roster');
   }
 
   if (options.renderAll) {
     $('#roster-members').empty();
-    $(window).off('scroll.roster');
   }
 
   let url = "/direct/roster-membership/" + roster.siteId;
@@ -524,11 +498,9 @@ roster.renderMembership = function (options) {
         roster.addAdditionalInfoModalHandlers();
 
         if (roster.userIds) {
-          $(window).off('scroll.roster');
         } else {
           if (!options.renderAll) {
             roster.nextPage += 1;
-            $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction({enrollmentsMode: enrollmentsMode}));
           }
         }
 
@@ -639,33 +611,31 @@ roster.readySearchField = function () {
 
 roster.renderMembers = function (members, target, enrollmentsMode, options) {
 
-  var templateData = {
-          members: members,
-          groupToView :roster.groupToView,
-          firstNameLastName: roster.firstNameLastName,
-          viewEmail: roster.viewEmail,
-          viewUserDisplayId: roster.viewUserDisplayId,
-          viewPronouns: roster.viewPronouns,
-          viewProfileLink: roster.viewProfileLink,
-          viewUserNamePronunciation: roster.viewUserNamePronunciation,
-          viewUserProperty: roster.viewUserProperty,
-          viewCandidateDetails: roster.viewCandidateDetails,
-          anyAdditionalInfoPresent: roster.members.findIndex(m => m.additionalNotes || m.specialNeeds) > -1,
-          anyStudentNumberPresent: roster.members.findIndex(m => m.studentNumber) > -1,
-          viewProfile: roster.currentUserPermissions.viewProfile,
-          viewGroup : roster.currentUserPermissions.viewGroup,
-          viewPicture: true,
-          currentUserId: roster.userId,
-          viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
-          enrollmentsMode: enrollmentsMode,
-          viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
-          viewConnections: ((undefined !== window.friendStatus) && roster.viewConnections),
-          showVisits: roster.showVisits,
-          profileNamePronunciationLink: roster.profileNamePronunciationLink,
-          printMode: options && options.printMode,
-      };
-
-  $(window).off('scroll.roster.rendered').on('scroll.roster.rendered', roster.checkScroll);
+  const templateData = {
+      members: members,
+      groupToView :roster.groupToView,
+      firstNameLastName: roster.firstNameLastName,
+      viewEmail: roster.viewEmail,
+      viewUserDisplayId: roster.viewUserDisplayId,
+      viewPronouns: roster.viewPronouns,
+      viewProfileLink: roster.viewProfileLink,
+      viewUserNamePronunciation: roster.viewUserNamePronunciation,
+      viewUserProperty: roster.viewUserProperty,
+      viewCandidateDetails: roster.viewCandidateDetails,
+      anyAdditionalInfoPresent: roster.members.findIndex(m => m.additionalNotes || m.specialNeeds) > -1,
+      anyStudentNumberPresent: roster.members.findIndex(m => m.studentNumber) > -1,
+      viewProfile: roster.currentUserPermissions.viewProfile,
+      viewGroup : roster.currentUserPermissions.viewGroup,
+      viewPicture: true,
+      currentUserId: roster.userId,
+      viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
+      enrollmentsMode: enrollmentsMode,
+      viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
+      viewConnections: ((undefined !== window.friendStatus) && roster.viewConnections),
+      showVisits: roster.showVisits,
+      profileNamePronunciationLink: roster.profileNamePronunciationLink,
+      printMode: options && options.printMode,
+    };
 
   let t = null;
   switch (roster.currentLayout) {
@@ -683,23 +653,10 @@ roster.renderMembers = function (members, target, enrollmentsMode, options) {
   }
 
   target.append(t(templateData, {helpers: roster.helpers}));
-  $(window).trigger('scroll.roster.rendered');
-};
 
-roster.getScrollFunction = function (options) {
+  roster.observer.disconnect();
+  roster.observer.observe(document.querySelector(".roster-entry:last-child"));
 
-  var scroller = function () {
-
-    var wintop = $(window).scrollTop(), docheight = $(document).height(), winheight = $(window).height();
-
-    if  ((wintop/(docheight-winheight)) > 0.95 || $("body").data("scroll-roster") === true) {
-      $("body").data("scroll-roster", false);
-      $(window).off('scroll.roster');
-      roster.renderMembership(options);
-    }
-  };
-
-  return scroller;
 };
 
 roster.getRoleFragments = function (roleCounts) {
@@ -848,7 +805,7 @@ roster.calculatePageSizes = function () {
 
   // height of container = height + top and bottom padding;
   // #roster-members-content has no height at load, so we approximate using the morpheus page container
-  const containerHeight = parseInt($('div.portal-main-container').height());
+  var containerHeight = parseInt($('div.Mrphs-pagebody').height());
 
   // number of rows per page = containerHeight / cardHeight, rounded down up nearest whole number
   var numBigRowsPerPage = Math.ceil(containerHeight / bigCardHeight);
@@ -1052,6 +1009,16 @@ var loadRoster = function () {
       insertions?.forEach((insertion, index) => translation = translation?.replace(`{${index}}`, insertion));
       return translation;
     };
+
+    const callback = entries => {
+
+      if (entries.filter(entry => entry.isIntersecting).length > 0) {
+        roster.renderMembership({});
+      }
+    };
+
+    roster.observer = new IntersectionObserver(callback);
+
     roster.loadSiteDataAndInit();
   });
 };
