@@ -18,6 +18,7 @@ class SakaiRubricGradingButton extends RubricsElement {
       toolId: { attribute: "tool-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
       hasEvaluation: { attribute: false, type: Boolean },
+      onlyShowIfEvaluated: { attribute: "only-show-if-evaluated", type: Boolean },
     };
   }
 
@@ -32,10 +33,14 @@ class SakaiRubricGradingButton extends RubricsElement {
 
   render() {
 
+    if (this.onlyShowIfEvaluated && !this.hasEvaluation) {
+      return;
+    }
+
     return html`
-      <a href="javascript:;">
-        <span class="si si-sakai-rubrics ${this.hasEvaluation ? "rubric-active" : ""}"></span>
-      </a>
+      <button class="btn btn-transparent">
+        <span class="si si-sakai-rubrics"></span>
+      </button>
     `;
   }
 
