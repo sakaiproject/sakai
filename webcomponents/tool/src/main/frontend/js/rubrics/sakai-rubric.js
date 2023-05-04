@@ -105,6 +105,7 @@ export class SakaiRubric extends RubricsElement {
             : ""
           }
           <sakai-rubric-edit
+            id="rubric-edit-${this.rubric.id}"
             @show-tooltip="${this.showToolTip}"
             @update-rubric-title="${this.updateRubricTitle}"
             rubric="${JSON.stringify(this.rubric)}"
