@@ -362,15 +362,9 @@ function toPoint(id)
 </h:panelGroup>
 
 <p class="act">
-   <h:commandButton id="save" styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit">
+   <h:commandButton id="save" styleClass="active" value="#{evaluationMessages.save_cont}" action="gradeStudentResult" type="submit">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
    <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />

@@ -1,11 +1,10 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
-import java.text.DateFormat;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -16,7 +15,6 @@ import javax.faces.model.SelectItem;
 
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -52,7 +50,6 @@ public class SubmissionNavBean extends SpringBeanAutowiringSupport implements Se
 
 
     public void populate(List<AgentResults> agentResultsList, String currentGradingId, boolean displaySubmissionDate) {
-        Locale locale = ContextUtil.getLocale();
 
         this.displaySubmissionDate = displaySubmissionDate;
         this.currentGradingId = currentGradingId;
@@ -86,7 +83,8 @@ public class SubmissionNavBean extends SpringBeanAutowiringSupport implements Se
                     String displayName = agent.getLastName() + ", " + agent.getFirstName()
                         + " (" + agent.getAgentDisplayId()  + ")";
                     String optionLabel = displaySubmissionDate
-                            ? displayName + " - " + userTimeService.dateTimeFormat(agent.getSubmittedDate(), locale, DateFormat.MEDIUM)
+                            ? displayName + " - " + userTimeService.dateTimeFormat(agent.getSubmittedDate().toInstant(),
+                                    FormatStyle.MEDIUM, FormatStyle.SHORT)
                             : displayName;
                     return new SelectItem(agent.getAssessmentGradingId(), optionLabel);
                 })
