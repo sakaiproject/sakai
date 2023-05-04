@@ -52,8 +52,8 @@ export const graderRenderingMixin = Base => class extends Base {
         </div>
 
         <div id="grader-total" class="fs-6">
-          <span class="fs-6">${this.assignmentsI18n.grad3}</span>
-          <span class="fs-6">${this.totalGraded} / ${this.submissions.length}</span>
+          <span>${this.assignmentsI18n.grad3}</span>
+          <span>${this.totalGraded} / ${this.submissions.length}</span>
         </div>
 
         <div id="grader-navigator">
