@@ -24,10 +24,6 @@ can be either all members of the site, all members of selected groups, or the se
 		#end
 	#end
 #end
-#set($peerAssessment = false)
-#if($!value_UsePeerAssessment.equals("true"))
-	#set($peerAssessment = true)
-#end
 
 <p class="text-muted small">$tlang.getString("gen.cant.change.after.draft")</p>
 
@@ -76,7 +72,6 @@ can be either all members of the site, all members of selected groups, or the se
 				#if ($disableGroupAssignment) disabled="disabled" #end
 			/>
 			$tlang.getFormattedMessage("group.issubmit", $releaseToGroupsMsg.toArray())
-			<span id="msgNoGroupAssignmentPeerInUse" style="display:#if($peerAssessment) inline;#else none;#end">$tlang.getString("settings.access.noGroupAssignmentPeerInUse")</span>
 		</label>
 	</div>
 #end

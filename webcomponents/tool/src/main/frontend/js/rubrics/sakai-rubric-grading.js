@@ -555,8 +555,8 @@ export class SakaiRubricGrading extends RubricsElement {
         this.decorateCriteria();
 
         if (this.isPeerOrSelf) {//for selfreview buttons locking
-          document.querySelectorAll('.rating-item.selected').length > 0 ? this.dispatchEvent(new CustomEvent('rubric-ratings-changed', {bubbles: true, composed: true}))
-            : this.dispatchEvent(new CustomEvent('rubrics-grading-loaded', {bubbles: true, composed: true}));
+          this.dispatchEvent(new CustomEvent('rubrics-grading-loaded', {bubbles: true, composed: true}));
+          this.updateComplete.then(() => this.dispatchEvent(new CustomEvent('rubric-ratings-changed', {bubbles: true, composed: true})));
         }
 
       })

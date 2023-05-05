@@ -159,17 +159,17 @@ class SakaiRubricAssociation extends RubricsElement {
                     <div class="rubric-options">
                       <div class="radio">
                         <label>
-                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="0" ?checked=${this.selectedConfigOptions.studentSelfReportMode === 0 || !this.selectedConfigOptions.studentSelfReportMode} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode0}
+                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="0" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "0" || !this.selectedConfigOptions.studentSelfReportMode} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode0}
                         </label>
                       </div>
                       <div class="radio">
                         <label>
-                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="1" ?checked=${this.selectedConfigOptions.studentSelfReportMode === 1} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode1}
+                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="1" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "1"} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode1}
                         </label>
                       </div>
                       <div class="radio">
                         <label>
-                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="2" ?checked=${this.selectedConfigOptions.studentSelfReportMode === 2} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode2}
+                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="2" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "2"} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode2}
                         </label>
                       </div>
                     </div>

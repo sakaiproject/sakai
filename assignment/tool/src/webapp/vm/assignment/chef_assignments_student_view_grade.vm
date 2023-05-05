@@ -305,10 +305,15 @@
     <sakai-rubric-student
         tool-id="sakai.assignment"
         entity-id="$assignment.Id"
-        evaluated-item-id="$currentUserId"
         instructor="true"
         is-peer-or-self="true"
-        evaluated-item-owner-id="$currentUserId"
+        #if($!assignment.IsGroup)
+            evaluated-item-id="$submission.GroupId"
+            evaluated-item-owner-id="$submission.GroupId"
+        #else
+            evaluated-item-id="$currentUserId"
+            evaluated-item-owner-id="$currentUserId"
+        #end
     ></sakai-rubric-student>
     <p class="help-block">
         $tlang.getString("reviewrubricreport")

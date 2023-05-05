@@ -2365,6 +2365,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 String grade = assignmentService.getGradeForSubmitter(submission, currentUser);
                 context.put("grade", grade);
                 context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
+                if (assignment.getIsGroup()) {
+                    context.put("selectedGroup", submission.getGroupId());
+                }
             }
 
             if (assignment.getIsGroup() && state.getAttribute(VIEW_SUBMISSION_GROUP) != null) {
@@ -2660,9 +2663,15 @@ public class AssignmentAction extends PagedResourceActionII {
                             } else {
                                 //need to set the assessor's display name
                                 try {
-                                    review.setAssessorDisplayName(userDirectoryService.getUser(review.getId().getAssessorUserId()).getDisplayName());
-                                } catch (UserNotDefinedException e) {
-                                    //reviewer doesn't exist or userId is wrong
+                                    if (assignment.getIsGroup()) {
+                                        String siteId = toolManager.getCurrentPlacement().getContext();
+                                        Site site = siteService.getSite(siteId);
+                                        review.setAssessorDisplayName(site.getGroup(review.getId().getAssessorUserId()).getTitle());
+                                    } else {
+                                        review.setAssessorDisplayName(userDirectoryService.getUser(review.getId().getAssessorUserId()).getDisplayName());
+                                    }
+                                } catch (IdUnusedException | UserNotDefinedException e) {
+                                    //reviewer doesn't exist or one of userId/groupId/siteId is wrong
                                     log.error(e.getMessage(), e);
                                     //set a default one:
                                     review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer.countReview", completedReviews.size() + 1));
@@ -3894,9 +3903,15 @@ public class AssignmentAction extends PagedResourceActionII {
                         if (!review.getRemoved() && (review.getScore() != null || (review.getComment() != null && !"".equals(review.getComment().trim())))) {
                             //only show peer reviews that have either a score or a comment saved
                             try {
-                                review.setAssessorDisplayName(userDirectoryService.getUser(review.getId().getAssessorUserId()).getDisplayName());
-                            } catch (UserNotDefinedException e) {
-                                //reviewer doesn't exist or userId is wrong
+                                if (a.getIsGroup()) {
+                                    String siteId = toolManager.getCurrentPlacement().getContext();
+                                    Site site = siteService.getSite(siteId);
+                                    review.setAssessorDisplayName(site.getGroup(review.getId().getAssessorUserId()).getTitle());
+                                } else {
+                                    review.setAssessorDisplayName(userDirectoryService.getUser(review.getId().getAssessorUserId()).getDisplayName());
+                                }
+                            } catch (IdUnusedException | UserNotDefinedException e) {
+                                //reviewer doesn't exist or one of userId/groupId/siteId is wrong
                                 log.error(e.getMessage(), e);
                                 //set a default one:
                                 review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer.countReview", completedReviews.size() + 1));
@@ -5406,7 +5421,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             for (int j = 0; j < submissionItems.size(); j++) {
                                 PeerAssessmentItem item = submissionItems.get(j);
                                 if (item.getId().getAssessorUserId().equals(assessorId)) {
-                                    context.put("reviewNumber", ((i * j) + 1));
+                                    context.put("reviewNumber", (peerAssessmentItems.indexOf(item) + 1));
                                     context.put("anonNumber", i + 1);
                                     boolean goPT = false;
                                     boolean goNT = false;
@@ -11288,7 +11303,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Assignment assignment = s.getAssignment();
             String assessorUserId = assignmentService.getSubmitterIdForAssignment(assignment, userDirectoryService.getCurrentUser().getId());
 
-            if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null && !assessorUserId.equals(state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID))) {
+            if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null && !state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID).equals(assessorUserId)) {
                 //this is only set during the read only view, so just return
                 return false;
             }

@@ -133,9 +133,15 @@
     <sakai-rubric-student
         tool-id="sakai.assignment"
         entity-id="$assignment.Id"
-        evaluated-item-id="$submitter.Id"
-        is-peer-or-self="$rubricSelfReport"
-        evaluated-item-owner-id="$submitter.Id"
+        is-peer-or-self="true"
+        #if ($!assignment.isGroup)
+            evaluated-item-id="$selectedGroup"
+            evaluated-item-owner-id="$selectedGroup"
+            group
+        #else
+            evaluated-item-id="$submitter.Id"
+            evaluated-item-owner-id="$submitter.Id"
+        #end
     ></sakai-rubric-student>
     <p class="instruction">
         $tlang.getString("reviewrubric")

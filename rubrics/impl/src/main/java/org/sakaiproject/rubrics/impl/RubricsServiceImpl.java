@@ -907,6 +907,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 merged.put(StringUtils.remove(k, RBCS_CONFIG), Integer.valueOf(v));
             } else if (k.startsWith(RBCS_MULTIPLE_OPTIONS_CONFIG)) {
                 merged.put(StringUtils.remove(k, RBCS_MULTIPLE_OPTIONS_CONFIG), Integer.valueOf(v));
+            } else if (!k.startsWith(RubricsConstants.RBCS_LIST) && !k.startsWith(RubricsConstants.RBCS_ASSOCIATE)) {//duplicate or migrate
+                merged.put(k, Integer.valueOf(v));
             }
         });
 

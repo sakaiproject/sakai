@@ -556,6 +556,7 @@ function printView(url) {
 											#end
 											</span>
 											</a>
+											#if ($rubricId)
 											<sakai-rubric-student-button
 												tool-id="sakai.assignment"
 												evaluated-item-id="$!item.getId().getAssessorUserId()"
@@ -563,6 +564,7 @@ function printView(url) {
 												evaluated-item-owner-id="$!submitterId"
 												instructor="true">
 											</sakai-rubric-student-button>
+											#end
 											#if($!item.getScoreDisplay().length() > 0 || ($!item.getComment() && $!item.getComment().trim().length() > 0))
 												<span class="highlight" #if($item.Removed) style="text-decoration: line-through" #end>
 													#if($item.isDraft())

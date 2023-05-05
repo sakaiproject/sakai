@@ -156,10 +156,6 @@ This section contains the options for grading this assignment, including rubrics
 			#end
 
 			#if ($allowPeerAssessment)
-				#set($groupAssignment = false)
-				#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
-					#set($groupAssignment = true)
-				#end
 				<div class="peerAssessmentContainer form-group" id="peerAssessmentContainer" #if ($value_SubmissionType == 6) style = "display:none"#end>
 					<div class="checkbox">
 						<label id="peerAssessmentCheckboxLabel" for="usePeerAssessment">
@@ -168,9 +164,6 @@ This section contains the options for grading this assignment, including rubrics
 								onclick="ASN_INE.togglePeerAssessment(this)"
 							/>
 							$tlang.getString("peerAssessmentUse")
-							<span id="peerGroupAsnWarn" style="display:#if($groupAssignment)block#else none#end;">
-								$tlang.getString("peerassessment.warn.nogroup")
-							</span>
 						</label>
 					</div>
 					#set($displayPeerOptions = "none")
