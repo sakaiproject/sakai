@@ -538,7 +538,7 @@ public class UserPrefsTool
 
 		//To indicate that it is in the refresh mode
 		refreshMode=true;
-		String tabOrder = ServerConfigurationService.getString("preference.pages", "prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_hidden_title, prefs_editor_title,prefs_theme_title");
+		String tabOrder = ServerConfigurationService.getString("preference.pages", "prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_editor_title,prefs_theme_title");
 		log.debug("Setting preference.pages as " + tabOrder);
 
 		tablist=tabOrder.split(",");
