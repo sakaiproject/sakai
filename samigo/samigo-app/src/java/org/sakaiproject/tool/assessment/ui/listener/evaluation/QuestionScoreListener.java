@@ -527,8 +527,13 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				deliveryItems.add(item);
 			bean.setDeliveryItem(deliveryItems);
 
-			// At least one other question, that is not cancelled should exist
-			bean.setCancellationAllowed(publishedItemHash.values().stream()
+			boolean randomItemPresent = publishedItemHash.values().stream()
+					.filter(publishedItem -> ItemCancellationUtil.isRandomItem(publishedItem))
+					.findAny()
+					.isPresent();
+
+			// At least one other question, that is not cancelled should exist and the item can't be random
+			bean.setCancellationAllowed(!randomItemPresent && publishedItemHash.values().stream()
 					.filter(publishedItem -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
 					.filter(publishedItem -> !ItemCancellationUtil.isCancelled(publishedItem))
 					.collect(Collectors.counting()) > 1);
@@ -540,6 +545,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					.collect(Collectors.counting())
 					.intValue() > 0);
 			log.debug("setEmiItemPresent({})", bean.isEmiItemPresent());
+
+			bean.setRandomItemPresent(randomItemPresent);
+			log.debug("setRandomItemPresent({})", randomItemPresent);
 
 			if (ContextUtil.lookupParam("roleSelection") != null) {
 				bean.setRoleSelection(ContextUtil.lookupParam("roleSelection"));
