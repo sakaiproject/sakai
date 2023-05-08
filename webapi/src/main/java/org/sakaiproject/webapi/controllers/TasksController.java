@@ -294,6 +294,4 @@ public class TasksController extends AbstractSakaiApiController {
         }
         bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
     }
-
-
 }
