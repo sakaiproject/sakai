@@ -100,12 +100,7 @@ public class TasksController extends AbstractSakaiApiController {
         data.put("tasks", taskService.getAllTasksForCurrentUser()
             .stream().map(bean -> {
                 try {
-                    Site site = siteService.getSite(bean.getSiteId());
-                    bean.setSiteTitle(site.getTitle());
-                    if (StringUtils.isNotBlank(bean.getReference()) && !bean.getReference().startsWith("/user/")) {
-                        entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));	
-                    }
-                    bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
+                    updateUserTaskAdapterBean(bean);
                 } catch (IdUnusedException e) {
                     log.warn("No site for id {}", bean.getSiteId());
                 }
@@ -245,17 +240,15 @@ public class TasksController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        UserTaskAdapterBean result = UserTaskAdapterBean.from(taskService.saveUserTask(taskTransfer));
-        if (!StringUtils.isEmpty(taskTransfer.getSiteId())) {
+        UserTaskAdapterBean bean = UserTaskAdapterBean.from(taskService.saveUserTask(taskTransfer));
+        if (!StringUtils.isEmpty(bean.getSiteId())) {
             try {
-                Site site = siteService.getSite(taskTransfer.getSiteId());
-                result.setSiteTitle(site.getTitle());
-                result.setTaskAssignedTo(getTaskAssignedDescription(taskTransfer.getTaskId(), site));
+                updateUserTaskAdapterBean(bean);
             } catch (IdUnusedException e) {
                 log.error(e.getMessage(), e);
             }
         }        
-        return result;
+        return bean;
     }
 
     @DeleteMapping("/tasks/{userTaskId}")
@@ -286,4 +279,20 @@ public class TasksController extends AbstractSakaiApiController {
         return result;
     }
 
+    /**
+     * This method updates a UserTaskAdapterBean object.
+     *
+     * @param bean the UserTaskAdapterBean object to update
+     * @throws IdUnusedException if the specified site ID is invalid
+     */
+    private void updateUserTaskAdapterBean(UserTaskAdapterBean bean) throws IdUnusedException {
+
+        Site site = siteService.getSite(bean.getSiteId());
+
+        bean.setSiteTitle(site.getTitle());
+        if (StringUtils.isNotBlank(bean.getReference()) && !bean.getReference().startsWith("/user/")) {
+            entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
+        }
+        bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
+    }
 }
