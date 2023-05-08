@@ -30,6 +30,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       optionsGroup: { attribute: false, type: Array },
       mode: { attribute: false, type: String },
       siteIdBackup: { attribute: false, type: String },
+      completed: {attribute: false, type: Boolean },
     };
   }
 
@@ -70,14 +71,18 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   save() {
-
     this.task.description = this.shadowRoot.getElementById("description").value;
     this.task.notes = this.getEditor().getContent();
     this.task.assignationType = this.assignationType;
     this.task.siteId = this.siteId;
     this.task.userId = this.userId;
     this.task.owner = this.task.owner || this.userId;
+    this.task.complete = this.completed;
+    if (this.completed) {
+      this.task.softDeleted = false;
+    }
     this.addSelectedGroups();
+
     const url = `/api/tasks${this.task.taskId ? `/${this.task.taskId}` : ""}`;
     fetch(url, {
       credentials: "include",
@@ -227,11 +232,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   complete(e) {
-
-    this.task.complete = e.target.checked;
-    if (e.target.checked) {
-      this.task.softDeleted = false;
-    }
+    this.completed = e.target.checked;
   }
 
   groupComboList() {
