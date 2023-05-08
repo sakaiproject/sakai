@@ -1197,7 +1197,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
     private List<Permission> getPermissionsForUserForGoupsAnyCategory(Long gradebookId, String userId, List<String> groupIds) throws IllegalArgumentException {
 
-        if (gradebookId == null || userId == null || groupIds == null || groupIds.isEmpty()) {
+        if (gradebookId == null || userId == null || groupIds == null) {
             throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForGoupsAnyCategory");
         }
 

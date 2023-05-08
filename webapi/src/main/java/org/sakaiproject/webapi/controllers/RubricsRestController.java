@@ -277,6 +277,19 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }
     }
 
+    @DeleteMapping(value = "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}/evaluations/{evaluatedItemId}")
+    ResponseEntity deleteEvaluation(@PathVariable String siteId, @PathVariable String toolId, @PathVariable String itemId, @PathVariable String evaluatedItemId) throws Exception {
+
+        checkSakaiSession();
+
+        if (rubricsService.deleteEvaluationForToolAndItemAndEvaluatedItemId(toolId, itemId, evaluatedItemId, siteId)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     @GetMapping(value = "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<List<EvaluationTransferBean>> getEvaluationsForItem(@PathVariable String siteId, @PathVariable String toolId, @PathVariable String itemId) throws Exception {
 
@@ -370,7 +383,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
         checkSakaiSession();
 
         ContentDisposition contentDisposition = rubricsService.getRubric(rubricId).map(rubric -> {
-            String filename = StringUtils.trimToEmpty(rubric.getTitle()).replace(".", "_");
+            String filename = rubricsService.createContextualFilename(rubric, toolId, itemId, evaluatedItemId, siteId);
             filename = StringUtils.isNotBlank(filename) ? filename : "_";
             return ContentDisposition.builder("attachment").filename(String.format("%s.pdf", filename)).build();
         }).orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));

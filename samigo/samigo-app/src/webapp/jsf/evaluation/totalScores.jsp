@@ -165,7 +165,7 @@ $(document).ready(function(){
 
 <h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
   <h:panelGroup styleClass="col-md-6" layout="block">
-    <h:panelGroup styleClass="all-submissions form-group row" layout="block">
+    <h:panelGroup styleClass="all-submissions form-group" layout="block">
       <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}"/>
       <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
@@ -204,7 +204,7 @@ $(document).ready(function(){
         </h:selectOneMenu>
       </h:panelGroup>
 
-	  <h:panelGroup styleClass="search-student form-group row" layout="block">
+	  <h:panelGroup styleClass="search-student form-group" layout="block">
       <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
  	        <h:inputText
 				id="searchString"

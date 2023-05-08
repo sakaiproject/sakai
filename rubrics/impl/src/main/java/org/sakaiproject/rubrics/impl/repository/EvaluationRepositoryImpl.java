@@ -51,6 +51,7 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
 
         return session.createQuery(query).list();
     }
+
     public Optional<Evaluation> findByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -90,6 +91,19 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
                             cb.equal(eval.get("evaluatedItemOwnerId"), userId)));
 
         return session.createQuery(query).uniqueResultOptional();
+    }
+
+    public int deleteByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<Evaluation> delete = cb.createCriteriaDelete(Evaluation.class);
+        Root<Evaluation> eval = delete.from(Evaluation.class);
+        delete.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+                            cb.equal(eval.get("evaluatedItemId"), evaluatedItemId)));
+
+        return session.createQuery(delete).executeUpdate();
     }
 
     public int deleteByToolItemRubricAssociation_Id(Long associationId) {

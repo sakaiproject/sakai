@@ -65,7 +65,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   addSelectedGroups() {
 
     if (this.selectedGroups != null) {
-      this.task.selectedGroups = this.selectedGroups.map(sg => sg.value);
+      this.task.selectedGroups = [...this.selectedGroups].map(sg => sg.value);
     }
   }
 

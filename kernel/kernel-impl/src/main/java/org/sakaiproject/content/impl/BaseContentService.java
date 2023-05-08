@@ -14390,25 +14390,40 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
 
 		// Cleanup the collections
-		String folderId = "";
-		try {
-			ContentCollection siteCollection = getCollection(collectionId);
-			List<ContentCollectionEdit> folders = m_storage.getCollections(siteCollection);
-			for (ContentCollectionEdit folder : folders) {
-				folderId = folder.getId();
-				log.debug("Removing collection: {}", folderId);
-				removeCollection(folder.getId());
-			}
+		removeCollectionRecursive(collectionId);
+	}
 
-			// Now delete the site-root collection
-			log.debug("Removing collection: {}", siteCollection.getId());
-			removeCollection(siteCollection.getId());
+	private void removeCollectionRecursive(String collectionId) {
+		ContentCollection collection = null;
+		try {
+			collection = getCollection(collectionId);
 		} catch (IdUnusedException ide) {
-			log.warn("No resources in collection {}.", folderId);
-		} catch (Exception e) {
-			log.warn("Failed to remove collection {}.", folderId, e);
+			log.warn("No resources in collection {}.", collectionId);
+		} catch (TypeException te) {
+			log.warn("Not a collection {}.", collectionId);
+		} catch (PermissionException pe) {
+			log.warn("No permission to remove collection {}.", collectionId);
 		}
-    }
+		if (collection != null) {
+			List<ContentCollectionEdit> members = m_storage.getCollections(collection);
+			members.forEach(edit -> removeCollectionRecursive(edit.getId()));
+			//remove leaf
+			try {
+				log.debug("Removing collection: {}", collection.getId());
+				removeCollection(collectionId);
+			} catch (IdUnusedException e) {
+				log.warn("collection {} does not exist.", collectionId);
+			} catch (TypeException  e1) {
+				log.warn("Not a collection {}.", collectionId, e1);
+			} catch (PermissionException e2) {
+				log.warn("No permission to remove collection {}.", collectionId);
+			} catch (InUseException e3) {
+				log.warn("collection {} is in use.", collectionId , e3);
+			} catch (ServerOverloadException e4) {
+				log.warn("failed to remove collection {}", collectionId , e4);
+			}
+		}
+	}
 
 	@Override
 	public String getInstructorUploadFolderName() {

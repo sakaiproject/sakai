@@ -744,25 +744,14 @@
     line-height: initial;
   }
   #toggleGradeItemsToolbarItem:after {
-    font-family: 'bootstrap-icons';
-    content: '\F282';
     font-size: 0.9em;
     margin-left: 6px
   }
-  #toggleGradeItemsToolbarItem.on:after {
-    content: '\F286';
-  }
   #toggleCategories:before,
   #toggleCategoriesToolbarItem:before {
-    font-family: 'bootstrap-icons';
-    content: '\F271';
     font-size: 15px;
     margin-right: 6px;
     vertical-align: middle;
-  }
-  #toggleCategories.on:before,
-  #toggleCategoriesToolbarItem.on:before {
-    content: '\f046';
   }
   #filterByGroup {
     line-height: 1em;
@@ -1753,7 +1742,7 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
 }
 .gb-summary-print {
   position: absolute;
-  top: 15px;
+  top: 11px;
   right: 10px;
 }
 .gb-summary-print:before {
@@ -1804,4 +1793,12 @@ max-height:100px;
 
 .w_blue .w_content_container {
   max-height: 450px;
+}
+
+.dropdown-menu > li > a {
+  text-decoration: none;
+}
+.dropdown-menu > li:hover,
+.dropdown-menu > li:focus {
+  background-color: var(--button-hover-background);
 }

@@ -81,6 +81,12 @@ class SuiNotifications extends SakaiElement {
 
       if (toolEventPrefix === "profile") {
         this._decorateProfileNotification(noti);
+      } else if (toolEventPrefix === "asn") {
+        this._decorateAssignmentNotification(noti);
+      } else if (toolEventPrefix === "annc") {
+        this._decorateAnnouncementNotification(noti);
+      } else if (toolEventPrefix === "commons") {
+        this._decorateCommonsNotification(noti);
       }
 
       if (!this.filteredNotifications.has(toolEventPrefix)) {
@@ -108,6 +114,26 @@ class SuiNotifications extends SakaiElement {
         break;
       default:
     }
+  }
+
+  _decorateAssignmentNotification(noti) {
+
+    if (noti.event === "asn.new.assignment" || noti.event === "asn.revise.access") {
+      noti.title = this.i18n.assignment_created.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
+    } else if (noti.event === "asn.grade.submission") {
+      noti.title = this.i18n.assignment_submission_graded.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
+    }
+  }
+
+  _decorateAnnouncementNotification(noti) {
+
+    if (noti.event === "annc.new") {
+      noti.title = this.i18n.announcement.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
+    }
+  }
+
+  _decorateCommonsNotification(noti) {
+    noti.title = this.i18n.academic_comment_graded.replace('{0}', noti.siteTitle);
   }
 
   fireLoadedEvent() {

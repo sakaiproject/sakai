@@ -539,7 +539,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 		// post the login event
 		eventTrackingService().post(eventTrackingService().newEvent(event != null ? event : EVENT_LOGIN, null, true));
-
+		sakaiSession.setAttribute(Session.JUST_LOGGED_IN, Boolean.TRUE);
 		return true;
 	}
 

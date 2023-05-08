@@ -90,8 +90,8 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>github-com-bahriddin-ckeditor-html5-video</artifactId>
+			<groupId>org.webjars</groupId>
+			<artifactId>ckeditor-html5-video</artifactId>
 			<version>${ckeditor.html5video.version}</version>
 			<scope>runtime</scope>
 		</dependency>
@@ -479,6 +479,14 @@
 						<groupId>com.samaxes.maven</groupId>
 						<artifactId>minify-maven-plugin</artifactId>
 						<version>1.7.6</version>
+						<dependencies>
+							<!-- Must override this dependency, even though not declared (see MNG-6965) -->
+							<dependency>
+								<groupId>org.codehaus.plexus</groupId>
+								<artifactId>plexus-utils</artifactId>
+								<version>3.5.1</version>
+							</dependency>
+						</dependencies>
 						<executions>
                             <execution>
                                 <id>default-minify</id>

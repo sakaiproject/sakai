@@ -1084,6 +1084,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("userSiteRole", role != null ? role.getId() : "");
 		rcontext.put("editorType", editorType);
 
+                Session session = SessionManager.getCurrentSession();
+                boolean justLoggedIn = session.getAttribute(Session.JUST_LOGGED_IN) != null;
+                if (justLoggedIn) {
+			session.removeAttribute(Session.JUST_LOGGED_IN);
+		}
+		rcontext.put("justLoggedIn", justLoggedIn);
+
 		rcontext.put("loggedOutUrl",ServerConfigurationService.getLoggedOutUrl());
 		rcontext.put("portalPath",ServerConfigurationService.getPortalUrl());
 		rcontext.put("timeoutDialogEnabled",Boolean.valueOf(ServerConfigurationService.getBoolean("timeoutDialogEnabled", true)));
@@ -2057,7 +2064,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
 
 		sakaiThemesEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
-		sakaiThemeSwitcherEnabled = ServerConfigurationService.getBoolean("portal.themes.switcher", false);
+		sakaiThemeSwitcherEnabled = ServerConfigurationService.getBoolean("portal.themes.switcher", true);
 		sakaiThemesAutoDetectDarkEnabled = ServerConfigurationService.getBoolean("portal.themes.autoDetectDark", true);
 
 		basicAuth = new BasicAuth();

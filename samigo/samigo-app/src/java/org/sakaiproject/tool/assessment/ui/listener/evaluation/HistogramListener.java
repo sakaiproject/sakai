@@ -1706,21 +1706,23 @@ public class HistogramListener
 
 		Map<Integer, String> answersMap = new HashMap<>();
 		int total = 0;
-		int i = 1;
-		Long publishAnswerIdAnt = scores.get(0).getPublishedAnswerId();
-		for (ItemGradingData score : scores) {
-			Long publishAnswerIdAct = score.getPublishedAnswerId();
-			if (!Objects.equals(publishAnswerIdAnt, publishAnswerIdAct)) {
-				i++;
-				publishAnswerIdAnt = publishAnswerIdAct;
-			}
-			delegate.extractCalcQAnswersArray(answersMap, item, score.getAssessmentGradingId(), score.getAgentId());
-			if (score.getAutoScore() != null) {
-				total++;
-				if (delegate.getCalcQResult(score, item, answersMap, i)) {
-					results.merge(CORRECT, 1, Integer::sum);
-				} else {
-					results.merge(INCORRECT, 1, Integer::sum);
+		if (!scores.isEmpty()) { // not every question may have an answer i.e. randomly drawn questions
+			int i = 1;
+			Long publishAnswerIdAnt = scores.get(0).getPublishedAnswerId();
+			for (ItemGradingData score : scores) {
+				Long publishAnswerIdAct = score.getPublishedAnswerId();
+				if (!Objects.equals(publishAnswerIdAnt, publishAnswerIdAct)) {
+					i++;
+					publishAnswerIdAnt = publishAnswerIdAct;
+				}
+				delegate.extractCalcQAnswersArray(answersMap, item, score.getAssessmentGradingId(), score.getAgentId());
+				if (score.getAutoScore() != null) {
+					total++;
+					if (delegate.getCalcQResult(score, item, answersMap, i)) {
+						results.merge(CORRECT, 1, Integer::sum);
+					} else {
+						results.merge(INCORRECT, 1, Integer::sum);
+					}
 				}
 			}
 		}

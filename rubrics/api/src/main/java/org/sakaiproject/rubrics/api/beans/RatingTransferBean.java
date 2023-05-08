@@ -28,6 +28,7 @@ public class RatingTransferBean {
     private Long criterionId;
     private String description;
     private Double points;
+    private Double weightedPoints;
     private String title;
 
     public RatingTransferBean(Rating rating) {
@@ -35,6 +36,7 @@ public class RatingTransferBean {
         criterionId = rating.getCriterion().getId();
         description = rating.getDescription();
         points = rating.getPoints();
+        weightedPoints = 0D;
         title = rating.getTitle();
     }
 }

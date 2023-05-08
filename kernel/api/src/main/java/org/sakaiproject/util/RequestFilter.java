@@ -195,7 +195,10 @@ public class RequestFilter implements Filter
 	/** The tools allowed as lti provider **/
 	protected static final String SAKAI_BLTI_PROVIDER_TOOLS = "basiclti.provider.allowedtools";
 
-	/** The name of the Skaia property to say we should redirect to another node when in shutdown */
+	/** Is the SakaiPlus provider enabled **/
+	protected static final String SAKAI_BLTI_PLUS_PROVIDER_ENABLED = "plus.provider.enabled";
+
+	/** The name of the Sakai property to say we should redirect to another node when in shutdown */
 	protected static final String SAKAI_CLUSTER_REDIRECT_RANDOM = "cluster.redirect.random.node";
 
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
@@ -868,7 +871,9 @@ public class RequestFilter implements Filter
 
 		m_UACompatible = serverConfigurationService.getString(SAKAI_UA_COMPATIBLE, null);
 
-		isLTIProviderAllowed = (serverConfigurationService.getString(SAKAI_BLTI_PROVIDER_TOOLS,null)!=null);
+		isLTIProviderAllowed =
+			(serverConfigurationService.getString(SAKAI_BLTI_PROVIDER_TOOLS,null)!=null) ||
+			(serverConfigurationService.getBoolean(SAKAI_BLTI_PLUS_PROVIDER_ENABLED,false));
 
 		m_redirectRandomNode = serverConfigurationService.getBoolean(SAKAI_CLUSTER_REDIRECT_RANDOM, true);
 

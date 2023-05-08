@@ -223,14 +223,16 @@ label {
 	margin-bottom: 15px;
 }
 
+.form-control-label {
+  font-weight: bold;
+  color: var(--sakai-text-color-2);
+}
+
 .form-control-required .form-control-label::after {
     content: ' *';
     color: var(--sakai-highlight-color);
 }
 
-table {
-	margin-left: 12px;
-}
 
 // to make sakai task accordion visible in account menu
 .global-overlays {

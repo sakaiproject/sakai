@@ -38,11 +38,11 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 
 @Slf4j
-public class SakaiTests extends AbstractTransactionalJUnit4SpringContextTests {
+public abstract class SakaiTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-    @Autowired public AuthzGroupService authzGroupService;
-    @Autowired public UserDirectoryService userDirectoryService;
-    @Autowired public SiteService siteService;
+    @Autowired protected AuthzGroupService authzGroupService;
+    @Autowired protected UserDirectoryService userDirectoryService;
+    @Autowired protected SiteService siteService;
 
     public String instructor = "instructor";
     public User instructorUser = null;

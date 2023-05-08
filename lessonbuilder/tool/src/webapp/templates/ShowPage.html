@@ -99,6 +99,83 @@
 
   <div rsf:id="portletBody" class="portletBody">
 
+<div class="row mt-4">
+  <div class="column col-12 m-0 p-0 border-0">
+    <span rsf:id="tool-bar:" class="navIntraTool" role="application" aria-labelledby="tool-bar::toolbar-label">
+      <h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="lb-offscreen"></h3>
+      <ul id="toolbar" class="d-inline">
+        <li class="contentButton">
+            <button class="btn btn-link my-1" type="button" data-bs-toggle="modal" rsf:id="addcontent" data-bs-target="#addContentDiv" aria-controls="addContentDiv" aria-expanded="false">
+              <span rsf:id="msg=simplepage.add-content"></span>
+              <i aria-hidden="true" class="bi-plus-lg ms-1"></i>
+            </button>
+        </li>
+        <li class="contentButton dropdown" rsf:id="dropdown" id="dropdown">
+            <button class="btn btn-link my-1" type="button" data-bs-toggle="modal" data-bs-target="#moreDiv" aria-controls="moreDiv" aria-expanded="false">
+              <span rsf:id="msg=simplepage.more-tools" class="d-none d-lg-inline-block"></span>
+              <i class="bi-arrow-down-circle-fill ms-1"></i>
+            </button>
+        </li>
+        <li rsf:id="remove-student" class="contentButton">
+            <button class="btn btn-link my-1" type="button">
+              <a class="remove-page" href="#" rsf:id="remove-page-student">
+                <span rsf:id="msg=simplepage.remove-page" role="menuitem"></span>
+              </a>
+            </button>
+        </li>
+        <li class="contentButton">
+            <button class="btn btn-link my-1" type="button" rsf:id="layout-link" data-bs-toggle="modal" data-bs-target="#layout-dialog" aria-controls="layout-dialog" aria-expanded="false">
+              <span rsf:id="msg=simplepage.layoutlinktext" class="d-none d-xl-inline-block me-1"></span>
+              <i class="bi-grid-1x2"></i>
+            </button>
+        </li>
+        <li class="contentButton">
+            <button class="btn btn-link my-1">
+              <a href="#" rsf:id="reorder">
+                <span aria-hidden="true" class="fa-button-text"></span>
+              </a>
+            </button>
+        </li>
+        <li class="contentButton">
+          <span rsf:id="title-descrip">
+            <button class="btn btn-link my-1" rsf:id="edit-title" id="edit-title" type="button" data-bs-toggle="modal" data-bs-target="#edit-title-dialog" aria-controls="edit-title-dialog" aria-expanded="false">
+              <span rsf:id="edit-title-text" class="d-none d-xl-inline-block me-1"></span>
+              <i class="bi-gear-fill"></i>
+            </button>
+          </span>
+        </li>
+      </ul>
+    </span>
+    <!-- /tool-bar -->
+    <div id="contentButtonsForAllRoles" class="text-end">
+      <span class="contentButton">
+        <a role="button" href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
+          <span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle me-1 d-none d-xl-inline-block"></span>
+          <i class="bi-printer"></i>
+        </a>
+      </span>
+      <span class="contentButton">
+        <a role="button" href="#" rsf:id="print-all" id="print-all" onclick="window.open(printViewWithParameter(window.location.href));return false" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
+          <span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle me-1 d-none d-xl-inline-block"></span>
+          <i class="bi-printer-fill"></i>
+        </a>
+      </span>        
+      <span class="contentButton">
+        <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
+          <span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle me-1 d-none d-lg-inline-block"></span>
+          <i class="bi-list-ol"></i>
+        </a>
+      </span>
+    </div>
+  </div>
+    
+  <div rsf:id="gradingSpan" class="gradingarea column col-12 p-2 border-0 text-end">
+    <a role="button" href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span>
+    <input rsf:id="studentPointsBox" id="studentPointsBox" type="text" style="font-size:100%" size="3"></input> / <span rsf:id="topmaxpoints"></span>
+    <a role="button" class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a role="button" style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
+  </div>
+</div> <!-- /row -->
+
     <div rsf:id="needPermissions" class="sak-banner-error error-spacingabove error-nospacebelow">
       <p rsf:id="msg=simplepage.needpermissions"></p>
       <a role="button" href="#" rsf:id="callpermissions"></a>
@@ -141,130 +218,19 @@
             </a>
           </h2>
         </div>
-        <div class="action topaction d-flex">
-          <a role="button" href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle"></span></a>
-          <a role="button" href="#" rsf:id="print-all" id="print-all" onclick="window.open(printViewWithParameter(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle"></span></a>
-          <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="Mrphs-toolTitleNav__link top-icon fa fa-list-ul"><span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle"></span></a>
-          <span rsf:id="gradingSpan" class="gradingarea">
-           <a role="button" href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span>
-          <input rsf:id="studentPointsBox" id="studentPointsBox" type="text" style="font-size:100%" size="3"></input> / <span rsf:id="topmaxpoints"></span>
-          <a role="button" class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a role="button" style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
-          </span>
-
-          <a role="button" aria-haspopup="dialog" aria-controls="direct-dialog" href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link link--directurl">
-            <img rsf:id="directimage" src="/library/image/transparent.gif" />
-          </a>
-          <div rsf:id="directurl-div" id="direct-dialog" role="dialog" class="portlet title-tools direct-url-wrap Mrphs-directUrl Mrphs-directUrl__dropDown">
-            <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url" />
-            <span rsf:id="directurl-shorten">Short URL</span>
-            <textarea rsf:id="directurl-textarea" class="portlet title-tools"></textarea>
-          </div>
-          <a role="button" href="#" rsf:id="helpbutton" target="_blank" style="display:inline" class="title-tools help Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup">
-            <img rsf:id="helpimage" src="/library/image/transparent.gif" />
-            <span rsf:id="helpnewwindow" class="lb-offscreen"></span>
-          </a>
-          <a role="button" href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help">
-            <img rsf:id="helpimage2" src="/library/image/transparent.gif" />
-            <span rsf:id="helpnewwindow2" class="lb-offscreen"></span>
-          </a>
-        </div>
-        <div style="clear:both"></div>
       </div>
     </div>
     <!-- /titlediv -->
 
-    <div id="subpage-breadcrumb-div" class="subpage-breadcrumb-div"></div>
-
-    <div rsf:id="tool-bar:" class="navIntraTool" role="application" aria-labelledby="tool-bar::toolbar-label">
-      <h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="lb-offscreen"></h3>
-      <ul id="toolbar" role="menubar">
-
-        <!-- uncomment to get icons for the most common content types
-
-        <li class="contentButton removeNarrow">
-          <span>
-          <a role="menuitem" rsf:id="add-text1" href="#"><span aria-hidden="true" class="fa-button-text fa-font"></span></a>
-          </span>
-        </li>
-
-        <li class="contentButton removeNarrow">
-          <span>
-          <a role="menuitem" href="#" rsf:id="add-resource1" class="add-at-end add-resource"><span aria-hidden="true" class="fa-button-text fa-link"></span></a>
-          </span>
-        </li>
-
-        <li class="contentButton removeNarrow">
-          <span>
-          <a role="menuitem" href="#" rsf:id="add-multimedia1" class="add-at-end add-multimedia"><span aria-hidden="true" class="fa-button-text fa-youtube-play"></span></a>
-          </span>
-        </li>
-
-        <li class="contentButton removeNarrow">
-          <span>
-          <a role="menuitem" href="#" rsf:id="subpage-link1" class="add-at-end subpage-link"><span aria-hidden="true" class="fa-button-text fa-folder-open"></span></a>
-          </span>
-        </li>
-        -->
-
-        <li class="contentButton">
-          <span>
-            <button type="button" class="btn btn-link" data-bs-toggle="modal" rsf:id="addcontent" data-bs-target="#addContentDiv" aria-controls="addContentDiv" aria-expanded="false">
-              <span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
-              <i aria-hidden="true" class="bi-plus-fill"></i>
-            </button>
-          </span>
-        </li>
-        <li class="contentButton dropdown" rsf:id="dropdown" id="dropdown">
-          <span>
-            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#moreDiv" aria-controls="moreDiv" aria-expanded="false">
-              <span rsf:id="msg=simplepage.more-tools"></span> &nbsp;&nbsp;
-              <i class="bi-arrow-down-circle-fill"></i>
-            </button>
-          </span>
-        </li>
-        <li rsf:id="remove-student" class="contentButton">
-          <span>
-            <button type="button" class="btn btn-link">
-              <a class="remove-page" href="#" rsf:id="remove-page-student">
-                <span rsf:id="msg=simplepage.remove-page" role="menuitem"></span>
-              </a>
-            </button>
-          </span>
-        </li>
-        <li class="contentButton">
-          <span>
-            <button type="button" rsf:id="layout-link" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#layout-dialog" aria-controls="layout-dialog" aria-expanded="false">
-              <span rsf:id="msg=simplepage.layoutlinktext"></span>
-            </button>
-          </span>
-        </li>
-        <li class="contentButton">
-          <span>
-            <button class="btn btn-link">
-              <a href="#" rsf:id="reorder">
-                <span aria-hidden="true" class="fa-button-text"></span>
-              </a>
-            </button>
-          </span>
-        </li>
-        <li class="contentButton">
-          <span rsf:id="title-descrip">
-            <button rsf:id="edit-title" id="edit-title" type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#edit-title-dialog" aria-controls="edit-title-dialog" aria-expanded="false">
-              <span rsf:id="edit-title-text"></span>&nbsp;&nbsp;
-              <i class="bi-gear-fill"></i>
-            </button>
-          </span>
-        </li>
-      </ul>
-    </div>
-    <!-- /tool-bar -->
+    <div id="subpage-breadcrumb-div" class="subpage-breadcrumb-div my-3"></div>
 
     <script>
       var breadcrumbs = jQuery(".breadcrumbs span");
       if (jQuery(".oldPortal").size() === 0) {
-        var title = jQuery(".title span:last").text();
-        var owner = jQuery("#owner").text();
-        var title = title + owner;
+        const toolbar = jQuery("ul#toolbar");
+        if (toolbar.length > 0) {
+          toolbar.append(jQuery("#contentButtonsForAllRoles").children(".contentButton").wrapInner('<li class="contentButton"></li>'));
+        }
         if (breadcrumbs.size() > 0) {
           jQuery(".subpage-breadcrumb-div").append(jQuery(".breadcrumbs span").slice(1));
           jQuery(".subpage-breadcrumb-div").prepend('<a id="lessonReset">' + jQuery(".Mrphs-hierarchy--toolName").text().trim() + '</a>');
@@ -275,15 +241,8 @@
           });
         }
         jQuery(".Mrphs-siteHierarchy").children().wrapAll('<div class="hierarchyWrap" />');
-        jQuery(".Mrphs-toolTitleNav__addRight").before(jQuery(".topaction > a"));
         jQuery(".Mrphs-toolTitleNav__button_container > a").addClass("Mrphs-toolTitleNav__link");
-      } else {
-        jQuery(".topaction > a").addClass("button");
       }
-
-      jQuery(".Mrphs-toolTitleNav__button_container").after(jQuery(".action"));
-
-      jQuery(".portletBody").prepend(jQuery(".navIntraTool"));
 
       jQuery(document).ready(function() {
         jQuery('.item, .canEdit').on('keyup', function(e) {
@@ -530,7 +489,7 @@
             </div>
             <div class="modal-footer">
               <button class="btn-primary" type="submit" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();"></button>
-              <button class="btn btn-secondary" type="button" id="subpage-choose" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></button>
+              <a class="btn btn-secondary" id="subpage-choose" role="button" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
               <button class="btn btn-secondary" id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
               <button class="btn btn-secondary" type="submit" data-bs-dismiss="modal" rsf:id="cancel-subpage"></button>
             </div>
@@ -1893,7 +1852,13 @@
       </form>
     </div>
 
-    <div class="modal fade" id="import-cc-dialog" rsf:id="import-cc-dialog" tabindex="-1" aria-labelledby="importCCLabel" aria-hidden="true">
+    <div class="modal fade"
+        id="import-cc-dialog"
+        rsf:id="import-cc-dialog"
+        tabindex="-1"
+        aria-labelledby="importCCLabel"
+        data-bs-backdrop="static"
+        aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -1941,11 +1906,11 @@
                     <label for="assigntoolbox" rsf:id="assigntoollabel"></label><br />
                   </span>
                 </div>
-                <p>
+                <p class="mt-2">
                   <input class="bold" type="submit" id="import-cc-submit" rsf:id="import-cc-submit" />
-                  <input type="submit" rsf:id="mm-cancel" onclick="closeImportCcDialog(); return false" />
+                  <input type="submit" rsf:id="mm-cancel" data-bs-dismiss="modal" />
                 </p>
-                <p id="import-cc-loading" rsf:id="msg=simplepage.loading"></p>
+                <p id="import-cc-loading" rsf:id="msg=simplepage.loading" style="display: none;" class="mt-1"></p>
               </div>
             </form>
           </div>
@@ -1953,7 +1918,13 @@
       </div>
     </div>
 
-    <div id="export-cc-dialog" rsf:id="export-cc-dialog" class="modal fade" tabindex="-1" aria-labelledby="exportCCLabel" aria-hidden="true">
+    <div id="export-cc-dialog"
+        rsf:id="export-cc-dialog"
+        class="modal fade"
+        tabindex="-1"
+        aria-labelledby="exportCCLabel"
+        data-bs-backdrop="static"
+        aria-hidden="true">
       <form action="#" rsf:id="export-cc-form" method="post" enctype="multipart/form-data" class="controlPanel">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
@@ -1969,11 +1940,11 @@
                   <label rsf:id="msg=simplepage.exportcc-use11" for="export-cc-v11" id="export-cc-v11-label">Use v1.1</label>
                 </div>
                 <div class="radio">
-                  <input type="radio" name="export-cc" id="export-cc-v12" checked="checked" value="1.2" />
+                  <input type="radio" name="export-cc" id="export-cc-v12" value="1.2" />
                   <label rsf:id="msg=simplepage.exportcc-use12" for="export-cc-v12" id="export-cc-v12-label">Use v1.2</label>
                 </div>
                 <div class="radio">
-                  <input type="radio" name="export-cc" id="export-cc-v13" value="1.3" />
+                  <input type="radio" name="export-cc" id="export-cc-v13" checked="checked" value="1.3" />
                   <label rsf:id="msg=simplepage.exportcc-use13" for="export-cc-v13" id="export-cc-v13-label">Use v1.3</label>
                   <br />
                 </div>
@@ -1985,7 +1956,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-link" type="submit" id="export-cc-submit" rsf:id="export-cc-submit"></button>
+              <button class="btn btn-link" type="submit" id="export-cc-submit" data-bs-dismiss="modal" rsf:id="export-cc-submit"></button>
               <button type="button" class="btn btn-link" data-bs-dismiss="modal" rsf:id="export-cc-cancel"></button>
             </div>
           </div>
