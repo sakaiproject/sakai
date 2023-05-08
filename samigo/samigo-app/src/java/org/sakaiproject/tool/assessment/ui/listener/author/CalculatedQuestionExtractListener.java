@@ -339,7 +339,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             globalVariablescopy.remove(globalVariableName);
         }
 
-        //On the globalVariablescopy there are only fromui because before we removed the others from the map
+        //On the globalVariablescopy there are only addedButNotExtracted because before we removed the others from the map
         for (Entry<String, CalculatedQuestionGlobalVariableBean> entry : globalVariablescopy.entrySet()) {
              String key = entry.getKey();
              String formula = entry.getValue().getFormula();
@@ -347,7 +347,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
              if (!formula.contains(GradingService.AT + key + GradingService.AT)) {
                  CalculatedQuestionGlobalVariableBean bean = new CalculatedQuestionGlobalVariableBean();
                  bean.setName(entry.getKey());
-                 bean.setSequence(++maxSequenceValue);
+                 bean.setSequence(entry.getValue().getSequence());
                  bean.setFormula(entry.getValue().getFormula());
                  bean.setActive(true);
                  bean.setAddedButNotExtracted(true);
