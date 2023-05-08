@@ -286,6 +286,7 @@ public class TasksController extends AbstractSakaiApiController {
      * @throws IdUnusedException if the specified site ID is invalid
      */
     private void updateUserTaskAdapterBean(UserTaskAdapterBean bean) throws IdUnusedException {
+
         Site site = siteService.getSite(bean.getSiteId());
 
         bean.setSiteTitle(site.getTitle());
