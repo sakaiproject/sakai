@@ -1146,6 +1146,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     log.warn("Attempting to delete submission attachment [{}], {}", attachment, e);
                 }
             }
+            for (String attachment : submission.getFeedbackAttachments()) {
+                try {
+                    contentHostingService.removeDeletedResource(attachment);
+                } catch (Exception e) {
+                    log.warn("Attempting to delete submission feedback attachment [{}], {}", attachment, e);
+                }
+            }
         }
 
         for (String attachment : assignment.getAttachments()) {
