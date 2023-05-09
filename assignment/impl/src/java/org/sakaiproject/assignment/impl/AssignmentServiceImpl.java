@@ -1136,10 +1136,25 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
-        String context = assignment.getContext();
-
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
-        assignmentRepository.deleteAssignment(assignment.getId());
+
+        for (AssignmentSubmission submission : assignment.getSubmissions()) {
+            for (String attachment : submission.getAttachments()) {
+                try {
+                    contentHostingService.removeDeletedResource(attachment);
+                } catch (Exception e) {
+                    log.warn("Attempting to delete submission attachment [{}], {}", attachment, e);
+                }
+            }
+        }
+
+        for (String attachment : assignment.getAttachments()) {
+            try {
+                contentHostingService.removeDeletedResource(attachment);
+            } catch (Exception e) {
+                log.warn("Attempting to delete assignment attachment [{}], {}", attachment, e);
+            }
+        }
 
         for (String groupReference : assignment.getGroups()) {
             try {
@@ -1151,7 +1166,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
 
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
+        // clean up content-review items
+        contentReviewService.deleteAssignment(assignment.getContext(), reference);
+
+        assignmentRepository.deleteAssignment(assignment.getId());
 
         // remove any realm defined for this resource
         try {
@@ -1163,8 +1181,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.warn("GROUP LOCK REGRESSION: {}", arle.toString());
         }
 
-        // clean up content-review items
-        contentReviewService.deleteAssignment(context, reference);
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
     }
 
     @Override
