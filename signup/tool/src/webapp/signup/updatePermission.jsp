@@ -31,7 +31,7 @@
 					<sakai:view_title value="#{msgs.permission_page_title}"/>
 				</div>
 				<sakai:doc_section>
-				 <h:panelGrid columns="1" styleClass="instruction" style="background:#fff;">
+				 <h:panelGrid columns="1" styleClass="instruction">
                         <h:outputText value="#{msgs.permission_note_for_view_attend_group}" escape="false" />                                             
                         <h:outputText value="&nbsp;" escape="false" />
                     </h:panelGrid>					
