@@ -17,21 +17,15 @@
 package org.sakaiproject.tool.assessment.util;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
 public class ItemCancellationUtil {
 
 
-    public static boolean isCancelled(int cancellation) {
+    public static boolean isCancelled(ItemDataIfc item) {
+        int cancellation = item.getCancellation().intValue();
         return cancellation == ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED
                 || cancellation == ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED;
-    }
-
-    public static boolean isCancelled(Integer cancellation) {
-        return isCancelled(cancellation.intValue());
-    }
-
-    public static boolean isCancelled(ItemDataIfc item) {
-        return isCancelled(item.getCancellation());
     }
 
     public static boolean isCancellationPending(int cancellation) {
@@ -39,24 +33,22 @@ public class ItemCancellationUtil {
                 || cancellation == ItemDataIfc.ITEM_DISTRIBUTED_TO_CANCEL;
     }
 
-    public static boolean isCancellationPending(Integer cancellation) {
-        return isCancellationPending(cancellation.intValue());
-    }
-
     public static boolean isCancellationPending(ItemDataIfc item) {
-        return isCancellationPending(item.getCancellation());
-    }
-
-    public static boolean isCancelledOrCancellationPending(int cancellation) {
+        int cancellation = item.getCancellation().intValue();
         return cancellation != ItemDataIfc.ITEM_NOT_CANCELED;
     }
 
-    public static boolean isCancelledOrCancellationPending(Integer cancellation) {
-        return isCancelledOrCancellationPending(cancellation.intValue());
-    }
-
     public static boolean isCancelledOrCancellationPending(ItemDataIfc item) {
-        return isCancelledOrCancellationPending(item.getCancellation());
+        return isCancelled(item) || isCancellationPending(item);
     }
 
+    public static boolean isCancellable(ItemDataIfc item) {
+        return !isCancelled(item);
+    }
+
+    public static boolean isRandomItem(ItemDataIfc item) {
+        int sectionAuthorType = Integer.parseInt(item.getSection().getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE));
+
+        return SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.equals(sectionAuthorType);
+    }
 }
