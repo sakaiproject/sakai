@@ -32,7 +32,6 @@
 
   <div id="select-site-sidebar"
       class="offcanvas offcanvas-end"
-      data-bs-backdrop="static"
       tabindex="-1"
       aria-labelledby="select-site-label">
     <div class="offcanvas-header">
