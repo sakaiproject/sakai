@@ -42,6 +42,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.calendar.api.Calendar;
@@ -379,6 +380,28 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assignment.setDueDate(update.dueDate);
 			assignment.setCloseDate(update.acceptUntilDate);
 			assignmentService.updateAssignment(assignment);
+
+			// if assignment sending grades to gradebook, update the due date in the gradebook
+			String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+			if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
+				// only update externally linked assignments since internal links are already handled
+				if (gradingService.isExternalAssignmentDefined(assignment.getContext(), associatedGradebookAssignment)) {
+					org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getExternalAssignment(assignment.getContext(), associatedGradebookAssignment);
+					if (gAssignment != null) {
+						gradingService.updateExternalAssessment(
+								assignment.getContext(),
+								associatedGradebookAssignment,
+								null,
+								gAssignment.getExternalData(),
+								gAssignment.getName(),
+								gAssignment.getCategoryId(),
+								gAssignment.getPoints(),
+								Date.from(update.dueDate),
+								gAssignment.getUngraded()
+						);
+					}
+				}
+			}
 		}
 	}
 
@@ -610,6 +633,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			} else {
 				PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) update.object;
+				String id = assessment.getPublishedAssessmentId().toString();
 				AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
 				boolean lateHandling = control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION;
 				control.setStartDate(Date.from(update.openDate));
@@ -628,7 +652,26 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				assessment.setAssessmentAccessControl(control);
 				pubAssessmentServiceQueries.saveOrUpdate(assessment);
-				samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(assessment.getPublishedAssessmentId().toString());
+				samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(id);
+
+				// only updating if the gradebook item exists and is external
+				String siteId = assessment.getOwnerSiteId();
+				if (StringUtils.isNotBlank(siteId) && gradingService.isExternalAssignmentDefined(siteId, id)) {
+					org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getExternalAssignment(siteId, id);
+					if (gAssignment != null) {
+						gradingService.updateExternalAssessment(
+								siteId,
+								id,
+								null,
+								gAssignment.getExternalData(),
+								gAssignment.getName(),
+								gAssignment.getCategoryId(),
+								gAssignment.getPoints(),
+								dueDateTemp,
+								gAssignment.getUngraded()
+						);
+					}
+				}
 			}
 		}
 	}
