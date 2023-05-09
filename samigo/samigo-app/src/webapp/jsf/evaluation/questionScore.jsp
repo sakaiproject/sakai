@@ -310,6 +310,9 @@ $Id$
       <h:outputText value="#{commonMessages.cancel_question}" />
     </button>
   </h:panelGroup>
+  <h:panelGroup styleClass="sak-banner-info" rendered="#{questionScores.randomItemPresent}" layout="block">
+    <h:outputText value="#{commonMessages.cancel_question_info_random} " />
+  </h:panelGroup>
   </t:dataList>
 
   <h2>

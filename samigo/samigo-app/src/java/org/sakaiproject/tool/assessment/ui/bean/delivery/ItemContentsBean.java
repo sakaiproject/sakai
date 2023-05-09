@@ -1725,7 +1725,7 @@ public class ItemContentsBean implements Serializable {
 	}
 
 	public boolean isCancellable() {
-		return !this.isCancelled();
+		return ItemCancellationUtil.isCancellable(this.itemData);
 	}
 }
 
