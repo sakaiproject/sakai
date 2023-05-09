@@ -153,6 +153,7 @@ import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteRemovalAdvisor;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
@@ -202,7 +203,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional(readOnly = true)
-public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ApplicationContextAware {
+public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ApplicationContextAware, SiteRemovalAdvisor {
 
 	@Setter private AnnouncementService announcementService;
     @Setter private ApplicationContext applicationContext;
@@ -280,6 +281,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         userMessagingService.importTemplateFromResourceXmlFile("templates/releaseResubmission.xml", AssignmentConstants.TOOL_ID + ".releaseresubmission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/submission.xml", AssignmentConstants.TOOL_ID + ".submission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/dueReminder.xml", AssignmentConstants.TOOL_ID + ".duereminder");
+
+        siteService.addSiteRemovalAdvisor(this);
     }
 
     @Override
@@ -1261,6 +1264,23 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 //
 //            // track event
 //            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, assignment.getReference(), true));
+    }
+
+    @Override
+    public void removed(Site site) {
+        if (site != null) {
+            transactionTemplate.executeWithoutResult(transactionStatus -> {
+                try {
+                    Collection<Assignment> assignments = assignmentRepository.findAssignmentsBySite(site.getId());
+                    for (Assignment assignment : assignments) {
+                        deleteAssignmentAndAllReferences(assignment); // softly delete and removes references
+                        deleteAssignment(assignment); // hard delete
+                    }
+                } catch (PermissionException pe) {
+                    log.warn("Could not remove all assignments for site [{}], {}", site.getId(), pe);
+                }
+            });
+        }
     }
 
     @Override
