@@ -16,7 +16,6 @@ table.signupTable {
 }
 
 table.signupTable th {
-	background-color: #ddd;
 	padding: .3em 1em;
 }
 
@@ -36,12 +35,6 @@ table.signupTable td {
 table.signupTable td.titleCol{	
 	padding: .3em 1em;
 	padding-left:1.2em;
-}
-
-
-
-table.userDefineTsTable th {
-	background-color: #ddd;
 }
 
 .titleColumn {
@@ -259,7 +252,6 @@ table.organizer td {
 .greyed_mi{
 	vertical-align: top;
 	margin-left: 30px;
-	background: #e7eef5;
 	width: 350px;
 	color:#A3A3A3;
 }

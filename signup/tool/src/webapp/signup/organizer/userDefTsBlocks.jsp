@@ -171,7 +171,7 @@
 					    <t:dataTable id="userDefinedTS" value="#{UserDefineTimeslotBean.timeSlotWrpList}" 
 					    	var="tsWrapper"
 					    	binding="#{UserDefineTimeslotBean.tsTable}"
-					    	styleClass="userDefineTsTable table table-striped table-bordered table-hover" >
+					    	styleClass="table table-striped table-bordered table-hover" >
 								<t:column rendered="#{!tsWrapper.deleted}">
 									<f:facet name="header" >								
 											<h:outputText value="&nbsp;" escape="false"/>

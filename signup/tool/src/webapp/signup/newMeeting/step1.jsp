@@ -95,7 +95,7 @@
                     <sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
                 </div>
                 <sakai:doc_section>
-                    <h:panelGrid columns="1" styleClass="instruction" style="background:#fff;">
+                    <h:panelGrid columns="1" styleClass="instruction">
                         <h:outputText value="#{msgs.create_instruction} " escape="false" />                      
                         <h:panelGroup>
                             <h:outputText value="#{msgs.star_character}" style="color:#B11;" />
