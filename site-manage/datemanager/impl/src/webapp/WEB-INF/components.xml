@@ -12,6 +12,7 @@
 		<property name="prefService" ref="org.sakaiproject.user.api.PreferencesService"/>
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
 		<property name="assessmentPersistenceService" ref="PersistenceService"/>
+        <property name="gradebookExternalService" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/>
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
 		<property name="signupService" ref="org.sakaiproject.signup.logic.SignupMeetingService"/>
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>

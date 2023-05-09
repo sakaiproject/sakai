@@ -40,6 +40,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.calendar.api.Calendar;
@@ -61,6 +62,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -99,6 +101,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private PersistenceService assessmentPersistenceService;
 	@Setter private AssessmentFacadeQueriesAPI assessmentServiceQueries;
 	@Setter private PublishedAssessmentFacadeQueriesAPI pubAssessmentServiceQueries;
+	@Setter private GradebookExternalAssessmentService gradebookExternalService;
 	@Setter private GradebookService gradebookService;
 	@Setter private SignupMeetingService signupService;
 	@Setter private ContentHostingService contentHostingService;
@@ -375,6 +378,27 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assignment.setDueDate(update.dueDate);
 			assignment.setCloseDate(update.acceptUntilDate);
 			assignmentService.updateAssignment(assignment);
+
+			// if assignment sending grades to gradebook, update the due date in the gradebook
+			String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+			if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
+				// only update externally linked assignments since internal links are already handled
+				if (gradebookExternalService.isExternalAssignmentDefined(assignment.getContext(), associatedGradebookAssignment)) {
+					org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getExternalAssignment(assignment.getContext(), associatedGradebookAssignment);
+					if (gAssignment != null) {
+						gradebookExternalService.updateExternalAssessment(
+								assignment.getContext(),
+								associatedGradebookAssignment,
+								null,
+								gAssignment.getExternalData(),
+								gAssignment.getName(),
+								gAssignment.getPoints(),
+								Date.from(update.dueDate),
+								gAssignment.isUngraded()
+						);
+					}
+				}
+			}
 		}
 	}
 
@@ -580,6 +604,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			} else {
 				PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) update.object;
+				String id = assessment.getPublishedAssessmentId().toString();
 				AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
 				boolean lateHandling = control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION;
 				control.setStartDate(Date.from(update.openDate));
@@ -597,6 +622,24 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				assessment.setAssessmentAccessControl(control);
 				pubAssessmentServiceQueries.saveOrUpdate(assessment);
+
+				// only updating if the gradebook item exists and is external
+				String siteId = assessment.getOwnerSiteId();
+				if (StringUtils.isNotBlank(siteId) && gradebookExternalService.isExternalAssignmentDefined(siteId, id)) {
+					org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getExternalAssignment(siteId, id);
+					if (gAssignment != null) {
+						gradebookExternalService.updateExternalAssessment(
+								siteId,
+								id,
+								null,
+								gAssignment.getExternalData(),
+								gAssignment.getName(),
+								gAssignment.getPoints(),
+								update.dueDate != null ? Date.from(update.dueDate) : null,
+								gAssignment.isUngraded()
+						);
+					}
+				}
 			}
 		}
 	}
