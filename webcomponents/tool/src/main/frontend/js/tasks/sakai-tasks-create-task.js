@@ -71,6 +71,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   save() {
+
     this.task.description = this.shadowRoot.getElementById("description").value;
     this.task.notes = this.getEditor().getContent();
     this.task.assignationType = this.assignationType;
