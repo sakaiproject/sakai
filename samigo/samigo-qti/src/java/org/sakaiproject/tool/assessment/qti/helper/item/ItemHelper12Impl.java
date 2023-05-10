@@ -497,31 +497,51 @@ public class ItemHelper12Impl extends ItemHelperBase
   }
   
   /**
-   * setItemTextCalculatedQuestion() adds the variables and formulas associated with 
-   * the Calculated Question.  Variables and Formulas are both stored in sam_itemtext_t and
-   * sam_answer_t table.  This function adds those variable and formula definitions to
+   * setItemTextCalculatedQuestion() adds the variables, global variables and formulas associated with 
+   * the Calculated Question.  Variables, GlobalVariables and Formulas are both stored in sam_itemtext_t and
+   * sam_answer_t table.  This function adds those variable, global variable and formula definitions to
    * the item/presentation/flow path
-   * @param itemTextList list of all variables and formulas (stored as ItemTextIfc and AnswerIfc
+   * @param itemTextList list of all variables, global variables and formulas (stored as ItemTextIfc and AnswerIfc
    * objects)
    * @param itemXml XML document to be updated.  New data will be appended under "item/presentation/flow"
    */
   private void setItemTextCalculatedQuestion(List<ItemTextIfc> itemTextList, Item itemXml) {
       String xpath = "item/presentation/flow";
       itemXml.add(xpath, "variables");
+      itemXml.add(xpath, "globalvariables");
       itemXml.add(xpath, "formulas");
       GradingService gs = new GradingService();
       String instructions = itemXml.getItemText();
+      // get correct/incorrect feedback from one item
+      String correctFeedback = itemTextList.get(0).getItem().getCorrectItemFeedback();
+      String incorrectFeedback = itemTextList.get(0).getItem().getInCorrectItemFeedback();
       List<String> formulaNames = gs.extractFormulas(instructions);
       List<String> variableNames = gs.extractVariables(instructions);
+      List<String> globalVariableNamesInstructions = gs.extractGlobalVariables(instructions);
+      List<String> globalVariableNamesCorrectFeedback = gs.extractGlobalVariables(correctFeedback);
+      List<String> globalVariableNamesInCorrectFeedback = gs.extractGlobalVariables(incorrectFeedback);
+
+      // creating a list with all globalvariablesnames (without repeated names)
+      List<String> globalVariableNames = new ArrayList<>();
+      globalVariableNames.addAll(globalVariableNamesInstructions);
+      globalVariableNames.addAll(globalVariableNamesCorrectFeedback);
+      globalVariableNames.addAll(globalVariableNamesInCorrectFeedback);
+      Set<String> uniqueGlobalVariableNames = new HashSet<>(globalVariableNames);
+      globalVariableNames.clear();
+      globalVariableNames.addAll(uniqueGlobalVariableNames);
+
       for (ItemTextIfc itemText : itemTextList) {
           if (variableNames.contains(itemText.getText())) {              
               this.addCalculatedQuestionVariable(itemText, itemXml, xpath + "/variables");
+          }
+          else if (globalVariableNames.contains(itemText.getText())){
+              this.addCalculatedQuestionGlobalVariable(itemText, itemXml, xpath + "/globalvariables");
           }
           else if (formulaNames.contains(itemText.getText())){
               this.addCalculatedQuestionFormula(itemText, itemXml, xpath + "/formulas");
           } else {
               log.error("Calculated Question export failed, '" + itemText.getText() + "'" +
-                      "was not identified as either a variable or formula, so there must be " +
+                      "was not identified as either a variable, global variable or formula, so there must be " +
                       "an error with the Calculated Question definition, " + 
                       "question id: " + itemText.getItem().getItemIdString());
           }
@@ -569,6 +589,42 @@ public class ItemHelper12Impl extends ItemHelperBase
       }
   }
   
+  /**
+   * addCalculatedQuestionGlobalVariable() adds a new global variable node with required subnodes
+   * into xpath location defined by the calling function
+   * @param itemText - ItemText object, persisted in sam_itemtext_t, which contains
+   * the data needed for the node
+   * @param itemXml - XML object being created, with will be the result of the export
+   * @param xpath - where in the XML object the global variable should be added
+   * always edit the last node in the array.
+   */
+  private void addCalculatedQuestionGlobalVariable(ItemTextIfc itemText, Item itemXml, String xpath) {
+      itemXml.add(xpath, "globalvariable");
+      String updatedXpath = xpath + "/globalvariable[last()]";
+      try {
+          List<AnswerIfc> answers = itemText.getAnswerArray();
+
+          // find the matching answer, since the answer list will have multiple answer objects
+          // for each ItemTextIfc object
+          for (AnswerIfc answer : answers) {
+              if (answer.getIsCorrect()) {
+                  String text = answer.getText();
+
+                  // add nodes
+                  itemXml.add(updatedXpath, "name");
+                  itemXml.update(updatedXpath + "/name", itemText.getText());
+                  itemXml.add(updatedXpath, "formula");
+                  itemXml.update(updatedXpath + "/formula", text);
+                  itemXml.add(updatedXpath, "addedButNotExtracted");
+                  itemXml.update(updatedXpath + "/addedButNotExtracted", String.valueOf(itemText.isAddedButNotExtracted()));
+                  break;
+              }
+          }
+      } catch (Exception e) {
+          log.error(e.getMessage(), e);
+      }
+  }
+
   /**
    * addCalculatedQuestionFormula() adds a new formula node with required subnodes 
    * into xpath location defined by the calling function

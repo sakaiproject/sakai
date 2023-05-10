@@ -94,4 +94,8 @@ public interface ItemTextIfc
     public String getEmiCorrectOptionLabels();
 
     public boolean getHasAttachment();
+
+    public boolean isAddedButNotExtracted();
+
+    public void setAddedButNotExtracted(boolean addedButNotExtracted);
 }
