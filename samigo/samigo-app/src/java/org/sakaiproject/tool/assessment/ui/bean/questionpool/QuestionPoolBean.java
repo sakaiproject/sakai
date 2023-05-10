@@ -1268,11 +1268,13 @@ public String getAddOrEdit()
 		GradingService delegate = new GradingService();
 		Map<Integer, String> answersMap = new HashMap<Integer, String>();
 		LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> globalAnswersMapValues = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> mainVariablesWithValues = new LinkedHashMap<String, String>();
 		ItemDataIfc item = (ItemDataIfc) this.currentItems.get(0);
 
 		Random random = new Random();
 		long randomGradingId = Long.valueOf(Math.abs(random.nextInt()));
-		List<List<String>> texts = delegate.extractCalcQAnswersArray(answersMap, answersMapValues, item, randomGradingId, this.getAgentId());
+		List<List<String>> texts = delegate.extractCalcQAnswersArray(answersMap, answersMapValues, globalAnswersMapValues, mainVariablesWithValues, item, randomGradingId, this.getAgentId());
 
 		//changing solutions ex: {{w}} with numbers
 		delegate.replaceSolutionOnFeedbackWithNumbers(answersMapValues, item, texts);
@@ -1289,8 +1291,8 @@ public String getAddOrEdit()
 		while (iter.hasNext()) {
 			AnswerIfc answer = iter.next();
 
-			// Checks if the 'answer' object is a variable or a real answer
-			if(delegate.extractVariables(answer.getText()).isEmpty()){
+			// Checks if the 'answer' object is a variable, a global variable or a real answer
+			if (StringUtils.isEmpty(answersMapValues.get(answer.getLabel()))) {
 				continue;
 			}
 

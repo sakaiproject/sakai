@@ -621,10 +621,12 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				int i = 1;
 				Map<Integer, String> answersMap = new HashMap<Integer, String>();
 				LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
+				LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<String, String>();
+				LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<String, String>();
 				while (iter2.hasNext()) {
 					ItemGradingData gdata = (ItemGradingData) iter2.next();
 					results.setItemGrading(gdata);
-					delegate.extractCalcQAnswersArray(answersMap, answersMapValues, item, 
+					delegate.extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item,
 								gdata.getAssessmentGradingId(), gdata.getAgentId());
 					itemGradingAttachmentList.addAll(gdata.getItemGradingAttachmentSet());
 					agentResultsByItemGradingIdMap.put(gdata.getItemGradingId(), results);

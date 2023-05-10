@@ -2140,6 +2140,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					itemText.getItemTextAttachmentSet(), protocol, toContext);
 			newItemText.setItemTextAttachmentSet(itemTextAttachmentSet);
 			newItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
+			newItemText.setAddedButNotExtracted(itemText.isAddedButNotExtracted());
 
 			h.add(newItemText);
 		}

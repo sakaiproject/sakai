@@ -106,6 +106,7 @@ import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
+import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.EncryptionUtilityService;
@@ -2368,8 +2369,10 @@ public class DeliveryActionListener
 
       service.getAnswersMap().clear();
       service.getAnswersMapValues().clear();
+      service.getGlobalanswersMapValues().clear();
+      service.getMainvariablesWithValues().clear();
 
-      List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), item, gradingId, agentId);
+      List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), service.getGlobalanswersMapValues(), service.getMainvariablesWithValues(), item, gradingId, agentId);
       if (texts.get(0).isEmpty())
       {
           log.error("Unable to extract any question text from calculated question with item id {}. The formula for this question may be invalid.", item.getItemId());
@@ -2406,8 +2409,8 @@ public class DeliveryActionListener
       {
           AnswerIfc answer = iter.next();
           
-          // Checks if the 'answer' object is a variable or a real answer
-          if(service.extractVariables(answer.getText()).isEmpty()){
+          // Checks if the 'answer' object is a variable, a global variable or a real answer
+          if (StringUtils.isEmpty(service.getAnswersMapValues().get(answer.getLabel()))) {
               continue;
           }
 
@@ -2933,19 +2936,29 @@ public class DeliveryActionListener
 	  String agentId = determineCalcQAgentId(delivery, itemBean);
 	  
 	  String keysString = "";
+	  String answer = "";
 
 	service.getAnswersMap().clear();
 	service.getAnswersMapValues().clear();
+	service.getGlobalanswersMapValues().clear();
+	service.getMainvariablesWithValues().clear();
 
-	List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), item, gradingId, agentId);
+	List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), service.getGlobalanswersMapValues(), service.getMainvariablesWithValues(), item, gradingId, agentId);
 	service.setTexts(texts.get(0));
 
 	int answerSequence = 1; // this corresponds to the sequence value assigned in extractCalcQAnswersArray()
 	int decimalPlaces = 3;
 	while(answerSequence <= service.getAnswersMap().size()) {
-		  String answer = (String)service.getAnswersMap().get(answerSequence);
+		  answer = (String)service.getAnswersMap().get(answerSequence);
 		  decimalPlaces = Integer.valueOf(answer.substring(answer.indexOf(',')+1, answer.length()));
 		  answer = answer.substring(0, answer.indexOf("|")); // cut off extra data e.g. "|2,3"
+		  // searching and replacing recursively global variables on the answer
+		  answer = service.checkingEmptyGlobalVariables(answer, service.getMainvariablesWithValues(), service.getGlobalanswersMapValues());
+		  try {
+		      answer = service.processFormulaIntoValue(answer, decimalPlaces);
+		  } catch (SamigoExpressionError e1) {
+		      log.warn("Samigo calculated item ({}) calculation invalid: {}", item.getItemId(), e1.get());
+		  }
 		  
 		  // We need the key formatted in scientificNotation
 		  answer = service.toScientificNotation(answer, decimalPlaces);
