@@ -548,7 +548,7 @@
 							</td>
 							<td headers="lastModifiedUser" class="d-none d-sm-table-cell">
 							#if ($!assignment.Modifier)
-								<span>$!userDirectoryService.getUser($!assignment.Modifier).getDisplayName()</span>
+								<span>$!service.getUserAssignmentModify($!assignment.Modifier)</span>
 							#end
 							</td>
 							<td headers="lastModifiedDate" class="d-none d-sm-table-cell">

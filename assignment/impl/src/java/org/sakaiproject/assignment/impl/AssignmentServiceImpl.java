@@ -5075,4 +5075,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public String getContentReviewServiceName() {
         return this.contentReviewService.getServiceName();
     }
+    
+    @Override
+    public String getAssignmentModifier(String modifier) {
+        try {
+            return userDirectoryService.getUser(modifier).getDisplayName();
+        } catch (UserNotDefinedException e) {
+    		return resourceLoader.getString("user.modify.unknown", "");
+    	}
+    }
+
 }
