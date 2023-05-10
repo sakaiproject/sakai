@@ -3171,9 +3171,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               String correctFeedback = item.getCorrectItemFeedback();
               String incorrectFeedback = item.getInCorrectItemFeedback();
               instructions = replaceMappedVariablesWithNumbers(instructions, variablesWithValues);
-              // return instructions without any global variable
-              // TODO
-              //instructions = checkingEmptyGlobalVariables(instructions, answerListValues, globalanswersMapValues);
               // return instructions without any variable
               instructions = checkingEmptyGlobalVariables(instructions, variablesWithValues, globalanswersMapValues);
               String correctFeedbackNumbers = replaceMappedVariablesWithNumbers(correctFeedback, variablesWithValues);
