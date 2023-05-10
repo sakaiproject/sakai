@@ -879,6 +879,6 @@ public interface AssignmentService extends EntityProducer {
      */
     public String getContentReviewServiceName();
     
-    public String getUserAssignmentModify(String modifier);
+    public String getAssignmentModifier(String modifier);
     
 }

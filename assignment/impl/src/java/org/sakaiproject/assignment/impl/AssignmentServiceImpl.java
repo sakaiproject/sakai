@@ -5077,7 +5077,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
     
     @Override
-    public String getUserAssignmentModify(String modifier) {
+    public String getAssignmentModifier(String modifier) {
         try {
             return userDirectoryService.getUser(modifier).getDisplayName();
         } catch (UserNotDefinedException e) {
