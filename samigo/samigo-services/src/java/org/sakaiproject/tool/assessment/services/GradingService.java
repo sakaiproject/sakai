@@ -121,6 +121,7 @@ public class GradingService
   // CALCULATED_QUESTION
   public static final String OPEN_BRACKET = "\\{";
   public static final String CLOSE_BRACKET = "\\}";
+  public static final String AT = "@";
   public static final String CALCULATION_OPEN = "[["; // not regex safe
   public static final String CALCULATION_CLOSE = "]]"; // not regex safe
   public static final char CALCULATION_AUX_OPEN = '└';
@@ -142,6 +143,7 @@ public class GradingService
   // variable match - (?<!\{)\{([^\{\}]+?)\}(?!\}) - means any sequence inside braces without a braces before or after
   public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})", Pattern.UNICODE_CHARACTER_CLASS);
   public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET, Pattern.UNICODE_CHARACTER_CLASS);
+  public static final Pattern CALCQ_GLOBAL_VARIABLE_PATTERN = Pattern.compile(AT + CALCQ_VAR_FORM_NAME_EXPRESSION + AT, Pattern.UNICODE_CHARACTER_CLASS);
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
   public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\" + CALCULATION_AUX_OPEN + "([^\\" + CALCULATION_AUX_OPEN + "\\" + CALCULATION_AUX_CLOSE + "]+)\\" + CALCULATION_AUX_CLOSE);
   // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
@@ -163,6 +165,10 @@ public class GradingService
   private HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
   @Getter @Setter
   private LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
+  @Getter @Setter
+  private LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<String, String>();
+  @Getter @Setter
+  private LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<String, String>();
   private static final int MAX_ERROR_TRIES = 100;
 	  
   /**
@@ -2786,7 +2792,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item, int calcQuestionAnswerSequence ) {
       // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
       if (calcQuestionAnswerSequence == 1) {
-          extractCalcQAnswersArray(answersMap, answersMapValues, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
+          extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
       }
       return answersMap;
   }
@@ -2808,7 +2814,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       for (Iterator<String> iterator = calculations.iterator(); iterator.hasNext();) {
         String calc = iterator.next();
         if (!StringUtils.containsAny(calc, "{}()+-*/")) {
-            iterator.remove();
+            //checking global variable pattern
+            if (!CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(calc).find()) {
+                iterator.remove();
+            }
         }
       }
       return calculations;
@@ -2847,6 +2856,24 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    */
   public List<String> extractVariables(String text) {
     return extractCalculatedQuestionKeyFromItemText(text, CALCQ_ANSWER_PATTERN);
+  }
+
+  /**
+   * extractGlobalVariables() is a utility function for Calculated Questions.  It 
+   * takes one parameter, which is a block of text, and looks for any variable 
+   * names that are encoded in the text.  A global variable name is enclosed in @ @.  
+   * The values of the variable are encoded elsewhere.
+   * <p>For example, if the passed parameter is <code>[[@a@ + @b@]] = {{c}}</code>, 
+   * the resulting list would contain two entries: strings of "a" and "b"
+   * <p>Global Variables must begin with an alpha, but subsequent character can be 
+   * alpha-numeric.
+   * <p>Note - a formula, encoded as {{ }}, will not be mistaken for a variable.
+   * @param text content to be searched
+   * @return a list of matching variable names. If no global variables are found, the 
+   * list will be empty
+   */
+  public List<String> extractGlobalVariables(String text) {
+    return extractCalculatedQuestionKeyFromItemText(text, CALCQ_GLOBAL_VARIABLE_PATTERN);
   }
 
   /**
@@ -2937,6 +2964,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       return segments;
   }
 
+  /**
+   * CALCULATED_QUESTION
+   * Takes the feedback and breaks it into segments, based on the location
+   * of formula names. One formula would give two segments, two formulas gives
+   * three segments, etc.
+   * <p>Note - in this context, it would probably be easier if any variable value
+   * substitutions have occurred before the breakup is done; otherwise,
+   * each segment will need to have substitutions done.
+   * @param feedback string to be broken up
+   * @return the original string, broken up based on the formula name delimiters
+   */
   protected List<String> extractFeedbackSegments(String feedback) {
       List<String> segments = new ArrayList<>();
       Matcher matcher = CALCQ_FORMULA_SPLIT_PATTERN.matcher(feedback);
@@ -3044,9 +3082,26 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   private ArrayList<Map> calculateFormulaValues(Map<String, String> variables, ItemDataIfc item) throws Exception {
       Map<Integer, String> values = new LinkedHashMap<>();
       LinkedHashMap<String, String> solutionVariables = new LinkedHashMap<>();
+      LinkedHashMap<String, String> globalVariables = new LinkedHashMap<>();
       ArrayList<Map> maps = new ArrayList<Map>();
       String instructions = item.getInstruction();
       List<String> formulaNames = this.extractFormulas(instructions);
+      // first adding from instructions
+      List<String> globalVariableNames = this.extractGlobalVariables(instructions);
+      // second adding from global variables addeButNotExtracted
+      List<ItemTextIfc> items = item.getItemTextArray();
+      for (ItemTextIfc itemText : items) {
+          if(itemText.isAddedButNotExtracted()) {
+              globalVariableNames.add(itemText.getText());
+          }
+      }
+
+      for (int i = 0; i < globalVariableNames.size(); i++) {
+          String globalVariableName = globalVariableNames.get(i);
+          String longFormula = replaceFormulaNameWithFormula(item, globalVariableName);
+          globalVariables.put(globalVariableName, longFormula);
+      }
+
       for (int i = 0; i < formulaNames.size(); i++) {
           String formulaName = formulaNames.get(i);
           String longFormula = replaceFormulaNameWithFormula(item, formulaName); // {a}+{b}|0.1,1
@@ -3057,12 +3112,15 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           int decimalPlaces = getAnswerDecimalPlaces(answerData);
           
           String substitutedFormula = replaceMappedVariablesWithNumbers(formula,variables);
+          substitutedFormula = checkingEmptyGlobalVariables(substitutedFormula, variables, globalVariables);
+
           String formulaValue = processFormulaIntoValue(substitutedFormula, decimalPlaces);
           values.put(i + 1, formulaValue + answerData); // later answerData will be used for scoring
           solutionVariables.put(formulaName, formulaValue + answerData); // later answerData will be used for scoring
       }
       maps.add(values);
       maps.add(solutionVariables);
+      maps.add(globalVariables);
       return maps;
   }
 
@@ -3070,18 +3128,23 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * CALCULATED_QUESTION
    * This is a busy method. It does three things:
    * <br>1. It removes the answer expressions ie. {{x+y}} from the question text. This value is
+   * <br>1. It removes the answer expressions ie. {{x+y}} from the question text and correct/incorrect feedback. These values are
    *    returned in the ArrayList texts. This format is necessary so that input boxes can be
    *    placed in the text where the {{..}}'s appear.
    * <br>2. It will call methods to swap out the defined variables with randomly generated values
    *    within the ranges defined by the user.
+   *    within the ranges defined by the user, but before we check recursively if there are any global variable to change with its formula.
    * <br>3. It populates the HashMap answerList with the calculated answers in sequence. It will
    *    parse and calculate what each answer needs to be.
    * <p>Note: If a divide by zero occurs, we change the random values and try again. It gets limited chances to
    *    get valid values and then will return "infinity" as the answer.
    * @param answerList is cleared and filled with sequential answers to the question
+   * @param answerListValues is cleared and filled with key answers to the question
+   * @param globalanswersMapValues is cleared and filled with global variables to the question
+   * @param mainvariablesWithValues is cleared and filled with the variables to the question
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
-  public List<List<String>> extractCalcQAnswersArray(Map<Integer, String> answerList, Map<String, String> answerListValues, ItemDataIfc item, Long gradingId, String agentId) {
+  public List<List<String>> extractCalcQAnswersArray(Map<Integer, String> answerList, Map<String, String> answerListValues, Map<String, String> globalanswersMapValues, Map<String, String> mainvariablesWithValues, ItemDataIfc item, Long gradingId, String agentId) {
       boolean hasErrors = true;
       Map<String, String> variableRangeMap = buildVariableRangeMap(item);
       List<String> instructionSegments = new ArrayList<>(0);
@@ -3090,22 +3153,30 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
       answerList.clear();
       answerListValues.clear();
+      globalanswersMapValues.clear();
+      mainvariablesWithValues.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
           instructionSegments.clear();
           Map<String, String> variablesWithValues = determineRandomValuesForRanges(variableRangeMap,item.getItemId(), gradingId, agentId, attemptCount);
+          mainvariablesWithValues.putAll(variablesWithValues);
           try {
               ArrayList<Map> evaluatedFormulas = calculateFormulaValues(variablesWithValues, item);
               answerList.putAll(evaluatedFormulas.get(0));
               answerListValues.putAll(evaluatedFormulas.get(1));
+              globalanswersMapValues.putAll(evaluatedFormulas.get(2));
               // replace the variables in the text with values
               String instructions = item.getInstruction();
               String correctFeedback = item.getCorrectItemFeedback();
               String incorrectFeedback = item.getInCorrectItemFeedback();
               instructions = replaceMappedVariablesWithNumbers(instructions, variablesWithValues);
+              // return instructions without any variable
+              instructions = checkingEmptyGlobalVariables(instructions, variablesWithValues, globalanswersMapValues);
               String correctFeedbackNumbers = replaceMappedVariablesWithNumbers(correctFeedback, variablesWithValues);
+              correctFeedbackNumbers = checkingEmptyGlobalVariables(correctFeedbackNumbers, variablesWithValues, globalanswersMapValues);
               String incorrectFeedbackNumbers = replaceMappedVariablesWithNumbers(incorrectFeedback, variablesWithValues);
+              incorrectFeedbackNumbers = checkingEmptyGlobalVariables(incorrectFeedbackNumbers, variablesWithValues, globalanswersMapValues);
               // then replace the calculations with values (must happen AFTER the variable replacement)
               try {
                   instructions = replaceCalculationsWithValues(instructions, 5); // what decimal precision should we use here?
@@ -3131,6 +3202,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       return List.of(instructionSegments, correctFeedbackSegments, incorrectFeedbackSegments);
   }
 
+  /**
+   * CALCULATED_QUESTION
+   * Check if the solution is being used on the feedback. Replacing the solution {{w}} on feedback with numbers
+   * @param answerListValues the key answers
+   * @param item
+   * @param texts ArrayList of the pieces of text
+   */
   public void replaceSolutionOnFeedbackWithNumbers(LinkedHashMap<String, String> answerListValues, ItemDataIfc item, List<List<String>> texts) {
 	  String correctFeedback = item.getCorrectItemFeedback();
 	  String incorrectFeedback = item.getInCorrectItemFeedback();
@@ -3150,6 +3228,27 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  item.updateFeedbackByType(PublishedItemFeedback.INCORRECT_FEEDBACK, incorrectFeedback, parts.stream().collect(Collectors.joining("")));
 		  }
 	  }
+  }
+
+  /**
+   * CALCULATED_QUESTION
+   * Recursive method for cleaning global variables and replace with numbers.
+   * @param substitutedFormulaStr
+   * @param variablesWithValues
+   * @param globalAnswersMap
+   * @return
+   */
+  public String checkingEmptyGlobalVariables (String substitutedFormulaStr, Map<String, String> variablesWithValues, Map<String, String> globalAnswersMap) {
+      if (StringUtils.isEmpty(substitutedFormulaStr)) {
+          return substitutedFormulaStr;
+      }
+
+      while (substitutedFormulaStr.contains(AT)) {
+          substitutedFormulaStr = this.replaceGlobalVariablesWithFormulas(substitutedFormulaStr, globalAnswersMap);
+          substitutedFormulaStr = checkingEmptyGlobalVariables(substitutedFormulaStr, variablesWithValues, globalAnswersMap);
+      }
+      substitutedFormulaStr = this.replaceMappedVariablesWithNumbers(substitutedFormulaStr, variablesWithValues);
+      return substitutedFormulaStr;
   }
 
   /**
@@ -3294,6 +3393,41 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               }
 
               // perform substitution, then look for the next instance of current variable
+              expression = prefix + replacementValue + suffix;
+              index = expression.indexOf(name);
+          }
+      }
+      return expression;
+  }
+
+  /**
+   * CALCULATED_QUESTION
+   * replaceGlobalVariablesWithFormulas() takes a string and substitutes any global variable
+   * names found with the value of the variable. Global variables look like @a@, the name of
+   * that global variable is "a", and the value of that variable is in globalVariables
+   * @param expression - the string being substituted into
+   * @param globalVariables - Map key is the global variable name, value is what will be
+   * substituted into the expression.
+   * @return a string with values substituted. If expression is null,
+   * returns a blank string (i.e ""). If globalVariables is null, returns
+   * the original expression 
+   */
+  public String replaceGlobalVariablesWithFormulas(String expression, Map<String, String> globalVariables) {
+      if (StringUtils.isEmpty(expression)) {
+          return expression;
+      }
+      if (globalVariables == null) {
+          globalVariables = new HashMap<>();
+      }
+      for (Map.Entry<String, String> entry : globalVariables.entrySet()) {
+          String name = AT + entry.getKey() + AT;
+          String value = entry.getValue();
+
+          int index = expression.indexOf(name);
+          while (index > -1) {
+              String prefix = expression.substring(0, index);
+              String suffix = expression.substring(index + name.length());
+              String replacementValue = value;
               expression = prefix + replacementValue + suffix;
               index = expression.indexOf(name);
           }

@@ -1275,7 +1275,7 @@ public class QuestionPoolFacadeQueries
 	    	  toItemText.setSequence(fromItemText.getSequence());
 	    	  toItemText.setText(fromItemText.getText());
                   toItemText.setRequiredOptionsCount(fromItemText.getRequiredOptionsCount());
-	    	  
+	    	  toItemText.setAddedButNotExtracted(fromItemText.isAddedButNotExtracted());
 	    	  Set toAnswerSet = new HashSet();
 	    	  Set fromAnswerSet = fromItemText.getAnswerSet();
 	    	  Iterator answerIter = fromAnswerSet.iterator();
