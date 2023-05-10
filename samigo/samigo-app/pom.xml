@@ -256,6 +256,11 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>1.5.1</version>
+        </dependency>
         <!--JSF 2.3 dependencies-->
         <dependency>
             <groupId>org.jboss.weld.servlet</groupId>
