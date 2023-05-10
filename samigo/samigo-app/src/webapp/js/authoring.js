@@ -205,7 +205,7 @@ function editorCheck(){
 }
 
 //display a prompt if the user tries to save the question but has not edited 
-//any formulas or variables.  Called on document.ready() for Calculated questions
+//any formulas, variables or global variables.  Called on document.ready() for Calculated questions
 function initCalcQuestion() {
  var dirty = false;
  $(".changeWatch").change(function() {
@@ -213,7 +213,7 @@ function initCalcQuestion() {
  });
  $(".saveButton").click(function() {
      if (!dirty) {
-         if (!confirm("You have not changed variables or formulas.  Are you sure that you want to Save?")) {
+         if (!confirm("You have not changed variables, global variables or formulas.  Are you sure that you want to Save?")) {
              return false;
          }
      }           

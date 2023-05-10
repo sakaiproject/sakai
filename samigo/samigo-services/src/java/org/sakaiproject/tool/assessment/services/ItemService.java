@@ -312,6 +312,7 @@ public class ItemService
       String newText = AssessmentService.copyStringAttachment(itemText.getText());
       ItemText newItemText = new ItemText(cloned, itemText.getSequence(), newText, null);
       newItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
+      newItemText.setAddedButNotExtracted(itemText.isAddedButNotExtracted());
       newItemText.setItemTextAttachmentSet(copyItemAttachmentSetItemText(newItemText, itemText.getItemTextAttachmentSet()));
       Set newAnswerSet = copyAnswerSet(newItemText, itemText.getAnswerSet());
       newItemText.setAnswerSet(newAnswerSet);
