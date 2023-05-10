@@ -32,7 +32,7 @@
 <style scoped lang="scss">
 #meetings-tool {
 .accordion-item {
-  border-color: var(--sakai-border-color);
+  border: thin solid var(--sakai-border-color);
 }
 .accordion-button {
   background-color: var(--sakai-background-color-1);
@@ -44,6 +44,7 @@
 .accordion-button:not(.collapsed) {
   background-color: var(--sakai-background-color-2);
   color: var(--sakai-link-color);
+  box-shadow: inset 0 calc(-1 * var(--sakai-button-border-width)) 0 var(--sakai-border-color)
 }
 .accordion-body {
   background-color: var(--sakai-background-color-1);

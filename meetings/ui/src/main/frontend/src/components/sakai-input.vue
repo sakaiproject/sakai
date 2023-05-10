@@ -34,7 +34,7 @@ export default {
     };
   },
   props: {
-    value: {
+    modelValue: {
       type: [Number, String, Array],
       default: null,
     },
@@ -79,6 +79,7 @@ export default {
       type: Number
     },
   },
+  emits: ['update:modelValue'],
   computed: {
     isCheckbox() {
       return this.type === "checkbox";
@@ -99,6 +100,14 @@ export default {
       }
       return classes.join(" ");
     },
+    value: {
+      get() {
+        return this.modelValue
+      },
+      set(value) {
+        this.$emit('update:modelValue', value)
+      }
+    }
   },
   methods: {
     handleInput(value) {

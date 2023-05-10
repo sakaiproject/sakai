@@ -31,7 +31,7 @@ export default {
       type: String,
       default: "select",
     },
-    value: {
+    modelValue: {
       type: [String, Number, Array],
       default: [],
     },
@@ -44,6 +44,17 @@ export default {
       default: false
     }
   },
+  emits: ['update:modelValue'],
+  computed: {
+    value: {
+      get() {
+        return this.modelValue
+      },
+      set(value) {
+        this.$emit('update:modelValue', value)
+      }
+    }
+  }
 };
 </script>
 

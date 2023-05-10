@@ -14,7 +14,8 @@
     "string.prototype.format": "^1.0.0",
     "uuid": "^9.0.0",
     "vue": "^3.2.47",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "pinia": "^2.0.36"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.1",

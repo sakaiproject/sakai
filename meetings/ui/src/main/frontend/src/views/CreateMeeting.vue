@@ -6,7 +6,7 @@
           <div class="col-md-6 col-xl-4">
             <SakaiInputLabelled
               :title="i18n.meeting_title"
-              v-model:value="formdata.title"
+              v-model="formdata.title"
               :required="true"
               :maxlength="255"
               @validation="setValidation('title', $event)"
@@ -17,7 +17,7 @@
               :title="i18n.meeting_description"
               textarea="true"
               :maxlength="4000"
-              v-model:value="formdata.description"
+              v-model="formdata.description"
               @validation="setValidation('description', $event)"
             />
           </div>
@@ -27,9 +27,9 @@
                 <SakaiInputLabelled
                   :title="i18n.video_conferencing_service"
                   select="true"
-                  :items="confServ"
+                  :items="confServiceItems"
                   :disabled="true"
-                  v-model:value="formdata.confService"
+                  v-model="formdata.confService"
                   @validation="setValidation('provider', $event)"
                 />
               </div>
@@ -51,7 +51,7 @@
               <SakaiInputLabelled
                 :title="i18n.select_groups"
                 select="true"
-                v-model:value="formdata.groups"
+                v-model="formdata.groups"
                 v-if="formdata.participantOption === 'GROUP'"
                 :multiple="true"
                 :items="groups"
@@ -71,7 +71,7 @@
             <SakaiInputLabelled
               :title="i18n.open_date"
               type="datetime-local"
-              v-model:value="formdata.dateOpen"
+              v-model="formdata.dateOpen"
               @update:value.once="!this.hadDateInput"
               @validation="setValidation('dateOpen', $event)"
               :required="true"
@@ -81,7 +81,7 @@
             <SakaiInputLabelled
               :title="i18n.close_date"
               type="datetime-local"
-              v-model:value="formdata.dateClose"
+              v-model="formdata.dateClose"
               @validation="setValidation('dateClose', $event)"
               :required="true"
               :validate="{
@@ -115,7 +115,7 @@
                 :title="i18n.notifications"
                 select="true"
                 :items="notificationTypes"
-                v-model:value="formdata.notificationType"
+                v-model="formdata.notificationType"
               />
             </div>
           </div>
@@ -147,6 +147,9 @@ import SakaiIcon from "../components/sakai-icon.vue";
 import constants from "../resources/constants.js";
 import i18nMixn from "../mixins/i18n-mixn.js";
 
+import { mapState, mapActions } from 'pinia'
+import { useDataStore } from '../stores/dataStore';
+
 export default {
   name: "create-meeting",
   components: {
@@ -164,8 +167,8 @@ export default {
       formdata: {
         title: "",
         description: "",
-        confService: "",
-        saveToCalendar: true,
+        confService: "microsoft_teams",
+        saveToCalendar: false,
         dateOpen: null,
         dateClose: null,
         notificationType: "0",
@@ -175,28 +178,10 @@ export default {
       groups: [],
       participants: [],
       selectedParticipants: [],
-      confServ: [
+      confServiceItems: [
         {
           string: "Microsoft Teams",
           value: "microsoft_teams",
-        },
-      ],
-      partType: [
-        {
-          string: "All Site Members",
-          value: "all_site_members",
-        },
-        {
-          string: "Role",
-          value: "role",
-        },
-        {
-          string: "Selections/Groups",
-          value: "sections_or_groups",
-        },
-        {
-          string: "Users",
-          value: "users",
         },
       ],
       validations: { title: false, description: true, provider: true, dateOpen: true, dateClose: true },
@@ -206,24 +191,9 @@ export default {
   },
   props: {
     id: { type: String, default: null },
-    title: { type: String, default: "" },
-    description: { type: String, default: "" },
-    confService: { type: String, default: "microsoft_teams" },
-    savedToCalendar: { type: Boolean, default: false },
-    dateOpen: {
-      validator(value) {
-        return dayjs(value).isValid();
-      },
-    },
-    dateClose: {
-      validator(value) {
-        return dayjs(value).isValid();
-      },
-    },
-    participantOption: { type: String, default: "SITE" },
-    groupSelection: {type: Array, default: new Array() },
   },
   computed: {
+    ...mapState(useDataStore, ["storedData"]),
     disableGroupSelection() {
       return !this.groups || this.groups.length === 0;
     },
@@ -256,6 +226,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(useDataStore, ["clearStoredData"]),
     showError(message) {
       this.$emit('showError', message);
     },
@@ -297,6 +268,7 @@ export default {
         body: JSON.stringify(saveData),
       });
       if(response.ok) {
+        this.clearStoredData();
         this.$router.push({ name: "Main" });
       } else if (response.status === 500) {
         this.showError((this.id) ? this.i18n.error_updating_meeting_500 : this.i18n.error_create_meeting_500);
@@ -306,6 +278,7 @@ export default {
       this.saveEnabled = true;
     },
     handleCancel() {
+      this.clearStoredData();
       this.$router.push({ name: "Main" });
     },
     createRoom(participants) {
@@ -387,33 +360,34 @@ export default {
     }
   },
   created() {
-    if (this.title) {
+    if (this.storedData.title) {
       this.validations.title = true;
-      this.formdata.title = this.title;
+      this.formdata.title = this.storedData.title;
     }
-    if (this.description) {
-      this.formdata.description = this.description;
+    if (this.storedData.description) {
+      this.formdata.description = this.storedData.description;
     }
-    if (this.confService) {
-      this.formdata.confService = this.confService;
-    }
-    if (this.dateOpen) {
-      this.formdata.dateOpen = dayjs(this.dateOpen).format(
+    if (this.storedData.dateOpen) {
+      this.formdata.dateOpen = dayjs(this.storedData.dateOpen).format(
         "YYYY-MM-DDTHH:mm:ss"
       );
     } else {
       this.formdata.dateOpen = dayjs().format("YYYY-MM-DDTHH:mm") + ":00";
     }
-    if (this.dateClose) {
-      this.formdata.dateClose = dayjs(this.dateClose).format(
+    if (this.storedData.dateClose) {
+      this.formdata.dateClose = dayjs(this.storedData.dateClose).format(
         "YYYY-MM-DDTHH:mm:ss"
       );
     } else {
       this.formdata.dateClose = dayjs().add(1, "hour").format("YYYY-MM-DDTHH:mm") + ":00";
     }
-    this.formdata.saveToCalendar = this.savedToCalendar === "true";
-    this.formdata.participantOption = this.participantOption;
-    this.formdata.groups = this.groupSelection;
+    if(this.storedData.participantOption){
+      this.formdata.participantOption = this.storedData.participantOption;
+    }
+    if(this.storedData.savedToCalendar){
+      this.formdata.saveToCalendar = true;
+    }
+    this.formdata.groups = this.storedData.groupSelection;
     this.loadGroups();
     this.checkProviderConfigurations();
   },
