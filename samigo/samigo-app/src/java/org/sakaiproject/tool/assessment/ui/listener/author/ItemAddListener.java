@@ -97,6 +97,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionAnswerIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionGlobalVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ImageMapItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
@@ -315,7 +316,7 @@ public class ItemAddListener implements ActionListener {
             return;
         }
         
-        // if no errors remove disabled variables and formulas before saving
+        // if no errors remove disabled variables, global variables and formulas before saving
         CalculatedQuestionBean question = item.getCalculatedQuestion();
         Iterator<CalculatedQuestionVariableBean> variableIter = question.getVariables().values().iterator();        
         while (variableIter.hasNext()) {
@@ -329,6 +330,13 @@ public class ItemAddListener implements ActionListener {
             CalculatedQuestionFormulaBean formula = formulaIter.next();
             if (!formula.getActive()) {
                 formulaIter.remove();
+            }
+        }
+        Iterator<CalculatedQuestionGlobalVariableBean> formulaGlobalVarIter = question.getGlobalvariables().values().iterator();
+        while (formulaGlobalVarIter.hasNext()) {
+            CalculatedQuestionGlobalVariableBean globalvariable = formulaGlobalVarIter.next();
+            if (!globalvariable.isActive()) {
+                formulaGlobalVarIter.remove();
             }
         }
     }
@@ -1630,18 +1638,20 @@ public class ItemAddListener implements ActionListener {
 	      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
 	      list.addAll(calcBean.getFormulas().values());
 	      list.addAll(calcBean.getVariables().values());
+	      list.addAll(calcBean.getGlobalvariables().values());
 	      
-	      // loop through all variables and formulas to create ItemText objects
+	      // loop through all variables, global variables and formulas to create ItemText objects
 	      for (CalculatedQuestionAnswerIfc varFormula : list) {
 	          ItemText choiceText = new ItemText();
 	          choiceText.setItem(item.getData());
 	          choiceText.setText(varFormula.getName());
 	          Long sequence = varFormula.getSequence();
 	          choiceText.setSequence(sequence);
+	          choiceText.setAddedButNotExtracted(varFormula.isAddedButNotExtracted());
 	          
 	          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
 	          
-	          // loop through all variables and formulas to create all answers for the ItemText object
+	          // loop through all variables, global variables and formulas to create all answers for the ItemText object
 	          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
 	              String match = curVarFormula.getMatch();
 	              Long curSequence = curVarFormula.getSequence();

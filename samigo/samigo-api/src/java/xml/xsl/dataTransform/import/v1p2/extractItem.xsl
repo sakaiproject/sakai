@@ -82,6 +82,16 @@
     <xsl:for-each select="//variables/variable/decimalPlaces">
         <variableDecimalPlaces type="list"><xsl:value-of select="."/></variableDecimalPlaces>
     </xsl:for-each>
+  <!-- Calculated Questions - global variables -->
+    <xsl:for-each select="//globalvariables/globalvariable/name">
+        <globalvariableNames type="list"><xsl:value-of select="."/></globalvariableNames>
+    </xsl:for-each>
+    <xsl:for-each select="//globalvariables/globalvariable/formula">
+        <globalvariableTexts type="list"><xsl:value-of select="."/></globalvariableTexts>
+    </xsl:for-each>
+    <xsl:for-each select="//globalvariables/globalvariable/addedButNotExtracted">
+        <globalvariableAddedButNotExtracted type="list"><xsl:value-of select="."/></globalvariableAddedButNotExtracted>
+    </xsl:for-each>
   <!-- Calculated Questions - formulas -->
     <xsl:for-each select="//formulas/formula/name">
         <formulaNames type="list"><xsl:value-of select="."/></formulaNames>

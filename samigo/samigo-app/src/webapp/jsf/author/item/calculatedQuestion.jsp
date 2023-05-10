@@ -46,9 +46,29 @@ confirmation dialog
 	<!-- AUTHORING -->
 	<script src="/samigo-app/js/authoring.js"></script>
 	<script>
-	$(document).ready(function() {
-		initCalcQuestion();
-	});
+		const addGlobalVariable = () => {
+			const globalVariable = prompt("<h:outputText value="#{authorMessages.calc_question_enter_global_variable}" escape="false"/>");
+			if (globalVariable) {
+				document.getElementById('globalvariablename').value = globalVariable;
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+			initCalcQuestion();
+			const deleteLinks = document.querySelectorAll('a.sam-deleteglobalvariable');
+			[].forEach.call(deleteLinks, (link) => {
+				link.existingOnclick = link.onclick;
+				link.onclick = null;
+				link.addEventListener('click', (evt) => {
+					evt.preventDefault();
+					const shouldEvt = confirm("<h:outputText value="#{authorMessages.calc_question_delete_global_variable_confirm}" escape="false"/>");
+					if ( shouldEvt && evt.currentTarget.existingOnclick ) {
+						evt.currentTarget.existingOnclick();
+						evt.stopPropagation();
+					}
+				 })
+			});
+		}, false);
 	</script>
 
 </head>
@@ -137,6 +157,7 @@ confirmation dialog
 			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_4}" /></li>
 			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1}" /></li>
 			<ul>
+				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_11}" /></li>
 				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1a}" /></li>
 			</ul>
 			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2}" /></li>
@@ -147,6 +168,7 @@ confirmation dialog
 			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3}" /></li>
 			<ol type="a">
 				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3a}" /></li>
+				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3aa}" /></li>
 				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3b}" /></li>
 			</ol>
 		</ol>
@@ -186,6 +208,10 @@ confirmation dialog
 			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_var_label}" /></div>
 			<div class="tier2">
 				<h:outputText value="#{authorMessages.calc_question_define_vars}" />
+			</div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_globalvar_label}" /></div>
+			<div class="tier2">
+				<h:outputText value="#{authorMessages.calc_question_define_globalvars}" />
 			</div>
 			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_formula_label}" /></div>
 			<div class="tier2">
@@ -297,6 +323,65 @@ confirmation dialog
 		<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" escape="false"
 				rendered="#{itemauthor.currentItem.calculatedQuestion.variablesList eq '[]'}"/>
 	</div>
+
+	<!-- display global variables -->
+	<div class="longtext">
+		<h:outputLabel value="#{authorMessages.calc_question_globalvar_label} " />
+	</div>
+	<div class="tier2 globalvariable">
+		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" columnClasses="first,name,formula" id="globalvariables" 
+				value="#{itemauthor.currentItem.calculatedQuestion.globalVariablesList}" var="globalvariable">
+	      <h:column>
+	        	<f:facet name="header">
+		    		<h:outputText value=""  />
+	    	    </f:facet>
+	          <h:outputText value="" />
+	      </h:column>
+
+	      <h:column>
+	        	<f:facet name="header">
+	          		<h:outputText value="#{authorMessages.calc_question_globalvarname_col}"  />
+	        	</f:facet>
+	          	<h:outputText escape="false" value="#{globalvariable.name}" rendered="#{globalvariable.active }" />
+	          	<h:outputText escape="false" value="#{globalvariable.name}" rendered="#{!globalvariable.active }" styleClass="disabledField" />
+	      </h:column>
+	
+	      <h:column>
+	        	<f:facet name="header">
+	          		<h:outputText value="#{authorMessages.calc_question_formula_col}"  />
+	        	</f:facet>
+	        	<h:inputTextarea value="#{globalvariable.text}"
+	        			cols="40" rows="3" 
+	        			disabled="#{!globalvariable.active}" 
+	        			styleClass="#{(!globalvariable.validFormula ? 'validationError' : '')} changeWatch"/>
+	      </h:column>
+
+	      <h:column>
+	        	<f:facet name="header">
+		    		<h:outputText value="#{authorMessages.calc_question_globalvardelete_col}" />
+	    	    </f:facet>
+	        	<h:commandLink styleClass="sam-deleteglobalvariable" title="#{authorMessages.calc_question_delete_global_variable_link}" action="calculatedQuestion" immediate="true" rendered="true" >
+		        	<h:panelGroup rendered="#{globalvariable.addedButNotExtracted}">
+		        		<span class="fa fa-trash" aria-hidden="true"></span>
+		        		<span class="sr-only"><h:outputText value="#{authorMessages.calc_question_delete_global_variable_link}" /></span>
+		        	</h:panelGroup>
+		        	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionDeleteGlobalVariableListener" />
+		        	<f:param name="globalvariabledelete" value="#{globalvariable.name}" />
+	        	</h:commandLink>
+	      </h:column>
+		<h:outputLabel value="<p>#{authorMessages.no_global_variables_defined}</p>" escape="false"
+				rendered="#{itemauthor.currentItem.calculatedQuestion.globalVariablesList eq '[]'}"/>
+	    </h:dataTable>
+	</div>
+
+	<h:commandButton rendered="#{itemauthor.target=='assessment' || itemauthor.target=='questionpool'}" 
+  			value="#{authorMessages.calc_question_add_global_variable_button}" 
+  			onclick="addGlobalVariable();"
+  			styleClass="active">
+  		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionAddGlobalVariableListener" />
+	</h:commandButton>
+	<input id="globalvariablename" type="hidden" name="globalvariablename" />
+	<br /><br />
 
 	<!-- display formulas -->
 	<div class="longtext">
