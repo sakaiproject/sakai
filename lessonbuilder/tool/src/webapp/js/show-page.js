@@ -2100,6 +2100,12 @@ $(document).ready(function () {
     });
 
     $('#change-resource-mm').click(function () {
+      const deleteEl = document.querySelector("#edit-multimedia-dialog");
+      const modal = bootstrap.Modal.getInstance(deleteEl);
+      modal && modal.hide();
+      const mmEl = document.querySelector("#add-multimedia-dialog");
+      const mmModal = bootstrap.Modal.getOrCreateInstance(mmEl);
+      mmModal && mmModal.show();
 
       mm_test_reset();
       $("#mm-name-section").hide();
