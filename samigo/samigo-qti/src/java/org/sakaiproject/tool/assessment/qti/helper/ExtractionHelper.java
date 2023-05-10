@@ -2818,7 +2818,7 @@ public class ExtractionHelper
    */
   private void addCalculatedQuestionAnswers(ItemFacade item, Map itemMap) {
       // we do not have access to the raw XML data, so this was the easiest way
-      // that I could think of to return the variable and formula information
+      // that I could think of to return the variable, globalvariable and formula information
       // in the itemMap.  The transform could do more, but XmlMapper.map function
       // is limited.  The variable lists should all be the same size, and the 
       // formula lists should all be the same size
@@ -2827,6 +2827,10 @@ public class ExtractionHelper
       List<String> variableMaxs = (List) itemMap.get("variableMaxs");
       List<String> variableDecimalPlaces = (List) itemMap.get("variableDecimalPlaces");
       
+      List<String> globalvariableNames = (List) itemMap.get("globalvariableNames");
+      List<String> globalvariableTexts = (List) itemMap.get("globalvariableTexts");
+      List<String> globalvariableAddedButNotExtracted = (List) itemMap.get("globalvariableAddedButNotExtracted");
+
       List<String> formulaNames = (List) itemMap.get("formulaNames");
       List<String> formulaTexts = (List) itemMap.get("formulaTexts");
       List<String> formulaTolerances = (List) itemMap.get("formulaTolerances");
@@ -2842,20 +2846,21 @@ public class ExtractionHelper
           }
       }
       
-      // loops through variablenames and formulanames creates the entries for sam_itemtext_t
+      // loops through variablenames, glovalvariablenames and formulanames creates the entries for sam_itemtext_t
       // within those loops, create the entries for sam_answer_t
       // setIsCorrect() for variables will only be correct in the inner variable loop
       // setIsCorrect() for formulas will only be correct in the inner formula loop
+      // setIsCorrect() for global variables will only be correct in the inner global variables loop
       // this feels kludgy.  
       Set itemTextSet = new HashSet<ItemText>();
       
       // variable outer loop
       for (int i = 0; i < variableNames.size(); i++) {
-          char answerLabel = 'A';
           ItemText itemText = new ItemText();
           itemText.setText(variableNames.get(i));
           itemText.setItem(item.getData());
           itemText.setSequence(Long.valueOf(i + 1));
+          itemText.setAddedButNotExtracted(Boolean.FALSE);
           
           // associate answers with the text
           Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
@@ -2867,7 +2872,7 @@ public class ExtractionHelper
               Answer answer = new Answer();
               answer.setItem(item.getData());
               answer.setItemText(itemText);
-              answer.setLabel("" + answerLabel++);
+              answer.setLabel(variableNames.get(j));
               answer.setText(varMin + "|" + varMax + "," + varDecimalPlaces);
               answer.setSequence(Long.valueOf(j + 1));
               // only a variable can be correct here, since we're comparing variables
@@ -2883,24 +2888,38 @@ public class ExtractionHelper
               Answer answer = new Answer();
               answer.setItem(item.getData());
               answer.setItemText(itemText);
-              answer.setLabel("" + answerLabel++);
+              answer.setLabel(formulaNames.get(j));
               answer.setText(forText + "|" + forTolerance + "," + forDecimalPlaces);
               answer.setSequence(Long.valueOf(variableNames.size() + j + 1));
               // no formulas will ever match here
               answer.setIsCorrect(Boolean.FALSE);
               answerSet.add(answer);              
           }
-          itemText.setAnswerSet(answerSet);          
+
+          for (int j = 0; j < globalvariableNames.size(); j++) {
+              String text = globalvariableTexts.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(globalvariableNames.get(j));
+              answer.setText(text);
+              answer.setSequence(Long.valueOf(variableNames.size() + formulaNames.size() + j + 1));
+              // no global variables will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
+          itemText.setAnswerSet(answerSet);
           itemTextSet.add(itemText);
       }
       
       // formula outer loop
       for (int i = 0; i < formulaNames.size(); i++) {          
-          char answerLabel = 'A';
           ItemText itemText = new ItemText();
           itemText.setText(formulaNames.get(i));
           itemText.setItem(item.getData());
           itemText.setSequence(Long.valueOf(variableNames.size() + i + 1));
+          itemText.setAddedButNotExtracted(Boolean.FALSE);
           
           // associate answers with the text
           Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
@@ -2912,7 +2931,7 @@ public class ExtractionHelper
               Answer answer = new Answer();
               answer.setItem(item.getData());
               answer.setItemText(itemText);
-              answer.setLabel("" + answerLabel++);
+              answer.setLabel(variableNames.get(j));
               answer.setText(varMin + "|" + varMax + "," + varDecimalPlaces);
               answer.setSequence(Long.valueOf(j + 1));
               // no variables will ever match here
@@ -2928,14 +2947,87 @@ public class ExtractionHelper
               Answer answer = new Answer();
               answer.setItem(item.getData());
               answer.setItemText(itemText);
-              answer.setLabel("" + answerLabel++);
+              answer.setLabel(formulaNames.get(j));
               answer.setText(forText + "|" + forTolerance + "," + forDecimalPlaces);
               answer.setSequence(Long.valueOf(variableNames.size() + j + 1));
               // only a formula can be correct here, since we're comparing formulas
               answer.setIsCorrect(i == j);
               answerSet.add(answer);              
           }
+
+          for (int j = 0; j < globalvariableNames.size(); j++) {
+              String text = globalvariableTexts.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(globalvariableNames.get(j));
+              answer.setText(text);
+              answer.setSequence(Long.valueOf(variableNames.size() + formulaNames.size() + j + 1));
+              // no global variables will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
           itemText.setAnswerSet(answerSet);          
+          itemTextSet.add(itemText);
+      }
+
+      // globalvariables outer loop
+      for (int i = 0; i < globalvariableNames.size(); i++) {
+          ItemText itemText = new ItemText();
+          itemText.setText(globalvariableNames.get(i));
+          itemText.setItem(item.getData());
+          itemText.setSequence(Long.valueOf(variableNames.size() + formulaNames.size() + i + 1));
+          itemText.setAddedButNotExtracted(Boolean.valueOf((globalvariableAddedButNotExtracted.get(i))));
+
+          // associate answers with the text
+          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
+          for (int j = 0; j < variableNames.size(); j++) {
+              String varMin = variableMins.get(j);
+              String varMax = variableMaxs.get(j);
+              String varDecimalPlaces = variableDecimalPlaces.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(variableNames.get(j));
+              answer.setText(varMin + "|" + varMax + "," + varDecimalPlaces);
+              answer.setSequence(Long.valueOf(j + 1));
+              // no variables will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
+
+          for (int j = 0; j < formulaNames.size(); j++) {
+              String forText = formulaTexts.get(j);
+              String forTolerance = formulaTolerances.get(j);
+              String forDecimalPlaces = formulaDecimalPlaces.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(formulaNames.get(j));
+              answer.setText(forText + "|" + forTolerance + "," + forDecimalPlaces);
+              answer.setSequence(Long.valueOf(variableNames.size() + j + 1));
+              // no formulas will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
+
+          for (int j = 0; j < globalvariableNames.size(); j++) {
+              String text = globalvariableTexts.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(globalvariableNames.get(j));
+              answer.setText(text);
+              answer.setSequence(Long.valueOf(variableNames.size() + formulaNames.size() + j + 1));
+              // only a global variable can be correct here, since we're comparing global variables
+              answer.setIsCorrect(i == j);
+              answerSet.add(answer);
+          }
+          itemText.setAnswerSet(answerSet);
           itemTextSet.add(itemText);
       }
       
