@@ -27,7 +27,7 @@ export default {
     };
   },
   props: {
-    value: {
+    modelValue: {
       type: String,
       default: null,
     },
@@ -47,6 +47,7 @@ export default {
       type: Number
     },
   },
+  emits: ['update:modelValue'],
   computed: {
     inputClasses() {
       let classes = [];
@@ -59,6 +60,14 @@ export default {
       }
       return classes;
     },
+    value: {
+      get() {
+        return this.modelValue
+      },
+      set(value) {
+        this.$emit('update:modelValue', value)
+      }
+    }
   },
   methods: {
     handleInput(value) {

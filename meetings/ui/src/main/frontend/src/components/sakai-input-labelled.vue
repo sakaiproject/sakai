@@ -8,7 +8,7 @@
       :required="required"
       :maxlength="maxlength"
       :validate="validate"
-      v-model:value="value"
+      v-model="value"
       @input="$emit('update:value', $event.target.value)"
       @validation="$emit('validation', $event)"
     />
@@ -18,12 +18,12 @@
       :id="inputId"
       :disabled="disabled"
       :multiple="multiple"
-      v-model:value="value"
+      v-model="value"
       @change="$emit('update:value', this.value)"
     />
     <SakaiInput
       v-else
-      v-model:value="value"
+      v-model="value"
       :id="inputId"
       :type="type"
       :disabled="disabled"
@@ -82,7 +82,7 @@ export default {
       type: String,
       default: "text",
     },
-    value: {
+    modelValue: {
       type: [String, Boolean, Number, Array],
       default: "",
     },
@@ -103,10 +103,19 @@ export default {
     },
     validate: validateProp,
   },
+  emits: ['update:modelValue'],
   computed: {
     isCheckbox() {
       return this.type === 'checkbox';
     },
+    value: {
+      get() {
+        return this.modelValue
+      },
+      set(value) {
+        this.$emit('update:modelValue', value)
+      }
+    }
   },
   created() {
     this.inputId += uuid().substring(8, 13);

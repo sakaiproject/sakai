@@ -39,6 +39,9 @@ import SakaiIcon from "../components/sakai-icon.vue";
 import constants from "../resources/constants.js";
 import i18nMixn from "../mixins/i18n-mixn.js";
 
+import { mapState, mapActions } from 'pinia'
+import { useDataStore } from '../stores/dataStore';
+
 export default {
   name: "meeting-recordings",
   components: {
@@ -55,14 +58,15 @@ export default {
   },
   props: {
     meetingId: { type: String, default: null },
-    title: { type: String, default: "" },
   },
   computed: {
+    ...mapState(useDataStore, { title: store => store.storedData.title }),
     i18Title() {
       return this.i18n.meeting_title?.replace("{}", this.title)
     }
   },
   methods: {
+    ...mapActions(useDataStore, ["clearStoredData"]),
     showError(message) {
       this.$emit('showError', message);
     },
@@ -81,6 +85,7 @@ export default {
       this.loading = false;
     },
     handleBack() {
+      this.clearStoredData();
       this.$router.push({ name: "Main" });
     }
   },

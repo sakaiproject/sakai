@@ -162,6 +162,9 @@ import localizedFormatPlugin from "dayjs/plugin/localizedFormat";
 import utcPlugin from "dayjs/plugin/utc";
 import timezonePlugin from "dayjs/plugin/timezone";
 
+import { mapWritableState } from 'pinia'
+import { useDataStore } from '../stores/dataStore';
+
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(localizedFormatPlugin);
 dayjs.extend(utcPlugin);
@@ -220,6 +223,7 @@ export default {
     actions: { type: Array, default: new Array() },
   },
   computed: {
+    ...mapWritableState (useDataStore, ["storedData"]),
     schedule() {
       let start = dayjs(this.startDate);
       let end = dayjs(this.endDate);
@@ -347,17 +351,18 @@ export default {
         .then((response) => this.$emit('onDeleted', this.id));
     },
     editMeeting() {
-        let parameters = {
-          id: this.id,
-          title: this.title,
-          description: this.description,
-          dateOpen: this.startDate,
-          dateClose: this.endDate,
-          savedToCalendar: this.savedToCalendar,
-          participantOption: this.participantOption,
-          groupSelection: this.groupSelection
-        };
-      this.$router.push({name: "EditMeeting", params: parameters});
+      let parameters = {
+        id: this.id,
+        title: this.title,
+        description: this.description,
+        dateOpen: this.startDate,
+        dateClose: this.endDate,
+        savedToCalendar: this.savedToCalendar,
+        participantOption: this.participantOption,
+        groupSelection: this.groupSelection
+      };
+      this.storedData = parameters;
+      this.$router.push({name: "EditMeeting", params: { id: this.id}});
     },
     getMeetingLink() {
       const storage = document.createElement('textarea');
@@ -376,7 +381,8 @@ export default {
           meetingId: this.id,
           title: this.title
       };
-      this.$router.push({name: "CheckRecordings", params: parameters});
+      this.storedData = parameters;
+      this.$router.push({name: "CheckRecordings", params: {meetingId: this.id}});
     }
   },
   mounted () {

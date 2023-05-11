@@ -10,7 +10,7 @@ const routes = [
     props: true
   },
   {
-    path: routeprefix + '/',
+    path: routeprefix + '/:id?',
     name: 'EditMeeting',
     props: true,
     component () {
@@ -18,7 +18,7 @@ const routes = [
     }
   },
   {
-    path: routeprefix + '/',
+    path: routeprefix + '/:meetingId',
     name: 'CheckRecordings',
     props: true,
     component () {
