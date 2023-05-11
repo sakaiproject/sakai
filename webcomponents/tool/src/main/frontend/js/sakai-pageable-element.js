@@ -70,7 +70,9 @@ export class SakaiPageableElement extends LitElement {
 
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
-    this.dataPage = this.data.slice(start, end);
+    const visibleData = this.data.filter(t => t.visible);
+    this.dataPage = visibleData.slice(start, end);
+    this.count = Math.ceil(visibleData.length / this.pageSize);
     this.requestUpdate();
   }
 

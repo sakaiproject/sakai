@@ -131,6 +131,11 @@ export class SakaiTasks extends SakaiPageableElement {
   }
 
   filterChanged(e) {
+    this.currentPage = 1;
+    const sakaiPager = this.shadowRoot.querySelector('#pager sakai-pager');
+    if (sakaiPager) {
+      sakaiPager.current = this.currentPage;
+    }
     this.filter(e.target.value);
   }
 
