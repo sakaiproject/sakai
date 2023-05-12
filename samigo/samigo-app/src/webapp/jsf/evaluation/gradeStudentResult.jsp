@@ -159,7 +159,7 @@ function toPoint(id)
       <samigo:hideDivision id="part" title=" #{deliveryMessages.p} #{part.number} #{evaluationMessages.dash} #{part.text} #{evaluationMessages.dash}
        #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{evaluationMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <t:dataList layout="unorderedList" itemStyleClass="list-group-item" styleClass="list-group question-wrapper" value="#{part.itemContents}" var="question">
-                <span class="badge">
+                <span class="badge rounded-pill text-bg-secondary">
                   <h:outputText escape="false" value="#{question.roundedMaxPoints}">
                     <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
                   </h:outputText>

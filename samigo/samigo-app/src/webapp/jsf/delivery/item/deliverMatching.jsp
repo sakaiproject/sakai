@@ -42,7 +42,7 @@ should be included in file importing DeliveryMessages
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:panelGroup id="image"
         rendered="#{matching.isCorrect}"
-        styleClass="icon-sakai--check feedBackCheck" >
+        styleClass="si si-check-lg" >
       </h:panelGroup>
       <h:panelGroup id="ximage"
         rendered="#{!matching.isCorrect}"
