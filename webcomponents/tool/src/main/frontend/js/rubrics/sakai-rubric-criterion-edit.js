@@ -37,34 +37,52 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
   get criterion() { return this._criterion; }
 
+  firstUpdated() {
+
+    new bootstrap.Popover(this.querySelector("button"), {
+      content: () => this.querySelector(`#edit-criterion-${this.criterion.id}`).innerHTML,
+      customClass: "criterion-edit-popover",
+      html: true,
+      placement: "bottom",
+      sanitize: false,
+    });
+
+    this.querySelector("button").addEventListener("shown.bs.popover", () => {
+
+      const save = document.querySelector(".popover.show .btn-primary");
+      save.addEventListener("click", this.saveEdit);
+      save.closest(".popover-body").querySelector("input").focus();
+
+      document.querySelector(".popover.show .btn-secondary")
+        .addEventListener("click", this.cancelEdit);
+    });
+  }
+
   render() {
 
     return html`
-      <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}" aria-label="${tr("edit_criterion")} ${this.criterion.title}" href="#"></a>
+      <button class="btn btn-icon edit"
+          id="edit-criterion-trigger-${this.criterion.id}"
+          type="button
+          data-bs-toggle="popup"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="edit-criterion-${this.criterion.id}"
+          title="${tr("edit_criterion")} ${this.criterion.title}"
+          aria-label="${tr("edit_criterion")} ${this.criterion.title}">
+        <i class="si si-edit"></i>
+      </button>
 
-      <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom rubrics-popover">
-        <div class="arrow-1"></div>
-        <div class="popover-title">
-          <div class="buttons act">
-            <button class="active save" @click="${this.saveEdit}">
-              <sr-lang key="save">Save</sr-lang>
-            </button>
-            <button class="btn btn-link btn-xs cancel" @click="${this.cancelEdit}">
-              <sr-lang key="cancel">Cancel</sr-lang>
-            </button>
+      <div id="edit-criterion-${this.criterion.id}" class="criterion-edit-popover d-none">
+        <div>
+          <div>
+            <label class="label-rubrics" for="criterion-title-edit-${this.criterion.id}">
+              <sr-lang key="criterion_title">Criterion Title</sr-lang>
+            </label>
+            <input title="${tr("criterion_title")}" id="criterion-title-edit-${this.criterion.id}" type="text" value="${this.criterionClone.title}" maxlength="255">
           </div>
         </div>
-        <div class="popover-content form">
-          <div class="form-group">
-            <label class="label-rubrics" for="criterion-title-field-${this.criterion.id}">
-              ${this.isCriterionGroup ? html`
-                <sr-lang key="criterion_group_title">Criterion Group Title</sr-lang>
-              ` : html`
-                <sr-lang key="criterion_title">Criterion Title</sr-lang>
-              `}
-            </label>
-            <input id="criterion-title-field-${this.criterion.id}" type="text" class="form-control" value="${this.criterionClone.title}" maxlength="255">
-          </div>
+        <div class="form">
           <div class="form-group">
             <label class="label-rubrics" for="criterion-description-field-${this.criterion.id}">
               ${this.isCriterionGroup ? html`
@@ -80,91 +98,45 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
               id="criterion-description-field-${this.criterion.id}">
             </sakai-editor>
           </div>
+
+          <div class="mt-2">
+            <div>
+              <button class="btn btn-primary" type="button" data-site-id="${this.siteId}" data-rubric-id="${this.rubricId}" data-criterion-id="${this.criterion.id}">
+                <sr-lang key="save">Save</sr-lang>
+              </button>
+              <button class="btn btn-secondary" type="button" data-criterion-id="${this.criterion.id}">
+                <sr-lang key="cancel">Cancel</sr-lang>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     `;
   }
 
-  onFocus(e) {
-
-    e.target.closest('.criterion-row').classList.add("focused");
-  }
-
-  closeOpen() {
-    $('.show-tooltip .cancel').click();
-  }
-
-  editCriterion(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    this.dispatchEvent(new CustomEvent('show-tooltip', {detail: this.criterion}));
-
-    // title input box reference
-    const titleinput = this.querySelector('[type="text"]');
-
-    if (!this.classList.contains("show-tooltip")) {
-
-      this.closeOpen();
-      this.classList.add("show-tooltip");
-
-      const popover = $(`#edit_criterion_${this.criterion.id}`);
-      popover[0].style.top = `${e.target.offsetTop + 20  }px`;
-      popover[0].style.left = `${e.target.offsetLeft - popover.width() / 2  }px`;
-      popover.show();
-
-      // and highlight the title
-      titleinput.setSelectionRange(0, titleinput.value.length);
-      titleinput.focus();
-
-    } else {
-      // if the tooltip is showing
-      // hide the tooltip
-      this.hideToolTip();
-      $(`#edit_criterion_${this.criterion.id}`).hide();
-    }
-  }
-
-  hideToolTip() {
-
-    // hide the edit popover
-    this.classList.remove("show-tooltip");
-
-    // fire hide-tooltip event to allow parent components to take action.
-    this.dispatchEvent(new CustomEvent('hide-tooltip', {details: {criterion: this.criterion}}));
-  }
-
   cancelEdit(e) {
 
     e.stopPropagation();
-
-    // revert changed data
-    this.criterionClone.title = this.criterion.title;
-    this.criterionClone.description = this.criterion.description;
-
-    // hide popover
-    this.hideToolTip();
-    this.dispatchEvent(new CustomEvent('hide-tooltip', {details: this.criterion}));
-    $(`#edit_criterion_${this.criterion.id}`).hide();
-    const popover = $(`#edit_criterion_${this.criterion.id}`);
-    popover.find("input[type='text']")[0].value = this.criterion.title;
-    this.querySelector("sakai-editor").setContent(this.criterion.description);
-    popover.hide();
+    const trigger = document.getElementById(`edit-criterion-trigger-${this.dataset.criterionId}`);
+    bootstrap.Popover.getInstance(trigger).hide();
+    trigger.focus();
   }
 
   saveEdit(e) {
 
     e.stopPropagation();
 
-    const title = document.getElementById(`criterion-title-field-${this.criterion.id}`).value;
-    const description = this.criterionClone.description;
+    //const title = document.getElementById(`criterion-title-field-${this.criterion.id}`).value;
+    const title = e.target.closest(".popover-body").querySelector("input").value;
+    //const description = this.criterionClone.description;
+    const description = e.target.closest("div.form").querySelector("sakai-editor").getContent();
 
     const body = JSON.stringify([
       { "op": "replace", "path": "/title", "value": title },
       { "op": "replace", "path": "/description", "value": description },
     ]);
 
-    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${this.criterion.id}`;
+    const url = `/api/sites/${this.dataset.siteId}/rubrics/${this.dataset.rubricId}/criteria/${this.dataset.criterionId}`;
     fetch(url, {
       credentials: "include",
       headers: { "Content-Type": "application/json-patch+json" },
@@ -178,24 +150,19 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
       }
 
       throw new Error("Network error while updating criterion");
-    }).then(criterion => {
+    })
+    .then(criterion => {
 
-      this.dispatchEvent(new CustomEvent('criterion-edited', { detail: criterion }));
-      this.dispatchEvent(new SharingChangeEvent());
+      const originalEditor = document.getElementById(`criterion-edit-${this.dataset.criterionId}`);
+      originalEditor.dispatchEvent(new CustomEvent("criterion-edited", { detail: criterion }));
+      originalEditor.dispatchEvent(new SharingChangeEvent());
     })
     .catch (error => console.error(error));
 
-    // hide the popover
-    this.hideToolTip();
-    this.dispatchEvent(new CustomEvent('hide-tooltip', {detail: this.criterion}));
-    document.getElementById(`edit_criterion_${this.criterion.id}`).style.display = "none";
-  }
-
-  openEditWithKeyboard(e) {
-
-    if (e.keyCode == 32) {
-      this.editCriterion(e);
-    }
+    const trigger = document.getElementById(`edit-criterion-trigger-${this.dataset.criterionId}`);
+    bootstrap.Popover.getInstance(trigger).hide();
+    trigger.focus();
+    document.getElementById(`edit-criterion-${this.dataset.criterionId}`).style.display = "none";
   }
 
   updateCriterionDescription(e) {
@@ -203,4 +170,5 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   }
 }
 
-customElements.define("sakai-rubric-criterion-edit", SakaiRubricCriterionEdit);
+const tagName = "sakai-rubric-criterion-edit";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricCriterionEdit);

@@ -224,6 +224,8 @@ export class SakaiRubric extends RubricsElement {
 
   toggleRubric(e) {
 
+    console.log("HERERE");
+
     e && e.preventDefault();
 
     const titlecontainer = this.querySelector(".rubric-title");
@@ -234,10 +236,12 @@ export class SakaiRubric extends RubricsElement {
     const icon = $(`#rubric_toggle_${this.rubric.id} span`);
 
     if (collapse.is(":visible")) {
+      console.log("HERE1");
       this.rubricExpanded = "true";
       titlecontainer.classList.add("active");
       icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
     } else {
+      console.log("HERE2");
       this.rubricExpanded = "false";
       titlecontainer.classList.remove("active");
       icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");

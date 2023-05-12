@@ -36,6 +36,7 @@ export class SakaiRubricEdit extends RubricsElement {
       <button class="btn btn-icon edit"
           id="edit-rubric-trigger-${this.rubric.id}"
           type="button"
+          @click=${e => e.stopPropagation()}
           data-bs-toggle="popup"
           aria-haspopup="true"
           aria-expanded="false"
@@ -48,7 +49,7 @@ export class SakaiRubricEdit extends RubricsElement {
       <div id="edit-rubric-${this.rubric.id}" class="rubric-edit-popover d-none">
         <div>
           <div>
-            <label class="label-rubrics" for="rubric_title_edit">
+            <label class="label-rubrics" for="rubric-title-edit-${this.rubric.id}">
               <sr-lang key="rubric_title">Rubric Title</sr-lang>
             </label>
             <input title="${tr("rubric_title")}" id="rubric-title-edit-${this.rubric.id}" type="text" value="${this.rubricClone.title}" maxlength="255">

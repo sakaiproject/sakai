@@ -76,6 +76,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                 <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" aria-label="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
                 ${c.title}
                 <sakai-rubric-criterion-edit
+                    id="criterion-edit-${this.criterion.id}"
                     @criterion-edited="${this.criterionEdited}"
                     site-id="${this.siteId}"
                     rubric-id="${this.rubricId}"
@@ -100,6 +101,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                 <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" aria-label="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
                 ${c.title}
                 <sakai-rubric-criterion-edit
+                    id="criterion-edit-${c.id}"
                     @criterion-edited="${this.criterionEdited}"
                     site-id="${this.siteId}"
                     rubric-id="${this.rubricId}"
