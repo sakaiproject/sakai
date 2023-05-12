@@ -36,7 +36,7 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{question.answers}" var="answer">
         <h:column>
           <h:panelGroup id="image" rendered="#{answer.description eq 'true' && question.responseId eq answer.value}"
-            styleClass="icon-sakai--check feedBackCheck" >
+            styleClass="si si-check-lg" >
           </h:panelGroup>
           <h:panelGroup id="image2" rendered="#{answer.description ne 'true' && question.responseId eq answer.value}"
             styleClass="si si-remove feedBackCross">

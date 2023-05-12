@@ -255,3 +255,9 @@ iframe[type="application/pdf"] {
 .si-remove::before {
     color: red;
 }
+
+.si-check-lg::before {
+    color: green;
+    font-weight: bolder;
+    font-size: x-large;
+}
