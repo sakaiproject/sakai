@@ -295,7 +295,7 @@ document.links[newindex].onclick();
     <h4 class="part-header">
         <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
         <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false" rendered="#{! empty part.nonDefaultText}"/>
-        <span class="badge"><h:outputText value="#{part.pointsDisplayString} #{deliveryMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/></span>
+        <span class="badge rounded-pill text-bg-secondary"><h:outputText value="#{part.pointsDisplayString} #{deliveryMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/></span>
     </h4>
     <h4 class="tier1">
         <small class="part-text">
@@ -314,21 +314,23 @@ document.links[newindex].onclick();
    <h:dataTable width="100%" value="#{part.itemContents}" var="question">
      <h:column>
         <h:panelGroup layout="block" styleClass="row #{delivery.actionString}">
-          <h:panelGroup layout="block" styleClass="col-sm-6">
+          <h:panelGroup layout="block" styleClass="col-12 col-md-6">
             <h:panelGroup layout="block" styleClass="row">
-              <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
-                <p class="input-group-addon">
-                  <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
-                  <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
-                </p>
-                <%-- REVIEW ASSESSMENT --%>
-                <h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+              <h:panelGroup layout="block" styleClass="col-12">
+                <div class="input-group">
+                  <p class="input-group-text m-0">
+                    <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
+                    <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
+                  </p>
+                  <%-- REVIEW ASSESSMENT --%>
+                  <h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 
-                <h:panelGroup layout="block" rendered="#{delivery.actionString != 'gradeAssessment' && delivery.actionString != 'reviewAssessment'}">
-                  <%@ include file="/jsf/delivery/item/deliverAssessmentQuestionPoints.jsp" %>
-                </h:panelGroup>
+                  <h:panelGroup layout="block" rendered="#{delivery.actionString != 'gradeAssessment' && delivery.actionString != 'reviewAssessment'}">
+                    <%@ include file="/jsf/delivery/item/deliverAssessmentQuestionPoints.jsp" %>
+                  </h:panelGroup>
+                </div>
               </h:panelGroup>
-              <h:panelGroup layout="block" styleClass="col-sm-12 input-group" rendered="#{delivery.actionString != 'takeAssessment' && delivery.actionString != 'takeAssessmentViaUrl' && delivery.actionString != 'previewAssessment'}">
+              <h:panelGroup layout="block" styleClass="col-12" rendered="#{delivery.actionString != 'takeAssessment' && delivery.actionString != 'takeAssessmentViaUrl' && delivery.actionString != 'previewAssessment'}">
                 <%@ include file="/jsf/delivery/item/deliverAssessmentQuestionPoints.jsp" %>
               </h:panelGroup>
             </h:panelGroup>
