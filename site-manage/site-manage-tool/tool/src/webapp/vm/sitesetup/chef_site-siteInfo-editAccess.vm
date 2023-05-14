@@ -146,7 +146,7 @@
 	#if($menu)#toolbar($menu)#end
 
     ##  header for manage access page
-	<div>
+	<div class="page-header">
 		#if (!$!site)
 			<h1>$tlang.getString("ediacc.other.setsitacc")</h1>
 		#else

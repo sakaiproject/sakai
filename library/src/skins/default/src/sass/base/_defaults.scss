@@ -91,6 +91,15 @@ a{
   }
 }
 
+.dropdown-menu > li > a {
+  text-decoration: none;
+}
+
+.dropdown-menu > li:hover,
+.dropdown-menu > li:focus {
+  background-color: var(--sakai-background-color-4);
+}
+
 input, textarea{
   color: var(--sakai-text-color-1);
   background: var(--sakai-background-color-1);

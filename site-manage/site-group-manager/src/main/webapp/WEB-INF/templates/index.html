@@ -5,7 +5,7 @@
   <div th:replace="fragments/common :: jQuery" />
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (index)" />
-    <div><h1 th:text="#{index.header.grouplist}"></h1></div>
+    <div class="page-header"><h1 th:text="#{index.header.grouplist}"></h1></div>
     <div class="sak-banner-info" th:if="${groupList.isEmpty()}" th:text="#{index.warning.groupempty}">No groups in this site.</div>
     <div class="instruction" th:if="${anyGroupLocked}"><span class="si si-locked" aria-hidden="true"></span> - <span aria-hidden="true" th:text="#{index.table.grouplocked.info}"></span></div>
     <form th:if="${!groupList.isEmpty()}" id="group-manager-form" action="#" th:action="@{/removeGroups}" th:object="${mainForm}" method="post">

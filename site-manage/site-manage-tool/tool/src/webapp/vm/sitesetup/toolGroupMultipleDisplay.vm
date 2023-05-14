@@ -66,7 +66,7 @@
 
 <div id="toolHolderWW" class="container-fluid">
   <div class="row">
-    <div id="toolHolderW" class="col-md-8">
+    <div id="toolHolderW d-flex" class="col-md-8">
         <div id="collExpContainer">
             <a id="expandAll" href="#">$tlang.getString("feat.expand.all")</a>
             <a id="contractAll" style="display:none" href="#">$tlang.getString("feat.collapse.all")</a>
