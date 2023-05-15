@@ -368,6 +368,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._addRubricParam(e, "criterion-override");
   }
 
+  _onRubricTotalPointsUpdated(e) {
+
+    this.submission.grade = e.detail.value;
+    this.requestUpdate();
+  }
+
   _onEvaluationRemoved() {
     this.querySelector("sakai-rubric-grading-button").setHasEvaluation();
   }

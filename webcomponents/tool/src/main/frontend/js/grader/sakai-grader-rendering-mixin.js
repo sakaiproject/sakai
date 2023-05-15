@@ -378,6 +378,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   @rubric-rating-changed=${this._onRubricRatingChanged}
                   @rubric-ratings-changed=${this._onRubricRatingsChanged}
                   @rubric-rating-tuned=${this._onRubricRatingTuned}
+                  @total-points-updated=${this._onRubricTotalPointsUpdated}
                   @update-comment=${this._onUpdateCriterionComment}
                 ></sakai-rubric-grading>
                 <button class="btn btn-primary"
