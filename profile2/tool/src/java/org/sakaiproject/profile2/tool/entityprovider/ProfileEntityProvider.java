@@ -124,9 +124,10 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 		final String id = ref.getId();
 
-        final boolean wantsBlank = id.equals(ProfileConstants.BLANK);
+        boolean wantsBlank = id.equals(ProfileConstants.BLANK);
 
         String uuid = "";
+        String currentUserId = sakaiProxy.getCurrentUserId();
 
         if(!wantsBlank) {
 		    //convert input to uuid
@@ -158,7 +159,28 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(StringUtils.isNotBlank(siteId) && !sakaiProxy.checkForSite(siteId)){
 			throw new EntityNotFoundException("Invalid siteId: " + siteId, ref.getReference());
 		}
-		
+
+		// First of all, check if the current user is admin. If current user is admin, show all the pictures always
+		if (sakaiProxy.isAdminUser()) {
+			wantsBlank = false;
+		} else if (StringUtils.isBlank(siteId)) {
+			// No site id is specified, checking if both users have any site in common
+			if (!sakaiProxy.areUsersMembersOfSameSite(currentUserId, uuid)) {
+				// No sites in common, so serving a blank image
+				wantsBlank = true;
+			}
+		} else {
+			// Site id is specified, checking if both users are members of that site
+			if (!sakaiProxy.isUserMemberOfSite(currentUserId, siteId)) {
+				// Current user is not a member of the specified site, so serving a blank image
+				wantsBlank = true;
+			}
+			if (!sakaiProxy.isUserMemberOfSite(uuid, siteId)) {
+				// Requested user is not a member of the specified site, so serving a blank image
+				wantsBlank = true;
+			}
+		}
+
         if(wantsBlank) {
             image = imageLogic.getBlankProfileImage();
         } else {
@@ -180,7 +202,11 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(image == null) {
 			throw new EntityNotFoundException("No profile image for " + id, ref.getReference());
 		}
-		
+
+		if (!StringUtils.equals(currentUserId, uuid)) {
+			sakaiProxy.postEvent(ProfileConstants.EVENT_IMAGE_REQUEST, "/profile/" + currentUserId + "/imagerequest/" + uuid, false);
+		}
+
 		//check for binary
 		final byte[] bytes = image.getBinary();
 		if(bytes != null && bytes.length > 0) {

@@ -352,8 +352,9 @@ public class ProfileConstants {
 	public static final String EVENT_WALL_ITEM_NEW = "profile.wall.item.new";
 	public static final String EVENT_WALL_ITEM_REMOVE = "profile.wall.item.remove";
 	public static final String EVENT_WALL_ITEM_COMMENT_NEW = "profile.wall.item.comment.new";
-	
-	
+
+	public static final String EVENT_IMAGE_REQUEST = "profile.image.request";
+
 	/*
 	 * ENTITY
 	 */
