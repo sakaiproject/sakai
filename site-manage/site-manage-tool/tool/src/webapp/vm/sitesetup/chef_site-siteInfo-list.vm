@@ -33,7 +33,7 @@
 	<div id="group-modal"></div>
 	#if($menu)#toolbar($menu)#end
 	## header for site info page
-	<div>
+	<div class="page-header">
 		<h1>$tlang.getString("sinfo.other")</h1>
 	</div>
 

@@ -4,7 +4,7 @@
 	#if($menu)#toolbar($menu)#end
 
 	## header for edit class roster(s) page
-	<div>
+	<div class="page-header">
 		<h1>$tlang.getString("java.editc")</h1>
 	</div>
 

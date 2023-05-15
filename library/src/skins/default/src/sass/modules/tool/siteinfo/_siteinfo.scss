@@ -89,6 +89,9 @@
 					width: calc(100% - 35px);
 					display: inline-block;
 					min-width: initial !important;
+					padding: 0;
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
 				}
 
 				.day-of-week {

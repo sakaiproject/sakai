@@ -2,7 +2,7 @@
 <div class="portletBody container-fluid">
 	#if($menu)#toolbar($menu)#end
 ## header for edit class roster's editing course/section info
-	<div>
+	<div class="page-header">
 		#if (!$!site)
 			<h1>$tlang.getString("nscourse.creating")</h1>
 			<p class="step">
