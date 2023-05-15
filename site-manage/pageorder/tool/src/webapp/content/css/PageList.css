@@ -84,8 +84,7 @@ li.sortable_hover
 }
 .item_control.del-link
 {
-	color: var(--errorBanner-color);
-	background: var(--errorBanner-bgcolor);
+	color: var(--errorBanner-color) !important;
 }
 .item_control_box .dropdown-menu>li>a
 {

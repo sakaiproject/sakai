@@ -16,7 +16,7 @@
 			</p>
 			<div id="sitesAccordion">
 				<div class="card">
-					<div class="card text-center bg-light">
+					<div class="card-header">
 						<h4 class="card-title">
 							#set ($sitesSize = $sites.size() - 1)
 							<a data-bs-toggle="collapse" data-bs-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
@@ -42,7 +42,7 @@
 
 			#if ($!hiddenSites && $hiddenSites.size() > 0)
 				<div class="card">
-					<div class="card text-center bg-light">
+					<div class="card-header">
 						<h4 class="card-title">
 							<a data-bs-toggle="collapse" data-bs-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
 						</h4>
