@@ -116,7 +116,7 @@
               <i class="bi-arrow-down-circle-fill ms-1"></i>
             </button>
         </li>
-        <li rsf:id="remove-student" class="contentButton">
+        <li class="list-group-item m-1 contentButton" rsf:id="remove-student">
             <button class="btn btn-link my-1" type="button">
               <a class="remove-page" href="#" rsf:id="remove-page-student">
                 <span rsf:id="msg=simplepage.remove-page" role="menuitem"></span>
@@ -269,37 +269,37 @@
               <div class="row">
                 <div class="col-sm-6 d-flex align-items-stretch">
                   <div class="card w-100">
-                    <div class="card text-center">
+                    <div class="card-header">
                       <h4><span rsf:id="msg=simplepage.content.items"></span></h4>
                     </div>
                     <div class="card-body">
                       <ul>
-                        <li>
+                        <li class="list-group-item m-1">
                           <a role="button" href="#" rsf:id="add-text" class="add-text-link add-before-param">
                             <span rsf:id="msg.simplepage.text"></span>
                           </a>
                         </li>
-                        <li>
+                        <li class="list-group-item m-1">
                           <a role="button" rsf:id="add-resource" class="add-resource add-before-param" data-bs-toggle="modal" data-bs-target="#add-multimedia-dialog" aria-controls="add-multimedia-dialog" aria-expanded="false">
                             <span rsf:id="msg.simplepage.resource"></span>
                           </a>
                         </li>
-                        <li>
+                        <li class="list-group-item m-1">
                           <a role="button" rsf:id="subpage-link" class="subpage-link" data-bs-toggle="modal" data-bs-target="#subpage-dialog" aria-controls="subpage-dialog" aria-expanded="false" href="#">
                             <span rsf:id="msg=simplepage.subpage"></span>
                           </a>
                         </li>
-                        <li rsf:id="blti-app-li">
+                        <li class="list-group-item m-1" rsf:id="blti-app-li">
                           <a href="#" role="menuitem button" rsf:id="add-blti-app" class="add-before-param">
                             <span rsf:id="msg.simplepage.blti.app"></span>
                           </a>
                         </li>
-                        <li>
+                        <li class="list-group-item m-1">
                           <a role="button" href="#" rsf:id="add-from-subpage" class="add-before-param">
                             <span rsf:id="simplepage.reorder-addpage"></span>
                           </a>
                         </li>
-                        <li>
+                        <li class="list-group-item m-1">
                           <a role="button" rsf:id="add-multimedia" class="add-multimedia add-before-param" data-bs-toggle="modal" data-bs-target="#add-multimedia-dialog" aria-controls="add-multimedia-dialog" aria-expanded="false">
                             <span rsf:id="msg.simplepage.multimedia"></span>
                           </a>
@@ -310,32 +310,32 @@
                 </div>
                 <div class="col-sm-6 d-flex align-items-stretch">
                   <div class="card w-100">
-                    <div class="card text-center">
+                    <div class="card-header">
                       <h4><span rsf:id="msg=simplepage.linked.content.items"></span></h4>
                     </div>
                     <div class="card-body">
                       <ul>
-                        <li rsf:id="assignment-li">
+                        <li class="list-group-item m-1" rsf:id="assignment-li">
                           <a role="button" href="#" rsf:id="add-assignment" class="add-before-param">
                             <span rsf:id="msg.simplepage.assignment"></span>
                           </a>
                         </li>
-                        <li rsf:id="quiz-li">
+                        <li class="list-group-item m-1" rsf:id="quiz-li">
                           <a role="button" href="#" rsf:id="add-quiz" class="add-before-param">
                             <span rsf:id="msg.simplepage.quiz"></span>
                           </a>
                         </li>
-                        <li rsf:id="forum-li">
+                        <li class="list-group-item m-1" rsf:id="forum-li">
                           <a role="button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum">
                             <span rsf:id="msg.simplepage.forum"></span>
                           </a>
                         </li>
-                        <li>
+                        <li class="list-group-item m-1">
                           <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param">
                             <span rsf:id="msg.simplepage.folder"></span>
                           </a>
                         </li>
-                        <li rsf:id="calendar-li">
+                        <li class="list-group-item m-1" rsf:id="calendar-li">
                           <a role="button" href="#" id="calendar-link" rsf:id="calendar-link" class="calendar-link">
                             <span rsf:id="msg=simplepage.calendarLinkText"></span>
                           </a>
@@ -345,17 +345,17 @@
                             <input type="submit" rsf:id="add-calendar" id="add-calendar" />
                           </form>
                         </li>
-                        <li rsf:id="announcements-li">
+                        <li class="list-group-item m-1" rsf:id="announcements-li">
                           <a role="menuitem" href="#" id="announcements-link" rsf:id="announcements-link" data-bs-toggle="modal" data-bs-target="#add-announcements-dialog" aria-controls="add-announcements-dialog" aria-expanded="false">
                             <span rsf:id="msg=simplepage.announcementsLinkText"></span>
                           </a>
                         </li>
-                        <li rsf:id="forum-summary-li">
+                        <li class="list-group-item m-1" rsf:id="forum-summary-li">
                           <a role="menuitem" href="#" rsf:id="forum-summary-link" class="forum-summary-link" data-bs-toggle="modal" data-bs-target="#add-forum-summary-dialog" aria-controls="add-forum-summary-dialog" aria-expanded="false">
                             <span rsf:id="msg=simplepage.forumSummaryLinkText"></span>
                           </a>
                         </li>
-                        <li rsf:id="twitter-li">
+                        <li class="list-group-item m-1" rsf:id="twitter-li">
                           <a href="#" role="menuitem" id="twitter-link" rsf:id="add-twitter" data-bs-toggle="modal" data-bs-target="#add-twitter-dialog" aria-controls="add-twitter-dialog" aria-expanded="false" >
                             <span rsf:id="msg=simplepage.twitter"></span>
                           </a>
@@ -368,22 +368,22 @@
               <div class="row mt-sm-3">
                 <div class="col-sm-6 d-flex align-items-stretch">
                   <div class="card w-100">
-                    <div class="card text-center">
+                    <div class="card-header">
                       <h4><span rsf:id="msg=simplepage.advanced.content.items"></span></h4>
                     </div>
                     <div class="card-body">
                       <ul>
-                        <li rsf:id="checklist-li">
+                        <li class="list-group-item m-1" rsf:id="checklist-li">
                           <a role="button" class="add-checklist-link add-before-param" href="#" rsf:id="add-checklist">
                             <span rsf:id="msg.simplepage.checklist"></span>
                           </a>
                         </li>
-                        <li rsf:id="question-li">
+                        <li class="list-group-item m-1" rsf:id="question-li">
                           <a role="button" rsf:id="question-link" class="question-link" data-bs-toggle="modal" data-bs-target="#question-dialog" aria-controls="question-dialog" aria-expanded="false" href="#">
                             <span rsf:id="msg=simplepage.questionLinkText"></span>
                           </a>
                         </li>
-                        <li rsf:id="student-li">
+                        <li class="list-group-item m-1" rsf:id="student-li">
                           <a id="add-comments-link" rsf:id="add-comments-link" href="#" role="menuitem button">
                             <span rsf:id="msg=simplepage.comments"></span>
                           </a>
@@ -393,7 +393,7 @@
                             <input type="submit" rsf:id="add-comments" id="add-comments" />
                           </form>
                         </li>
-                        <li rsf:id="studentcontent-li">
+                        <li class="list-group-item m-1" rsf:id="studentcontent-li">
                           <a id="add-student-link" rsf:id="add-student-link" href="#" role="menuitem button">
                             <span rsf:id="msg=simplepage.add-student-content"></span>
                           </a>
@@ -404,17 +404,17 @@
                           </form>
 
                         </li>
-                        <li rsf:id="addwebsite-li">
+                        <li class="list-group-item m-1" rsf:id="addwebsite-li">
                           <a href="#" role="menuitem button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" rsf:id="add-website" class="add-website add-before-param">
                             <span rsf:id="msg.simplepage.website"></span>
                           </a>
                         </li>
-                        <li rsf:id="blti-tool:">
+                        <li class="list-group-item m-1" rsf:id="blti-tool:">
                           <a href="#" role="menuitem button" rsf:id="add-blti-tool" class="add-before-param">
                             <span rsf:id="msg.simplepage.blti"></span>
                           </a>
                         </li>
-                        <li rsf:id="blti-li">
+                        <li class="list-group-item m-1" rsf:id="blti-li">
                           <a href="#" role="menuitem button" rsf:id="add-blti" class="add-before-param">
                             <span rsf:id="msg.simplepage.blti"></span>
                           </a>
@@ -425,17 +425,17 @@
                 </div>
                 <div class="col-sm-6 d-flex align-items-stretch">
                   <div class="card w-100">
-                    <div class="card text-center" rsf:id="add-break1">
+                    <div class="card-header" rsf:id="add-break1">
                       <h4><span rsf:id="msg=simplepage.layout.elements"></span></h4>
                     </div>
                     <div class="card-body">
                       <ul>
-                        <li rsf:id="add-break2" class="addbreak">
+                        <li class="list-group-item m-1 addbreak" rsf:id="add-break2">
                           <a role="button" href="#" data-bs-dismiss="modal" rsf:id="add-break3" class="add-break-section">
                             <span rsf:id="msg=simplepage.break-items"></span>
                           </a>
                         </li>
-                        <li rsf:id="add-break4" class="addbreak">
+                        <li class="list-group-item m-1 addbreak" rsf:id="add-break4">
                           <a role="button" href="#" data-bs-dismiss="modal" rsf:id="add-break5" class="add-break-column">
                             <span rsf:id="msg=simplepage.break-columns"></span>
                           </a>
@@ -531,7 +531,7 @@
               </div>
               <div id="collapse-bars-parent">
                 <div class="card">
-                  <div class="card text-center">
+                  <div class="card-header">
                     <h4 class="card-title">
                                 <span class="fa fa-upload"> </span>
                                 <a id="new-file-section-collapse" data-bs-toggle="collapse" href="#new-file-section" rsf:id="msg=simplepage.new_file" data-parent="#collapse-bars-parent" />
@@ -557,7 +557,7 @@
                   </div>
                 </div>
                 <div id="new-url-panel" class="card">
-                  <div class="card text-center">
+                  <div class="card-header">
                     <h4 class="card-title">
                                 <span class="fa fa-external-link"> </span>
                                 <a id="new-url-section-collapse" data-bs-toggle="collapse" href="#new-url-section" rsf:id="msg=simplepage.new_url" data-parent="#collapse-bars-parent" />
@@ -575,7 +575,7 @@
                   </div>
                 </div>
                 <div id="existing-resource-panel" class="card">
-                  <div class="card text-center">
+                  <div class="card-header">
                     <h4 class="card-title">
                                 <span class="fa fa-folder-open"> </span>
                                 <a id="existing-resource-section-collapse" data-bs-toggle="collapse" href="#existing-resource-section" rsf:id="msg=simplepage.existing_file" data-parent="#collapse-bars-parent" />
@@ -1291,7 +1291,7 @@
 
               <input type="hidden" rsf:id="csrf21" />
 
-              <div class="border controlsPanel">
+              <div class="border controlsPanel p-4">
                 <input type="hidden" rsf:id="questionEditId" id="questionEditId" />
                 <div align="left" style="padding:10px 0">
                   <span rsf:id="question-select" />
@@ -1560,10 +1560,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p>
-              <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 0 0;"></span>
-              <p id="delete-confirm-message">Delete ok?</p>
-            </p>
+              <p class="bi bi-exclamation-triangle-fill" id="delete-confirm-message">Delete ok?</p>
           </div>
           <div class="modal-footer">
             <button type="button" id="delete-confirm-delete-button" class="btn btn-primary">
@@ -1722,24 +1719,24 @@
           <div class="modal-body">
             <ul>
               <!-- add new page -->
-              <li>
+              <li class="list-group-item m-1">
                 <a id="new-page" href="#" role="button" rsf:id="new-page" data-bs-toggle="modal" data-bs-target="#new-page-dialog" aria-controls="new-page-dialog" aria-expanded="false">
                   <span rsf:id="msg=simplepage.new-page"></span>
                 </a>
               </li>
               <!-- remove page -->
-              <li rsf:id="remove-li">
+              <li class="list-group-item m-1" rsf:id="remove-li">
                 <a href="#" role="button" rsf:id="remove-page" id="remove-page" class="remove-page" data-bs-toggle="modal" data-bs-target="#remove-page-dialog" aria-controls="remove-page-dialog" aria-expanded="false">
                   <span rsf:id="msg=simplepage.remove-page"></span>
                 </a>
               </li>
               <!-- permissions -->
-              <li>
+              <li class="list-group-item m-1">
                 <a href="#" role="button" rsf:id="permissions" id="permissions">
                   <span rsf:id="msg=simplepage.permissions"></span>
                 </a>
               </li>
-              <li rsf:id="delete-orphan-li">
+              <li class="list-group-item m-1" rsf:id="delete-orphan-li">
                 <form action="#" rsf:id="delete-orphan-form" method="post" enctype="multipart/form-data">
                   <input type="hidden" rsf:id="csrf1" />
                   <input type="submit" style="display:none" rsf:id="delete-orphan" id="delete-orphan" />
@@ -1748,19 +1745,19 @@
                   </a>
                 </form>
               </li>
-              <li>
+              <li class="list-group-item m-1">
                 <a href="#" role="button" rsf:id="import-cc" id="import-cc" data-bs-toggle="modal" data-bs-target="#import-cc-dialog" aria-controls="import-cc-dialog" aria-expanded="false">
                   <span rsf:id="msg=simplepage.import_cc_button"></span>
                 </a>
                 <!-- just a message, so will display when it should not-->
               </li>
-              <li>
+              <li class="list-group-item m-1">
                 <a rsf:id="export-cc" id="export-cc" href="#" role="button" data-bs-toggle="modal" data-bs-target="#export-cc-dialog" aria-controls="export-cc-dialog" aria-expanded="false">
                   <span rsf:id="msg=simplepage.export_cc"></span>
                 </a>
                 <!-- just a message, so will display when it should not-->
               </li>
-              <li rsf:id="show-lti-import">
+              <li class="list-group-item m-1" rsf:id="show-lti-import">
                 <form action="#" rsf:id="lti-import-form" method="post" enctype="multipart/form-data">
                   <input type="hidden" rsf:id="csrf1" />
                   <input type="submit" style="display:none" rsf:id="lti-import" id="lti-import" />
