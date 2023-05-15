@@ -30,7 +30,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       optionsGroup: { attribute: false, type: Array },
       mode: { attribute: false, type: String },
       siteIdBackup: { attribute: false, type: String },
-      completed: {attribute: false, type: Boolean },
+      completed: { attribute: false, type: Boolean },
     };
   }
 
