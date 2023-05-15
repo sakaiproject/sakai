@@ -448,7 +448,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
         String assessmentAccessId = StringUtils.trimToNull(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS));
         if (assessmentAccessId != null) {
             return UriComponentsBuilder.newInstance()
-                    .scheme("http")
+                    .scheme(requestUrl.getProtocol())
                     .host(requestUrl.getHost())
                     .port(requestUrl.getPort())
                     .path(LOGIN_SERVLET_PATH)
