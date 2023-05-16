@@ -6668,11 +6668,11 @@ public class SimplePageBean {
 
 	public static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 
-    // called by dialog to add inline multimedia item, or update existing
-    // item if itemid is specified
-    // NOTE: in a group-owned student page, the files are put in the home directory
-    // of the current user. That's the only consistent approach I could come up with
-    // this function uses a security advicor, so that will work.
+	// called by dialog to add inline multimedia item, or update existing
+	// item if itemid is specified
+	// NOTE: in a group-owned student page, the files are put in the home directory
+	// of the current user. That's the only consistent approach I could come up with
+	// this function uses a security advisor, so that will work.
 	public void addMultimedia() {
 
 	    // This code must be read together with the SimplePageItem.MULTIMEDIA
@@ -6680,22 +6680,22 @@ public class SimplePageBean {
 	    // multimediaDisplayType) and with the code in show-page.js that
 	    // handles the add multimedia dialog (look for #mm-add-item)
 
-				    // historically this code was to display files ,and urls leading to things
-				    // like MP4. as backup if we couldn't figure out what to do we'd put something
-				    // in an iframe. The one exception is youtube, which we supposed explicitly.
-				    //   However we now support several ways to embed content. We use the
-				    // multimediaDisplayType code to indicate which. The codes are
-				    // 	 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
-				    // 2 is the original code: MP4, image, and as a special case youtube urls
-				    // For all practical purposes type 2 is the same as the old items that don't
-	                            // have type codes (although iframes are also handled by the old code)
-				    //    the old code creates ojbects in ContentHosting for both files and URLs.
-				    // The new code saves the embed code or URL itself as an atteibute of the item
-				    // If I were doing it again, I wouldn't create the ContebtHosting item
-				    //   Note that IFRAME is only used for something where the far end claims the MIME
-				    // type is HTML. For weird stuff like MS Word files I use the file display code, which
-	                            //   ShowPageProducer figures out how to display type 2 (or default) items 
-	                            // on the fly, so we don't have to known here what they are.
+		// historically this code was to display files ,and urls leading to things
+		// like MP4. as backup if we couldn't figure out what to do we'd put something
+		// in an iframe. The one exception is youtube, which we supposed explicitly.
+		// However we now support several ways to embed content. We use the
+		// multimediaDisplayType code to indicate which. The codes are
+		// 	 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
+		// 2 is the original code: MP4, image, and as a special case youtube urls
+		// For all practical purposes type 2 is the same as the old items that don't
+		// have type codes (although iframes are also handled by the old code)
+		// the old code creates ojbects in ContentHosting for both files and URLs.
+		// The new code saves the embed code or URL itself as an atteibute of the item
+		// If I were doing it again, I wouldn't create the ContebtHosting item
+		// Note that IFRAME is only used for something where the far end claims the MIME
+		// type is HTML. For weird stuff like MS Word files I use the file display code, which
+		// ShowPageProducer figures out how to display type 2 (or default) items 
+		// on the fly, so we don't have to known here what they are.
 
 		SecurityAdvisor advisor = null;
 		try {
@@ -6718,13 +6718,15 @@ public class SimplePageBean {
 				if (names.length() > 0)
 				    fnames = names.split("\n");
 				int fileindex = 0;
-				for(MultipartFile file : multipartMap.values()){
-					if (file.isEmpty())
+				for (MultipartFile file : multipartMap.values()) {
+					if (file.isEmpty()) {
 						file = null;
+					}
 					// for file uploads only, name is in names rather than name
 					String fname = name;
-					if (fnames.length > fileindex)
+					if (fnames.length > fileindex) {
 					    fname = fnames[fileindex].trim();
+					}
 					name = null;  // don't reuse name
 					addMultimediaFile(file, fname);
 					fileindex++;
@@ -6873,9 +6875,9 @@ public class SimplePageBean {
 			// 	itemId tells us whether it's an existing item
 			// 	isMultimedia tells us whether resource or multimedia
 			// 	sameWindow is only passed for existing items of type HTML/XHTML
-			//   	for new items it should be set true for HTML/XTML, false otherwise
-			//   	for existing items it should be set to the passed value for HTML/XMTL, false otherwise
-			//   	it is ignored for isMultimedia, as those are always displayed inline in the current page
+			//  for new items it should be set true for HTML/XTML, false otherwise
+			//  for existing items it should be set to the passed value for HTML/XMTL, false otherwise
+			//  it is ignored for isMultimedia, as those are always displayed inline in the current page
 			
 			SimplePageItem item;
 			if (itemId == -1 && isMultimedia) {
