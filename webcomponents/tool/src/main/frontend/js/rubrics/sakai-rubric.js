@@ -235,7 +235,6 @@ export class SakaiRubric extends RubricsElement {
     const icon = $(`#rubric_toggle_${this.rubric.id} span`);
 
     if (collapse.is(":visible")) {
-      console.log("HERE1");
       this.rubricExpanded = "true";
       titlecontainer.classList.add("active");
       icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
