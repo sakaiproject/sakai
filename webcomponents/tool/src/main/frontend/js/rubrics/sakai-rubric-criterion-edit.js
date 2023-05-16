@@ -126,9 +126,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
     e.stopPropagation();
 
-    //const title = document.getElementById(`criterion-title-field-${this.criterion.id}`).value;
     const title = e.target.closest(".popover-body").querySelector("input").value;
-    //const description = this.criterionClone.description;
     const description = e.target.closest("div.form").querySelector("sakai-editor").getContent();
 
     const body = JSON.stringify([
