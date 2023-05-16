@@ -559,6 +559,7 @@ sakai-rubric-student-comment {
 
 [class*="edit-popover"] {
     width: 400px;
+    --bs-popover-max-width: 800px;
 
     .popover-content {
         word-break: break-word;
