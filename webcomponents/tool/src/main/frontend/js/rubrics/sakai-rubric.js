@@ -224,7 +224,6 @@ export class SakaiRubric extends RubricsElement {
 
   toggleRubric(e) {
 
-
     e && e.preventDefault();
 
     const titlecontainer = this.querySelector(".rubric-title");
