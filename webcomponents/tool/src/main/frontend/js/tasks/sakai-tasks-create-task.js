@@ -30,7 +30,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       optionsGroup: { attribute: false, type: Array },
       mode: { attribute: false, type: String },
       siteIdBackup: { attribute: false, type: String },
-      completed: { attribute: false, type: Boolean },
     };
   }
 
@@ -78,12 +77,14 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.task.siteId = this.siteId;
     this.task.userId = this.userId;
     this.task.owner = this.task.owner || this.userId;
-    this.task.complete = this.completed;
-    if (this.completed) {
-      this.task.softDeleted = false;
+    const completeEl = this.shadowRoot.getElementById("complete");
+    // "Add a new task" page includes a 'completed' checkbox, whereas the "Edit task" page does not have this checkbox
+    if (completeEl) {
+      this.task.complete = completeEl.checked;
     }
     this.addSelectedGroups();
 
+    // Update the task on the server
     const url = `/api/tasks${this.task.taskId ? `/${this.task.taskId}` : ""}`;
     fetch(url, {
       credentials: "include",
@@ -232,9 +233,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.siteId = this.siteIdBackup;
   }
 
-  complete(e) {
-    this.completed = e.target.checked;
-  }
 
   groupComboList() {
 
@@ -311,7 +309,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
               type="checkbox"
               id="complete"
               title="${this.i18n.complete_tooltip}"
-              @click=${this.complete}
               ?checked=${this.task.complete}>
           </div>
         </div>
