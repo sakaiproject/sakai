@@ -56,7 +56,7 @@ class SakaiDatePicker extends SakaiElement {
       this.isoDate = null;
     }
 
-    const inputDate = document.getElementById(`date-picker-input-${this.instanceSalt}`);
+    const inputDate = this.querySelector(`#date-picker-input-${this.instanceSalt}`);
     inputDate && (inputDate.value = this.isoDate);
   }
 

@@ -224,12 +224,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.assignationType = "user";
     this.mode = "create";
     this.siteId = this.siteIdBackup;
-
-    // Clear the value of the datetime picker input
-    const datePickerInput = datePicker.querySelector('input[type="datetime-local"]');
-    if (datePickerInput) {
-      datePickerInput.value = '';
-    }
   }
 
   complete(e) {
