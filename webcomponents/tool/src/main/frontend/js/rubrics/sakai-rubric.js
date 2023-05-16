@@ -224,7 +224,6 @@ export class SakaiRubric extends RubricsElement {
 
   toggleRubric(e) {
 
-    console.log("HERERE");
 
     e && e.preventDefault();
 
