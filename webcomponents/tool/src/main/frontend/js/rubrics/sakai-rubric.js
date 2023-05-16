@@ -239,7 +239,6 @@ export class SakaiRubric extends RubricsElement {
       titlecontainer.classList.add("active");
       icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
     } else {
-      console.log("HERE2");
       this.rubricExpanded = "false";
       titlecontainer.classList.remove("active");
       icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");
