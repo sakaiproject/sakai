@@ -72,7 +72,6 @@ import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
@@ -154,7 +153,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private ToolManager toolManager;
 	private FormattedText formattedText;
-	private SimplePageToolDao simplePageToolDao;
 
 	public ToolManager getToolManager() {
 		//To work around injection for test case
@@ -173,14 +171,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private static AuthzGroupService getAuthzGroupService() {
 		return (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
-	}
-
-
-	public SimplePageToolDao getSimplePageToolDao() {
-		if (simplePageToolDao == null) {
-			simplePageToolDao = (SimplePageToolDao) ComponentManager.get(SimplePageToolDao.class.getName());
-		}
-		return simplePageToolDao;
 	}
 
 	public void setToolManager(ToolManager toolManager) {
@@ -287,26 +277,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return gatewaySites;
 	}
 
-
-	/*
-	* Get All Sites which indicate the current site as their parent
-	*/
-
-	// TODO: Move into SiteStructureProvider
-	/**
-	* @see org.sakaiproject.portal.api.PortalSiteHelper#getSubSites(org.sakaiproject.site.api.Site)
-	*/
-	public List<Site> getSubSites(Site site)
-	{
-		if (site == null) return null;
-		Map<String, String> propMap = new HashMap<>();
-		propMap.put(PROP_PARENT_ID, site.getId());
-
-		// This should not call getUserSites(boolean) because the property is variable, while the call is cacheable otherwise
-		return siteService.getSites(SiteService.SelectionType.ACCESS
-			, null, null, propMap, SiteService.SortType.TITLE_ASC, null);
-	}
-
 	public Site getSite(String siteId) {
 
 		if (siteId != null) {
@@ -358,50 +328,30 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 	}
 
-	private Set<String> getPinnedSiteIds() {
-		return portalService.getPinnedSites();
-	}
-
-	private Collection<String> getRecentSiteIds(Site currentSite) {
+	private Collection<String> getRecentSiteIds(String currentSiteId) {
 
 		if (sessionManager.getCurrentSessionUserId() == null) {
 			return Collections.<String>emptyList();
 		}
 
-		if (currentSite == null || currentSite.getId() == null) {
+		if (currentSiteId == null) {
 			return Collections.<String>emptySet();
 		}
 
-		String currentSiteId = currentSite.getId();
-
-		if (!siteService.isUserSite(currentSiteId)) {
-			portalService.addRecentSite(currentSite.getId());
-		}
+        portalService.addRecentSite(currentSiteId);
 
 		return portalService.getRecentSites();
 	}
 
 	private boolean isSitePinned(String siteId) {
 
-		Set<String> pinnedSiteIds = getPinnedSiteIds();
+		List<String> pinnedSiteIds = portalService.getPinnedSites();
 		return pinnedSiteIds != null && pinnedSiteIds.contains(siteId);
 	}
 
-	private String getLessonsSubpages(String userId, Boolean updatePermisson, String siteId, List<SitePage> pageList) {
-		//Lessons is expecting a Map containing the "pageId" and "wellKnownToolId"
-		List<Map<String, Object>> pageMapList = pageList.stream().map(page -> {
-			Map<String, Object> pageMap = new HashMap();
-			List<ToolConfiguration> pageTools = page.getTools();
-			if (!pageTools.isEmpty()) {
-				pageMap.put("pageId", page.getId());
-				pageMap.put("wellKnownToolId", pageTools.get(0).getToolId());
-			}
-			return pageMap;
-		}).collect(Collectors.toList());
-		return getSimplePageToolDao().getLessonSubPageJSON(userId, updatePermisson, siteId, pageMapList);
-	}
+	private Map<String, Object> getSiteMap(Site site, String currentSiteId, boolean includePages, boolean pinned) {
 
-	private Map<String, Object> getSiteMap(Site site, boolean includePages, boolean includeSubSites) {
+		String userId = userDirectoryService.getCurrentUser().getId();
 
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
@@ -410,26 +360,20 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		siteMap.put("type", site.getType());
 		siteMap.put("description", site.getDescription());
 		siteMap.put("shortDescription", site.getShortDescription());
-		siteMap.put("isPinned", isSitePinned(site.getId()));
+		siteMap.put("isPinned", pinned ? true : isSitePinned(site.getId()));
+        siteMap.put("isHome", site.getId().equals(siteService.getUserSiteId(userId)));
+        siteMap.put("isCurrent", site.getId().equals(currentSiteId));
+        siteMap.put("currentSiteId", currentSiteId);
 		if (includePages) {
 			List<SitePage> pageList = site.getOrderedPages();
 			siteMap.put("pages", getPageMaps(pageList, site));
-			siteMap.put("lessonsSubPages", getLessonsSubpages(
-					userDirectoryService.getCurrentUser().getId(),
-					securityService.unlock("site.upd", site.getReference()), site.getId(), pageList));
-		}
-		if (includeSubSites) {
-			List<Site> subSites = getSubSites(site);
-			if (subSites != null && !subSites.isEmpty()) {
-				siteMap.put("subSites", getSiteMaps(subSites, false, false));
-			}
 		}
 		return siteMap;
 	}
 
-	private List<Map<String, Object>> getSiteMaps(Collection<Site> sites, boolean includePages, boolean includeSubSites) {
+	private List<Map<String, Object>> getSiteMaps(Collection<Site> sites, String currentSiteId, boolean includePages, boolean pinned) {
 
-		return sites.stream().map(site -> getSiteMap(site, includePages, includeSubSites))
+		return sites.stream().map(site -> getSiteMap(site, currentSiteId, includePages, pinned))
 			.collect(Collectors.toList());
 	}
 
@@ -478,42 +422,34 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			.filter(m -> !((Boolean) m.get("hidden")) || siteUpdater).collect(Collectors.toList());
 	}
 
-	public Map<String, Object> getContextSitesWithPages(HttpServletRequest req, String currentSiteId, String myWorkspaceSiteId, String toolContextPath, boolean loggedIn) {
+	public Map<String, Object> getContextSitesWithPages(HttpServletRequest req, String currentSiteId, String toolContextPath, boolean loggedIn) {
 
 		Map<String, Object> contextSites = new HashMap<>();
 		if (loggedIn) {
-			//Get current site
-			Site currentSite = getSite(currentSiteId);
-			if (currentSite != null) {
-				contextSites.put("currentSite", getSiteMap(currentSite, true, true));
-			}
+            // Put Home site in context
+            contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(sessionManager.getCurrentSessionUserId())), currentSiteId, true, false));
 
 			//Get pinned sites
-			Set<String> pinnedSiteIds = getPinnedSiteIds();
-			if (pinnedSiteIds != null) {
-				// We don't want to show a site twice. Remvove the current site from the pinned.
-				pinnedSiteIds.remove(currentSiteId);
-				Collection<Site> pinnedSites = getSites(pinnedSiteIds);
-				if (!pinnedSites.isEmpty()) {
-					contextSites.put("pinnedSites", getSiteMaps(pinnedSites, true, true));
-				}
-			}
+            Collection<Site> pinnedSites = getSites(portalService.getPinnedSites());
+            List<Map<String, Object>> pinnedSiteMaps = getSiteMaps(pinnedSites, currentSiteId, true, true);
+            contextSites.put("pinnedSites", pinnedSiteMaps);
 
 			//Get most recent sites
-			Collection<String> recentSiteIds = getRecentSiteIds(currentSite);
-			// We don't want to see a site twice. Removed any pinned sites from the recents.
-			if (pinnedSiteIds != null) {
-				recentSiteIds.removeAll(pinnedSiteIds);
-			}
-			Collection<Site> recentSites = getSites(recentSiteIds);
-			if (!recentSites.isEmpty()) {
-				contextSites.put("recentSites", getSiteMaps(recentSites, true, true));
-			}
+			Collection<Site> recentSites = getSites(getRecentSiteIds(currentSiteId));
+            List<Map<String, Object>> recentSitesMaps = getSiteMaps(recentSites, currentSiteId, true, false);
+            contextSites.put("recentSites", recentSitesMaps);
+
+            // We need a way to only mark one site as the current. We don't want two sites to
+            // be highlighted because the site is pinned and recent.
+            if (pinnedSiteMaps.stream().anyMatch(m -> (Boolean) m.get("isCurrent"))) {
+                recentSitesMaps.stream().filter(m -> (Boolean) m.get("isCurrent")).findAny().ifPresent(m -> m.remove("isCurrent"));
+            }
+
 		} else {
 			//Get gateway site
 			Site gatewaySite = getSite(serverConfigurationService.getGatewaySiteId());
 			if (!gatewaySite.isEmpty()) {
-				contextSites.put("gatewaySite", getSiteMap(gatewaySite, true, true));
+				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, true, false));
 			}
 		}
 		return contextSites;
@@ -547,19 +483,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		boolean computeDepth = true;
 		Session session = sessionManager.getCurrentSession();
 
-		List favorites = Collections.emptyList();
-
-		if ( session != null ) { 
-			Preferences prefs = preferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
-
-			List propList = props.getPropertyList("order");
-			if (propList != null)
-			{
-				computeDepth = false; 
-				favorites = propList;
-			}
-		}
+		List<String> pinned = portalService.getPinnedSites();
 
 		// Determine the depths of the child sites if needed
 		Map<String, List<String>> realmProviderMap = getProviderIDsForSites(mySites);
@@ -593,8 +517,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// Add the Depth of the site
 			m.put("depth", cDepth);
 
-			// And indicate whether it's a favorite or not
-			m.put("favorite", favorites.contains(s.getId()));
+			// And indicate whether it's pinned or not
+			m.put("isPinned", pinned.contains(s.getId()));
 
 			if (includeSummary && m.get("rssDescription") == null)
 			{
@@ -1091,11 +1015,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			theMap.put("canManageOverview", false);
 		}
 		theMap.put("pageNavTools", l);
-
-		if ("true".equals(site.getProperties().getProperty("lessons_submenu")) && !l.isEmpty()) {
-			theMap.put("additionalLessonsPages",
-			getSimplePageToolDao().getLessonSubPageJSON(userDirectoryService.getCurrentUser().getId(), siteUpdate, site.getId(), l));
-		}
 
 		theMap.put("pageNavTools", l);
 		theMap.put("pageMaxIfSingle", serverConfigurationService.getBoolean(
@@ -1621,8 +1540,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
 			case DHTML_MORE_VIEW:
 			return new MoreSiteViewImpl(this,portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
-			case SUB_SITES_VIEW:
-			return new SubSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, siteService, serverConfigurationService, preferencesService);
 		}
 		return null;
 	}

@@ -1,39 +1,21 @@
-var portal = portal || {};
-portal.allsites = { pinnedQueue: { autoFavoritesEnabled: false, favoriteSiteIds: [] } };
+const allsites = { pinnedQueue: { favoriteSiteIds: [] } };
 
-portal.allsites.resetSearch = function () {
+allsites.resetSearch = function () {
 
   const searchInput = document.getElementById("search-all-sites");
   searchInput && (searchInput.value = "");
   searchInput?.focus();
-  document.querySelectorAll(".fav-sites-term, .fav-sites-entry").forEach(el => el.style.display = "initial");
+  document.querySelectorAll(".fav-sites-term, .fav-sites-entry").forEach(el => el.style.display = "block");
+  document.querySelectorAll(".fav-sites-card").forEach(el => el.style.display = "flex");
   const noResults = document.getElementById("no-search-results");
   noResults && (noResults.style.display = "none");
 }
 
-portal.allsites.getUserFavourites = function () {
-
-  return new Promise((resolve, reject) => {
-
-    const url = "/portal/favorites/list";
-    fetch(url, { credentials: "include" })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error(`Network error while getting favourites list from url ${url}`);
-    })
-    .then(data => resolve(data.favoriteSiteIds.filter(e => e)))
-    .catch (error => console.error(error));
-  });
-};
-
-portal.allsites.updatePinned = function () {
+allsites.updatePinned = function (reorder) {
 
   const data = new URLSearchParams();
-  data.append("userFavorites", JSON.stringify(portal.allsites.pinnedQueue));
+  data.append("userFavorites", JSON.stringify(allsites.pinnedQueue));
+  if (reorder) data.append("reorder", "true");
 
   const url = "/portal/favorites/update";
   fetch(url, {
@@ -53,13 +35,13 @@ portal.allsites.updatePinned = function () {
   .catch (error => console.error(error));
 };
 
-portal.allsites.setAllOrNoneStarStates = function () {
+allsites.setAllOrNoneStarStates = function () {
 
   const sidebar = document.getElementById("select-site-sidebar");
 
   sidebar.querySelectorAll(".favorites-select-all-none").forEach(function (selectAllNone) {
 
-    const termContainer = selectAllNone.closest(".fav-sites-term");
+    const termContainer = selectAllNone.closest(".fav-sites-card");
 
     const siteCount = termContainer.querySelectorAll(".fav-sites-entry:not(.my-workspace)").length;
     const favoritedSiteCount = termContainer.querySelectorAll(".site-favorite-btn[aria-pressed='true']").length;
@@ -69,14 +51,14 @@ portal.allsites.setAllOrNoneStarStates = function () {
       selectAllNone.style.display = "none";
     } else {
       if (favoritedSiteCount === siteCount) {
-        selectAllNone.dataset.favoriteState = "favorite";
+        selectAllNone.dataset.pinnedState = "pinned";
         selectAllNone.setAttribute("aria-pressed", "true");
-        selectAllNone.querySelector(".bi-pin-fill").style.display = "inline";
-        selectAllNone.querySelector(".bi-pin").style.display = "none";
+        selectAllNone.querySelector(".si-pin-fill").style.display = "inline";
+        selectAllNone.querySelector(".si-pin").style.display = "none";
       } else {
-        selectAllNone.dataset.favoriteState = "nonfavorite";
-        selectAllNone.querySelector(".bi-pin-fill").style.display = "none";
-        selectAllNone.querySelector(".bi-pin").style.display = "inline";
+        selectAllNone.dataset.pinnedState = "unpinned";
+        selectAllNone.querySelector(".si-pin-fill").style.display = "none";
+        selectAllNone.querySelector(".si-pin").style.display = "inline";
         selectAllNone.setAttribute("aria-pressed", true);
       }
 
@@ -85,18 +67,25 @@ portal.allsites.setAllOrNoneStarStates = function () {
   });
 };
 
-portal.allsites.setButton = function (btn, state) {
+allsites.getPinnedSiteIds = () => {
 
-  btn.dataset.favoriteState = state;
+  const sidebar = document.getElementById("select-site-sidebar");
+  return Array.from(sidebar.querySelectorAll(".site-favorite-btn[aria-pressed='true']"))
+      .map(btn => btn.dataset.siteId);
+};
 
-  if (state === "favorite") {
+allsites.updateButton = (btn, state) => {
+ 
+  btn.dataset.pinnedState = state;
+
+  if (state === "pinned") {
     btn.setAttribute("aria-pressed", "true");
-    btn.querySelector(".bi-pin-fill").style.display = "inline";
-    btn.querySelector(".bi-pin").style.display = "none";
-  } else if (state === "nonfavorite") {
+    btn.querySelector(".si-pin-fill").style.display = "inline";
+    btn.querySelector(".si-pin").style.display = "none";
+  } else if (state === "unpinned") {
     btn.setAttribute("aria-pressed", "false");
-    btn.querySelector(".bi-pin-fill").style.display = "none";
-    btn.querySelector(".bi-pin").style.display = "inline";
+    btn.querySelector(".si-pin-fill").style.display = "none";
+    btn.querySelector(".si-pin").style.display = "inline";
   } else {
     btn.removeAttribute("aria-pressed");
   }
@@ -104,46 +93,29 @@ portal.allsites.setButton = function (btn, state) {
   btn.style.display = "initial";
 };
 
-portal.allsites.loadFromServer = function (attempt) {
+allsites.setButton = function (btn, state) {
 
-  const pinButtons = document.querySelectorAll("#select-site-sidebar .site-favorite-btn");
-  pinButtons.forEach(el => el.style.display = "none");
+  allsites.updateButton(btn, state);
 
-  portal.allsites.getUserFavourites().then(favourites => {
-
-    if (!portal.allsites.initialFavourites) {
-      portal.allsites.initialFavourites = favourites;
-      portal.allsites.pinnedQueue.favoriteSiteIds = favourites;
-    }
-
-    portal.allsites.itemsBySiteId = {};
-    pinButtons.forEach(btn => {
-
-      const buttonSiteId = btn.dataset.siteId;
-
-      if (btn.closest(".my-workspace")) {
-        portal.allsites.setButton(btn, 'myworkspace');
-      } else {
-        if (favourites.includes(buttonSiteId)) {
-          portal.allsites.setButton(btn, 'favorite');
-        } else {
-          portal.allsites.setButton(btn, 'nonfavorite');
-        }
-        portal.allsites.itemsBySiteId[buttonSiteId] = btn.parentElement;
-      }
-    });
-
-    portal.allsites.setAllOrNoneStarStates();
-  });
+  // TODO: this needs to be implemented at some point. It would remove the annoying 
+  // refresh message in the all sites sidebar
+  //document.body.dispatchEvent(new CustomEvent("site-pin-changed", { detail: { siteId: btn.dataset.siteId, pinned: state === "pinned", source: "all-sites" } }));
 };
 
-portal.allsites.setup = function () {
+allsites.setup = function () {
 
   const sidebar = document.getElementById("select-site-sidebar");
 
   sidebar.querySelectorAll("button, a")[0]?.focus();
 
-  portal.allsites.loadFromServer();
+  allsites.setAllOrNoneStarStates();
+
+  const organizeItems = sidebar.querySelectorAll(".organize-favorite-item");
+
+  if (!organizeItems.length) {
+    document.getElementById("pinned-to-show").classList.add("d-none");
+    document.getElementById("no-pinned-to-show").classList.remove("d-none");
+  }
 
   sidebar.querySelectorAll(".site-favorite-btn").forEach(btn => {
 
@@ -152,28 +124,21 @@ portal.allsites.setup = function () {
       const self = this;
 
       const siteId = self.dataset.siteId;
-      const originalState = self.dataset.favoriteState;
+      const originalState = self.dataset.pinnedState;
 
       if (originalState === 'myworkspace') {
         // No unfavoriting your workspace!
         return;
       }
 
-      const newState = originalState === 'favorite' ? "nonfavorite" : "favorite";
+      const newState = originalState === 'pinned' ? "unpinned" : "pinned";
+      allsites.setButton(self, newState);
 
-      portal.allsites.setButton(self, newState);
-      if (newState === "favorite") {
-        portal.allsites.pinnedQueue.favoriteSiteIds.push(siteId);
-      } else {
-        const index = portal.allsites.pinnedQueue.favoriteSiteIds.indexOf(siteId);
-        if (index !== -1) {
-          portal.allsites.pinnedQueue.favoriteSiteIds.splice(index, 1);
-        }
-      }
+      allsites.pinnedQueue.favoriteSiteIds = allsites.getPinnedSiteIds();
 
-      portal.allsites.updateTimeoutId && clearTimeout(portal.allsites.updateTimeoutId);
-      portal.allsites.updateTimeoutId = setTimeout(portal.allsites.updatePinned, 500);
-      portal.allsites.setAllOrNoneStarStates();
+      allsites.updateTimeoutId && clearTimeout(allsites.updateTimeoutId);
+      allsites.updateTimeoutId = setTimeout(allsites.updatePinned, 500);
+      allsites.setAllOrNoneStarStates();
     });
   });
 
@@ -181,25 +146,24 @@ portal.allsites.setup = function () {
 
     btn.addEventListener("click", function (e) {
 
-      const state = this.dataset.favoriteState;
-      const buttons = this.closest('.fav-sites-term').querySelectorAll(".fav-sites-entry:not(.my-workspace) .site-favorite-btn");
+      const state = this.dataset.pinnedState;
+      const buttons = this.closest('.fav-sites-card').querySelectorAll(".fav-sites-entry:not(.my-workspace) .site-favorite-btn");
 
       var newState;
 
-      if (state === 'favorite') {
-        newState = 'nonfavorite';
+      if (state === 'pinned') {
+        newState = 'unpinned';
       } else {
-        newState = 'favorite';
+        newState = 'pinned';
       }
 
-      buttons.forEach(button => portal.allsites.setButton(button, newState));
+      buttons.forEach(button => allsites.setButton(button, newState));
 
-      portal.allsites.pinnedQueue.favoriteSiteIds
-        = Array.from(sidebar.querySelectorAll(".site-favorite-btn[aria-pressed='true']"))
-          .map(btn => btn.dataset.siteId);
-      portal.allsites.updatePinned();
+      allsites.pinnedQueue.favoriteSiteIds = allsites.getPinnedSiteIds();
 
-      portal.allsites.setAllOrNoneStarStates();
+      allsites.updatePinned();
+
+      allsites.setAllOrNoneStarStates();
     });
   });
 
@@ -207,23 +171,10 @@ portal.allsites.setup = function () {
 
   const update = () => {
 
-    const items = Array.from(list.querySelectorAll(".organize-favorite-item"));
-    portal.allsites.pinnedQueue.favoriteSiteIds = items.map(el => el.dataset.siteId);
+    allsites.pinnedQueue.favoriteSiteIds
+      = Array.from(list.querySelectorAll(".organize-favorite-item")).map(el => el.dataset.siteId);
 
-    items.forEach((item, index) => {
-      if (index === 0) {
-        item.querySelector(".up-btn").classList.add("d-none");
-        item.querySelector(".down-btn").classList.remove("d-none");
-      } else if (index < (items.length - 1)) {
-        item.querySelector(".up-btn").classList.remove("d-none");
-        item.querySelector(".down-btn").classList.remove("d-none");
-      } else {
-        item.querySelector(".up-btn").classList.remove("d-none");
-        item.querySelector(".down-btn").classList.add("d-none");
-      }
-    });
-
-    portal.allsites.updatePinned();
+    allsites.updatePinned(true);
   };
 
   const sortable = Sortable.create(list, { 
@@ -231,66 +182,107 @@ portal.allsites.setup = function () {
     onUpdate: e => update(),
   });
 
-  list.querySelectorAll(".up-btn, .down-btn").forEach(btn => {
+  list.querySelectorAll(".organize-favorite-item").forEach(li => {
 
-    btn.addEventListener("click", e => {
+    li.addEventListener("keyup", e => {
 
-      const order = sortable.toArray();
-      const sortableId = e.target.closest(".organize-favorite-item").dataset.sortableId;
-      const index = order.indexOf(sortableId);
+      if (["e", "d"].includes(e.key.toLowerCase())) {
+        const order = sortable.toArray();
+        const sortableId = li.dataset.sortableId;
+        const index = order.indexOf(sortableId);
 
-      order.splice(index, 1);
-      if (e.target.classList.contains("up-btn")) {
-        order.splice(index - 1, 0, sortableId);
-      } else if (e.target.classList.contains("down-btn")) {
-        order.splice(index + 1, 0, sortableId);
+        if (e.key.toLowerCase() === "e") {
+          if (li.previousSibling) {
+            order.splice(index, 1);
+            order.splice(index - 1, 0, sortableId);
+          }
+        } else if (e.key.toLowerCase() === "d") {
+          if (li.nextSibling) {
+            order.splice(index, 1);
+            order.splice(index + 1, 0, sortableId);
+          }
+        }
+
+        sortable.sort(order, true);
+        list.querySelector(`.organize-favorite-item[data-sortable-id='${sortableId}']`).focus();
+        update();
       }
-
-      sortable.sort(order, true);
-      update();
     });
   });
 
   const numPinned = list.querySelectorAll("li").length;
-  //document.getElementById('no-pinned-to-show').style.display = numPinned ? "none" : "block";
-  //document.getElementById('pinned-to-show').style.display = numPinned ? "block" : "none";
 
   // Setup the search field
   const searchInput = sidebar.querySelector("#search-all-sites");
   searchInput?.addEventListener("keyup", event => {
 
     if (event.keyCode == 27) {
-      portal.allsites.resetSearch();
+      allsites.resetSearch();
     }
 
     if (searchInput.value.length > 0) {
       const queryString = searchInput.value.toLowerCase();
 
-      document.querySelectorAll(".fav-sites-term, .fav-sites-entry")
+      sidebar.querySelectorAll(".fav-sites-card, .fav-sites-term, .fav-sites-entry")
         .forEach(el => el.style.display = "none");
 
-      const matchedSites = Array.from(document.querySelectorAll(".fav-sites-entry")).filter(el => {
+      const matchedSites = Array.from(sidebar.querySelectorAll(".fav-sites-entry")).filter(el => {
+        console.log(el);
         return el.querySelector(".fav-title a span.fullTitle").textContent.toLowerCase().indexOf(queryString) >= 0;
       });
 
       matchedSites.forEach(el => {
 
-        el.style.display = "initial";
-        const term = el.closest(".fav-sites-term");
-        term && (term.style.display = "initial");
+        el.style.display = "block";
+        const card = el.closest(".fav-sites-card");
+        card.style.display = "flex";
       });
 
       document.getElementById("all-sites-no-search-results").style.display = matchedSites.length === 0 ? "initial" : "none";
     } else {
-      portal.allsites.resetSearch();
+      allsites.resetSearch();
     }
   });
 };
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  document.body.addEventListener("site-pin-changed", e => {
+
+    if (e.detail.source === "all-sites") return;
+
+    const newState = e.detail.pinned ? "pinned" : "unpinned";
+    const button = document.querySelector(`#selectSite button.site-favorite-btn[data-site-id='${e.detail.siteId}']`);
+    allsites.updateButton(button, newState);
+    allsites.setAllOrNoneStarStates();
+
+    if (!e.detail.pinned) {
+      document.querySelector(`#organize-favorites-list li.organize-favorite-item[data-site-id='${e.detail.siteId}']`)?.remove();
+    } else {
+      const html = `
+        <div>
+          <div class="pinned-drag-handle">
+            <i class="si si-drag-handle"></i>
+          </div>
+          <div class="ms-2">${e.detail.siteTitle}</div>
+        </div>
+      `;
+
+      const li = document.createElement("li");
+      li.classList.add("organize-favorite-item");
+      li.tabIndex = "0";
+      li.dataset.siteId = e.detail.siteId;
+      li.dataset.sortableId = e.detail.siteId;
+      li.innerHTML = html;
+
+      document.getElementById("organize-favorites-list").append(li);
+      document.getElementById("no-pinned-to-show").classList.add("d-none");
+      document.getElementById("pinned-to-show").classList.remove("d-none");
+    }
+  });
+
   document.getElementById("select-site-sidebar")?.addEventListener("shown.bs.offcanvas", function() {
 
-    portal.allsites.setup();
+    allsites.setup();
   });
 });

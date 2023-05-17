@@ -1,15 +1,6 @@
 <script src="/webcomponents/assets/sortablejs/Sortable.min.js"></script>
 #macro( displaySite $site )
   <li class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
-    #if (!${site.isMyWorkspace})
-      <button data-site-id="${site.siteId}"
-          class="site-favorite-btn icon-button"
-          title="$rloader.getFormattedMessage("site_fav_toggle", $site.siteTitle)"
-          aria-label="$rloader.getFormattedMessage("site_fav_toggle", $site.siteTitle)">
-        <i class="bi-pin" style="display: none"></i>
-        <i class="bi-pin-fill" style="display: none"></i>
-      </button>
-    #end
 
     <div class="fav-title #if (${site.isMyWorkspace}) fav-title-myworkspace #end">
       <a href="${site.siteUrl}" title="${site.siteTitle}">
@@ -22,6 +13,18 @@
         #end
       </a>
     </div>
+
+    #if (!${site.isMyWorkspace})
+      <button class="site-favorite-btn icon-button float-end"
+          data-site-id="${site.siteId}"
+          title="$rloader.getFormattedMessage("site_fav_toggle", $site.siteTitle)"
+          aria-pressed="#if ($site.isPinned)true#else false#end"
+          data-pinned-state="#if ($site.isPinned)pinned#else unpinned#end"
+          aria-label="$rloader.getFormattedMessage("site_fav_toggle", $site.siteTitle)">
+        <i class="si si-pin" style="display: #if ($site.isPinned) none #else inline #end"></i>
+        <i class="si si-pin-fill" style="display:#if ($site.isPinned) inline #else none #end"></i>
+      </button>
+    #end
   </li>
 #end
 #if (${userIsLoggedIn})
@@ -104,38 +107,38 @@
             <div class="moresites-left-col">
               #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
                 #if ($tabsSites.tabsMoreTermsLeftPane.get($termKey).size() > 0)
-                  <div class="fav-sites-term">
+                  <div class="fav-sites-term fav-sites-card card mb-2">
+                    <div class="card-header">
                     #if ( !$termKey || $termKey == "" )
-                      <h3 class="favorites-term-header">
-                        <span class="favorites-select-container">
-                          <button class="favorites-select-all-none icon-button"
-                              title="${rloader.moresite_toggle_all_as_favorites_no_term}"
-                              aria-label="${rloader.moresite_toggle_all_as_favorites_no_term}">
-                            <i class="bi-pin-fill" style="display: none"></i>
-                            <i class="bi-pin" style="display: none"></i>
-                          </button>
-                        </span>
+                      <h3 class="card-title">
                         <span>${rloader.sit_notermkey}</span>
+                        <button class="favorites-select-all-none icon-button ms-1"
+                            title="${rloader.moresite_toggle_all_as_favorites_no_term}"
+                            aria-label="${rloader.moresite_toggle_all_as_favorites_no_term}">
+                          <i class="si si-pin-fill" style="display: none"></i>
+                          <i class="si si-pin" style="display: none"></i>
+                        </button>
                       </h3>
                     #else
-                      <h3 class="favorites-term-header">
-                        <span class="favorites-select-container">
-                          <button class="favorites-select-all-none icon-button"
-                              title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
-                              aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
-                            <i class="bi-pin-fill" style="display: none"></i>
-                            <i class="bi-pin" style="display: none"></i>
-                          </button>
-                        </span>
+                      <h3 class="card-title">
                         <span>$termKey</span>
+                        <button class="favorites-select-all-none icon-button ms-1"
+                            title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
+                            aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
+                          <i class="si si-pin-fill" style="display: none"></i>
+                          <i class="si si-pin" style="display: none"></i>
+                        </button>
                       </h3>
                     #end
+                    </div>
 
-                    <ul class="other-sites-category-list favorite-site-list" role="presentation">
-                      #foreach( $site in $tabsSites.tabsMoreTermsLeftPane.get($termKey))
-                        #displaySite($site)
-                      #end
-                    </ul>
+                    <div class="card-body">
+                        <ul class="other-sites-category-list favorite-site-list" role="presentation">
+                          #foreach( $site in $tabsSites.tabsMoreTermsLeftPane.get($termKey))
+                            #displaySite($site)
+                          #end
+                        </ul>
+                    </div>
                   </div>
                 #end
               #end
@@ -144,20 +147,19 @@
             <div class="moresites-right-col">
               #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
                 #if ($tabsSites.tabsMoreTermsRightPane.get($termKey).size() > 0)
-                  <div class="fav-sites-term">
-                    #if ( $termKey && $termKey != "" )
-                      <h3 class="favorites-term-header">
-                        <span class="favorites-select-container">
-                          <button class="favorites-select-all-none icon-button"
-                              title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
-                              aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
-                            <i class="bi-pin-fill" style="display: none"></i>
-                            <i class="bi-pin" style="display: none"></i>
-                          </button>
-                        </span>
+                  <div class="fav-sites-card card mb-2">
+                    <div class="card-header">
+                      <h3 class="card-title">
                         <span>$termKey</span>
+                        <button class="favorites-select-all-none icon-button ms-1"
+                            title="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)"
+                            aria-label="$rloader.getFormattedMessage("moresite_toggle_all_as_favorites", $termKey)">
+                          <i class="si si-pin-fill" style="display: none"></i>
+                          <i class="si si-pin" style="display: none"></i>
+                        </button>
                       </h3>
-
+                    </div>
+                    <div class="card-body">
                       <ul class="other-sites-category-list favorite-site-list" role="presentation">
                         <!-- anchor "my workspace" to the top of the list -->
                         #foreach( $site in $tabsSites.tabsMoreTermsRightPane.get($termKey))
@@ -172,7 +174,7 @@
                           #end
                         #end
                       </ul>
-                    #end
+                    </div>
                   </div>
                 #end
               #end
@@ -182,39 +184,20 @@
 
           <div class="tab-pane" id="organize-favorites" aria-labelledby="tab-favorites" role="tabpanel">
             <div id="organize-favorites-pane">
-              <h2 class="heading">${rloader.moresite_organize_favorites}</h2>
 
-              <p style="display: none" id="pinned-to-show">$rloader.getFormattedMessage("sit_drag_sites_to_reorder", $tabsSites.maxFavoritesShown)</p>
+              <p id="pinned-to-show">$rloader.getFormattedMessage("sit_drag_sites_to_reorder", $tabsSites.maxFavoritesShown)</p>
 
-              <p style="display: none" id="no-pinnned-to-show">${rloader.sit_no_favorites_selected}</p>
+              <p class="d-none sak-banner-info mt-3" id="no-pinned-to-show">${rloader.sit_no_favorites_selected}</p>
 
               <ul id="organize-favorites-list" class="favorite-site-list">
                 #foreach( $site in $tabsSites.pinned )
                   #if (!${site.isMyWorkspace})
-                  <li class="organize-favorite-item" data-site-id="$site.siteId" data-sortable-id="$site.siteId">
+                  <li class="organize-favorite-item" tabindex="0" data-site-id="$site.siteId" data-sortable-id="$site.siteId">
                     <div>
                       <div class="pinned-drag-handle">
-                        <i class="bi-grip-horizontal"></i>
+                        <i class="si si-drag-handle"></i>
                       </div>
-                      <div class="organize-pinned-arrow-buttons">
-                        <div>
-                          <button class="icon-button up-btn #if ($velocityCount == 1)d-none#end"
-                              title="${rloader.sit_move_pinned_up}"
-                              aria-label="${rloader.sit_move_pinned_up}"
-                          >
-                            <i class="bi-arrow-up pe-none"></i>
-                          </button>
-                        </div>
-                        <div>
-                          <button class="icon-button down-btn #if ($velocityCount == $tabsSites.pinned.size())d-none#end"
-                              title="${rloader.sit_move_pinned_down}"
-                              aria-label="${rloader.sit_move_pinned_down}"
-                          >
-                            <i class="bi-arrow-down pe-none"></i>
-                          </button>
-                        </div>
-                      </div>
-                      <div>
+                      <div class="ms-2">
                       ${site.siteTitleTrunc}
                       </div>
                     </div>

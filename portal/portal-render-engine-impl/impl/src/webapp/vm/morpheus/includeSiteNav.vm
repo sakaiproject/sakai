@@ -1,79 +1,60 @@
-#macro( siteListItem $index $site $isExpanded $isCurrentSite)
+#macro( siteListItem $type $site $isExpanded)
+
+    #if ($type == "home")
+        #set ($index = "home")
+    #elseif ($type == "gateway")
+        #set ($index = "gateway")
+    #else
+        #set ($index = $site.id)
+    #end
+        
 
     #if ($site.isPinned)
         #set ($pinTitle = $rloader.sitenav_btn_unpin)
-        #set ($pinIconClass = "bi-pin-fill")
+        #set ($pinIconClass = "si si-pin-fill")
     #else
         #set ($pinTitle = $rloader.sitenav_btn_pin)
-        #set ($pinIconClass = "bi-pin")
+        #set ($pinIconClass = "si si-pin")
     #end
 
-    #if ($isCurrentSite)
-        #set ($currentSiteClass = "is-current-site")
-        #set ($isExpanded = "true")
+    #if ($site.isCurrent)
+        #set ($currentSiteClass = "is-current-site mt-2 fw-bold")
+        ##set ($isExpanded = "true")
     #else
         #set ($currentSiteClass = "")
         #set ($isExpanded = "false")
     #end
 
-    <li class="site-list-item py-1 $!{currentSiteClass}">
-        <div class="site-list-item-head d-flex align-items-center pe-2">
+    <li id="site-list-${type}-item-${site.id}" class="site-list-item py-1 $!{currentSiteClass}" data-type="${type}" data-site="${site.id}">
+        <div class="site-list-item-head d-flex align-items-center pe-2 py-1 w-100 justify-content-between">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
-                <button class="btn icon-button border-0 #if (!$isCurrentSite)collapsed#end"
+                <button class="btn icon-button collapsed me-1"
                         data-bs-toggle="collapse"
-                        data-bs-target="#site-${index}-pages"
+                        data-bs-target="#${type}-site-${index}-page-list"
                         aria-expanded="${isExpanded}"
-                        aria-controls="site-${index}-pages">
+                        aria-controls="${type}-site-${index}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
                 <a href="$site.url" class="text-break">${site.title}</a>
             </div>
-            #if ($loggedIn)
-                <button class="d-inline-block p-1 site-opt-pin btn btn-site-opt bi $!{pinIconClass}"
+            #if ($loggedIn && !${site.isHome})
+                <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
                     data-pin-site="${site.id}"
                     data-pinned="$!{site.isPinned}"
+                    data-site-title="${site.title}"
                     title="${pinTitle}">
                 </button>
-                #if ($site.description)
-                <button class="d-inline-block p-1 btn bi bi-info-circle btn-site-opt site-description-button"
-                    data-bs-toggle="popover"
-                    data-bs-trigger="focus"
-                    data-bs-html="true"
-                    data-bs-content-id="description-${site.id}"
-                    data-bs-trigger="focus"
-                    aria-label="Click for the full site description"
-                    aria-expanded="false">
-                </button>
-                <div id="description-${site.id}" class="d-none">${site.description}</div>
-                #end
             #end
         </div>
-        <div id="site-${index}-pages" class="site-list-item-collapse collapse #if ($isCurrentSite && !($isUserSite && $justLoggedIn))show#end">
+        <div id="${type}-site-${index}-page-list" class="site-list-item-collapse collapse">
             <ul class="site-page-list nav flex-column py-1 mb-2">
             #foreach ( $page in $site.pages )
-                #if ($isCurrentSite)
+                #if ($site.isCurrent)
                     #set ($pageUrl = $page.resetUrl)
                 #else
                     #set ($pageUrl = $page.url)
                 #end
                 #pageListItem ($page.id, $page.title, $pageUrl, "${page.icon}", 4, $page.hidden, $page.locked)
-            #end
-            #if ($site.subSites)
-                <li class="nav-item" tabindex="1">
-                    <div class="d-inline-flex align-items-stretch">
-                        <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${index}-subpages" aria-expanded="false" aria-controls="site-${index}-subpages">
-                            <i class="btn-site-carret" aria-hidden="true"></i>
-                            <span>${rloader.sitenav_sub_sites}</span>
-                        </button>
-                    </div>
-                    <div id="site-${index}-subpages" class="collapse">
-                        <ul class="nav flex-column">
-                            #foreach ( $subSite in $site.subSites )
-                                #pageListItem ("subsites", $subSite.title, $subSite.url, "si si-subsite", 5)
-                            #end
-                        </ul>
-                    </div>
-                </li>
             #end
             </ul>
         </div>
@@ -82,8 +63,8 @@
 
 #macro( pageListItem $id $title $url $icon $indentation $hidden $locked)
     
-    <li class="nav-item" tabindex="1">
-        <a class="btn btn-nav rounded-end me-1 ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}" href="$!{url}">
+    <li class="nav-item me-3" tabindex="1">
+        <a class="btn btn-nav rounded-end w-100 ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}" href="$!{url}">
             <div class="d-flex text-start align-items-center">
                 <div class="d-flex me-auto rounded-end">
                     <i class="me-1 $!{icon}" aria-hidden="true"></i>
@@ -111,57 +92,59 @@
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav h-100 d-flex flex-column">
         <h2 class="visually-hidden d-none d-md-block" id="totoolmenu">${rloader.sitenav_title}</h2>
         #if (${userIsLoggedIn})
-            #if ($sidebarSites.currentSite)
-                <div class="sites-section">
-                    <h3 class="sites-section-heading sites-section-heading-current">${rloader.sitenav_title_current}</h3>
-                    <ul class="mb-0 list-unstyled">
-                        #siteListItem("current", $sidebarSites.currentSite, false, true)
-                    </ul>
-                </div>
-            #end
-            #if ($sidebarSites.pinnedSites)
-                <div class="sites-section">
-                    <h3 class="sites-section-heading">${rloader.sitenav_title_pinned}</h3>
-                    <ul class="mb-0 list-unstyled">
-                        #foreach ( $site in $sidebarSites.pinnedSites)
-                            #if ($site.id != $currentSiteId)
-                                #siteListItem("pin-${velocityCount}", $site, false, false)
-                            #end
-                        #end
-                    </ul>
-                </div>
-            #end
-            #if ($sidebarSites.recentSites)
-                <div class="sites-section">
-                    <h3 class="sites-section-heading">${rloader.sitenav_title_recent}</h3>
-                    <ul class="mb-0 list-unstyled">
-                        #foreach ( $site in $sidebarSites.recentSites)
-                            #if ($site.id != $currentSiteId)
-                                #siteListItem("rec-${velocityCount}", $site, false, false)
-                            #end
-                        #end
-                    </ul>
-                </div>
-            #end
-            <div class="sites-section p-1 mt-auto">
-                <a id="sakai-view-all-sites" class="btn btn-nav py-3 w-100 btn-site" href="javascript:;" data-bs-toggle="offcanvas" data-bs-target="#select-site-sidebar" aria-controls="select-site-sidebar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="si si-grid-3x3-fill" viewBox="0 0 16 16">
-                        <path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"></path>
-                    </svg>
-                    <span class="ps-1">${rloader.sitenav_link_allsites}</span>
-                </a>
+            <div class="sites-section">
+                <ul class="mb-0">
+                    #siteListItem("home", $sidebarSites.homeSite, false)
+                </ul>
+            </div>
+            <div class="sites-section">
+                <h3 class="sites-section-heading">${rloader.sitenav_title_pinned}</h3>
+                <ul id="pinned-site-list" class="mb-0 #if ($sidebarSites.pinnedSites.empty)d-none#end">
+                    #foreach ($site in $sidebarSites.pinnedSites)
+                        #siteListItem("pinned", $site, false)
+                    #end
+                </ul>
+                <div id="sites-no-pinned-label" class="ms-3 #if ($sidebarSites.pinnedSites.empty) d-block #else d-none #end">${rloader.sitenav_no_pinned}</div>
+            </div>
+            <div class="sites-section #if ($sidebarSites.recentSites.empty)d-none#end">
+                <h3 class="sites-section-heading">${rloader.sitenav_title_recent}</h3>
+                <ul id="recent-site-list" class="mb-0">
+                    #foreach ($site in $sidebarSites.recentSites)
+                        #siteListItem("recent", $site, false)
+                    #end
+                </ul>
             </div>
         #else
             #if ($sidebarSites.gatewaySite)
                 <div class="sites-section">
                     <h3 class="visually-hidden sites-section-heading">${rloader.sitenav_title_current}</h3>
-                    <ul class="pt-2 mb-0 list-unstyled">
-                        #siteListItem("gateway", $sidebarSites.gatewaySite, true, true)
+                    <ul class="pt-2 mb-0">
+                        #siteListItem("gateway", $sidebarSites.gatewaySite, true)
                     </ul>
                 </div>
             #end
         #end
     </nav>
+
+    #if (${userIsLoggedIn})
+    <div class="sticky-footer w-100 d-flex justify-content-around">
+        <button id="sakai-view-all-sites"
+                type="button"
+                class="btn btn-transparent py-3"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#select-site-sidebar"
+                aria-controls="select-site-sidebar"
+                title="Open the view all sites sidebar"
+                aria-label="$rloader.sit_allsites"
+                title="$rloader.sit_allsites">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="si si-all-sites" viewBox="0 0 16 16">
+                <path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"></path>
+            </svg>
+            <span class="ps-1">${rloader.sitenav_link_allsites}</span>
+        </button>
+    </div>
+    #end
+
 </aside>
 
 <script>

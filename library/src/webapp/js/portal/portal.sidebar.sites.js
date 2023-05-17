@@ -4,17 +4,18 @@ class SitesSidebar {
 
     this._i18n = config?.i18n;
     this._element = element;
-    this._lessonsSubpageData = config?.lessonsSubpageData;
+    this._pinnedSiteList = document.getElementById("pinned-site-list");
+    this._recentSiteList = document.getElementById("recent-site-list");
+    this._currentSite = config.currentSite;
 
     const sitesListItems = element.querySelectorAll(".site-list-item");
-    //sitesListItems.forEach(sitesListItem => new LessonsSubPageNavigation(this._lessonsSubpageData))
 
     const pinButtonElements = element.querySelectorAll(".site-opt-pin");
-    pinButtonElements.forEach((buttonEl) => new PinButton(buttonEl, { i18n: this._i18n?.pinButtons}));
+    pinButtonElements.forEach(buttonEl => new PinButton(buttonEl, { i18n: this._i18n?.pinButtons}));
 
     element.querySelectorAll(".site-description-button").forEach(buttonEl => new bootstrap.Popover(buttonEl));
 
-    document.addEventListener("site-pin-change", this.handlePinChange);
+    document.addEventListener("site-pin-change", this.handlePinChange.bind(this));
 
     element.querySelectorAll(".site-list-item-collapse").forEach(btn => {
 
@@ -33,6 +34,15 @@ class SitesSidebar {
         chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
       });
     });
+
+    // TODO: this needs to be implemented at some point. It would remove the annoying 
+    // refresh message in the all sites sidebar
+    /*
+    document.body.addEventListener("site-pin-changed", e => {
+
+      this.handlePinChange(e);
+    });
+    */
   }
 
   setView(mobile) {
@@ -77,9 +87,9 @@ class SitesSidebar {
 
     if (favoritesReq.ok) {
       const favoritesValues = await favoritesReq.json();
-      const pinedRemote = favoritesValues.favoriteSiteIds.includes(siteId);
+      const alreadyPinned = favoritesValues.favoriteSiteIds.includes(siteId);
 
-      if (pinned !== pinedRemote) {
+      if (pinned !== alreadyPinned) {
         const payload = JSON.parse(JSON.stringify(favoritesValues));
         if (pinned) {
           payload.favoriteSiteIds.push(siteId);
@@ -101,6 +111,60 @@ class SitesSidebar {
 
           if (!r.ok) {
             throw new Error(`Network error while updating pinned sites at url ${url}`);
+          } else {
+            const currentItem = pinButton.closest(".site-list-item");
+            if (pinned) {
+              const clone = currentItem.cloneNode(true);
+              clone.id = clone.id.replace("recent", "pinned");
+              clone.dataset.type = "pinned";
+
+              const pagesButton = clone.querySelector("button");
+              pagesButton.dataset.bsTarget = pagesButton.dataset.bsTarget.replace("recent", "pinned");
+              pagesButton.setAttribute("aria-controls", pagesButton.getAttribute("aria-controls").replace("recent", "pinned"));
+
+              const pagesCollapse = clone.querySelector("div.collapse");
+              pagesCollapse.id = pagesCollapse.id.replace("recent", "pinned");
+              this._pinnedSiteList.append(clone);
+              this._pinnedSiteList.classList.remove("d-none");
+              document.getElementById("sites-no-pinned-label").classList.add("d-none");
+              currentItem.classList.remove("is-current-site", "fw-bold");
+
+              new PinButton(clone.querySelector("button.site-opt-pin"), { i18n: this._i18n?.pinButtons });
+            } else {
+              document.querySelectorAll(`#toolMenu button[data-pin-site="${siteId}"]`).forEach(b => {
+
+                b.classList.remove("si-pin-fill");
+                b.dataset.pinned = "false";
+                b.classList.add("si-pin");
+              });
+
+              if (currentItem.dataset.type === "pinned") {
+                currentItem.remove();
+              } else {
+                // We are unpinning from the recent area. Remove the item from the pinned list.
+                const pinnedItem
+                  = document.querySelector(`#toolMenu li[data-type='pinned'][data-site='${currentItem.dataset.site}']`);
+
+                pinnedItem.remove();
+              }
+
+              const recentItem
+                = document.querySelector(`#toolMenu li[data-type='recent'][data-site='${this._currentSite}']`);
+              recentItem && recentItem.classList.add("is-current-site", "fw-bold");
+
+              if (!this._pinnedSiteList.children.length) {
+                this._pinnedSiteList.classList.add("d-none");
+                document.getElementById("sites-no-pinned-label").classList.remove("d-none");
+              }
+
+            }
+
+            const siteTitle = pinButton.dataset.siteTitle;
+            document.body.dispatchEvent(new CustomEvent("site-pin-changed", { detail: { siteId, pinned, siteTitle }, bubbles: true }));
+
+            if (!this._recentSiteList.children.length) {
+              this._recentSiteList.parentElement.classList.add("d-none");
+            }
           }
         })
         .catch (error => console.error(error));
@@ -118,27 +182,28 @@ class SitesSidebar {
 class PinButton {
 
   get title() {
-    return this._element.getAttribute("title");
+    return this._element.title;
   }
 
   set title(newValue) {
-    this._element.setAttribute("title", newValue);
+    this._element.title = newValue;
   }
 
   get pinned() {
-    return this._element.getAttribute("data-pinned") == "true" ? true : false;
+    return this._element.dataset.pinned === "true";
   }
 
   set pinned(newPinned) {
-    this._element.setAttribute("data-pinned", newPinned);
+    this._element.dataset.pinned = newPinned;
   }
 
   constructor(element, config) {
 
     this._element = element;
     this._i18n = config?.i18n;
-    this._site = element.getAttribute("data-pin-site");
+    this._site = element.dataset.pinSite;
     element.addEventListener("click", this.toggle.bind(this));
+    this.title = element.dataset.pinned === "true" ? this._i18n.titleUnpin : this._i18n.titlePin;
   }
 
   toggle() {
@@ -152,13 +217,13 @@ class PinButton {
   toggleIcon() {
 
     const buttonClasses =  this._element.classList;
-    const pinnedIcon = "bi-pin";
-    const unPinnedIcon = "bi-pin-fill";
+    const pinnedIcon = "si-pin";
+    const unPinnedIcon = "si-pin-fill";
     buttonClasses.toggle(pinnedIcon);
     buttonClasses.toggle(unPinnedIcon);
   }
 
-  //Dispatches event which will cause a fetch to cange pinned value
+  // Dispatches event which will cause a fetch to change pinned value
   emitPinChange() {
 
     const eventName = "site-pin-change";

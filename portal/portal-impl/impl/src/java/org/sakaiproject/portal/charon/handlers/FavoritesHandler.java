@@ -39,7 +39,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import org.springframework.transaction.annotation.Transactional;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,13 +96,15 @@ public class FavoritesHandler extends BasePortalHandler
 	public int doPost(String[] parts, HttpServletRequest req,
 			HttpServletResponse res, Session session)
 			throws PortalHandlerException {
+
 		if ((parts.length == 3) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			try {
 				UserFavorites favorites = UserFavorites.fromJSON(req.getParameter("userFavorites"));
+                boolean reorder = StringUtils.equals("true", req.getParameter("reorder"));
 
 				synchronized (session) {
-					saveUserFavorites(session.getUserId(), favorites);
+					saveUserFavorites(session.getUserId(), favorites, reorder);
 				}
 
 				res.setContentType(ContentType.APPLICATION_JSON.toString());
@@ -128,22 +130,26 @@ public class FavoritesHandler extends BasePortalHandler
 		return result;
 	}
 
-	@Transactional
-	private void saveUserFavorites(String userId, UserFavorites favorites) throws PortalHandlerException {
+	private void saveUserFavorites(String userId, UserFavorites favorites, boolean reorder) throws PortalHandlerException {
 
 		if (userId == null) {
 			return;
 		}
 
-		portalService.savePinnedSites(favorites.favoriteSiteIds);
+        if (reorder) {
+            portalService.reorderPinnedSites(favorites.favoriteSiteIds);
+        } else {
+		    portalService.savePinnedSites(favorites.favoriteSiteIds);
+        }
 	}
 
 	public static class UserFavorites {
-		public Set<String> favoriteSiteIds;
+
+		public List<String> favoriteSiteIds;
 		public boolean autoFavoritesEnabled;
 
 		public UserFavorites() {
-			favoriteSiteIds = Collections.<String>emptySet();
+			favoriteSiteIds = Collections.<String>emptyList();
 			autoFavoritesEnabled = false;
 		}
 
@@ -151,7 +157,7 @@ public class FavoritesHandler extends BasePortalHandler
 			JSONObject obj = new JSONObject();
 
 			obj.put("autoFavoritesEnabled", autoFavoritesEnabled);
-			obj.put("favoriteSiteIds", new ArrayList<String>(favoriteSiteIds));
+			obj.put("favoriteSiteIds", favoriteSiteIds);
 
 			return obj.toString();
 		}
@@ -162,7 +168,7 @@ public class FavoritesHandler extends BasePortalHandler
 			JSONObject obj = (JSONObject)parser.parse(json);
 
 			UserFavorites result = new UserFavorites();
-			result.favoriteSiteIds = new LinkedHashSet<String>();
+			result.favoriteSiteIds = new ArrayList<String>();
 
 			if (obj.get("favoriteSiteIds") != null) {
 				// Site IDs might be numeric, so coerce everything to strings.
@@ -172,8 +178,6 @@ public class FavoritesHandler extends BasePortalHandler
 					}
 				}
 			}
-
-			result.autoFavoritesEnabled = (Boolean)obj.get("autoFavoritesEnabled");
 
 			return result;
 		}

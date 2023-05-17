@@ -361,20 +361,6 @@ public interface Portal
 	ServletContext getServletContext();
 
 	/**
-	 * Return the sub sites below a particular site
-	 * Map.
-	 * @param rcontext
-	 * @param req
-	 * @param siteId
-	 * @param toolContextPath
-	 * @param prefix
-	 * @param loggedIn
-	 */
- 	void includeSubSites(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session, String siteId, String toolContextPath, 
-			String prefix, boolean resetTools );
-
-	/**
 	 * Get a the page Filter Implementation
 	 * @return
 	 */
