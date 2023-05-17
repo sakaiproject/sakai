@@ -114,7 +114,7 @@ public interface PortalSiteHelper
 	 */
 	String getUserSpecificSiteTitle( Site site, boolean escaped );
 
-	Map<String, Object> getContextSitesWithPages(HttpServletRequest req, String currentSiteId, String myWorkspaceSiteId, String toolContextPath, boolean loggedIn);
+	Map<String, Object> getContextSitesWithPages(HttpServletRequest req, String currentSiteId, String toolContextPath, boolean loggedIn);
 
 	/**
 	 * Similar to getUserSpecificSiteTitle(Site site, boolean escaped), but also takes truncated parameter

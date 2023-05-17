@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -812,9 +814,14 @@ public class PortalServiceImpl implements PortalService, Observer
 			return;
 		}
 
+		List<PinnedSite> pinned = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
+
+		int position = pinned.size() > 0 ? pinned.get(pinned.size() - 1).getPosition() + 1 : 1;
+
 		PinnedSite pin = new PinnedSite();
 		pin.setUserId(userId);
 		pin.setSiteId(siteId);
+		pin.setPosition(position);
 		pinnedSiteRepository.save(pin);
 	}
 
@@ -827,11 +834,51 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 
 		pinnedSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
+
+		List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
+		for (int i = 0; i < pinnedSites.size(); i++) {
+			PinnedSite pinnedSite = pinnedSites.get(i);
+			pinnedSite.setPosition(i);
+		}
 	}
 
 	@Transactional
 	@Override
-	public void savePinnedSites(Set<String> siteIds) {
+	public void savePinnedSites(List<String> siteIds) {
+
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		if (StringUtils.isBlank(userId)) {
+			return;
+		}
+
+		siteIds.remove(siteService.getUserSiteId(userId));
+
+		List<String> currentPinned = getPinnedSites();
+		currentPinned.forEach(cp -> {
+
+			if (!siteIds.contains(cp)) {
+				removePinnedSite(userId, cp);
+			}
+		});
+
+		siteIds.removeAll(currentPinned);
+
+		int start = getPinnedSites().size();
+
+		for (int i = 0; i < siteIds.size(); i++) {
+
+			PinnedSite pin = new PinnedSite();
+			pin.setUserId(userId);
+			pin.setSiteId(siteIds.get(i));
+			pin.setPosition(i + start);
+			pinnedSiteRepository.save(pin);
+		};
+	}
+
+	@Transactional
+	@Override
+	public void reorderPinnedSites(List<String> siteIds) {
 
 		String userId = sessionManager.getCurrentSessionUserId();
 
@@ -841,26 +888,27 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		pinnedSiteRepository.deleteByUserId(userId);
 
-		siteIds.forEach(siteId -> {
+		for (int i = 0; i < siteIds.size(); i++) {
 
 			PinnedSite pin = new PinnedSite();
 			pin.setUserId(userId);
-			pin.setSiteId(siteId);
+			pin.setSiteId(siteIds.get(i));
+			pin.setPosition(i);
 			pinnedSiteRepository.save(pin);
-		});
+		};
 	}
 
 	@Override
-	public Set<String> getPinnedSites() {
+	public List<String> getPinnedSites() {
 
 		String userId = sessionManager.getCurrentSessionUserId();
 
 		if (StringUtils.isBlank(userId)) {
-			return Collections.<String>emptySet();
+			return Collections.<String>emptyList();
 		}
 
-		return pinnedSiteRepository.findByUserId(userId).stream()
-				.map(ps -> ps.getSiteId()).collect(Collectors.toSet());
+		return pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+				.map(ps -> ps.getSiteId()).collect(Collectors.toList());
 	}
 
 	@Override
@@ -886,7 +934,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		String userId = sessionManager.getCurrentSessionUserId();
 
-		if (StringUtils.isBlank(userId)) {
+		if (StringUtils.isBlank(userId) || siteId.equals(siteService.getUserSiteId(userId))) {
 			return;
 		}
 

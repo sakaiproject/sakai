@@ -165,7 +165,7 @@
     --sakai-image-invert: grayscale(100%) invert(100%);
 
     // Overrides _light.scss variables when necessary
-    --top-header-background: var(--sakai-background-color-1);
+    //--top-header-background: var(--sakai-background-color-1);
     --breadcrumbs-tool-color: var(--sakai-text-color-color-3);
     --breadcrumbs-hover-color: var(--sakai-primary-color-3);
     --link-color: var(--sakai-text-color-3);
@@ -202,7 +202,8 @@
     --sakai-highlight-color: var(--sakai-color-red--lighter-4);
 
     //New sidebar colors
-    --site-nav-btn-current-hover-color: var(--sakai-passive-color-3);
+    --site-nav-btn-current-hover-color: var(--site-nav-btn-active-color);
+    --site-nav-btn-hover-bg: var(--sakai-primary-color-2);
 
     // Dashboard
     --sakai-calendar-button-background-color: var(--sakai-background-color);

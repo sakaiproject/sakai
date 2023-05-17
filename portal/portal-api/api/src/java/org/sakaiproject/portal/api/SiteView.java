@@ -29,7 +29,7 @@ package org.sakaiproject.portal.api;
 public interface SiteView
 {
 
-	public static enum View { ALL_SITES_VIEW, DHTML_MORE_VIEW, SUB_SITES_VIEW, CURRENT_SITE_VIEW }
+	public static enum View { ALL_SITES_VIEW, DHTML_MORE_VIEW, CURRENT_SITE_VIEW }
 
 	/**
 	 * The prefix for creating site URLs. Eg. If "site" then URLs will come out like /portal/site/...

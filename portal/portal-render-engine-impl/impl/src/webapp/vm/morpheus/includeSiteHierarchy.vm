@@ -1,10 +1,5 @@
 <nav class="sakai-pageNav" aria-label="${rloader.sit_toolsubnavigation}">
     <ol class="breadcrumb mb-2">
-      <li class="breadcrumb-item" title="${rloader.sit_mywor}">
-          <a class="text-decoration-none" href="/portal">
-              <small>${rloader.sit_mywor}</small>
-          </a>
-      </li>
 
     #set ($tabCountBread = 0)
     #if ( $portalBreadCrumbs or $portalPwd ) 
@@ -54,8 +49,8 @@
     
     #set($index = 0)
     #foreach( $page in $sitePages.pageNavTools )
-        #if ( ( $index == 0 ) && ! ${isUserSite} )
-            <li class="Mrphs-hierarchy--siteName breadcrumb-item" title="${siteTitle}">
+        #if ( $index == 0 )
+            <li class="Mrphs-hierarchy--siteName breadcrumb-item d-md-none" title="${siteTitle}">
                 <a class="text-decoration-none" href="${page.pageResetUrl}">
                     <small>${siteTitleTruncated}</small>
                 </a>
@@ -102,7 +97,7 @@
 
     #foreach( $page in $sitePages.pageNavTools )
         #if (${page.current})
-            <li class="breadcrumb-item">
+            <li class="breadcrumb-item d-md-none">
                 <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName text-decoration-none">
                     <small class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</small>
                 </a>

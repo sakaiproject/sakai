@@ -68,7 +68,7 @@ $fa-font-path: "./fonts";
     sakai-poll : bi-bar-chart,
     sakai-postem : bi-sticky,
     sakai-preferences : bi-gear,
-    sakai-profile2 : bi-person,
+    sakai-profile2 : bi-person-badge,
     sakai-realms : bi-diagram-3,
     sakai-resetpass : bi-person,
     sakai-resources : bi-folder,
@@ -86,7 +86,7 @@ $fa-font-path: "./fonts";
     sakai-sitebrowser : bi-globe,
     sakai-siteinfo : bi-gear,
     sakai-sites : bi-list,
-    sakai-sitesetup : bi-gear,
+    sakai-sitesetup : bi-wrench-adjustable,
     sakai-sitestats : bi-pie-chart,
     sakai-sitestats-admin : bi-pie-chart,
     sakai-su : bi-incognito,
@@ -171,6 +171,10 @@ $fa-font-path: "./fonts";
     empty-square: bi-square,
     check-square: bi-check-square,
     check-lg: bi-check-lg,
+    all-sites: bi-grid-3x3-gap-fill,
+    drag-handle: bi-list,
+    pin: bi-pin,
+    pin-fill: bi-pin-fill,
   );
 
 

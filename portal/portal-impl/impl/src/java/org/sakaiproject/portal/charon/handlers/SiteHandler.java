@@ -560,6 +560,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("isUserSite", true);
 		}else{
 			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
+			rcontext.put("siteUrl", site.getUrl());
 			rcontext.put("siteTitleTruncated", Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
 			rcontext.put("isUserSite", false);
 		}
@@ -584,12 +585,6 @@ public class SiteHandler extends WorksiteHandler
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 					getUrlFragment());
-
-		// Include sub-sites if appropriate
-		// TODO: Think through whether we want reset tools or not
-		portal.includeSubSites(rcontext, req, session, siteId, req.getContextPath()
-				+ req.getServletPath(), getUrlFragment(),
-				/* resetTools */false);
 
 		portal.includeBottom(rcontext, site);
 
@@ -743,7 +738,7 @@ public class SiteHandler extends WorksiteHandler
 			
 
 			rcontext.put("currentSiteId", siteId);
-			rcontext.put("sidebarSites", portal.getSiteHelper().getContextSitesWithPages(req, siteId, null, null, loggedIn));
+			rcontext.put("sidebarSites", portal.getSiteHelper().getContextSitesWithPages(req, siteId, null, loggedIn));
 
 			try
 			{

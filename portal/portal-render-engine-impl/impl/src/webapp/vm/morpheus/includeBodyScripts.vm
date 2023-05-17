@@ -7,8 +7,8 @@
     sites: portal.container.querySelector("#portal-nav-sidebar")
   };
 
-  //Setup sidebar collapse button
-  new SidebarCollapseButton(portal.head.querySelector(".btn-sidebar-collapse"), {
+  //Setup sidebar collapse buttons
+  new SidebarCollapseButton(document.getElementById("sidebar-collapse-button"), {
     i18n: {
       titleExpanded: "${rloader.mainnav_btn_sidebar_collapse}",
       titleCollapsed: "${rloader.mainnav_btn_sidebar_expand}"
@@ -24,8 +24,9 @@
       pinButtons: {
         titlePin: "${rloader.sitenav_btn_pin}",
         titleUnpin: "${rloader.sitenav_btn_unpin}",
-      }
-    }
+      },
+    },
+    currentSite: "${currentSiteId}",
   });
   const setSidebarView = (currentBP, previousBP) => {
     let currentMobile = BreakpointManager.compare(currentBP, "sm") <= 0;
@@ -57,34 +58,6 @@
     popoverContainer: portal.footer,
     iconClasses: ["bi-info-circle", "bi-info-circle-fill"],
   });
-
-  // Setup lessons subpage navigaion
-
-  let lessonSubnavs = [];
-
-  // Macros to add Lessons data to an js array
-  #macro (addLessonsSubnavData $site)
-    #if ($site && $site.lessonsSubPages)
-      lessonSubnavs.push(${site.lessonsSubPages})
-    #end
-  #end
-
-  #macro (addLessonsSubnavDataList $siteList)
-    #if ($siteList)
-      #foreach ($site in $siteList)
-        #addLessonsSubnavData ($site)
-      #end
-    #end
-  #end
-
-  #addLessonsSubnavData($sidebarSites.currentSite);
-  #addLessonsSubnavDataList($sidebarSites.pinnedSites);
-  #addLessonsSubnavDataList($sidebarSites.recentSites);
-
-  // Remove duplicate pages e.g. page in current and pinned, then create
-  // a LessonsSubPageNavigation instance for each site
-  lessonSubnavs.filter((v, i) => lessonSubnavs.findIndex(val => val.siteId === v.siteId) === i)
-    .forEach(lessonSubnavData => new LessonsSubPageNavigation(lessonSubnavData));
 
   #if (!$loggedIn && $topLogin)
     //--start-logged-out-scripts
@@ -214,7 +187,7 @@
 
 
 #if (${sakaiThemesEnabled})
-<script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
+<script src="${pageScriptPath}portal/portal.theme.switcher.js$!{portalCDNQuery}"></script>
 #end
 
 <script>

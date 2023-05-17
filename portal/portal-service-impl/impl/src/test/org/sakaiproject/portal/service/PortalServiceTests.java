@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.portal.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.authz.api.Member;
@@ -26,6 +28,8 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.model.PinnedSite;
+import org.sakaiproject.portal.api.repository.PinnedSiteRepository;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTests;
@@ -53,6 +57,7 @@ import org.junit.runner.RunWith;
 public class PortalServiceTests extends SakaiTests {
 
     @Autowired private MemoryService memoryService;
+    @Autowired private PinnedSiteRepository pinnedSiteRepository;
     @Autowired private PortalService portalService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -71,7 +76,11 @@ public class PortalServiceTests extends SakaiTests {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
 
-        Set<String> siteIds = new HashSet<>();
+        String user1SiteId = "~user1";
+
+        when(siteService.getUserSiteId(user1)).thenReturn(user1SiteId);
+
+        List<String> siteIds = new ArrayList<>();
         siteIds.add(site1Id);
         siteIds.add("site2");
 
@@ -127,7 +136,7 @@ public class PortalServiceTests extends SakaiTests {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
 
-        Set<String> siteIds = new HashSet<>();
+        List<String> siteIds = new ArrayList<>();
         siteIds.add(site1Id);
 
         Set<String> users = new HashSet<>();
@@ -169,6 +178,80 @@ public class PortalServiceTests extends SakaiTests {
         when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_PUBLISH);
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
         assertEquals(1, portalService.getPinnedSites().size());
+    }
+
+    @Test
+    public void pinnedSitePosition() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
+
+        String site2Id = "site2";
+        String site3Id = "site3";
+        String site4Id = "site4";
+
+        List<String> siteIds = new ArrayList<>();
+        siteIds.add(site1Id);
+        siteIds.add(site2Id);
+        siteIds.add(site3Id);
+
+        portalService.savePinnedSites(siteIds);
+
+        List<String> pinnedSites = portalService.getPinnedSites();
+        assertEquals(3, pinnedSites.size());
+
+        assertEquals(site1Id, pinnedSites.get(0));
+        assertEquals(site2Id, pinnedSites.get(1));
+        assertEquals(site3Id, pinnedSites.get(2));
+
+        portalService.removePinnedSite(user1, site2Id);
+        pinnedSites = portalService.getPinnedSites();
+        assertEquals(2, pinnedSites.size());
+
+        List<PinnedSite> pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
+        assertEquals(2, pinned.size());
+        assertEquals(0, pinned.get(0).getPosition());
+        assertEquals(site1Id, pinned.get(0).getSiteId());
+        assertEquals(1, pinned.get(1).getPosition());
+        assertEquals(site3Id, pinned.get(1).getSiteId());
+
+        portalService.addPinnedSite(user1, site4Id);
+
+        pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
+        assertEquals(3, pinned.size());
+        assertEquals(2, pinned.get(2).getPosition());
+        assertEquals(site4Id, pinned.get(2).getSiteId());
+
+        siteIds.add(site4Id);
+        portalService.savePinnedSites(siteIds);
+        pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
+        assertEquals(4, pinned.size());
+        assertEquals(site2Id, pinned.get(3).getSiteId());
+    }
+
+    @Test
+    public void pinnedQueries() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
+
+        String site2Id = "site2";
+        String site3Id = "site3";
+        String site4Id = "site4";
+        String site5Id = "site5";
+        String site6Id = "site6";
+        String site7Id = "site7";
+        String site8Id = "site8";
+
+        List<String> siteIds = new ArrayList<>();
+        siteIds.add(site1Id);
+        siteIds.add(site2Id);
+        siteIds.add(site3Id);
+        siteIds.add(site4Id);
+        siteIds.add(site5Id);
+        siteIds.add(site6Id);
+        siteIds.add(site7Id);
+        siteIds.add(site8Id);
+
+        portalService.savePinnedSites(siteIds);
     }
 
     @Test

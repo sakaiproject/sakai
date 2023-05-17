@@ -1,13 +1,13 @@
 #if (${userIsLoggedIn})
 <aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-accountPanel" aria-labelledby="sakai-accountPanelLabel">
   <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="sakai-accountPanelLabel">${rloader.mainnav_btn_account}</h2>
+    <h2 class="offcanvas-title m-0" id="sakai-accountPanelLabel">${rloader.mainnav_btn_account}</h2>
     <span>&nbsp;</span>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this account menu"></button>
   </div>
 
   <div class="offcanvas-body d-flex flex-column">
-    <div class="text-center border-bottom mb-3 pb-2">
+    <div class="text-center mb-3 pb-2">
       <div id="sakai-profile-image-block">
         <button class="btn only-icon" data-bs-toggle="modal" data-bs-target="#profile-image-upload">
           <img class="sakai-accountProfileImage rounded-circle" width="100" src="/direct/profile/${loginUserId}/image/thumb" alt="Profile image">
@@ -27,12 +27,28 @@
         #end
           #end
         #end
-        <li class="nav-item py-2 d-none"><button type="button" class="btn btn-primary">${rloader.sit_log}</button></li>
-        <li class="nav-item py-2"><a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-primary" data-warning="${logoutWarningMessage}"><span class="Mrphs-login-Message">${loginMessage}</span></a></li>
+        <li class="nav-item"><a href="${profileToolUrl}" class="nav-link">Tutorial</a></li>
+
+        <li>
+          <div class="text-center pt-3 mt-auto">
+            <fieldset class="btn-group" role="radiogroup" aria-label="Switch between light and dark themes">
+              <div data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true">
+                  <button role="switch" 
+                    aria-checked="false"
+                    id="sakai-dark-theme-switcher"
+                    title="#if ($userTheme == "sakaiUserTheme-light")$rloader.sit_theme_switch_to_dark#else$rloader.sit_theme_switch_to_light#end"
+                    class="sakai-theme-switch Mrphs-userNav__submenuitem--themeSwitcher switch">
+                    <span class="bi bi-sun"></span>
+                    <span class="bi bi-moon"></span>
+                  </button>
+              </div>
+            </fieldset>
+          </div>
+        </li>
       </ul>
     </div>
 
-    <div class="accordion" id="sakai-accountPanelWidgets">
+    <div class="accordion flex-grow-1 overflow-auto" id="sakai-accountPanelWidgets">
       <div class="accordion-item">
         <div class="accordion-header" id="sakai-accountPanelWidgets-headingOne">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseOne" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseOne">
@@ -54,9 +70,9 @@
         </div>
         <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
           <div class="accordion-body p-2">
-          ## Calendar webcomponent
-          <sakai-calendar></sakai-calendar>
-        </div>
+            ## Calendar webcomponent
+            <sakai-calendar></sakai-calendar>
+          </div>
         </div>
       </div>
       <div class="accordion-item">
@@ -67,24 +83,17 @@
         </div>
         <div id="sakai-accountPanelWidgets-collapseThree" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingThree">
           <div class="accordion-body p-2">
-          ## Grades webcomponent
-          <sakai-grades></sakai-grades>
+            ## Grades webcomponent
+            <sakai-grades></sakai-grades>
           </div>
         </div>
       </div>
     </div>
-    #if (${sakaiThemesEnabled} && ${themeSwitcher})
-    <div class="text-center border-top pt-3 mt-auto">
-      <fieldset class="btn-group" role="radiogroup" aria-label="Switch between light and dark themes">
-        <button role="switch" aria-checked="false"
-            id="sakai-darkThemeSwitcher"
-            class="sakaiThemeSwitch Mrphs-userNav__submenuitem--themeSwitcher switch">
-          <span class="bi bi-sun">${rloader.sit_themeSwitcherOff}</span>
-          <span class="bi bi-moon">${rloader.sit_themeSwitcherOn}</span>
-        </button>
-      </fieldset>
+    <div class="text-center pt-3 mt-auto">
+      <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="bi bi-box-arrow-right btn btn-primary w-100" data-warning="${logoutWarningMessage}">
+        <span class="Mrphs-login-Message">${loginMessage}</span>
+      </a>
     </div>
-    #end ## END of IF (${sakaiThemesEnabled} && ${themeSwitcher})
   </div>
 </aside>
 #end

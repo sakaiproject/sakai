@@ -238,11 +238,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	// 2.3 back port
 	// public String String PROP_PARENT_ID = "sakai:parent-id";
 
-	private String PROP_SHOW_SUBSITES  = SiteService.PROP_SHOW_SUBSITES ;
-	
-	// 2.3 back port
-	// public String PROP_SHOW_SUBSITES = "sakai:show-subsites";
-	
 	private boolean forceContainer = false;
 
 	private boolean sakaiTutorialEnabled = true;
@@ -420,60 +415,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		ErrorReporter err = new ErrorReporter();
 		err.report(req, res, t);
-	}
-
-	/*
-	 * 
-	 * 
-	 * Include the children of a site
-	 */
-
-	// TODO: Extract to a provider
-
-	public void includeSubSites(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session, String siteId, String toolContextPath, 
-			String prefix, boolean resetTools) 
-	// throws ToolException, IOException
-	{
-		if ( siteId == null || rcontext == null ) return;
-
-		// Check the setting as to whether we are to do this
-		String pref = ServerConfigurationService.getString("portal.includesubsites");
-		if ( "never".equals(pref) ) return;
-
-		Site site = null;
-		try
-		{
-			site = siteHelper.getSiteVisit(siteId);
-		}
-		catch (Exception e)
-		{
-			return;
-		}
-		if ( site == null ) return;
-
-		ResourceProperties rp = site.getProperties();
-		String showSub = rp.getProperty(PROP_SHOW_SUBSITES);
-		log.debug("Checking subsite pref:{} pref={} show={}", site.getTitle(), pref, showSub);
-		if ( "false".equals(showSub) ) return;
-
-		if ( "false".equals(pref) )
-		{
-			if ( ! "true".equals(showSub) ) return;
-		}
-
-		SiteView siteView = siteHelper.getSitesView(SiteView.View.SUB_SITES_VIEW,req, session, siteId);
-		if ( siteView.isEmpty() ) return;
-
-		siteView.setPrefix(prefix);
-		siteView.setToolContextPath(toolContextPath);
-		siteView.setResetTools(resetTools);
-
-		if( !siteView.isEmpty() ) {
-			rcontext.put("subSites", siteView.getRenderContextObject());
-			boolean showSubsitesAsFlyout = ServerConfigurationService.getBoolean("portal.showSubsitesAsFlyout",true);
-			rcontext.put("showSubsitesAsFlyout", showSubsitesAsFlyout);
-		}
 	}
 
 	/*
