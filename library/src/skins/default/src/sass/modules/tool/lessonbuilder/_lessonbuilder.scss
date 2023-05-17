@@ -81,12 +81,6 @@
 		}
   }
 
-	.#{$namespace}toolTitleNav__button_container {
-		@media #{$phone} {
-			margin-top: -25px;	
-		}
-	}
-
 	.#{$namespace}hierarchy--separator {
 		margin-left: 10px;
 		margin-right: 10px;
