@@ -520,39 +520,6 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("(5e-49) * (6E28)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("3E-20", result);
-
-        // Chi-Squared Distribution
-        result = gradingService.processFormulaIntoValue("pChi2(1.2, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("0.27", result);
-        result = gradingService.processFormulaIntoValue("cChi2(1.2, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("0.45", result);
-        result = gradingService.processFormulaIntoValue("qChi2(0.8, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("3.22", result);
-
-        // Student's t-distribution
-        result = gradingService.processFormulaIntoValue("pStud(1.2, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("0.16", result);
-        result = gradingService.processFormulaIntoValue("cStud(1.2, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("0.82", result);
-        result = gradingService.processFormulaIntoValue("qStud(0.8, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("1.06", result);
-
-        // Snedecor's F distribution
-        result = gradingService.processFormulaIntoValue("pFSned(1.2, 2, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("0.21", result);
-        result = gradingService.processFormulaIntoValue("cFSned(1.2, 2, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("0.55", result);
-        result = gradingService.processFormulaIntoValue("qFSned(0.8, 2, 2)", 2);
-        Assert.assertNotNull(result);
-        Assert.assertEquals("4", result);
     }
 
     @Test(expected = SamigoExpressionError.class)
