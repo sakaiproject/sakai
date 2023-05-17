@@ -69,7 +69,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
 
     @Override
     public List<String> getHandledEvents() {
-        return Arrays.asList(EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS);
+        return Arrays.asList(EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS, EVENT_AVAILABLE_ASSIGNMENT);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
         transactionTemplate.execute(status -> {
 
             sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where EVENT in :events and REF = :ref and TO_USER in :toUsers")
-                .setParameterList("events", new String[] {EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS})
+                .setParameterList("events", new String[] {EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS, EVENT_AVAILABLE_ASSIGNMENT})
                 .setParameter("ref", ref, StringType.INSTANCE)
                 .setParameterList("toUsers", users).executeUpdate();
             return null;
