@@ -39,6 +39,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.comparators.NullComparator;
@@ -1872,7 +1873,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         };
         List<StudentGradingSummaryData> numberRetakeList = getHibernateTemplate().execute(hcb);
         return numberRetakeList.stream()
-                .collect(Collectors.toMap(StudentGradingSummaryData::getPublishedAssessmentId, s -> s));
+                .collect(Collectors.toMap(StudentGradingSummaryData::getPublishedAssessmentId, Function.identity(), (oldValue, newValue) -> newValue));
     }
 
     public Map<Long, Map<String, Integer>> getSiteNumberRetakeHash(final String siteId) {
