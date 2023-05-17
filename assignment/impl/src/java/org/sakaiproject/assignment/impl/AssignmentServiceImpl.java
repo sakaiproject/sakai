@@ -5085,4 +5085,71 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     	}
     }
 
+    /**
+     * Implementation of HardDeleteAware to allow content to be fully purged
+     */
+    public void hardDelete(String siteId) {
+        log.info("Hard Delete  of Tool Assignments for context: {}", siteId);
+
+        Collection<Assignment> assignments = getDeletedAssignmentsForContext(siteId);
+        assignments.addAll(getAssignmentsForContext(siteId));
+
+        //remove associated tags and delete assignment
+        Iterator<Assignment> it =  assignments.iterator();
+        while (it.hasNext()) {
+            Assignment a = (org.sakaiproject.assignment.api.model.Assignment) it.next();
+            removeAssociatedTaggingItem(a);
+
+            try {
+                deleteAssignment(a);
+            } catch (PermissionException e) {
+                log.error("insufficient permissions to delete assignment ", e);
+            }
+        }
+
+        //remove attachements
+        List<ContentResource> resources = contentHostingService.getAllResources("/attachment/" + siteId + "/Assignments/");
+        for (ContentResource resource : resources) {
+            log.debug("Removing resource: {}", resource.getId());
+            try {
+                contentHostingService.removeResource(resource.getId());
+            } catch (Exception e) {
+                log.warn("Failed to remove content.", e);
+            }
+        }
+
+        // Cleanup the collections
+        ContentCollection contentCollection = null;
+        try {
+            contentCollection = contentHostingService.getCollection("/attachment/" + siteId + "/Assignments/");
+        } catch (IdUnusedException e) {
+            log.warn("id for collection does not exist " + e);
+        } catch (TypeException e1) {
+            log.warn("not a collection " + e1);
+        } catch (PermissionException e2) {
+            log.warn("insufficient permissions " + e2);
+        }
+
+        try{
+            if(contentCollection !=  null){
+                List<String> members = contentCollection.getMembers();
+                for(String member : members){
+                    log.debug("remove contenCollection: " + member);
+                    contentHostingService.removeCollection(member);
+                }
+                contentHostingService.removeCollection(contentCollection.getId());
+            }
+        }catch (IdUnusedException e) {
+            log.warn("id for collection does not exist " + e);
+        } catch (TypeException  e1) {
+            log.warn("not a collection " + e1);
+        } catch (PermissionException e2) {
+            log.warn("insufficient permissions " + e2);
+        }catch (InUseException e3){
+            log.warn("InUseException " + e3);
+        }catch (ServerOverloadException e4){
+            log.warn("ServerOverloadException " + e4);
+        }
+    }
+
 }
