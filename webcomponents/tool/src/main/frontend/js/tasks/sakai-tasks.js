@@ -94,6 +94,11 @@ export class SakaiTasks extends SakaiPageableElement {
     this.repage();
   }
 
+  // Override the method to apply custom filtering, used within the repage() method of SakaiPageableElement
+  getFilteredDataBeforeRepaging() {
+    return this.data.filter(t => t.visible);
+  }
+
   filter(f) {
 
     this.currentFilter = f;

@@ -66,13 +66,18 @@ export class SakaiPageableElement extends LitElement {
     this._loadDataPage(e.detail.page);
   }
 
+  // Override this method in components that extend SakaiPageableElement to apply custom data filtering before re-paging.
+  getFilteredDataBeforeRepaging() {
+    return this.data;
+  }
+
   repage() {
 
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
-    const visibleData = this.data.filter(t => t.visible);
-    this.dataPage = visibleData.slice(start, end);
-    this.count = Math.ceil(visibleData.length / this.pageSize);
+    const filteredData = this.getFilteredDataBeforeRepaging();
+    this.dataPage = filteredData.slice(start, end);
+    this.count = Math.ceil(filteredData.length / this.pageSize);
     this.requestUpdate();
   }
 
