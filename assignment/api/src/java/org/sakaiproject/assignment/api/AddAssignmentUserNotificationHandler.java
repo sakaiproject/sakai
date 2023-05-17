@@ -69,7 +69,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
 
     @Override
     public List<String> getHandledEvents() {
-        return Arrays.asList(EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS,EVENT_AVAILABLE_ASSIGNMENT);
+        return Arrays.asList(EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS, EVENT_AVAILABLE_ASSIGNMENT);
     }
 
     @Override
