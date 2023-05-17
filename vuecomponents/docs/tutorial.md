@@ -17,9 +17,9 @@ prefix: `avatar.vue` => `<sakai-avatar></sakai-avatar>` / `<sakai-avatar/>`
 
 You might have a better development experience using storybook for developing your component and you can document it right away. Take a look at the [storybook tutorial](storybook.md)!
 
-### Imporve workfolw in Sakai
+### Improve workflow in Sakai
 
-It is possible to deploy your vue componentes directly to your tomcat on file save. To take advantage of this workflow, you will either need to set the TOMCAT_HOME enviornment variable or set the `tomcatPath`variable to point to your tomcat directory directly in the following script: `vuecomponents/tool/src/main/frontend/build-dev.mjs`.
+It is possible to deploy your vue componentes directly to your tomcat on file save. To take advantage of this workflow, you will either need to set the TOMCAT_HOME environment variable or set the `tomcatPath` variable to point to your tomcat directory directly in the following script: `vuecomponents/tool/src/main/frontend/build-dev.mjs`.
 
 To start auto-deploying your component changes you will need to run `npm run build-dev` (from frontend directory).
 

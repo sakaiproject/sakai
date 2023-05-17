@@ -23,7 +23,7 @@ Due to dropping IE support with vue 3, this will be a thing of the past, when up
 2. Restart your tomcat
 3. Make sure your bundles name is not conflicting with the bundle of another tool or a component's bundle in `webcomponents/bundle/src/main/bundle`
 4. Check if your bundle is in a look at the bundles in `tomcat/lib/vuecomponents-bundle-XX-SNAPSHOT.jar`
-5. Delete the jar containg the bundles `vuecomponents-bundle-23-SNAPSHOT.jar` and redeploy or deploy on a fresh tomcat
+5. Delete the jar containg the bundles `vuecomponents-bundle-22-SNAPSHOT.jar` and redeploy or deploy on a fresh tomcat
 
 ## We want more!
 
