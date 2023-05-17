@@ -148,7 +148,7 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
             URL requestUrl = new URL(request.getRequestURL().toString());
 
             String startLink = UriComponentsBuilder.newInstance()
-                    .scheme("http")
+                    .scheme(requestUrl.getProtocol())
                     .host(requestUrl.getHost())
                     .port(requestUrl.getPort())
                     .path(LOGIN_SERVLET_PATH)

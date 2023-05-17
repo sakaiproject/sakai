@@ -2,7 +2,8 @@
 
 const siteId = "IS_NOT_NEEDED";
 const formId = "takeAssessmentForm";
-const sebProtocol = "seb:";
+// Replacing http: to seb: and https: to sebs:
+const sebProtocol = window.location.protocol.replace('http','seb');
 const startButtonId = formId + ":restViewHidden";
 const launchSebLinkId = "sebLaunchSeb";
 const downloadSebLink = seb.downloadLink;
