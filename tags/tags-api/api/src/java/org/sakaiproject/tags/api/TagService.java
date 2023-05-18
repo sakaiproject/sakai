@@ -22,6 +22,8 @@
 
 package org.sakaiproject.tags.api;
 
+import java.util.List;
+
 /**
  * The interface for the tags service.
  */
@@ -30,7 +32,6 @@ public interface TagService {
     public void init();
 
     public void destroy();
-
 
     /**
      * Return the tags sub-service.
@@ -57,4 +58,8 @@ public interface TagService {
      */
     public int getMaxPageSize();
 
+    public void saveTagAssociation(String itemId, String tagId);
+    public List<String> getTagAssociationIds(String itemId);
+    public List<Tag> getAssociatedTagsForItem(String itemId);
+    public void updateTagAssociations(String siteId, String assignmentId, List<String> tagIds);
 }
