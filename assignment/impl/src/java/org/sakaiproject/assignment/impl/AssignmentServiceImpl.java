@@ -1118,7 +1118,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
 
                 // copy tags
-                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", false)) {
+                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
                     List<String> tagIds = tagService.getTagAssociationIds(assignmentId);
                     tagService.updateTagAssociations(assignment.getContext(), assignment.getId(), tagIds);
                 }

@@ -124,7 +124,7 @@ export default {
       const tag = {
         name: newTag,
         code: newTag
-      }
+      };
       this.options.push(tag);
       if (isSelected){
         this.value.push(tag);
