@@ -60,6 +60,10 @@
             <groupId>org.sakaiproject.rubrics</groupId>
             <artifactId>rubrics-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
+        </dependency>
         <!-- ScoringService integration -->
         <dependency>
             <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
