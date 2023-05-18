@@ -76,6 +76,11 @@ public interface MessageForumsForumManager {
     public BaseForum getForumByUuid(String forumId);
 
     /**
+     * Retrieve FAQ Forum from a given area
+     */
+    public DiscussionForum getFaqForumForArea(Area area);
+
+    /**
      * Create and save an empty discussion forum
      * @return discussion forum
      */
