@@ -32,6 +32,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{evaluationMessages.retake_heading}"/></title>
+      <script src="/library/js/spinner.js"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->
@@ -50,7 +51,7 @@
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.RetakeAssessmentListener" />
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         </h:commandButton>
-        <h:commandButton id="retakeGoToSettings" value="#{evaluationMessages.allow_retake_go_to_settings}" type="submit" styleClass="active" action="editPublishedAssessmentSettings" rendered="#{!retakeAssessment.isAvailable()}" >
+        <h:commandButton id="retakeGoToSettings" value="#{evaluationMessages.allow_retake_go_to_settings}" type="submit" styleClass="active" action="editPublishedAssessmentSettings" rendered="#{!retakeAssessment.isAvailable()}" onclick="SPNR.disableControlsAndSpin(this, null);">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.RetakeAssessmentListener" />
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
         </h:commandButton>
