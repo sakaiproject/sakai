@@ -40,6 +40,7 @@
             </activation>
             <properties>
                 <sakai.skip.tests>false</sakai.skip.tests>
+                <sakai.skip.phase>test</sakai.skip.phase>
             </properties>
         </profile>
         <profile>
@@ -51,6 +52,7 @@
             <id>skip-tests</id>
             <properties>
                 <sakai.skip.tests>true</sakai.skip.tests>
+                <sakai.skip.phase>none</sakai.skip.phase>
             </properties>
         </profile>
     </profiles>

@@ -1111,3 +1111,18 @@ ASN.grab = function (selectedItem) {
     $(li).removeClass("grabbing_cursor");
     $(li).addClass("grab_cursor");
 }
+
+ASN.getShadowTags = function () {
+    const tagSelector = document.getElementById('tag_selector');
+    if (tagSelector) {
+      tagSelector.value = Array.from(document.querySelector("sakai-tag-selector").shadowRoot.querySelectorAll('input[name="tag[]"'), el => el.value);
+    }
+}
+
+ASN.clearShadowTags = function () {
+    const tagSelector = document.getElementById('tag_selector');
+    if (tagSelector) {
+      tagSelector.value = '';
+      document.querySelector("sakai-tag-selector").shadowRoot.querySelectorAll('input[name="tag[]"').forEach((elem) => elem.remove());
+    }
+}
