@@ -323,7 +323,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE = "exclude_value";
     private static final String SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT = "review_service_eula_agreement";
     private static final String SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT = "review_check_service_eula_agreement";
-    private static final String SUBMISSION_REVIEW_EULA_AGREEMENT_LINK = "review_service_eula_agreement_link";
 
     // Video Submissions
     private static final String VIDEO_SUBMISSION_PARAM = "video-submission";
@@ -14966,57 +14965,6 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
     } // doCancel_options
-
-    /**
-     * handle submission options
-     */
-    public void doSubmission_search_option(RunData data, Context context) {
-        SessionState state = ((JetspeedRunData) data)
-                .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-        // read the search form field into the state object
-        String searchOption = StringUtils.trimToNull(data.getParameters().getString("option"));
-
-        // set the flag to go to the prev page on the next list
-        if (searchOption != null && "submit".equals(searchOption)) {
-            doSubmission_search(data, context);
-        } else if (searchOption != null && "clear".equals(searchOption)) {
-            doSubmission_search_clear(data, context);
-        }
-
-    } // doSubmission_search_option
-
-    /**
-     * Handle the submission search request.
-     */
-    public void doSubmission_search(RunData data, Context context) {
-        SessionState state = ((JetspeedRunData) data)
-                .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-        // read the search form field into the state object
-        String search = StringUtils.trimToNull(data.getParameters().getString(
-                FORM_SEARCH));
-
-        // set the flag to go to the prev page on the next list
-        if (search == null) {
-            state.removeAttribute(STATE_SEARCH);
-        } else {
-            state.setAttribute(STATE_SEARCH, search);
-        }
-
-    } // doSubmission_search
-
-    /**
-     * Handle a Search Clear request.
-     */
-    public void doSubmission_search_clear(RunData data, Context context) {
-        SessionState state = ((JetspeedRunData) data)
-                .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-        // clear the search
-        state.removeAttribute(STATE_SEARCH);
-
-    } // doSubmission_search_clear
 
     protected void letterGradeOptionsIntoContext(Context context) {
         String lOptions = serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
