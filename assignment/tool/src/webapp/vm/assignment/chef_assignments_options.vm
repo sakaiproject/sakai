@@ -29,6 +29,21 @@
 				</label>
             </div>
 		</fieldset>
+		<fieldset class="indnt2">
+			<legend><h3>$tlang.getString("tags_option_students")</h3></legend>
+			<div class="checkbox">
+				<label for="show_tags_student_default">
+					<input type="radio" id="show_tags_student_default" name="show_tags_student" #if(!$show_tags_student)checked#end value="false"/>
+					$tlang.getString("tags_option_students_default")
+				</label>
+			</div>
+			<div class="checkbox">
+				<label for="show_tags_student">
+					<input type="radio" id="show_tags_student" name="show_tags_student" #if($show_tags_student)checked#end value="true"/>
+					$tlang.getString("tags_option_students_yes")
+				</label>
+			</div>
+		</fieldset>
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doUpdate_options" id = "eventSubmit_doUpdate_option_default" value="$tlang.getString("update")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="submit" name="eventSubmit_doCancel_options" value="$tlang.getString("gen.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );"/>
