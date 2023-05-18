@@ -160,6 +160,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
@@ -246,6 +247,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Resource private UserMessagingService userMessagingService;
     @Setter private UserTimeService userTimeService;
     @Setter private TimeSheetService timeSheetService;
+    @Setter private TagService tagService;
 
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
@@ -1113,6 +1115,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
                 } catch(Exception e){
                     log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+                }
+
+                // copy tags
+                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
+                    List<String> tagIds = tagService.getTagAssociationIds(assignmentId);
+                    tagService.updateTagAssociations(assignment.getContext(), assignment.getId(), tagIds);
                 }
 
                 String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
