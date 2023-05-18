@@ -156,6 +156,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             errors.addAll(checkFormulasOnGlobalVariables(item, service));
             item.getCalculatedQuestion().clearCalculations(); // reset the current set and extract a new one
             errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), instructions, service));
+            createCalculationFromGlobalVariables(item.getCalculatedQuestion());
             errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), corrFeedback, service));
             errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), incorrFeedback, service));
         }
@@ -421,6 +422,19 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
         }
         return errors;
+    }
+
+    /**
+     * Finds the calculations in the global variables and places them in the CalculatedQuestionBean
+     *
+     * @param calculatedQuestionBean
+     */
+    static void createCalculationFromGlobalVariables(CalculatedQuestionBean calculatedQuestionBean) {
+        List<CalculatedQuestionGlobalVariableBean> listcqgvb = calculatedQuestionBean.getGlobalVariablesList();
+        for (CalculatedQuestionGlobalVariableBean cqgvb : listcqgvb) {
+            CalculatedQuestionCalculationBean calc = new CalculatedQuestionCalculationBean(GradingService.AT + cqgvb.getName() + GradingService.AT);
+            calculatedQuestionBean.addCalculation(calc);
+        }
     }
 
     /**
