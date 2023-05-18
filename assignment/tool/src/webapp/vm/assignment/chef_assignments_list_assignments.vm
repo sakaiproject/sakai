@@ -45,6 +45,28 @@
 		</h1>
 	</div>
 
+	<div class="row" >
+	#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddAssignment || $!show_tags_student))
+		<form id="tagFilterForm" name="tagFilterForm" class="inlineForm" method="post" onsubmit="ASN.getShadowTags();return true;" action="#toolForm("AssignmentAction")">
+			<input hidden id="tag_selector" name="tag_selector" />
+			<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
+			
+			<div class="col-md-6">
+				<sakai-tag-selector selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" ></sakai-tag-selector>
+			</div>
+			<div  class="col-md-6">
+				<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"
+						onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
+				#if ($!tag_selector)
+				<input type="submit" id="btnSearchTagsClear" value="$tlang.getString("search_clear")" accesskey="c"
+						onclick="SPNR.disableControlsAndSpin( this, null ); ASN.clearShadowTags(); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
+				#end
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</div>
+		</form>
+	#end
+	</div>
+
 	#if (!$!assignments.hasNext())
 		<div class="sak-banner-info">
 			$tlang.getString("gen.thearecur1")
@@ -216,6 +238,11 @@
 									#end
 								#end
 							</a>
+						</th>
+					#end
+					#if ($!tagsEnabled && ($!allowAddAssignment || $!show_tags_student))
+						<th id="tags" scope="col" class="hidden-xs">
+							<span>$tlang.getString('tags_header')</span>
 						</th>
 					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
@@ -600,6 +627,15 @@
 									#end
 							</td>
 							#end
+							#if ($!tagsEnabled && ($!allowAddAssignment || $!show_tags_student))
+								<td class="tag-header hidden-xs">
+								#if ($tagsMap.containsKey($assignment.getId()))
+									#foreach($tag in $tagsMap.get($assignment.getId()))
+										<span class="badge bg-info">$tag</span>
+									#end
+								#end
+								</td>
+							#end
 							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
 										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" onclick="ASN.checkEnableRemove();" />
@@ -698,6 +734,9 @@
 									<!-- grade scale col -->
 									<td></td>
 								#end
+								#if ($!tagsEnabled && $!show_tags_student)
+									<td class="hidden-xs"></td>
+								#end
 								#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 									<!-- remove col -->
 									<td></td>
@@ -765,6 +804,9 @@
 										#if ($withGrade && $!allowGradeSubmission)
 											<!-- grade scale col -->
 											<td></td>
+										#end
+										#if ($!tagsEnabled && $!show_tags_student)
+											<td class="hidden-xs"></td>
 										#end
 										#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 											<!-- remove col -->
