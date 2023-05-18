@@ -133,8 +133,6 @@
         <dependency>
             <groupId>org.sakaiproject.cardgame</groupId>
             <artifactId>sakai-card-game-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <!-- Spring dependencies -->
         <dependency>
