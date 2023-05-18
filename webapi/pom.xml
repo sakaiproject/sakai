@@ -102,7 +102,10 @@
         <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-util</artifactId>
-            <version>22-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.conversations</groupId>

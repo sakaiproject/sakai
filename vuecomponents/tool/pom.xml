@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>vuecomponents-parent</artifactId>
+        <version>22-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Vue Components Tool</name>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>vuecomponents</artifactId>
+    <packaging>war</packaging>
+
+    <properties>
+        <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+        <frontend-maven-plugin.npmVersion>9.5.1</frontend-maven-plugin.npmVersion>
+        <frontend-maven-plugin.nodeVersion>v18.16.0</frontend-maven-plugin.nodeVersion>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sakai.skip.test.phase>test</sakai.skip.test.phase>
+            </properties>
+        </profile>
+        <profile>
+            <activation>
+                <property>
+                    <name>maven.test.skip</name>
+                </property>
+            </activation>
+            <id>skip-tests</id>
+            <properties>
+                <sakai.skip.test.phase>none</sakai.skip.test.phase>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/main/frontend/node_modules</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>src/main/frontend/target</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <packagingExcludes>
+                        js/*.html
+                    </packagingExcludes>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/frontend/target</directory>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend-maven-plugin.version}</version>
+                <configuration>
+                    <installDirectory>target</installDirectory>
+                    <workingDirectory>src/main/frontend/</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>${frontend-maven-plugin.nodeVersion}</nodeVersion>
+                            <npmVersion>${frontend-maven-plugin.npmVersion}</npmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install dependencies</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>
+                                install --unsafe-perm
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile vue components to webcomponents bundl</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>
+				                run build
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Test vue components</id>
+                        <phase>${sakai.skip.test.phase}</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>
+				                run test
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
