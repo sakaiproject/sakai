@@ -694,7 +694,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           </div>
         ` : ""}
         <div class="action-button-block act">
-          <button accesskey="s"
+          <button id="grader-save-button"
+              accesskey="s"
               class="btn btn-primary active"
               name="save"
               @click=${this.save}
@@ -1078,12 +1079,15 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     const formData = this.getFormData();
     if (formData.valid) {
       formData.set("gradeOption", "retract");
-      this.submitGradingData(formData);
+      const submitPromise = this.submitGradingData(formData);
       const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
       rubricGrading && rubricGrading.save();
       this.savedFeedbackComment = true;
       this.savedPvtNotes = true;
+      return submitPromise;
     }
+
+    return Promise.resolve();
   }
 
   /**
@@ -1104,30 +1108,34 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   submitGradingData(formData) {
 
-    fetch("/direct/assignment/setGrade.json", {
-      method: "POST",
-      cache: "no-cache",
-      credentials: "same-origin",
-      body: formData,
-    }).then(r => r.json()).then(data => {
+    return new Promise(resolve => {
 
-      const submission = new Submission(data, this.groups, this.i18n);
+      fetch("/direct/assignment/setGrade.json", {
+        method: "POST",
+        cache: "no-cache",
+        credentials: "same-origin",
+        body: formData,
+      })
+      .then(r => r.json()).then(data => {
 
-      submission.grade = formData.get("grade");
+        const submission = new Submission(data, this.groups, this.i18n);
 
-      this.querySelector("sakai-grader-file-picker").reset();
-      this.submissions.splice(this.submissions.findIndex(s => s.id === submission.id), 1, submission);
-      this.originalSubmissions.splice(this.originalSubmissions.findIndex(s => s.id === submission.id), 1, submission);
-      this.modified = false;
-      this.submission = submission;
-      this.totalGraded = this.submissions.filter(s => s.graded).length;
-      this.saveSucceeded = true;
-      setTimeout(() => this.saveSucceeded = false, 2000);
-    }).catch(e => {
+        submission.grade = formData.get("grade");
 
-      console.error(`Failed to save grade for submission ${this.submission.id}: ${e}`);
-      this.saveFailed = true;
-      setTimeout(() => this.saveFailed = false, 2000);
+        this.querySelector("sakai-grader-file-picker").reset();
+        this.submissions.splice(this.submissions.findIndex(s => s.id === submission.id), 1, submission);
+        this.originalSubmissions.splice(this.originalSubmissions.findIndex(s => s.id === submission.id), 1, submission);
+        this.modified = false;
+        this.totalGraded = this.submissions.filter(s => s.graded).length;
+        this.submission = submission;
+        this.saveSucceeded = true;
+        setTimeout(() => { this.saveSucceeded = false; resolve(); }, 2000);
+      }).catch(e => {
+
+        console.error(`Failed to save grade for submission ${this.submission.id}: ${e}`);
+        this.saveFailed = true;
+        setTimeout(() => this.saveFailed = false, 2000);
+      });
     });
   }
 
@@ -1148,9 +1156,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   cancel() {
 
-    if (!this.canNavigate()) {
-      return;
-    }
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this.submission.id));
     const i = this.submissions.findIndex(s => s.id === this.submission.id);
     this.submissions.splice(i, 1, originalSubmission);
@@ -1194,20 +1199,22 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return true;
   }
 
-  canNavigate() {
+  saveIfNecessary() {
 
     // Deal with the right pane not present
     const nFiles = this.querySelector("sakai-grader-file-picker")?.files.length;
-    return this.modified || nFiles
-      ? (confirm(this.i18n.confirm_discard_changes) ? this.clearSubmission() : false) : true;
+    if (this.modified || nFiles) {
+      return this.save();
+    }
+    return Promise.resolve();
   }
 
   toStudentList(e) {
 
     e.preventDefault();
-    if (this.canNavigate()) {
+    this.saveIfNecessary().then(() => {
       location.href = this.userListUrl;
-    }
+    });
   }
 
   validateGradeInput(e) {
@@ -1254,23 +1261,21 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
 
     if (currentIndex >= 1) {
-      if (!this.canNavigate()) {
-        return;
-      }
-      if (this.feedbackTextEditor) {
-        this.toggleInlineFeedback(null, true);
-      }
-      this.submission = this.submissions[currentIndex - 1];
+      this.saveIfNecessary().then(() => {
+
+        if (this.feedbackTextEditor) {
+          this.toggleInlineFeedback(null, true);
+        }
+        this.submission = this.submissions[currentIndex - 1];
+      });
     }
   }
 
   studentSelected(e) {
 
-    if (!this.canNavigate()) {
-      return;
-    }
-
-    this.submission = this.submissions.find(s => s.id === e.target.value);
+    this.saveIfNecessary().then(() => {
+      this.submission = this.submissions.find(s => s.id === e.target.value);
+    });
   }
 
   next() {
@@ -1278,13 +1283,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
 
     if (currentIndex < this.submissions.length - 1) {
-      if (!this.canNavigate()) {
-        return;
-      }
-      if (this.feedbackTextEditor) {
-        this.toggleInlineFeedback(null, true);
-      }
-      this.submission = this.submissions[currentIndex + 1];
+      this.saveIfNecessary().then(() => {
+
+        if (this.feedbackTextEditor) {
+          this.toggleInlineFeedback(null, true);
+        }
+        this.submission = this.submissions[currentIndex + 1];
+      });
     }
   }
 
