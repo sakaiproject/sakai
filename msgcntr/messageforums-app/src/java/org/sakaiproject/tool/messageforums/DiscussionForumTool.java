@@ -315,6 +315,8 @@ public class DiscussionForumTool {
   private static final String AUTOCREATE_TOPICS_ROLES_DESCRIPTION = "cdfm_autocreate_topics_desc_roles";
   private static final String AUTOCREATE_TOPICS_GROUPS_DESCRIPTION = "cdfm_autocreate_topics_desc_groups";
   private static final String DUPLICATE_COPY_TITLE = "cdfm_duplicate_copy_title";
+  private static final String MSG_PVT_ANSWER_PREFIX = "pvt_answer_title_prefix";
+  private static final String MSG_PVT_QUESTION_PREFIX = "pvt_question_title_prefix";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   /**
@@ -4285,12 +4287,34 @@ public class DiscussionForumTool {
   
   public String processDfMsgReplyMsg()
   {
-	  selectedMessageCount  = 0;
-    if(selectedMessage.getMessage().getTitle() != null && !selectedMessage.getMessage().getTitle().startsWith(getResourceBundleString(MSG_REPLY_PREFIX)))
-	  this.composeTitle = getResourceBundleString(MSG_REPLY_PREFIX) + " " + selectedMessage.getMessage().getTitle() + " ";
-    else
-      this.composeTitle = selectedMessage.getMessage().getTitle();
-  	
+	  selectedMessageCount = 0;
+
+    boolean isFaqForum = Boolean.TRUE.equals(selectedTopic.getTopic().getFaqTopic());
+
+    String replyPrefix = getResourceBundleString(MSG_REPLY_PREFIX);
+    String answerPrefix = getResourceBundleString(MSG_PVT_ANSWER_PREFIX);
+    String questionPrefix = getResourceBundleString(MSG_PVT_QUESTION_PREFIX);
+    String title = StringUtils.trim(selectedMessage.getMessage().getTitle());
+
+    if (StringUtils.startsWith(title, replyPrefix)) {
+        // Re: title --> Re: title
+        this.composeTitle = title;
+    } else if (isFaqForum) {
+        if (StringUtils.startsWith(title, questionPrefix)) {
+            // Q: title -> A: title
+            this.composeTitle = StringUtils.replace(title, questionPrefix, answerPrefix);
+        } else {
+            // title --> Re: title
+            // A: title --> Re: A: title
+            this.composeTitle = replyPrefix + " " + title;
+        }
+    } else {
+        // title --> Re: title
+        // A: title --> Re: A: title
+        // Q: title --> Re: Q: title
+        this.composeTitle = replyPrefix + " " + title;
+    }
+
     return "dfMessageReply";
   }
 

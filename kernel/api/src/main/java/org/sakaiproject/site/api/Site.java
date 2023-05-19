@@ -70,6 +70,11 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_SITE_MATHJAX_ALLOWED = "mathJaxAllowed";
 
 	/**
+	 * property name for site locale
+	 */
+	public final static String PROP_SITE_LOCALE = "locale_string";
+
+	/**
 	 * property name for custom overview
 	 */
 	public final static String PROP_CUSTOM_OVERVIEW = "custom_overview";
