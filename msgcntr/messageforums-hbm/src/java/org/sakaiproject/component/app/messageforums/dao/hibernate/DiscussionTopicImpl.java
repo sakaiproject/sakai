@@ -22,6 +22,8 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
  
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
@@ -42,6 +44,8 @@ public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopi
     private String gradebook;
     private String gradebookAssignment;
     private Boolean restrictPermissionsForGroups;
+    @Getter @Setter
+    private Boolean faqTopic;
 
     public ActorPermissions getActorPermissions() {
         return actorPermissions;

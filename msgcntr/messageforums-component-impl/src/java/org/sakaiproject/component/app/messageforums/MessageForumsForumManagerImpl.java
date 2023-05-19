@@ -28,6 +28,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -76,6 +79,9 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
+import org.springframework.cglib.core.Local;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -137,6 +143,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_TOPICS_WITH_MSGS_AND_ATTACHMENTS_AND_MEMBERSHIPS_FOR_FORUM = "findTopicsWithMessagesMembershipAndAttachmentsForForum";
 
     private static final String QUERY_FORUMS_FOR_MAIN_PAGE = "findForumsForMainPage";
+    private static final String QUERY_FAQ_FORUMS = "findFaqForums";
             
     private static final String QUERY_BY_TOPIC_ID = "findTopicById";
     private static final String QUERY_OPEN_BY_TOPIC_AND_PARENT = "findOpenTopicAndParentById";
@@ -154,6 +161,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME = "findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelName";
     
     private static final String QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS = "findForumByIdWithTopicsAndAttachmentsAndMessages";
+
+    private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
 
     /** Sorts the forums by the sort index and if the same index then order by the creation date */
     public static final Comparator FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC = new ForumBySortIndexAscAndCreatedDateDesc();
@@ -692,8 +701,51 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setPostFirst(Boolean.FALSE);
         forum.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
         forum.setRestrictPermissionsForGroups(Boolean.FALSE);
+        forum.setFaqForum(Boolean.FALSE);
         log.debug("createDiscussionForum executed");
         return forum;
+    }
+
+    public DiscussionForum getFaqForumForArea(Area area) {
+        HibernateCallback<DiscussionForum> hibernateCallback = (session) -> {
+            Query<DiscussionForum> query = session.getNamedQuery(QUERY_FAQ_FORUMS);
+            query.setParameter("typeUuid", area.getTypeUuid());
+            query.setParameter("contextId", area.getContextId());
+
+            return query.list().stream().findAny().orElse(null);
+        };
+
+        DiscussionForum existingFaqForum = getHibernateTemplate().execute(hibernateCallback);
+        return existingFaqForum != null ? existingFaqForum : createFaqForum(area);
+    }
+
+    public DiscussionTopic getFaqTopicForForum(DiscussionForum faqForum) {
+        if (faqForum == null) {
+            return null;
+        }
+
+        Set<DiscussionTopic> faqForumTopics = faqForum.getTopicsSet();
+        if (faqForumTopics == null) {
+            return null;
+        }
+
+        return faqForumTopics.stream()
+                .filter(topic -> Boolean.TRUE.equals(topic.getFaqTopic()))
+                .findAny().orElse(null);
+    }
+
+    public DiscussionForum getOrCreateFaqForumForArea(Area area) {
+        DiscussionForum existingFaqForum = getFaqForumForArea(area);
+        return existingFaqForum != null
+                ? existingFaqForum
+                : createFaqForum(area);
+    }
+
+    public DiscussionTopic getOrCreateFaqTopicForForum(DiscussionForum discussionForum) {
+        DiscussionTopic existingFaqTopic = getFaqTopicForForum(discussionForum);
+        return existingFaqTopic != null
+                ? existingFaqTopic
+                : createFaqTopic(discussionForum);
     }
 
     public ActorPermissions createDefaultActorPermissions()
@@ -710,6 +762,52 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
        return actorPermissions;
     }
     
+    // Create a new FAQ forum based on defaults
+    public DiscussionForum createFaqForum(Area discussionArea) {
+        log.debug("Creating a new FAQ Forum");
+
+        // Get site locale first, use server locale as fallback
+        Locale locale = siteService.getSiteLocale(discussionArea.getContextId()).orElse(Locale.getDefault());
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE, locale);
+
+        DiscussionForum createdForum = createDiscussionForum();
+        createdForum.setArea(discussionArea);
+        createdForum.setCreatedBy(UserDirectoryService.ADMIN_ID);
+        createdForum.setTitle(resourceBundle.getString("cdfm_faq_forum_title"));
+        createdForum.setShortDescription(resourceBundle.getString("cdfm_faq_forum_description"));
+        createdForum.setModerated(discussionArea.getModerated());
+        createdForum.setPostFirst(discussionArea.getPostFirst());
+        createdForum.setFaqForum(Boolean.TRUE);
+
+        DiscussionForum savedForum = saveDiscussionForum(createdForum);
+
+        DiscussionTopic discussionTopic = createFaqTopic(savedForum);
+
+        savedForum.addTopic(discussionTopic);
+
+        return savedForum;
+    }
+
+    // Create a new FAQ topic based on defaults
+    public DiscussionTopic createFaqTopic(DiscussionForum discussionForum) {
+        log.debug("Creating a new FAQ Topic");
+
+        // Get site locale first, use server locale as fallback
+        Locale locale = siteService.getSiteLocale(discussionForum.getArea().getContextId()).orElse(Locale.getDefault());
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE, locale);
+
+        DiscussionTopic createdTopic = createDiscussionForumTopic(discussionForum);
+        createdTopic.setTitle(resourceBundle.getString("cdfm_faq_topic_title"));
+        createdTopic.setShortDescription(resourceBundle.getString("cdfm_faq_topic_description"));
+        createdTopic.setCreatedBy(UserDirectoryService.ADMIN_ID);
+        createdTopic.setFaqTopic(Boolean.TRUE);
+        createdTopic.setBaseForum(discussionForum);
+
+        DiscussionTopic savedTopic = saveDiscussionForumTopic(createdTopic, false);
+
+        return savedTopic;
+    }
+
     /**
      * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#createPrivateForum(java.lang.String)
      */
@@ -869,6 +967,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setRevealIDsToRoles(Boolean.FALSE);
         topic.setAutoMarkThreadsRead(forum.getAutoMarkThreadsRead());
         topic.setRestrictPermissionsForGroups(Boolean.FALSE);
+        topic.setFaqTopic(Boolean.FALSE);
         log.debug("createDiscussionForumTopic executed");
         return topic;
     }

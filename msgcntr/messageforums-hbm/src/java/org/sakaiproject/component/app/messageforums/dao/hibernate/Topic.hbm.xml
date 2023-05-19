@@ -191,6 +191,9 @@
 	    <property name="restrictPermissionsForGroups">
 	      <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" default="0" />
 	    </property>
+	    <property name="faqTopic">
+	      <column name="IS_FAQ_TOPIC" not-null="true" default="0" />
+	    </property>
 	    <!-- 
 	    <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
 	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
