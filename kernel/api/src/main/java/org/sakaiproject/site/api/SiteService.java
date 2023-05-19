@@ -23,7 +23,9 @@ package org.sakaiproject.site.api;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Entity;
@@ -1415,4 +1417,16 @@ public interface SiteService extends EntityProducer
 	 * @return true if the stealthed tool is present in the given site; false otherwise
 	 */
 	public boolean isStealthedToolPresent(Site site, String toolID);
+
+	/**
+	 * Gets site locale for site id
+	 * @return Optional of locale defined as site property
+	 */
+	public Optional<Locale> getSiteLocale(String siteId);
+
+	/**
+	 * Gets site locale for site
+	 * @return Optional of locale defined as site property
+	 */
+	public Optional<Locale> getSiteLocale(Site site);
 }
