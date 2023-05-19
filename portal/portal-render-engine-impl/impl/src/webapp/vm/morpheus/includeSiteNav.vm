@@ -1,13 +1,7 @@
 #macro( siteListItem $type $site $isExpanded)
 
-    #if ($type == "home")
-        #set ($index = "home")
-    #elseif ($type == "gateway")
-        #set ($index = "gateway")
-    #else
-        #set ($index = $site.id)
-    #end
-        
+    ## Remove those special site chars. They don't play well with html attributes.
+    #set ($safeSiteId = $site.id.replace("!", "").replace("~", ""))
 
     #if ($site.isPinned)
         #set ($pinTitle = $rloader.sitenav_btn_unpin)
@@ -19,20 +13,19 @@
 
     #if ($site.isCurrent)
         #set ($currentSiteClass = "is-current-site mt-2 fw-bold")
-        ##set ($isExpanded = "true")
     #else
         #set ($currentSiteClass = "")
         #set ($isExpanded = "false")
     #end
 
-    <li id="site-list-${type}-item-${site.id}" class="site-list-item py-1 $!{currentSiteClass}" data-type="${type}" data-site="${site.id}">
+    <li id="site-list-${type}-item-${safeSiteId}" class="site-list-item py-1 $!{currentSiteClass}" data-type="${type}" data-site="${site.id}">
         <div class="site-list-item-head d-flex align-items-center pe-2 py-1 w-100 justify-content-between">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
                 <button class="btn icon-button collapsed me-1"
                         data-bs-toggle="collapse"
-                        data-bs-target="#${type}-site-${index}-page-list"
+                        data-bs-target="#${type}-site-${safeSiteId}-page-list"
                         aria-expanded="${isExpanded}"
-                        aria-controls="${type}-site-${index}-page-list">
+                        aria-controls="${type}-site-${safeSiteId}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
                 <a href="$site.url" class="text-break">${site.title}</a>
@@ -46,7 +39,7 @@
                 </button>
             #end
         </div>
-        <div id="${type}-site-${index}-page-list" class="site-list-item-collapse collapse">
+        <div id="${type}-site-${safeSiteId}-page-list" class="site-list-item-collapse collapse">
             <ul class="site-page-list nav flex-column py-1 mb-2">
             #foreach ( $page in $site.pages )
                 #if ($site.isCurrent)
