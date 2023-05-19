@@ -1458,6 +1458,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	      }
 	  }
 
+      sendToString = sendToString
+              .replaceAll(getResourceBundleString("pvt_bccUndisclosed"), "")
+              // remove trailing spaces and semicolons
+              .replaceAll("[;\\s]+$", "");
+
 	  body.insert(0, "<p>" + getResourceBundleString("pvt_email_to", new Object[] {sendToString}) + "<p/>");
 
 	  if (message.getAttachments() != null && message.getAttachments().size() > 0) {
