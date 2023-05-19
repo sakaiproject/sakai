@@ -49,6 +49,7 @@
 <!--jsp/privateMsg/pvtMsgDetail.jsp-->
 <%--			<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> --%> 
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
+            <h:outputText value="#{PrivateMessagesTool.multiDeleteSuccessMsg}" styleClass="sak-banner-success" rendered="#{PrivateMessagesTool.multiDeleteSuccess}" />
 
 <h:panelGrid columns="2" width="100%" styleClass="navPanel specialLink">
 	<h:panelGroup>
@@ -100,6 +101,8 @@
             <%--SAK-10505 add forward --%>
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReplyAll}" value="#{msgs.pvt_repmsg_ALL}" accesskey="r" /><h:commandButton action="#{PrivateMessagesTool.processPvtMsgForward}" value="#{msgs.pvt_forwardmsg}" accesskey="r"/>
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" accesskey="m" />
+            <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPublishToFaqEdit}" value="#{msgs.pvt_publish_to_faq}"
+                    rendered="#{PrivateMessagesTool.detailMessagePublishableToFaq && mfPublishToFaqBean.canPost}" accesskey="m" />
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}"  />
         </sakai:button_bar>
 
@@ -240,6 +243,8 @@
             <%--SAKAI-10505 add forward--%>
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReplyAll}" value="#{msgs.pvt_repmsg_ALL}" accesskey="r" /><h:commandButton action="#{PrivateMessagesTool.processPvtMsgForward}" value="#{msgs.pvt_forwardmsg}" accesskey="r"/>
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" accesskey="m" />
+            <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPublishToFaqEdit}" value="#{msgs.pvt_publish_to_faq}"
+                    rendered="#{PrivateMessagesTool.detailMessagePublishableToFaq && mfPublishToFaqBean.canPost}" accesskey="m" />
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}"  />
         </sakai:button_bar>
         <sakai:button_bar rendered="#{PrivateMessagesTool.deleteConfirm}" >
