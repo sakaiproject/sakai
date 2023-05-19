@@ -1,17 +1,9 @@
 .#{$namespace}pageColumns--single {
-	.#{$namespace}toolTitleNav__button_container {
-		@include display-flex;
-		@include align-items(center);
-		margin-top: -27px;			// position the buttons beside the tool title
-		
-		@media #{$phone} {	// position the buttons for mobile
-			margin-top: 0;
-			margin-bottom: -22px;
+  .#{$namespace}toolTitleNav__button_container {
+    &.home {
+      top: 0px;
     }
-      &.home {
-			top: 0px;
-		}
-	}
+  } 
 }
 
 .#{$namespace}multipleTools{
@@ -40,16 +32,6 @@
 
 		.#{$namespace}toolBody {
 			border-bottom: none;
-		}
-	}
-
-	.#{$namespace}toolTitleNav__button_container {
-		@include display-flex;
-		@include align-items(center);
-		margin: 0;		// to override the single column if both single and multiple classes apply to the same element
-
-		@media #{$tablet}{
-			font-size: 1.2em;
 		}
 	}
 
@@ -96,7 +78,7 @@
 				display:    block;
 				background: var(--sakai-background-color-1);
 				width: 250px;
-				margin: 251px 0 0 -250px;
+				margin: -1px 0 0 -250px;
 				z-index: 1000;
 				border: 1px solid var(--sakai-border-color);
 				box-shadow: var(--elevation-3dp);
@@ -122,7 +104,7 @@
 					width: 100%;
 				}
 				@media #{$phone}{
-					margin: -1px 0 0 -214px;
+					margin: -1px 0 0 -124px;
 				}
 			}
 		}

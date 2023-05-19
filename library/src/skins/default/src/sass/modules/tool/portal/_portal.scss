@@ -86,7 +86,28 @@
 
 .non-home-tool-link {
   padding-right: 10.5em;
-  margin-top: -43px !important;
+  height: 45px;
+  margin-bottom: -22px;
+}
+
+.non-home-tool-link-published {
+  margin-top: -37px;
+
+  @media #{$phone} {
+    &.non-home-tool-link-lessons {
+      margin-top: -50px;
+    }
+  }
+}
+
+.non-home-tool-link-unpublished {
+  margin-top: -119px;
+
+  @media #{$phone} {
+    &.non-home-tool-link-lessons {
+      margin-top: -132px;
+    }
+  }
 }
 
 .home-tool-link {
