@@ -16,6 +16,10 @@ TODO Master merge: Remove this file
     flex-wrap: wrap !important;
   }
 
+  &.flex-column {
+    flex-direction: column !important;
+  }
+
   &.justify-content-between {
     justify-content: space-between !important;
   }
@@ -27,5 +31,10 @@ TODO Master merge: Remove this file
   /* https://getbootstrap.com/docs/5.2/utilities/spacing/#maps */
   &.gap-1 {
     gap: $standard-spacing * 0.25 !important;
+  }
+
+  &.form-text {
+    margin-top: $standard-spacing * 0.25;
+    font-size: .875em;
   }
 }
