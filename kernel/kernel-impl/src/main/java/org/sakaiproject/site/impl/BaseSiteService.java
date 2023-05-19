@@ -31,9 +31,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -3964,5 +3966,30 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 
 		return false;
+	}
+
+	public Optional<Locale> getSiteLocale(String siteId) {
+		try {
+			return getSiteLocale(getSite(siteId));
+		} catch (IdUnusedException e) {
+			log.error("Could not find site with id [{}], returning empty optional: {}",
+					siteId, e.toString());
+			return Optional.empty();
+		}
+	}
+
+	public Optional<Locale> getSiteLocale(Site site) {
+		if (site != null) {
+			String localeString = site.getProperties().getProperty(Site.PROP_SITE_LOCALE);
+			if (localeString != null) {
+				Locale locale = serverConfigurationService().getLocaleFromString(localeString);
+				return Optional.of(locale);
+			}
+			// No locale specified in site properties, that's okay
+		} else {
+			log.error("Site is null, returning empty optional: {}");
+		}
+
+		return Optional.empty();
 	}
 }
