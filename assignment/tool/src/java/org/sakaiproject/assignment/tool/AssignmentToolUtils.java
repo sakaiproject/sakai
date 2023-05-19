@@ -679,6 +679,7 @@ public class AssignmentToolUtils {
                 }
             }
         } catch (Exception e) {
+            log.error(e.getMessage());
         }
         return alerts;
     } // integrateGradebook
