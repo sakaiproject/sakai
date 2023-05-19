@@ -142,6 +142,9 @@
       <property name="restrictPermissionsForGroups">
         <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" default="0" />
       </property>
+      <property name="faqForum">
+        <column name="IS_FAQ_FORUM" not-null="true" default="0" />
+      </property>
     </subclass>
 
   </class>
@@ -205,6 +208,15 @@
       left outer join fetch topic.attachmentsSet
       left outer join fetch forum.attachmentsSet
     where forum.typeUuid = :typeUuid and forum.area.contextId = :contextId             
+  ]]></query>
+
+  <query name="findFaqForums"><![CDATA[
+  	select forum
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl forum
+      left outer join fetch forum.topicsSet topic
+      left outer join fetch topic.attachmentsSet
+      left outer join fetch forum.attachmentsSet
+    where forum.typeUuid = :typeUuid and forum.area.contextId = :contextId and forum.faqForum = true
   ]]></query>
 
   <query name="findForumByTypeAndContextWithAllInfo">
