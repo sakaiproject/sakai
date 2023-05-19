@@ -62,6 +62,21 @@
 .portal-header-breadcrumb-separator, .portal-header-breadcrumb-item > a {
   font-size: 16px;
   color: var(--sakai-text-color-inverted) !important;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.portal-header-breadcrumb-separator {
+  font-size: 14px;
+}
+
+#header-site-title {
+  padding-bottom: 2px;
+
+  > a {
+    font-size: 20px;
+  }
 }
 
 // Responsive header for mobile
@@ -77,11 +92,6 @@
     width: 26vw;
     height: auto;
   }
-}
-
-#header-site-title > a {
-  color: white;
-  font-size: 20px;
 }
 
 .non-home-tool-link {
@@ -124,6 +134,10 @@
       font-size: 22px;
     }
   }
+
+  .sakai-accountProfileImage {
+    width: 40px;
+  }
 }
 
 .portal-main-content {
@@ -142,7 +156,7 @@
   overflow-y: auto;
 }
 
-#sakai-accountPanel {
+#sakai-account-panel {
   #sakai-profile-image-block > button {
     border: 1px transparent;
     #sakai-profile-image-change {
@@ -184,9 +198,6 @@
       color: var(--button-primary-active-text-color);
     }
   }
-}
-a[href]:not(.btn):hover {
-  text-decoration: none;
 }
 
 .portal-footer {
@@ -277,9 +288,14 @@ a[href]:not(.btn):hover {
   }
 }
 
-.btn-sidebar-collapse {
+.btn-sidebar-collapse, .btn-logo-button {
   border: none;
   @include button-variant($primary, $light);
+
+  > span {
+    font-size: 28px;
+    color: white;
+  }
 }
 
 .modal-content {
@@ -316,12 +332,19 @@ a[href]:not(.btn):hover {
     color: var(--sakai-pin-hover-color);
   }
 
+  .site-page-list .selected-page {
+    opacity: 0.7;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
   li.site-list-item {
 
     .site-list-item-head {
       button {
         border: 0px;
-        &:focus {
+        &:focus, &:hover {
           border: solid 1px var(--site-nav-btn-current-hover-color);
         }
       }
@@ -347,21 +370,25 @@ a[href]:not(.btn):hover {
 
       .site-list-item-head {
         background-color: var(--sakai-selected-page-bg-color);
+        opacity: 0.9;
 
         .si-pin {
           color: transparent;
+        }
+
+        button {
+          border: 0px;
+          &:focus, &:hover {
+            border: solid 1px var(--sakai-selected-page-color);
+          }
         }
 
         a, button {
           font-size: 16px;
           color: var(--sakai-selected-page-color);
         }
-        button {
-          &:focus {
-            border: solid 1px var(--sakai-selected-page-color);
-          }
-        }
         &:hover {
+          opacity: 1.0;
           .si-pin, a , button {
             color: var(--sakai-selected-page-color);
           }
