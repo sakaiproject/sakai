@@ -131,6 +131,17 @@
                                                 directToolLinkButton.classList.add("home-tool-link");
                                             } else {
                                                 directToolLinkButton.classList.add("non-home-tool-link");
+                                                const unpublishedIndicator = document.getElementById("unpublished-label");
+                                                if (unpublishedIndicator) {
+                                                    directToolLinkButton.classList.add("non-home-tool-link-unpublished");
+                                                }
+                                                else {
+                                                    directToolLinkButton.classList.add("non-home-tool-link-published");
+                                                }
+                                                const lessonsIndicator = document.querySelector(".Mrphs-sakai-lessonbuildertool");
+						if (lessonsIndicator) {
+                                                    directToolLinkButton.classList.add("non-home-tool-link-lessons");
+                                                }
                                             }
                                         }
                                     </script>
