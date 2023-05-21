@@ -4855,7 +4855,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             // other types of submissions
             context.put("form_action", "eventSubmit_doSet_defaultNoSubmissionScore");
-            context.put("form_label", rb.getFormattedMessage("non.submission.grade", state.getAttribute(STATE_NUM_MESSAGES)));
+            context.put("form_label", rb.getFormattedMessage("non.submission.grade", state.getAttribute(STATE_NUM_MESSAGES) != null ? state.getAttribute(STATE_NUM_MESSAGES) : 0));
         }
 
         // show the reminder for download all url
