@@ -240,6 +240,23 @@
 				</div>
 				<div class="row">
 					<div class="col-xs-12 col-sm-2">
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel>
+								<h:outputText styleClass="pvt_read_receipt" value="#{msgs.pvt_read_receipt_label}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+						<h:panelGroup styleClass="checkbox">
+							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanReadReceipt}" id="read_receipt" ></h:selectBooleanCheckbox>
+							<h:outputLabel for="read_receipt">
+								<h:outputText value="#{msgs.pvt_read_receipt_text}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-2">
 						<h:panelGroup  styleClass="shorttext">
 							<h:outputLabel for="viewlist" >
 								<h:outputText value="#{msgs.pvt_label}"/>
