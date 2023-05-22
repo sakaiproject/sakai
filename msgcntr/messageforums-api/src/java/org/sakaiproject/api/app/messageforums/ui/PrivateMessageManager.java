@@ -120,9 +120,10 @@ public interface PrivateMessageManager {
      * @param message
      * @param recipients
      * @param asEmail
+     * @param readReceipt
      */
-    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail);
-    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients);
+    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, boolean readReceipt);
+    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients, boolean readReceipt);
     
     
     /**
@@ -240,5 +241,7 @@ public interface PrivateMessageManager {
     public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg);
     /** advanced search for private messages */ 
     public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, String selectedLabel, boolean searchByText, boolean searchByAuthor,boolean searchByBody, boolean searchByLabel,boolean searchByDate);
+
+    public PrivateMessage getPrivateMessageByDecryptedId(String id) throws MessagingException;
     
 }
