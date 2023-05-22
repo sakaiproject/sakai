@@ -335,6 +335,8 @@ public class PrivateMessagesTool {
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
   @Setter
   private boolean booleanEmailOut = ServerConfigurationService.getBoolean("mc.messages.ccEmailDefault", false);
+  @Getter @Setter
+  private boolean booleanReadReceipt;
   @Getter
   private String composeSubject;
   @Getter
@@ -1719,6 +1721,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     this.setBooleanSchedulerSend(false);
     this.setOpenDate("");
     this.setSchedulerSendDateString("");
+    this.setBooleanReadReceipt(false);
   }
   
   public String processPvtMsgPreview(){
@@ -1814,7 +1817,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    return processPvtMsgComposeCancel();
     } else {
 	    PrivateMessageSchedulerService.removeScheduledReminder(pMsg.getId());
-	    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail);
+	    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail, booleanReadReceipt);
     }
     // if you are sending a reply 
     Message replying = pMsg.getInReplyTo();
@@ -1948,7 +1951,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
     List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
 
     //reset contents
     resetComposeContents();
@@ -2441,9 +2444,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
 		    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-		    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+		    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
         } else {
-            prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
+            prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
         }
 
     	if(!rrepMsg.getDraft()){
@@ -2829,9 +2832,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
 		    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-		    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+		    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
 	    } else {
-	        prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
+	        prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
         }
 
     	if(!rrepMsg.getDraft()){
@@ -3121,9 +3124,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
                 List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
                 List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-                prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+                prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
 	        } else {
-	            prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail());
+	            prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail(), booleanReadReceipt);
 	        }
 
 		  if(!rrepMsg.getDraft()){
