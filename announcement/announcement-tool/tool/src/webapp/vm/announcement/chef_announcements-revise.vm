@@ -75,7 +75,11 @@ function resizeFrame(){
                             class="btn btn-primary multiselect dropdown-toggle"
                             data-bs-toggle="dropdown">
                         <span class="multiselect-selected-text"></span>
+                        <i class="si si-caret-down-fill ps-2"></i>
                     </button>
+                `,
+                filter: `
+                    <div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
                 `,
             },
         });
