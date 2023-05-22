@@ -21,6 +21,7 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -110,9 +111,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 @Slf4j
 public class PrivateMessageManagerImpl extends HibernateDaoSupport implements PrivateMessageManager {
@@ -1613,8 +1611,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       messageCreator = userDirectoryService.getUser(pvtMessage.getCreatedBy());
     } catch (UserNotDefinedException e) { }
 
-    DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-    String bodyString = rb.getFormattedMessage("pvt_read_receipt_email", user.getEid(), pvtMessage.getTitle(), df.format(new Date()));
+    SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
+    String bodyString = rb.getFormattedMessage("pvt_read_receipt_email", user.getEid(), pvtMessage.getTitle(), formatter_date.format(new Date()));
     
     emailService.sendToUser(messageCreator, additionalHeaders, bodyString);
     eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT, getEventMessage(pvtMessage), false));
