@@ -293,6 +293,3 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 
 --MSGCNTR-569
 alter table MFR_TOPIC_T modify CONTEXT_ID varchar(255);
-
---S2U-29
-alter table MFR_PVT_MSG_USR_T add READ_RECEIPT bit(1) DEFAULT null;
