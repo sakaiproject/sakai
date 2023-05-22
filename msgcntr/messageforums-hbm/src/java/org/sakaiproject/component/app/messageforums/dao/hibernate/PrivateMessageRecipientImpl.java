@@ -31,6 +31,7 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
   private Boolean read;
   private Boolean bcc;
   private Boolean replied;
+  private Boolean readReceipt;
   
   /**
    * default constructor
@@ -51,6 +52,7 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
     this.read = read;
     this.bcc = bcc;
     this.replied = false;
+    this.readReceipt = true;
   }
   
   /**
@@ -118,6 +120,16 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
   public void setReplied(Boolean replied)
   {
     this.replied = replied;
+  }
+  
+  public Boolean getReadReceipt()
+  {
+    return readReceipt;
+  }
+  
+  public void setReadReceipt(Boolean readReceipt)
+  {
+    this.readReceipt = readReceipt;
   }
   
   /**
