@@ -99,9 +99,11 @@
 
 	 <div rsf:id="portletBody" class="portletBody">
 
-		 <div rsf:id="needPermissions" class="sak-banner-error error-spacingabove error-nospacebelow">
-			 <p rsf:id="msg=simplepage.needpermissions"></p>
-			 <a role="button" href="#" rsf:id="callpermissions"></a>
+		 <div rsf:id="needPermissions" class="ui-widget">
+			 <div class="sak-banner-error error-spacingabove error-nospacebelow">
+				 <p rsf:id="msg=simplepage.needpermissions"></p>
+				 <a role="button" href="#" rsf:id="callpermissions"></a>
+			 </div>
 		 </div>
 
 		 <div rsf:id="hiddenAlert" class="ui-widget instruction error-spacingabove error-nospacebelow" role="alert">
@@ -475,11 +477,13 @@
 		  </ul>
 		</div>
 
-		<div rsf:id="error-div" class="ui-widget sak-banner-error error-spacingabove error-nospcebelow" role="alert">
-			<div>
-				<div rsf:id="error"></div>
-				<div rsf:id="errors:">
-				  <p rsf:id="error-message"></p>
+		<div rsf:id="error-div" class="ui-widget">
+			<div class="sak-banner-error error-spacingabove error-nospcebelow" role="alert">
+				<div>
+					<div rsf:id="error"></div>
+					<div rsf:id="errors:">
+					  <p rsf:id="error-message"></p>
+					</div>
 				</div>
 			</div>
 		</div>
