@@ -121,6 +121,9 @@
 		  <property name="replied">
             <column name="REPLIED" not-null="true"/>
           </property>
+          <property name="readReceipt" not-null="false" >
+            <column name="READ_RECEIPT"/>
+          </property>
   	    </composite-element>  	      	    
   	  </list>
   	  
