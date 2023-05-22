@@ -47,5 +47,9 @@ public interface PrivateMessageRecipient
 
   public void setReplied(Boolean replied);
 
+  public Boolean getReadReceipt();
+
+  public void setReadReceipt(Boolean readReceipt);
+
 }
 
