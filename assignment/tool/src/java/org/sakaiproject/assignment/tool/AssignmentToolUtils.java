@@ -679,6 +679,7 @@ public class AssignmentToolUtils {
                 }
             }
         } catch (Exception e) {
+            log.error("An exception occurred while integrating the grading item: {}", e.toString());
         }
         return alerts;
     } // integrateGradebook
