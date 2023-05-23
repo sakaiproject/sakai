@@ -303,7 +303,8 @@
   }
 
   .gb-flag-excused::before {
-    content: '\F4FC';
+    content: '\F1DF';
+    text-decoration-line: line-through;
   }
 
    .gb-flag-external:before {
