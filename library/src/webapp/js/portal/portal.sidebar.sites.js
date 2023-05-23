@@ -35,6 +35,21 @@ class SitesSidebar {
       });
     });
 
+    const update = (siteId, expanded) => {
+
+      fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?currentExpanded=${expanded}&expandedSite=${siteId}`, { method: "PUT" })
+      .then(r => {
+
+        if (!r.ok) {
+          console.error("Could not set current expanded state.");
+        }
+      });
+    };
+
+    const currentCollapseButton = element.querySelector("li.is-current-site .site-list-item-collapse");
+    currentCollapseButton && currentCollapseButton.addEventListener("shown.bs.collapse", () => update(currentCollapseButton.dataset.siteId, "true"));
+    currentCollapseButton && currentCollapseButton.addEventListener("hidden.bs.collapse", () => update(currentCollapseButton.dataset.siteId, "false"));
+
     // TODO: this needs to be implemented at some point. It would remove the annoying 
     // refresh message in the all sites sidebar
     /*

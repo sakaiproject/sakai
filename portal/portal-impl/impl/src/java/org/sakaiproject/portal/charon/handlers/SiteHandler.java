@@ -505,6 +505,10 @@ public class SiteHandler extends WorksiteHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req, site);
 
+		if (toolId != null) {
+			rcontext.put("currentExpanded", true);
+		}
+
 		if ( allowBuffer ) {
 			log.debug("Starting the buffer process...");
 
@@ -556,6 +560,7 @@ public class SiteHandler extends WorksiteHandler
 		
 		if (SiteService.isUserSite(siteId)){
 			rcontext.put("siteTitle", rb.getString("sit_mywor") );
+			rcontext.put("siteUrl", site.getUrl());
 			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
 			rcontext.put("isUserSite", true);
 		}else{
@@ -580,7 +585,7 @@ public class SiteHandler extends WorksiteHandler
 		} catch (Exception any) {
 			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
 		}
-		
+
 		includeSiteNav(rcontext, req, session, siteId);
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
@@ -653,6 +658,7 @@ public class SiteHandler extends WorksiteHandler
 				rcontext.put("quickLinks", quickLinks);
 			}
 		}
+
 
 		doSendResponse(rcontext, res, null);
 
@@ -948,7 +954,9 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 			
 			int tabDisplayLabel = 1;
-			boolean toolsCollapsed = false;
+			boolean sidebarCollapsed = false;
+			boolean currentExpanded = false;
+			String expandedSite = siteId;
 			String selectedPage = "";
 			boolean toolMaximised = false;
 
@@ -967,11 +975,20 @@ public class SiteHandler extends WorksiteHandler
 				}
 
 				try {
-					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
+					sidebarCollapsed = props.getBooleanProperty("sidebarCollapsed");
 				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
-					toolsCollapsed = false;
+					sidebarCollapsed = false;
 				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
-					log.warn("Exception caught whilst getting toolsCollapsed: {}", any.toString());
+					log.warn("Exception caught whilst getting sidebarCollapsed: {}", any.toString());
+				}
+
+				try {
+					currentExpanded = props.getBooleanProperty("currentExpanded");
+					expandedSite = props.getProperty("expandedSite");
+				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
+					currentExpanded = false;
+				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
+					log.warn("Exception caught whilst getting currentExpanded: {}", any.toString());
 				}
 
 				selectedPage = props.getProperty(SELECTED_PAGE_PROP);
@@ -986,7 +1003,10 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("sidebarCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("sidebarCollapsed", Boolean.valueOf(sidebarCollapsed));
+			if (expandedSite.equals(siteId)) {
+				rcontext.put("currentExpanded", Boolean.valueOf(currentExpanded));
+			}
 			rcontext.put(SELECTED_PAGE_PROP, selectedPage);
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
@@ -1018,9 +1038,6 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("allowAddSite",allowAddSite);
 		}
 	}
-
-// XXXX
-
 
 	/*
 	 * Check to see if this request should bypass buffering
