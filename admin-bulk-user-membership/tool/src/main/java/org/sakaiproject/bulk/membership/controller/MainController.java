@@ -206,14 +206,21 @@ public class MainController {
     public String checkToFinalStep(Model model, RedirectAttributes redirectAttributes) {
         int count;
         ArrayList<Summary> summaries = new ArrayList<Summary>();
+        int userCount = 1;
         for (String userCriteria : users) {
-            count = 0;
             Summary summary = new Summary(userCriteria);
+            User user = null;
+            try {
+                user = bulkUserMembershipToolService.getUser(userCriteria);
+            } catch (UsersByEmailException usEx) {
+                log.error("Something went wrong when getting the user from the email: " + userCriteria + ". It has 2 or more related users");
+            }
+            String userName = userCount + "-" + user.getEid();
+            count = 0;
+            summary.setUserName(userName);
             for (Site site : sites) {
                 String role = ((roles != null && roles.length > 0) ? roles[count] : "");
                 try {
-                    User user = bulkUserMembershipToolService.getUser(userCriteria);
-                    summary.setUserName(user.getEid());
                     bulkUserMembershipToolService.applyAction(action, site, user, role);
                     summary.addWorkedSite(site.getId());
                 } catch (Exception ex) {
@@ -222,6 +229,7 @@ public class MainController {
                 count++;
             }
             summaries.add(summary);
+            userCount++;
         }
         currentStep = STEP.THIRD.ordinal();
         redirectAttributes.addFlashAttribute("summaries", summaries);
