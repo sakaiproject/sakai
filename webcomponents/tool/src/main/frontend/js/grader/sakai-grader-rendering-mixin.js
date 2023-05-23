@@ -116,6 +116,7 @@ export const graderRenderingMixin = Base => class extends Base {
         ` : html`
         <h3 class="d-inline-block">${this.i18n.no_submission}</h3>
         `}
+        ${this.submission.ltiSubmissionLaunch ? "" : html`
         <div id="grader-link-block" class="float-end">
           <button class="btn btn-primary active"
               data-bs-toggle="offcanvas"
@@ -124,6 +125,7 @@ export const graderRenderingMixin = Base => class extends Base {
           ${this.i18n.grade_submission}
           </button>
         </div>
+        `}
         ${this.submission.submittedTime || this.submission.draft && this.submission.visible ? html`
           ${this.submittedTextMode ? html`
             <div id="grader-submitted-text-block">
@@ -253,6 +255,7 @@ export const graderRenderingMixin = Base => class extends Base {
 
     // Hide the right UI until we have push notifications for grade changes
     if (this.submission.ltiSubmissionLaunch) return "";
+
     return html`
       ${this.submission.id !== "dummy" ? html`
 
