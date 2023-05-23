@@ -6,6 +6,8 @@ import lombok.Setter;
 
 public class Summary {
 
+    private final String EMAIL_SEPARATOR = "@";
+
     @Getter @Setter
     private String userCriteria;
     
@@ -45,5 +47,10 @@ public class Summary {
 
     public void addWorkedSite(String workedSite) {
         workedSites.add(workedSite);
+    }
+
+    public String getCleanedUserName() {
+        int indexEmailSep = userName.indexOf(EMAIL_SEPARATOR);
+        return (indexEmailSep == -1 ? userName : userName.substring(0, indexEmailSep));
     }
 } 

@@ -10,9 +10,9 @@
     <div th:replace="fragments/wizard :: step (step3)"></div>
     <form method="post" th:action="@{/step/3}" class="automembership-wizard-form">
         <div class="row">
-          <div class="col-sm-6" th:each="summary : ${summaries}" th:id="${'summary-' + summary.getUserName()}" >
-            <h4 class="title pointer collapsable" data-toggle="collapse" th:href="${'#' + summary.getUserName()}" th:text="#{summary.user.title(${summary.getUserCriteria()})}" aria-expanded="true">Some title</h4>
-            <ul th:id="${summary.getUserName()}" class="collapse in" th:data-parent="${'#summary-' + summary.getUserName()}" aria-expanded="true">
+          <div class="col-sm-6" th:each="summary : ${summaries}" th:id="${'summary-' + summary.getCleanedUserName()}" >
+            <h4 class="title pointer collapsable" data-toggle="collapse" th:href="${'#' + summary.getCleanedUserName()}" th:text="#{summary.user.title(${summary.getUserCriteria()})}" aria-expanded="true">Some title</h4>
+            <ul th:id="${summary.getCleanedUserName()}" class="collapse in" th:data-parent="${'#summary-' + summary.getCleanedUserName()}" aria-expanded="true">
               <li class="fails" th:each="failedSite : ${summary.getFailedSites()}" th:text="#{summary.fail.site(#{'summary.' + ${action}},${failedSite})}"></li>
               <li class="works" th:each="workedSite : ${summary.getWorkedSites()}" th:text="#{summary.work.site(#{'summary.' + ${action}},${workedSite})}"></li>
             </ul>
