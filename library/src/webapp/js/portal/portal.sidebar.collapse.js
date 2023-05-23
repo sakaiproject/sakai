@@ -31,7 +31,7 @@ class SidebarCollapseButton {
   async setCollapsed(collapsed) {
 
     collapsed = collapsed ? "true" : "false";
-    const putReq = await fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?toolsCollapsed=${collapsed}`, { method: "PUT" });
+    const putReq = await fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?sidebarCollapsed=${collapsed}`, { method: "PUT" });
     if (!putReq.ok) {
       console.error(`Could not set collapsed state "${collapsed}" for sidebar.`);
     }

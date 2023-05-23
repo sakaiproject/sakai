@@ -16,14 +16,19 @@
             </a>
         </li>
         <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#select-site-modal" id="more-sites-menu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w">
+            <a href="#"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#select-site-sidebar"
+                    aria-controls="select-site-sidebar"
+                    class="Mrphs-skipNav__link js-toggle-sites-nav"
+                    title="${rloader.sit_jumpworksite}" accesskey="w">
                 <i class="si si-grid-3x3-fill all-sites-icon" aria-hidden="true"></i> ${rloader.sit_worksites}
                 <span class="accesibility_key">[w]</span>
             </a>
         </li>
         <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
             <a id="totool" href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumptools}" accesskey="l">
-                <i class="si si-sakai-sites tools-icon" aria-hidden="true"></i>
+                <i class="si si-sakai-sites" aria-hidden="true"></i>
                 ${rloader.sit_menutools}
                 <span class="accesibility_key">[l]</span>
             </a>

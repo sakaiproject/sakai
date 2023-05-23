@@ -1,4 +1,4 @@
-#macro( siteListItem $type $site $isExpanded)
+#macro(siteListItem $type $site $isExpanded)
 
     ## Remove those special site chars. They don't play well with html attributes.
     #set ($safeSiteId = $site.id.replace("!", "").replace("~", ""))
@@ -13,6 +13,10 @@
 
     #if ($site.isCurrent)
         #set ($currentSiteClass = "is-current-site mt-2 fw-bold")
+        ##set ($isExpanded = "true")
+        #set ($isExpanded = $currentExpanded)
+    #elseif ($type == "gateway")
+        #set ($isExpanded = "true")
     #else
         #set ($currentSiteClass = "")
         #set ($isExpanded = "false")
@@ -22,13 +26,14 @@
         <div class="site-list-item-head d-flex align-items-center pe-2 py-1 w-100 justify-content-between">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
                 <button class="btn icon-button collapsed me-1"
+                        data-site-id="${site.id}"
                         data-bs-toggle="collapse"
                         data-bs-target="#${type}-site-${safeSiteId}-page-list"
                         aria-expanded="${isExpanded}"
                         aria-controls="${type}-site-${safeSiteId}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
-                <a href="$site.url" class="text-break">${site.title}</a>
+                <a href="$site.url" class="text-break" title="${site.title}">${site.title}</a>
             </div>
             #if ($loggedIn && !${site.isHome})
                 <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
@@ -39,7 +44,7 @@
                 </button>
             #end
         </div>
-        <div id="${type}-site-${safeSiteId}-page-list" class="site-list-item-collapse collapse">
+        <div id="${type}-site-${safeSiteId}-page-list" data-site-id="${site.id}" class="site-list-item-collapse collapse #if ($isExpanded == "true") show #end">
             <ul class="site-page-list nav flex-column py-1 mb-2">
             #foreach ( $page in $site.pages )
                 #if ($site.isCurrent)
@@ -56,8 +61,10 @@
 
 #macro( pageListItem $id $title $url $icon $indentation $hidden $locked)
     
-    <li class="nav-item me-3" tabindex="1">
-        <a class="btn btn-nav rounded-end w-100 ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}" href="$!{url}">
+    <li class="nav-item" tabindex="1">
+        <a class="btn btn-nav w-100 ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}"
+                href="$!{url}"
+                title="${title}">
             <div class="d-flex text-start align-items-center">
                 <div class="d-flex me-auto rounded-end">
                     <i class="me-1 $!{icon}" aria-hidden="true"></i>
@@ -77,7 +84,7 @@
 #end
 
 <!-- START VM includeSiteNav.vm -->
-<aside id="portal-nav-sidebar" class="d-none portal-nav-sidebar overflow-auto #if ($sidebarCollapsed)sidebar-collapsed#end" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
+<aside id="portal-nav-sidebar" class="d-none portal-nav-sidebar overflow-auto #if (${sidebarCollapsed})sidebar-collapsed#end" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
     <div class="offcanvas-header d-md-none">
         <h2 class="offcanvas-title">${rloader.sitenav_title}</h2>
         <button type="button" class="btn-close text-reset ms-auto" data-bs-dismiss="offcanvas" aria-label="Close the sites sidebar"></button>

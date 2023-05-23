@@ -2,50 +2,46 @@
 
 <header class="portal-header d-flex align-items-center justify-content-between" role="banner">
 
-  <button class="btn m-1 d-md-none"
-    data-bs-toggle="offcanvas"
-    data-bs-target="#portal-nav-sidebar"
-    aria-controls="portal-nav-sidebar"
-    aria-label="$rloader.sit_navigation"
-    aria-expanded="false"
-    title="$rloader.sit_navigation">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" class="bi bi-list" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-      </svg>
+  <button class="btn icon-button m-1 d-md-none btn-sidebar-collapse"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#portal-nav-sidebar"
+      aria-controls="portal-nav-sidebar"
+      aria-label="$rloader.sit_navigation"
+      aria-expanded="false"
+      title="$rloader.sit_navigation">
+    <span class="bi bi-list"></span>
   </button>
 
   <div class="d-flex align-items-center">
     <div id="logoWrapper" class="portal-header-logo d-flex align-items-center justify-content-between bg-primary">
-      <a class="px-3" href="/portal" title="$rloader.portal_home">
-        <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai logo">
+      <a class="px-3 btn" href="/portal" title="$rloader.portal_home">
+        <button class="btn icon-button btn-logo-button" type="button">
+          <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai logo">
+        </button>
       </a>
-      <button id="sidebar-collapse-button" class="btn btn-sidebar-collapse me-1 d-none d-md-block"
+      <button id="sidebar-collapse-button" class="btn icon-button btn-sidebar-collapse me-1 d-none d-md-block"
           type="button"
           data-portal-sidebar-collapsed="$!{sidebarCollapsed}"
           data-bs-toggle="tooltip"
           data-bs-placement="bottom"
           title="${sidebarCollapseBtnTitle}"
           aria-controls="portal-nav-sidebar">
-        <span class="bi bi-list" style="color: white; font-size: 28px;"></span>
+        <span class="bi bi-list"></span>
       </button>
     </div>
     #if (${userIsLoggedIn})
-    <div class="align-items-center portal-header-breadcrumb d-none d-md-inline-flex">
-        <div id="header-site-title" class="ms-3">
-            <a href="${siteUrl}" class="text-decoration-none">$!{siteTitle}</a>
-        </div>
-    #foreach( $page in $sitePages.pageNavTools )
+    <div class="align-items-center portal-header-breadcrumb d-none d-md-flex">
+      <div id="header-site-title" class="ms-3 portal-header-breadcrumb-item">
+        <a href="$!{siteUrl}">$!{siteTitle}</a>
+      </div>
+      #foreach( $page in $sitePages.pageNavTools )
         #if ($page.current)
-        <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator"></div>
-        <div class="portal-header-breadcrumb-item">
-            <a href="${page.pageResetUrl}"
-                    title="$rloader.sit_reset"
-                    class="text-decoration-none">
-                ${page.pageTitle}
-            </a>
-        </div>
+          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block"></div>
+          <div class="portal-header-breadcrumb-item">
+            <a href="${page.pageResetUrl}" title="$rloader.sit_reset">${page.pageTitle}</a>
+          </div>
         #end
-    #end
+      #end
     </div>
     #end
   </div>
