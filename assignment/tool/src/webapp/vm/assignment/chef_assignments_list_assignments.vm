@@ -240,14 +240,14 @@
 							</a>
 						</th>
 					#end
+					#if ($!tagsEnabled && ($!allowAddAssignment || $!show_tags_student))
+						<th id="tags" scope="col" class="hidden-xs">
+							<span>$tlang.getString('tags_header')</span>
+						</th>
+					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 						<th id="remove" scope="col">
 							<span class="hidden-xs">$tlang.getString("gen.remove.q")</span>
-						</th>
-					#end
-					#if ($!tagsEnabled && ($!allowAddAssignment || $!show_tags_student))
-						<th id="tags" scope="col">
-							<span class="hidden-xs">$tlang.getString('tags_header')</span>
 						</th>
 					#end
 				</tr>
@@ -627,19 +627,19 @@
 									#end
 							</td>
 							#end
-							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
-								<td headers="remove" class="screenOnly">
-										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" onclick="ASN.checkEnableRemove();" />
-										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove"): $formattedText.escapeHtml($!assignment.Title)</label>
-								</td>
-							#end
 							#if ($!tagsEnabled && ($!allowAddAssignment || $!show_tags_student))
-								<td class="tag-header">
+								<td class="tag-header hidden-xs">
 								#if ($tagsMap.containsKey($assignment.getId()))
 									#foreach($tag in $tagsMap.get($assignment.getId()))
 										<span class="badge bg-info">$tag</span>
 									#end
 								#end
+								</td>
+							#end
+							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
+								<td headers="remove" class="screenOnly">
+										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" onclick="ASN.checkEnableRemove();" />
+										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove"): $formattedText.escapeHtml($!assignment.Title)</label>
 								</td>
 							#end
 						</tr>
@@ -734,11 +734,11 @@
 									<!-- grade scale col -->
 									<td></td>
 								#end
+								#if ($!tagsEnabled && $!show_tags_student)
+									<td class="hidden-xs"></td>
+								#end
 								#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 									<!-- remove col -->
-									<td></td>
-								#end
-								#if ($!tagsEnabled && $!show_tags_student)
 									<td></td>
 								#end
 							</tr>
@@ -805,11 +805,11 @@
 											<!-- grade scale col -->
 											<td></td>
 										#end
+										#if ($!tagsEnabled && $!show_tags_student)
+											<td class="hidden-xs"></td>
+										#end
 										#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 											<!-- remove col -->
-											<td></td>
-										#end
-										#if ($!tagsEnabled && $!show_tags_student)
 											<td></td>
 										#end
 									</tr>

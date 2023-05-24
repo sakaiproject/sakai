@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
@@ -65,6 +66,7 @@ public class TagServiceImpl implements TagService {
     private static final String TAGSERVICE_ENABLED =  "tagservice.enabled";
     private static final Boolean TAGSERVICE_ENABLED_DEFAULT_VALUE =  true;
     private static final int TAGSERVICE_MAXPAGESIZE_DEFAULT_VALUE = 200;
+    private static final int TAG_MAX_LABEL = 255;
 
     @Getter @Setter private SqlService sqlService;
     @Getter @Setter private FunctionManager functionManager;
@@ -129,14 +131,17 @@ public class TagServiceImpl implements TagService {
         // obtain previous asociations
         List<String> oldAssociationIds = getTagAssociationIds(itemId);
         for (String tagId : tagIds) {
-            // skip if already associated
-            if (oldAssociationIds.contains(tagId)) {
+            // skip if already associated or empty
+            if (StringUtils.isEmpty(tagId) || oldAssociationIds.contains(tagId)) {
                 continue;
             }
             // new association, check tag exists
             Tag t = tags.getForId(tagId).orElse(null);
             if (t == null) {
                 // new tag, we create it
+                if (tagId.length() > TAG_MAX_LABEL) {
+                    tagId = tagId.substring(0, TAG_MAX_LABEL);
+                }
                 t = new Tag(null, siteId, tagId, null, null,
                         0L, null, 0L, null,	null, Boolean.FALSE, 0L,
                         Boolean.FALSE, 0L, null, null, null, null, null);
