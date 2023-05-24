@@ -399,7 +399,36 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityNotFoundException("No access to site: " + siteId, siteId);
         }
 
-        assignmentService.getAssignmentsForContext(siteId).stream().map(SimpleAssignment::new).forEach(rv::add);
+        assignmentService.getAssignmentsForContext(siteId).stream()
+        .map(a->{
+            SimpleAssignment as = null;
+            try {
+                Assignment asgn = assignmentService.getAssignment(a.getId());
+                as = new SimpleAssignment(a);
+                if(as.getSubmissions() != null && !as.getSubmissions().isEmpty() && !canGrade(asgn)) {
+                    for(SimpleSubmission ss : as.getSubmissions()) {
+                        ss.setPrivateNotes(null);
+                        if(!ss.getReturned()) {
+                            ss.setFeedbackText(null);
+                            ss.setGrade(null);
+                            ss.setFeedbackAttachments(null);
+                            ss.setFeedbackComment(null);
+                            for(SimpleSubmitter sser : ss.getSubmitters()) {
+                                sser.setGrade(null);
+                            }
+                        }
+                    }
+               }
+            } catch (IdUnusedException e) {
+                return null;
+            } catch (PermissionException e) {
+                return null;
+            }
+            return as;
+        })
+        .filter(a->a!=null)
+        .forEach(rv::add);
+
         return rv;
     }
 
