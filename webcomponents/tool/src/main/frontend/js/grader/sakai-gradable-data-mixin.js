@@ -1,78 +1,65 @@
-import {Submission} from "./submission.js";
+import { Submission } from "./submission.js";
+import { LETTER_GRADE_TYPE } from "./sakai-grader-constants.js";
 
-const gradableDataMixin = Base => class extends Base {
+export const gradableDataMixin = Base => class extends Base {
 
-  loadGradableData(gradableId, courseId, submissionId) {
+  _loadGradableData(gradableId, submissionId) {
+
+    this.loadingData = true;
 
     // Grab all of the initial data we need, submissions and students. This will come from the grading service in future.
     return new Promise(resolve => {
 
+      // Then, request the full set of data
       fetch(`/direct/assignment/gradable.json?gradableId=${gradableId}`, {cache: "no-cache", credentials: "same-origin"})
-        .then(res => res.json())
-        .then(gradableData => {
+      .then(res => res.json())
+      .then(gradableData => {
 
-          this.showOfficialPhoto = gradableData.showOfficialPhoto;
+        this.showOfficialPhoto = gradableData.showOfficialPhoto;
+        this.previewMimetypes = gradableData.previewMimetypes;
+        this.gradable = gradableData.gradable;
 
-          this.previewMimetypes = gradableData.previewMimetypes;
+        this.gradeScale = this.gradable.gradeScale;
+        if (this.gradeScale === LETTER_GRADE_TYPE) {
+          this.letterGradeOptions = gradableData.letterGradeOptions.split(",");
+        }
 
-          this.gradable = gradableData.gradable;
+        this.isGroupGradable = gradableData.gradable.access === "GROUP";
+        this.gradableTitle = gradableData.gradable.title;
+        this.anonymousGrading = gradableData.gradable.anonymousGrading;
+        this.closeTime = gradableData.gradable.closeTimeString;
+        this.ltiGradableLaunch = gradableData.gradable.ltiGradableLaunch;
+        this.groups = gradableData.groups;
+        this.totalSubmissions = gradableData.totalSubmissions;
+        this.totalGraded = gradableData.totalGraded;
 
-          this.isGroupGradable = gradableData.gradable.access === "GROUP";
+        this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
+        this.submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
 
-          this.gradableTitle = gradableData.gradable.title;
+        this.submissions.sort((a, b) => a.firstSubmitterName.localeCompare(b.firstSubmitterName));
 
-          this.anonymousGrading = gradableData.gradable.anonymousGrading;
+        this.hasUnsubmitted = this.submissions.some(s => s.submittedTime == "");
 
-          this.closeTime = gradableData.gradable.closeTimeString;
+        if (submissionId && !this.submission) {
+          this.submission = this.submissions.find(s => s.id === submissionId);
+        } else {
+          this.submission = this.submissions[0];
+        }
 
-          this.ltiGradableLaunch = gradableData.gradable.ltiGradableLaunch;
+        this.submissions.forEach(s => {
 
-          this.groups = gradableData.groups;
+          if (!s.graded) {
+            this.hasUngraded = true;
+          } else {
+            this.hasGraded = true;
+          }
+        });
 
-          this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
-          this.submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
+        this.loadingData = false;
 
-          this.submissions.sort((a, b) => a.firstSubmitterName.localeCompare(b.firstSubmitterName));
-
-          this.hasUnsubmitted = this.submissions.some(s => s.submittedTime == "");
-
-          this.groups = gradableData.groups;
-
-          // Load up the graded status for each submission. We need that for the next/prev ungraded type of navigations.
-          fetch(`/direct/assignment/grades.json?gradableId=${gradableId}&courseId=${courseId}`, {cache: "no-cache", credentials: "same-origin"})
-            .then(res => res.json())
-            .then(gradesData => {
-
-              this.students = gradesData.students;
-              this.grades = gradesData.grades;
-
-              this.totalGraded = 0;
-              this.submissions.forEach(s => {
-
-                s.grade = gradesData.grades[s.id];
-
-                if (!s.graded) {
-                  this.hasUngraded = true;
-                } else {
-                  this.totalGraded += 1;
-                }
-              });
-
-              this.originalSubmissions.forEach(s => s.grade = gradesData.grades[s.id] );
-
-              if (submissionId) {
-                this.submission = this.submissions.find(s => s.id === submissionId);
-              } else {
-                this.submission = this.submissions[0];
-              }
-
-              resolve(gradableData);
-            })
-            .catch(e => console.error(`Failed to load grades data for gradable id ${this.gradableId}`, e));
-
-        }).catch(e => console.error(`Failed to load gradable data for ${gradableId}`, e));
+        resolve(gradableData);
+      })
+      .catch(e => console.error(`Failed to load gradable data for ${gradableId}`, e));
     });
   }
 };
-
-export {gradableDataMixin};
