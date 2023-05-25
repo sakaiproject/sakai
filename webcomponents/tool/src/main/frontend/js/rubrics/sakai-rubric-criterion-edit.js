@@ -21,7 +21,6 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
       rubricId: { attribute: "rubric-id", type: String },
       criterion: { type: Object, notify: true },
       isCriterionGroup: {attribute: "is-criterion-group", type: Boolean},
-      enableCkEditor: { type: Boolean },
     };
   }
 
@@ -92,18 +91,12 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
                 <sr-lang key="criterion_description">Criterion Description</sr-lang>
               `}
             </label>
-            <br/><a tabindex="0" role="button" href="#" title="${tr("toggle_editor")}" aria-label="${tr("toggle_editor")}" @click="${this.toggleCkEditor}"><sr-lang key="toggle_editor">Toggle CK Editor</sr-lang></a>
-            ${!this.enableCkEditor ?
-              html`<textarea id="criterion-description-field-${this.criterion.id}" class="form-control">${this.criterionClone.description}</textarea>` :
-                html`
-                  <sakai-editor
-                    toolbar="BasicText"
-                    content="${this.criterionClone.description ? `${this.criterionClone.description}` : ``}"
-                    @changed="${this.updateCriterionDescription}"
-                    id="criterion-description-field-${this.criterion.id}">
-                  </sakai-editor>
-                `
-            }
+            <sakai-editor
+              toolbar="BasicText"
+              content="${this.criterionClone.description ? `${this.criterionClone.description}` : ``}"
+              @changed="${this.updateCriterionDescription}"
+              id="criterion-description-field-${this.criterion.id}">
+            </sakai-editor>
           </div>
 
           <div class="mt-2">
@@ -134,10 +127,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     e.stopPropagation();
 
     const title = e.target.closest(".popover-body").querySelector("input").value;
-    // Get the description from the CkEditor or the textarea.
-    const description = !this.enableCkEditor ?
-      document.getElementById(`criterion-description-field-${this.criterion.id}`).value
-      : this.criterionClone.description;
+    const description = e.target.closest("div.form").querySelector("sakai-editor").getContent();
 
     const body = JSON.stringify([
       { "op": "replace", "path": "/title", "value": title },
@@ -176,12 +166,6 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   updateCriterionDescription(e) {
     this.criterionClone.description = e.detail.content;
   }
-
-  toggleCkEditor(e) {
-    e.preventDefault();
-    this.enableCkEditor = this.enableCkEditor === undefined ? true : !this.enableCkEditor;
-  }
-
 }
 
 const tagName = "sakai-rubric-criterion-edit";
