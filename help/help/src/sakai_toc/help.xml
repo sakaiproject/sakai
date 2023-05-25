@@ -40,6 +40,7 @@
         <ref bean="sitesAdministratorGuide"/>
         <ref bean="sitestatsAdminAdministratorGuide"/>
         <ref bean="usersAdministratorGuide"/>
+        <ref bean="userMembershipAdministratorGuide"/>
         <ref bean="worksiteSetupAdministratorGuide"/>
         <ref bean="quotaIncreasesAdministratorGuide"/>
       </list>
@@ -1539,6 +1540,90 @@
       <value>/sakai_screensteps_usersAdministratorGuide/howdoIremoveauseraccount.html</value>
     </property>
   </bean>
+  <bean id="userMembershipAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>User Membership</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatisUserMembership"/>
+        <ref bean="howdoIsearchforanaccountinUserMembership"/>
+        <ref bean="howdoIfiltersearchresultsinUserMembership"/>
+        <ref bean="howdoIexportsearchresultsfromUserMembership"/>
+        <ref bean="howdoImakeauserinactiveinmultiplesites"/>
+        <ref bean="howdoImakeauseractiveinmultiplesites"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatisUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisUserMembership</value>
+    </property>
+    <property name="name">
+      <value>What is User Membership?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_userMembershipAdministratorGuide/whatisUserMembership.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.membership</value>
+    </property>
+  </bean>
+  <bean id="howdoIsearchforanaccountinUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsearchforanaccountinUserMembership</value>
+    </property>
+    <property name="name">
+      <value>How do I search for an account in User Membership?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoIsearchforanaccountinUserMembership.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIfiltersearchresultsinUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIfiltersearchresultsinUserMembership</value>
+    </property>
+    <property name="name">
+      <value>How do I filter search results in User Membership?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoIfiltersearchresultsinUserMembership.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIexportsearchresultsfromUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIexportsearchresultsfromUserMembership</value>
+    </property>
+    <property name="name">
+      <value>How do I export search results from User Membership?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoIexportsearchresultsfromUserMembership.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImakeauserinactiveinmultiplesites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImakeauserinactiveinmultiplesites</value>
+    </property>
+    <property name="name">
+      <value>How do I make a user inactive in multiple sites?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoImakeauserinactiveinmultiplesites.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImakeauseractiveinmultiplesites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImakeauseractiveinmultiplesites</value>
+    </property>
+    <property name="name">
+      <value>How do I make a user active in multiple sites?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoImakeauseractiveinmultiplesites.html</value>
+    </property>
+  </bean>
   <bean id="worksiteSetupAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Worksite Setup</value>
@@ -1718,6 +1803,7 @@
         <ref bean="testsandQuizzesUserGuide"/>
         <ref bean="webContentUserGuide"/>
         <ref bean="wikiUserGuide"/>
+        <ref bean="gatewayUserGuide"/>
       </list>
     </property>
   </bean>
@@ -3172,7 +3258,7 @@
       <value>/sakai_screensteps_discussionsUserGuide/whatistheDiscussionstool.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.discussions</value>
+      <value>sakai.forums</value>
     </property>
   </bean>
   <bean id="howdoIcreateanewdiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5280,6 +5366,9 @@
         <ref bean="whatistheResourcesquota"/>
         <ref bean="howdoItransferfilestoResourcesusingWebDAV"/>
         <ref bean="howdoIattachfilesfrommyHomeResourcestosubmissionsinmyothersites"/>
+        <ref bean="howdoIsetupanduseWebDAVonWindows1011"/>
+        <ref bean="howdoIsetupanduseWebDAVonMacOS108andup"/>
+        <ref bean="howdoIsetupanduseWebDAVwithCyberduck"/>
       </list>
     </property>
   </bean>
@@ -5627,6 +5716,39 @@
       <value>/sakai_screensteps_resourcesUserGuide/howdoIattachfilesfrommyHomeResourcestosubmissionsinmyothersites.html</value>
     </property>
   </bean>
+  <bean id="howdoIsetupanduseWebDAVonWindows1011" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetupanduseWebDAVonWindows1011</value>
+    </property>
+    <property name="name">
+      <value>How do I set up and use WebDAV on Windows 10/11?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_resourcesUserGuide/howdoIsetupanduseWebDAVonWindows1011.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsetupanduseWebDAVonMacOS108andup" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetupanduseWebDAVonMacOS108andup</value>
+    </property>
+    <property name="name">
+      <value>How do I set up and use WebDAV on MacOS (10.8 and up)?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_resourcesUserGuide/howdoIsetupanduseWebDAVonMacOS108andup.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsetupanduseWebDAVwithCyberduck" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetupanduseWebDAVwithCyberduck</value>
+    </property>
+    <property name="name">
+      <value>How do I set up and use WebDAV with Cyberduck?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_resourcesUserGuide/howdoIsetupanduseWebDAVwithCyberduck.html</value>
+    </property>
+  </bean>
   <bean id="richTextEditorUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Rich Text Editor</value>
@@ -5922,6 +6044,7 @@
     <property name="resources">
       <list>
         <ref bean="whatareRubrics"/>
+        <ref bean="howdoIsearchforarubric"/>
         <ref bean="howdoIaddarubrictomysite"/>
         <ref bean="howdoIcreateaweightedrubric"/>
         <ref bean="howdoIeditarubric"/>
@@ -5939,6 +6062,7 @@
         <ref bean="howdoIgradeanassessmentietestorquizusingarubric"/>
         <ref bean="howdoIgradeagradebookitemusingarubric"/>
         <ref bean="howdoIviewmyrubricfeedbackasastudent"/>
+        <ref bean="howdoIexportarubric"/>
       </list>
     </property>
   </bean>
@@ -5954,6 +6078,17 @@
     </property>
     <property name="defaultForTool">
       <value>sakai.rubrics</value>
+    </property>
+  </bean>
+  <bean id="howdoIsearchforarubric" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsearchforarubric</value>
+    </property>
+    <property name="name">
+      <value>How do I search for a rubric?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_rubricsUserGuide/howdoIsearchforarubric.html</value>
     </property>
   </bean>
   <bean id="howdoIaddarubrictomysite" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -6141,6 +6276,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_rubricsUserGuide/howdoIviewmyrubricfeedbackasastudent.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIexportarubric" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIexportarubric</value>
+    </property>
+    <property name="name">
+      <value>How do I export a rubric?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_rubricsUserGuide/howdoIexportarubric.html</value>
     </property>
   </bean>
   <bean id="searchUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -7113,6 +7259,8 @@
         <ref bean="howdostudentsviewassessmentietestorquizfeedback"/>
         <ref bean="howcananinstructorretrieveassessmentsthatweresavedbutnotsubmitted"/>
         <ref bean="howdoIgivestudentsachoiceofquestionstoanswerinanassessment"/>
+        <ref bean="howdoIeditapublishedassessment"/>
+        <ref bean="howdoIeditanassessmenttoupdatethequestionsfromaquestionpool"/>
       </list>
     </property>
   </bean>
@@ -7680,6 +7828,28 @@
       <value>/sakai_screensteps_testsandQuizzesUserGuide/howdoIgivestudentsachoiceofquestionstoanswerinanassessment.html</value>
     </property>
   </bean>
+  <bean id="howdoIeditapublishedassessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIeditapublishedassessment</value>
+    </property>
+    <property name="name">
+      <value>How do I edit a published assessment?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_testsandQuizzesUserGuide/howdoIeditapublishedassessment.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIeditanassessmenttoupdatethequestionsfromaquestionpool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIeditanassessmenttoupdatethequestionsfromaquestionpool</value>
+    </property>
+    <property name="name">
+      <value>How do I edit an assessment to update the questions from a question pool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_testsandQuizzesUserGuide/howdoIeditanassessmenttoupdatethequestionsfromaquestionpool.html</value>
+    </property>
+  </bean>
   <bean id="webContentUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Web Content</value>
@@ -7894,6 +8064,102 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_wikiUserGuide/howdoIsetwikipermissions.html</value>
+    </property>
+  </bean>
+  <bean id="gatewayUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Gateway</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatistheGatewaypage"/>
+        <ref bean="whatistheAboutpage"/>
+        <ref bean="whatistheFeaturespage"/>
+        <ref bean="whatistheSiteBrowserpage"/>
+        <ref bean="whatistheAcknowledgmentspage"/>
+        <ref bean="howdoIcreateaNewAccountinSakai"/>
+        <ref bean="howdoIresetmypasswordinSakai"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatistheGatewaypage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheGatewaypage</value>
+    </property>
+    <property name="name">
+      <value>What is the Gateway page?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gatewayUserGuide/whatistheGatewaypage.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.gateway</value>
+    </property>
+  </bean>
+  <bean id="whatistheAboutpage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheAboutpage</value>
+    </property>
+    <property name="name">
+      <value>What is the About page?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gatewayUserGuide/whatistheAboutpage.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheFeaturespage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheFeaturespage</value>
+    </property>
+    <property name="name">
+      <value>What is the Features page?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gatewayUserGuide/whatistheFeaturespage.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheSiteBrowserpage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheSiteBrowserpage</value>
+    </property>
+    <property name="name">
+      <value>What is the Site Browser page?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gatewayUserGuide/whatistheSiteBrowserpage.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheAcknowledgmentspage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheAcknowledgmentspage</value>
+    </property>
+    <property name="name">
+      <value>What is the Acknowledgments page?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gatewayUserGuide/whatistheAcknowledgmentspage.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreateaNewAccountinSakai" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreateaNewAccountinSakai</value>
+    </property>
+    <property name="name">
+      <value>How do I create a New Account in Sakai?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gatewayUserGuide/howdoIcreateaNewAccountinSakai.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIresetmypasswordinSakai" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIresetmypasswordinSakai</value>
+    </property>
+    <property name="name">
+      <value>How do I reset my password in Sakai?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gatewayUserGuide/howdoIresetmypasswordinSakai.html</value>
     </property>
   </bean>
 </beans>
