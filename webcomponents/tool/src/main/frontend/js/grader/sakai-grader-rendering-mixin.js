@@ -617,7 +617,8 @@ export const graderRenderingMixin = Base => class extends Base {
               </div>
             ` : ""}
             <div id="grader-save-buttons" class="action-button-block act">
-              <button accesskey="s"
+              <button id="grader-save-button"
+                  accesskey="s"
                   class="btn btn-primary active"
                   name="save"
                   @click=${this._save}
