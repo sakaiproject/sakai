@@ -19,6 +19,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,10 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
@@ -40,6 +44,8 @@ import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.EventLogBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.model.DataTableColumn;
+import org.sakaiproject.tool.assessment.ui.model.DataTableConfig;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 
 @Slf4j
@@ -47,7 +53,7 @@ public class EventLogListener
 implements ActionListener, ValueChangeListener
 {
 	private BeanSort bs;
-	private final String userFilterString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EventLogMessages", "search_hint");
+	private ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 
 	public EventLogListener() {}
 
@@ -56,11 +62,6 @@ implements ActionListener, ValueChangeListener
 	{
 		log.debug("*****Log: inside EventLogListener =debugging ActionEvent: " + ae);
 		EventLogBean eventLog = (EventLogBean) ContextUtil.lookupBean("eventLog");
-		
-		String clear = ContextUtil.lookupParam("clear");
-		if (clear != null) {
-		   eventLog.setFilteredUser(null);
-		}
 		
 		processPageLoad(eventLog);		
 	}
@@ -104,7 +105,7 @@ implements ActionListener, ValueChangeListener
 	}
 
 	private Map<Long,Integer> setStatusEventLog(EventLogService eventLogService, String siteId, EventLogBean eventLog) {
-		List<EventLogData> eventLogDataList = eventLogService.getEventLogData(siteId, -1L, "");
+		List<EventLogData> eventLogDataList = eventLogService.getEventLogData(siteId, -1L);
 		PublishedAssessmentService assessmentService = new PublishedAssessmentService();	
 		Map<Long,Integer> statusMap = new  HashMap<>();
 		for(EventLogData data:eventLogDataList) {
@@ -133,12 +134,9 @@ implements ActionListener, ValueChangeListener
 		
 	}
       
-      if (eventLog.getFilteredUser() != null && eventLog.getFilteredUser().equals(userFilterString)) {
-    	  eventLog.setFilteredUser(null);
-      }
       Map<Long,Integer> statusMap = setStatusEventLog(eventLogService, siteId, eventLog);
 
-      List<EventLogData> eventLogDataList = eventLogService.getEventLogData(siteId, eventLog.getFilteredAssessmentId(), eventLog.getFilteredUser());
+      List<EventLogData> eventLogDataList = eventLogService.getEventLogData(siteId, eventLog.getFilteredAssessmentId());
       
       //check anonymous users setting, update user name and ip address to N/A
       List<EventLogData> updateEventLogDataList = updateData(eventLogDataList);
@@ -148,22 +146,14 @@ implements ActionListener, ValueChangeListener
       
       applySort(updateEventLogDataList, eventLog);
       
-      Map<Integer, List<EventLogData>> pageDataMap = createMap(updateEventLogDataList, numPerPage);
 
-      eventLog.setPageDataMap(pageDataMap);  
-      eventLog.setEventLogDataList(pageDataMap.get(Integer.valueOf(1)));
+      eventLog.setEventLogDataList(updateEventLogDataList);
       eventLog.setSiteId(siteId);
       eventLog.setSiteTitle(siteTitle);
       eventLog.setPageNumber(1);
       eventLog.setStatusMap(statusMap);
-      if(pageDataMap.size()>1) {
-         eventLog.setHasNextPage(Boolean.TRUE);
-         eventLog.setHasPreviousPage(Boolean.FALSE);
-      }
-      else {
-         eventLog.setHasNextPage(Boolean.FALSE);
-         eventLog.setHasPreviousPage(Boolean.FALSE);
-      }
+	  boolean titleColumnSortable = eventLog.getFilteredAssessmentId() == null || eventLog.getFilteredAssessmentId() == -1L;
+      eventLog.setDataTableConfig(eventLogDataTableConfig(titleColumnSortable));
       
 	}
 	
@@ -223,35 +213,68 @@ implements ActionListener, ValueChangeListener
       bean.setEventLogDataList(dataList);
 	}
 	
-	private Map<Integer, List<EventLogData>> createMap(List<EventLogData> eventLogAllDataList, int numPerPage) {
-		Map<Integer, List<EventLogData>> pageDataMap = new HashMap<Integer, List<EventLogData>>();		
-		List<EventLogData> dataListTempt = new ArrayList<EventLogData>();
-		int listLength = eventLogAllDataList.size();
-		Iterator<EventLogData> it= eventLogAllDataList.iterator();
-		int dataNumber = 0;
-		int pageNumber = 1;		
-		List<EventLogData> dataList = new ArrayList<EventLogData>();
-		
-		while(dataNumber < listLength ) {
-			for(int i = 0; i <numPerPage; i++) {
-				if(it.hasNext()) {
-					dataListTempt.add(it.next());
-					dataNumber++;
-				}else break;
-			}			
-			dataList = copyData(dataListTempt);					
-			pageDataMap.put(Integer.valueOf(pageNumber), dataList);		
-			dataListTempt.removeAll(dataListTempt);
-			pageNumber ++;			
-		}	
-		return pageDataMap;
-	}	
-	
 	private List<EventLogData> copyData (List<EventLogData> dataList) {
 		List<EventLogData> list = new ArrayList<EventLogData>();
 		for(int i = 0; i < dataList.size(); i++) {
 			list.add(dataList.get(i));
 		}
 		return list;
+	}
+
+	private DataTableConfig eventLogDataTableConfig(boolean titleColumnSortable) {
+		boolean displayIpAddressColumn = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EVENTLOG_IPADDRESS_ENABLED,
+				SamigoConstants.SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED);
+
+		return DataTableConfig.builderWithDefaults()
+				.entitiesMessage(ContextUtil.getLocalizedString(SamigoConstants.EVENT_LOG_BUNDLE, "datatables_entities"))
+				.columns(new LinkedList<DataTableColumn>() {{
+						// TITLE
+						add(DataTableColumn.builder()
+								.orderable(titleColumnSortable)
+								.searchable(titleColumnSortable)
+								.type(DataTableColumn.TYPE_HTML)
+								.build());
+						// ASSESSMENT ID
+						add(DataTableColumn.builder()
+								.orderable(true)
+								.searchable(true)
+								.type(DataTableColumn.TYPE_HTML_NUM)
+								.build());
+						// NAME
+						add(DataTableColumn.builder()
+								.orderable(true)
+								.searchable(true)
+								.build());
+						// ENTRY DATE
+						add(DataTableColumn.builder()
+								.orderable(true)
+								.searchable(true)
+								.type(DataTableColumn.TYPE_NUM)
+								.build());
+						// DATE SUBMITTED
+						add(DataTableColumn.builder()
+								.orderable(true)
+								.searchable(true)
+								.type(DataTableColumn.TYPE_NUM)
+								.build());
+						// DURATION
+						add(DataTableColumn.builder()
+								.orderable(true)
+								.searchable(true)
+								.type(DataTableColumn.TYPE_ANY_NUM)
+								.build());
+						// ERRORS
+						add(DataTableColumn.builder()
+								.orderable(true)
+								.searchable(true)
+								.build());
+						// IP ADDRESS
+						if (displayIpAddressColumn) {
+							add(DataTableColumn.builder()
+									.orderable(true)
+									.searchable(true)
+									.build());
+						}
+				}}).build();
 	}
 }

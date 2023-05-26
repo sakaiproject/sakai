@@ -226,6 +226,19 @@
 		<value>org.sakaiproject.tool.assessment.bundle.SectionActivityMessages</value>
 	</managed-property>
 	</managed-bean>
+	<managed-bean>
+		<description>
+			Dynamic Resource Bundle Loader
+		</description>
+		<managed-bean-name>dataTablesMessages</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Bundle baseName</description>
+			<property-name>baseName</property-name>
+			<value>org.sakaiproject.tool.assessment.bundle.DataTablesMessages</value>
+		</managed-property>
+	</managed-bean>
 
   <!-- XML -->
     <managed-bean>
