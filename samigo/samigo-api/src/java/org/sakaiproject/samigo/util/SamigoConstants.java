@@ -139,12 +139,20 @@ public final class SamigoConstants {
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED     = "samigo.email.autoSubmit.errorNotification.enabled";
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS  = "samigo.email.autoSubmit.errorNotification.toAddress";
     public static final     String      SAK_PROP_SUPPORT_EMAIL_ADDRESS                      = "mail.support";
+    public static final     String      SAK_PROP_EVENTLOG_IPADDRESS_ENABLED                 = "samigo.eventlog.ipaddress.enabled";
+
+    /*
+     * Sakai.properties defaults
+     */
+    public static final     boolean     SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED                 = false;
 
     /*
      * Message Bundles
      */
     public static final     String      EVAL_BUNDLE                                         = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
     public static final     String      AUTHOR_BUNDLE                                       = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
+    public static final     String      EVENT_LOG_BUNDLE                                    = "org.sakaiproject.tool.assessment.bundle.EventLogMessages";
+    public static final     String      DATA_TABLES_BUNDLE                                  = "org.sakaiproject.tool.assessment.bundle.DataTablesMessages";
 
     /*
      * Author Outcomes
@@ -161,6 +169,11 @@ public final class SamigoConstants {
      * Evaluation Outcomes
      */
     public static final     String      OUTCOME_EVALUATION_QUESTION_SCORES                  = "questionScores";
+
+    /*
+     * Servlet Mappings
+     */
+    public static final     String      SERVLET_MAPPING_EXPORT_EVENT_LOG                    = "/samigo-app/servlet/ExportEventLog";
 
     private SamigoConstants() {
     	throw new AssertionError();
