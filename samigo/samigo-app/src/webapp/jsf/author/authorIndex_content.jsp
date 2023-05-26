@@ -76,20 +76,20 @@
                         {"bSortable": false, "bSearchable": false},
                     ],
                     "language": {
-                        "search": <h:outputText value="'#{authorFrontDoorMessages.datatables_sSearch}'" />,
+                        "search": <h:outputText value="'#{dataTablesMessages.search}'" />,
                         "lengthMenu": <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu}'" />,
                         "zeroRecords": <h:outputText value="'#{authorFrontDoorMessages.datatables_zeroRecords}'" />,
-                        "info": <h:outputText value="'#{authorFrontDoorMessages.datatables_info}'" />,
+                        "info": <h:outputText value="'#{dataTablesMessages.info}'" />,
                         "infoEmpty": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
                         "infoFiltered": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoFiltered}'" />,
-                        "emptyTable": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
+                        "emptyTable": <h:outputText value="'#{dataTablesMessages.infoEmpty}'" />,
                         "paginate": {
-                            "next": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_next}'" />,
-                            "previous": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_previous}'" />,
+                            "next": <h:outputText value="'#{dataTablesMessages.paginate_next}'" />,
+                            "previous": <h:outputText value="'#{dataTablesMessages.paginate_previous}'" />,
                         },
                         "aria": {
-                            "sortAscending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortAscending}'" />,
-                            "sortDescending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortDescending}'" />,
+                            "sortAscending": <h:outputText value="'#{dataTablesMessages.aria_sortAscending}'" />,
+                            "sortDescending": <h:outputText value="'#{dataTablesMessages.aria_sortDescending}'" />,
                         }
                     },
                     "fnDrawCallback": function(oSettings) {
@@ -273,7 +273,7 @@
 
             <!-- CORE ASSESSMENTS-->
             <h:panelGroup rendered="#{author.allAssessments.size() == 0}">
-                <h:outputText value="#{authorFrontDoorMessages.datatables_zeroRecords}" styleClass="sak-banner-info" />
+                <h:outputText value="#{dataTablesMessages.zeroRecords}" styleClass="sak-banner-info" />
             </h:panelGroup>
             <t:dataTable cellpadding="0" cellspacing="0" rowClasses="list-row-even,list-row-odd" styleClass="table table-hover table-striped table-bordered table-assessments" id="coreAssessments" value="#{author.allAssessments}" var="assessment" rendered="#{author.allAssessments.size() > 0}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
                 <%/* Title */%>
