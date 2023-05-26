@@ -172,6 +172,12 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.export.ExportMarkupTextServlet</servlet-class>
   </servlet>
   
+  <servlet>
+    <description>Export Event Log</description>
+    <servlet-name>ExportEventLogServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.event.ExportEventLogServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>ShowMediaServlet</servlet-name>
     <url-pattern>/servlet/ShowMedia</url-pattern>
@@ -190,6 +196,11 @@
   <servlet-mapping>
     <servlet-name>ExportMarkupTextServlet</servlet-name>
     <url-pattern>/servlet/ExportMarkupText</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ExportEventLogServlet</servlet-name>
+    <url-pattern>/servlet/ExportEventLog</url-pattern>
   </servlet-mapping>
 
   <!-- RSF direct access servlet -->
