@@ -7,12 +7,21 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
         <title><h:outputText value="EventLog"/></title>
+        <script>includeWebjarLibrary('datatables');</script>
+        <script>includeWebjarLibrary('datatables-plugins');</script>
         <script>
           var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
-          var searchHint = '<h:outputText value="#{eventLogMessages.search_hint}"/>';
+        </script>
+        <script>
+          $(document).ready(() => {
+            const dataTableConfig = JSON.parse('<h:outputText value="#{eventLog.dataTableConfig.json}" />');
+            setupDataTable("eventLogId:eventLogTable", dataTableConfig);
+          });
         </script>
         <%@ include file="/js/delivery.js" %>
         <script type="text/javascript" src="/samigo-app/js/eventInfo.js"></script>
+        <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
+        <script type="text/javascript" src="/samigo-app/js/dataTables.js"></script>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>;">
 
@@ -29,52 +38,28 @@
     </h1>
   </div>
 
-  <h:panelGroup layout="block" styleClass="sakai-table-buttonContainer act pull-right clear">
-    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}" styleClass="button" id="previousEventPage">
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
-    </h:commandButton>
-    <h:commandButton action="eventLog" value="#{eventLogMessages.next}" disabled="#{!eventLog.hasNextPage}" title="#{eventLogMessages.previous}" styleClass="button">
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogNextPageListener" />
-    </h:commandButton>
-  </h:panelGroup>
-
- <div class="divContainer row">
-   <div class="divLeft col-lg-6 col-md-4 col-sm-5 col-xs-12">
-     <h:outputLabel value="#{eventLogMessages.filterBy}" />
+  <h:panelGroup styleClass="b5 d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1" layout="block" rendered="#{not empty eventLog.eventLogDataList}">
+    <h:panelGroup styleClass="b5 d-flex flex-wrap flex-sm-nowrap align-items-center" layout="block">
+     <h:outputLabel styleClass="b5 text-nowrap" value="#{eventLogMessages.filterBy}" />
      <h:outputText value="&#160;" escape="false" />
-     <h:selectOneMenu value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
+     <h:selectOneMenu styleClass="form-control" value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
          required="true" onchange="document.forms[0].submit();">
         <f:selectItems value="#{eventLog.assessments}"/>
         <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
      </h:selectOneMenu>
-   </div>
-   <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12" id="eventSearchContainer">
-      <h:inputText id="IE_hidden" value="" disabled="true" style="display: none;" />
-      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30" autocomplete="off" onkeypress="return submitOnEnter(event, 'eventLogId:search');" />
-      <h:outputText value="&#160;" escape="false" />
-      <h:commandButton value="#{eventLogMessages.search}" type="submit" id="search" accesskey="#{eventLogMessages.a_search}">
-         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandButton>
-      <h:commandButton value="#{eventLogMessages.clear}" type="submit" id="clear" accesskey="#{eventLogMessages.a_clear}">
-         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandButton>
-   </div>
- </div>
+    </h:panelGroup>
+    <h:outputLink styleClass="button" value="#{eventLog.exportUrl}">
+      <h:outputText value="#{eventLogMessages.export_csv}"/>
+    </h:outputLink>
+  </h:panelGroup>
 
  <div class="table-responsive">
- <h:dataTable styleClass="table table-striped" value="#{eventLog.eventLogDataList}" var="log">
+ <h:dataTable style="display:none;" id="eventLogTable" styleClass="table table-striped table-bordered" value="#{eventLog.eventLogDataList}"
+         rendered="#{not empty eventLog.eventLogDataList}" var="log">
   <!-- Assessment Title... -->
     <h:column>
     <f:facet name="header">
-        <h:commandLink title="#{eventLogMessages.t_sortTitle}" action="eventLog">
         <h:outputText value="#{eventLogMessages.title}"/>
-        <f:param name="sortAscending" value="#{!eventLog.sortAscending}"/>
-        <f:param name="sortBy" value="title" />
-        <h:graphicImage alt="#{eventLogMessages.alt_sortTitleAscending}" rendered="#{eventLog.sortType eq 'title' && eventLog.sortAscending}" url="/images/sortascending.gif"/>
-        <h:graphicImage alt="#{eventLogMessages.alt_sortTitleDescending}" rendered="#{eventLog.sortType eq 'title' && !eventLog.sortAscending}" url="/images/sortdescending.gif"/>
-        <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandLink>
     </f:facet>
 
    <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
@@ -86,14 +71,7 @@
   <!-- Assessment ID... -->
   <h:column>
     <f:facet name="header">
-      <h:commandLink title="#{eventLogMessages.t_sortId}" action="eventLog">
         <h:outputText value="#{eventLogMessages.id}"/>
-        <f:param name="sortAscending" value="#{!eventLog.sortAscending}"/>
-        <f:param name="sortBy" value="id" />
-        <h:graphicImage alt="#{eventLogMessages.alt_sortIdAscending}" rendered="#{eventLog.sortType eq 'id' && eventLog.sortAscending}" url="/images/sortascending.gif"/>
-        <h:graphicImage alt="#{eventLogMessages.alt_sortIdDescending}" rendered="#{eventLog.sortType eq 'id' && !eventLog.sortAscending}" url="/images/sortdescending.gif"/>
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandLink>
     </f:facet>
     <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
       <h:outputText value="#{log.assessmentIdStr}" />
@@ -103,15 +81,7 @@
 	 <!-- UserID... -->
 	 <h:column >
 	  <f:facet name="header">
-        <h:commandLink title="#{eventLogMessages.t_sortUser}" action="eventLog">
         <h:outputText value="#{eventLogMessages.user_id}"/>
-        <f:param name="sortAscending" value="#{!eventLog.sortAscending}"/>
-        <f:param name="sortBy" value="userDisplay" />
-        <h:graphicImage alt="#{eventLogMessages.alt_sortUserAscending}" rendered="#{eventLog.sortType eq 'userDisplay' && eventLog.sortAscending}" url="/images/sortascending.gif"/>
-        <h:graphicImage alt="#{eventLogMessages.alt_sortUserDescending}" rendered="#{eventLog.sortType eq 'userDisplay' && !eventLog.sortAscending}" url="/images/sortdescending.gif"/>
-        <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandLink>
 	  </f:facet>
 
 	 <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
@@ -121,40 +91,30 @@
 	 <!-- Date Started... -->
 	<h:column>
 	  <f:facet name="header">
-        <h:commandLink title="#{eventLogMessages.t_sortStartDate}" action="eventLog">
         <h:outputText value="#{eventLogMessages.date_startd}"/>
-        <f:param name="sortAscending" value="#{!eventLog.sortAscending}"/>
-        <f:param name="sortBy" value="startDate" />
-        <h:graphicImage alt="#{eventLogMessages.alt_sortStartDateAscending}" rendered="#{eventLog.sortType eq 'startDate' && eventLog.sortAscending}" url="/images/sortascending.gif"/>
-        <h:graphicImage alt="#{eventLogMessages.alt_sortStartDateDescending}" rendered="#{eventLog.sortType eq 'startDate' && !eventLog.sortAscending}" url="/images/sortdescending.gif"/>
-        <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandLink>
 	  </f:facet>
 
 	 <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
 	  <h:outputText value="#{log.startDate}">
 	    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
 	  </h:outputText>
-     </h:panelGroup>
+	  <h:outputText value="#{log.startDate}" styleClass="hidden spanValue">
+	    <f:convertDateTime pattern="yyyyMMddHHmmss" />
+	  </h:outputText>
+    </h:panelGroup>
 	</h:column>
 	<!-- Date Submitted... -->
 	<h:column>
 	  <f:facet name="header">
-        <h:commandLink title="#{eventLogMessages.t_sortEndDate}" action="eventLog">
-        <h:outputText value="#{eventLogMessages.date_submitted}"/>
-        <f:param name="sortAscending" value="#{!eventLog.sortAscending}"/>
-        <f:param name="sortBy" value="endDate" />
-        <h:graphicImage alt="#{eventLogMessages.alt_sortEndDateAscending}" rendered="#{eventLog.sortType eq 'endDate' && eventLog.sortAscending}" url="/images/sortascending.gif"/>
-        <h:graphicImage alt="#{eventLogMessages.alt_sortEndDateDescending}" rendered="#{eventLog.sortType eq 'endDate' && !eventLog.sortAscending}" url="/images/sortdescending.gif"/>
-        <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandLink>
+        <h:outputText id="eventLogTable" value="#{eventLogMessages.date_submitted}"/>
 	  </f:facet>
 
 	 <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
 	  <h:outputText value="#{log.endDate}">
 	    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+	  </h:outputText>
+	  <h:outputText value="#{log.endDate}" styleClass="hidden spanValue">
+	    <f:convertDateTime pattern="yyyyMMddHHmmss" />
 	  </h:outputText>
      </h:panelGroup>
 	</h:column>
@@ -176,15 +136,7 @@
 	<!-- Errors... -->
 	<h:column>
 	  <f:facet name="header">
-        <h:commandLink title="#{eventLogMessages.t_sortErrorMsg}" action="eventLog">
         <h:outputText value="#{eventLogMessages.errors}"/>
-        <f:param name="sortAscending" value="#{!eventLog.sortAscending}"/>
-        <f:param name="sortBy" value="errorMsg" />
-        <h:graphicImage alt="#{eventLogMessages.alt_sortErrorMsgAscending}" rendered="#{eventLog.sortType eq 'errorMsg' && eventLog.sortAscending}" url="/images/sortascending.gif"/>
-        <h:graphicImage alt="#{eventLogMessages.alt_sortErrorMsgDescending}" rendered="#{eventLog.sortType eq 'errorMsg' && !eventLog.sortAscending}" url="/images/sortdescending.gif"/>
-        <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandLink>
 	  </f:facet>
 
 	 <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
@@ -196,15 +148,7 @@
 	<!-- IP Address -->
 	<h:column rendered="#{eventLog.enabledIpAddress}">
 	  <f:facet name="header">
-        <h:commandLink title="#{eventLogMessages.t_sortIP}" action="eventLog">
         <h:outputText value="#{eventLogMessages.ipAddress}"/>
-        <f:param name="sortAscending" value="#{!eventLog.sortAscending}"/>
-        <f:param name="sortBy" value="ipAddress" />
-        <h:graphicImage alt="#{eventLogMessages.alt_sortIPAscending}" rendered="#{eventLog.sortType eq 'ipAddress' && eventLog.sortAscending}" url="/images/sortascending.gif"/>
-        <h:graphicImage alt="#{eventLogMessages.alt_sortIPDescending}" rendered="#{eventLog.sortType eq 'ipAddress' && !eventLog.sortAscending}" url="/images/sortdescending.gif"/>
-        <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandLink>
 	  </f:facet>
 
 	 <h:panelGroup styleClass="#{eventLog.isDeleted(log.assessmentId) ? 'eventLogDeleted' : ''}">
@@ -214,10 +158,9 @@
 
 	</h:dataTable>
 
-   <h:outputText rendered="#{empty eventLog.eventLogDataList && empty eventLog.filteredUser}" value="#{eventLogMessages.no_data}"/>
-   <h:outputFormat rendered="#{empty eventLog.eventLogDataList && not empty eventLog.filteredUser}" value="#{eventLogMessages.no_data_search}">
-      <f:param value="#{eventLog.filteredUser}"></f:param>
-   </h:outputFormat>
+	<h:panelGroup styleClass="sak-banner-info" rendered="#{empty eventLog.eventLogDataList}" layout="block">
+		<h:outputText value="#{eventLogMessages.no_data}"/>
+	</h:panelGroup>
 </div>
 </h:form>
 <!-- end content -->
