@@ -99,7 +99,7 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
 		return eventLogDataList;
 	}
 	
-	public List<EventLogData> getEventLogData(final String siteId, final Long assessmentId, final String userFilter) {
+	public List<EventLogData> getEventLogData(final String siteId, final Long assessmentId) {
 	   String query = "select eld from EventLogData as eld where eld.siteId = :site";
 
 	   if (assessmentId > -1) {
@@ -124,10 +124,7 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
       Map<String, User> userMap = new HashMap<String, User>();
       for(EventLogData e : list) {
          e.setUserDisplay(getUserDisplay(e.getUserEid(), userMap));
-     
-         if (userFilter == null || "".equals(userFilter) || (userFilter != null && !"".equals(userFilter) && e.getUserDisplay().toLowerCase().contains(userFilter.toLowerCase()))) {
-            eventLogDataList.add(e);
-         }
+         eventLogDataList.add(e);
       }
 
       return eventLogDataList;
