@@ -537,33 +537,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 			List targetPools = new ArrayList<>();
 
-			boolean export_instructor_pools = false;
-			boolean export_assessment_pools = true;
-
-			// All pools owned by instructors in the site
-			if (export_instructor_pools) {
-				log.info("Exporting question pools owned by any maintainer in site {}", siteId);
-				String maintainRole = site.getMaintainRole();
-				List<String> instructorIds = new ArrayList<>();
-				for (Member member : site.getMembers()) {
-					if (maintainRole.equals(member.getRole().getId())) {
-						if (!"admin".equals(member.getUserId())) {
-							instructorIds.add(member.getUserId());
-						}
-					}
-				}
-
-				for (String instructorId : instructorIds) {
-					targetPools.addAll(questionPoolService.getAllPools(instructorId));
-				}
-			}
-
 			// Pools used in assessments in the site
-			if (export_assessment_pools) {
-				log.info("Exporting question pools used in site {}", siteId);
-				for (String poolId : questionPoolIds) {
-					targetPools.add(questionPoolService.getPool(new Long(poolId), null));
-				}
+			log.info("Exporting question pools used in site {}", siteId);
+			for (String poolId : questionPoolIds) {
+				targetPools.add(questionPoolService.getPool(new Long(poolId), null));
 			}
 
 			for (Object poolObj : targetPools) {
