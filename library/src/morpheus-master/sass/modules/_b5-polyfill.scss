@@ -29,6 +29,10 @@ TODO Master merge: Remove this file
   }
 
   /* https://getbootstrap.com/docs/5.2/utilities/spacing/#maps */
+  &.mb-1 {
+    margin-bottom: $standard-spacing * 0.25 !important;
+  }
+
   &.gap-1 {
     gap: $standard-spacing * 0.25 !important;
   }

@@ -760,6 +760,11 @@ function includeWebjarLibrary(library) {
 			jsReferences.push('/js/dataTables.bootstrap.min.js');
 			cssReferences.push('/css/dataTables.bootstrap.min.css');
 			break;
+		case 'datatables-plugins':
+			libraryVersion = "1.13.1";
+			// any-number plugin
+			jsReferences.push('/sorting/any-number.js');
+			break;
 		case 'datatables-rowgroup':
 			libraryVersion = "1.1.3";
 			// This webjar has a different convention without version and library name.
