@@ -49,7 +49,6 @@ Directory.Read.All
 Directory.ReadWrite.All
 Group.Read.All
 OnlineMeetings.ReadWrite.All
-Teamwork.Migrate.All
 User.Read.All
 -- Chat Messages
 Chat.Read.All
