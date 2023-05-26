@@ -761,7 +761,7 @@ function includeWebjarLibrary(library) {
 			document.write(`<script src="${webjars}/datatables.net-rowgroup/js/dataTables.rowGroup.min.js${ver}"></script>`);
 			break;
 		case 'ckeditor4':
-			libraryVersion = "4.16.1";
+			libraryVersion = "4.21.0";
 			jsReferences.push('/ckeditor.js');
 			break;
 		case 'awesomplete':
