@@ -1,5 +1,12 @@
 <%-- Headings for item edit pages, needs to have msg=AuthorMessages.properties.  --%>
 <!-- Core files -->
+<%
+String thisId = request.getParameter("panel");
+if (thisId == null) {
+  thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+}
+String selectId = "itemForm:assignToPool";
+%>
 <script>
 function changeTypeLink(field){
 
@@ -30,6 +37,11 @@ function displayEMIHelp(){
     window.open('../../../../../../samigo-app/emi/help.txt', '_blank', 'location=no,menubar=no,status=no,toolbar=no');
 }
 </script>
+<script>includeWebjarLibrary('select2');</script>
+<script src="/samigo-app/js/select2.js"></script>
+<input id="toolId" type="hidden" value="<%= thisId %>">
+<input id="selectorId" type="hidden" value="<%= selectId %>">
+
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form
      when this form posts a change in item type, the data is persisted.
