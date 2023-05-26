@@ -460,7 +460,7 @@ import org.sakaiproject.importer.impl.XPathHelper;
       int size = newElementList.size();
       if(size > 1)
       {
-        log.info("UPDATING MORE THAN ONE ELEMENT");
+        log.debug("UPDATING MORE THAN ONE ELEMENT");
       }
 
       if((aIndex == -1) && (size != 0))
