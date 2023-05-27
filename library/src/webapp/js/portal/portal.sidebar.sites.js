@@ -17,21 +17,24 @@ class SitesSidebar {
 
     document.addEventListener("site-pin-change", this.handlePinChange.bind(this));
 
-    element.querySelectorAll(".site-list-item-collapse").forEach(btn => {
+    element.querySelectorAll(".site-list-item-collapse").forEach(toolList => {
 
-      const chevron = element.querySelector(`[data-bs-target='#${btn.id}'] > i`);
+      const button = element.querySelector(`[data-bs-target='#${toolList.id}']`);
+      const icon = button.querySelector("i");
 
-      chevron.className = `bi-chevron-${btn.classList.contains("show") ? "down" : "right"}`;
+      icon.className = `bi-chevron-${toolList.classList.contains("show") ? "down" : "right"}`;
 
-      btn.addEventListener("show.bs.collapse", e => {
+      toolList.addEventListener("show.bs.collapse", e => {
 
         e.stopPropagation();
-        chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
+        icon.classList.replace("bi-chevron-right", "bi-chevron-down");
+        button.title = this._i18n.collapseTools;
       });
-      btn.addEventListener("hide.bs.collapse", e => {
+      toolList.addEventListener("hide.bs.collapse", e => {
 
         e.stopPropagation();
-        chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
+        icon.classList.replace("bi-chevron-down", "bi-chevron-right");
+        button.title = this._i18n.expandTools;
       });
     });
 
