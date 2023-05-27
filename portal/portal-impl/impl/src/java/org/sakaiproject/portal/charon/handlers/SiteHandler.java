@@ -52,6 +52,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalService;
@@ -291,9 +292,8 @@ public class SiteHandler extends WorksiteHandler
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
 			String siteId, String pageId, String toolId,
 			String commonToolId, String [] parts, String toolContextPath) throws ToolException,
-			IOException
-	{		
-				
+			IOException {
+
 		// default site if not set
 		String userId = session.getUserId();
 		if (siteId == null)
@@ -309,13 +309,13 @@ public class SiteHandler extends WorksiteHandler
 			else
 			{
 				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
-				AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
-				List<Map> sites = (List<Map>)allSites.getRenderContextObject();
+				AllSitesViewImpl allSites = (AllSitesViewImpl) portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
+				List<Map> sites = (List<Map>) allSites.getRenderContextObject();
 				if (sites.size() > 0) {
-					siteId = (String)sites.get(0).get("siteId");
-				}
-				else
+					siteId = (String) sites.get(0).get("siteId");
+				} else {
 					siteId = SiteService.getUserSiteId(userId);
+				}
 			}
 		}
 
@@ -386,7 +386,7 @@ public class SiteHandler extends WorksiteHandler
 		}
 		
 		// Supports urls like: /portal/site/{SITEID}/sakai.announcements
-		if(site != null && commonToolId != null)
+		if (site != null && commonToolId != null)
 		{
 			ToolConfiguration tc = null;
 			if(!commonToolId.startsWith("sakai."))
@@ -407,7 +407,7 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		// Find the pageId looking backwards through the toolId
-		if(site != null && pageId == null && toolId != null ) {
+		if (site != null && pageId == null && toolId != null ) {
 			SitePage p = (SitePage) ToolUtils.getPageForTool(site, toolId);
 			if ( p != null ) pageId = p.getId();
 		}
@@ -423,7 +423,7 @@ public class SiteHandler extends WorksiteHandler
 		if (mutablePagename.equalsIgnoreCase(pageId)) {
 			pageId = findPageIdFromToolId(pageId, URLUtils.getSafePathInfo(req), site);
 		}
-		
+
 		// clear the last page visited
 		session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 
@@ -467,6 +467,7 @@ public class SiteHandler extends WorksiteHandler
 		boolean allowBuffer = false;
 		Object BC = null;
 
+
 		ToolConfiguration siteTool = null;
 		if ( toolId != null ) {
 			siteTool = SiteService.findTool(toolId);
@@ -505,8 +506,14 @@ public class SiteHandler extends WorksiteHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req, site);
 
-		if (toolId != null) {
-			rcontext.put("currentExpanded", true);
+		try {
+			PreferencesEdit prefs = PreferencesService.edit(session.getUserId());
+			ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
+			props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
+			PreferencesService.commit(prefs);
+		} catch (Exception any) {
+			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
 		}
 
 		if ( allowBuffer ) {
@@ -658,6 +665,7 @@ public class SiteHandler extends WorksiteHandler
 				rcontext.put("quickLinks", quickLinks);
 			}
 		}
+
 
 
 		doSendResponse(rcontext, res, null);
@@ -845,6 +853,7 @@ public class SiteHandler extends WorksiteHandler
 			Session session, String siteId, String prefix, boolean addLogout)
 			throws IOException
 	{
+
 		if (rcontext.uses(INCLUDE_TABS))
 		{
 			// for skinning
@@ -975,7 +984,7 @@ public class SiteHandler extends WorksiteHandler
 				}
 
 				try {
-					sidebarCollapsed = props.getBooleanProperty("sidebarCollapsed");
+					sidebarCollapsed = props.getBooleanProperty(PortalConstants.PROP_SIDEBAR_COLLAPSED);
 				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
 					sidebarCollapsed = false;
 				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
@@ -983,8 +992,8 @@ public class SiteHandler extends WorksiteHandler
 				}
 
 				try {
-					currentExpanded = props.getBooleanProperty("currentExpanded");
-					expandedSite = props.getProperty("expandedSite");
+					currentExpanded = props.getBooleanProperty(PortalConstants.PROP_CURRENT_EXPANDED);
+					expandedSite = props.getProperty(PortalConstants.PROP_EXPANDED_SITE);
 				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
 					currentExpanded = false;
 				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
@@ -1003,9 +1012,9 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("sidebarCollapsed", Boolean.valueOf(sidebarCollapsed));
+			rcontext.put(PortalConstants.PROP_SIDEBAR_COLLAPSED, Boolean.valueOf(sidebarCollapsed));
 			if (expandedSite.equals(siteId)) {
-				rcontext.put("currentExpanded", Boolean.valueOf(currentExpanded));
+				rcontext.put(PortalConstants.PROP_CURRENT_EXPANDED, Boolean.valueOf(currentExpanded));
 			}
 			rcontext.put(SELECTED_PAGE_PROP, selectedPage);
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));

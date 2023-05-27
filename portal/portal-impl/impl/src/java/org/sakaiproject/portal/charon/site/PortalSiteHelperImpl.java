@@ -622,8 +622,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String effectiveSite = getSiteEffectiveId(s);
 
 		boolean isCurrentSite = currentSiteId != null
-		&& (s.getId().equals(currentSiteId) || effectiveSite
-		.equals(currentSiteId));
+                        && (s.getId().equals(currentSiteId) || effectiveSite.equals(currentSiteId));
 		m.put("isCurrentSite", Boolean.valueOf(isCurrentSite));
 		m.put("isPublished", s.isPublished());
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
