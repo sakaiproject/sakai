@@ -21,6 +21,8 @@
   //Setup sidebar
   const siteSidebar = new SitesSidebar(portal.sidebars.sites, {
     i18n: {
+      expandTools: "${rloader.sitenav_expand_tools}",
+      collapseTools: "${rloader.sitenav_collapse_tools}",
       pinButtons: {
         titlePin: "${rloader.sitenav_btn_pin}",
         titleUnpin: "${rloader.sitenav_btn_unpin}",

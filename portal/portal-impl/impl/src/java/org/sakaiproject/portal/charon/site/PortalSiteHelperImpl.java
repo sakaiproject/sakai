@@ -283,6 +283,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return null;
 	}
 
+	private String getPageDescription(SitePage page) {
+
+		return String.join(" | ", page.getTools().stream().map(tc -> tc.getTool())
+			.filter(Objects::nonNull)
+			.map(t -> t.getDescription().replace("\"","&quot;")).collect(Collectors.toList()));
+	}
+
 	private List<String> getExcludedSiteIds()
 	{
 		Session session = sessionManager.getCurrentSession();
@@ -396,6 +403,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		pageMap.put("locked", !toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page));
 		pageMap.put("isPopup", page.isPopUp());
 		pageMap.put("title", page.getTitle());
+		pageMap.put("description", getPageDescription(page));
 		return pageMap;
 	}
 
@@ -860,9 +868,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 							hidden = false;
 						}
 					}
-					desc = String.join(" | ", pageTools.stream().map(tc -> tc.getTool())
-					.filter(Objects::nonNull)
-					.map(t -> t.getDescription()).collect(Collectors.toList()));
+					desc = getPageDescription(page);
 				}
 
 				if ( ! siteUpdate ){
@@ -897,9 +903,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("toolpopup", Boolean.valueOf(source!=null));
 				m.put("toolpopupurl", source);
 
-				// TODO: Should have Web.escapeHtmlAttribute()
-				String description = desc.replace("\"","&quot;");
-				m.put("description",  description);
+				m.put("description",  desc);
 				m.put("hidden", Boolean.valueOf(hidden));
 				boolean locked = !toolManager.isFirstToolVisibleToAnyNonMaintainerRole(p);
 				m.put("locked", Boolean.valueOf(locked));
