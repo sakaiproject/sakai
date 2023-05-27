@@ -13,7 +13,6 @@
 
     #if ($site.isCurrent)
         #set ($currentSiteClass = "is-current-site mt-2 fw-bold")
-        ##set ($isExpanded = "true")
         #set ($isExpanded = $currentExpanded)
     #elseif ($type == "gateway")
         #set ($isExpanded = "true")
@@ -30,6 +29,7 @@
                         data-bs-toggle="collapse"
                         data-bs-target="#${type}-site-${safeSiteId}-page-list"
                         aria-expanded="${isExpanded}"
+                        title="#if ($isExpanded == "true")$rloader.sitenav_collapse_tools#else$rloader.sitenav_expand_tools#end"
                         aria-controls="${type}-site-${safeSiteId}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
@@ -52,29 +52,29 @@
                 #else
                     #set ($pageUrl = $page.url)
                 #end
-                #pageListItem ($page.id, $page.title, $pageUrl, "${page.icon}", 4, $page.hidden, $page.locked)
+                #pageListItem ($page, $pageUrl, "${page.icon}", 4)
             #end
             </ul>
         </div>
     </li>
 #end
 
-#macro( pageListItem $id $title $url $icon $indentation $hidden $locked)
+#macro( pageListItem $page $url $icon $indentation)
     
     <li class="nav-item" tabindex="1">
-        <a class="btn btn-nav w-100 ps-${indentation} #if ($selectedPage == $id)selected-page#end" data-page-id="${id}"
+        <a class="btn btn-nav w-100 ps-${indentation} #if ($selectedPage == $page.id)selected-page#end" data-page-id="${page.id}"
                 href="$!{url}"
-                title="${title}">
+                title="${page.title}: ${page.description}">
             <div class="d-flex text-start align-items-center">
                 <div class="d-flex me-auto rounded-end">
                     <i class="me-1 $!{icon}" aria-hidden="true"></i>
-                    <span class="me-2">${title}</span>
+                    <span class="me-2">${page.title}</span>
                 </div>
                 <div class="me-1">
-                #if ($hidden)
+                #if ($page.hidden)
                     <i class="si si-hidden"></i>
                 #end
-                #if ($locked)
+                #if ($page.locked)
                     <i class="si si-locked"></i>
                 #end
                 </div>
