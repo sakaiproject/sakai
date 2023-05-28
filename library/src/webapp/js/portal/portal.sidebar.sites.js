@@ -17,24 +17,21 @@ class SitesSidebar {
 
     document.addEventListener("site-pin-change", this.handlePinChange.bind(this));
 
-    element.querySelectorAll(".site-list-item-collapse").forEach(toolList => {
+    element.querySelectorAll(".site-list-item-collapse").forEach(btn => {
 
-      const button = element.querySelector(`[data-bs-target='#${toolList.id}']`);
-      const icon = button.querySelector("i");
+      const chevron = element.querySelector(`[data-bs-target='#${btn.id}'] > i`);
 
-      icon.className = `bi-chevron-${toolList.classList.contains("show") ? "down" : "right"}`;
+      chevron.className = `bi-chevron-${btn.classList.contains("show") ? "down" : "right"}`;
 
-      toolList.addEventListener("show.bs.collapse", e => {
+      btn.addEventListener("show.bs.collapse", e => {
 
         e.stopPropagation();
-        icon.classList.replace("bi-chevron-right", "bi-chevron-down");
-        button.title = this._i18n.collapseTools;
+        chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
       });
-      toolList.addEventListener("hide.bs.collapse", e => {
+      btn.addEventListener("hide.bs.collapse", e => {
 
         e.stopPropagation();
-        icon.classList.replace("bi-chevron-down", "bi-chevron-right");
-        button.title = this._i18n.expandTools;
+        chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
       });
     });
 
@@ -92,6 +89,32 @@ class SitesSidebar {
     this._element.classList.remove("d-none");
   }
 
+  /**
+   * Switches the attributes on the cloned pinned or unpinned site element
+   */
+  _updatePinned(clone, from, to) {
+
+    clone.id = clone.id.replace(from, to);
+    clone.dataset.type = to;
+
+    const pagesButton = clone.querySelector("button");
+    pagesButton.dataset.bsTarget = pagesButton.dataset.bsTarget.replace(from, to);
+    pagesButton.setAttribute("aria-controls", pagesButton.getAttribute("aria-controls").replace(from, to));
+
+    const pagesCollapse = clone.querySelector("div.collapse");
+    pagesCollapse.id = pagesCollapse.id.replace(from, to);
+
+    if (to === "pinned") {
+      this._pinnedSiteList.append(clone);
+      this._pinnedSiteList.classList.remove("d-none");
+    } else {
+      this._recentSiteList.append(clone);
+      this._recentSiteList.classList.remove("d-none");
+    }
+
+    new PinButton(clone.querySelector("button.site-opt-pin"), { i18n: this._i18n?.pinButtons });
+  }
+
   async handlePinChange(event) {
 
     const pinButton = event.target;
@@ -131,50 +154,24 @@ class SitesSidebar {
             throw new Error(`Network error while updating pinned sites at url ${url}`);
           } else {
             const currentItem = pinButton.closest(".site-list-item");
+            const clone = currentItem.cloneNode(true);
+
             if (pinned) {
-              const clone = currentItem.cloneNode(true);
-              clone.id = clone.id.replace("recent", "pinned");
-              clone.dataset.type = "pinned";
+              this._updatePinned(clone, "recent", "pinned");
 
-              const pagesButton = clone.querySelector("button");
-              pagesButton.dataset.bsTarget = pagesButton.dataset.bsTarget.replace("recent", "pinned");
-              pagesButton.setAttribute("aria-controls", pagesButton.getAttribute("aria-controls").replace("recent", "pinned"));
-
-              const pagesCollapse = clone.querySelector("div.collapse");
-              pagesCollapse.id = pagesCollapse.id.replace("recent", "pinned");
-              this._pinnedSiteList.append(clone);
-              this._pinnedSiteList.classList.remove("d-none");
               document.getElementById("sites-no-pinned-label").classList.add("d-none");
-              currentItem.classList.remove("is-current-site", "fw-bold");
 
-              new PinButton(clone.querySelector("button.site-opt-pin"), { i18n: this._i18n?.pinButtons });
+              currentItem.remove();
+
             } else {
-              document.querySelectorAll(`#toolMenu button[data-pin-site="${siteId}"]`).forEach(b => {
+              this._updatePinned(clone, "pinned", "recent");
 
-                b.classList.remove("si-pin-fill");
-                b.dataset.pinned = "false";
-                b.classList.add("si-pin");
-              });
-
-              if (currentItem.dataset.type === "pinned") {
-                currentItem.remove();
-              } else {
-                // We are unpinning from the recent area. Remove the item from the pinned list.
-                const pinnedItem
-                  = document.querySelector(`#toolMenu li[data-type='pinned'][data-site='${currentItem.dataset.site}']`);
-
-                pinnedItem.remove();
-              }
-
-              const recentItem
-                = document.querySelector(`#toolMenu li[data-type='recent'][data-site='${this._currentSite}']`);
-              recentItem && recentItem.classList.add("is-current-site", "fw-bold");
+              currentItem.remove();
 
               if (!this._pinnedSiteList.children.length) {
                 this._pinnedSiteList.classList.add("d-none");
                 document.getElementById("sites-no-pinned-label").classList.remove("d-none");
               }
-
             }
 
             const siteTitle = pinButton.dataset.siteTitle;
@@ -182,12 +179,12 @@ class SitesSidebar {
 
             if (!this._recentSiteList.children.length) {
               this._recentSiteList.parentElement.classList.add("d-none");
+            } else {
+              this._recentSiteList.parentElement.classList.remove("d-none");
             }
           }
         })
         .catch (error => console.error(error));
-      } else {
-        //Nothing to do
       }
     } else {
         console.error(`Failed to request favorites ${favoritesReq.text}`)

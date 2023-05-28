@@ -438,12 +438,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
             contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(sessionManager.getCurrentSessionUserId())), currentSiteId, true, false));
 
 			//Get pinned sites
-            Collection<Site> pinnedSites = getSites(portalService.getPinnedSites());
+            Collection<String> pinnedSiteIds = portalService.getPinnedSites();
+            Collection<Site> pinnedSites = getSites(pinnedSiteIds);
             List<Map<String, Object>> pinnedSiteMaps = getSiteMaps(pinnedSites, currentSiteId, true, true);
             contextSites.put("pinnedSites", pinnedSiteMaps);
 
 			//Get most recent sites
-			Collection<Site> recentSites = getSites(getRecentSiteIds(currentSiteId));
+			Collection<String> recentSiteIds = getRecentSiteIds(currentSiteId);
+            recentSiteIds.removeAll(pinnedSiteIds);
+			Collection<Site> recentSites = getSites(recentSiteIds);
             List<Map<String, Object>> recentSitesMaps = getSiteMaps(recentSites, currentSiteId, true, false);
             contextSites.put("recentSites", recentSitesMaps);
 
