@@ -167,12 +167,10 @@
 
 <script src="/library/templates.js$!{portalCDNQuery}"></script>
 <script>includeWebjarLibrary("qtip2");</script>
-#* Removed from the UI
 <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 #if ( $tutorial && $loggedIn )
     <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
-*#
 <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
 <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
 <script>
