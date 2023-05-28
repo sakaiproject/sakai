@@ -923,7 +923,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String loginPath = (!forceContainer  && skipContainer ? "/xlogin" : "/relogin");
 		
 		String context = req.getContextPath() + req.getServletPath() + loginPath;
-		
+
 		tool.help(req, res, context, loginPath);
 	}
 
@@ -969,8 +969,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public PortalRenderContext startPageContext(String siteType, String title,
 			String skin, HttpServletRequest request, Site site)
 	{
-		PortalRenderEngine rengine = portalService
-		.getRenderEngine(portalContext, request);
+		PortalRenderEngine rengine = portalService.getRenderEngine(portalContext, request);
 		PortalRenderContext rcontext = rengine.newRenderContext(request);
 
 		skin = getSkin(skin);
