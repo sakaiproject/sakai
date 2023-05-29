@@ -445,7 +445,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			//Get most recent sites
 			Collection<String> recentSiteIds = getRecentSiteIds(currentSiteId);
-            recentSiteIds.removeAll(pinnedSiteIds);
+                        recentSiteIds.removeAll(pinnedSiteIds);
 			Collection<Site> recentSites = getSites(recentSiteIds);
             List<Map<String, Object>> recentSitesMaps = getSiteMaps(recentSites, currentSiteId, true, false);
             contextSites.put("recentSites", recentSitesMaps);
