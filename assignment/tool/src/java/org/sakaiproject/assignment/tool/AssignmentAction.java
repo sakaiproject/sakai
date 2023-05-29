@@ -7874,7 +7874,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Boolean ait = params.getBoolean(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS);
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS, ait);
         Boolean agt = params.getBoolean(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS);
-        state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, agt);;
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS, agt);
 
         List attachments = (List) state.getAttribute(ATTACHMENTS);
         if (attachments == null || attachments.isEmpty()) {
