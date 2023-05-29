@@ -85,6 +85,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       privateNotesRemoved: { attribute: false, type: Boolean },
       feedbackCommentRemoved: { attribute: false, type: Boolean },
       showRemoveFeedbackComment: { attribute: false, type: Boolean },
+      showRemovePrivateNotes: { attribute: false, type: Boolean },
     };
   }
 
@@ -142,6 +143,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.showOverrides = this.submission.submitters?.some(s => s.overridden);
 
     this.showRemoveFeedbackComment = (typeof this._submission.feedbackComment !== "undefined");
+    this.showRemovePrivateNotes = (typeof this._submission.privateNotes !== "undefined");
     this.showingFullPrivateNotes = false;
     this.showingFullFeedbackComment = false;
   }
@@ -298,6 +300,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   _togglePrivateNotesEditor() {
 
     this.privateNotesEditorShowing = !this.privateNotesEditorShowing;
+
+    this.showRemovePrivateNotes
+      = !this.privateNotesEditorShowing && (!this.modified
+              || this.submission.privateNotes === this.nonEditedSubmission.privateNotes);
 
     if (!this.privateNotesEditorShowing) {
 
@@ -765,7 +771,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.privateNotesEditor && this.privateNotesEditor.setData("");
     this.modified = true;
     this.privateNotesRemoved = true;
-    this.requestUpdate();
   }
 
   _removeFeedbackComment() {
