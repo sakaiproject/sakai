@@ -134,6 +134,9 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 				#foreach($att_item in $attached)
 					<tr>
 						<td headers="item">
+								#if($att_item.contentType.startsWith($MIME_TYPE_MICROSOFT))
+									<span class="fa fa-windows" aria-hidden="true"></span>
+								#end
 								<span class="$att_item.iconClass" aria-hidden="true"></span>
 								<span class="sr-only">$!att_item.hoverText</span>
 								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$formattedText.escapeHtml($att_item.displayName)</a>	
@@ -608,6 +611,8 @@ $(document).ready(function () {
 		$(this).addClass('googlethumbnailsmall');
 		$(this).removeClass('googlethumbnailbig');
 	});
+
+	$('.nav-item.active').find('a').focus();
 });	
 
 if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobile..

@@ -19,8 +19,6 @@
 		<dependency>
 			<groupId>org.sakaiproject.microsoft</groupId>
 			<artifactId>microsoft-api</artifactId>
-			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- Sakai dependencies -->
