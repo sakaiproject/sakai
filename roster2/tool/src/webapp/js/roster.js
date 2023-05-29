@@ -803,7 +803,7 @@ roster.calculatePageSizes = function () {
 
   // height of container = height + top and bottom padding;
   // #roster-members-content has no height at load, so we approximate using the morpheus page container
-  var containerHeight = parseInt($('div.Mrphs-pagebody').height());
+  const containerHeight = parseInt($('div.portal-main-container').height());
 
   // number of rows per page = containerHeight / cardHeight, rounded down up nearest whole number
   var numBigRowsPerPage = Math.ceil(containerHeight / bigCardHeight);
