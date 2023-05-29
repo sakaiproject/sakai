@@ -111,6 +111,9 @@ public class FileUploadType extends BaseResourceType {
         if (entity instanceof ContentResource) {
             String mimetype = ((ContentResource) entity).getContentType();
             if (mimetype != null && !"".equals(mimetype.trim())) {
+                if(mimetype.startsWith(ResourceType.MIME_TYPE_MICROSOFT)) {
+                    mimetype = mimetype.replaceFirst(ResourceType.MIME_TYPE_MICROSOFT, "");
+                }
                 iconLocation = contentTypeImageService.getContentTypeImage(mimetype);
             }
         }
@@ -123,6 +126,9 @@ public class FileUploadType extends BaseResourceType {
         if (entity instanceof ContentResource) {
             String mimetype = ((ContentResource) entity).getContentType();
             if (mimetype != null && !"".equals(mimetype.trim())) {
+                if(mimetype.startsWith(ResourceType.MIME_TYPE_MICROSOFT)) {
+                    mimetype = mimetype.replaceFirst(ResourceType.MIME_TYPE_MICROSOFT, "");
+                }
                 iconClass = contentTypeImageService.getContentTypeImageClass(mimetype);
             }
         }
@@ -145,6 +151,9 @@ public class FileUploadType extends BaseResourceType {
         if (entity instanceof ContentResource) {
             String mimetype = ((ContentResource) entity).getContentType();
             if (mimetype != null && !"".equals(mimetype.trim())) {
+                if(mimetype.startsWith(ResourceType.MIME_TYPE_MICROSOFT)) {
+                    mimetype = mimetype.replaceFirst(ResourceType.MIME_TYPE_MICROSOFT, "");
+                }
                 hoverText = contentTypeImageService.getContentTypeDisplayName(mimetype);
             }
         }

@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ConfigRequest {
 	List<String> synch_config_items = new ArrayList<>();
+	boolean onedriveEnabled;
 	SakaiUserIdentifier mapped_sakai_user_id;
 	MicrosoftUserIdentifier mapped_microsoft_user_id;
 	SakaiSiteFilter siteFilter;
