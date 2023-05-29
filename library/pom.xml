@@ -109,7 +109,7 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.github.jknack</groupId>
+			<groupId>org.webjars</groupId>
 			<artifactId>handlebars</artifactId>
 			<version>${handlebars4.version}</version>
 			<scope>runtime</scope>
