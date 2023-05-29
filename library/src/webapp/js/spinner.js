@@ -26,14 +26,7 @@ var SPNR = SPNR || {};
 // Get the main content div, return an empty div if it can't be found
 const mainContent = () => {
   const contentElement = document.getElementById("content");
-  if (contentElement !== null) {
-    // Element found, return it
-    return contentElement;
-  } else {
-    // Element not found, return a default element
-    const defaultElement = document.createElement("div");
-    return defaultElement;
-  }
+  return contentElement !== null ? contentElement : document.createElement("div");
 };
 
 /********** MAIN FUNCTIONS TO BE CALLED FROM OUTSIDE LIBRARY ******************/
