@@ -76,12 +76,27 @@ Mail.Send
 Team.Create
 TeamMember.Read.All
 TeamMember.ReadWrite.All
-User.Invite
+User.Invite.All
 User.Read
 User.Read.All
 ```
 
 Then you must click on the _Grant admin consent_ button for your Azure directory.
+
+## Sakai - Microsoft Authorization Tool
+Used to manage Authorization Code Flow from Microsoft: https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow. This will enable the delegated access to Microsoft API.
+
+Requires additional delegated permissions:
+```sh
+Files.Read.All
+User.Read
+```
+
+**Important**: This tool replaces **cloud-storage/onedrive** so these deployed elements will be no longer needed:
+- .../lib/sakai-onedrive-api-XX.jar
+- .../components/sakai-onedrive-impl
+- .../webapps/sakai-onedrive-tool
+- .../webapps/sakai-onedrive-tool.war
 
 ## Sakai configuration
 Everything will be configured through the administration tool.

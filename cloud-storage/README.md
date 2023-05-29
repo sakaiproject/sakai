@@ -7,7 +7,7 @@ This module provides an integration within Sakai for implementations of differen
 
 At the moment, the current supported cloud providers are:
 
-	- Microsoft OneDrive.
+	- Microsoft OneDrive -> Migrated to microsoft-integration.
 	- Google Drive.
 
 

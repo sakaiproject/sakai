@@ -21,6 +21,7 @@
                 <value>org.sakaiproject.microsoft.api.model.GroupSynchronization</value>
                 <value>org.sakaiproject.microsoft.api.model.MicrosoftConfigItem</value>
                 <value>org.sakaiproject.microsoft.api.model.MicrosoftLog</value>
+                <value>org.sakaiproject.microsoft.api.model.MicrosoftAccessToken</value>
             </list>
         </property>
     </bean>
@@ -42,6 +43,10 @@
           class="org.sakaiproject.microsoft.impl.persistence.MicrosoftLoggingRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
+    <bean id="org.sakaiproject.microsoft.api.persistence.MicrosoftAccessTokenRepository"
+          class="org.sakaiproject.microsoft.impl.persistence.MicrosoftAccessTokenRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
 
     <!-- Microsoft Synchronization Service -->
     <bean id="org.sakaiproject.microsoft.api.MicrosoftSynchronizationService" class="org.sakaiproject.microsoft.impl.MicrosoftSynchronizationServiceImpl" init-method="init">
@@ -55,6 +60,13 @@
     <bean id="org.sakaiproject.microsoft.api.MicrosoftCommonService" class="org.sakaiproject.microsoft.impl.MicrosoftCommonServiceImpl" init-method="init">
         <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
         <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"/>
+        <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
+    </bean>
+
+    <!-- Microsoft Authorization Service -->
+    <bean id="org.sakaiproject.microsoft.api.MicrosoftAuthorizationService" class="org.sakaiproject.microsoft.impl.MicrosoftAuthorizationServiceImpl" init-method="init">
+    	<property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
+        <property name="microsoftAccessTokenRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftAccessTokenRepository"/>
         <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
     </bean>
     

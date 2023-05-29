@@ -39,6 +39,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.sakaiproject.messaging.api.MicrosoftMessage;
 import org.sakaiproject.messaging.api.MicrosoftMessage.MicrosoftMessageBuilder;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
+import org.sakaiproject.microsoft.api.MicrosoftAuthorizationService;
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
@@ -100,6 +101,10 @@ import com.microsoft.graph.requests.ConversationMemberCollectionRequestBuilder;
 import com.microsoft.graph.requests.ConversationMemberCollectionResponse;
 import com.microsoft.graph.requests.DirectoryObjectCollectionWithReferencesPage;
 import com.microsoft.graph.requests.DirectoryObjectCollectionWithReferencesRequestBuilder;
+import com.microsoft.graph.requests.DriveItemCollectionPage;
+import com.microsoft.graph.requests.DriveItemCollectionRequestBuilder;
+import com.microsoft.graph.requests.DriveSharedWithMeCollectionPage;
+import com.microsoft.graph.requests.DriveSharedWithMeCollectionRequestBuilder;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.GroupCollectionPage;
 import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
@@ -125,6 +130,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	@Autowired
 	MicrosoftMessagingService microsoftMessagingService;
 	
+	@Autowired
+	MicrosoftAuthorizationService microsoftAuthorizationService;
+	
 	@Setter
 	private CacheManager cacheManager;
 	private Cache cache = null;
@@ -133,6 +141,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	private static final String CACHE_TEAMS = "key::teams";
 	private static final String CACHE_CHANNELS = "key::channels::";
 	private static final String CACHE_RECORDINGS = "key::recordings::";
+	private static final String CACHE_DRIVE_ITEMS = "key::driveitems::";
+	private static final String CACHE_DRIVE_ITEMS_USER = "key::driveitems-user::";
+	private static final String CACHE_DRIVE_ITEMS_GROUP = "key::driveitems-group::";
 	
 	private static final String PERMISSION_READ = "read";
 	private static final String PERMISSION_WRITE = "write";
@@ -194,6 +205,21 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	@Override
 	public void resetTeamsCache() {
 		getCache().evictIfPresent(CACHE_TEAMS);
+	}
+	
+	@Override
+	public void resetDriveItemsCache() {
+		getCache().evictIfPresent(CACHE_DRIVE_ITEMS);
+	}
+	
+	@Override
+	public void resetUserDriveItemsCache(String userId) {
+		getCache().evictIfPresent(CACHE_DRIVE_ITEMS_USER + userId);
+	}
+	
+	@Override
+	public void resetGroupDriveItemsCache(String groupId) {
+		getCache().evictIfPresent(CACHE_DRIVE_ITEMS_GROUP + groupId);
 	}
 
 	@Override
@@ -983,10 +1009,12 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	
 	@Override
 	public Map<String, MicrosoftChannel> getTeamPrivateChannels(String teamId, boolean force) throws MicrosoftCredentialsException {
-		//get from cache
-		Cache.ValueWrapper cachedValue = getCache().get(CACHE_CHANNELS+teamId);
-		if(cachedValue != null) {
-			return (Map<String, MicrosoftChannel>)cachedValue.get();
+		if(!force) {
+			//get from cache
+			Cache.ValueWrapper cachedValue = getCache().get(CACHE_CHANNELS+teamId);
+			if(cachedValue != null) {
+				return (Map<String, MicrosoftChannel>)cachedValue.get();
+			}
 		}
 		
 		Map<String, MicrosoftChannel> channelsMap = new HashMap<>();
@@ -1351,7 +1379,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 								if(teamIdsList != null) {
 									for(String teamId : teamIdsList) {
 										//add permissions for sharing (we want all Team users to access the recording, not only the assistant ones)
-										if(grantReadPermissionToTeam(details.initiator.user.id, driveItem.getId(), teamId)) {
+										if(grantReadPermissionToTeam(driveItem.getDriveId(), driveItem.getId(), teamId)) {
 											//granted permission to Team -> we replace shared URL (from chat) with basic URL
 											builder.url(driveItem.getUrl());
 										}
@@ -1375,7 +1403,82 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return ret;
 	}
 	
-	// ---------------------------------------- ONE-DRIVE --------------------------------------------------------
+	// ---------------------------------------- ONE-DRIVE (APPLICATION) --------------------------------------------------------
+	@Override
+	public List<MicrosoftDriveItem> getGroupDriveItems(String groupId) throws MicrosoftCredentialsException {
+		List<MicrosoftDriveItem> ret = getGroupDriveItemsByItemId(groupId, null);
+		//at this point we only have root files and folders, excluding private channels folders.
+		//we need to get all private channels from Team (bypassing the cache), and the DriveItem related to it
+		for(String channelId : getTeamPrivateChannels(groupId, true).keySet()) {
+			MicrosoftDriveItem item = getDriveItemFromChannel(groupId, channelId);
+			if(item != null) {
+				ret.add(item);
+			}
+		}
+		return ret;
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getGroupDriveItemsByItemId(String groupId, String itemId) throws MicrosoftCredentialsException {
+		
+		String cacheItemKey = itemId;
+		if(cacheItemKey == null) {
+			cacheItemKey = "ROOT";
+		}
+		
+		Map<String, List<MicrosoftDriveItem>> driveItemsMap = null;
+		Cache.ValueWrapper cachedValue = getCache().get(CACHE_DRIVE_ITEMS_GROUP + groupId);
+		if(cachedValue != null) {
+			driveItemsMap = (Map<String, List<MicrosoftDriveItem>>)cachedValue.get();
+			if(driveItemsMap.containsKey(cacheItemKey) && driveItemsMap.get(cacheItemKey) != null) {
+				return driveItemsMap.get(cacheItemKey);
+			}
+		}
+		
+		List<MicrosoftDriveItem> ret = new ArrayList<>();
+		try {
+			
+			DriveItemCollectionPage itemPage = null;
+			if(itemId != null) {
+				itemPage = getGraphClient().groups(groupId).drive().items(itemId).children().buildRequest().get();
+			} else {
+				itemPage = getGraphClient().groups(groupId).drive().root().children().buildRequest().get();
+			}
+			while (itemPage != null) {
+				ret.addAll(itemPage.getCurrentPage().stream().map(item -> {
+					JsonElement adm = item.additionalDataManager().get("@microsoft.graph.downloadUrl");
+					return MicrosoftDriveItem.builder()
+						.id(item.id)
+						.name(item.name)
+						.url(item.webUrl)
+						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
+						.downloadURL((adm!=null) ? adm.getAsString() : null)
+						.processPath((item.parentReference != null) ? item.parentReference.path : null)
+						.folder(item.folder != null)
+						.childCount((item.folder != null) ? item.folder.childCount : 0)
+						.size(item.size)
+						.mimeType((item.file != null) ? item.file.mimeType : null)
+						.build();
+					}).collect(Collectors.toList())
+				);
+				DriveItemCollectionRequestBuilder itemBuilder = itemPage.getNextPage();
+				if (itemBuilder == null) break;
+				itemPage = itemBuilder.buildRequest().get();
+			}
+			
+			if(driveItemsMap == null) {
+				driveItemsMap = new HashMap<>();
+			}
+			driveItemsMap.put(cacheItemKey, ret);
+			getCache().put(CACHE_DRIVE_ITEMS_GROUP + groupId, driveItemsMap);
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error getting Drive Items for group={} and itemId={}", groupId, itemId);
+		}
+		return ret;
+	}
+	
 	@Override
 	public MicrosoftDriveItem getDriveItemFromLink(String link) throws MicrosoftCredentialsException {
 		MicrosoftDriveItem ret = null;
@@ -1385,6 +1488,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 					.id(item.id)
 					.name(item.name)
 					.url(item.webUrl)
+					.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 					.build();
 		}catch(MicrosoftCredentialsException e) {
 			throw e;
@@ -1395,7 +1499,35 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	}
 	
 	@Override
-	public boolean grantReadPermissionToTeam(String userId, String itemId, String teamId) throws MicrosoftCredentialsException {
+	public MicrosoftDriveItem getDriveItemFromChannel(String teamId, String channelId) throws MicrosoftCredentialsException {
+		MicrosoftDriveItem ret = null;
+		try {
+			DriveItem item = getGraphClient()
+					.teams(teamId)
+					.channels(channelId)
+					.filesFolder()
+					.buildRequest()
+					.get();
+			ret = MicrosoftDriveItem.builder()
+					.id(item.id)
+					.name(item.name)
+					.url(item.webUrl)
+					.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
+					.depth(0)
+					.folder(item.folder != null)
+					.childCount((item.folder != null) ? item.folder.childCount : 0)
+					.size(item.size)
+					.build();
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.debug("Error getting driveItem from team={} and channel={}", teamId, channelId);
+		}
+		return ret;
+	}
+	
+	@Override
+	public boolean grantReadPermissionToTeam(String driveId, String itemId, String teamId) throws MicrosoftCredentialsException {
 		try {
 			DriveRecipient recipient = new DriveRecipient();
 			recipient.objectId = teamId;
@@ -1407,7 +1539,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			rolesList.add(PERMISSION_READ);
 			
 			getGraphClient()
-					.users(userId).drive().items(itemId)
+					.drives(driveId).items(itemId)
 					.invite(DriveItemInviteParameterSet
 							.newBuilder()
 							.withRequireSignIn(true)
@@ -1421,9 +1553,257 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		}catch(MicrosoftCredentialsException e) {
 			throw e;
 		}catch (Exception e) {
-			log.debug("Error adding permissions for itemId={} from user={} to teamId={}", itemId, userId, teamId);
+			log.debug("Error adding permissions for itemId={} from drive={} to teamId={}", itemId, driveId, teamId);
 		}
 		return false;
+	}
+	
+	// ---------------------------------------- ONE-DRIVE (DELEGATED) --------------------------------------------------------
+	@Override
+	public List<MicrosoftDriveItem> getMyDriveItems(String userId) throws MicrosoftCredentialsException {
+		return getMyDriveItemsByItemId(userId, null);
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getMyDriveItemsByItemId(String userId, String itemId) throws MicrosoftCredentialsException {
+		
+		String cacheItemKey = itemId;
+		if(cacheItemKey == null) {
+			cacheItemKey = "ROOT";
+		}
+		
+		Map<String, List<MicrosoftDriveItem>> driveItemsMap = null;
+		Cache.ValueWrapper cachedValue = getCache().get(CACHE_DRIVE_ITEMS_USER + userId);
+		if(cachedValue != null) {
+			driveItemsMap = (Map<String, List<MicrosoftDriveItem>>)cachedValue.get();
+			if(driveItemsMap.containsKey(cacheItemKey) && driveItemsMap.get(cacheItemKey) != null) {
+				return driveItemsMap.get(cacheItemKey);
+			}
+		}
+		
+		List<MicrosoftDriveItem> ret = new ArrayList<>();
+		try {
+			GraphServiceClient client = (GraphServiceClient)microsoftAuthorizationService.getDelegatedGraphClient(userId);
+			
+			DriveItemCollectionPage itemPage = null;
+			if(itemId != null) {
+				itemPage = client.me().drive().items(itemId).children().buildRequest().get();
+			} else {
+				itemPage = client.me().drive().root().children().buildRequest().get();
+			}
+			while (itemPage != null) {
+				ret.addAll(itemPage.getCurrentPage().stream().map(item -> {
+					JsonElement adm = item.additionalDataManager().get("@microsoft.graph.downloadUrl");
+					return MicrosoftDriveItem.builder()
+						.id(item.id)
+						.name(item.name)
+						.url(item.webUrl)
+						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
+						.downloadURL((adm!=null) ? adm.getAsString() : null)
+						.processPath((item.parentReference != null) ? item.parentReference.path : null)
+						.folder(item.folder != null)
+						.childCount((item.folder != null) ? item.folder.childCount : 0)
+						.size(item.size)
+						.mimeType((item.file != null) ? item.file.mimeType : null)
+						.build();
+					}).collect(Collectors.toList())
+				);
+				DriveItemCollectionRequestBuilder itemBuilder = itemPage.getNextPage();
+				if (itemBuilder == null) break;
+				itemPage = itemBuilder.buildRequest().get();
+			}
+			
+			if(driveItemsMap == null) {
+				driveItemsMap = new HashMap<>();
+			}
+			driveItemsMap.put(cacheItemKey, ret);
+			getCache().put(CACHE_DRIVE_ITEMS_USER + userId, driveItemsMap);
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error getting (delegated) Drive Items for user={} and itemId={}", userId, itemId);
+		}
+		return ret;
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getMySharedDriveItems(String userId) throws MicrosoftCredentialsException {
+		String cacheItemKey = "SHARED";
+		
+		Map<String, List<MicrosoftDriveItem>> driveItemsMap = null;
+		Cache.ValueWrapper cachedValue = getCache().get(CACHE_DRIVE_ITEMS_USER + userId);
+		if(cachedValue != null) {
+			driveItemsMap = (Map<String, List<MicrosoftDriveItem>>)cachedValue.get();
+			if(driveItemsMap.containsKey(cacheItemKey) && driveItemsMap.get(cacheItemKey) != null) {
+				return driveItemsMap.get(cacheItemKey);
+			}
+		}
+		
+		List<MicrosoftDriveItem> ret = new ArrayList<>();
+		try {
+			GraphServiceClient client = (GraphServiceClient)microsoftAuthorizationService.getDelegatedGraphClient(userId);
+			DriveSharedWithMeCollectionPage itemPage = client.me().drive().sharedWithMe().buildRequest().get();
+			while (itemPage != null) {
+				ret.addAll(itemPage.getCurrentPage().stream().map(item -> {
+					return MicrosoftDriveItem.builder()
+						.id(item.id)
+						.name(item.name)
+						.url(item.webUrl)
+						.driveId((item.remoteItem != null && item.remoteItem.parentReference != null) ? item.remoteItem.parentReference.driveId : null)
+						.shared(true) //IMPORTANT: identify these items as shared (they have uncompleted data)
+						.downloadURL(null)
+						.depth(0)
+						.folder(item.folder != null)
+						.childCount(1) //we don't trust this value from Microsoft. Set to "1", so it will be expandable (in case of a folder)
+						.size(item.size)
+						.mimeType((item.file != null) ? item.file.mimeType : null)
+						.build();
+					}).collect(Collectors.toList())
+				);
+				DriveSharedWithMeCollectionRequestBuilder itemBuilder = itemPage.getNextPage();
+				if (itemBuilder == null) break;
+				itemPage = itemBuilder.buildRequest().get();
+			}
+			
+			if(driveItemsMap == null) {
+				driveItemsMap = new HashMap<>();
+			}
+			driveItemsMap.put(cacheItemKey, ret);
+			getCache().put(CACHE_DRIVE_ITEMS_USER + userId, driveItemsMap);
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error getting (delegated) Shared Drive Items for user={}", userId);
+		}
+		return ret;
+	}
+	
+	// ---------------------------------------- ONE-DRIVE (MIXED) --------------------------------------------------------
+	@Override
+	public MicrosoftDriveItem getDriveItem(String driveId, String itemId, String delegatedUserId) throws MicrosoftCredentialsException{
+		String cacheItemKey = itemId;
+		
+		Map<String, Map<String, Object>> driveItemsMap = null;
+		Cache.ValueWrapper cachedValue = getCache().get(CACHE_DRIVE_ITEMS);
+		if(cachedValue != null) {
+			driveItemsMap = (Map<String, Map<String, Object>>)cachedValue.get();
+			if(driveItemsMap != null && driveItemsMap.get(driveId) != null && driveItemsMap.get(driveId).get(cacheItemKey) != null) {
+				return (MicrosoftDriveItem)driveItemsMap.get(driveId).get(cacheItemKey);
+			}
+		}
+		
+		MicrosoftDriveItem ret = null;
+		try {
+			DriveItem item = null;
+			if(StringUtils.isNotBlank(delegatedUserId)) {
+				GraphServiceClient client = (GraphServiceClient)microsoftAuthorizationService.getDelegatedGraphClient(delegatedUserId);
+				item = client.drives(driveId).items(itemId).buildRequest().get();
+			} else {
+				item = getGraphClient().drives(driveId).items(itemId).buildRequest().get();
+			}
+			
+			if (item != null) {
+				JsonElement adm = item.additionalDataManager().get("@microsoft.graph.downloadUrl");
+				ret = MicrosoftDriveItem.builder()
+						.id(item.id)
+						.name(item.name)
+						.url(item.webUrl)
+						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
+						.downloadURL((adm!=null) ? adm.getAsString() : null)
+						.processPath((item.parentReference != null) ? item.parentReference.path : null)
+						.folder(item.folder != null)
+						.childCount((item.folder != null) ? item.folder.childCount : 0)
+						.size(item.size)
+						.mimeType((item.file != null) ? item.file.mimeType : null)
+						.build();
+			}
+			
+			if(driveItemsMap == null) {
+				driveItemsMap = new HashMap<>();
+			}
+			driveItemsMap.computeIfAbsent(driveId, k -> new HashMap<>()).put(cacheItemKey, ret);
+			getCache().put(CACHE_DRIVE_ITEMS, driveItemsMap);
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error getting Drive Items for driveId={} and itemId={}", driveId, itemId);
+		}
+		return ret;
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getDriveItems(String driveId, String delegatedUserId) throws MicrosoftCredentialsException {
+		return getDriveItemsByItemId(driveId, null, delegatedUserId);
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getDriveItemsByItemId(String driveId, String itemId, String delegatedUserId) throws MicrosoftCredentialsException {
+		
+		String cacheItemKey = itemId;
+		if(cacheItemKey == null) {
+			cacheItemKey = "ROOT";
+		}
+		
+		Map<String, Map<String, Object>> driveItemsMap = null;
+		Cache.ValueWrapper cachedValue = getCache().get(CACHE_DRIVE_ITEMS);
+		if(cachedValue != null) {
+			driveItemsMap = (Map<String, Map<String, Object>>)cachedValue.get();
+			if(driveItemsMap != null && driveItemsMap.get(driveId) != null && driveItemsMap.get(driveId).get(cacheItemKey) != null) {
+				return (List<MicrosoftDriveItem>)driveItemsMap.get(driveId).get(cacheItemKey);
+			}
+		}
+		
+		List<MicrosoftDriveItem> ret = new ArrayList<>();
+		try {
+			DriveItemCollectionPage itemPage = null;
+			if(StringUtils.isNotBlank(delegatedUserId)) {
+				GraphServiceClient client = (GraphServiceClient)microsoftAuthorizationService.getDelegatedGraphClient(delegatedUserId);
+				if(itemId != null) {
+					itemPage = client.drives(driveId).items(itemId).children().buildRequest().get();
+				} else {
+					itemPage = client.drives(driveId).root().children().buildRequest().get();
+				}
+			} else {
+				if(itemId != null) {
+					itemPage = getGraphClient().drives(driveId).items(itemId).children().buildRequest().get();
+				} else {
+					itemPage = getGraphClient().drives(driveId).root().children().buildRequest().get();
+				}
+			}
+			
+			while (itemPage != null) {
+				ret.addAll(itemPage.getCurrentPage().stream().map(item -> {
+					JsonElement adm = item.additionalDataManager().get("@microsoft.graph.downloadUrl");
+					return MicrosoftDriveItem.builder()
+						.id(item.id)
+						.name(item.name)
+						.url(item.webUrl)
+						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
+						.downloadURL((adm!=null) ? adm.getAsString() : null)
+						.processPath((item.parentReference != null) ? item.parentReference.path : null)
+						.folder(item.folder != null)
+						.childCount((item.folder != null) ? item.folder.childCount : 0)
+						.size(item.size)
+						.mimeType((item.file != null) ? item.file.mimeType : null)
+						.build();
+					}).collect(Collectors.toList())
+				);
+				DriveItemCollectionRequestBuilder itemBuilder = itemPage.getNextPage();
+				if (itemBuilder == null) break;
+				itemPage = itemBuilder.buildRequest().get();
+			}
+			
+			if(driveItemsMap == null) {
+				driveItemsMap = new HashMap<>();
+			}
+			driveItemsMap.computeIfAbsent(driveId, k -> new HashMap<>()).put(cacheItemKey, ret);
+			getCache().put(CACHE_DRIVE_ITEMS, driveItemsMap);
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error getting Drive Items for driveId={} and itemId={}", driveId, itemId);
+		}
+		return ret;
 	}
 	
 	// ---------------------------------------- PRIVATE FUNCTIONS ------------------------------------------------

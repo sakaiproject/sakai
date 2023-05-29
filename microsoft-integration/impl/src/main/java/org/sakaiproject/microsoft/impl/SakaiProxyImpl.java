@@ -45,6 +45,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
@@ -107,6 +108,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 	@Override
 	public boolean canCurrentUserAccessSite(String siteId) {
 		return (siteService.isCurrentUserMemberOfSite(siteId) || isAdmin());
+	}
+	
+	// --------------------------------------------- SESSION -----------------------------------------------------
+	@Override
+	public Session getCurrentSession() {
+		return sessionManager.getCurrentSession();
 	}
 	
 	// ------------------------------------------ USERS ----------------------------------------------------
@@ -373,5 +380,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	@Override
 	public String getServerName() {
 		return serverConfigurationService.getServerName();
+	}
+	
+	@Override
+	public String getServerUrl() {
+		return serverConfigurationService.getServerUrl();
 	}
 }
