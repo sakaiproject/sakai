@@ -18,7 +18,6 @@ package org.sakaiproject.microsoft;
 
 import java.nio.charset.StandardCharsets;
 
-import org.sakaiproject.microsoft.controller.auxiliar.AutoConfigSessionBean;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -26,9 +25,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;

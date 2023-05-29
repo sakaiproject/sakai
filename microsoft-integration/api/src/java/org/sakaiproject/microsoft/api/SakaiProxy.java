@@ -24,6 +24,7 @@ import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
 import org.sakaiproject.microsoft.api.data.SakaiUserIdentifier;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.User;
 
 public interface SakaiProxy {
@@ -32,6 +33,9 @@ public interface SakaiProxy {
 	boolean isAdmin();
 	boolean canUpdateSite(String siteReference, String userId);
 	boolean canCurrentUserAccessSite(String siteId);
+	
+	// --------------------------------------------- SESSION -----------------------------------------------------
+	Session getCurrentSession();
 
 	// ------------------------------------------ USERS ----------------------------------------------------
 	String getCurrentUserId();
@@ -65,4 +69,5 @@ public interface SakaiProxy {
 	String getString(String name);
 	String getString(String name, String dflt);
 	String getServerName();
+	String getServerUrl();
 }
