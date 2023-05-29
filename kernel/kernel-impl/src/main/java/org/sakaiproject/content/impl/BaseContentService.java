@@ -6014,13 +6014,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
         boolean hasContentTypeAlready = hasContentType(edit.getId());
         
         //use magic to fix mimetype
-        //Don't process for special TYPE_URL type
+        //Don't process for special TYPE_URL or MICROSOFT type
         String currentContentType = edit.getContentType();
         m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
         m_ignoreExtensions = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions")));
         m_ignoreMimeTypes = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes")));
 
-        if (m_useMimeMagic && DETECTOR != null && !ResourceProperties.TYPE_URL.equals(currentContentType) && !hasContentTypeAlready) {
+        if (m_useMimeMagic && DETECTOR != null && !ResourceProperties.TYPE_URL.equals(currentContentType) && !currentContentType.startsWith(ResourceType.MIME_TYPE_MICROSOFT) && !hasContentTypeAlready) {
             try (
                     TikaInputStream buff = TikaInputStream.get(edit.streamContent());
             ) {
@@ -6998,8 +6998,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				res.addHeader("Last-Modified", rfc1123Date.format(lastModTime));
 			}
 
-			// for url content type, encode a redirect to the body URL
-			if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
+			// for url or Microsoft content type, encode a redirect to the body URL
+			if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL) || contentType.startsWith(ResourceType.MIME_TYPE_MICROSOFT))
 			{
 				if (len < MAX_URL_LENGTH) {
 	
