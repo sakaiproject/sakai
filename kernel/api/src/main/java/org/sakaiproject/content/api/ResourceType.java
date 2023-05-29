@@ -40,6 +40,7 @@ public interface ResourceType
 	public static final String MIME_TYPE_HTML = "text/html";
 	public static final String MIME_TYPE_METAOBJ = "application/x-osp";
 	public static final String MIME_TYPE_URL = "text/url";
+	public static final String MIME_TYPE_MICROSOFT = "microsoft/";
 	
 	public static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
 	

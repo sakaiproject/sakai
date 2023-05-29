@@ -31,6 +31,16 @@
 				</fieldset>
 				
 				<fieldset class="config-fieldset">
+					<legend th:text="#{config.onedrive_config}"></legend>
+					<div class="form-group">
+						<label>
+							<input class="form-control" type='checkbox' name="onedriveEnabled" th:checked="${onedriveEnabled}" />
+							<span class="control-label title-row" th:text="#{config.onedrive_enabled}">OneDrive enabled</span>
+						</label>
+					</div>
+				</fieldset>
+				
+				<fieldset class="config-fieldset">
 					<legend th:text="#{config.id_mapping}"></legend>
 					<div>
 						<label th:text="#{config.sakai_user_id}"></label>
