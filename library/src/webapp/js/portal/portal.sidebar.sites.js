@@ -91,6 +91,10 @@ class SitesSidebar {
 
   /**
    * Switches the attributes on the cloned pinned or unpinned site element
+   *
+   * @param {Element} clone - The cloned element that will be updated
+   * @param {string} from - The site type to move from, either "pinned" or "recent"
+   * @param {string} to - The site type to move to, either "pinned" or "recent"
    */
   _updatePinned(clone, from, to) {
 
