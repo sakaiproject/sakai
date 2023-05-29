@@ -45,6 +45,7 @@ public class MicrosoftConfigRepositoryImpl extends BasicSerializableRepository<M
 			.authority(getConfigItemValueByKey(MicrosoftCredentials.KEY_AUTHORITY))
 			.secret(getConfigItemValueByKey(MicrosoftCredentials.KEY_SECRET))
 			.scope(getConfigItemValueByKey(MicrosoftCredentials.KEY_SCOPE))
+			.delegatedScope(getConfigItemValueByKey(MicrosoftCredentials.KEY_DELEGATED_SCOPE))
 			.email(getConfigItemValueByKey(MicrosoftCredentials.KEY_EMAIL))
 		.build();
 	}
