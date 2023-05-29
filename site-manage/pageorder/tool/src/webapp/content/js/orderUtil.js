@@ -253,9 +253,9 @@ function checkReset() {
 
 function sortByTitle() {
     // Do natural sorting
-    $('ul.sortable').children('li').sort(function(a, b) {
-    	var as = $(a).children('.item_label_box').text();
-    	var bs = $(b).children('.item_label_box').text();
+    $('ul.ui-sortable').children('li').sort(function(a, b) {
+    	var as = $(a).find('.item_label_box').text();
+    	var bs = $(b).find('.item_label_box').text();
         	var a, b, a1, b1, i= 0, n, L,
         	rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
         	if(as===bs) return 0;
@@ -273,5 +273,5 @@ function sortByTitle() {
         		}
         	}
         	return b[i]? -1:0;
-    }).appendTo('ul.sortable');
+    }).appendTo('ul.ui-sortable');
 }
