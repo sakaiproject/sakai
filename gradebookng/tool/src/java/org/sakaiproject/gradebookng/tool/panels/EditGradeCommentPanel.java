@@ -130,7 +130,8 @@ public class EditGradeCommentPanel extends BasePanel {
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 		EditGradeCommentPanel.this.window.setTitle(
 				(new StringResourceModel("heading.editcomment", null,
-						new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })).getString());
+						new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })).getString())
+				.setEscapeModelStrings(false);
 
 		// textarea
 		form.add(new TextArea<>("comment", new PropertyModel<>(formModel, "gradeComment"))
