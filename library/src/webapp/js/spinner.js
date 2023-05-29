@@ -23,8 +23,18 @@
 // Spinner namespace
 var SPNR = SPNR || {};
 
-// Get the main content div
-const mainContent = () => document.getElementById("content");
+// Get the main content div, return an empty div if it can't be found
+const mainContent = () => {
+  const contentElement = document.getElementById("content");
+  if (contentElement !== null) {
+    // Element found, return it
+    return contentElement;
+  } else {
+    // Element not found, return a default element
+    const defaultElement = document.createElement("div");
+    return defaultElement;
+  }
+};
 
 /********** MAIN FUNCTIONS TO BE CALLED FROM OUTSIDE LIBRARY ******************/
 
