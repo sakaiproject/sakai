@@ -19,8 +19,6 @@
 		<dependency>
 			<groupId>org.sakaiproject.microsoft</groupId>
 			<artifactId>microsoft-api</artifactId>
-			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- Sakai dependencies -->
@@ -56,10 +54,6 @@
 		</dependency>
 
 		<!-- Microsoft dependencies -->
-		<dependency>
-			<groupId>com.microsoft.azure</groupId>
-			<artifactId>msal4j</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.azure</groupId>
 			<artifactId>azure-identity</artifactId>

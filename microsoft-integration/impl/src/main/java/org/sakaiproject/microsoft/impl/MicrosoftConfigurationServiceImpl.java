@@ -52,6 +52,7 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_CLIENT_ID).value(credentials.getClientId()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_SECRET).value(credentials.getSecret()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_SCOPE).value(credentials.getScope()).build());
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_DELEGATED_SCOPE).value(credentials.getDelegatedScope()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_EMAIL).value(credentials.getEmail()).build());
 	}
 	
@@ -62,6 +63,11 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 	
 	public Map<String, MicrosoftConfigItem> getAllSynchronizationConfigItems(){
 		return microsoftConfigRepository.getAllSynchronizationConfigItems();
+	}
+	
+	//------------------------------ ONEDRIVE -------------------------------------------------------
+	public boolean isOneDriveEnabled() {
+		return Boolean.valueOf(microsoftConfigRepository.getConfigItemValueByKey(MicrosoftConfigRepository.ONEDRIVE_ENABLED));
 	}
 	
 	//------------------------------- MICROSOFT SYNCHRONIZATION - NEW SITE ------------------------------------

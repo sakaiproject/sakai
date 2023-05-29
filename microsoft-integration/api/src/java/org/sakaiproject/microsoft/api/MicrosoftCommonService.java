@@ -33,6 +33,9 @@ import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 public interface MicrosoftCommonService {
 	void resetCache();
 	void resetTeamsCache();
+	void resetDriveItemsCache();
+	void resetUserDriveItemsCache(String userId);
+	void resetGroupDriveItemsCache(String groupId);
 	void resetGraphClient();
 	void checkConnection() throws MicrosoftCredentialsException;
 	
@@ -102,7 +105,20 @@ public interface MicrosoftCommonService {
 	void updateOnlineMeeting(String userEmail, String meetingId, String subject, Instant startDate, Instant endDate) throws MicrosoftCredentialsException;
 	List<MeetingRecordingData> getOnlineMeetingRecordings(String onlineMeetingId, List<String> teamIdsList, boolean force) throws MicrosoftCredentialsException;
 	
-	// ---------------------------------------- ONE-DRIVE --------------------------------------------------------
+	// ---------------------------------------- ONE-DRIVE (APPLICATION) --------------------------------------------------------
+	List<MicrosoftDriveItem> getGroupDriveItems(String groupId) throws MicrosoftCredentialsException;
+	List<MicrosoftDriveItem> getGroupDriveItemsByItemId(String groupId, String itemId) throws MicrosoftCredentialsException;
 	MicrosoftDriveItem getDriveItemFromLink(String link) throws MicrosoftCredentialsException;
-	boolean grantReadPermissionToTeam(String userId, String itemId, String teamId) throws MicrosoftCredentialsException;
+	MicrosoftDriveItem getDriveItemFromChannel(String teamId, String channelId) throws MicrosoftCredentialsException;
+	boolean grantReadPermissionToTeam(String driveId, String itemId, String teamId) throws MicrosoftCredentialsException;
+	
+	// ---------------------------------------- ONE-DRIVE (DELEGATED) --------------------------------------------------------
+	List<MicrosoftDriveItem> getMyDriveItems(String userId) throws MicrosoftCredentialsException;
+	List<MicrosoftDriveItem> getMyDriveItemsByItemId(String userId, String itemId) throws MicrosoftCredentialsException;
+	List<MicrosoftDriveItem> getMySharedDriveItems(String userId) throws MicrosoftCredentialsException;
+	
+	// ---------------------------------------- ONE-DRIVE (MIXED) --------------------------------------------------------
+	MicrosoftDriveItem getDriveItem(String driveId, String itemId, String delegatedUserId) throws MicrosoftCredentialsException;
+	List<MicrosoftDriveItem> getDriveItems(String driveId, String delegatedUserId) throws MicrosoftCredentialsException;
+	List<MicrosoftDriveItem> getDriveItemsByItemId(String driveId, String itemId, String delegatedUserId) throws MicrosoftCredentialsException;
 }
