@@ -26,6 +26,9 @@ public interface MicrosoftConfigRepository extends SerializableRepository<Micros
 	public static final String SITE_TYPE = PREFIX_NEWSITE + "TYPE";
 	public static final String SITE_PUBLISHED = PREFIX_NEWSITE + "PUBLISHED";
 	
+	public static final String PREFIX_ONEDRIVE = "ONEDRIVE:";
+	public static final String ONEDRIVE_ENABLED = PREFIX_ONEDRIVE + "ENABLED";
+	
 	Optional<MicrosoftConfigItem> getConfigItemByKey(String key);
 	String getConfigItemValueByKey(String key);
 	//------------------------------ CREDENTIALS -------------------------------------------------------
