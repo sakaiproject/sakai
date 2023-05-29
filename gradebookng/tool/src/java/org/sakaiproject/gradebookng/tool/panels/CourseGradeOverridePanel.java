@@ -88,7 +88,8 @@ public class CourseGradeOverridePanel extends BasePanel {
 		// heading
 		CourseGradeOverridePanel.this.window.setTitle(
 				(new StringResourceModel("heading.coursegrade", null,
-						new Object[] { studentUser.getDisplayName(), studentUser.getDisplayId() })).getString());
+						new Object[] { studentUser.getDisplayName(), studentUser.getDisplayId() })).getString())
+				.setEscapeModelStrings(false);
 
 		// form model
 		// we are only dealing with the 'entered grade' so we use this directly
@@ -97,7 +98,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 		// form
 		final Form<String> form = new Form<String>("form", formModel);
 
-		form.add(new Label("studentName", studentUser.getDisplayName()));
+		form.add(new Label("studentName", studentUser.getDisplayName()).setEscapeModelStrings(false));
 		form.add(new Label("studentEid", studentUser.getDisplayId()));
 		form.add(new Label("points", formatPoints(courseGrade, gradebook)));
 		form.add(new Label("calculated", courseGradeFormatter.format(courseGrade)));

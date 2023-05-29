@@ -115,7 +115,8 @@ public class GradeLogPanel extends BasePanel {
 		final GbUser user = this.businessService.getUser(studentUuid);
 		GradeLogPanel.this.window.setTitle(
 				(new StringResourceModel("heading.gradelog", null,
-						new Object[] { user.getDisplayName(), user.getDisplayId() })).getString());
+						new Object[] { user.getDisplayName(), user.getDisplayId() })).getString())
+				.setEscapeModelStrings(false);
 
 	}
 
