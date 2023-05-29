@@ -16,31 +16,22 @@
 
 	<properties>
 		<!-- Dependency versions -->
-		<msal4j.version>1.11.3</msal4j.version>
-		<azure-identity.version>1.5.0</azure-identity.version>
-		<microsoft-graph.version>5.20.0</microsoft-graph.version>
+		<azure-identity.version>1.9.0</azure-identity.version>
+		<microsoft-graph.version>5.59.0</microsoft-graph.version>
 	</properties>
 	
 	<dependencyManagement>
 		<dependencies>
 			<!-- Microsoft -->
 			<dependency>
-				<groupId>com.microsoft.azure</groupId>
-				<artifactId>msal4j</artifactId>
-				<version>${msal4j.version}</version>
-				<!--scope>provided</scope-->
-			</dependency>
-			<dependency>
 				<groupId>com.azure</groupId>
 				<artifactId>azure-identity</artifactId>
 				<version>${azure-identity.version}</version>
-				<!--scope>provided</scope-->
 			</dependency>
 			<dependency>
 				<groupId>com.microsoft.graph</groupId>
 				<artifactId>microsoft-graph</artifactId>
 				<version>${microsoft-graph.version}</version>
-				<!--scope>provided</scope-->
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -49,6 +40,7 @@
 		<module>api</module>
 		<module>impl</module>
 		<module>admin-tool</module>
+		<module>authorization-tool</module>
 	</modules>
 
 </project>

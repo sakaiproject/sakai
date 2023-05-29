@@ -44,8 +44,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -100,10 +102,19 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.googledrive.model.GoogleDriveItem;
 import org.sakaiproject.googledrive.model.GoogleDriveUser;
 import org.sakaiproject.googledrive.service.GoogleDriveService;
-import org.sakaiproject.onedrive.model.OneDriveItem;
-import org.sakaiproject.onedrive.model.OneDriveItemComparator;
-import org.sakaiproject.onedrive.model.OneDriveUser;
-import org.sakaiproject.onedrive.service.OneDriveService;
+import org.sakaiproject.microsoft.api.MicrosoftAuthorizationService;
+import org.sakaiproject.microsoft.api.MicrosoftCommonService;
+import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
+import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
+import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
+import org.sakaiproject.microsoft.api.data.MicrosoftRedirectURL;
+import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
+import org.sakaiproject.microsoft.api.data.MicrosoftTeamWrapper;
+import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
+import org.sakaiproject.microsoft.api.exceptions.MicrosoftInvalidTokenException;
+import org.sakaiproject.microsoft.api.exceptions.MicrosoftNoCredentialsException;
+import org.sakaiproject.microsoft.api.model.MicrosoftAccessToken;
+import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -153,7 +164,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private static ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private static UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private static TimeService timeService = ComponentManager.get(TimeService.class);
-	private static OneDriveService onedriveService = ComponentManager.get(OneDriveService.class);
+	private static MicrosoftConfigurationService microsoftConfigurationService = ComponentManager.get(MicrosoftConfigurationService.class);
+	private static MicrosoftCommonService microsoftCommonService = ComponentManager.get(MicrosoftCommonService.class);
+	private static MicrosoftAuthorizationService microsoftAuthorizationService = ComponentManager.get(MicrosoftAuthorizationService.class);
+	private static MicrosoftSynchronizationService microsoftSynchronizationService = ComponentManager.get(MicrosoftSynchronizationService.class);
 	private static GoogleDriveService googledriveService = ComponentManager.get(GoogleDriveService.class);
 
 	/** State attribute for where there is at least one attachment before invoking attachment tool */
@@ -169,7 +183,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private ResourceLoader srb = Resource.getResourceLoader(resourceClass, resourceBundle);
 	
 	/** CloudStorage **/
-	private boolean onedriveOn = ServerConfigurationService.getBoolean(OneDriveService.ONEDRIVE_ENABLED, Boolean.FALSE);
 	private boolean googledriveOn = ServerConfigurationService.getBoolean(GoogleDriveService.GOOGLEDRIVE_ENABLED, Boolean.FALSE);
 
 	protected static final String PREFIX = "filepicker.";
@@ -185,7 +198,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String MODE_ATTACHMENT_SELECT = "mode_attachment_select";
 	protected static final String MODE_ATTACHMENT_SELECT_INIT = "mode_attachment_select_init";
 	protected static final String MODE_HELPER = "mode_helper";
-	protected static final String MODE_ONEDRIVE = "mode_onedrive";
+	protected static final String MODE_CONFIGURE_ONEDRIVE = "mode_configure_onedrive";
 	protected static final String MODE_GOOGLEDRIVE = "mode_googledrive";
 
 	/** The null/empty string */
@@ -241,14 +254,22 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_NAVIGATING_RESOURCES = "navigating_resources";
 	protected static final String STATE_NAVIGATING_ONEDRIVE = "navigating_onedrive";
 	protected static final String STATE_NAVIGATING_GOOGLEDRIVE = "navigating_googledrive";
+	
+	protected static final String STATE_NAVIGATING_ONEDRIVE_TYPE = "navigating_onedrive_type";
+	protected static final String ONEDRIVE_TYPE_SITE = "onedrive_type_site";
+	protected static final String ONEDRIVE_TYPE_USER = "onedrive_type_user";
+	protected static final String ONEDRIVE_TYPE_SHARED = "onedrive_type_shared";
 
 	/** The sort by */
 	private static final String STATE_SORT_BY = PREFIX + "sort_by";
 	
 	protected static final String STATE_TOP_MESSAGE_INDEX = PREFIX + "top_message_index";
 
-	public static final String STATE_ONEDRIVE_CHILDREN = PREFIX + "state_onedrive_children";
-	public static final String STATE_ONEDRIVE_ITEMS = PREFIX + "state_onedrive_items";
+	public static final String STATE_ONEDRIVE_ITEMS_USER = PREFIX + "state_onedrive_items_user";
+	public static final String STATE_ONEDRIVE_ITEMS_SHARED = PREFIX + "state_onedrive_items_shared";
+	public static final String STATE_ONEDRIVE_ITEMS_SITE = PREFIX + "state_onedrive_items_site";
+	public static final String STATE_ONEDRIVE_ITEMS_MAP = PREFIX + "state_onedrive_items_map";
+
 	public static final String STATE_GOOGLEDRIVE_JSON = PREFIX + "state_googledrive_json";
 
 	/** The sort ascending or decending */
@@ -348,13 +369,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			template = buildAddMetadataContext(portlet, context, data, state);
 		}
 
-		context.put("onedriveOn", onedriveOn);
-		if(onedriveOn) {
-			OneDriveUser ou = onedriveService.getOneDriveUser(userDirectoryService.getCurrentUser().getId());
-			if(ou != null) {
-				context.put("onedriveUserAccount", ou.getOneDriveName());
-			}
-		}
 		context.put("googledriveOn", googledriveOn);
 		if(googledriveOn) {
 			GoogleDriveUser ou = googledriveService.getGoogleDriveUser(userDirectoryService.getCurrentUser().getId());
@@ -919,30 +933,91 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		
 		// ONEDRIVE
-		if(onedriveOn) {
-			List<OneDriveItem> onedriveItems = new ArrayList<>();
-			if(toolSession.getAttribute(STATE_ONEDRIVE_ITEMS) == null) {
-				onedriveItems = onedriveService.getDriveRootItems(userDirectoryService.getCurrentUser().getId());
-			} else {
-				onedriveItems = (List<OneDriveItem>) toolSession.getAttribute(STATE_ONEDRIVE_ITEMS);
+		if(isOneDriveOn()) {
+			buildOneDriveContext(portlet, context, data, state);
+		}
+		context.put("MIME_TYPE_MICROSOFT", ResourceType.MIME_TYPE_MICROSOFT);
+		
+		return template;
+	}
+
+	// ONEDRIVE context
+	protected void buildOneDriveContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
+		context.put("onedriveOn", true);
+		
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		List<SiteSynchronization> ssList = microsoftSynchronizationService.getSiteSynchronizationsBySite(siteId);
+		
+		context.put("siteSynchronized", !ssList.isEmpty());
+		
+		String onedriveType = (String)state.getAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE);
+		if(onedriveType != null) {
+			Map<String, Map<String, MicrosoftDriveItem>> onedriveItemsMap = (Map<String, Map<String, MicrosoftDriveItem>>)toolSession.getAttribute(STATE_ONEDRIVE_ITEMS_MAP);
+			if(onedriveItemsMap == null) {
+				onedriveItemsMap = new HashMap<>();
+				toolSession.setAttribute(STATE_ONEDRIVE_ITEMS_MAP, onedriveItemsMap);
 			}
-			if(state.getAttribute(STATE_ONEDRIVE_CHILDREN) != null) {
-				List<OneDriveItem> childrenIt = (List<OneDriveItem>) state.getAttribute(STATE_ONEDRIVE_CHILDREN);
-				for(OneDriveItem oi : childrenIt) {
-					if(!onedriveItems.contains(oi)) {
-						onedriveItems.add(oi);
+			
+			if(onedriveType.equals(ONEDRIVE_TYPE_SITE)) {
+				//get teams linked with this site
+				Map<String, MicrosoftTeamWrapper> onedriveItemsByTeam = (Map<String, MicrosoftTeamWrapper>)toolSession.getAttribute(STATE_ONEDRIVE_ITEMS_SITE);
+				if(onedriveItemsByTeam == null) {
+					onedriveItemsByTeam = new HashMap<>();
+					
+					for(SiteSynchronization ss : ssList) {
+						try {
+							//add every Team (without items) to the map -> they will be expanded later (doNavigateOneDrive)
+							MicrosoftTeam team = microsoftCommonService.getTeam(ss.getTeamId());
+							onedriveItemsByTeam.put(ss.getTeamId(), MicrosoftTeamWrapper.builder(team).build());
+						}catch(Exception e) {
+							log.warn("Error getting Microsoft Team: {}", ss.getTeamId());
+						}
 					}
+					toolSession.setAttribute(STATE_ONEDRIVE_ITEMS_SITE, onedriveItemsByTeam);
+				}
+				
+				context.put("onedriveItemsByTeam", onedriveItemsByTeam);
+			} else if(onedriveType.equals(ONEDRIVE_TYPE_USER) || onedriveType.equals(ONEDRIVE_TYPE_SHARED)) {
+				MicrosoftAccessToken mcAccessToken = microsoftAuthorizationService.getAccessToken(userDirectoryService.getCurrentUser().getId());
+				if(mcAccessToken != null) {
+					context.put("onedriveUserAccount", mcAccessToken.getMicrosoftUserId());
+				
+					List<MicrosoftDriveItem> onedriveItems = (List<MicrosoftDriveItem>)toolSession.getAttribute(onedriveType.equals(ONEDRIVE_TYPE_USER) ? STATE_ONEDRIVE_ITEMS_USER : STATE_ONEDRIVE_ITEMS_SHARED);
+					if(onedriveItems == null) {
+						try {
+							//add initial items/folders -> folders will be expanded later (doNavigateOneDrive)
+							switch(onedriveType) {
+								case ONEDRIVE_TYPE_USER:
+									onedriveItems = microsoftCommonService.getMyDriveItems(userDirectoryService.getCurrentUser().getId());
+									toolSession.setAttribute(STATE_ONEDRIVE_ITEMS_USER, onedriveItems);
+									break;
+								case ONEDRIVE_TYPE_SHARED:
+									onedriveItems = microsoftCommonService.getMySharedDriveItems(userDirectoryService.getCurrentUser().getId());
+									toolSession.setAttribute(STATE_ONEDRIVE_ITEMS_SHARED, onedriveItems);
+									break;
+								default:
+									break;
+							}
+						}catch(MicrosoftCredentialsException e) {
+							//this should not be reached
+							log.warn("Error getting Drive Items for User or Shared : MicrosoftCredentialsException");
+						}
+						
+						Collections.sort(onedriveItems);
+							
+						//add to items map
+						Map<String, MicrosoftDriveItem> aux = onedriveItems.stream()
+								.collect(Collectors.toMap(MicrosoftDriveItem::getId, Function.identity()));
+						onedriveItemsMap.computeIfAbsent(onedriveType, k -> new HashMap<>()).putAll(aux);
+					}
+					
+					context.put("onedriveItems", onedriveItems);
 				}
 			}
-			if(onedriveItems != null) {
-				Collections.sort(onedriveItems, new OneDriveItemComparator());
-				toolSession.setAttribute(STATE_ONEDRIVE_ITEMS, onedriveItems);
-				context.put("onedriveItems", onedriveItems);
-			}
 		}
-
-		return template;
-    }
+	}
     
     /**
      * remove all security advisors
@@ -1015,6 +1090,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 			state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 			state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
+			state.removeAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE);
 			state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
 		}
 
@@ -1205,7 +1281,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 	@SuppressWarnings("unchecked")
 	public void doAttachitem(RunData data)
 	{
-		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
 		}
@@ -1239,18 +1314,15 @@ public class FilePickerAction extends PagedResourceHelperAction
 			{
 				attachLink(itemId, state);
 			}
-		} else if (onedriveOn && StringUtils.isNotBlank(onedriveItemId)) {
+		} else if (isOneDriveOn() && StringUtils.isNotBlank(onedriveItemId)) {
 			boolean onedriveItemClone = params.getBoolean("onedriveItemClone");
-			List<OneDriveItem> items = (List<OneDriveItem>) toolSession.getAttribute(STATE_ONEDRIVE_ITEMS);
-			OneDriveItem oi = null;
-			for(OneDriveItem off : items) {
-				if(onedriveItemId.equals(off.getOneDriveItemId())) {
-					oi = off;
-					break;
-				}
-			}
-			if(oi != null) {
-				doAttachOneDrive(oi, state, onedriveItemClone);
+			
+			String onedriveType = (String)state.getAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE);
+			Map<String, Map<String, MicrosoftDriveItem>> onedriveItemsMap = (Map<String, Map<String, MicrosoftDriveItem>>)toolSession.getAttribute(STATE_ONEDRIVE_ITEMS_MAP);
+			MicrosoftDriveItem item = (onedriveItemsMap != null) ? onedriveItemsMap.computeIfAbsent(onedriveType, k -> new HashMap<>()).get(onedriveItemId) : null;
+			
+			if(item != null) {
+				doAttachOneDrive(item, state, onedriveItemClone);
 			}
 		} else if (googledriveOn && StringUtils.isNotBlank(googledriveItemId)) {
 			boolean googledriveItemClone = params.getBoolean("googledriveItemClone");
@@ -1717,7 +1789,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	}
 
 	@SuppressWarnings("unchecked")
-	public void doAttachOneDrive(OneDriveItem onedriveItem, SessionState state, boolean onedriveItemClone) {
+	public void doAttachOneDrive(MicrosoftDriveItem microsoftDriveItem, SessionState state, boolean onedriveItemClone) {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
@@ -1730,9 +1802,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 		try {
 			ContentResource attachment = null;
 			ResourcePropertiesEdit newprops = contentService.newResourceProperties();
-			String onedriveUrl = onedriveItem.getDownloadUrl();
-			String contentType = onedriveItem.getFile().getMimeType();
-			String filename = onedriveItem.getName();
+			String contentType = microsoftDriveItem.getMimeType();
+			String filename = microsoftDriveItem.getName();
 			String resourceId = Validator.escapeResourceName(filename);
 			String siteId = toolManager.getCurrentPlacement().getContext();
 			String toolName = (String) toolSession.getAttribute(STATE_ATTACH_TOOL_NAME);
@@ -1743,6 +1814,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			String typeId = ResourceType.TYPE_UPLOAD;
 			newprops.addProperty(ResourceProperties.PROP_DISPLAY_NAME, filename);
 			newprops.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+			//copy to Sakai resources
 			if(onedriveItemClone) {
 				String max_file_size_mb = (String) toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
 				long max_bytes = 1024L * 1024L;
@@ -1752,23 +1824,31 @@ public class FilePickerAction extends PagedResourceHelperAction
 					max_file_size_mb = "1";
 					max_bytes = 1024L * 1024L;
 				}
-				if(onedriveItem.getSize() >= max_bytes) {
+				if(microsoftDriveItem.getSize() >= max_bytes) {
 					addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
 					return;
 				}
-				InputStream contentStream = new URL(onedriveUrl).openStream();
+				//shared items does not contain DownloadURL. We need to ask for it
+				if(microsoftDriveItem.isShared() && microsoftDriveItem.getDownloadURL() == null) {
+					MicrosoftDriveItem aux = microsoftCommonService.getDriveItem(microsoftDriveItem.getDriveId(), microsoftDriveItem.getId(), userDirectoryService.getCurrentUser().getId());
+					microsoftDriveItem.setDownloadURL((aux != null) ? aux.getDownloadURL() : null);
+				}
+				InputStream contentStream = new URL(microsoftDriveItem.getDownloadURL()).openStream();
 				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, newprops);
-			} else {
-				//typeId = ResourceType.TYPE_URL;
-				contentType = ResourceProperties.TYPE_URL;
-				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, onedriveUrl.getBytes(), newprops);
+			} else { //link to Microsoft
+				contentType = ResourceType.MIME_TYPE_MICROSOFT + contentType;
+				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, microsoftDriveItem.getUrl().getBytes(), newprops);
+				//private URL. We need to grant permissions to every Team linked with this Site
+				List<SiteSynchronization> ssList = microsoftSynchronizationService.getSiteSynchronizationsBySite(siteId);
+				for(SiteSynchronization ss : ssList) {
+					microsoftCommonService.grantReadPermissionToTeam(microsoftDriveItem.getDriveId(), microsoftDriveItem.getId(), ss.getTeamId());
+				}
 			}
 
-			String displayName = filename;
 			String containerId = contentService.getContainingCollectionId(attachment.getId());
 			String accessUrl = attachment.getUrl();
 			log.debug("OneDrive item accessUrl {}", accessUrl);
-			AttachItem item = new AttachItem(attachment.getId(), displayName, containerId, accessUrl);
+			AttachItem item = new AttachItem(attachment.getId(), filename, containerId, accessUrl);
 			item.setContentType(contentType);
 			typeId = attachment.getResourceType();
 			item.setResourceType(typeId);
@@ -1779,6 +1859,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			new_items.add(item);
 			toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 			state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
+			state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 			state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
 		} catch(Exception e) {
 			log.error("doAttachOneDrive : {}", e.getMessage());
@@ -1793,7 +1874,16 @@ public class FilePickerAction extends PagedResourceHelperAction
 		state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
 		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 		state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
-		onedriveService.revokeOneDriveConfiguration(userDirectoryService.getCurrentUser().getId());
+		state.removeAttribute(STATE_ONEDRIVE_ITEMS_USER);
+		state.removeAttribute(STATE_ONEDRIVE_ITEMS_SHARED);
+		
+		microsoftAuthorizationService.revokeAccessToken(userDirectoryService.getCurrentUser().getId());
+		microsoftCommonService.resetUserDriveItemsCache(userDirectoryService.getCurrentUser().getId());
+		microsoftCommonService.resetDriveItemsCache();
+		
+		Map<String, Map<String, MicrosoftDriveItem>> onedriveItemsMap = (Map<String, Map<String, MicrosoftDriveItem>>)state.getAttribute(STATE_ONEDRIVE_ITEMS_MAP);
+		onedriveItemsMap.remove(ONEDRIVE_TYPE_USER);
+		onedriveItemsMap.remove(ONEDRIVE_TYPE_SHARED);
 	}
 
 	public void doRefreshOneDrive(RunData data) {
@@ -1801,9 +1891,34 @@ public class FilePickerAction extends PagedResourceHelperAction
 		state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
 		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 		state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
-		state.removeAttribute(STATE_ONEDRIVE_ITEMS);
-		state.removeAttribute(STATE_ONEDRIVE_CHILDREN);
-		onedriveService.cleanOneDriveCacheForUser(userDirectoryService.getCurrentUser().getId());
+
+		String onedriveType = (String)state.getAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE);
+		switch(onedriveType) {
+			case ONEDRIVE_TYPE_SITE:
+				state.removeAttribute(STATE_ONEDRIVE_ITEMS_SITE);
+				
+				String siteId = toolManager.getCurrentPlacement().getContext();
+				List<SiteSynchronization> ssList = microsoftSynchronizationService.getSiteSynchronizationsBySite(siteId);
+				for(SiteSynchronization ss : ssList) {
+					microsoftCommonService.resetGroupDriveItemsCache(ss.getTeamId());
+				}
+				microsoftCommonService.resetDriveItemsCache();
+				break;
+			case ONEDRIVE_TYPE_USER:
+				state.removeAttribute(STATE_ONEDRIVE_ITEMS_USER);
+				microsoftCommonService.resetUserDriveItemsCache(userDirectoryService.getCurrentUser().getId());
+				break;
+			case ONEDRIVE_TYPE_SHARED:
+				state.removeAttribute(STATE_ONEDRIVE_ITEMS_SHARED);
+				microsoftCommonService.resetUserDriveItemsCache(userDirectoryService.getCurrentUser().getId());
+				microsoftCommonService.resetDriveItemsCache();
+				break;
+			default:
+				break;
+		}
+		
+		Map<String, Map<String, MicrosoftDriveItem>> onedriveItemsMap = (Map<String, Map<String, MicrosoftDriveItem>>)state.getAttribute(STATE_ONEDRIVE_ITEMS_MAP);
+		onedriveItemsMap.remove(onedriveType);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -2207,23 +2322,34 @@ public class FilePickerAction extends PagedResourceHelperAction
 			return;
 		}
 
-		if (onedriveOn && MODE_ONEDRIVE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE))) {
-			try {
-				cleanup(state);
-				log.debug("Requesting OneDrive access data for this user");
-				String onedriveUrl = onedriveService.formAuthenticationUrl();
-				//Add the picker URL to the session to go back after setting the credentials
-				sessionManager.getCurrentSession().setAttribute(onedriveService.ONEDRIVE_REDIRECT_URI, req.getRequestURL());
-				state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
-				state.removeAttribute(STATE_NAVIGATING_RESOURCES);
-				state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
-				res.sendRedirect(onedriveUrl);
-			} catch (IOException e) {
-				log.warn("IOException: ", e);
+		if (isOneDriveOn()) {
+			//doConfigureOneDrive Action is launched -> starts the authorization process
+			if(MODE_CONFIGURE_ONEDRIVE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE))) {
+				sendOneDriveAuthorizationRedirect(false, req, res);
+				return;
 			}
-			return;
+			
+			String onedriveType = (String)state.getAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE);
+			//before display "user" or "shared" items, check if current access token is valid
+			if(onedriveType != null && !ONEDRIVE_TYPE_SITE.equals(onedriveType)) {
+				try {
+					//check delegated client -> will throw an exception if access token is invalid
+					microsoftAuthorizationService.checkDelegatedClient(userDirectoryService.getCurrentUser().getId());
+				}catch(MicrosoftInvalidTokenException e) {
+					//our configured access token is not valid. Try to get a new one through the automatic authorization process 
+					//(automatic: no confirmation screen will be shown)
+					sendOneDriveAuthorizationRedirect(true, req, res);
+					return;
+				}catch(MicrosoftNoCredentialsException e) {
+					//this means there is no access token configured. Do nothing, continue and show the "configure" button.
+				}catch(MicrosoftCredentialsException e) {
+					//unexpected error. Remove current access token and let the process starts from the beginning
+					microsoftAuthorizationService.revokeAccessToken(userDirectoryService.getCurrentUser().getId());
+				}
+			}
 		}
-		else if (googledriveOn && MODE_GOOGLEDRIVE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE)))
+		
+		if (googledriveOn && MODE_GOOGLEDRIVE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE)))
 		{
 			try {
 				cleanup(state);
@@ -2288,6 +2414,38 @@ public class FilePickerAction extends PagedResourceHelperAction
 			super.toolModeDispatch(methodBase, methodExt, req, res);
 		}
 	}
+	
+	protected void sendOneDriveAuthorizationRedirect(boolean autoReturn, HttpServletRequest req, HttpServletResponse res) {
+		try {
+			SessionState state = getState(req);
+			String onedriveType = (String)state.getAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE);
+			Map<String, Map<String, MicrosoftDriveItem>> onedriveItemsMap = (Map<String, Map<String, MicrosoftDriveItem>>)state.getAttribute(STATE_ONEDRIVE_ITEMS_MAP);
+			
+			cleanup(state);
+			
+			log.debug("Requesting OneDrive access data for this user");
+			MicrosoftRedirectURL authURL = microsoftAuthorizationService.getAuthenticationUrl();
+			//store in cache where to redirect back after authorization code is received
+			//also store "state" (from authURL) sent to Microsoft, so we can check it when the request returns
+			MicrosoftRedirectURL afterTokenURL = authURL.toBuilder().URL(req.getRequestURL().toString()).auto(autoReturn).build();
+			sessionManager.getCurrentSession().setAttribute(MicrosoftAuthorizationService.MICROSOFT_SESSION_REDIRECT, afterTokenURL);
+			state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
+			state.removeAttribute(STATE_NAVIGATING_RESOURCES);
+			state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
+			if(onedriveType != null) {
+				state.setAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE, onedriveType);
+			}
+			if(onedriveItemsMap != null) {
+				state.setAttribute(STATE_ONEDRIVE_ITEMS_MAP, onedriveItemsMap);
+			}
+			res.sendRedirect(authURL.getURL());
+		} catch (IOException e) {
+			log.warn("IOException: ", e);
+		} catch (MicrosoftCredentialsException e) {
+			log.warn("MicrosoftCredentialsException: ", e);
+		}
+	}
+	
 
 	/**
 	 * @param data
@@ -2817,10 +2975,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 * @param data
 	 */
 	@SuppressWarnings("unchecked")
-	public void doOneDrive(RunData data)
+	public void doConfigureOneDrive(RunData data)
 	{
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ONEDRIVE);
+		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_CONFIGURE_ONEDRIVE);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -3527,8 +3685,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
-		String collectionId = data.getParameters().getString ("collectionId");		
-		String onedriveCollectionId = data.getParameters().getString ("onedriveCollectionId");
+		String collectionId = data.getParameters().getString ("collectionId");
 		String navRoot = data.getParameters().getString("navRoot");
 		state.setAttribute(STATE_NAVIGATION_ROOT, navRoot);
 
@@ -3573,22 +3730,115 @@ public class FilePickerAction extends PagedResourceHelperAction
 				currentMap.clear();
 				currentMap.addAll(newCurrentMap);
 			}
-		} else if (onedriveOn && onedriveCollectionId != null){
-			int depth = data.getParameters().getInt("onedriveCollectionDepth");
-			List<OneDriveItem> children = onedriveService.getDriveChildrenItems(userDirectoryService.getCurrentUser().getId(), onedriveCollectionId, depth);
-			state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
-			state.removeAttribute(STATE_NAVIGATING_RESOURCES);
-			state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
-			state.setAttribute(STATE_ONEDRIVE_CHILDREN, children);
-			List<OneDriveItem> items = (List<OneDriveItem>) toolSession.getAttribute(STATE_ONEDRIVE_ITEMS);
-			items.forEach( it -> { 
-				if (onedriveCollectionId.equals(it.getOneDriveItemId())) {
-					it.setExpanded(true);
-				}
-			});
 		}
 
 	}	// doNavigate
+
+	/**
+	* Navigate in the Microsoft resource hireachy
+	*/
+	@SuppressWarnings("unchecked")
+	public void doNavigateOneDrive ( RunData data ) {
+		
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		
+		String onedriveType = data.getParameters().getString ("onedriveType");
+		String onedriveTeamId = data.getParameters().getString ("onedriveTeamId");
+		String onedriveCollectionId = data.getParameters().getString ("onedriveCollectionId");
+		
+		Map<String, Map<String, MicrosoftDriveItem>> onedriveItemsMap = (Map<String, Map<String, MicrosoftDriveItem>>)toolSession.getAttribute(STATE_ONEDRIVE_ITEMS_MAP);
+		
+		//Type (left tab) changed
+		if(onedriveType != null) {
+			state.setAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE, onedriveType);
+		}
+		
+		//Team expanded/collapsed (only for SITE tab)
+		if(onedriveTeamId != null && onedriveCollectionId == null) {
+			onedriveType = (String)state.getAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE);
+			Map<String, MicrosoftTeamWrapper> onedriveItemsByTeam = (Map<String, MicrosoftTeamWrapper>)toolSession.getAttribute(STATE_ONEDRIVE_ITEMS_SITE);
+			MicrosoftTeamWrapper item = (onedriveItemsByTeam != null) ? onedriveItemsByTeam.get(onedriveTeamId) : null;
+			if(item != null) {
+				if(item.isExpanded()) {
+					item.setExpanded(false);
+				} else {
+					item.setExpanded(true);
+				
+					List<MicrosoftDriveItem> onedriveItems = item.getItems();
+					if(onedriveItems == null) {
+						try {
+							onedriveItems = microsoftCommonService.getGroupDriveItems(item.getTeam().getId());
+							
+							item.setItems(onedriveItems);
+							
+							Collections.sort(onedriveItems);
+							
+							//add to items map
+							Map<String, MicrosoftDriveItem> aux = onedriveItems.stream()
+									.collect(Collectors.toMap(MicrosoftDriveItem::getId, Function.identity()));
+							onedriveItemsMap.computeIfAbsent(onedriveType, k -> new HashMap<>()).putAll(aux);
+						}catch(Exception e) {
+							log.warn("Error getting OneDrive Items for Team: {}", item.getTeam().getId());
+						}
+					}
+				}
+			}
+		}
+		
+		//Folder expanded/collapsed
+		if(onedriveCollectionId != null) {
+			onedriveType = (String)state.getAttribute(STATE_NAVIGATING_ONEDRIVE_TYPE);
+			
+			MicrosoftDriveItem item = (onedriveItemsMap != null) ? onedriveItemsMap.computeIfAbsent(onedriveType, k -> new HashMap<>()).get(onedriveCollectionId) : null;
+
+			if(item != null && item.isFolder() && item.hasChildren()) {
+				if(item.isExpanded()) {
+					item.setExpanded(false);
+				} else {
+					item.setExpanded(true);
+					
+					List<MicrosoftDriveItem> children = item.getChildren();
+					if(children == null) {
+						try {
+							switch(onedriveType) {
+								case ONEDRIVE_TYPE_SITE:
+									children = microsoftCommonService.getDriveItemsByItemId(item.getDriveId(), onedriveCollectionId, null);
+									break;
+								
+								case ONEDRIVE_TYPE_USER:
+									children = microsoftCommonService.getMyDriveItemsByItemId(userDirectoryService.getCurrentUser().getId(), onedriveCollectionId);
+									break;
+								
+								case ONEDRIVE_TYPE_SHARED:
+									children = microsoftCommonService.getDriveItemsByItemId(item.getDriveId(), onedriveCollectionId, userDirectoryService.getCurrentUser().getId());
+									break;
+									
+								default:
+									break;
+							}
+							Collections.sort(children);
+
+							//attach children to parent
+							item.setChildren(children);
+
+							//add children to map, so we can find them
+							Map<String, MicrosoftDriveItem> aux = children.stream()
+									.collect(Collectors.toMap(MicrosoftDriveItem::getId, Function.identity()));
+							onedriveItemsMap.computeIfAbsent(onedriveType, k -> new HashMap<>()).putAll(aux);
+						} catch (MicrosoftCredentialsException e) {
+							//this should not be reached
+							log.warn("doNavigate (OneDrive) : MicrosoftCredentialsException");
+						}
+					}
+				}
+			}
+		}
+		
+		state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
+		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
+		state.removeAttribute(STATE_NAVIGATING_GOOGLEDRIVE);
+	}	// doNavigateOneDrive
 
 	/**
 	* Find the resource with this id in the list.
@@ -3760,6 +4010,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 			session.setAttribute(STATE_EXPANDED_COLLECTIONS, current);
 		}
 		return current;
+	}
+	
+	private boolean isOneDriveOn() {
+		return microsoftConfigurationService.isOneDriveEnabled();
 	}
 
 }	// class FilePickerAction 
