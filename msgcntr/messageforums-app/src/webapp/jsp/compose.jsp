@@ -22,7 +22,7 @@
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script>includeWebjarLibrary('select2');</script>
 
-	<h:form id="compose">
+	<h:form id="compose" onsubmit="getShadowTags('compose');">
 		<script>
 				function clearSelection(selectObject)
 				{
@@ -332,6 +332,13 @@
 						</h:column>
 						--%>
 				</h:dataTable>
+
+      <h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
+        <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
+        <h:inputText value="#{PrivateMessagesTool.selectedTags}" styleClass="hidden" id="tag_selector"></h:inputText>
+        <sakai-tag-selector selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+             collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>' item-id='<h:outputText value="#{PrivateMessagesTool.currentMsgUuid}"/>' add-new="true"></sakai-tag-selector>
+      </h:panelGroup>
 
       <sakai:button_bar>
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgSend}" value="#{msgs.pvt_send}" accesskey="s"  styleClass="active" />

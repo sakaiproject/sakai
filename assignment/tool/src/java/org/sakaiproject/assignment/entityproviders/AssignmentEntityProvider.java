@@ -883,7 +883,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
 
         Map<String, Object> options = new HashMap<>();
-        options.put(GRADE_SUBMISSION_GRADE, grade);
+        options.put(GRADE_SUBMISSION_GRADE, grade); 
 
         // check for grade overrides
         if (assignment.getIsGroup()) {
