@@ -1208,12 +1208,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.Set, boolean, boolean)
    */
-  public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, boolean readReceipt) {
-    sendPrivateMessage(message, recipients, asEmail, Collections.emptyList(), Collections.emptyList(), readReceipt);
+  public Long sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, boolean readReceipt) {
+    return sendPrivateMessage(message, recipients, asEmail, Collections.emptyList(), Collections.emptyList(), readReceipt);
   }
 
   @Override
-  public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, 
+  public Long sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, 
       List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients, boolean readReceipt) {
 
     try 
@@ -1231,7 +1231,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       /** for no just return out
         throw new IllegalArgumentException("Empty recipient list");
       **/
-      return;
+      return null;
     }
 
     String contextId="";
@@ -1259,7 +1259,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
         messageManager.deleteDraftRecipientsByMessageId(savedMessage.getId());
         messageManager.saveDraftRecipients(savedMessage.getId(), allDraftRecipients);
 
-        return;
+        return savedMessage.getId();
     }
 
     //build the message body
@@ -1339,12 +1339,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 				bodyString, null, replyEmail.toArray(new InternetAddress[replyEmail.size()]), additionalHeaders);
 	}
 
-
+	return savedMessage.getId();
   }
     catch (MessagingException e) 
     {
     	log.warn("PrivateMessageManagerImpl.sendPrivateMessage: exception: " + e.getMessage(), e);
 	}
+	
+	return null;
   }
 
   public boolean isEmailForwardDisabled(){

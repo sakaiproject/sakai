@@ -24,14 +24,21 @@
 
 package org.sakaiproject.tags.tool.handlers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * A handler for the index page in the PA System administration tool.
@@ -40,11 +47,17 @@ import org.sakaiproject.tags.api.TagService;
 public class IndexHandler extends BaseHandler {
 
     private final TagService tagService;
+    private final SecurityService securityService;
+    private final SessionManager sessionManager;
+    private final ToolManager toolManager;
     private final int defaultPaginationSize = 10;
     private final int countPerPageGroup = 10;
 
-    public IndexHandler(TagService tagservice) {
+    public IndexHandler(TagService tagservice, SessionManager sessionManager, SecurityService securityService, ToolManager toolManager) {
         this.tagService = tagservice;
+        this.securityService = securityService;
+        this.sessionManager = sessionManager;
+        this.toolManager = toolManager;
     }
 
     @Override
@@ -58,10 +71,25 @@ public class IndexHandler extends BaseHandler {
         context.put("totalPages", (int) Math.ceil((double) tagService.getTagCollections().getTotalTagCollections()/(double)pageSize));
         context.put("countPerPageGroup",countPerPageGroup);
         context.put("subpage", "index");
-        context.put("tagcollections", tagService.getTagCollections().getTagCollectionsPaginated(pageNum,pageSize));
+        if (securityService.isSuperUser()) {
+            context.put("tagcollections", tagService.getTagCollections().getTagCollectionsPaginated(pageNum,pageSize));
+        } else {
+            List<TagCollection> collections = new ArrayList<>();
+            String siteId = toolManager.getCurrentPlacement().getContext();
+            // add site tag collection
+            TagCollection siteCollection = tagService.getTagCollections().getForId(siteId).orElse(null);
+            if (siteCollection != null) {
+                collections.add(siteCollection);
+            }
+            // add user tag collection
+            TagCollection userCollection = tagService.getTagCollections().getForId(sessionManager.getCurrentSessionUserId()).orElse(null);
+            if (userCollection != null) {
+                collections.add(userCollection);
+            }
+            context.put("tagcollections", collections);
+        }
         context.put("tagserviceactive", tagService.getServiceActive());
         context.put("actualtagcollection", "");
-
 
     }
 

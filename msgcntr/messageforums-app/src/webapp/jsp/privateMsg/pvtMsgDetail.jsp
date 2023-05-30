@@ -9,7 +9,7 @@
 
 <f:view>
   <sakai:view toolCssHref="/messageforums-tool/css/msgcntr-qtip.css" title="#{msgs.pvt_detmsgreply}">
-    <h:form id="pvtMsgDetail">
+    <h:form id="pvtMsgDetail" onsubmit="getShadowTags('pvtMsgDetail')">
     		<script>
        			// Define i18n for js text
        			var msgs_js = { 
@@ -233,6 +233,14 @@
                 </div>
             </div>
         </div>
+
+        <h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
+          <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
+          <h:inputText value="#{PrivateMessagesTool.selectedTags}" styleClass="hidden" id="tag_selector"></h:inputText>
+          <sakai-tag-selector selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+              collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>' item-id='<h:outputText value="#{PrivateMessagesTool.currentMsgUuid}"/>' add-new="true"></sakai-tag-selector>
+          <h:commandButton action="#{PrivateMessagesTool.processPvtMsgSaveTags}" value="#{msgs.pvt_tags_save}"  />
+        </h:panelGroup>
 
 		<hr class="itemSeparator" />
 		
