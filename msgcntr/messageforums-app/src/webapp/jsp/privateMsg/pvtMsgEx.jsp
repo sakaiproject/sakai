@@ -177,7 +177,7 @@
 		      <span class="badge bg-info">
 		        <h:outputText value="#{eachTag}"/>
 		      </span>
-            </t:dataList>
+		    </t:dataList>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
 		</div>
