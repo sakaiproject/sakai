@@ -298,6 +298,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return null;
 	}
 
+	private String getPageDescription(SitePage page) {
+
+		return String.join(" | ", page.getTools().stream().map(tc -> tc.getTool())
+			.filter(Objects::nonNull)
+			.map(t -> t.getDescription().replace("\"","&quot;")).collect(Collectors.toList()));
+	}
+
 	private List<String> getExcludedSiteIds()
 	{
 		Session session = sessionManager.getCurrentSession();
@@ -411,6 +418,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		pageMap.put("locked", !toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page));
 		pageMap.put("isPopup", page.isPopUp());
 		pageMap.put("title", page.getTitle());
+		pageMap.put("description", getPageDescription(page));
 		return pageMap;
 	}
 
@@ -430,12 +438,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
             contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(sessionManager.getCurrentSessionUserId())), currentSiteId, true, false));
 
 			//Get pinned sites
-            Collection<Site> pinnedSites = getSites(portalService.getPinnedSites());
+            Collection<String> pinnedSiteIds = portalService.getPinnedSites();
+            Collection<Site> pinnedSites = getSites(pinnedSiteIds);
             List<Map<String, Object>> pinnedSiteMaps = getSiteMaps(pinnedSites, currentSiteId, true, true);
             contextSites.put("pinnedSites", pinnedSiteMaps);
 
 			//Get most recent sites
-			Collection<Site> recentSites = getSites(getRecentSiteIds(currentSiteId));
+			Collection<String> recentSiteIds = getRecentSiteIds(currentSiteId);
+                        recentSiteIds.removeAll(pinnedSiteIds);
+			Collection<Site> recentSites = getSites(recentSiteIds);
             List<Map<String, Object>> recentSitesMaps = getSiteMaps(recentSites, currentSiteId, true, false);
             contextSites.put("recentSites", recentSitesMaps);
 
@@ -622,8 +633,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String effectiveSite = getSiteEffectiveId(s);
 
 		boolean isCurrentSite = currentSiteId != null
-		&& (s.getId().equals(currentSiteId) || effectiveSite
-		.equals(currentSiteId));
+                        && (s.getId().equals(currentSiteId) || effectiveSite.equals(currentSiteId));
 		m.put("isCurrentSite", Boolean.valueOf(isCurrentSite));
 		m.put("isPublished", s.isPublished());
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
@@ -875,9 +885,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 							hidden = false;
 						}
 					}
-					desc = String.join(" | ", pageTools.stream().map(tc -> tc.getTool())
-					.filter(Objects::nonNull)
-					.map(t -> t.getDescription()).collect(Collectors.toList()));
+					desc = getPageDescription(page);
 				}
 
 				if ( ! siteUpdate ){
@@ -912,9 +920,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("toolpopup", Boolean.valueOf(source!=null));
 				m.put("toolpopupurl", source);
 
-				// TODO: Should have Web.escapeHtmlAttribute()
-				String description = desc.replace("\"","&quot;");
-				m.put("description",  description);
+				m.put("description",  desc);
 				m.put("hidden", Boolean.valueOf(hidden));
 				boolean locked = !toolManager.isFirstToolVisibleToAnyNonMaintainerRole(p);
 				m.put("locked", Boolean.valueOf(locked));

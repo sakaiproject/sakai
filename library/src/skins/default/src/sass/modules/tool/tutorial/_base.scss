@@ -1,11 +1,11 @@
 .sakai-tutorial.qtip
 {
 	border: 0 none;
-	background-color: var(--sakai-background-color-1);
+	background-color: var(--sakai-color-blue--darker-4);
 	font-family: $font-family;
 	font-size: $default-font-size + 2px;
 	line-height: 1.4;
-	color: var(--sakai-secondary-color-1); /* determines the colour of the tip */
+	color: var(--sakai-selected-page-color); /* determines the color of the tip */
 
 	.qtip-titlebar
 	{
@@ -13,16 +13,17 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 4px 8px;
-		background: var(--sakai-secondary-color-1);
-		color: var(--sakai-background-color-1);
+		background: var(--sakai-color-blue--darker-4);
+		color: var(--sakai-text-color-inverted);
 	}
 	
 	.qtip-content
 	{
 		padding: 1em;
-		border: 4px solid var(--sakai-secondary-color-1);
+		border: 4px solid var(--sakai-color-blue--darker-4);
 		border-top:0 none;
 		color: var(--sakai-text-color-1);
+		background: var(--sakai-background-color-1);
 		
 		.no-wrap
 		{
@@ -44,7 +45,7 @@
 	{
 		border: 0 none;
 		background:none;
-		color: var(--sakai-background-color-1);
+		color: var(--sakai-selected-page-color);
 	}
 	
 	.tut-footer
@@ -74,14 +75,11 @@
 			margin: -5px 0 0 0;
 		}
 	}
-/*
-	.qtip-shadow {
-	  box-shadow: 1px 1px 8px 4px rgba(0, 0, 0, 0.25);
-	}
-	.qtip-tipped {
+
+	.qtip-tip {
 	  background-color: var(--tool-background-color);
 	  border: 4px solid var(--sakai-primary-color-1);
 	}
-*/
+
 
 }

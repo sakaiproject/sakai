@@ -81,7 +81,8 @@ public class EditCourseGradeCommentPanel extends BasePanel {
         form.add(cancel);
         // heading
         final GbUser user = this.businessService.getUser(studentUuid);
-        EditCourseGradeCommentPanel.this.window.setTitle((new StringResourceModel("heading.editcomment", null, new Object[] { user.getDisplayName(), user.getDisplayId(), "Course Grade" })).getString());
+        EditCourseGradeCommentPanel.this.window.setTitle((new StringResourceModel("heading.editcomment", null, new Object[] { user.getDisplayName(), user.getDisplayId(), "Course Grade" })).getString())
+                .setEscapeModelStrings(false);
         // textarea
         form.add(new TextArea<>("comment", new PropertyModel<>(formModel, "gradeComment")).add(StringValidator.maximumLength(CommentValidator.getMaxCommentLength(serverConfigService))));
         add(form);

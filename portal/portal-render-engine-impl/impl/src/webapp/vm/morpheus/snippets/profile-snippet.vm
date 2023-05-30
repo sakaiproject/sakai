@@ -27,7 +27,10 @@
         #end
           #end
         #end
-        <li class="nav-item"><a href="${profileToolUrl}" class="nav-link">Tutorial</a></li>
+
+        #if (${tabsSites.tutorial})
+          <li class="nav-item"><a id="tutorial-start-button" href="#" onclick="startTutorial({});" class="nav-link">${rloader.sit_tutorial}</a></li>
+        #end
 
         <li>
           <div class="text-center pt-3 mt-auto">

@@ -20,7 +20,7 @@ For opening help sidebar
   #end
   #if ($helpLink)
     <li class="d-none d-md-inline">
-      <a class="sak-sysInd-help"
+      <a class="sak-sysInd-help desktop-help-icon"
           title="${rloader.mainnav_help_tooltip}"
           href="${helpLink}"
           target="_blank">

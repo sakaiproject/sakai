@@ -24,6 +24,7 @@
         <div class="nav">
             <span>${bottomNavCopyright}</span>
         </div>
+        <div id="tutorial" class="Mrphs-tutorial Mrphs-modal"></div>
     </footer>
 #else 
 
