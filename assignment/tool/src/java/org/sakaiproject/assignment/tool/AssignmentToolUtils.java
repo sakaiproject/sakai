@@ -302,7 +302,7 @@ public class AssignmentToolUtils {
                 //If the grade is not blank
                 if (StringUtils.isNotBlank(grade)) {
                     submission.setGrade(grade);
-                    submission.setGraded(true);
+                    submission.setGraded(true); 
                     if (gradeChanged) {
                         submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
                     }

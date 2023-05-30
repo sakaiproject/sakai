@@ -8,7 +8,9 @@
   <header class="tagservice-section-header">
     <h3>{{{t this "tagcollections"}}}</h3>
     <div class="btn-toolbar">
-        <a href="{{{newURL this 'tagcollections' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Tag Collection"}}}</a>
+        {{#if canCreate}}
+            <a href="{{{newURL this 'tagcollections' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Tag Collection"}}}</a>
+        {{/if}}
     </div>
   </header>
 
@@ -35,7 +37,9 @@
         <td class="actions">
             <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>
             <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
-            <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection"><span class="glyphicon glyphicon-trash"></span></a>
+            {{#if canCreate}}
+                <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection"><span class="glyphicon glyphicon-trash"></span></a>
+            {{/if}}
         </td>
       </tr>
       {{/each}}
