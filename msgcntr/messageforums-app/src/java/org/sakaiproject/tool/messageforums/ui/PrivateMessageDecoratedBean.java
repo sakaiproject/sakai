@@ -59,6 +59,7 @@ public class PrivateMessageDecoratedBean
   private PrivateMessageDecoratedBean previewReplyTmpMsg;
   
   private boolean isReplied = false;
+  private List<String> tagList = new ArrayList<>();
   
   public PrivateMessage getMsg()
   {
@@ -233,6 +234,13 @@ public class PrivateMessageDecoratedBean
 	  this.isReplied = isReplied;
   }
 
+  public List<String> getTagList() {
+    return tagList;
+  }
+
+  public void setTagList(List<String> tagList) {
+    this.tagList = tagList;
+  }
 }
 
 

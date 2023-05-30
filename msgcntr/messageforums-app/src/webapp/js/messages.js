@@ -92,6 +92,13 @@ function addTagSelector(obj) {
   	}
 }
 
+function getShadowTags(view) {
+    const tagSelector = document.getElementById(view+':tag_selector');
+    if (tagSelector) {
+      tagSelector.value = Array.from(document.querySelector("sakai-tag-selector").shadowRoot.querySelectorAll('input[name="tag[]"'), el => el.value);
+    }
+}
+
 $(document).ready(function(){
 
     $("#prefs_pvt_form\\:pvtmsgs\\:checkAll, #prefs_pvt_form\\:threaded_pvtmsgs\\:checkAll").click(function () {
@@ -111,6 +118,10 @@ $(document).ready(function(){
       $('#prefs_pvt_form\\:pvt_selected_label').toggleClass('showed');
     });
 
+    $('#prefs_pvt_form\\:search_by_tags').change( function(){
+      $('#prefs_pvt_form\\:pvt_selected_tags').toggleClass('showed');
+    });
+
     $('#prefs_pvt_form\\:advanced_search_button').mousedown( function(){
       var searchByDateCheckbox = $('#prefs_pvt_form\\:search_by_date');
       if(searchByDateCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_beg_date').hasClass('showed')){
@@ -120,6 +131,11 @@ $(document).ready(function(){
       var searchByLabelCheckbox = $('#prefs_pvt_form\\:label');
       if(searchByLabelCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_selected_label').hasClass('showed')){
           $('#prefs_pvt_form\\:pvt_selected_label').toggleClass('showed');
+      }
+
+      var searchByTagsCheckbox = $('#prefs_pvt_form\\:search_by_tags');
+      if(searchByTagsCheckbox.is(":checked") && !$('#prefs_pvt_form\\:pvt_selected_tags').hasClass('showed')){
+          $('#prefs_pvt_form\\:pvt_selected_tags').toggleClass('showed');
       }
     });
 

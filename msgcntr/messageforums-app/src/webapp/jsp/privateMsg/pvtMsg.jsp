@@ -5,7 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
-
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -14,7 +14,7 @@
 <f:view>
 	<sakai:view title="#{msgs.pvtarea_name}">
 <!--jsp/privateMsg/pvtMsg.jsp-->
-		<h:form id="prefs_pvt_form">
+		<h:form id="prefs_pvt_form" onsubmit="getShadowTags('prefs_pvt_form')">
 <%
 // FOR WHEN COMING FROM SYNOPTIC TOOL 
     FacesContext context = FacesContext.getCurrentInstance();
@@ -131,7 +131,7 @@
 	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
-					 columnClasses="check,attach,reply,specialLink,created,date,bogus">
+					 columnClasses="check,attach,reply,specialLink,created,date,bogus,taglist hidden-xs">
 
 		  <h:column>
 		    <f:facet name="header">
@@ -214,6 +214,16 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
+		  <h:column rendered="#{PrivateMessagesTool.instructor}" headerClass="hidden-xs">
+		    <f:facet name="header">
+		       <h:outputText value="#{msgs.pvt_tags_header}"/>
+		    </f:facet>
+		    <t:dataList value="#{rcvdItems.tagList}" var="eachTag" >
+		      <span class="badge bg-info">
+		        <h:outputText value="#{eachTag}"/>
+		      </span>
+		    </t:dataList>
+		  </h:column>
 		</h:dataTable>
 	  </h:panelGroup>
 	  <h:panelGroup layout="block" styleClass="table-responsive">
@@ -221,7 +231,7 @@
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
 	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
-								 columnClasses="check,attach,reply,specialLink,created,date,bogus">
+								 columnClasses="check,attach,reply,specialLink,created,date,bogus,taglist hidden-xs">
 		 	<h:column>
 		    <f:facet name="header">
 				<h:panelGroup>
@@ -290,6 +300,16 @@
 		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
+		  </h:column>
+		  <h:column rendered="#{PrivateMessagesTool.instructor}" headerClass="hidden-xs">
+		    <f:facet name="header">
+		       <h:outputText value="#{msgs.pvt_tags_header}"/>
+		    </f:facet>
+		    <t:dataList value="#{rcvdItems.tagList}" var="eachTag" >
+		      <span class="badge bg-info">
+		        <h:outputText value="#{eachTag}"/>
+		      </span>
+		    </t:dataList>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
 		</h:panelGroup>
