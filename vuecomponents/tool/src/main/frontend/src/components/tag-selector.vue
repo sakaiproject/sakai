@@ -163,7 +163,7 @@ export default {
           if (r.ok) {
             return r.json();
           }
-          throw new Error(`Failed to get tags for id TODO`);
+          throw new Error(`Failed to get selected tags for id ` + this.itemId);
         })
         .then((data) => {
           this.value = data.map((tag) => {

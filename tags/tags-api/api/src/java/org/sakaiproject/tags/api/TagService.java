@@ -61,5 +61,5 @@ public interface TagService {
     public void saveTagAssociation(String itemId, String tagId);
     public List<String> getTagAssociationIds(String itemId);
     public List<Tag> getAssociatedTagsForItem(String itemId);
-    public void updateTagAssociations(String siteId, String assignmentId, List<String> tagIds);
+    public void updateTagAssociations(String siteId, String assignmentId, List<String> tagIds, boolean isSite);
 }
