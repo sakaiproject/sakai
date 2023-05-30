@@ -68,6 +68,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -103,6 +105,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -160,6 +163,7 @@ public class PrivateMessagesTool {
   
   private static final String CONFIRM_MSG_DELETE = "pvt_confirm_msg_delete";
   private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
+  private static final String ENTER_SEARCH_TAGS = "pvt_enter_search_tags";
   private static final String MOVE_MSG_ERROR = "pvt_move_msg_error";
   private static final String NO_MARKED_READ_MESSAGE = "pvt_no_message_mark_read";
   private static final String NO_MARKED_DELETE_MESSAGE = "pvt_no_message_mark_delete";
@@ -236,7 +240,10 @@ public class PrivateMessagesTool {
   @Setter
   @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
   private FormattedText formattedText;
-
+  @Setter
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.tags.api.TagService\"]}")
+  private TagService tagService;
+  
 /** Navigation for JSP   */
   public static final String MAIN_PG="main";
   public static final String DISPLAY_MESSAGES_PG="pvtMsg";
@@ -402,6 +409,8 @@ public class PrivateMessagesTool {
   @Getter @Setter
   private PrivateMessage replyingMessage;
 
+  @Getter @Setter
+  private String selectedTags;
   //=====================need to be modified to support internationalization - by huxt
   /** The configuration mode, received, sent,delete, case etc ... */
   public static final String STATE_PVTMSG_MODE = "pvtmsg.mode";
@@ -759,7 +768,7 @@ public class PrivateMessagesTool {
 	return "";
   }
   
-  private String getSiteId() {
+  public String getSiteId() {
 	  return toolManager.getCurrentPlacement().getContext();
   }
     
@@ -1617,7 +1626,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
      */
     return SELECTED_MESSAGE_PG ;
   }
-  
+
+  public String processPvtMsgSaveTags() {
+    log.debug("processPvtMsgDeleteConfirm() " + currentMsgUuid);
+    
+    manageTagAssociation(Long.valueOf(currentMsgUuid));
+    return SELECTED_MESSAGE_PG;
+  }
+
   /**
    * called from Single delete Page -
    * called when 'delete' button pressed second time
@@ -1686,6 +1702,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     //reset label
     this.setSelectedLabel("pvt_priority_normal");
     setBooleanReadReceipt(false);
+    this.setSelectedTags("");
   }
   
   public String processPvtMsgPreview(){
@@ -1763,7 +1780,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     pMsg.setExternalEmail(booleanEmailOut);
     Map<User, Boolean> recipients = getRecipients();
         
-    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail(), booleanReadReceipt); 
+    Long msgId = prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail(), booleanReadReceipt); 
+    manageTagAssociation(msgId);
 
     // if you are sending a reply 
     Message replying = pMsg.getInReplyTo();
@@ -1884,7 +1902,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
     List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
+    Long msgId = prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
+    manageTagAssociation(msgId);
 
     //reset contents
     resetComposeContents();
@@ -2360,8 +2379,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     	Map<User, Boolean> recipients = getRecipients();
 
-      prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
-    	
+    	Long msgId = prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
+    	manageTagAssociation(msgId);
+
     	if(!rrepMsg.getDraft()){
     		prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
     		incrementSynopticToolInfo(recipients.keySet(), false);
@@ -2726,7 +2746,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     private void processPvtMsgForwardSendHelper(PrivateMessage rrepMsg){
     	Map<User, Boolean> recipients = getRecipients();
     	
-      prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
+    	Long msgId = prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
+    	manageTagAssociation(msgId);	
 
     	if(!rrepMsg.getDraft()){
     		//update Synoptic tool info
@@ -2991,7 +3012,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  }
 	  }
 	  if(!preview){
-		  prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail(), booleanReadReceipt);
+		  Long msgId = prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail(), booleanReadReceipt);
+		  manageTagAssociation(msgId);
 
 		  if(!rrepMsg.getDraft()){
 			  prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
@@ -3015,8 +3037,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  return rrepMsg;
   }
 
-
-
+  private void manageTagAssociation(Long msgId) {
+    log.debug("msgId " + msgId + " - selectedTags " + selectedTags);
+    if (msgId != null && ServerConfigurationService.getBoolean("tagservice.enable.integrations", true) && isInstructor() && selectedTags != null) {
+      List<String> tagIds = Arrays.asList(selectedTags.split(","));
+      tagService.updateTagAssociations(getUserId(), String.valueOf(msgId), tagIds, false);
+      selectedTags = String.join(",", tagService.getTagAssociationIds(String.valueOf(msgId)));
+    }
+  }
 
  private boolean containedInList(User user,List list){
 
@@ -3903,6 +3931,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
     }
 
+    if(searchOnTags && StringUtils.isEmpty(selectedTags)) {
+       setErrorMessage(getResourceBundleString(ENTER_SEARCH_TAGS));
+    }
+
     if(searchToDate != null){
         searchToDate = Date.from(searchToDate.toInstant().plus(23, ChronoUnit.HOURS).plus(59, ChronoUnit.MINUTES).plusSeconds(59));
     }
@@ -3911,6 +3943,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
           getSearchText(), getSearchFromDate(), getSearchToDate(), getSelectedSearchLabel(),
           searchOnSubject, searchOnAuthor, searchOnBody, searchOnLabel, searchOnDate) ;
     
+    List<String> selectedTagsList = selectedTags != null ? Arrays.asList(selectedTags.split(",")) : new ArrayList<>();
+    if(searchOnTags && CollectionUtils.isNotEmpty(selectedTagsList)) {
+        tempPvtMsgLs = ((List<PrivateMessage>)tempPvtMsgLs).stream().filter(pm -> {
+                List<String> tagIds = tagService.getTagAssociationIds(String.valueOf(pm.getId()));
+                return (tagIds.containsAll(selectedTagsList));
+        }).collect(Collectors.toList());
+    }
+	
     newls= createDecoratedDisplay(tempPvtMsgLs);
 
     //set threaded view as  false in search 
@@ -3942,6 +3982,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     searchOnLabel= false ;
     searchOnAuthor=false;
     searchOnDate=false;
+    searchOnTags=false;
     searchFromDate=null;
     searchToDate=null;
     searchFromDateString=null;
@@ -3960,6 +4001,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public boolean searchOnAuthor=false;
   @Getter @Setter
   public boolean searchOnDate=false;
+  @Getter @Setter
+  public boolean searchOnTags=false;
   @Getter @Setter
   public Date searchFromDate;
   @Getter @Setter
@@ -4012,6 +4055,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
         }
       }
         dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean));
+
+      List<String> tagLabels = tagService.getAssociatedTagsForItem(String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
+      dbean.setTagList(tagLabels);
 
       decLs.add(dbean) ;
     }
