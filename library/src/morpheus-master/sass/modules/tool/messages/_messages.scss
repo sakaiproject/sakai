@@ -105,6 +105,11 @@
   			td.bogus{
  				width: 17%;
  			}
+  			td.taglist{
+ 				width: 17%;
+				list-style-type: none;
+				padding: 0;
+ 			}
 
  			&\:pvtmsgs_filter {
  				input[type=search] {

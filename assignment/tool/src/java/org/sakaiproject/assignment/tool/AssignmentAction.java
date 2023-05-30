@@ -8716,7 +8716,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (state.getAttribute(TAG_SELECTOR) != null && StringUtils.trimToNull((String) state.getAttribute(TAG_SELECTOR)) != null) {
                         tagIds.addAll(Arrays.asList(((String) state.getAttribute(TAG_SELECTOR)).split(",")));
                     }
-                    tagService.updateTagAssociations(a.getContext(), a.getId(), tagIds);
+                    tagService.updateTagAssociations(a.getContext(), a.getId(), tagIds, true);
                 }
 
                 if (post) {
