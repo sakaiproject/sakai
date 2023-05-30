@@ -32,4 +32,5 @@ public interface I18n {
      * Find the translation string for a given key.
      */
     public String t(String key);
+    public String tFormatted(String key, String param);
 }
