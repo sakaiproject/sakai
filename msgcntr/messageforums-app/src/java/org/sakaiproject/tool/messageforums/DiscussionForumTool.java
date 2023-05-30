@@ -5639,6 +5639,10 @@ public class DiscussionForumTool {
     {
       forum.setDefaultAssignName( selectedForum.getGradeAssign() );
     }
+    else if(selectedForum.getGradeAssign() != null && DEFAULT_GB_ITEM.equals(selectedForum.getGradeAssign()))
+    {
+      forum.setDefaultAssignName( null );
+    }
   }
   
   public void saveForumAttach(DiscussionForum forum)
@@ -5698,6 +5702,10 @@ public class DiscussionForumTool {
     if(selectedTopic.getGradeAssign() != null && !DEFAULT_GB_ITEM.equals(selectedTopic.getGradeAssign()))
     {
       topic.setDefaultAssignName( selectedTopic.getGradeAssign() );
+    }
+    else if(selectedTopic.getGradeAssign() != null && DEFAULT_GB_ITEM.equals(selectedTopic.getGradeAssign()))
+    {
+        topic.setDefaultAssignName( null );
     }
   }
   
