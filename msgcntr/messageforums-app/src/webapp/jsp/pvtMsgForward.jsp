@@ -25,7 +25,7 @@
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script>includeWebjarLibrary('select2');</script>
         <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
-	<h:form id="pvtMsgForward">
+	<h:form id="pvtMsgForward" onsubmit="getShadowTags('pvtMsgForward');">
 		<script>
 				function clearSelection(selectObject)
 				{
@@ -318,8 +318,14 @@
 							<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
 						</h:column>
 						</h:dataTable>   
-						           
-      	
+
+      <h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
+        <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
+        <h:inputText value="#{PrivateMessagesTool.selectedTags}" styleClass="hidden" id="tag_selector"></h:inputText>
+        <sakai-tag-selector selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+             collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>' item-id='<h:outputText value="#{PrivateMessagesTool.currentMsgUuid}"/>' add-new="true"></sakai-tag-selector>
+      </h:panelGroup>
+
       <sakai:button_bar>
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgForwardSend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPreviewForward}" value="#{msgs.pvt_preview}" accesskey="p" />

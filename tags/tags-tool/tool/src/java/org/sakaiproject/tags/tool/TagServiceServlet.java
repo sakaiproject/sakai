@@ -98,7 +98,7 @@ public class TagServiceServlet extends HttpServlet {
         } else if (path.contains("/tags/")) {
             return new TagsHandler(tagService);
         } else {
-            return new IndexHandler(tagService);
+            return new IndexHandler(tagService, sessionManager, securityService, toolManager);
         }
     }
 
@@ -109,7 +109,7 @@ public class TagServiceServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         checkAccessControl();
 
-        I18n i18n = tagService.getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.tool.i18n.tagservice");
+        I18n i18n = tagService.getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
 
         response.setHeader("Content-Type", "text/html");
 
@@ -343,6 +343,7 @@ public class TagServiceServlet extends HttpServlet {
                 paginationInfoMap.put("pages", pageList);
                 paginationInfoMap.put("canGoNext", canGoNext);
                 paginationInfoMap.put("nextIdx", nextIdx);
+                paginationInfoMap.put("canCreate", securityService.isSuperUser());
 
                 return paginationInfoMap;
             }
