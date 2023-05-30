@@ -119,12 +119,16 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void updateTagAssociations(String siteId, String itemId, List<String> tagIds) {
-
+    public void updateTagAssociations(String collectionId, String itemId, List<String> tagIds, boolean isSite) {
         // create collection if it doesn't exist
-        TagCollection col = tagCollections.getForId(siteId).orElse(null);
+        TagCollection col = tagCollections.getForId(collectionId).orElse(null);
         if (col == null) {
-			col = new TagCollection(siteId, siteId, "Site " + siteId, null, 0L, null, null, null, 0L, Boolean.FALSE, Boolean.FALSE, 0L, 0L);
+            I18n i18n = getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
+            String description = i18n.t("user_collection");
+            if (isSite) {
+                description = i18n.tFormatted("site_collection", collectionId);
+            }
+            col = new TagCollection(collectionId, collectionId, description, null, 0L, null, null, null, 0L, Boolean.FALSE, Boolean.FALSE, 0L, 0L);
             tagCollections.createTagCollection(col);
         }
 
@@ -142,8 +146,8 @@ public class TagServiceImpl implements TagService {
                 if (tagId.length() > TAG_MAX_LABEL) {
                     tagId = tagId.substring(0, TAG_MAX_LABEL);
                 }
-                t = new Tag(null, siteId, tagId, null, null,
-                        0L, null, 0L, null,	null, Boolean.FALSE, 0L,
+                t = new Tag(null, collectionId, tagId, null, null,
+                        0L, null, 0L, null, null, Boolean.FALSE, 0L,
                         Boolean.FALSE, 0L, null, null, null, null, null);
                 String id = tags.createTag(t);
                 t.setTagId(id);
