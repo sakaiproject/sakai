@@ -1902,6 +1902,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				for(SiteSynchronization ss : ssList) {
 					microsoftCommonService.resetGroupDriveItemsCache(ss.getTeamId());
 				}
+				microsoftCommonService.resetDriveItemsCache();
 				break;
 			case ONEDRIVE_TYPE_USER:
 				state.removeAttribute(STATE_ONEDRIVE_ITEMS_USER);
@@ -3802,7 +3803,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 						try {
 							switch(onedriveType) {
 								case ONEDRIVE_TYPE_SITE:
-									children = microsoftCommonService.getGroupDriveItemsByItemId(onedriveTeamId, onedriveCollectionId);
+									children = microsoftCommonService.getDriveItemsByItemId(item.getDriveId(), onedriveCollectionId, null);
 									break;
 								
 								case ONEDRIVE_TYPE_USER:
