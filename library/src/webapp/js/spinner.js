@@ -24,7 +24,11 @@
 var SPNR = SPNR || {};
 
 // Get the main content div
-const mainContent = () => document.getElementById("content");
+const mainContent = () => {
+  const mc = document.getElementById("content");
+  const result = (mc) ? mc : document.getElementsByClassName('portletBody')[0];
+  return result;
+}
 
 /********** MAIN FUNCTIONS TO BE CALLED FROM OUTSIDE LIBRARY ******************/
 
