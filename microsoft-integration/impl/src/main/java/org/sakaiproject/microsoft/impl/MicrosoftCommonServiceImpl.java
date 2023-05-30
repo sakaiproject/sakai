@@ -1009,10 +1009,12 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	
 	@Override
 	public Map<String, MicrosoftChannel> getTeamPrivateChannels(String teamId, boolean force) throws MicrosoftCredentialsException {
-		//get from cache
-		Cache.ValueWrapper cachedValue = getCache().get(CACHE_CHANNELS+teamId);
-		if(cachedValue != null) {
-			return (Map<String, MicrosoftChannel>)cachedValue.get();
+		if(!force) {
+			//get from cache
+			Cache.ValueWrapper cachedValue = getCache().get(CACHE_CHANNELS+teamId);
+			if(cachedValue != null) {
+				return (Map<String, MicrosoftChannel>)cachedValue.get();
+			}
 		}
 		
 		Map<String, MicrosoftChannel> channelsMap = new HashMap<>();
@@ -1404,7 +1406,16 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	// ---------------------------------------- ONE-DRIVE (APPLICATION) --------------------------------------------------------
 	@Override
 	public List<MicrosoftDriveItem> getGroupDriveItems(String groupId) throws MicrosoftCredentialsException {
-		return getGroupDriveItemsByItemId(groupId, null);
+		List<MicrosoftDriveItem> ret = getGroupDriveItemsByItemId(groupId, null);
+		//at this point we only have root files and folders, excluding private channels folders.
+		//we need to get all private channels from Team (bypassing the cache), and the DriveItem related to it
+		for(String channelId : getTeamPrivateChannels(groupId, true).keySet()) {
+			MicrosoftDriveItem item = getDriveItemFromChannel(groupId, channelId);
+			if(item != null) {
+				ret.add(item);
+			}
+		}
+		return ret;
 	}
 	
 	@Override
@@ -1483,6 +1494,34 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			throw e;
 		}catch (Exception e) {
 			log.debug("Error getting driveItem from link={}", link);
+		}
+		return ret;
+	}
+	
+	@Override
+	public MicrosoftDriveItem getDriveItemFromChannel(String teamId, String channelId) throws MicrosoftCredentialsException {
+		MicrosoftDriveItem ret = null;
+		try {
+			DriveItem item = getGraphClient()
+					.teams(teamId)
+					.channels(channelId)
+					.filesFolder()
+					.buildRequest()
+					.get();
+			ret = MicrosoftDriveItem.builder()
+					.id(item.id)
+					.name(item.name)
+					.url(item.webUrl)
+					.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
+					.depth(0)
+					.folder(item.folder != null)
+					.childCount((item.folder != null) ? item.folder.childCount : 0)
+					.size(item.size)
+					.build();
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.debug("Error getting driveItem from team={} and channel={}", teamId, channelId);
 		}
 		return ret;
 	}
