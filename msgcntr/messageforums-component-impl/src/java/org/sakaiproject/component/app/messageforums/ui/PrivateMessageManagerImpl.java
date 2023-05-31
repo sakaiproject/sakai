@@ -1614,7 +1614,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     } catch (UserNotDefinedException e) { }
 
     SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
-    String bodyString = rb.getFormattedMessage("pvt_read_receipt_email", user.getEid(), pvtMessage.getTitle(), formatter_date.format(new Date()));
+    Site site = null;
+    try {
+      site = siteService.getSite(getContextId());
+    } catch (IdUnusedException e) {
+      log.error(e.getMessage(), e);
+    }
+    String messageUrl = serverConfigurationService.getPortalUrl() + "/site/" + getContextId() + "/tool/" 
+                        + site.getToolForCommonId(DiscussionForumService.MESSAGES_TOOL_ID).getId() 
+                        + "/privateMsg/pvtMsgDirectAccess?current_msg_detail=" + pvtMessage.getId();
+    
+    String bodyString = rb.getFormattedMessage("pvt_read_receipt_email", user.getDisplayName(), user.getEid(), pvtMessage.getTitle(), formatter_date.format(new Date()), rb.getFormattedMessage("pvt_email_href", messageUrl, site.getTitle()));
     
     emailService.sendToUser(messageCreator, additionalHeaders, bodyString);
     eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT, getEventMessage(pvtMessage), false));
