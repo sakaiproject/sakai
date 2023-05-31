@@ -170,6 +170,7 @@ public class PrivateMessagesTool {
   private static final String NO_MARKED_MOVE_MESSAGE = "pvt_no_message_mark_move";
   private static final String MULTIDELETE_SUCCESS_MSG = "pvt_deleted_success";
   private static final String PERM_DELETE_SUCCESS_MSG = "pvt_perm_deleted_success";
+  private static final String SUCCESS_PUBLISH_TO_FAQ = "pvt_publish_to_faq_success";
   
   public static final String RECIPIENTS_UNDISCLOSED = "pvt_bccUndisclosed";
   
@@ -1069,6 +1070,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processDisplayForum()
   {
     log.debug("processDisplayForum()");
+    multiDeleteSuccess = false;
     if (searchPvtMsgs != null)
     	searchPvtMsgs.clear();
     return DISPLAY_MESSAGES_PG;
@@ -1298,6 +1300,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processPvtMsgReply() {
     log.debug("processPvtMsgReply()");
     
+    multiDeleteSuccess = false;
     setDetailMsgCount = 0;
 
     if (getDetailMsg() == null)
@@ -1372,6 +1375,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processPvtMsgForward() {
 	    log.debug("processPvtMsgForward()");
 	    
+      multiDeleteSuccess = false;
 	    setDetailMsgCount = 0;
 	    
 	    if (getDetailMsg() == null)
@@ -1454,6 +1458,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processPvtMsgReplyAll() {
 	    log.debug("processPvtMsgReplyAll()");
 	    
+      multiDeleteSuccess = false;
 	    setDetailMsgCount = 0;
 	    
 	    if (getDetailMsg() == null)
@@ -1612,6 +1617,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processPvtMsgDeleteConfirm() {
     log.debug("processPvtMsgDeleteConfirm()");
     
+    this.setMultiDeleteSuccess(false);
     this.setDeleteConfirm(true);
     setErrorMessage(getResourceBundleString(CONFIRM_MSG_DELETE));
     /*
@@ -2039,6 +2045,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */
   public String processDisplayPreviousMsg()
   {
+	multiDeleteSuccess = false;
 
 	List tempMsgs = getDecoratedPvtMsgs(); // all messages
     int currentMsgPosition = -1;
@@ -2103,6 +2110,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */    
   public String processDisplayNextMsg()
   {
+	multiDeleteSuccess = false;
 
 	List tempMsgs = getDecoratedPvtMsgs();
     int currentMsgPosition = -1;
@@ -3739,6 +3747,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public String getMoveToTopic()
   {
+    multiDeleteSuccess = false;
     if(StringUtils.isNotEmpty(moveToNewTopic))
     {
       moveToTopic=moveToNewTopic;
@@ -3763,7 +3772,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("processPvtMsgPublishToFaq()");
     MessageForumPublishToFaqBean publishToFaqBean =
         (MessageForumPublishToFaqBean) lookupBean(MessageForumPublishToFaqBean.NAME);
-    publishToFaqBean.publishToFaq();
 
     if (StringUtils.isBlank(publishToFaqBean.getTitle())) {
       setErrorMessage(getResourceBundleString(MISSING_TITLE));
@@ -3772,6 +3780,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
       setErrorMessage(getResourceBundleString(MISSING_QUESTION));
       return null;
     } else {
+      publishToFaqBean.publishToFaq();
+      multiDeleteSuccessMsg = getResourceBundleString(SUCCESS_PUBLISH_TO_FAQ);
+      multiDeleteSuccess = true;
       return SELECTED_MESSAGE_PG;
     }
     
@@ -3779,6 +3790,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
   public String processPvtMsgPublishToFaqEdit() {
     log.debug("processPvtMsgPublishToFaqEdit()");
+    multiDeleteSuccess = false;
 
     MessageForumPublishToFaqBean publishToFaqBean =
         (MessageForumPublishToFaqBean) lookupBean(MessageForumPublishToFaqBean.NAME);
@@ -4249,6 +4261,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
     FacesContext.getCurrentInstance().addMessage(null,
         new FacesMessage(FacesMessage.SEVERITY_ERROR,
             getResourceBundleString(ALERT) + " " + errorMsg, null));
+  }
+
+  private void setSuccessMessage(String successMsg)
+  {
+    log.debug("setSuccessMessage(String " + successMsg + ")");
+    FacesContext.getCurrentInstance().addMessage(null,
+        new FacesMessage(FacesMessage.SEVERITY_INFO, successMsg, null));
   }
 
   private void setInformationMessage(String infoMsg)
