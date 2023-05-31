@@ -17,58 +17,60 @@
         this.siteId = data.siteId;
         this.isInstructor = data.isInstructor;
 
-        //this.has_current = false;
+        this.topLevelPageProps = {};
+	data.topLevelPageProps.forEach((p) => this.topLevelPageProps[p.toolId] = p);
+
         this.setup();
-        //this.setupPrerequisiteCallback();
     };
     
     LessonsSubPageNavigation.prototype.setup = function() {
         var self = this;
 
-        for (var page_id in self.data) {
-            if (self.data.hasOwnProperty(page_id)) {
-                var sub_pages = self.data[page_id];
-                self.render_subnav_for_page(page_id, sub_pages);
+        for (var pageId in self.data) {
+            if (self.data.hasOwnProperty(pageId) && self.topLevelPageProps.hasOwnProperty(pageId)) {
+                self.renderSubnavForPage(pageId, self.data[pageId], self.topLevelPageProps[pageId]);
             }
         }
     };
 
-    LessonsSubPageNavigation.prototype.render_subnav_for_page = function(page_id, sub_pages) {
+    LessonsSubPageNavigation.prototype.renderSubnavForPage = function(pageId, subpages, props) {
         var self = this;
-        var submenu_id = "lessonsSubMenu_" + page_id;
-
-        const lessonsElement = document.querySelector('#toolMenu a[href$="/tool/'+page_id+'"], #toolMenu [href$="/tool-reset/'+page_id+'"]');
-
+        const lessonsElement = document.querySelector('#toolMenu a[href*="/tool/'+pageId+'"], #toolMenu [href*="/tool-reset/'+pageId+'"]');
         const pageName = lessonsElement.innerText;
 
         const siteListItem = lessonsElement.parentElement;
         const mainLink = lessonsElement.href?.replace(/\/tool\//, "/tool-reset/");
 
-        const collapseId = `page-${page_id}-lessons-subpages`;
+        const collapseId = `page-${pageId}-lessons-subpages`;
+	const isExpanded = (subpages[0].toolId === self.getCurrentPlacement());
         const template = `
             <div class="d-inline-flex align-items-stretch">
-                <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4"
+                <button class="btn btn-nav btn-subsite rounded-end text-start ${(isExpanded) ? `` : `collapsed`} border-0 ps-4"
                         data-bs-toggle="collapse"
                         data-bs-target="#${collapseId}"
-                        aria-expanded="false"
+                        aria-expanded="${(isExpanded) ? `true` : `false`}"
                         aria-controls="${collapseId}">
-                    <i class="bi-chevron-right" aria-hidden="true"></i>
+                    <i class="${(isExpanded) ? `bi-chevron-down` : `bi-chevron-right`}" aria-hidden="true"></i>
                     <span>${pageName}</span>
                 </button>
             </div>
-            <div id="${collapseId}" class="lessons-subpages-collapse collapse">
+            <div id="${collapseId}" class="lessons-subpages-collapse ${(isExpanded) ? `show` : `collapse`}">
                 <ul class="nav flex-column pe-2">
                     <li class="nav-item">
-                        <a class="btn btn-nav rounded-end ps-4" href="${mainLink}">
+                        <a class="btn btn-nav rounded-end text-start ps-5" href="${mainLink}">
                             <i class="me-2 si si-sakai-lessonbuildertool" aria-hidden="true"></i>
                             <span>${self.i18n.main_link_name}</span>
+                            ${(props.disabled === 'true') ? `<i class="bi-slash-circle ms-2"></i>` : ``}
+                            ${(props.hidden === 'true' && props.disabled !== 'true') ? `<i class = "si si-hidden ms-2"></i>` : ``}
                         </a>
                     </li>
-                    ${sub_pages.map(sub_page => `
+                    ${subpages.map((subpage) => `
                         <li class="nav-item">
-                            <a class="btn btn-nav rounded-end ps-4" href="${self.build_sub_page_url_for(sub_page)}">
+                            <a class="btn btn-nav rounded-end text-start ps-5 ${((props.disabled === 'true' && props.disabledDueToPrerequisite === 'true') || (subpage.disabled === 'true' && subpage.disabledDueToPrerequisite === 'true')) ? `disabled` : ``}" href="${self.buildSubpageUrlFor(subpage)}">
                                 <i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>
-                                <span>${sub_page.name}</span>
+                                <span>${subpage.name}</span>
+                                ${(props.disabled === 'true' || subpage.disabled === 'true') ? `<i class="bi-slash-circle ms-2"></i>` : ``}
+                                ${(subpage.hidden === 'true' && ! (props.disabled === 'true' || subpage.disabled === 'true')) ? `<i class="si si-hidden ms-2"></i>` : ``}
                             </a>
                         </li>
                     `).join("")}
@@ -83,399 +85,64 @@
           const collapseEl = document.getElementById(collapseId);
           const chevron = document.querySelector(`[data-bs-target='#${collapseId}'] > i`);
           collapseEl.addEventListener("show.bs.collapse", e => {
-
             e.stopPropagation();
             chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
           });
 
           collapseEl.addEventListener("hide.bs.collapse", e => {
-
             e.stopPropagation();
             chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
           });
         });
-        
-        /*
-        var $submenu = document.createElement('ul');
-        $submenu.classList.add('lessons-sub-page-menu');
-        $submenu.setAttribute('aria-hidden', true);
-        $submenu.style.display = 'none';
-        $submenu.id = submenu_id;
-
-        sub_pages.forEach(function(sub_page) {
-            var $submenu_item = document.createElement('li');
-            var $submenu_action = document.createElement('a');
-
-            $submenu_action.href = self.build_sub_page_url_for(sub_page);
-            $submenu_action.innerText = sub_page.name;
-            $submenu_action.setAttribute('data-sendingPage', sub_page.sendingPage);
-
-            var title_string = sub_page.name;
-            if (title_string.length < LESSONS_SUBPAGE_TOOLTIP_MAX_LENGTH - 20) { // only show description if there's room
-                if (sub_page.description) {
-                  if (sub_page.description.length > (LESSONS_SUBPAGE_TOOLTIP_MAX_LENGTH - title_string.length)) {
-                    title_string += " - " + sub_page.description.substring(0, LESSONS_SUBPAGE_TOOLTIP_MAX_LENGTH) + "...";
-                  } else {
-                    title_string += " - " + sub_page.description;
-                  }
-                }
-            }
-
-            if (sub_page.hidden == 'true') {
-                $submenu_action.classList.add('is-invisible');
-            }
-
-            if(sub_page.disabled == 'true'){
-                $submenu_action.classList.add('is-invisible');
-                title_string += ' ' + self.i18n.hidden_with_release_date.replace(/\{releaseDate\}/, sub_page.releaseDate);
-            }
-
-            if(sub_page.required == 'true') {
-                if (sub_page.completed == 'false') {
-                    $submenu_action.classList.add('is-required');
-                } else {
-                    $submenu_action.classList.add('is-complete');
-                }
-            }
-
-            $submenu_action.setAttribute('title', title_string);
-
-            $submenu_item.appendChild($submenu_action);
-
-            $submenu.appendChild($submenu_item);
-
-            sub_page['submenu_item'] = $submenu_item;
-        });
-
-        $li.appendChild($submenu);
-        self.setup_parent_menu($li, $menu, submenu_id);
-        */
     };
 
-
-    LessonsSubPageNavigation.prototype.expand = function($expandMe, doNotAnimate, callback) {
-        $expandMe.hide().show(0);
-        $expandMe.addClass('sliding-down');
-        $expandMe.find('.lessons-sub-page-menu').slideDown((doNotAnimate == true) ? 0 : 500, function() {
-            var $submenu = $PBJQ(this);
-
-            $expandMe.removeClass('sliding-down');
-            $expandMe.addClass('expanded');
-
-            var $expandMeLink = $expandMe.find('> a.Mrphs-toolsNav__menuitem--link');
-            var $placeholderMenuLink = $expandMe.find('> span.Mrphs-toolsNav__menuitem--link');
-
-            $expandMeLink.hide().attr('aria-hidden', true);
-            $placeholderMenuLink.show().attr('aria-hidden', false);
-
-            $submenu.attr('aria-hidden', false);
-
-            // To better provide screenreader continuity, focus the collapse button
-            // as the expand button is hidden from the user and can no longer be clicked
-            // Also, blur it soon after so mouse users don't get a facefull of focus-outline
-            $placeholderMenuLink.find('.lessons-expand-collapse-icon').focus();
-            setTimeout(function() {
-                $placeholderMenuLink.find('.lessons-expand-collapse-icon').blur();
-            });
-
-            if (callback) {
-                setTimeout(callback);
-            }
-        });
-    };
-
-    LessonsSubPageNavigation.prototype.collapse = function($collapseMe, callback) {
-        $collapseMe.addClass('sliding-up');
-        $collapseMe.find('.lessons-sub-page-menu').slideUp(500, function() {
-            var $submenu = $PBJQ(this);
-
-            $collapseMe.removeClass('sliding-up');
-            $collapseMe.removeClass('expanded');
-
-            var $expandMeLink = $collapseMe.find('> a.Mrphs-toolsNav__menuitem--link');
-            var $placeholderMenuLink = $collapseMe.find('> span.Mrphs-toolsNav__menuitem--link');
-
-            $expandMeLink.show().attr('aria-hidden', false);
-            $placeholderMenuLink.hide().attr('aria-hidden', true);
-
-            $submenu.attr('aria-hidden', true);
-
-            // To better provide screenreader continuity, focus the expand button
-            // as the collapse button is hidden from the user and can no longer be clicked
-            // Also, blur it soon after so mouse users don't get a facefull of focus-outline
-            $expandMeLink.focus();
-            setTimeout(function() {
-                $expandMeLink.blur();
-            });
-
-            if (callback) {
-                setTimeout(callback);
-            }
-        });
-    };
-
-
-    LessonsSubPageNavigation.prototype.setup_parent_menu = function($li, $menu, submenu_id) {
-        var self = this;
-
-        // stash the top level Lessons page URL
-        var topLevelPageHref = $menu.href;
-        // force it to be a tool-reset so the session state/breadcrumb
-        // is cleared when visiting this top level page
-        topLevelPageHref = topLevelPageHref.replace(/\/tool\//, "/tool-reset/");
-
-        // add a wrapper CSS class so we can style things fancy-like
-        $li.classList.add('has-lessons-sub-pages');
-
-        // create a span to replace the original top level icon
-        // it will contain two links, one to collapse the menu and another to visit the lessons page
-        var $expandedMenuPlaceholder = document.createElement('span');
-        $expandedMenuPlaceholder.classList.add('Mrphs-toolsNav__menuitem--link');
-        $expandedMenuPlaceholder.classList.add('lessons-top-level-placeholder');
-        if ($menu.querySelector('.Mrphs-toolsNav__menuitem--status-block').innerHTML.trim()) {
-            $expandedMenuPlaceholder.classList.add('is-invisible');
-        }
-        $expandedMenuPlaceholder.innerHTML = $menu.querySelector('.Mrphs-toolsNav__menuitem--icon').outerHTML + $menu.querySelector('.Mrphs-toolsNav__menuitem--title').outerHTML + $menu.querySelector('.Mrphs-toolsNav__menuitem--status-block').outerHTML;
-        $expandedMenuPlaceholder.style.display = 'none';
-
-        // create a link to close an expanded menu
-        var $collapseToggle = document.createElement('a');
-        $collapseToggle.setAttribute('href', 'javascript:void(0);');
-        $collapseToggle.setAttribute('aria-controls', submenu_id);
-        $collapseToggle.setAttribute('aria-expanded', true);
-        $collapseToggle.setAttribute('title', self.i18n.collapse);
-        $collapseToggle.classList.add("lessons-expand-collapse-icon");
-        $expandedMenuPlaceholder.appendChild($collapseToggle);
-
-        // create a link to go to the top level page (only visible when expanded)
-        var $expandedGoToTopItem = document.createElement('a');
-        $expandedGoToTopItem.setAttribute('href', topLevelPageHref);
-        $expandedGoToTopItem.setAttribute('title', self.i18n.open_top_level_page);
-        $expandedGoToTopItem.classList.add("lessons-goto-top-page");
-        $expandedMenuPlaceholder.appendChild($expandedGoToTopItem);
-
-        // insert the placeholder menu item before the $menu link
-        $li.insertBefore($expandedMenuPlaceholder, $menu);
-
-        $menu.href = 'javascript:void(0);';
-        $menu.setAttribute('aria-controls', submenu_id);
-        $menu.setAttribute('aria-expanded', false);
-        $menu.setAttribute('aria-hidden', false);
-        $menu.setAttribute('title', self.i18n.expand);
-
-        $menu.addEventListener('click', function(event) {
-            event.preventDefault();
-
-            // We have jQuery now... YAY, get on that.
-            var $li = $PBJQ(event.target).closest('li');
-
-            // when the tool menu is collapsed, a click should take you to the top page
-            // and not toggle the menu
-            if ($(document.body).is('.Mrphs-toolMenu-collapsed')) {
-                location.href = topLevelPageHref;
-                return false;
-            }
-
-            // the $menu expands the submenu
-            // but collapse any other menus first
-            $li.closest('ul').find('.expanded').each(function() {
-                self.collapse($PBJQ(this));
-            });
-
-            self.expand($li);
-        });
-
-        $menu.addEventListener('keyup', function(event) {
-            // We have jQuery now... YAY, get on that.
-            var $li = $PBJQ(event.target).closest('li');
-
-            if (event.keyCode == '13') {
-                if (!$li.is('.expanded')) {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-
-                    self.expand($li, true, function() {
-                        $expandedMenuPlaceholder.focus();
-                    });
-
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
-        $expandedMenuPlaceholder.addEventListener('click', function(event) {
-            // We have jQuery now... YAY, get on that.
-            var $li = $PBJQ(event.target).closest('li');
-
-            self.collapse($li);
-        });
-
-        $expandedMenuPlaceholder.addEventListener('keyup', function(event) {
-             // We have jQuery now... YAY, get on that.
-             var $li = $PBJQ(event.target).closest('li');
-
-             if (event.keyCode == '13') {
-                 if ($li.is('.expanded')) {
-                     event.preventDefault();
-                     event.stopImmediatePropagation();
-
-                     self.collapse($li, function() {
-                         $menu.focus();
-                     });
-
-                     return false;
-                 }
-             }
-
-             return true;
-         });
-
-        if ($li.classList.contains('is-current')) {
-            $expandedMenuPlaceholder.style.display = 'flex';
-            $menu.style.display = 'none';
-
-            $li.classList.add('expanded');
-            var $submenu = $li.querySelector('.lessons-sub-page-menu');
-            $submenu.style.display = 'block';
-            $submenu.setAttribute('aria-hidden', false);
-        }
-    };
-
-
-    LessonsSubPageNavigation.prototype.build_sub_page_url_for = function(sub_page) {
-        var url = '/portal/site/' + sub_page.siteId;
-        url += '/tool/' + sub_page.toolId;
-        url += '/ShowPage?sendingPage='+sub_page.sendingPage;
-        url += '&itemId='+sub_page.itemId;
+    LessonsSubPageNavigation.prototype.buildSubpageUrlFor = function(subpage) {
+        var url = '/portal/site/' + subpage.siteId;
+        url += '/tool/' + subpage.toolId;
+        url += '/ShowPage?sendingPage='+subpage.sendingPage;
+        url += '&itemId='+subpage.itemId;
         url += '&path=clear_and_push';
-        url += '&title=' + sub_page.name;
+        url += '&title=' + subpage.name;
         url += '&newTopLevel=false';
         return url;
     };
 
-
-    LessonsSubPageNavigation.prototype.set_current_for_page_id = function(page_id, context_id) {
-        var self = this;
-
-        if (self.data.hasOwnProperty(context_id)) {
-            self.data[context_id].forEach(function(sub_page) {
-                if (sub_page.sendingPage == page_id) {
-                    var li = sub_page.submenu_item;
-                    var parent = li.parentElement.parentElement;
-                    parent.classList.add('is-parent-of-current');
-                    li.classList.add('is-current');
-                }
-            });
-        }
+    LessonsSubPageNavigation.prototype.getCurrentPlacement = function() {
+        const url = new URL(window.location.href);
+        const parts = url.pathname.split('/');
+        return (parts.length >= 6) ? parts[5] : '';
     };
 
-    LessonsSubPageNavigation.prototype.set_current_for_item_and_page_id = function(item_id, page_id, context_id) {
-        var self = this;
+    LessonsSubPageNavigation.prototype.getSubpageElement = function() {
+        const lessonsSubnavToolIdInput = document.getElementById('lessonsSubnavToolId');
+        const lessonsSubnavPageIdInput = document.getElementById('lessonsSubnavPageId');
+        const lessonsSubnavItemIdInput = document.getElementById('lessonsSubnavItemId');
+        let subpageElement = null;
 
-        if (self.data.hasOwnProperty(context_id)) {
-            self.data[context_id].forEach(function(sub_page) {
-                if (sub_page.sendingPage == page_id) {
-                    if (sub_page.itemId == item_id) {
-                        var li = sub_page.submenu_item;
-                        var parent = li.parentElement.parentElement;
-                        parent.classList.add('is-parent-of-current');
-                        li.classList.add('is-current');
-                    }
-                }
-            });
+        if ((lessonsSubnavToolIdInput !== null) && (lessonsSubnavPageIdInput !== null) &&
+            (lessonsSubnavItemIdInput !== null)) {
+            subpageElement = document.querySelector('#toolMenu a[href*="/tool/' + lessonsSubnavToolIdInput.value + 
+                                                    '/ShowPage?sendingPage=' + lessonsSubnavPageIdInput.value +
+                                                    '&itemId=' + lessonsSubnavItemIdInput.value + '&"]');
         }
+
+        // If the current page is not a subpage, then highlight the main page.
+        if (subpageElement == null) {
+            subpageElement = document.querySelector('#toolMenu a[href$="/tool-reset/' + lessonsSubnavToolIdInput.value + '"]');
+        }
+
+        return subpageElement;
     };
 
+    LessonsSubPageNavigation.prototype.setCurrentLessonsPage = function() {
+        let self = this;
+        let subpageElement = self.getSubpageElement();
 
-    LessonsSubPageNavigation.prototype.set_current_for_item_id = function(item_id, context_id) {
-        var self = this;
-
-        if (self.data.hasOwnProperty(context_id)) {
-            self.data[context_id].forEach(function(sub_page) {
-                if (sub_page.itemId == item_id) {
-                    var li = sub_page.submenu_item;
-                    var parent = li.parentElement.parentElement;
-                    parent.classList.add('is-parent-of-current');
-                    li.classList.add('is-current');
-                }
-            });
+        if (subpageElement == null) {
+             // We're not on a ShowPage (e.g., Index of Pages, ShowItem, etc.), so highlight Main Page in the site nav.
+            subpageElement = document.querySelector('#toolMenu a[href$="/tool-reset/' + self.getCurrentPlacement() + '"]');
         }
-    };
-
-
-    LessonsSubPageNavigation.prototype.set_current_lessons_page = function() {
-        // We're on a lessons page, so try to set the respective subnav menu item
-        // as being 'current'
-        var lessonsSubnavToolIdInput = document.getElementById('lessonsSubnavToolId');
-        var lessonsSubnavTopLevelPageIdInput = document.getElementById('lessonsSubnavTopLevelPageId');
-        var lessonsSubnavPageIdInput = document.getElementById('lessonsSubnavPageId');
-        var lessonsSubnavItemIdInput = document.getElementById('lessonsSubnavItemId');
-
-        if (lessonsSubnavToolIdInput) {
-            var lessonsSubnavToolId = lessonsSubnavToolIdInput.value;
-
-            if (lessonsSubnavTopLevelPageIdInput) {
-                var lessonsSubnavTopLevelPageId = lessonsSubnavTopLevelPageIdInput.value;
-                sakai.lessons_subnav.set_current_for_page_id(lessonsSubnavTopLevelPageId, lessonsSubnavToolId);
-            } else if (lessonsSubnavItemIdInput && lessonsSubnavPageIdInput) {
-                var lessonsSubnavItemId = lessonsSubnavItemIdInput.value;
-                var lessonsSubnavPageId = lessonsSubnavPageIdInput.value;
-                sakai.lessons_subnav.set_current_for_item_and_page_id(lessonsSubnavItemId, lessonsSubnavPageId, lessonsSubnavToolId);
-            } else if (lessonsSubnavPageIdInput) {
-                var lessonsSubnavPageId = lessonsSubnavPageIdInput.value;
-                sakai.lessons_subnav.set_current_for_page_id(lessonsSubnavPageId, lessonsSubnavToolId);
-            } else if (lessonsSubnavItemIdInput) {
-                // This is a last resort as we when items are reused we cannot be sure of their parent page
-                var lessonsSubnavItemId = lessonsSubnavItemIdInput.value;
-                sakai.lessons_subnav.set_current_for_item_id(lessonsSubnavItemId, lessonsSubnavToolId);
-            }
-        }
-    };
-
-
-    LessonsSubPageNavigation.prototype.setupPrerequisiteCallback = function() {
-        var self = this;
-
-        document.addEventListener("DOMContentLoaded", function(event) {
-            $PBJQ.ajax({
-                url: '/direct/lessons/subnav-prerequisites/' + self.siteId + '.json',
-                cache: false,
-                dataType: 'json',
-                success: function(json) {
-                    self.applyPrerequisites(json);
-                }
-            });
-        });
-    };
-
-
-    LessonsSubPageNavigation.prototype.applyPrerequisites = function(prereqData) {
-        var self = this;
-
-        for (var page_id in self.data) {
-            if (self.data.hasOwnProperty(page_id)) {
-                var sub_pages = self.data[page_id];
-                sub_pages.forEach(function(sub_page) {
-                    if (prereqData.hasOwnProperty(sub_page.sakaiPageId)) {
-                        if (sub_page.prerequisite == 'true' && $PBJQ.inArray(sub_page.itemId, prereqData[sub_page.sakaiPageId].unavailable) >= 0) {
-                            var $link = $PBJQ(sub_page.submenu_item).find('> a');
-                            $link.addClass('has-prerequisite');
-                            var title_string = $link.attr('title');
-                            if (self.isInstructor) {
-                                title_string += ' ' + self.i18n.prerequisite;
-                            } else {
-                                $link.addClass('disabled');
-                                $link.attr('href', 'javascript:void(0);')
-                                title_string += ' ' + self.i18n.prerequisite_and_disabled;
-                            }
-                            $link.attr('title', title_string);
-                        }
-                    }
-                });
-            }
-        }
+        subpageElement.classList.add("selected-page");
     };
 
     window.LessonsSubPageNavigation = LessonsSubPageNavigation;

@@ -513,7 +513,7 @@ public class SiteHandler extends WorksiteHandler
 			props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
 			PreferencesService.commit(prefs);
 		} catch (Exception any) {
-			log.warn("Exception caught whilst setting {} property: {}", SELECTED_PAGE_PROP, any.toString());
+			log.warn("Exception caught whilst setting {} property: {}", PortalConstants.PROP_EXPANDED_SITE, any.toString());
 		}
 
 		if ( allowBuffer ) {

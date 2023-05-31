@@ -270,6 +270,17 @@
                 </td>
             </tr>
             #end			
+	    
+            #if ($isLessonsSubNavEnabledForSite)
+            <tr class="summary-lessons-subnav-enabled">
+                <th>
+                $tlang.getString("sinfo.lessonbuildersubnav.name")
+                </th>
+                <td>
+                $tlang.getString("sinfo.lessonbuildersubnav.enabled")
+                </td>
+            </tr>
+            #end
 
 		#if ($siteJoinable && $allowUnjoin)
 			<tr>

@@ -61,6 +61,43 @@
     iconClasses: ["bi-info-circle", "bi-info-circle-fill"],
   });
 
+  // Setup lessons subpage navigaion
+
+  let lessonSubnavs = []; // exclude the current site
+  let currentLessonSubnav = null;
+
+  // Macros to add Lessons data to an js array
+  #macro (addLessonsSubnavData $site)
+    #if ($site && $site.lessonsSubPages)
+      #if ($site.isCurrent)
+        currentLessonSubnav = new LessonsSubPageNavigation(${site.lessonsSubPages});
+      #else
+        lessonSubnavs.push(${site.lessonsSubPages});
+      #end
+    #end
+  #end
+
+  #macro (addLessonsSubnavDataList $siteList)
+    #if ($siteList)
+      #foreach ($site in $siteList)
+        #addLessonsSubnavData ($site)
+      #end
+    #end
+  #end
+
+  #addLessonsSubnavDataList($sidebarSites.pinnedSites);
+  #addLessonsSubnavDataList($sidebarSites.recentSites);
+
+  // Remove duplicate pages e.g. page in pinned and recent, then create
+  // a LessonsSubPageNavigation instance for each site
+  
+  lessonSubnavs.filter((v, i) => lessonSubnavs.findIndex(val => val.siteId === v.siteId) === i)
+    .forEach(lessonSubnavData => new LessonsSubPageNavigation(lessonSubnavData));
+
+  if (currentLessonSubnav !== null && sakai && sakai.lessons_subnav) {
+    currentLessonSubnav.setCurrentLessonsPage();
+  }
+
   #if (!$loggedIn && $topLogin)
     //--start-logged-out-scripts
     // Setup header login password field

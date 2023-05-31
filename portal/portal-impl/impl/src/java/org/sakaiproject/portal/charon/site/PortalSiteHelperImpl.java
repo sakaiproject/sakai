@@ -72,6 +72,7 @@ import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
@@ -153,6 +154,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private ToolManager toolManager;
 	private FormattedText formattedText;
+	private SimplePageToolDao simplePageToolDao;
 
 	public ToolManager getToolManager() {
 		//To work around injection for test case
@@ -171,6 +173,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private static AuthzGroupService getAuthzGroupService() {
 		return (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
+	}
+
+	public SimplePageToolDao getSimplePageToolDao() {
+		if (simplePageToolDao == null) {
+			simplePageToolDao = (SimplePageToolDao) ComponentManager.get(SimplePageToolDao.class.getName());
+		}
+		return simplePageToolDao;
 	}
 
 	public void setToolManager(ToolManager toolManager) {
@@ -356,6 +365,20 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return pinnedSiteIds != null && pinnedSiteIds.contains(siteId);
 	}
 
+	private String getLessonsSubpages(String userId, Boolean updatePermisson, String siteId, List<SitePage> pageList) {
+		//Lessons is expecting a Map containing the "pageId" and "wellKnownToolId"
+		List<Map<String, Object>> pageMapList = pageList.stream().map(page -> {
+				Map<String, Object> pageMap = new HashMap<>();
+				List<ToolConfiguration> pageTools = page.getTools();
+				if (!pageTools.isEmpty()) {
+					pageMap.put("pageId", page.getId());
+					pageMap.put("wellKnownToolId", pageTools.get(0).getToolId());
+				}
+				return pageMap;
+			}).collect(Collectors.toList());
+		return getSimplePageToolDao().getLessonSubPageJSON(userId, updatePermisson, siteId, pageMapList);
+	}
+
 	private Map<String, Object> getSiteMap(Site site, String currentSiteId, boolean includePages, boolean pinned) {
 
 		String userId = userDirectoryService.getCurrentUser().getId();
@@ -372,8 +395,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
         siteMap.put("isCurrent", site.getId().equals(currentSiteId));
         siteMap.put("currentSiteId", currentSiteId);
 		if (includePages) {
-			List<SitePage> pageList = site.getOrderedPages();
+			List<SitePage> pageList = getPermittedPagesInOrder(site);
 			siteMap.put("pages", getPageMaps(pageList, site));
+			if ("true".equals(site.getProperties().getProperty("lessons_submenu"))) {
+				siteMap.put("lessonsSubPages", 
+					    getLessonsSubpages(userDirectoryService.getCurrentUser().getId(),
+							       securityService.unlock("site.upd", site.getReference()), 
+							       site.getId(), pageList));
+			}
 		}
 		return siteMap;
 	}
@@ -1021,6 +1050,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			theMap.put("canManageOverview", false);
 		}
 		theMap.put("pageNavTools", l);
+
+		if ("true".equals(site.getProperties().getProperty("lessons_submenu")) && !l.isEmpty()) {
+			theMap.put("additionalLessonsPages",
+				   getSimplePageToolDao().getLessonSubPageJSON(userDirectoryService.getCurrentUser().getId(), siteUpdate, site.getId(), l));
+		}
 
 		theMap.put("pageNavTools", l);
 		theMap.put("pageMaxIfSingle", serverConfigurationService.getBoolean(
