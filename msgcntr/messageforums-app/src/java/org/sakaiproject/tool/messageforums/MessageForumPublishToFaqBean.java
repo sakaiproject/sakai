@@ -53,8 +53,6 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
     private String siteId;
     private String userId;
     private Area discussionArea;
-    private DiscussionForum faqForum;
-    private DiscussionTopic faqTopic;
     private ResourceBundle resourceBundle;
 
     @Setter(AccessLevel.NONE)
@@ -105,12 +103,24 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
         siteId = toolManager.getCurrentPlacement().getContext();
         userId = userDirectoryService.getCurrentUser().getId();
         discussionArea = areaManager.getDiscussionArea(siteId);
-        faqForum = forumManager.getFaqForumForArea(discussionArea);
-        faqTopic = getFaqTopic(faqForum);
         resourceBundle = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE,
                 siteService.getSiteLocale(siteId).orElse(Locale.getDefault()));
-        canPost = permissionsManager.isNewResponse(faqTopic, faqForum);
-        canReply = permissionsManager.isNewResponseToResponse(faqTopic, faqForum);
+
+        DiscussionForum faqForum = forumManager.getFaqForumForArea(discussionArea);
+        DiscussionTopic faqTopic = forumManager.getFaqTopicForForum(faqForum);
+        if (faqForum != null) {
+            if (faqTopic != null) {
+                canPost = permissionsManager.isNewResponse(faqTopic, faqForum);
+                canReply = permissionsManager.isNewResponseToResponse(faqTopic, faqForum);
+                log.debug("FAQ Forum and FAQ Topic present; canPost = {}; canReply = {};");
+            } else {
+                canPost = canReply = permissionsManager.isNewTopic(faqForum);
+                log.debug("FAQ Forum, but no FAQ Topic present; Can create new Topic? canPost = canReply = {};", canPost);
+            }
+        } else {
+            canPost = canReply = permissionsManager.isNewForum();
+            log.debug("No FAQ Forum present; Can create new Forum? canPost = canReply = {};", canPost);
+        }
     }
 
     public void setMessage(Message message) {
@@ -121,10 +131,14 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
             title = null;
             question = null;
         }
+        answer = null;
     }
 
     public void publishToFaq() {
-        log.debug("Creating question message for Topic: {}", faqTopic);
+        DiscussionForum faqForum = forumManager.getOrCreateFaqForumForArea(discussionArea);
+        DiscussionTopic faqTopic = forumManager.getOrCreateFaqTopicForForum(faqForum);
+
+        log.debug("Creating question message for Forum [{}] and Topic [{}]", faqForum, faqTopic);
 
         if (!Boolean.TRUE.equals(canPost)) {
             log.warn("User with id [{}] does not have permissions to create a new forum post", userId);
@@ -169,28 +183,4 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
         }
     }
 
-    public boolean isMessagePublishableToFaq(Message message) {
-        boolean forumsToolPresent = false;
-        try {
-            forumsToolPresent = siteService.getSite(siteId)
-                    .getToolForCommonId(DiscussionForumService.FORUMS_TOOL_ID) != null;
-        } catch (IdUnusedException e) {
-			log.error("Could not find site with id [{}]: {}", siteId, e.toString());
-        }
-
-        return forumsToolPresent && message != null
-                && StringUtils.equalsAny(message.getTopic().getTitle(),
-                        PrivateMessagesTool.PVTMSG_MODE_SENT, PrivateMessagesTool.PVTMSG_MODE_RECEIVED);
-    }
-
-    private static DiscussionTopic getFaqTopic(DiscussionForum faqForum) {
-        if (faqForum != null) {
-            Set<DiscussionTopic> faqForumTopics = faqForum.getTopicsSet();
-            return faqForumTopics.stream()
-                    .filter(topic -> Boolean.TRUE.equals(topic.getFaqTopic()))
-                    .findAny().orElse(null);
-        }
-
-        return null;
-    }
 }

@@ -712,11 +712,40 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             query.setParameter("typeUuid", area.getTypeUuid());
             query.setParameter("contextId", area.getContextId());
 
-            return query.uniqueResult();
+            return query.list().stream().findAny().orElse(null);
         };
 
         DiscussionForum existingFaqForum = getHibernateTemplate().execute(hibernateCallback);
         return existingFaqForum != null ? existingFaqForum : createFaqForum(area);
+    }
+
+    public DiscussionTopic getFaqTopicForForum(DiscussionForum faqForum) {
+        if (faqForum == null) {
+            return null;
+        }
+
+        Set<DiscussionTopic> faqForumTopics = faqForum.getTopicsSet();
+        if (faqForumTopics == null) {
+            return null;
+        }
+
+        return faqForumTopics.stream()
+                .filter(topic -> Boolean.TRUE.equals(topic.getFaqTopic()))
+                .findAny().orElse(null);
+    }
+
+    public DiscussionForum getOrCreateFaqForumForArea(Area area) {
+        DiscussionForum existingFaqForum = getFaqForumForArea(area);
+        return existingFaqForum != null
+                ? existingFaqForum
+                : createFaqForum(area);
+    }
+
+    public DiscussionTopic getOrCreateFaqTopicForForum(DiscussionForum discussionForum) {
+        DiscussionTopic existingFaqTopic = getFaqTopicForForum(discussionForum);
+        return existingFaqTopic != null
+                ? existingFaqTopic
+                : createFaqTopic(discussionForum);
     }
 
     public ActorPermissions createDefaultActorPermissions()
@@ -734,7 +763,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
     
     // Create a new FAQ forum based on defaults
-    private DiscussionForum createFaqForum(Area discussionArea) {
+    public DiscussionForum createFaqForum(Area discussionArea) {
         log.debug("Creating a new FAQ Forum");
 
         // Get site locale first, use server locale as fallback
@@ -752,18 +781,31 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
         DiscussionForum savedForum = saveDiscussionForum(createdForum);
 
-        DiscussionTopic createdTopic = createDiscussionForumTopic(savedForum);
+        DiscussionTopic discussionTopic = createFaqTopic(savedForum);
+
+        savedForum.addTopic(discussionTopic);
+
+        return savedForum;
+    }
+
+    // Create a new FAQ topic based on defaults
+    public DiscussionTopic createFaqTopic(DiscussionForum discussionForum) {
+        log.debug("Creating a new FAQ Topic");
+
+        // Get site locale first, use server locale as fallback
+        Locale locale = siteService.getSiteLocale(discussionForum.getArea().getContextId()).orElse(Locale.getDefault());
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE, locale);
+
+        DiscussionTopic createdTopic = createDiscussionForumTopic(discussionForum);
         createdTopic.setTitle(resourceBundle.getString("cdfm_faq_topic_title"));
         createdTopic.setShortDescription(resourceBundle.getString("cdfm_faq_topic_description"));
         createdTopic.setCreatedBy(UserDirectoryService.ADMIN_ID);
         createdTopic.setFaqTopic(Boolean.TRUE);
-        createdTopic.setBaseForum(savedForum);
+        createdTopic.setBaseForum(discussionForum);
 
         DiscussionTopic savedTopic = saveDiscussionForumTopic(createdTopic, false);
 
-        savedForum.addTopic(savedTopic);
-
-        return savedForum;
+        return savedTopic;
     }
 
     /**

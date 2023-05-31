@@ -66,12 +66,12 @@
                 <h:outputText value=" #{msgs.pvt_star}" styleClass="highlight" />
             </h:outputLabel>
             <sakai:inputRichText id="question" value="#{mfPublishToFaqBean.question}" textareaOnly="#{PrivateMessagesTool.mobileSession}"
-                    rows="#{ForumTool.editorRows}" cols="132" />
+                    rows="#{ForumTool.editorRows}" />
         </h:panelGroup>
-        <h:panelGroup styleClass="form-group" layout="block" rendered="mfPublishToFaqBean.canReply">
+        <h:panelGroup styleClass="form-group" layout="block" rendered="#{mfPublishToFaqBean.canReply}">
             <h:outputLabel for="answer" value="#{msgs.pvt_answer}" styleClass="control-label" />
             <sakai:inputRichText id="answer" value="#{mfPublishToFaqBean.answer}" textareaOnly="#{PrivateMessagesTool.mobileSession}"
-                    rows="#{ForumTool.editorRows}" cols="132" />
+                    rows="#{ForumTool.editorRows}" />
             <h:panelGroup styleClass="b5 form-text" layout="block">
                 <h:outputText value="#{msgs.pvt_answer_info}" />
             </h:panelGroup>
