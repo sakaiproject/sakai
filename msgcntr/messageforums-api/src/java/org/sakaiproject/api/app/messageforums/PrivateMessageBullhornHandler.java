@@ -94,7 +94,7 @@ public class PrivateMessageBullhornHandler extends AbstractBullhornHandler {
                 if (!from.equals(userId)) {
                     String toolId = site.getToolForCommonId(DiscussionForumService.MESSAGES_TOOL_ID).getId();
                     String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
-                            + "/tool/" + toolId + "/privateMsg/pvtMsgDetail";
+                            + "/tool/" + toolId + "/privateMsg/pvtMsgDirectAccess?current_msg_detail=" + pvtMessage.getId();
                     bhEvents.add(new BullhornData(from, userId, siteId, title, url));
                 }
             } catch (IdUnusedException idEx) {
