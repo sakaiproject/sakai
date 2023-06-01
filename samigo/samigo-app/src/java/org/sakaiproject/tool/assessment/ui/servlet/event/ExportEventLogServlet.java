@@ -29,7 +29,6 @@ import org.sakaiproject.util.ResourceLoader;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
