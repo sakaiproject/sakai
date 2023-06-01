@@ -106,7 +106,9 @@ public class ExportEventLogServlet extends SamigoBaseServlet {
                 add(RESOURCE_BUNDLE.getString("date_submitted"));
                 add(RESOURCE_BUNDLE.getString("duration"));
                 add(RESOURCE_BUNDLE.getString("errors"));
-                add(RESOURCE_BUNDLE.getString("ipAddress"));
+                if (displayIpAddressColumn) {
+                    add(RESOURCE_BUNDLE.getString("ipAddress"));
+                }
         }};
         lines.add(headerList.toArray(new String[headerList.size()]));
 
