@@ -281,7 +281,7 @@ public interface GradingService extends EntityProducer {
      * @param gradebookUid
      * @param assignmentId
      * @param studentUid
-     * @param comment a plain text comment, or null to remove any currrent comment
+     * @param comment a plain text comment, or null to remove any current comment
      * @throws AssessmentNotFoundException
      */
     public void setAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid, String comment)
