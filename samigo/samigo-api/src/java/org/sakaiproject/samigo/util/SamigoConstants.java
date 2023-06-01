@@ -139,6 +139,12 @@ public final class SamigoConstants {
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED     = "samigo.email.autoSubmit.errorNotification.enabled";
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS  = "samigo.email.autoSubmit.errorNotification.toAddress";
     public static final     String      SAK_PROP_SUPPORT_EMAIL_ADDRESS                      = "mail.support";
+    public static final     String      SAK_PROP_EVENTLOG_IPADDRESS_ENABLED                 = "samigo.eventlog.ipaddress.enabled";
+
+    /*
+     * Sakai.properties defaults
+     */
+    public static final     boolean     SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED                 = false;
 
     /*
      * Message Bundles

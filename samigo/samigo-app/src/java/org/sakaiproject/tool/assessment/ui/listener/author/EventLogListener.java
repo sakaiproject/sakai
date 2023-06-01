@@ -31,6 +31,8 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.cover.SiteService;
@@ -51,6 +53,7 @@ public class EventLogListener
 implements ActionListener, ValueChangeListener
 {
 	private BeanSort bs;
+	private ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 
 	public EventLogListener() {}
 
@@ -219,6 +222,9 @@ implements ActionListener, ValueChangeListener
 	}
 
 	private DataTableConfig eventLogDataTableConfig(boolean titleColumnSortable) {
+		boolean displayIpAddressColumn = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EVENTLOG_IPADDRESS_ENABLED,
+				SamigoConstants.SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED);
+
 		return DataTableConfig.builderWithDefaults()
 				.entitiesMessage(ContextUtil.getLocalizedString(SamigoConstants.EVENT_LOG_BUNDLE, "datatables_entities"))
 				.columns(new LinkedList<DataTableColumn>() {{
@@ -262,6 +268,13 @@ implements ActionListener, ValueChangeListener
 								.orderable(true)
 								.searchable(false)
 								.build());
+						// IP ADDRESS
+						if (displayIpAddressColumn) {
+							add(DataTableColumn.builder()
+									.orderable(true)
+									.searchable(true)
+									.build());
+						}
 				}}).build();
 	}
 }
