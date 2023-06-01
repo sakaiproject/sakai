@@ -39,6 +39,7 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT
 import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_TAG_CREATOR;
 import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_TAG_GROUPS;
 import static org.sakaiproject.assignment.api.AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.SHOW_TAGS_STUDENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.STATE_CONTEXT_STRING;
 import static org.sakaiproject.assignment.api.AssignmentConstants.UNGRADED_GRADE_STRING;
 import static org.sakaiproject.assignment.api.AssignmentConstants.UNGRADED_GRADE_TYPE_STRING;
@@ -1068,7 +1069,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String INVOKE_BY_LINK = "link";
     private static final String INVOKE_BY_PORTAL = "portal";
     private static final String SUBMISSIONS_SEARCH_ONLY = "submissions_search_only";
-    private static final String SHOW_TAGS_STUDENT = "show_tags_student";
     private static final String TAG_SELECTOR = "tag_selector";
     /*************** search related *******************/
     private static final String STATE_SEARCH = "state_search";
@@ -2862,20 +2862,24 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("rubricMap", rubricMap);
 
         if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
-            Set<String> allTaggedGroupsAndInstructors = new HashSet<>();
+            Set<String> allTaggedGroupsAndInstructorsSet = new HashSet<>();
             Map<String, List<String>> tagsMap = new HashMap<>();
             assignments.forEach(a -> {
-                List<String> tagLabels = tagService.getAssociatedTagsForItem(a.getId()).stream().map(Tag::getTagLabel).collect(Collectors.toList());
+                List<String> tagLabels = tagService.getAssociatedTagsForItem(a.getContext(), a.getId()).stream().map(Tag::getTagLabel).collect(Collectors.toList());
                 List<String> instructorAndGroupTags = addInstructorAndGroupTags(a);
                 tagLabels.addAll(instructorAndGroupTags);
-                allTaggedGroupsAndInstructors.addAll(instructorAndGroupTags);
+                allTaggedGroupsAndInstructorsSet.addAll(instructorAndGroupTags);
                 tagsMap.put(a.getId(), tagLabels);
             });
             context.put("tagsEnabled", Boolean.TRUE);
+            context.put("tagTool", TagService.TOOL_ASSIGNMENTS);
             context.put("tagsMap", tagsMap);
             context.put("siteId", contextString);
+            List<String> allTaggedGroupsAndInstructors = new ArrayList<String>(allTaggedGroupsAndInstructorsSet);
+            Collections.sort(allTaggedGroupsAndInstructors, String.CASE_INSENSITIVE_ORDER);
             context.put("allTaggedGroupsAndInstructors", String.join(",", allTaggedGroupsAndInstructors));
             context.put(SHOW_TAGS_STUDENT, state.getAttribute(SHOW_TAGS_STUDENT));
+            context.put(TAG_SELECTOR, state.getAttribute(TAG_SELECTOR));
         }
 
         // allow get assignment
@@ -2949,8 +2953,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // show or hide the number of submission column
         context.put(SHOW_NUMBER_SUBMISSION_COLUMN, state.getAttribute(SHOW_NUMBER_SUBMISSION_COLUMN));
-
-        context.put(TAG_SELECTOR, state.getAttribute(TAG_SELECTOR));
 
         // clear out peer_attachment list just in case
         state.setAttribute(PEER_ATTACHMENTS, entityManager.newReferenceList());
@@ -3517,6 +3519,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
             context.put("tagsEnabled", Boolean.TRUE);
+            context.put("tagTool", TagService.TOOL_ASSIGNMENTS);
         }
 
         // put role information into context
@@ -12901,7 +12904,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 List<String> selectedTags = state.getAttribute(TAG_SELECTOR) != null ? Arrays.asList(((String) state.getAttribute(TAG_SELECTOR)).split(",")) : new ArrayList<>();
                 if (CollectionUtils.isNotEmpty(selectedTags)) {
                     returnResources = ((List<Assignment>)returnResources).stream().filter(a -> {
-                        List<String> tagIds = tagService.getTagAssociationIds(a.getId());
+                        List<String> tagIds = tagService.getTagAssociationIds(a.getContext(), a.getId());
                         tagIds.addAll(addInstructorAndGroupTags(a));
                         return (tagIds.containsAll(selectedTags));
                     }).collect(Collectors.toList());

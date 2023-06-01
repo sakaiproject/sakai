@@ -58,7 +58,6 @@ import org.sakaiproject.tags.impl.common.SakaiI18n;
 @Slf4j
 public class TagServiceImpl implements TagService {
 
-    private static final String TAGSERVICE_MANAGE_PERMISSION =  "tagservice.manage";
     private static final String TAGSERVICE_AUTODDL_PROPERTY =  "tagservice.auto.ddl";
     private static final String SAKAI_AUTODDL_PROPERTY =  "auto.ddl";
     private static final String SAKAI_DB_VENDOR_PROPERTY =  "vendor@org.sakaiproject.db.api.SqlService";
@@ -98,14 +97,13 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<String> getTagAssociationIds(String itemId) {
-        List<String> tagIds = tagAssociationRepository.findTagAssociationByItemId(itemId).stream().map(TagAssociation::getTagId).collect(Collectors.toList());
-        return tagIds;
+    public List<String> getTagAssociationIds(String collectionId, String itemId) {
+        return tagAssociationRepository.findTagAssociationByCollectionAndItem(collectionId, itemId).stream().map(TagAssociation::getTagId).collect(Collectors.toList());
     }
 
     @Override
-    public List<Tag> getAssociatedTagsForItem(String itemId) {//if we turn Tag object to jpa we could add a foreign key to the association and retrieve them directly
-        List<String> tagIds = getTagAssociationIds(itemId);
+    public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId) {//if we turn Tag object to jpa we could add a foreign key to the association and retrieve them directly
+        List<String> tagIds = getTagAssociationIds(collectionId, itemId);
         List<Tag> associatedTags = new ArrayList<>();
         for (String tagId : tagIds) {
             Tag t = tags.getForId(tagId).orElse(null);
@@ -133,7 +131,7 @@ public class TagServiceImpl implements TagService {
         }
 
         // obtain previous asociations
-        List<String> oldAssociationIds = getTagAssociationIds(itemId);
+        List<String> oldAssociationIds = getTagAssociationIds(collectionId, itemId);
         for (String tagId : tagIds) {
             // skip if already associated or empty
             if (StringUtils.isEmpty(tagId) || oldAssociationIds.contains(tagId)) {

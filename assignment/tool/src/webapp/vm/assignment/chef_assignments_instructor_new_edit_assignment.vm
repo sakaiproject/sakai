@@ -1253,7 +1253,7 @@ function showExternalIframe(title, doreload) {
 		#set($assignmentParts = $assignmentId.split("/"))
 		#set($lastIndex = $assignmentParts.size() - 1)
 		#set($assignId = $assignmentParts.get($lastIndex))
-		<sakai-tag-selector selected-temp="$!tag_selector" collection-id="$siteId" item-id="$!assignId" add-new="true"></sakai-tag-selector>
+		<sakai-tag-selector selected-temp="$!tag_selector" collection-id="$siteId" item-id="$!assignId" add-new="true" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
 		<input type="hidden" name="tag_selector" id="tag_selector" />
 		<div class="checkbox">
 			<label for="$name_CheckAddInstructorTags">
