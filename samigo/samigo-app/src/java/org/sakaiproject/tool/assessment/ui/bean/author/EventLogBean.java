@@ -63,14 +63,14 @@ public class EventLogBean implements Serializable {
 	
 	private Map<Long,Integer> statusMap;
 		
-	private static final String SAMIGO_EVENTLOG_IPADDRESS_ENABLE = "samigo.eventlog.ipaddress.enabled";
 	private boolean enabledIpAddress = false;
 	private ServerConfigurationService serverConfigurationService;
 		
 	public EventLogBean()
 	{		
 		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-		enabledIpAddress = serverConfigurationService.getBoolean(SAMIGO_EVENTLOG_IPADDRESS_ENABLE, false);			
+		enabledIpAddress = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EVENTLOG_IPADDRESS_ENABLED,
+				SamigoConstants.SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED);			
 	}
 		
 	/**
