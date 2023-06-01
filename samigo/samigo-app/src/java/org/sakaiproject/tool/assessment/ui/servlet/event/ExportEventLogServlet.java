@@ -39,9 +39,9 @@ public class ExportEventLogServlet extends SamigoBaseServlet {
     private static final DateTimeFormatter EXPORT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final ResourceLoader RESOURCE_BUNDLE = new ResourceLoader(SamigoConstants.EVENT_LOG_BUNDLE);
 
-    private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 	private ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     private FormattedText formattedText = ComponentManager.get(FormattedText.class);
+    private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 
     public static final String PARAM_SITE_ID = "siteId";
     public static final String PARAM_ASSESSMENT_ID = "assessmentId";
