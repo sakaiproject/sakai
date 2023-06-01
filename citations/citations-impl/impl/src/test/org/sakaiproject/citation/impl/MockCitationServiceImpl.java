@@ -34,6 +34,7 @@ public class MockCitationServiceImpl extends BasicCitationService {
 		final ConfigurationService csMock = context.mock(ConfigurationService.class);
 		final ServerConfigurationService scsMock = context.mock(ServerConfigurationService.class);
 		final IdManager imMock = context.mock(IdManager.class);
+		final EventTrackingService etsMock = context.mock(EventTrackingService.class);
 		
 		// Just mocking them up so thing startup.
 		context.checking(new Expectations(){
@@ -43,6 +44,7 @@ public class MockCitationServiceImpl extends BasicCitationService {
 				ignoring(csMock);
 				ignoring(scsMock);
 				ignoring(imMock);
+				ignoring(etsMock);
 			}
 		});
 
@@ -51,6 +53,7 @@ public class MockCitationServiceImpl extends BasicCitationService {
 		setConfigurationService(csMock);
 		setServerConfigurationService(scsMock);
 		setIdManager(imMock);
+		setEventTrackingService(etsMock);
 		
 		super.init();
 	}
