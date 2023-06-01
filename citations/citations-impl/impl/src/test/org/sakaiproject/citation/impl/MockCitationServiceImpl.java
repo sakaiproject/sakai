@@ -20,6 +20,7 @@ import org.jmock.Mockery;
 import org.sakaiproject.citation.api.ConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.id.api.IdManager;
 

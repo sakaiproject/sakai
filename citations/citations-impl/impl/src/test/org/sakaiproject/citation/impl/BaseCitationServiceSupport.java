@@ -28,6 +28,7 @@ import org.sakaiproject.citation.impl.openurl.ContextObjectEntity;
 import org.sakaiproject.citation.impl.openurl.KEVFormat;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.id.api.IdManager;
 
