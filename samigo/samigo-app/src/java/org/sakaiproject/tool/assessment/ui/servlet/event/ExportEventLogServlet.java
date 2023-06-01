@@ -5,11 +5,11 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.time.api.UserTimeService;
@@ -24,8 +25,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.ui.servlet.SamigoBaseServlet;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 import com.opencsv.CSVWriter;
+import com.opencsv.CSVWriterBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,10 +37,11 @@ public class ExportEventLogServlet extends SamigoBaseServlet {
 
 
     private static final DateTimeFormatter EXPORT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(SamigoConstants.EVENT_LOG_BUNDLE);
+    private static final ResourceLoader RESOURCE_BUNDLE = new ResourceLoader(SamigoConstants.EVENT_LOG_BUNDLE);
 
-    private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+	private ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     private FormattedText formattedText = ComponentManager.get(FormattedText.class);
+    private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 
     public static final String PARAM_SITE_ID = "siteId";
     public static final String PARAM_ASSESSMENT_ID = "assessmentId";
@@ -74,9 +78,12 @@ public class ExportEventLogServlet extends SamigoBaseServlet {
             return;
         }
 
+        boolean displayIpAddressColumn = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EVENTLOG_IPADDRESS_ENABLED,
+                SamigoConstants.SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED);
+
         // Set headers
         String filename = StringUtils.replace(RESOURCE_BUNDLE.getString("log"), " ", "_");
-        res.setContentType("text/csv");
+        res.setContentType("text/csv; charset=utf-8");
         res.setHeader("Content-Disposition", "\"attachment;filename=\"" + filename + ".csv\";");
 
         // Get data
@@ -89,30 +96,39 @@ public class ExportEventLogServlet extends SamigoBaseServlet {
         }
 
         // Prepare data for csv
-        List<String[]> lines = new LinkedList<>() {{
-            // Add headers
-            add(new String[] {
-                RESOURCE_BUNDLE.getString("title"),
-                RESOURCE_BUNDLE.getString("id"),
-                RESOURCE_BUNDLE.getString("user_id"),
-                RESOURCE_BUNDLE.getString("date_startd"),
-                RESOURCE_BUNDLE.getString("date_submitted"),
-                RESOURCE_BUNDLE.getString("duration")
-            });
+        List<String[]> lines = new LinkedList<>();
+
+        List<String> headerList = new ArrayList<>(){{
+                add(RESOURCE_BUNDLE.getString("title"));
+                add(RESOURCE_BUNDLE.getString("id"));
+                add(RESOURCE_BUNDLE.getString("user_id"));
+                add(RESOURCE_BUNDLE.getString("date_startd"));
+                add(RESOURCE_BUNDLE.getString("date_submitted"));
+                add(RESOURCE_BUNDLE.getString("duration"));
+                add(RESOURCE_BUNDLE.getString("errors"));
+                if (displayIpAddressColumn) {
+                    add(RESOURCE_BUNDLE.getString("ipAddress"));
+                }
         }};
+        lines.add(headerList.toArray(new String[headerList.size()]));
 
         for (EventLogData eventLogData : eventLogDataList) {
             Integer minutes = eventLogData.getEclipseTime();
 
-            lines.add(new String[] {
-                eventLogData.getTitle(),
-                eventLogData.getAssessmentIdStr(),
-                eventLogData.getUserDisplay(),
-                csvDateFormat(eventLogData.getStartDate()),
-                csvDateFormat(eventLogData.getEndDate()),
-                minutes != null ? minutes.toString() : null,
-                StringUtils.trimToEmpty(eventLogData.getErrorMsg())
-            });
+            List<String> cellList = new ArrayList<>(){{
+                    add(eventLogData.getTitle());
+                    add(eventLogData.getAssessmentIdStr());
+                    add(eventLogData.getUserDisplay());
+                    add(csvDateFormat(eventLogData.getStartDate()));
+                    add(csvDateFormat(eventLogData.getEndDate()));
+                    add(minutes != null ? minutes.toString() : null);
+                    add(StringUtils.trimToEmpty(eventLogData.getErrorMsg()));
+                    if (displayIpAddressColumn) {
+                        add(StringUtils.trimToEmpty(eventLogData.getIpAddress()));
+                    }
+            }};
+
+            lines.add(cellList.toArray(new String[cellList.size()]));
         }
 
         // Write csv to response
@@ -125,10 +141,8 @@ public class ExportEventLogServlet extends SamigoBaseServlet {
     private void writeCsv(List<String[]> lines, Writer writer) {
         char csvSeperator = StringUtils.equals(formattedText.getDecimalSeparator(), ",") ? ';' : ',';
 
-        try (CSVWriter csvWriter = new CSVWriter(writer, csvSeperator, '"', '\\', "\n")) {
-            for (String[] line : lines) {
-                csvWriter.writeNext(line);
-            }
+        try (CSVWriter csvWriter = (CSVWriter) new CSVWriterBuilder(writer).withSeparator(csvSeperator).build()) {
+            csvWriter.writeAll(lines);
         } catch (Exception e) {
             log.debug("Could not write csv: {}", e.toString());
         }
