@@ -93,6 +93,7 @@ import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.util.BaseMessage;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteRemovalAdvisor;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
@@ -112,7 +113,7 @@ import org.w3c.dom.Element;
  */
 @Slf4j
 public abstract class BaseAnnouncementService extends BaseMessage implements AnnouncementService, ContextObserver,
-		EntityTransferrer
+		EntityTransferrer, SiteRemovalAdvisor
 {
 	/** private constants definitions */
 	private final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
@@ -1972,5 +1973,42 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		}
 
 		return Optional.of(super.getEntityUrl(r));
+	}
+
+	@Override
+	public void removed(Site site){
+		String siteId = site.getId();
+
+		List<String> ids = getChannelIds(siteId);
+		for (String id : ids){
+			String ref = channelReference(siteId, id);
+			try{
+				AnnouncementChannel announcementChannel = getAnnouncementChannel(ref);
+				List<Message> messages = announcementChannel.getMessages(null, true, null);
+				for(Message message : messages){
+					try{
+						announcementChannel.removeAnnouncementMessage(message.getId());
+					}catch (PermissionException e) {
+						log.error("The current user does not have permission to remove message  for context: {}", siteId, e);
+					}
+				}
+				MessageChannelEdit edit = editChannel(ref);
+				removeChannel(edit);
+			} catch (IdUnusedException e1) {
+				log.warn("No AnnouncementChannel found for site: " + siteId);
+			} catch (PermissionException e2) {
+				log.error("The current user does not have permission to access AnnouncementChannel for context: {}", siteId, e2);
+			} catch (InUseException e3) {
+				log.error("InUseException exception occurred for message channel for site: {}", siteId, e3);
+			}catch (Exception e) {
+				log.error("Unknown exception occurred in announcement service  for site: {}", siteId, e);
+			}
+		}
+		// remove any alias
+		try {
+			aliasService.removeTargetAliases("/announcement/announcement/" + siteId);
+		} catch (PermissionException e) {
+			log.error("The current user does not have permission to remove announcementChannel aliases for context: {}", siteId, e);
+		}
 	}
 }
