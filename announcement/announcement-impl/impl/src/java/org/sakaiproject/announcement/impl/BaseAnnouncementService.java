@@ -88,6 +88,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
+import org.sakaiproject.message.api.MessageChannelEdit;
 import org.sakaiproject.message.api.MessageEdit;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
