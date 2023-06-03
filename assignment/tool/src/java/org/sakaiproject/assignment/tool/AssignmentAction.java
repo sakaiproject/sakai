@@ -4834,11 +4834,11 @@ public class AssignmentAction extends PagedResourceActionII {
         if (assignment != null && assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
             // non-electronic submissions
             context.put("form_action", "eventSubmit_doSet_defaultNotGradedNonElectronicScore");
-            context.put("form_label", rb.getFormattedMessage("not.graded.non.electronic.submission.grade", state.getAttribute(STATE_NUM_MESSAGES)));
+            context.put("form_label", rb.getFormattedMessage("not.graded.non.electronic.submission.grade", state.getAttribute(STATE_NUM_MESSAGES, 0)));
         } else {
             // other types of submissions
             context.put("form_action", "eventSubmit_doSet_defaultNoSubmissionScore");
-            context.put("form_label", rb.getFormattedMessage("non.submission.grade", state.getAttribute(STATE_NUM_MESSAGES)));
+            context.put("form_label", rb.getFormattedMessage("non.submission.grade", state.getAttribute(STATE_NUM_MESSAGES, 0)));
         }
 
         // show the reminder for download all url
