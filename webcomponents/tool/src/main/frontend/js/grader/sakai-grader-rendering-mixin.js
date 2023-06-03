@@ -79,7 +79,7 @@ export const graderRenderingMixin = Base => class extends Base {
               <i class="si si-arrow-left-circle-fill"></i>
             </button>
             <select aria-label="${this.i18n.student_selector_label}" @change=${this._studentSelected} ?disabled=${!this.canSave}>
-              ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
+              ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${this._getSubmitter(s)}</option>`)}
             </select>
             <button class="btn btn-transparent" @click=${this._next} aria-label="${this.i18n.next_submission_label}" ?disabled=${!this.canSave}>
               <i class="si si-arrow-right-circle-fill"></i>
@@ -267,6 +267,8 @@ export const graderRenderingMixin = Base => class extends Base {
         </div>
 
         <div class="offcanvas-body">
+
+          <div class="fw-bold fs-5">${this._getSubmitter(this.submission)}</div>
 
           <!-- START ORIGINALITY BLOCK -->
           ${this.submission.originalityShowing ? html`
@@ -655,7 +657,7 @@ export const graderRenderingMixin = Base => class extends Base {
           <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
           <div style="flex: 4;">
             <span class="submitter-name">
-              ${this.submission.groupId ? this.submission.groupTitle : this.submission.firstSubmitterName}
+              ${this._getSubmitter(this.submission)}
             </span>
             ${this.submission.draft && this.submission.visible ? html`
             <span class="draft-submission">(${this.i18n.draft_submission})</span>
