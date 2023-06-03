@@ -615,13 +615,18 @@
 		}
 
 		.progress-bar-empty {
-			background-color: transparent;
+			background-color: var(--progress-bar-empty-bg);
+			opacity: 80%;
 			font-weight: 600;
 		}
 
 		.active {
 			background-color: var(--progress-bar-bg);
 		}
+
+                .progress-bar {
+                        color: var(--sakai-text-color-1);
+                }
 	}
 
 	.student-picture {
