@@ -2,7 +2,6 @@ import { SakaiElement } from "./sakai-element.js";
 import { html } from "./assets/lit-element/lit-element.js";
 import { getOffsetFromServerMillis, getTimezone } from "./sakai-portal-utils.js";
 import { toTemporalInstant } from "./assets/@js-temporal/polyfill/dist/index.esm.js";
-//import { Temporal, Intl, toTemporalInstant } from "./assets/@js-temporal/polyfill/dist/index.esm.js";
 
 Date.prototype.toTemporalInstant = toTemporalInstant;
 
