@@ -198,5 +198,37 @@
       position: absolute;
       left: 0;
       top: 0;
+      page-break-inside: avoid;
+      width: 100%;
     }
-  }
+    #roster-members-content table {
+      width: 100%;
+      border-collapse: collapse;
+      page-break-inside: avoid;
+    }
+    #roster-members-content th, #roster-members-content td {
+      border: 1px solid black;
+      padding: 5px;
+      page-break-inside: avoid;
+    }
+    .Mrphs-sakai-site-roster2 .roster-members-grid {
+      max-width: 100%;
+      display: grid;
+    }
+    .Mrphs-sakai-site-roster2 .roster-members-grid > div {
+      flex: 0 0 120px;
+      page-break-inside: avoid;
+      overflow: visible;
+    }
+    .Mrphs-sakai-site-roster2 .roster-members-grid.photogrid {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: start;
+    }
+    .Mrphs-sakai-site-roster2 .roster-members-grid.photogrid > div {
+      flex: 0 0 120px; 
+      page-break-inside: avoid;
+      overflow: visible;
+    }
+}
+
