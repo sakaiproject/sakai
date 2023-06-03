@@ -34,6 +34,16 @@ public class SessionStateFake implements SessionState {
     }
 
     @Override
+    public Object getAttribute(String name, Object def) {
+
+        Object ret = map.get(name);
+        if (ret == null) {
+            return def;
+        }
+        return ret;
+    }
+
+    @Override
     public Object setAttribute(String name, Object value) {
         return map.put(name, value);
     }

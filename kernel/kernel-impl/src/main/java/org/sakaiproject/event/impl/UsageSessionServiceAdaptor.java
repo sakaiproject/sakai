@@ -673,12 +673,20 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			m_session = session;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public Object getAttribute(String name)
 		{
 			return m_session.getAttribute(name);
+		}
+
+		@Override
+		public Object getAttribute(String name, Object def)
+		{
+			Object ret = m_session.getAttribute(name);
+			if (ret == null) {
+				return def;
+			}
+			return ret;
 		}
 
 		/**
