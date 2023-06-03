@@ -90,7 +90,6 @@ roster.addHideOptionHandlers = function () {
       $('.roster-picture-cell').removeClass('roster-hide-pictures');
       $('#roster-picture-header-cell').removeClass('roster-hide-pictures');
     }
-    roster.checkScroll();
   });
   $('#roster-hide-names-checkbox').click(function (e) {
 
@@ -99,7 +98,6 @@ roster.addHideOptionHandlers = function () {
       } else {
         document.querySelectorAll(".roster-info-card").forEach(e => e.style.display = "block");
       }
-      roster.checkScroll();
   });
 };
 
@@ -546,7 +544,7 @@ roster.search = function (query) {
 
       var regex = new RegExp(query, 'i');
       if (regex.test(displayName)) {
-          userIds.push(roster.searchIndexKeys[i]);
+        userIds.push(roster.searchIndexKeys[i]);
       }
       i++;
     });
@@ -655,8 +653,9 @@ roster.renderMembers = function (members, target, enrollmentsMode, options) {
   target.append(t(templateData, {helpers: roster.helpers}));
 
   roster.observer.disconnect();
-  roster.observer.observe(document.querySelector(".roster-entry:last-child"));
-
+  if (!roster.userIds) {
+    roster.observer.observe(document.querySelector(".roster-entry:last-child"));
+  }
 };
 
 roster.getRoleFragments = function (roleCounts) {
@@ -757,7 +756,6 @@ roster.clickViewSpreadsheetRadio = function() {
 
   roster.currentLayout = "spreadsheet";
   roster.renderMembership({ replace: true });
-  roster.checkScroll();
 };
 
 roster.clickViewPhotogridRadio = function() {
@@ -818,18 +816,12 @@ roster.calculatePageSizes = function () {
 // Functions and attributes added. All the code from hereon is executed
 // after load.
 
-$(window).resize(function() {
-  roster.checkScroll();
-});
-
 if (!roster.siteId) {
   alert('The site id  MUST be supplied as a bootstrap parameter.');
-  //return;
 }
 
 if (!roster.userId) {
   alert("No current user. Have you logged in?");
-  //return;
 }
 
 Handlebars.registerHelper('translate', function (key) {
