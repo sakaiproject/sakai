@@ -117,6 +117,7 @@ import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.springframework.lang.Nullable;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -5035,10 +5036,10 @@ public class GradingServiceImpl implements GradingService {
         return commentDefinition;
     }
 
-    public void setAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid, String commentText) throws AssessmentNotFoundException {
+    public void setAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid, @Nullable String commentText) throws AssessmentNotFoundException {
 
-        if (StringUtils.isBlank(gradebookUid) || assignmentId == null || StringUtils.isBlank(studentUid) || StringUtils.isBlank(commentText)) {
-            throw new IllegalArgumentException("gradebookUid, assignmentId, studentUid and commentText must be valid.");
+        if (StringUtils.isBlank(gradebookUid) || assignmentId == null || StringUtils.isBlank(studentUid)) {
+            throw new IllegalArgumentException("gradebookUid, assignmentId and studentUid must be valid.");
         }
 
         GradebookAssignment gradebookColumn = getAssignmentWithoutStats(gradebookUid, assignmentId);

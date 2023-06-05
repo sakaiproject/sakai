@@ -725,6 +725,11 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     return this.currentGroup && this.currentGroup !== `/site/${portal.siteId}` || this.submittedOnly || this.ungradedOnly || this.gradedOnly;
   }
 
+  _getSubmitter(submission) {
+    return submission.groupId ? submission.groupTitle : submission.firstSubmitterName;
+  }
+
+
   _removeAttachment(e) {
 
     e.stopPropagation();
