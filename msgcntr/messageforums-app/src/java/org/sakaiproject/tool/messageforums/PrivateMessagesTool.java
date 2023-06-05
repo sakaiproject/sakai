@@ -184,6 +184,7 @@ public class PrivateMessagesTool {
   private static final String HIDDEN_SEARCH_TO_ISO_DATE = "searchToDateISO8601";
   
   private Boolean fromPermissions = false;
+  private Boolean fromPreview = false;
 
   /**
    *Dependency Injected 
@@ -308,8 +309,17 @@ public class PrivateMessagesTool {
 
   @Getter @Setter
   private String msgNavMode="privateMessages" ;
-  @Getter @Setter
-  private PrivateMessageDecoratedBean detailMsg ;
+  @Getter
+  private PrivateMessageDecoratedBean detailMsg;
+  public void setDetailMsg(PrivateMessageDecoratedBean detailMsg) {
+    this.detailMsg = detailMsg;
+    if (detailMsg == null || (!fromPreview && !detailMsg.getIsPreview() && !detailMsg.getIsPreviewReply() && !detailMsg.getIsPreviewReplyAll() && !detailMsg.getIsPreviewForward())) {
+      this.selectedTags = "";
+      fromPreview = false;
+    } else if (detailMsg.getIsPreview() || detailMsg.getIsPreviewReply() || detailMsg.getIsPreviewReplyAll() || detailMsg.getIsPreviewForward()) {
+      fromPreview = true;
+    }
+  }
   private boolean viewChanged = false;
   
   @Getter @Setter
@@ -771,7 +781,11 @@ public class PrivateMessagesTool {
   public String getSiteId() {
 	  return toolManager.getCurrentPlacement().getContext();
   }
-    
+  
+  public String getTagTool() {
+	return TagService.TOOL_PRIVATE_MESSAGES;
+  }
+
   private String getContextSiteId() 
   {
 	 return "/site/" + toolManager.getCurrentPlacement().getContext();
@@ -1073,6 +1087,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     multiDeleteSuccess = false;
     if (searchPvtMsgs != null)
     	searchPvtMsgs.clear();
+    this.selectedTags = "";
+    this.fromPreview = false;
     return DISPLAY_MESSAGES_PG;
   }
 
@@ -1703,6 +1719,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     this.setSelectedLabel("pvt_priority_normal");
     setBooleanReadReceipt(false);
     this.setSelectedTags("");
+    this.fromPreview = false;
   }
   
   public String processPvtMsgPreview(){
@@ -3042,7 +3059,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if (msgId != null && ServerConfigurationService.getBoolean("tagservice.enable.integrations", true) && isInstructor() && selectedTags != null) {
       List<String> tagIds = Arrays.asList(selectedTags.split(","));
       tagService.updateTagAssociations(getUserId(), String.valueOf(msgId), tagIds, false);
-      selectedTags = String.join(",", tagService.getTagAssociationIds(String.valueOf(msgId)));
+      selectedTags = String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(msgId)));
     }
   }
 
@@ -3393,6 +3410,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public boolean isEmailPermit() {
 	  return prtMsgManager.isEmailPermit();
+  }
+
+  public boolean isCanUseTags() {
+    return securityService.unlock(userDirectoryService.getCurrentUser(), TagService.TAGSERVICE_MANAGE_PERMISSION, getContextSiteId());
   }
 
   public String processPvtMsgOrganize()
@@ -3946,7 +3967,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List<String> selectedTagsList = selectedTags != null ? Arrays.asList(selectedTags.split(",")) : new ArrayList<>();
     if(searchOnTags && CollectionUtils.isNotEmpty(selectedTagsList)) {
         tempPvtMsgLs = ((List<PrivateMessage>)tempPvtMsgLs).stream().filter(pm -> {
-                List<String> tagIds = tagService.getTagAssociationIds(String.valueOf(pm.getId()));
+                List<String> tagIds = tagService.getTagAssociationIds(getUserId(), String.valueOf(pm.getId()));
                 return (tagIds.containsAll(selectedTagsList));
         }).collect(Collectors.toList());
     }
@@ -3987,6 +4008,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     searchToDate=null;
     searchFromDateString=null;
     searchToDateString=null;
+    selectedTags = "";
     
     return DISPLAY_MESSAGES_PG;
   }
@@ -4056,7 +4078,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       }
         dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean));
 
-      List<String> tagLabels = tagService.getAssociatedTagsForItem(String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
+      List<String> tagLabels = tagService.getAssociatedTagsForItem(getUserId(), String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
       dbean.setTagList(tagLabels);
 
       decLs.add(dbean) ;
@@ -4391,6 +4413,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     public void setMsgNavMode(String msgNavMode) {
 		this.msgNavMode = msgNavMode;
+		this.selectedTags = "";
+		this.fromPreview = false;
 	}	
 	
 	/**
@@ -4526,6 +4550,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    {
 	    	fromMainOrHp = fromPage;
 	    }
+	    this.selectedTags = "";
+	    this.fromPreview = false;
 	}
 	
 	@SuppressWarnings("unchecked")
