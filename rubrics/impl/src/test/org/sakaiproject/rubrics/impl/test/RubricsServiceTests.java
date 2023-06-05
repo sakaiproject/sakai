@@ -100,6 +100,8 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     User user3User = null;
     String instructor = "instructor";
     User instructorUser = null;
+    String teachingAssistant = "TA";
+    User teachingAssistantUser = null;
     RubricTransferBean rubricBean1 = null;
     String defaultRubricTitle = "New Rubric";
     String defaultC1Title = "Criterion 1";
@@ -141,6 +143,9 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         when(instructorUser.getId()).thenReturn(instructor);
         when(instructorUser.getDisplayName()).thenReturn("Instructor");
 
+        teachingAssistantUser = mock(User.class);
+        when(teachingAssistantUser.getId()).thenReturn(teachingAssistant);
+        when(teachingAssistantUser.getDisplayName()).thenReturn("TA");
 
         rubricBean1 = new RubricTransferBean();
         rubricBean1.setSiteTitle("Rubric 1");
@@ -188,6 +193,11 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         // Should still throw it as the user doesn't have rubrics.editor
         assertThrows(SecurityException.class, () -> rubricsService.saveRubric(rubricBean1));
+
+        switchToTeachingAssistant();
+
+        // Should still throw it as the user doesn't have rubrics.editor
+        assertThrows(SecurityException.class, () -> rubricsService.saveRubric(rubricBean1));
     }
 
     @Test
@@ -195,6 +205,11 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         switchToUser1();
 
+        assertThrows(SecurityException.class, () -> rubricsService.createDefaultRubric(siteId));
+
+        switchToTeachingAssistant();
+
+        // Should still throw it as the user doesn't have rubrics.editor
         assertThrows(SecurityException.class, () -> rubricsService.createDefaultRubric(siteId));
 
         switchToInstructor();
@@ -215,7 +230,12 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         switchToUser1();
 
-        assertThrows(SecurityException.class, () -> rubricsService.createDefaultRubric(siteId));
+        assertThrows(SecurityException.class, () -> rubricsService.getRubricsForSite(siteId));
+
+        switchToTeachingAssistant();
+
+        // Should still throw it as the user doesn't have rubrics.editor
+        assertThrows(SecurityException.class, () -> rubricsService.getRubricsForSite(siteId));
 
         switchToInstructor();
         rubricsService.createDefaultRubric(siteId);
@@ -247,7 +267,14 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         switchToUser1();
         assertThrows(SecurityException. class, () -> rubricsService.copyRubricToSite(rubricBean.getId(), siteId));
+
+        switchToTeachingAssistant();
+
+        // Should still throw it as the user doesn't have rubrics.editor
+        assertThrows(SecurityException.class, () -> rubricsService.copyRubricToSite(rubricBean.getId(), siteId));
+
         switchToInstructor();
+
         rubricsService.copyRubricToSite(rubricBean.getId(), siteId);
         assertEquals(2, rubricsService.getRubricsForSite(siteId).size());
     }
@@ -362,6 +389,11 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         switchToUser1();
         assertThrows(SecurityException.class, () -> rubricsService.createDefaultCriterion(siteId, rubricBean.getId()));
 
+        switchToTeachingAssistant();
+
+        // Should still throw it as the user doesn't have rubrics.editor
+        assertThrows(SecurityException.class, () -> rubricsService.createDefaultCriterion(siteId, rubricBean.getId()));
+
         switchToInstructor();
 
         Optional<CriterionTransferBean> optCriterionBean = rubricsService.createDefaultCriterion(siteId, rubricBean.getId());
@@ -403,6 +435,11 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         switchToUser1();
         assertThrows(SecurityException.class, () -> rubricsService.createDefaultRating(siteId, rubricBean.getId(), criterionBean.getId(), 0));
 
+        switchToTeachingAssistant();
+
+        // Should still throw it as the user doesn't have rubrics.editor
+        assertThrows(SecurityException.class, () -> rubricsService.createDefaultRating(siteId, rubricBean.getId(), criterionBean.getId(), 0));
+
         switchToInstructor();
 
         Optional<RatingTransferBean> optRatingBean = rubricsService.createDefaultRating(siteId, rubricBean.getId(), criterionBean.getId(), 0);
@@ -428,6 +465,11 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         System.out.println(ratingBean.getPoints());
 
         switchToUser1();
+        assertThrows(SecurityException.class, () -> rubricsService.deleteRating(ratingBean.getId(), criterionBean.getId(), siteId, rubricBean.getId()));
+
+        switchToTeachingAssistant();
+
+        // Should still throw it as the user doesn't have rubrics.editor
         assertThrows(SecurityException.class, () -> rubricsService.deleteRating(ratingBean.getId(), criterionBean.getId(), siteId, rubricBean.getId()));
 
         switchToInstructor();
@@ -606,6 +648,95 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void saveEvaluationAsTeachingAssistant() {
+
+        // Only users with a rubrics.editor role can create rubric and save rubric association
+        switchToInstructor();
+
+        RubricTransferBean rubricBean = rubricsService.createDefaultRubric(siteId);
+
+        String toolId = "sakai.assignment";
+        String toolItemId = "item1";
+        String originalComment = "This is the original comment";
+        String updatedComment = "This is the updated comment";
+
+        Map<String, String> rbcsParams = new HashMap<>();
+        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams.put(RubricsConstants.RBCS_LIST, rubricBean.getId().toString());
+        ToolItemRubricAssociation association =
+                rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams).get();
+
+        // TA can save evaluation
+        switchToTeachingAssistant();
+
+        EvaluationTransferBean etb = buildEvaluation(association.getId(), rubricBean, toolItemId);
+        assertEquals(association.getId(), etb.getAssociationId());
+
+        etb.setStatus(EvaluationStatus.DRAFT);
+        etb.setOverallComment(originalComment);
+        etb.setNew(true);
+
+        etb = rubricsService.saveEvaluation(etb, siteId);
+        assertEquals(EvaluationStatus.DRAFT, etb.getStatus());
+        Optional<ReturnedEvaluation> returnedEvaluation
+                = returnedEvaluationRepository.findByOriginalEvaluationId(etb.getId());
+        assertFalse(returnedEvaluation.isPresent());
+
+        switchToUser1();
+        Optional<EvaluationTransferBean> optEtb = rubricsService.getEvaluation(etb.getId(), siteId);
+        assertFalse(optEtb.isPresent());
+
+        switchToTeachingAssistant();
+        optEtb = rubricsService.getEvaluation(etb.getId(), siteId);
+        assertTrue(optEtb.isPresent());
+        assertNotNull(optEtb.get().getCreatorId());
+        assertNotNull(optEtb.get().getCreated());
+        assertEquals(association.getId(), optEtb.get().getAssociationId());
+
+        switchToUser2();
+
+        Optional<EvaluationTransferBean> optEtb2 = rubricsService.getEvaluation(etb.getId(), siteId);
+        assertFalse(optEtb2.isPresent());
+
+        switchToTeachingAssistant();
+        optEtb2 = rubricsService.getEvaluation(etb.getId(), siteId);
+        optEtb2.get().setStatus(EvaluationStatus.RETURNED);
+        etb = rubricsService.saveEvaluation(optEtb2.get(), siteId);
+        assertNotNull(etb.getModified());
+
+        List<String> userIds = new ArrayList<>();
+        userIds.add(user2);
+        List<User> users = new ArrayList<>();
+        users.add(user2User);
+        when(userDirectoryService.getUsers(userIds)).thenReturn(users);
+
+        List<EvaluationTransferBean> evaluations = rubricsService.getEvaluationsForToolAndItem(toolId, toolItemId, siteId);
+        assertEquals(1, evaluations.size());
+        assertEquals(user2SortName, evaluations.get(0).getSortName());
+
+        returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(etb.getId());
+        assertTrue(returnedEvaluation.isPresent());
+
+        // Now the evaluation has been returned, the evaluee, user2, should be able to view it.
+        switchToUser2();
+        optEtb2 = rubricsService.getEvaluation(etb.getId(), siteId);
+        assertTrue(optEtb2.isPresent());
+
+        switchToUser3();
+        Optional<EvaluationTransferBean> none = rubricsService.getEvaluation(etb.getId(), siteId);
+        assertFalse(none.isPresent());
+
+        // Now save it as draft again, so we can test cancel.
+        switchToTeachingAssistant();
+        optEtb2.get().setStatus(EvaluationStatus.DRAFT);
+        optEtb2.get().setOverallComment(updatedComment);
+        etb = rubricsService.saveEvaluation(optEtb2.get(), siteId);
+
+        etb = rubricsService.cancelDraftEvaluation(etb.getId());
+        assertEquals(originalComment, etb.getOverallComment());
+    }
+
+    @Test
     public void contextualFilenameNoEvaluation() {
         switchToInstructor();
         RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
@@ -715,6 +846,20 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         when(userDirectoryService.getCurrentUser()).thenReturn(instructorUser);
         try {
             when(userDirectoryService.getUser(instructor)).thenReturn(instructorUser);
+        } catch (UserNotDefinedException unde) {
+        }
+    }
+
+    private void switchToTeachingAssistant() {
+
+        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteRef)).thenReturn(false);
+        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUATOR, siteRef)).thenReturn(true);
+        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUEE, siteRef)).thenReturn(true);
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(teachingAssistant);
+        when(userDirectoryService.getCurrentUser()).thenReturn(teachingAssistantUser);
+        try {
+            when(userDirectoryService.getUser(teachingAssistant)).thenReturn(teachingAssistantUser);
         } catch (UserNotDefinedException unde) {
         }
     }
