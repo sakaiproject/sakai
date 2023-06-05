@@ -178,13 +178,15 @@ implements ActionListener
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(encryptedPassword ));
 
         if (SecureDeliverySeb.MODULE_NAME.equals(assessmentSettings.getSecureDeliveryModule())) {
-            switch(ConfigMode.valueOf(assessmentSettings.getSebConfigMode())) {
+            ConfigMode sebConfigMode = ConfigMode.valueOf(assessmentSettings.getSebConfigMode());
+            switch(sebConfigMode) {
                 case UPLOAD:
                 case CLIENT:
                     assessment.updateAssessmentMetaData(SebConfig.EXAM_KEYS, assessmentSettings.getSebExamKeys());
                     break;
                 case MANUAL:
                 default:
+                    log.error("Unhandled value of seb config mode [{}]", sebConfigMode);
                     break;
             }
         }

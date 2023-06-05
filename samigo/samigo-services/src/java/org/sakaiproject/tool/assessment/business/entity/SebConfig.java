@@ -59,12 +59,10 @@ public class SebConfig {
     private String quitLink;
     private String quitPassword;
     private Boolean allowAudioControl;
-    private Boolean allowReloadInExam;
     private Boolean allowSpellChecking;
     private Boolean allowUserQuitSeb;
     private Boolean muteOnStartup;
     private Boolean showKeyboardLayout;
-    private Boolean showReloadButton;
     private Boolean showTaskbar;
     private Boolean showTime;
     private Boolean showWifiControl;
@@ -130,11 +128,9 @@ public class SebConfig {
         newSebConfig.setQuitLink(assessmentMetaDataMap.get(QUIT_LINK));
         newSebConfig.setQuitPassword(assessmentMetaDataMap.get(QUIT_PASSWORD));
         newSebConfig.setAllowAudioControl(getBooleanFromMap(assessmentMetaDataMap, ALLOW_AUDIO_CONTROL));
-        newSebConfig.setAllowReloadInExam(getBooleanFromMap(assessmentMetaDataMap, ALLOW_RELOAD_IN_EXAM));
         newSebConfig.setAllowSpellChecking(getBooleanFromMap(assessmentMetaDataMap, ALLOW_SPELL_CHECKING));
         newSebConfig.setAllowUserQuitSeb(getBooleanFromMap(assessmentMetaDataMap, ALLOW_USER_QUIT_SEB));
         newSebConfig.setShowKeyboardLayout(getBooleanFromMap(assessmentMetaDataMap, SHOW_KEYBOARD_LAYOUT));
-        newSebConfig.setShowReloadButton(getBooleanFromMap(assessmentMetaDataMap, SHOW_RELOAD_BUTTON));
         newSebConfig.setShowTaskbar(getBooleanFromMap(assessmentMetaDataMap, SHOW_TASKBAR));
         newSebConfig.setShowTime(getBooleanFromMap(assessmentMetaDataMap, SHOW_TIME));
         newSebConfig.setShowWifiControl(getBooleanFromMap(assessmentMetaDataMap, SHOW_WIFI_CONTROL));
@@ -152,11 +148,9 @@ public class SebConfig {
 
         newSebConfig.setQuitPassword("");
         newSebConfig.setAllowAudioControl(true);
-        newSebConfig.setAllowReloadInExam(true);
         newSebConfig.setAllowSpellChecking(true);
         newSebConfig.setAllowUserQuitSeb(true);
         newSebConfig.setShowKeyboardLayout(true);
-        newSebConfig.setShowReloadButton(true);
         newSebConfig.setShowTaskbar(true);
         newSebConfig.setShowTime(true);
         newSebConfig.setShowWifiControl(true);
@@ -236,11 +230,9 @@ public class SebConfig {
 
         map.put(QUIT_LINK_KEY, quitLink);
         map.put(ALLOW_AUDIO_CONTROL_KEY, allowAudioControl);
-        map.put(ALLOW_RELOAD_IN_EXAM_KEY, allowReloadInExam);
         map.put(ALLOW_SPELL_CHECKING_KEY, allowSpellChecking);
         map.put(ALLOW_USER_QUIT_SEB_KEY, allowUserQuitSeb);
-        map.put(SHOW_KEYBOARD_LAYOUT_KEY, showReloadButton);
-        map.put(SHOW_RELOAD_BUTTON_KEY, showReloadButton);
+        map.put(SHOW_KEYBOARD_LAYOUT_KEY, showKeyboardLayout);
         map.put(SHOW_TASKBAR_KEY, showTaskbar);
         map.put(SHOW_TIME_KEY, showTime);
         map.put(SHOW_WIFI_CONTROL_KEY, showWifiControl);
@@ -254,6 +246,8 @@ public class SebConfig {
         map.put(ALLOW_CONFIG_WINDOW_KEY, false);
         map.put(SEB_WEBVIEW_VERSION_KEY, 3);
         map.put(QUIT_LINK_KEY, QUIT_LINK);
+        map.put(ALLOW_RELOAD_IN_EXAM_KEY, false);
+        map.put(SHOW_RELOAD_BUTTON_KEY, false);
 
         // Useful properties for demos, makes it possible to record or share the screen
         // Commented, since it is disabling security features of SEB

@@ -53,6 +53,11 @@ async function configureLink(linkId, href) {
     }
 }
 
+function isEmptyKey (key) {
+    // SEB stores empty keys as ":"
+    return key === ":";
+};
+
 async function hideStartView() {
     const form = document.getElementById(formId);
     if (form) {
@@ -97,7 +102,7 @@ async function fetchValidationData({ configKey, browserExamKey }) {
 
 const sebApi = getSebApi();
 
-async function sebKeysUpdated() {
+async function onSebKeysPresent() {
     const delivered = await fetchValidationData(sebApi.security);
 
     if (!delivered) {
@@ -111,8 +116,12 @@ async function sebKeysUpdated() {
 
 // Check if sebApi is available, this will indicate if SEB is used right now
 if (sebApi) {
-    // Let SEB update the keys and register sebKeysUpdated as callback
-    sebApi.security.updateKeys(sebKeysUpdated);
+    // If our keys are present, we can call onSebKeysPresent, else, we register it as a callback for the update
+    if (isEmptyKey(sebApi.security?.configKey) || isEmptyKey(sebApi.security?.browserExamKey)) {
+        onSebKeysPresent();
+    } else {
+        sebApi.security.updateKeys(onSebKeysPresent);
+    }
 
     // Check if this is the sebSetup view, hide it and display loading bar
     document.addEventListener("DOMContentLoaded", () => {

@@ -405,25 +405,9 @@
         </div>
       </h:panelGroup>
       <h:panelGroup styleClass="form-group row" layout="block">
-        <h:outputLabel for="sebAllowReloadInExam" value="#{assessmentSettingsMessages.seb_allow_reload_in_exam}" styleClass="col-md-2 form-control-label" />
-        <div class="col-md-10">
-          <h:selectOneRadio id="sebAllowReloadInExam" disabled="true" value="#{publishedSettings.sebAllowReloadInExam}" layout="pageDirection" onclick="setBlockDivs();">
-              <f:selectItems value="#{publishedSettings.booleanSelections}" />
-          </h:selectOneRadio>
-        </div>
-      </h:panelGroup>
-      <h:panelGroup styleClass="form-group row" layout="block">
         <h:outputLabel for="sebShowTaskbar" value="#{assessmentSettingsMessages.seb_show_taskbar}" styleClass="col-md-2 form-control-label" />
         <div class="col-md-10">
           <h:selectOneRadio id="sebShowTaskbar" disabled="true" value="#{publishedSettings.sebShowTaskbar}" layout="pageDirection" onclick="setBlockDivs();">
-              <f:selectItems value="#{publishedSettings.booleanSelections}" />
-          </h:selectOneRadio>
-        </div>
-      </h:panelGroup>
-      <h:panelGroup styleClass="form-group row" layout="block">
-        <h:outputLabel for="sebShowReloadButton" value="#{assessmentSettingsMessages.seb_show_reload_button}" styleClass="col-md-2 form-control-label" />
-        <div class="col-md-10">
-          <h:selectOneRadio id="sebShowReloadButton" disabled="true" value="#{publishedSettings.sebShowReloadButton}" layout="pageDirection" onclick="setBlockDivs();">
               <f:selectItems value="#{publishedSettings.booleanSelections}" />
           </h:selectOneRadio>
         </div>

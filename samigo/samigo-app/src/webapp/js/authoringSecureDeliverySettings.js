@@ -175,12 +175,8 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
                     FormElement.find(`#${inputIdPrefix}sebConfigMode`),
             sebAllowUserQuitSeb:
                     FormElement.find(`#${inputIdPrefix}sebAllowUserQuitSeb`),
-            sebAllowReloadInExam:
-                    FormElement.find(`#${inputIdPrefix}sebAllowReloadInExam`),
             sebShowTaskbar:
                     FormElement.find(`#${inputIdPrefix}sebShowTaskbar`),
-            sebShowReloadButton:
-                    FormElement.find(`#${inputIdPrefix}sebShowReloadButton`),
             sebShowTime:
                     FormElement.find(`#${inputIdPrefix}sebShowTime`),
             sebShowKeyboardLayout:
@@ -201,9 +197,7 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
     const manualModeFormElements = [
         formElements.seb.sebConfigMode,
         formElements.seb.sebAllowUserQuitSeb,
-        formElements.seb.sebAllowReloadInExam,
         formElements.seb.sebShowTaskbar,
-        formElements.seb.sebShowReloadButton,
         formElements.seb.sebShowTime,
         formElements.seb.sebShowKeyboardLayout,
         formElements.seb.sebShowWifiControl,
