@@ -38,7 +38,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     super();
 
     this.deliverTasks = false;
-    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: "", assignationType: "", selectedGroups: [], siteId: "", owner: "", taskAssignedTo: "", complete: null };
+    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: Date.now(), assignationType: "", selectedGroups: [], siteId: "", owner: "", taskAssignedTo: "", complete: null };
     this.task = { ...this.defaultTask};
     this.assignationType = "user";
     this.mode = "create";
