@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.assignment.impl.sort;
+package org.sakaiproject.assignment.api.sort;
 
 import java.text.Collator;
 import java.text.ParseException;
@@ -32,7 +32,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 /**
  * Sorts assignment submissions by the submitter's sort name.
@@ -44,7 +43,6 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
     private SiteService siteService;
     private AssignmentService assignmentService;
     private UserDirectoryService userDirectoryService;
-    private static final UserSortNameComparator userSortNameComparator = new UserSortNameComparator();
 
     // private to prevent no arg instantiation
     private AssignmentSubmissionComparator() {
@@ -70,7 +68,7 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
         Optional<User> u1 = getIndividualSubmitterAsUser(a1);
         Optional<User> u2 = getIndividualSubmitterAsUser(a2);
         if (u1.isPresent() && u2.isPresent()) {
-            return userSortNameComparator.compare(u1.get(), u2.get());
+            return compareString(u1.get().getSortName(), u2.get().getSortName());
         }
 
         String name1 = getSubmitterSortname(a1);
