@@ -46,13 +46,13 @@
 	</div>
 
 	<div class="row" >
-	#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddAssignment || $!show_tags_student))
+	#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddAssignment || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
 		<form id="tagFilterForm" name="tagFilterForm" class="inlineForm" method="post" onsubmit="ASN.getShadowTags();return true;" action="#toolForm("AssignmentAction")">
 			<input hidden id="tag_selector" name="tag_selector" />
 			<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
 			
 			<div class="col-md-6">
-				<sakai-tag-selector selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" ></sakai-tag-selector>
+				<sakai-tag-selector selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
 			</div>
 			<div  class="col-md-6">
 				<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"

@@ -308,8 +308,12 @@ public class PrivateMessagesTool {
 
   @Getter @Setter
   private String msgNavMode="privateMessages" ;
-  @Getter @Setter
-  private PrivateMessageDecoratedBean detailMsg ;
+  @Getter
+  private PrivateMessageDecoratedBean detailMsg;
+  public void setDetailMsg(PrivateMessageDecoratedBean detailMsg) {
+    this.detailMsg = detailMsg;
+    this.selectedTags = "";
+  }
   private boolean viewChanged = false;
   
   @Getter @Setter
@@ -771,7 +775,11 @@ public class PrivateMessagesTool {
   public String getSiteId() {
 	  return toolManager.getCurrentPlacement().getContext();
   }
-    
+  
+  public String getTagTool() {
+	return TagService.TOOL_PRIVATE_MESSAGES;
+  }
+
   private String getContextSiteId() 
   {
 	 return "/site/" + toolManager.getCurrentPlacement().getContext();
@@ -1073,6 +1081,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     multiDeleteSuccess = false;
     if (searchPvtMsgs != null)
     	searchPvtMsgs.clear();
+    this.selectedTags = "";
     return DISPLAY_MESSAGES_PG;
   }
 
@@ -3042,7 +3051,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if (msgId != null && ServerConfigurationService.getBoolean("tagservice.enable.integrations", true) && isInstructor() && selectedTags != null) {
       List<String> tagIds = Arrays.asList(selectedTags.split(","));
       tagService.updateTagAssociations(getUserId(), String.valueOf(msgId), tagIds, false);
-      selectedTags = String.join(",", tagService.getTagAssociationIds(String.valueOf(msgId)));
+      selectedTags = String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(msgId)));
     }
   }
 
@@ -3946,7 +3955,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List<String> selectedTagsList = selectedTags != null ? Arrays.asList(selectedTags.split(",")) : new ArrayList<>();
     if(searchOnTags && CollectionUtils.isNotEmpty(selectedTagsList)) {
         tempPvtMsgLs = ((List<PrivateMessage>)tempPvtMsgLs).stream().filter(pm -> {
-                List<String> tagIds = tagService.getTagAssociationIds(String.valueOf(pm.getId()));
+                List<String> tagIds = tagService.getTagAssociationIds(getUserId(), String.valueOf(pm.getId()));
                 return (tagIds.containsAll(selectedTagsList));
         }).collect(Collectors.toList());
     }
@@ -3987,6 +3996,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     searchToDate=null;
     searchFromDateString=null;
     searchToDateString=null;
+    selectedTags = "";
     
     return DISPLAY_MESSAGES_PG;
   }
@@ -4056,7 +4066,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       }
         dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean));
 
-      List<String> tagLabels = tagService.getAssociatedTagsForItem(String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
+      List<String> tagLabels = tagService.getAssociatedTagsForItem(getUserId(), String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
       dbean.setTagList(tagLabels);
 
       decLs.add(dbean) ;
@@ -4391,6 +4401,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     public void setMsgNavMode(String msgNavMode) {
 		this.msgNavMode = msgNavMode;
+		this.selectedTags = "";
 	}	
 	
 	/**
@@ -4526,6 +4537,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    {
 	    	fromMainOrHp = fromPage;
 	    }
+	    this.selectedTags = "";
 	}
 	
 	@SuppressWarnings("unchecked")

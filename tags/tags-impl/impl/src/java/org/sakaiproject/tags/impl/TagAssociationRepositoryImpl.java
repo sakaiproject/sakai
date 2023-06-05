@@ -39,10 +39,11 @@ public class TagAssociationRepositoryImpl extends BasicSerializableRepository<Ta
 	}
 
 	@Override
-	public List<TagAssociation> findTagAssociationByItemId(String itemId) {
-		return startCriteriaQuery()
-				.add(Restrictions.eq("itemId", itemId))
-				.list();
+	public List<TagAssociation> findTagAssociationByCollectionAndItem(String collectionId, String itemId) {
+		return sessionFactory.getCurrentSession().createNamedQuery("FIND_ASSOCIATIONS_BY_ITEM_AND_COLLECTION", TagAssociation.class)
+				.setParameter("collectionId", collectionId)
+				.setParameter("itemId", itemId)
+				.getResultList();
 	}
 
 	@Override
