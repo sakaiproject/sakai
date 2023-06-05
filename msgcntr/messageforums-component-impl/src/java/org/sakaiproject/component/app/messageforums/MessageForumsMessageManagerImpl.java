@@ -559,7 +559,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
                     Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudentsByForumId");
-                    q.setString("contextId", getContextId());
                     q.setLong("forumId", forumId);
                     return q.list();
                 };
@@ -585,7 +584,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
                     Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudentsByForumId");
-                    q.setString("contextId", getContextId());
                     q.setLong("forumId", forumId);
                     return q.list();
                 };
