@@ -90,6 +90,7 @@ public class IndexHandler extends BaseHandler {
         }
         context.put("tagserviceactive", tagService.getServiceActive());
         context.put("actualtagcollection", "");
+        context.put("canCreate", securityService.isSuperUser());
 
     }
 
