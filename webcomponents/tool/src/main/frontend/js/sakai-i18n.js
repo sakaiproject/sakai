@@ -61,9 +61,7 @@ function loadProperties(suppliedOptions) {
 
   const storageKey = options.lang + options.bundle;
   if (options.cache && window.sessionStorage.getItem(storageKey) !== null) {
-    if (options.debug) {
-      console.debug(`Returning ${  storageKey  } from sessions storage ...`);
-    }
+    options.debug && console.debug(`Returning ${  storageKey  } from sessions storage ...`);
     window.sakai.translations[options.bundle] = JSON.parse(window.sessionStorage[storageKey]);
     return Promise.resolve(window.sakai.translations[options.bundle]);
   }
@@ -78,41 +76,45 @@ function loadProperties(suppliedOptions) {
 
   const existingPromise = window.sakai.translations.existingPromises[options.bundle];
   if (existingPromise && options.cache) {
-    if (options.debug) console.debug("Returning existing promise ...");
+    options.debug && console.debug("Returning existing promise ...");
     return existingPromise;
   }
   return window.sakai.translations.existingPromises[options.bundle] = new Promise(resolve => {
 
     const url = `/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`;
-    if (options.debug) {
-      console.debug(url);
-    }
+    options.debug && console.debug(url);
     fetch(url, { headers: { "Content-Type": "application/text" }})
-        .then(r => r.text())
-        .then(data => {
+      .then(r => {
 
-          data.split("\n").forEach((pair) => {
+        if (r.ok) {
+          return r.text();
+        }
+        throw new Error(`Network error while retrieving translations from ${url}`);
+      })
+      .then(data => {
 
-            const keyValue = pair.split('=');
-            if (keyValue.length == 2) {
-              window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
-            }
-          });
+        data.split("\n").forEach((pair) => {
 
-          if (options.debug) {
-            console.debug('Updated translations: ');
-            console.debug(window.sakai.translations[options.bundle]);
+          const keyValue = pair.split(/=(.*)/);
+          if (keyValue.length >= 2) {
+            window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
           }
+        });
 
-          if (options.debug) {
-            console.debug(`Caching translations for ${options.bundle} against key ${storageKey} in sessionStorage ...`);
-          }
+        if (options.debug) {
+          console.debug('Updated translations: ');
+          console.debug(window.sakai.translations[options.bundle]);
+        }
 
-          if (options.cache) {
-            window.sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.bundle]);
-          }
-          resolve(window.sakai.translations[options.bundle]);
-        }).catch(error => { console.error(error); resolve(false); } );
+        if (options.debug) {
+          console.debug(`Caching translations for ${options.bundle} against key ${storageKey} in sessionStorage ...`);
+        }
+
+        if (options.cache) {
+          window.sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.bundle]);
+        }
+        resolve(window.sakai.translations[options.bundle]);
+      }).catch(error => { console.error(error); resolve(false); } );
   });
 
 
