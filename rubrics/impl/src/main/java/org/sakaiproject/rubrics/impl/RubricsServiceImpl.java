@@ -122,6 +122,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private static final Font BOLD_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD);
     private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 7, Font.NORMAL);
 
+    private static Predicate<ToolItemRubricAssociation> canEdit;
+    private static Predicate<ToolItemRubricAssociation> canEvaluate;
+    private static Predicate<ToolItemRubricAssociation> isCreator;
+
     private AssignmentService assignmentService;
     private AuthzGroupService authzGroupService;
     private CriterionRepository criterionRepository;
@@ -147,6 +151,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private UserTimeService userTimeService;
 
     public void init() {
+
+        canEdit = tira -> isEditor(tira.getRubric().getOwnerId());
+        canEvaluate = tira -> isEvaluator(tira.getRubric().getOwnerId());
+        isCreator = tira -> tira.getCreatorId().equalsIgnoreCase(sessionManager.getCurrentSessionUserId());
 
         // register as an entity producer
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -857,11 +865,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return hasAssociatedRubric(tool, id, toolManager.getCurrentPlacement().getContext());
     }
 
-    public boolean hasAssociatedRubric(String tool, String id, String siteId ) {
+    public boolean hasAssociatedRubric(String tool, String id, String siteId) {
 
         if (StringUtils.isBlank(id)) return false;
 
-        return getRubricAssociation(tool, id).isPresent();
+        return associationRepository.findByToolIdAndItemId(tool, id).filter(canEvaluate.or(canEdit).or(isCreator)).isPresent();
     }
 
     public Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, final Map<String, String> params) {
@@ -994,10 +1002,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      */
     @Transactional(readOnly = true)
     public Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId, String associatedToolItemId) {
-
-        Predicate<ToolItemRubricAssociation> canEdit = tira -> isEditor(tira.getRubric().getOwnerId());
-        Predicate<ToolItemRubricAssociation> isCreator = tira -> tira.getCreatorId().equalsIgnoreCase(sessionManager.getCurrentSessionUserId());
-
         return associationRepository.findByToolIdAndItemId(toolId, associatedToolItemId).filter(canEdit.or(isCreator));
     }
 
