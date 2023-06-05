@@ -878,4 +878,6 @@ public interface AssignmentService extends EntityProducer {
      * @return A String containing the name of the content review service
      */
     public String getContentReviewServiceName();
+
+    public boolean allowAddTags(String context);
 }
