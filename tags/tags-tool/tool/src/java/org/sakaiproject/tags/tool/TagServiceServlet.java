@@ -343,7 +343,6 @@ public class TagServiceServlet extends HttpServlet {
                 paginationInfoMap.put("pages", pageList);
                 paginationInfoMap.put("canGoNext", canGoNext);
                 paginationInfoMap.put("nextIdx", nextIdx);
-                paginationInfoMap.put("canCreate", securityService.isSuperUser());
 
                 return paginationInfoMap;
             }

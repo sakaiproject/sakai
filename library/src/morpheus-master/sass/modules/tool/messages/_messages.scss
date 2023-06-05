@@ -217,4 +217,7 @@
 	.ToggleBulkDisabled {
 		color: var(--sakai-text-color-disabled);
 	}
+	.DisableTags {
+		pointer-events: none;
+	}
 }
