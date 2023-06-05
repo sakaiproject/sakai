@@ -1,5 +1,12 @@
 sakai-grader {
 
+  #grader-loading-banner > div:first-child {
+
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
   div.grader-nav {
 
     display: flex;
@@ -29,6 +36,11 @@ sakai-grader {
       z-index: 100000;
       input {
         margin-right: 8px;
+      }
+
+      div:nth-child(2) {
+        margin-top: 8px;
+        margin-bottom: 8px;
       }
     }
 
