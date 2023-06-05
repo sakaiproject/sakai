@@ -2164,9 +2164,7 @@ public class DeliveryBean implements Serializable {
       String secureDeliveryModuleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
       if (secureDeliveryModuleId != null) {
-        if (secureDeliveryStatus == null) {
-          validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
-        }
+        validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
 
         if (PhaseStatus.FAILURE.equals(secureDeliveryStatus)) {
           if(StringUtils.equals(secureDeliveryModuleId, SecureDeliverySeb.MODULE_NAME)) {

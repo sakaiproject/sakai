@@ -426,9 +426,7 @@ public class ConfirmPublishAssessmentListener
             assessmentSettings.setSebConfigMode(sebConfig.getConfigMode().toString());
             assessmentSettings.setSebExamKeys(StringUtils.join(sebConfig.getExamKeys(), "\n"));
             assessmentSettings.setSebAllowUserQuitSeb(sebConfig.getAllowUserQuitSeb());
-            assessmentSettings.setSebAllowReloadInExam(sebConfig.getAllowReloadInExam());
             assessmentSettings.setSebShowTaskbar(sebConfig.getShowTaskbar());
-            assessmentSettings.setSebShowReloadButton(sebConfig.getShowReloadButton());
             assessmentSettings.setSebShowTime(sebConfig.getShowTime());
             assessmentSettings.setSebShowKeyboardLayout(sebConfig.getShowKeyboardLayout());
             assessmentSettings.setSebShowWifiControl(sebConfig.getShowWifiControl());

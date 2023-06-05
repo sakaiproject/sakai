@@ -179,9 +179,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
           @Setter private String sebConfigFileName;
   @Getter @Setter private String sebExamKeys;
   @Getter @Setter private Boolean sebAllowUserQuitSeb;
-  @Getter @Setter private Boolean sebAllowReloadInExam;
   @Getter @Setter private Boolean sebShowTaskbar;
-  @Getter @Setter private Boolean sebShowReloadButton;
   @Getter @Setter private Boolean sebShowTime;
   @Getter @Setter private Boolean sebShowKeyboardLayout;
   @Getter @Setter private Boolean sebShowWifiControl;

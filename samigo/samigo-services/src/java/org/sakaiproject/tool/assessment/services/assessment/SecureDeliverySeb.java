@@ -102,6 +102,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
         Objects.requireNonNull(serverConfigurationService);
         Objects.requireNonNull(siteService);
         Objects.requireNonNull(userDirectoryService);
+        Objects.requireNonNull(contentHostingService);
 
         sebEnabled = serverConfigurationService.getString(SEB_ALWAYS_ENABLED_PROPERTY, SEB_ALWAYS_ENABLED);
         sebDownloadLink = serverConfigurationService.getString(SEB_DOWNLOAD_LINK_PROPERTY, SEB_DOWNLOAD_LINK_DEFAULT);
@@ -171,7 +172,6 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
 
         // Check if we have non expired validation data; No? -> INVALID -> return FAILURE
         if (!optSebValidationData.isPresent() || optSebValidationData.get().isExpired()) {
-            log.warn("No validation data or expired, [{}] -> [{}]", optSebValidationData, PhaseStatus.FAILURE);
             return PhaseStatus.FAILURE;
         }
 

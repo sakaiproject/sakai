@@ -179,9 +179,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
           @Setter private String sebConfigFileName;
   @Getter @Setter private String sebExamKeys;
   @Getter @Setter private Boolean sebAllowUserQuitSeb;
-  @Getter @Setter private Boolean sebAllowReloadInExam;
   @Getter @Setter private Boolean sebShowTaskbar;
-  @Getter @Setter private Boolean sebShowReloadButton;
   @Getter @Setter private Boolean sebShowTime;
   @Getter @Setter private Boolean sebShowKeyboardLayout;
   @Getter @Setter private Boolean sebShowWifiControl;
@@ -335,14 +333,13 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
         this.setSebConfigMode(sebConfig.getConfigMode().toString());
         this.setSebExamKeys(StringUtils.join(sebConfig.getExamKeys(), "\n"));
         this.setSebAllowUserQuitSeb(sebConfig.getAllowUserQuitSeb());
-        this.setSebAllowReloadInExam(sebConfig.getAllowReloadInExam());
         this.setSebShowTaskbar(sebConfig.getShowTaskbar());
-        this.setSebShowReloadButton(sebConfig.getShowReloadButton());
         this.setSebShowTime(sebConfig.getShowTime());
         this.setSebShowKeyboardLayout(sebConfig.getShowKeyboardLayout());
         this.setSebShowWifiControl(sebConfig.getShowWifiControl());
         this.setSebAllowAudioControl(sebConfig.getAllowAudioControl());
         this.setSebConfigUploadId(sebConfig.getConfigUploadId());
+        this.setSebAllowSpellChecking(sebConfig.getAllowSpellChecking());
       }
 
       setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));

@@ -350,17 +350,16 @@ public class SaveAssessmentSettings
     if (SecureDeliverySeb.MODULE_NAME.equals(assessmentSettings.getSecureDeliveryModule())) {
       assessment.updateAssessmentMetaData(SebConfig.CONFIG_MODE, assessmentSettings.getSebConfigMode().toString());
 
-      switch (ConfigMode.valueOf(assessmentSettings.getSebConfigMode())) {
+      ConfigMode sebConfigMode = ConfigMode.valueOf(assessmentSettings.getSebConfigMode());
+      switch (sebConfigMode) {
         case MANUAL:
           assessment.updateAssessmentMetaData(SebConfig.ALLOW_USER_QUIT_SEB, assessmentSettings.getSebAllowUserQuitSeb().toString());
-          assessment.updateAssessmentMetaData(SebConfig.ALLOW_RELOAD_IN_EXAM, assessmentSettings.getSebAllowReloadInExam().toString());
           assessment.updateAssessmentMetaData(SebConfig.SHOW_TASKBAR, assessmentSettings.getSebShowTaskbar().toString());
-          assessment.updateAssessmentMetaData(SebConfig.SHOW_RELOAD_BUTTON, assessmentSettings.getSebShowReloadButton().toString());
-          assessment.updateAssessmentMetaData(SebConfig.SHOW_TIME, assessmentSettings.getSebShowTaskbar().toString());
-          assessment.updateAssessmentMetaData(SebConfig.SHOW_KEYBOARD_LAYOUT, assessmentSettings.getSebShowReloadButton().toString());
-          assessment.updateAssessmentMetaData(SebConfig.SHOW_WIFI_CONTROL, assessmentSettings.getSebShowReloadButton().toString());
-          assessment.updateAssessmentMetaData(SebConfig.ALLOW_AUDIO_CONTROL, assessmentSettings.getSebShowReloadButton().toString());
-          assessment.updateAssessmentMetaData(SebConfig.ALLOW_SPELL_CHECKING, assessmentSettings.getSebShowReloadButton().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_TIME, assessmentSettings.getSebShowTime().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_KEYBOARD_LAYOUT, assessmentSettings.getSebShowKeyboardLayout().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_WIFI_CONTROL, assessmentSettings.getSebShowWifiControl().toString());
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_AUDIO_CONTROL, assessmentSettings.getSebAllowAudioControl().toString());
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_SPELL_CHECKING, assessmentSettings.getSebAllowSpellChecking().toString());
           break;
         case UPLOAD:
           assessment.updateAssessmentMetaData(SebConfig.CONFIG_UPLOAD_ID, assessmentSettings.getSebConfigUploadId());
@@ -369,6 +368,7 @@ public class SaveAssessmentSettings
           assessment.updateAssessmentMetaData(SebConfig.EXAM_KEYS, assessmentSettings.getSebExamKeys());
           break;
         default:
+          log.error("Unhandled value of seb config mode [{}]", sebConfigMode);
           break;
       }
     }
