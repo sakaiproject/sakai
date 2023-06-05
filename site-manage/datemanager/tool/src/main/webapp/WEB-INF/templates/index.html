@@ -124,16 +124,23 @@
       </div>
 
       <div class="act">
-        <input type="submit" class="active" th:value="#{button.save}" id="submit-form-button" disabled="disabled" />
-        <a href="#" id="datemanager-cancel" class="btn btn-secondary" th:text="#{button.cancel}">Cancel</a>
+        <button class="btn btn-primary"
+            aria-controls="modal-confirm"
+            id="submit-form-button"
+            th:text="#{button.save}"
+            disabled>
+        </button>
+        <button type="button" class="btn btn-secondary" id="datemanager-cancel" th:text="#{button.cancel}">Cancel</button>
       </div>
 
-      <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="modal-confirm">
+      <span id="datemanager-confirm-description" class="visually-hidden" th:text="#{modal.confirm.description}"></span>
+
+      <div class="modal fade" tabindex="-1" aria-hidden="true" aria-labelledby="datemanager-confirm-title" aria-describedby="datemanager-confirm-description" id="modal-confirm">
         <div class="modal-dialog modal-md">
           <div class="modal-content">
             <div class="modal-header">
+              <h5 id="datemanager-confirm-title" th:text="#{modal.confirm}" class="modal-title">Confirm</h5>
               <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              <h4 th:text="#{modal.confirm}" class="modal-title">Confirm</h4>
             </div>
             <div class="modal-body">
               <p th:text="#{modal.confirm.instruction}">You are about to modify the following course dates:</p>
@@ -268,6 +275,7 @@
           }
 
           function printSuccess() {
+
             $('#form-success').removeClass('d-none').css('display', '');
             $('#form-errors').addClass('d-none');
             $('.ajax-error').removeClass('ajax-error');
@@ -307,14 +315,14 @@
               });
             });
 
-            $('#modal-btn-confirm').on('click', function(){
+            $('#modal-btn-confirm').on('click', function () {
               callback(true);
-                            bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).hide();
+              bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).hide();
             });
 
-            $('#modal-btn-cancel').on('click', function(){
+            $('#modal-btn-cancel').on('click', function () {
               callback(false);
-                            bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).hide();
+              bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-confirm")).hide();
             });
           };
 
