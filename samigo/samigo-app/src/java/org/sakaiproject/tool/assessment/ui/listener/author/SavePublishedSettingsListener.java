@@ -185,6 +185,7 @@ implements ActionListener
                     assessment.updateAssessmentMetaData(SebConfig.EXAM_KEYS, assessmentSettings.getSebExamKeys());
                     break;
                 case MANUAL:
+                    break;
                 default:
                     log.error("Unhandled value of seb config mode [{}]", sebConfigMode);
                     break;
