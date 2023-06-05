@@ -350,11 +350,17 @@
 						</h:column>
 						</h:dataTable>
 
-      <h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
+      <h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}">
         <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
         <h:inputText value="#{PrivateMessagesTool.selectedTags}" styleClass="hidden" id="tag_selector"></h:inputText>
-        <sakai-tag-selector selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
-             collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>' item-id='<h:outputText value="#{PrivateMessagesTool.currentMsgUuid}"/>' add-new="true"></sakai-tag-selector>
+        <sakai-tag-selector 
+            selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+            collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
+            item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
+            site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
+            tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
+            add-new="true"
+        ></sakai-tag-selector>
       </h:panelGroup>
 
       <sakai:button_bar>
