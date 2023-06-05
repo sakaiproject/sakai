@@ -11,17 +11,26 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package org.sakaiproject.tags.api;
+package org.sakaiproject.webapi.exception;
 
-import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import org.sakaiproject.tags.api.TagAssociation;
-import org.sakaiproject.serialization.SerializableRepository;
+@ResponseStatus(value = HttpStatus.FORBIDDEN, reason = "Forbidden Access")
+public class ForbiddenAccessException extends RuntimeException {
+    public ForbiddenAccessException() {
+        super();
+    }
 
-public interface TagAssociationRepository extends SerializableRepository<TagAssociation, String> {
+    public ForbiddenAccessException(Throwable cause) {
+        super(cause);
+    }
 
-	void newTagAssociation(TagAssociation tagAssociation);
-	void deleteTagAssociation(String associationId);
-	List<TagAssociation> findTagAssociationByCollectionAndItem(String collectionId, String itemId);
-	TagAssociation findTagAssociationByItemIdAndTagId(String itemId, String tagId);
+    public ForbiddenAccessException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ForbiddenAccessException(String message) {
+        super(message);
+    }
 }
