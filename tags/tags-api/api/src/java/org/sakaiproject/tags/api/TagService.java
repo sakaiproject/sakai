@@ -29,6 +29,10 @@ import java.util.List;
  */
 public interface TagService {
 
+    public static final String TAGSERVICE_MANAGE_PERMISSION =  "tagservice.manage";
+    public static final String TOOL_ASSIGNMENTS = "assignments";
+    public static final String TOOL_PRIVATE_MESSAGES = "privatemessages";
+
     public void init();
 
     public void destroy();
@@ -59,7 +63,7 @@ public interface TagService {
     public int getMaxPageSize();
 
     public void saveTagAssociation(String itemId, String tagId);
-    public List<String> getTagAssociationIds(String itemId);
-    public List<Tag> getAssociatedTagsForItem(String itemId);
+    public List<String> getTagAssociationIds(String collectionId, String itemId);
+    public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId);
     public void updateTagAssociations(String siteId, String assignmentId, List<String> tagIds, boolean isSite);
 }

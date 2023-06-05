@@ -106,6 +106,8 @@ export default {
   props: {
     collectionId: { type: String },
     itemId: { type: String },
+    siteId: { type: String },
+    tool: { type: String },
     selectedTemp: { type: String },
     extraOptions: { type: String },
     addNew: { type: Boolean }
@@ -121,6 +123,7 @@ export default {
   },
   methods: {
     addTag (newTag, isSelected) {
+      newTag = newTag.replaceAll(',','');
       const tag = {
         name: newTag,
         code: newTag
@@ -135,7 +138,7 @@ export default {
     this.taggable = this.addNew;
 
     // get available tags
-    await fetch('/api/tags/' + this.collectionId)
+    await fetch('/api/sites/' + this.siteId + '/tools/' + this.tool + '/tags/' + this.collectionId)
       .then((r) => {
         if (r.ok) {
           return r.json();
@@ -158,12 +161,12 @@ export default {
       
     // get selected tags
     if(!this.selectedTemp && this.itemId && this.taggable) {
-      fetch('/api/tags/items/' + this.itemId)
+      fetch('/api/sites/' + this.siteId + '/tools/' + this.tool + '/tags/' + this.collectionId + '/items/' + this.itemId)
         .then((r) => {
           if (r.ok) {
             return r.json();
           }
-          throw new Error(`Failed to get selected tags for id ` + this.itemId);
+          throw new Error(`Failed to get selected tags for id ` + this.itemId + ` and collection ` + this.collectionId);
         })
         .then((data) => {
           this.value = data.map((tag) => {
