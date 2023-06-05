@@ -5,6 +5,10 @@ class Submission {
     if (init) {
       this.id = init.id;
 
+      init.properties || (init.properties = {});
+      init.feedbackComment || (init.feedbackComment = "");
+      init.privateNotes || (init.privateNotes = "");
+
       if (init.properties) {
         // Build a history object for this submission
         this.history = {
@@ -61,7 +65,7 @@ class Submission {
       // This would be grader stuff, not the submission tool
       this.feedbackAttachments = init.feedbackAttachments;
       this.privateNotes = init.privateNotes || "";
-      this.grade = init.grade;
+      this.grade = (typeof init.grade === "undefined") ? "" : init.grade;
       this.feedbackText = init.feedbackText;
       if (!this.feedbackText || this.feedbackText === "<p>null</p>") {
         this.feedbackText = this.submittedText || "";
@@ -98,6 +102,8 @@ class Submission {
 
       // We need this for setting the default resubmission date
       this.assignmentCloseTime = init.assignmentCloseTime.epochSecond * 1000;
+      this.hydrated = init.hydrated;
+      this.submitted = init.submitted;
     } else {
       this.id = "dummy";
     }
