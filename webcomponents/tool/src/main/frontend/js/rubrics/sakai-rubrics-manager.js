@@ -1,5 +1,6 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import {SakaiRubricsLanguage, tr} from "./sakai-rubrics-language.js";
 import "./sakai-rubrics-list.js";
 import "./sakai-rubrics-shared-list.js";
@@ -35,7 +36,11 @@ class SakaiRubricsManager extends RubricsElement {
     return html`
       <h1>${tr("manage_rubrics")}</h1>
 
-      <div class="sak-banner-info"><sr-lang key="locked_message">locked_message</sr></div>
+      <div class="sak-banner-info">
+        <sr-lang key="locked_message">locked_message</sr-lang>
+      </div>
+
+      <div id="rubrics-reorder-info" class="sak-banner-info">${unsafeHTML(tr("drag_to_reorder_info"))}</div>
 
       <div class="row">
         <div class="col-md-4 form-group">
