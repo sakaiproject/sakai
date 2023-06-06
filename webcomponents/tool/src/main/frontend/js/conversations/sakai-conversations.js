@@ -390,7 +390,7 @@ export class SakaiConversations extends SakaiElement {
   }
 
   _handleSearch() {
-    setupSearch({ tool: "sakai.conversations" });
+    setupSearch({ site: this.siteId, tool: "sakai.conversations" });
   }
 
   renderNoTopicsBlock() {
