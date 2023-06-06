@@ -1,7 +1,7 @@
-#skipNav, .Mrphs-mainHeader, #toolMenuWrap, #footer, #selectSiteModal, .Mrphs-siteHierarchy,
+#skipNav, .Mrphs-mainHeader,.portal-header, .offcanvas, .offcanvas-body, #toolMenuWrap, #profile-image-upload, .sakai-pageNav, .portal-nav-sidebar, .portal-mobilebar, #footer, #selectSiteModal, .Mrphs-siteHierarchy,
 #roster_navbar, .sakai-table-toolBar, .roster-filter-totals, .roster-connections-cell, #roster-loading-image,
-#profileImageUpload, #connection-manager, .Mrphs-container--toolTitleNav {
-    display: none;
+#profileImageUpload, #connection-manager, .Mrphs-container--toolTitleNav, .portal-footer {
+    display: none !important;
 }
 
 .page-header {
@@ -53,7 +53,7 @@
 .roster-picture-card .roster-picture {
     object-fit: cover;
     width: 74px;
-    height: 94px;
+    height: auto;
     border: 1px solid #BBB;
 }
 
@@ -100,7 +100,6 @@
     border: 1px solid #BBB;
 }
 .roster-member-card.photogrid .roster-info-card {
-    display: block;
     text-align: center;
 }
 
@@ -188,47 +187,35 @@
 }
 
 @media print {
-    body * {
-      visibility: hidden;
-    }
+
     #roster-members-content, #roster-members-content * {
-      visibility: visible;
+        visibility: visible;
     }
+
     #roster-members-content {
-      position: absolute;
-      left: 0;
-      top: 0;
-      page-break-inside: avoid;
-      width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        page-break-inside: avoid;
+        width: 100%;
     }
     #roster-members-content table {
-      width: 100%;
-      border-collapse: collapse;
-      page-break-inside: avoid;
+        width: 100%;
+        border-collapse: collapse;
+        page-break-inside: avoid;
     }
     #roster-members-content th, #roster-members-content td {
-      border: 1px solid black;
-      padding: 5px;
-      page-break-inside: avoid;
+        border: 1px solid black;
+        padding: 5px;
+        page-break-inside: avoid;
     }
     .Mrphs-sakai-site-roster2 .roster-members-grid {
-      max-width: 100%;
-      display: grid;
+        max-width: 100%;
+        display: grid;
     }
     .Mrphs-sakai-site-roster2 .roster-members-grid > div {
-      flex: 0 0 120px;
-      page-break-inside: avoid;
-      overflow: visible;
-    }
-    .Mrphs-sakai-site-roster2 .roster-members-grid.photogrid {
-      display: flex;
-      flex-wrap: wrap;
-      align-content: start;
-    }
-    .Mrphs-sakai-site-roster2 .roster-members-grid.photogrid > div {
-      flex: 0 0 120px; 
-      page-break-inside: avoid;
-      overflow: visible;
+        flex: 0 0 120px;
+        page-break-inside: avoid;
+        overflow: visible;
     }
 }
-
