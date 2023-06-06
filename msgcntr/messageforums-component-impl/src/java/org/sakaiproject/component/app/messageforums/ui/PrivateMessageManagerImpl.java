@@ -1570,7 +1570,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
         if (! ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).getRead()) {
           if (((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).getReadReceipt() != null && ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).getReadReceipt()) {
 
-            this.sendConfirmationEmail(pvtMessage, (PrivateMessageRecipientImpl) recipientList.get(recordIndex));
+            this.sendConfirmationEmail(pvtMessage, (PrivateMessageRecipientImpl) recipientList.get(recordIndex), contextId);
             ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setReadReceipt(false);
 
           }
@@ -1585,10 +1585,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     }
   }
 
-  public void sendConfirmationEmail(PrivateMessage pvtMessage, PrivateMessageRecipientImpl pvtRecipient){
+  public void sendConfirmationEmail(PrivateMessage pvtMessage, PrivateMessageRecipientImpl pvtRecipient, String contextId){
     String defaultEmail = serverConfigurationService.getString("setup.request","postmaster@" + serverConfigurationService.getServerName());
     String currentUserAsString = currentUserAsString(pvtMessage, false);
-    String contextId = getContextId();
 
     Message savedMessage = saveMessage(pvtMessage, false, contextId, currentUserAsString);
 
