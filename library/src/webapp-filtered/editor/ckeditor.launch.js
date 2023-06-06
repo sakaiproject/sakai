@@ -420,6 +420,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         templates_files: [basePath+"templates/default.js"],
         templates: 'customtemplates',
         templates_replaceContent: false,
+        clipboard_handleImages: false
     };
 
     // Merge config values into ckconfig
