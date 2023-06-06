@@ -429,8 +429,12 @@
     background-color: var(--site-nav-list-item-bg);
   }
 
+  .portal-nav-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
   .sakai-sitesAndToolsNav {
-    overflow-y: scroll;
+    padding-bottom: 99px;
   }
 
   .btn-nav {
@@ -517,6 +521,11 @@
   &:hover {
     background-color: var(--sticky-footer-bg);
     color: var(--sticky-foooter-color);
+  }
+
+  @media (max-width: 767px) {
+    margin-bottom: 65px;
+    background-color: var(--sakai-background-color-5);
   }
 }
 
