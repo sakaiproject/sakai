@@ -36,6 +36,7 @@ export class SakaiConversations extends SakaiElement {
       topicBeingEdited: { type: Object },
       showingSettings: Boolean,
       state: { type: String },
+      loadingData: { attribute: false, type: Boolean },
     };
   }
 
@@ -64,9 +65,17 @@ export class SakaiConversations extends SakaiElement {
 
     this._siteId = value;
 
+    this.loadingData = true;
+
     const url = `/api/sites/${value}/conversations`;
     this.dataPromise = fetch(url)
-      .then(r => r.json())
+      .then(r => {
+
+        if (r.ok) {
+          return r.json();
+        }
+        throw new Error(`Network error while loading data from ${url}`);
+      })
       .then(data => {
 
         this.data = data;
@@ -79,7 +88,9 @@ export class SakaiConversations extends SakaiElement {
         this.wipTopicKey = `${this.data.userId}-wipTopic`;
         const wipTopicJson = sessionStorage.getItem(this.wipTopicKey);
         wipTopicJson && (this.wipTopic = JSON.parse(wipTopicJson));
-      });
+      })
+      .catch (error => console.error(error))
+      .finally (() => this.loadingData = false)
   }
 
   get siteId() { return this._siteId; }
@@ -386,7 +397,7 @@ export class SakaiConversations extends SakaiElement {
   _setStateNothingSelected() { this.state = STATE_NOTHING_SELECTED; }
 
   shouldUpdate() {
-    return this.i18n && this.data;
+    return this.i18n;
   }
 
   _handleSearch() {
@@ -600,6 +611,15 @@ export class SakaiConversations extends SakaiElement {
   }
 
   render() {
+
+    if (this.loadingData) {
+      return html`
+        <div class="sak-banner-info">
+          <div class="mb-3 fs-5 fw-bold">${this.i18n.loading_1}</div>
+          <div>${this.i18n.loading_2}</div>
+        </div>
+      `;
+    }
 
     return html`
 
