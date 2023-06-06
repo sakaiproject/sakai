@@ -50,7 +50,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.4</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -125,7 +124,6 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.12.0</version>
                 <configuration>
                     <installDirectory>target</installDirectory>
                     <workingDirectory>src/main/frontend</workingDirectory>
