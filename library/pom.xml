@@ -364,7 +364,6 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>buildnumber-maven-plugin</artifactId>
-						<version>1.4</version>
 						<executions>
 							<execution>
 								<phase>validate</phase>
@@ -530,7 +529,6 @@
 					<plugin>
 						<groupId>com.github.eirslett</groupId>
 						<artifactId>frontend-maven-plugin</artifactId>
-						<version>1.12.0</version>
 						<configuration>
 							<installDirectory>target</installDirectory>
 							<workingDirectory>${basedir}/src/skins/${sakai.skin.source}</workingDirectory>
@@ -575,7 +573,6 @@
 					</plugin>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>remove-skin</id>
@@ -600,7 +597,7 @@
 					<plugin>
 						<groupId>com.github.jknack</groupId>
 						<artifactId>handlebars-maven-plugin</artifactId>
-						<version>4.0.5</version>
+						<version>${handlebars4.version}</version>
 						<executions>
 							<execution>
 								<id>templates</id>
