@@ -357,7 +357,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
         siteMap.put("isCurrent", site.getId().equals(currentSiteId));
         siteMap.put("currentSiteId", currentSiteId);
 		if (includePages) {
-			List<SitePage> pageList = site.getOrderedPages();
+			List<SitePage> pageList = getPermittedPagesInOrder(site);
 			siteMap.put("pages", getPageMaps(pageList, site));
 		}
 		return siteMap;
