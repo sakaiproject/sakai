@@ -923,9 +923,26 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
-        Map<String, Object> data = new HashMap<>();
-        List<AssignmentSubmission> submissions = new ArrayList<>(assignment.getSubmissions());
-        Collections.sort(submissions, new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService));
+        String assignmentReference
+                = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        List<SimpleGroup> groups = assignmentService.getGroupsAllowGradeAssignment(assignmentReference)
+                .stream().map(SimpleGroup::new).sorted((group, otherGroup) -> StringUtils.compare(group.getTitle(), otherGroup.getTitle())).collect(Collectors.toList());
+
+        // For the current assignment, the current user can only view submitters who are in groups where the current user can grade.
+        // Find IDs of active submitters for the current assignment for the current user
+        Set<String> activeSubmissionSubmitterIds = groups.stream()
+                .flatMap(group -> group.getUsers().stream())
+                .filter(activeSubmitters::contains)
+                .collect(Collectors.toSet());
+
+        // Get sorted submissions visible for the current user
+        List<AssignmentSubmission> submissions = (new ArrayList<>(assignment.getSubmissions())).stream()
+                // Filter the submissions based on the active submission submitter IDs
+                .filter(submission -> submission.getSubmitters().stream()
+                        .map(AssignmentSubmissionSubmitter::getSubmitter)
+                        .anyMatch(activeSubmissionSubmitterIds::contains))
+                .sorted(new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService))
+                .collect(Collectors.toList());
 
         int submissionIndex = -1;
         for (int i = 0; i < submissions.size(); i++) {
@@ -978,21 +995,14 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
         }
 
+        Map<String, Object> data = new HashMap<>();
         data.put("submissions", submissionMaps);
         data.put("totalSubmissions", submissionMaps.size());
-
-        String assignmentReference
-            = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-
-        List<SimpleGroup> groups = assignmentService.getGroupsAllowGradeAssignment(assignmentReference)
-            .stream().map(SimpleGroup::new).sorted((group, otherGroup) -> StringUtils.compare(group.getTitle(), otherGroup.getTitle())).collect(Collectors.toList());
-
         data.put("gradable", simpleAssignment);
         data.put("groups", groups);
         data.put("previewMimetypes", contentHostingService.getHtmlForRefMimetypes());
         data.put("showOfficialPhoto", serverConfigurationService.getBoolean("assignment.show.official.photo", true));
-        String lOptions = serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
-        data.put("letterGradeOptions", lOptions);
+        data.put("letterGradeOptions", serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F"));
 
         return new ActionReturn(data);
     }
