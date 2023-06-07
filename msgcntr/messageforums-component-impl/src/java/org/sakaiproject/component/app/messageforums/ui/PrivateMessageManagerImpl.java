@@ -1589,13 +1589,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     String defaultEmail = serverConfigurationService.getString("setup.request","postmaster@" + serverConfigurationService.getServerName());
     String currentUserAsString = currentUserAsString(pvtMessage, false);
 
-    Message savedMessage = saveMessage(pvtMessage, false, contextId, currentUserAsString);
-
     String systemEmail = "";
     try {
       User currentUser = currentUser(pvtMessage, false);
       List<InternetAddress> replyEmail  = new ArrayList<>();
-      systemEmail = getSystemAndReplyEmail(defaultEmail, currentUser, savedMessage, replyEmail, contextId);
+      systemEmail = getSystemAndReplyEmail(defaultEmail, currentUser, pvtMessage, replyEmail, contextId);
     } catch (MessagingException e) {
       log.warn("PrivateMessageManagerImpl.sendConfirmationEmail: exception: " + e.getMessage(), e);
     }
@@ -1615,18 +1613,18 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
     Site site = null;
     try {
-      site = siteService.getSite(getContextId());
+      site = siteService.getSite(contextId);
     } catch (IdUnusedException e) {
       log.error(e.getMessage(), e);
     }
-    String messageUrl = serverConfigurationService.getPortalUrl() + "/site/" + getContextId() + "/tool/" 
+    String messageUrl = serverConfigurationService.getPortalUrl() + "/site/" + contextId + "/tool/" 
                         + site.getToolForCommonId(DiscussionForumService.MESSAGES_TOOL_ID).getId() 
                         + "/privateMsg/pvtMsgDirectAccess?current_msg_detail=" + pvtMessage.getId();
     
     String bodyString = rb.getFormattedMessage("pvt_read_receipt_email", user.getDisplayName(), user.getEid(), pvtMessage.getTitle(), formatter_date.format(new Date()), rb.getFormattedMessage("pvt_email_href", messageUrl, site.getTitle()));
     
     emailService.sendToUser(messageCreator, additionalHeaders, bodyString);
-    eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT, getEventMessage(pvtMessage), false));
+    eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT, getEventMessage(pvtMessage, DiscussionForumService.MESSAGES_TOOL_ID, pvtMessage.getCreatedBy(), contextId), false));
   }
   
   /**
