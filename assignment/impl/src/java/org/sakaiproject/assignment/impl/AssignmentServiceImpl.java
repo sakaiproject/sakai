@@ -2699,7 +2699,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submitter;
     }
 
-    public List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment a, List<User> allowAddSubmissionUsers) {
+    public List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment assignment, List<User> allowAddSubmissionUsers) {
         Collection<String> authzRefs = new ArrayList<>();
 
         List<User> selectedGroupUsers = new ArrayList<>();
@@ -2716,7 +2716,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
                 } else {
                     // get all those groups that user is allowed to grade
-                    Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
+                    Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
                     groups.forEach(g -> authzRefs.add(g.getReference()));
                 }
             } else {

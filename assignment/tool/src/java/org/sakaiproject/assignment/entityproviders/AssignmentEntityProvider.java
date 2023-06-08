@@ -926,7 +926,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         List<SimpleGroup> groups = assignmentService.getGroupsAllowGradeAssignment(assignmentReference)
                 .stream().map(SimpleGroup::new).sorted((group, otherGroup) -> StringUtils.compare(group.getTitle(), otherGroup.getTitle())).collect(Collectors.toList());
-        
+
         // Get all users who are allowed to submit.
         List<User> allowAddSubmissionUsers = assignmentService.allowAddSubmissionUsers(assignmentReference);
         Set<String> activeSubmitters = allowAddSubmissionUsers.stream().map(Entity::getId).collect(Collectors.toSet());
