@@ -632,6 +632,7 @@ public interface AssignmentService extends EntityProducer {
      */
     String getSubmitterIdForAssignment(Assignment assignment, User user);
 
+    List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment a, List<User> allowAddSubmissionUsers);
     /**
      * @param accentedString
      * @return

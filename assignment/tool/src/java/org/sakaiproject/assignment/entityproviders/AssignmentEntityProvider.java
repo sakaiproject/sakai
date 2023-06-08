@@ -921,26 +921,26 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         SimpleAssignment simpleAssignment = new SimpleAssignment(assignment, false);
 
-        Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
-
         String assignmentReference
                 = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
         List<SimpleGroup> groups = assignmentService.getGroupsAllowGradeAssignment(assignmentReference)
                 .stream().map(SimpleGroup::new).sorted((group, otherGroup) -> StringUtils.compare(group.getTitle(), otherGroup.getTitle())).collect(Collectors.toList());
+        
+        // Get all users who are allowed to submit.
+        List<User> allowAddSubmissionUsers = assignmentService.allowAddSubmissionUsers(assignmentReference);
+        Set<String> activeSubmitters = allowAddSubmissionUsers.stream().map(Entity::getId).collect(Collectors.toSet());
 
-        // For the current assignment, the current user can only view submitters who are in groups where the current user can grade.
-        // Find IDs of active submitters for the current assignment for the current user
-        Set<String> activeSubmissionSubmitterIds = groups.stream()
-                .flatMap(group -> group.getUsers().stream())
-                .filter(activeSubmitters::contains)
-                .collect(Collectors.toSet());
+        // Get users who are visible to the current user from all groups
+        List<User> visibleUsers = assignmentService.getSelectedGroupUsers(ALL, site.getTitle(), assignment, allowAddSubmissionUsers);
+        Set<String> visibleUserIds = visibleUsers.stream().map(Entity::getId).collect(Collectors.toSet());
 
         // Get sorted submissions visible for the current user
         List<AssignmentSubmission> submissions = (new ArrayList<>(assignment.getSubmissions())).stream()
-                // Filter the submissions based on the active submission submitter IDs
+                // Filter the submissions based on the submission submitter IDs
                 .filter(submission -> submission.getSubmitters().stream()
                         .map(AssignmentSubmissionSubmitter::getSubmitter)
-                        .anyMatch(activeSubmissionSubmitterIds::contains))
+                        .anyMatch(visibleUserIds::contains))
                 .sorted(new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService))
                 .collect(Collectors.toList());
 

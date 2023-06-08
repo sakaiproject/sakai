@@ -2699,7 +2699,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submitter;
     }
 
-    private List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment a, List allowAddSubmissionUsers) {
+    public List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment a, List<User> allowAddSubmissionUsers) {
         Collection<String> authzRefs = new ArrayList<>();
 
         List<User> selectedGroupUsers = new ArrayList<>();
