@@ -84,12 +84,12 @@
 #end
 
 <!-- START VM includeSiteNav.vm -->
-<aside id="portal-nav-sidebar" class="d-none portal-nav-sidebar d-flex flex-column vh-100 #if (${sidebarCollapsed})sidebar-collapsed#end" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
+<aside id="portal-nav-sidebar" class="d-none portal-nav-sidebar overflow-auto #if (${sidebarCollapsed})sidebar-collapsed#end" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
     <div class="offcanvas-header d-md-none">
         <h2 class="offcanvas-title">${rloader.sitenav_title}</h2>
         <button type="button" class="btn-close text-reset ms-auto" data-bs-dismiss="offcanvas" aria-label="Close the sites sidebar"></button>
     </div>
-    <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav flex-grow-1 overflow-auto">
+    <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav h-100 d-flex flex-column">
         <h2 class="visually-hidden d-none d-md-block" id="totoolmenu">${rloader.sitenav_title}</h2>
         #if (${userIsLoggedIn})
             <div class="sites-section">
