@@ -642,6 +642,7 @@ public interface AssignmentService extends EntityProducer {
      * @return The list of selected group users based on the specified criteria.
      */
     List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment assignment, List<User> allowAddSubmissionUsers);
+    
     /**
      * @param accentedString
      * @return
