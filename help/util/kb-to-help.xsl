@@ -41,7 +41,7 @@
 	<link rel="stylesheet" media="all" href="/library/skin/tool_base.css" type="text/css" />
 <xsl:text>
 </xsl:text>
-	<link rel="stylesheet" media="all" href="/library/skin/default/tool.css" type="text/css" />
+	<link rel="stylesheet" media="all" href="/library/skin/default-skin/tool.css" type="text/css" />
 <xsl:text>
 </xsl:text>
 			</head>

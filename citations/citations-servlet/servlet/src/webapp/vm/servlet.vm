@@ -19,7 +19,7 @@
 		<meta http-equiv="Content-Style-Type" content="text/css" />
 		<title>$tlang.getString( "window.gscholar" )</title>
 		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-		<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
 		<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 		<script type="text/javascript" src="/savecite/js/savecite.js"></script>
 	</head>
