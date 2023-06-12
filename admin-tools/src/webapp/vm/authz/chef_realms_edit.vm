@@ -57,27 +57,27 @@
 				#set ($userCount = 0)
 					<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("realm.edit.users.list.summary")">
 						<tr>
-							<th id="Id">$tlang.getString("realm.edit.userid")</th>
-							<th id="Description">$tlang.getString("realm.edit.role")</th>
-							<th id="Active">$tlang.getString("realm.edit.active")</th>
-							<th id="Provided">$tlang.getString("realm.edit.from")</th>
+							<th id="grants-header-id">$tlang.getString("realm.edit.userid")</th>
+							<th id="grants-header-description">$tlang.getString("realm.edit.role")</th>
+							<th id="grants-header-active">$tlang.getString("realm.edit.active")</th>
+							<th id="grants-header-provided">$tlang.getString("realm.edit.from")</th>
 						</tr>
 						#foreach ($grant in $grants)
 							<tr>
-								<td headers="Id">
+								<td headers="grants-header-id">
 									<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_user" "target=$formattedText.escapeUrl($grant.UserId)")'+buildQueryString('$form-name');return false;">
 										$formattedText.escapeHtml($grant.UserDisplayId)
 									</a>
 								</td>
-								<td headers="Description">
+								<td headers="grants-header-description">
 									$formattedText.escapeHtml($grant.Role.Id)
 								</td>
-								<td headers="Active">
+								<td headers="grants-header-active">
 									#if ($grant.Active)
 										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString('realm.edit.active')" hspace="5" />
 									#end
 								</td>
-								<td headers="Provided">
+								<td headers="grants-header-provided">
 									#if ($grant.Provided)
 										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString('realm.edit.provided')" hspace="5" />
 									#end
@@ -107,19 +107,19 @@
 					#set ($roleCount = 0)
 					<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("realm.edit.roles.list.summary")">
 						<tr>
-							<th id="Id">$tlang.getString("realm.edit.roleid")</th>
-							<th id="Description">$tlang.getString("realm.edit.description")</th>
+							<th id="roles-header-id">$tlang.getString("realm.edit.roleid")</th>
+							<th id="roles-header-description">$tlang.getString("realm.edit.description")</th>
 						</tr>
 						#foreach ($role in $roles)
 							<tr>
-								<td headers="Id">
+								<td headers="roles-header-id">
 									<h4>
 										<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_role" "target=$formattedText.escapeUrl($role.Id)")'+buildQueryString('$form-name');return false;" title="$tlang.getString("realm.role.set")">
 											$formattedText.escapeHtml($role.Id)
 										</a>
 									</h4>	
 								</td>
-								<td headers="Description">
+								<td headers="roles-header-description">
 									$formattedText.escapeHtml($!role.Description)
 								</td>
 							</tr>
