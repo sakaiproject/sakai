@@ -214,10 +214,10 @@ function printView(url) {
 				#end
 				</p>
 							<p id="allowResubmitNumber">
-								<label for="allowResubmitNumber">
+								<label for="allowResubmitNumberSelect">
 									$tlang.getString("allow.resubmit.number")
 								</label>
-								<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="ASN.toggleResubmitTimePanel();">
+								<select name="$name_allowResubmitNumber" id="allowResubmitNumberSelect" onchange="ASN.toggleResubmitTimePanel();">
 									#foreach ($i in [1..10])
 										<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 											$i
