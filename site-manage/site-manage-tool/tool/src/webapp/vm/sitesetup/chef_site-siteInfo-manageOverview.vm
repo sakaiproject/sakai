@@ -43,7 +43,7 @@
                         #set ($toolCount=$toolCount + 1)
                         #set ($returnval = $toolIds.add($tool.Tool.Id)) <!-- This needs to be set b/c .add returns boolean-->
                             <tr>
-                                <td headers="leftcolumn-move-header" class="buttonCol">
+                                <td headers="left-column-move-header" class="buttonCol">
                                     #if ($toolCount > 1)
                                         <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.up")">
                                             <span class="si si-up"></span>
