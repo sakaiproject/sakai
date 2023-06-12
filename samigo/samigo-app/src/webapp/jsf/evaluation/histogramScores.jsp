@@ -247,7 +247,7 @@ $Id$
         </table>
         </h:panelGroup>
         <h:panelGroup layout="block" styleClass="panel panel-default">
-          <div class="card text-center bg-light" style="padding-top: 1px;padding-bottom: 1px;">
+          <div class="card text-center" style="padding-top: 1px;padding-bottom: 1px;">
             <strong>
               <h2>
                 <h:outputText value="#{evaluationMessages.fsd}" />
