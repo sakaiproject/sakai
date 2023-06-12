@@ -33,9 +33,9 @@
                 <table class="manageTable table table-bordered table-hover" cellspacing="0">
                     <thead>
                         <tr>
-                            <th id="leftcolumn-move-header" class="text-center">$tlang.getString("manover.move")</th>
-                            <th id="leftcolumn-title-header">$tlang.getString("manover.title")</th>
-                            <th id="leftcolumn-remove-header" class="text-center">$tlang.getString("manover.remove")</th>
+                            <th id="left-column-move-header" class="text-center">$tlang.getString("manover.move")</th>
+                            <th id="left-column-title-header">$tlang.getString("manover.title")</th>
+                            <th id="left-column-remove-header" class="text-center">$tlang.getString("manover.remove")</th>
                         </tr>
                     </thead>
                     <tbody>
