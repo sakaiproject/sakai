@@ -692,11 +692,11 @@ function showExternalIframe(title, doreload) {
 		</div>
 
 		<div class="form-group" id="allowResubmitNumber" style="$!resubmitStyle">
-			<label for="allowResubmitNumber" class="col-sm-offset-1 col-sm-2 control-label">
+			<label for="allowResubmitNumberSelect" class="col-sm-offset-1 col-sm-2 control-label">
 				$tlang.getString("allow.resubmit.number")
 			</label>
 			<div class="col-sm-9">
-				<select name="$name_allowResubmitNumber" id="allowResubmitNumber" title="$tlang.getString("allow.resubmit.number")">
+				<select name="$name_allowResubmitNumber" id="allowResubmitNumberSelect" title="$tlang.getString("allow.resubmit.number")">
 					#foreach ($i in [1..10])
 						<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 							$i
