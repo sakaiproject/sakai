@@ -55,7 +55,7 @@
                                         </a>
                                     #end
                                 </td>
-                                <td headers="leftcolumn-title-header">
+                                <td headers="left-column-title-header">
                                     <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                 </td>
                                 <td headers="leftcolumn-remove-header" class="removeCol">
