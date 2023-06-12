@@ -58,7 +58,7 @@
                                 <td headers="left-column-title-header">
                                     <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                 </td>
-                                <td headers="leftcolumn-remove-header" class="removeCol">
+                                <td headers="left-column-remove-header" class="removeCol">
                                     <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
                                         <span class="si si-close text-danger" aria-hidden="true"></span>
                                     </a>
