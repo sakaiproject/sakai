@@ -66,7 +66,7 @@ export class SakaiRubricSummary extends rubricsApiMixin(RubricsElement) {
           ${this.criteria.map((c) => html`
             <div class="mb-2">
               <div class="card">
-                <div class="card text-center bg-light">
+                <div class="card text-center">
                   <h4>
                     <a class="collapse-toggle collapsed" data-bs-toggle="collapse" href="#collapse${c.id}">${c.title}</a>
                   </h4>
