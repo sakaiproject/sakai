@@ -33,9 +33,9 @@
                 <table class="manageTable table table-bordered table-hover" cellspacing="0">
                     <thead>
                         <tr>
-                            <th id="Move_1" class="text-center">$tlang.getString("manover.move")</th>
-                            <th id="Title_1">$tlang.getString("manover.title")</th>
-                            <th id="Remove_1" class="text-center">$tlang.getString("manover.remove")</th>
+                            <th id="leftcolumn-move-header" class="text-center">$tlang.getString("manover.move")</th>
+                            <th id="leftcolumn-title-header">$tlang.getString("manover.title")</th>
+                            <th id="leftcolumn-remove-header" class="text-center">$tlang.getString("manover.remove")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,7 +43,7 @@
                         #set ($toolCount=$toolCount + 1)
                         #set ($returnval = $toolIds.add($tool.Tool.Id)) <!-- This needs to be set b/c .add returns boolean-->
                             <tr>
-                                <td headers="Move_1" class="buttonCol">
+                                <td headers="leftcolumn-move-header" class="buttonCol">
                                     #if ($toolCount > 1)
                                         <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.up")">
                                             <span class="si si-up"></span>
@@ -55,10 +55,10 @@
                                         </a>
                                     #end
                                 </td>
-                                <td headers="Title_1">
+                                <td headers="leftcolumn-title-header">
                                     <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                 </td>
-                                <td headers="Remove_1" class="removeCol">
+                                <td headers="leftcolumn-remove-header" class="removeCol">
                                     <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
                                         <span class="si si-close text-danger" aria-hidden="true"></span>
                                     </a>
@@ -80,9 +80,9 @@
                     <table id="leftToolTable" class="manageTable table table-bordered table-hover" cellspacing="0">
                         <thead>
                             <tr>
-                                <th id="Title_2">$tlang.getString("manover.title")</th>
-                                <th id="Remove_2" class="text-center">$tlang.getString("manover.remove")</th>
-                                <th id="Move_2" class="text-center" colspan="2">$tlang.getString("manover.move")</th>
+                                <th id="either-column-title-header">$tlang.getString("manover.title")</th>
+                                <th id="either-column-remove-header" class="text-center">$tlang.getString("manover.remove")</th>
+                                <th id="either-column-move-header" class="text-center" colspan="2">$tlang.getString("manover.move")</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -91,15 +91,15 @@
                             #foreach ($tool in $leftTools)
                                 #set ($leftToolCount=$leftToolCount + 1)
                                 <tr>
-                                    <td headers="Title_2">
+                                    <td headers="either-column-title-header">
                                         <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                     </td>
-                                    <td headers="Remove_2" class="removeCol">
+                                    <td headers="either-column-remove-header" class="removeCol">
                                         <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
                                             <span class="si si-close text-danger" aria-hidden="true"></span>
                                         </a>
                                     </td>
-                                    <td headers="Move_2" class="buttonCol">
+                                    <td headers="either-column-move-header" class="buttonCol">
                                         #if ($leftToolCount > 1)
                                             <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
                                                 <span class="si si-up"></span>
@@ -111,7 +111,7 @@
                                            </a>
                                         #end
                                     </td>
-                                    <td headers="Move_2" class="buttonCol">
+                                    <td headers="either-column-move-header" class="buttonCol">
                                         <a href="#toolLinkParam("$action" "doEdit_tool_right" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("manover.right")">
                                             <span class="si si-right"></span>
                                         </a>
@@ -125,9 +125,9 @@
                     <table id="rightToolTable" class="manageTable table table-bordered table-hover" cellspacing="0">
                         <thead>
                             <tr>
-                                <th id="Move_3" class="text-center" colspan="2">$tlang.getString("manover.move")</th>
-                                <th id="Title_3">$tlang.getString("manover.title")</th>
-                                <th id="Remove_3" class="text-center">$tlang.getString("manover.remove")</th>
+                                <th id="right-column-move-header" class="text-center" colspan="2">$tlang.getString("manover.move")</th>
+                                <th id="right-column-title-header">$tlang.getString("manover.title")</th>
+                                <th id="right-column-remove-header" class="text-center">$tlang.getString("manover.remove")</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -136,12 +136,12 @@
                             #foreach ($tool in $rightTools)
                                 #set ($rightToolCount=$rightToolCount + 1)
                                 <tr>
-                                    <td headers="Move_3" class="buttonCol">
+                                    <td headers="right-column-move-header" class="buttonCol">
                                         <a href="#toolLinkParam("$action" "doEdit_tool_left" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("manover.left")">
                                             <span class="si si-left"></span>
                                         </a>
                                     </td>
-                                    <td headers="Move_3" class="buttonCol">
+                                    <td headers="right-column-move-header" class="buttonCol">
                                         #if ($rightToolCount > 1)
                                             <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
                                                 <span class="si si-up"></span>
@@ -153,10 +153,10 @@
                                             </a>
                                         #end
                                     </td>
-                                    <td headers="Title_3">
+                                    <td headers="right-column-title-header">
                                         <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                     </td>
-                                    <td headers="Remove_3" class="removeCol">
+                                    <td headers="right-column-remove-header" class="removeCol">
                                         <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
                                             <span class="si si-close text-danger " aria-hidden="true"></span>
                                         </a>
