@@ -26,7 +26,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
-<link media="all" href="/library/skin/default/tool.css" rel="stylesheet" type="text/css" />
+<link media="all" href="/library/skin/default-skin/tool.css" rel="stylesheet" type="text/css" />
 <link media="all" href="<c:url value='/css/AdminSitePerms.css'/>" rel="stylesheet" type="text/css" />
 
 <script src="/library/js/headscripts.js" language="JavaScript" type="text/javascript"></script>
