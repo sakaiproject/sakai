@@ -2426,20 +2426,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         allOrOneGroup = StringUtils.trimToNull(allOrOneGroup);
         try {
             Assignment a = getAssignment(assignmentId);
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
+
             if (a != null) {
                 Site st = siteService.getSite(contextString);
                 if (StringUtils.equals(allOrOneGroup, AssignmentConstants.ALL) || StringUtils.isEmpty(allOrOneGroup)) {
                     if (a.getTypeOfAccess().equals(SITE)) {
-                        for (Group group : st.getGroups()) {
-                            rv.add(group);
-                        }
+                        rv.addAll(st.getGroups());
                     } else {
-                        for (String groupRef : a.getGroups()) {
-                            Group group = st.getGroup(groupRef);        // NO SECTIONS (this might not be valid test for manually created sections)
-                            if (group != null) {
-                                rv.add(group);
-                            }
-                        }
+                        rv.addAll(getGroupsAllowGradeAssignment(assignmentReference));
                     }
                 } else {
                     Group group = st.getGroup(allOrOneGroup);
@@ -2451,7 +2446,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 for (Group g : rv) {
                     AssignmentSubmission uSubmission = getSubmission(assignmentId, g.getId());
                     if (uSubmission == null) {
-                        if (allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference())) {
+                        if (allowGradeSubmission(assignmentReference)) {
                             if (a.getIsGroup()) {
                                 // temporarily allow the user to read and write from assignments (asn.revise permission)
                                 SecurityAdvisor securityAdvisor = new MySecurityAdvisor(
