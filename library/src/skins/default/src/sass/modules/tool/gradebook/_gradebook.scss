@@ -1065,6 +1065,8 @@
     display: flex;
     -webkit-flex-direction: row;
     flex-direction: row;
+    grid-column-start: 1;
+    grid-column-end: span 2;
   }
 
   .gradesToolbar1 .captionToggleContainer
