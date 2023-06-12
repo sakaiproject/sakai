@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head th:replace="fragments/common :: head" />
+
+	<body>
+		<div th:replace="fragments/common :: bootstrap" />
+
+		<div class="sak-banner-error hidden" id="exception_error"></div>
+
+		<th:block th:if="${!delegatedClientConfigured}">
+			<div class="login-container">
+				<span th:text="#{set_account}" />
+				<a class="btn btn-primary" th:href="@{/configure}" th:text="#{configure}"></a>
+			</div>
+		</th:block>
+
+		<th:block th:if="${delegatedClientConfigured}">
+			<div class="logout-header">
+				<a class="btn btn-primary" th:href="@{/revoke}">
+					<div th:text="#{revoke}" />
+					<div class="user-account" th:text="|(${mcUserAccount})|" />
+				</a>
+			</div>
+			
+			<th:block th:replace="index :: common-body" />
+		</th:block>
+	</body>
+</html>
