@@ -55,7 +55,7 @@
     <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.26</sakai.lombok.version>
+    <sakai.lombok.version>1.18.28</sakai.lombok.version>
     <sakai.lucene.version>8.10.1</sakai.lucene.version>
     <sakai.netty.version>4.1.77.Final</sakai.netty.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
