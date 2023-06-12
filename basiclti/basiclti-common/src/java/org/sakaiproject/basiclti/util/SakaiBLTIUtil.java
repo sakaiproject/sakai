@@ -1918,7 +1918,7 @@ public class SakaiBLTIUtil {
 	ext_ims_lti_tool_setting_url: http://localhost:8080/imsblis/service/
 	ext_lms: sakai-23-SNAPSHOT
 	ext_sakai_academic_session: OTHER
-	ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/morpheus-default/tool.css?version=49b21ca5
+	ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/default-skin/tool.css?version=49b21ca5
 	ext_sakai_role: maintain
 	ext_sakai_server: http://localhost:8080
 	ext_sakai_serverid: MacBook-Pro-92.local
