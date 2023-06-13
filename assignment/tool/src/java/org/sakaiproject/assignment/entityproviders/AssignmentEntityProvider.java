@@ -791,6 +791,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         if (!submitters.isEmpty()) {
             submission.put("submitters", submitters);
+        } else {
+            return null;
         }
 
         if (StringUtils.isNotBlank(as.getGroupId())) {
@@ -884,7 +886,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     return null;
                 }
             })
-            .collect(Collectors.toList()));
+            .filter(Objects::nonNull).collect(Collectors.toList()));
 
         return new ActionReturn(data);
     }
@@ -957,6 +959,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 submissionMaps.add(submissionToMap(activeSubmitters, assignment, simpleAssignment, as, false));
             }
         }
+        submissionMaps.removeAll(Collections.singleton(null));
 
         Integer contentKey = assignment.getContentId();
         if (contentKey != null) {
