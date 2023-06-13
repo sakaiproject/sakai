@@ -54,21 +54,13 @@
 
         <!-- External Dependencies -->
         <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <type>jar</type>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <type>jar</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
-            <type>jar</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
