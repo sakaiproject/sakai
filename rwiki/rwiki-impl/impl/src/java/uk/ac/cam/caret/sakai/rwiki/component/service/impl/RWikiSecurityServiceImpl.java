@@ -200,6 +200,27 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 			}
 
 			String permissionsReference = rwe.getReference();
+			if (checkSuperAdminPermission(permissionsReference))
+			{
+				if (log.isDebugEnabled())
+				{
+					log
+							.debug("User is SuperAdmin for Realm thus default allowed to update"); //$NON-NLS-1$
+				}
+				progress = progress + "4"; //$NON-NLS-1$
+				return true;
+			}
+
+			if (rwo.getPublicRead())
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Object is public read"); //$NON-NLS-1$
+				}
+				progress = progress + "3"; //$NON-NLS-1$
+				return true;
+			}
+
 			if ((rwo.getGroupRead() && checkGetPermission(permissionsReference))
 					|| (rwo.getGroupWrite() && checkUpdatePermission(permissionsReference))
 					|| (rwo.getGroupAdmin())
@@ -210,11 +231,11 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 					log.debug("User is in group and allowed to read"); //$NON-NLS-1$
 				}
 
-				String siteId = toolManager.getCurrentPlacement().getContext();
+				String siteId = this.getSiteId();
 				Site site = null;
 				try {
 					site = siteService.getSite(siteId);
-				}catch (IdUnusedException ex) {
+				} catch (IdUnusedException ex) {
 					log.warn("Site not found for id: {}", siteId);
 				}
 				String[] pageGroupIds = rwo.getPageGroupsAsArray();
@@ -228,31 +249,11 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 							}
 						}
 					}
+					return false;
 				} else {
 					progress = progress + "2"; //$NON-NLS-1$
 					return true;
 				}
-			}
-
-			if (rwo.getPublicRead())
-			{
-				if (log.isDebugEnabled())
-				{
-					log.debug("Object is public read"); //$NON-NLS-1$
-				}
-				progress = progress + "3"; //$NON-NLS-1$
-				return true;
-			}
-
-			if (checkSuperAdminPermission(permissionsReference))
-			{
-				if (log.isDebugEnabled())
-				{
-					log
-							.debug("User is SuperAdmin for Realm thus default allowed to update"); //$NON-NLS-1$
-				}
-				progress = progress + "4"; //$NON-NLS-1$
-				return true;
 			}
 
 			if (log.isDebugEnabled())
