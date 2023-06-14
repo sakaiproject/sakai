@@ -75,7 +75,6 @@
         {
 			document.getElementById('External_Tool_Fieldset').style.display = 'block';
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'block';
-			document.getElementById('assignToSection').style.display = 'none';
 			document.getElementById('site').checked = true;
 			document.getElementById('notificationOptions').style.display = 'none';
 			document.getElementById('notsendnotif').checked = true;
@@ -87,7 +86,6 @@
         } else {
 			document.getElementById('External_Tool_Fieldset').style.display = 'none';
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'none';
-			document.getElementById('assignToSection').style.display = 'block';
 			document.getElementById('notificationOptions').style.display = 'block';
 			document.getElementById('releaseGradeNotifications').style.display = 'block';
 			document.getElementById('additionalInformation').style.display = 'block';
@@ -665,7 +663,7 @@ function showExternalIframe(title, doreload) {
 			#end
 		#end
 
-        <fieldset id="assignToSection" #if ($value_SubmissionType == 6) style = "display:none"#end>
+        <fieldset id="assignToSection">
 		<h4>$!tlang.getString('accessSectionHeader')</h4>
 		#parse("vm/assignment/instructor_new_edit/assignto_section.vm")
 		</fieldset>
