@@ -41,4 +41,9 @@ TODO Master merge: Remove this file
     margin-top: $standard-spacing * 0.25;
     font-size: .875em;
   }
+  
+  &.text-break {
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+  }
 }
