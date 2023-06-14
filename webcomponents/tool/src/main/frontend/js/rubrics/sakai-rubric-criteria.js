@@ -123,9 +123,8 @@ export class SakaiRubricCriteria extends RubricsElement {
                 <span tabindex="0"
                     data-criterion-id="${c.id}"
                     data-sortable-id="${c.id}"
-                    role="button"
                     title="${tr("drag_order")}"
-                    aria-label="${tr("drag_order")}"
+                    aria-label="${tr("drag_to_reorder_label")}"
                     aria-describedby="rubrics-reorder-info"
                     class="reorder-icon si si-drag-handle fs-2">
                 </span>
@@ -155,12 +154,10 @@ export class SakaiRubricCriteria extends RubricsElement {
               <h4 class="criterion-title d-flex align-items-center">
                 <div>
                   <span tabindex="0"
-                      role="button"
                       title="${tr("drag_order")}"
                       data-criterion-id="${c.id}"
                       data-sortable-id="${c.id}"
-                      aria-label="${tr("drag_order")}"
-                      aria-describedby="rubrics-reorder-info"
+                      aria-label="${tr("drag_to_reorder_label")}"
                       class="reorder-icon si si-drag-handle fs-3">
                   </span>
                 </div>
@@ -256,12 +253,11 @@ export class SakaiRubricCriteria extends RubricsElement {
                       ${this.renderAddRatingButton(c, i + 1)}
                     </div>
                     <span tabindex="0"
-                        role="button"
                         data-criterion-id="${c.id}"
                         data-rating-id="${r.id}"
                         data-sortable-id="${r.id}"
                         title="${tr("drag_order")}"
-                        aria-label="${tr("drag_order")}"
+                        aria-label="${tr("drag_to_reorder_label")}"
                         aria-describedby="rubrics-reorder-info"
                         class="reorder-icon sideways si si-drag-handle">
                     </span>`
