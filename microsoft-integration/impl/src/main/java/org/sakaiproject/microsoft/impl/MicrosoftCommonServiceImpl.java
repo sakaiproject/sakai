@@ -45,6 +45,7 @@ import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
 import org.sakaiproject.microsoft.api.data.MicrosoftDriveItem;
+import org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter;
 import org.sakaiproject.microsoft.api.data.MicrosoftMembersCollection;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
 import org.sakaiproject.microsoft.api.data.MicrosoftUser;
@@ -75,6 +76,7 @@ import com.microsoft.graph.models.ChatMessage;
 import com.microsoft.graph.models.ConversationMember;
 import com.microsoft.graph.models.DirectoryObject;
 import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.models.DriveItemCreateLinkParameterSet;
 import com.microsoft.graph.models.DriveItemInviteParameterSet;
 import com.microsoft.graph.models.DriveRecipient;
 import com.microsoft.graph.models.Group;
@@ -88,7 +90,10 @@ import com.microsoft.graph.models.MeetingParticipants;
 import com.microsoft.graph.models.OnlineMeeting;
 import com.microsoft.graph.models.OnlineMeetingPresenters;
 import com.microsoft.graph.models.OnlineMeetingRole;
+import com.microsoft.graph.models.Permission;
+import com.microsoft.graph.models.PermissionGrantParameterSet;
 import com.microsoft.graph.models.Team;
+import com.microsoft.graph.models.ThumbnailSet;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.options.HeaderOption;
 import com.microsoft.graph.options.Option;
@@ -147,6 +152,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	
 	private static final String PERMISSION_READ = "read";
 	private static final String PERMISSION_WRITE = "write";
+	private static final String LINK_TYPE_EDIT = "edit";
+	private static final String LINK_TYPE_VIEW = "view";
+	private static final String LINK_SCOPE_USERS = "users";
 	
 	private String lock = "LOCK";
 
@@ -1437,7 +1445,6 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		
 		List<MicrosoftDriveItem> ret = new ArrayList<>();
 		try {
-			
 			DriveItemCollectionPage itemPage = null;
 			if(itemId != null) {
 				itemPage = getGraphClient().groups(groupId).drive().items(itemId).children().buildRequest().get();
@@ -1451,9 +1458,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
+						.createdAt(item.createdDateTime)
+						.modifiedAt(item.lastModifiedDateTime)
 						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 						.downloadURL((adm!=null) ? adm.getAsString() : null)
-						.processPath((item.parentReference != null) ? item.parentReference.path : null)
+						.path((item.parentReference != null) ? item.parentReference.path : null)
 						.folder(item.folder != null)
 						.childCount((item.folder != null) ? item.folder.childCount : 0)
 						.size(item.size)
@@ -1475,6 +1484,29 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			throw e;
 		} catch(Exception e) {
 			log.debug("Error getting Drive Items for group={} and itemId={}", groupId, itemId);
+		}
+		return ret;
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getAllGroupDriveItems(String groupId, MicrosoftDriveItemFilter filter) throws MicrosoftCredentialsException {
+		List<MicrosoftDriveItem> ret = new ArrayList<>();
+		try {
+			ret.addAll(getGroupDriveItems(groupId)
+					.stream()
+					.filter(i -> (filter != null) ? filter.matches(i) : true)
+					.collect(Collectors.toList())
+			);
+			
+			for(MicrosoftDriveItem baseItem : ret) {
+				if(baseItem.isFolder() && baseItem.hasChildren()) {
+					exploreDriveItem(baseItem, filter, null);
+				}
+			}
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error getting All Drive Items for groupId={}", groupId);
 		}
 		return ret;
 	}
@@ -1512,6 +1544,8 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 					.id(item.id)
 					.name(item.name)
 					.url(item.webUrl)
+					.createdAt(item.createdDateTime)
+					.modifiedAt(item.lastModifiedDateTime)
 					.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 					.depth(0)
 					.folder(item.folder != null)
@@ -1558,6 +1592,95 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return false;
 	}
 	
+	@Override
+	public String createLinkForTeams(MicrosoftDriveItem item, List<String> teamIds, PermissionRoles role) throws MicrosoftCredentialsException {
+		String ret = null;
+		if(item != null) {
+			ret = createLinkForTeams(item.getDriveId(), item.getId(), teamIds, role);
+			item.setLinkURL(ret);
+		}
+		return ret;
+	}
+	
+	@Override
+	public String createLinkForTeams(String driveId, String itemId, List<String> teamIds, PermissionRoles role) throws MicrosoftCredentialsException {
+		try {
+			Permission p = getGraphClient()
+					.drives(driveId)
+					.items(itemId)
+					.createLink(DriveItemCreateLinkParameterSet
+							.newBuilder()
+							.withType((role == PermissionRoles.WRITE) ? LINK_TYPE_EDIT : LINK_TYPE_VIEW)
+							.withScope(LINK_SCOPE_USERS)
+							.build())
+					.buildRequest()
+					.post();
+			
+			if(p != null) {				
+				List<DriveRecipient> recipientsList = teamIds.stream()
+					.map(id -> { 
+						DriveRecipient r = new DriveRecipient();
+						r.objectId = id;
+						return r; 
+					})
+					.collect(Collectors.toList());
+				
+				LinkedList<String> rolesList = new LinkedList<String>();
+				rolesList.add((role == PermissionRoles.WRITE) ? PERMISSION_WRITE : PERMISSION_READ);
+				
+				getGraphClient()
+						.shares(p.shareId)
+						.permission()
+						.grant(PermissionGrantParameterSet
+								.newBuilder()
+								.withRoles(rolesList)
+								.withRecipients(recipientsList)
+								.build())
+						.buildRequest()
+						.post();
+				
+				return p.link.webUrl;
+			}
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.debug("Error creating link for itemId={} from drive={} to teamIds={}", itemId, driveId, teamIds);
+		}
+		return null;
+	}
+	
+	@Override
+	public String getThumbnail(MicrosoftDriveItem item, Integer maxWidth, Integer maxHeight) throws MicrosoftCredentialsException {
+		String ret = null;
+		try {
+			ThumbnailSet thumbnailSet = getGraphClient()
+				.drives(item.getDriveId())
+				.items(item.getId())
+				.thumbnails("0") //is always zero?
+				.buildRequest()
+				.get();
+			
+			if(maxWidth != null && maxHeight != null && maxWidth > 0 && maxHeight > 0) {
+				if(thumbnailSet.large.width <= maxWidth && thumbnailSet.large.height <= maxHeight) {
+					ret = thumbnailSet.large.url;
+				} else if(thumbnailSet.medium.width <= maxWidth && thumbnailSet.medium.height <= maxHeight) {
+					ret = thumbnailSet.medium.url;
+				} else {
+					ret = thumbnailSet.small.url;
+				}
+			} else {
+				ret = thumbnailSet.large.url;
+			}
+			
+			item.setThumbnail(ret);
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.debug("Error gettting Thumbnail for itemId={} from drive={}", item.getId(), item.getDriveId());
+		}
+		return ret;
+	}
+	
 	// ---------------------------------------- ONE-DRIVE (DELEGATED) --------------------------------------------------------
 	@Override
 	public List<MicrosoftDriveItem> getMyDriveItems(String userId) throws MicrosoftCredentialsException {
@@ -1598,9 +1721,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
+						.createdAt(item.createdDateTime)
+						.modifiedAt(item.lastModifiedDateTime)
 						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 						.downloadURL((adm!=null) ? adm.getAsString() : null)
-						.processPath((item.parentReference != null) ? item.parentReference.path : null)
+						.path((item.parentReference != null) ? item.parentReference.path : null)
 						.folder(item.folder != null)
 						.childCount((item.folder != null) ? item.folder.childCount : 0)
 						.size(item.size)
@@ -1622,6 +1747,29 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			throw e;
 		} catch(Exception e) {
 			log.debug("Error getting (delegated) Drive Items for user={} and itemId={}", userId, itemId);
+		}
+		return ret;
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getAllMyDriveItems(String userId, MicrosoftDriveItemFilter filter) throws MicrosoftCredentialsException {
+		List<MicrosoftDriveItem> ret = new ArrayList<>();
+		try {
+			ret.addAll(getMyDriveItems(userId)
+					.stream()
+					.filter(i -> (filter != null) ? filter.matches(i) : true)
+					.collect(Collectors.toList())
+			);
+			
+			for(MicrosoftDriveItem baseItem : ret) {
+				if(baseItem.isFolder() && baseItem.hasChildren()) {
+					exploreDriveItem(baseItem, filter, userId);
+				}
+			}
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error getting All My Drive Items for userId={}", userId);
 		}
 		return ret;
 	}
@@ -1649,6 +1797,8 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
+						.createdAt(item.createdDateTime)
+						.modifiedAt(item.lastModifiedDateTime)
 						.driveId((item.remoteItem != null && item.remoteItem.parentReference != null) ? item.remoteItem.parentReference.driveId : null)
 						.shared(true) //IMPORTANT: identify these items as shared (they have uncompleted data)
 						.downloadURL(null)
@@ -1674,6 +1824,29 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			throw e;
 		} catch(Exception e) {
 			log.debug("Error getting (delegated) Shared Drive Items for user={}", userId);
+		}
+		return ret;
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getAllMySharedDriveItems(String userId, MicrosoftDriveItemFilter filter) throws MicrosoftCredentialsException {
+		List<MicrosoftDriveItem> ret = new ArrayList<>();
+		try {
+			ret.addAll(getMySharedDriveItems(userId)
+					.stream()
+					.filter(i -> (filter != null) ? filter.matches(i) : true)
+					.collect(Collectors.toList())
+			);
+			
+			for(MicrosoftDriveItem baseItem : ret) {
+				if(baseItem.isFolder() && baseItem.hasChildren()) {
+					exploreDriveItem(baseItem, filter, userId);
+				}
+			}
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error getting All My Shared Drive Items for userId={}", userId);
 		}
 		return ret;
 	}
@@ -1708,9 +1881,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
+						.createdAt(item.createdDateTime)
+						.modifiedAt(item.lastModifiedDateTime)
 						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 						.downloadURL((adm!=null) ? adm.getAsString() : null)
-						.processPath((item.parentReference != null) ? item.parentReference.path : null)
+						.path((item.parentReference != null) ? item.parentReference.path : null)
 						.folder(item.folder != null)
 						.childCount((item.folder != null) ? item.folder.childCount : 0)
 						.size(item.size)
@@ -1778,9 +1953,11 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
+						.createdAt(item.createdDateTime)
+						.modifiedAt(item.lastModifiedDateTime)
 						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 						.downloadURL((adm!=null) ? adm.getAsString() : null)
-						.processPath((item.parentReference != null) ? item.parentReference.path : null)
+						.path((item.parentReference != null) ? item.parentReference.path : null)
 						.folder(item.folder != null)
 						.childCount((item.folder != null) ? item.folder.childCount : 0)
 						.size(item.size)
@@ -1804,6 +1981,25 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			log.debug("Error getting Drive Items for driveId={} and itemId={}", driveId, itemId);
 		}
 		return ret;
+	}
+	
+	private void exploreDriveItem(MicrosoftDriveItem driveItem, MicrosoftDriveItemFilter filter, String delegatedUserId) throws MicrosoftCredentialsException {
+		try {
+			List<MicrosoftDriveItem> children = getDriveItemsByItemId(driveItem.getDriveId(), driveItem.getId(), delegatedUserId)
+					.stream()
+					.filter(i -> (filter != null) ? filter.matches(i) : true)
+					.collect(Collectors.toList());
+			for(MicrosoftDriveItem item : children) {
+				if(item.isFolder() && item.hasChildren()) {
+					exploreDriveItem(item, filter, delegatedUserId);
+				}
+			}
+			driveItem.setChildren(children);
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		} catch(Exception e) {
+			log.debug("Error exploring Drive Item with driveId={} and itemId={}", driveItem.getDriveId(), driveItem.getId());
+		}
 	}
 	
 	// ---------------------------------------- PRIVATE FUNCTIONS ------------------------------------------------
