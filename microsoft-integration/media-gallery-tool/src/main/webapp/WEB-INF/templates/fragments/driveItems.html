@@ -1,0 +1,78 @@
+<th:block th:fragment="exploreAndPrintItems(itemsList, level)">
+	<div th:id="${currentItem} ? |f_${currentItem.id}| : ${rowId}" class="folder-row collapse" th:classappend="${level == 0}? 'in'">
+		<div class="row">
+			<th:block th:if="${currentItem}">
+				<ol class="breadcrumb">
+				<li>
+					<a href="#" aria-expanded="true" th:attr="onclick=|toggleFolder('${typeKey}','${rowId}')|" th:text="${typesMap.get(typeKey)}"></a>
+				</li>
+				<li th:replace="fragments/driveItems :: printHierarchyLink(${currentItem}, true)" />
+				</ol>
+			</th:block>
+		</div>
+
+		<div th:if="${itemsList.empty}" th:text="#{container_empty}" class="row sak-banner-info"></div>
+		<div th:if="${!itemsList.empty}" class="row display-flex">
+			<th:block th:each="item: ${itemsList}">
+				<div th:replace="fragments/driveItems :: printItem(${item})"></div>
+			</th:block>
+		</div>
+	</div>
+	
+	<th:block th:each="item: ${itemsList}">
+		<th:block th:if="${ item.isFolder() and item.hasChildren() }">
+			<div th:replace="fragments/driveItems :: exploreAndPrintItems(currentItem=${item}, itemsList=${item.getChildren()}, level=${level + 1})"></div>
+		</th:block>
+	</th:block>
+</th:block>
+
+<th:block th:fragment="printHierarchyLink(item, first)">
+	<th:block th:if="${item.parent}">
+		<li th:replace="fragments/driveItems :: printHierarchyLink(${item.parent}, false)" />
+	</th:block>
+	<li>
+		<a th:if="${!first}" href="#" aria-expanded="true" th:attr="onclick=|toggleFolder('${typeKey}', 'f_${item.id}')|" th:text="${item.name}"></a>
+		<span th:if="${first}" th:text="${item.name}" />
+	</li>
+</th:block>
+
+<th:block th:fragment="printItem(item)">
+	<div 
+		class="video-item col-md-3 col-sm-4 col-xs-12" 
+		th:if="${!item.isFolder()}" 
+	>
+		<div class="video-content text-center">
+			<div class="thumb-overlay">
+				<a th:if="${item.linkURL}" th:href="${item.url}" target='_blank' class="fa fa-play-circle play-icon"></a>
+				<span th:if="${item.linkURL == null}" th:attr="data-elemid=${item.id}" onclick="openLink(this)" class="fa fa-play-circle play-icon" th:title="#{play}"></span>
+			</div>
+			<span th:attr="onclick=|loadInfo('${item.id}', '${item.name}')|" class="fa fa-info-circle info-icon" th:title="#{info}"></span>
+			<div 
+				th:attr="data-elemid=${item.id}"
+				class="thumbnail-container"
+				th:classappend="${item.thumbnail == null and item.mimeType.contains(T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter).VIDEO_CONTENT_TYPE)} ? 'empty-thumbnail' : ''"
+			>
+				<th:block th:if="${item.thumbnail == null or #strings.isEmpty(item.thumbnail)}">
+					<span th:if="${item.mimeType.contains(T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter).VIDEO_CONTENT_TYPE)}" class="fa fa-file-video-o"></span>
+					<span th:if="${item.mimeType.contains(T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter).AUDIO_CONTENT_TYPE)}" class="fa fa-file-audio-o"></span>
+				</th:block>
+				<img th:if="${item.thumbnail}" th:src="${item.thumbnail}" />
+			</div>
+		</div>
+		<div class="text-center b5 text-break video-title" th:text="${item.name}"></div>
+	</div>
+
+	<th:block th:if="${item.isFolder()}">
+		<div 
+			class="video-item col-md-3 col-sm-4 col-xs-12" 
+		>
+			<div class="folder-content text-center">
+				<a th:if="${item.hasChildren()}" aria-expanded="true" th:attr="onclick=|toggleFolder('${typeKey}', 'f_${item.id}')|" role="button">
+					<span class="folder-item fa fa-folder"></span>
+				</a>
+				<span th:if="${!item.hasChildren()}" class="fa fa-folder-o"></span>
+			</div>
+			<div class="text-center b5 text-break video-title" th:text="${item.name}"></div>
+		</div>
+	</th:block>
+</th:block>
