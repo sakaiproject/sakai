@@ -1,0 +1,217 @@
+.#{$namespace}microsoft-mediagallery {
+
+	$color_info: #ff000090;
+	$color_info_hover: red;
+	$color_play: #007dff80;
+	$color_play_hover: #0000ff;
+	$color_thumbnail: grey;
+	$background-color_overlay: #00000033;
+	$color_folder: var(--sakai-primary-color-1);
+
+	.container-fluid {
+		margin-left: 0;
+		padding-left: 0;
+		margin-right: 0;
+		padding-right: 0;
+	}
+
+	#loading-container {
+		font-size: 22px;
+	}
+	
+	/* Login/Logout related items */
+	.login-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		min-height: 200px;
+		gap: 10px;
+	}
+	
+	.logout-header {
+		display: flex;
+		justify-content: flex-end;
+		flex-wrap: wrap;
+		
+		.user-account {
+			font-size: smaller;
+			font-weight: bold;
+		}
+	}
+	
+	/* Container Header (tree view + sortby + search) */
+	.container-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		margin-bottom: 15px;
+		flex-wrap: wrap;
+		
+		.icon-toggle {
+			margin-left: 5px;
+		}
+		
+		form {
+			display: flex;
+			align-items: stretch;
+			column-gap: 10px;
+
+			input {
+				height: 100%;
+
+				/* Search */
+				&.input-search {
+					font-family:Arial, FontAwesome;
+					max-width: 300px;
+					padding-left: 5px;
+				}
+			}
+		}
+	}
+	
+	
+	/* Accordion section */
+	/* Section Title */
+	.section-title {
+		display: flex;
+		justify-content: space-between;
+		
+		.collapsed-icon {
+			transition: .3s transform ease-in-out;
+		}
+		.collapsed {
+			.collapsed-icon {
+				transform: rotate(-90deg);
+			}
+		}
+		
+		.refresh-icon{
+			text-decoration: none;
+			
+			&:hover{
+				text-decoration: none;
+				scale: 1.2;
+			}
+		}
+	}
+	
+	/* Items (video/folder) in rows */
+	.display-flex {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		
+		>.video-item {
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 10px;
+		}
+	}
+	
+	/* Video item */
+	.video-item {
+		.video-content {
+			position: relative;
+			border: thin solid black;
+			
+			.info-icon {
+				position: absolute;
+				top: 5px;
+				right: 5px;
+				color: $color_info;
+				text-decoration: none;
+				font-size: 20px;
+				
+				&:hover {
+					color: $color_info_hover;
+					text-decoration: none;
+					cursor: pointer;
+				}
+			}
+			
+			.thumb-overlay {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				background-color: $background-color_overlay;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-size: 40px;
+				color: $color_play;
+				
+				.play-icon {
+					text-decoration: none;
+					
+					&:hover {
+						color: $color_play_hover;
+						cursor: pointer;
+						text-decoration: none;
+					}
+				}
+			}
+			
+			.thumbnail-container {
+				font-size: 60px;
+				color: $color_thumbnail;
+			}
+		}
+	}
+	
+	/* Folder Item */
+	.folder-content {
+		font-size: 80px;
+		color: $color_folder;
+		
+		.folder-item {
+			color: $color_folder;
+			
+			&:hover {
+				scale: 1.2;
+			}
+		}
+		
+	}
+	
+	/* Inside a folder (shows breadcrumb bar) */
+	.folder-row{
+		.breadcrumb {
+			margin-top: -15px;
+		}
+	}
+	
+	/* Info */
+	.info-container {
+		display: flex;
+		justify-content: center;
+	}
+	.item-container {
+		display: flex;
+		flex-direction: column;
+	}
+	.item-property {
+		display: flex;
+		margin-bottom: 5px;
+		
+		label {
+			margin-right: 5px;
+		}
+		
+		.thumbnail-container {
+			font-size: 60px;
+		}
+	}
+	
+	/* Special margin for small screens */
+	@media (max-width: 800px) {
+		.container-view {
+			margin-top: 2em;
+		}
+		.logout-header {
+			margin-top: 2em;
+		}
+	}
+}
