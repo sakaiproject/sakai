@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.microsoft.api.data.MicrosoftRedirectURL;
 import org.sakaiproject.microsoft.api.MicrosoftAuthorizationService;
-import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
 import org.sakaiproject.microsoft.api.SakaiProxy;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +46,6 @@ public class MainController {
 
 	@Autowired
 	private MicrosoftAuthorizationService microsoftAuthorizationService;
-	
-	@Autowired
-	private MicrosoftConfigurationService microsoftConfigurationService;
 	
 	@Autowired
 	private SakaiProxy sakaiProxy;

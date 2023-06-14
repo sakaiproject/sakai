@@ -48,6 +48,8 @@ public interface SakaiProxy {
 	Locale getLocaleForCurrentUser();
 	
 	// ------------------------------------------ SITES ----------------------------------------------------
+	String getCurrentSiteId();
+	boolean isMyWorkspace();
 	List<Site> getSakaiSites();
 	List<Site> getSakaiSites(SakaiSiteFilter filter);
 	Site getSite(String siteId);
