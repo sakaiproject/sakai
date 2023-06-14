@@ -41,6 +41,7 @@
 		<module>impl</module>
 		<module>admin-tool</module>
 		<module>authorization-tool</module>
+		<module>media-gallery-tool</module>
 	</modules>
 
 </project>

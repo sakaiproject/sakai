@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<head th:fragment="head">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+	<link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<script src="/library/js/headscripts.js" type="text/javascript"></script>
+	<script th:replace="js/common.js"></script>
+	<title th:text="#{index_title}">Microsoft Video Gallery</title>
+</head>
+
+<div th:fragment="bootstrap">
+	<script>includeLatestJQuery('microsoft-video-gallery');</script>
+	<script th:inline="javascript">
+		(function() {
+			const toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
+			if (toolId) {
+			  setMainFrameHeight('Main' + toolId.replace(/-/g, 'x'));
+			}
+		})();
+	</script>
+</div>
+</body>
+</html>
