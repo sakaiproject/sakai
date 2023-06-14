@@ -181,12 +181,14 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _setup() {
 
-    this.feedbackCommentEditor = this._replaceWithEditor("grader-feedback-comment", data => {
-      this.submission.feedbackComment = data;
+    this.feedbackCommentEditor = this._replaceWithEditor({
+      id: "grader-feedback-comment",
+      changedCallback: data => this.submission.feedbackComment = data,
     });
 
-    this.privateNotesEditor = this._replaceWithEditor("grader-private-notes", data => {
-      this.submission.privateNotes = data;
+    this.privateNotesEditor = this._replaceWithEditor({
+      id: "grader-private-notes",
+      changedCallback: data => this.submission.privateNotes = data,
     });
 
     document.getElementById("grader").addEventListener('hide.bs.offcanvas', e => {
@@ -259,17 +261,17 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._closeRubric();
   }
 
-  _replaceWithEditor(id, changedCallback) {
+  _replaceWithEditor(options) {
 
-    const editor = sakai.editor.launch(id, {
+    const editor = sakai.editor.launch(options.id, {
       autosave: { delay: 10000000, messageType: "no" },
       startupFocus: true,
-      toolbarSet: "Basic"
+      toolbarSet: options.fullEditor ? "Full" : "BasicText"
     });
 
     editor.on("change", e => {
 
-      changedCallback && changedCallback(e.editor.getData());
+      options.changedCallback && options.changedCallback(e.editor.getData());
       this.modified = true;
     });
 
@@ -286,7 +288,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   _toggleInlineFeedback(e, cancelling) {
 
     if (!this.feedbackTextEditor) {
-      this.feedbackTextEditor = this._replaceWithEditor("grader-feedback-text-editor");
+      this.feedbackTextEditor = this._replaceWithEditor({ id: "grader-feedback-text-editor", fullEditor: true });
       this.feedbackTextEditor.setData(this.submission.feedbackText, () => this.modified = false);
       this.querySelector("#grader-feedback-text").style.display = "none";
       this.querySelector("#edit-inline-feedback-button").style.display = "none";
