@@ -1,5 +1,6 @@
 package org.sakaiproject.microsoft.api.data;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,20 +16,27 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MicrosoftDriveItem implements Comparable<MicrosoftDriveItem>{
 	
-	private static final String ROOT_PATH = "/drive/root:";
-	private static final String DRIVE_ROOT_PATH = "/drives/[^/]+/root:";
+	private static final String ROOT_PATH = "^.*?/root:";
 
 	private String id;
 	private String name;
 	private String url;
 	private String driveId;
+	
+	private OffsetDateTime createdAt;
+	private OffsetDateTime modifiedAt;
 
+	private MicrosoftDriveItem parent;
+	
+	private String path;
 	private int depth;
 	
 	//FILE
 	private Long size;
 	private String mimeType;
 	private String downloadURL;
+	private String thumbnail;
+	private String linkURL;
 
 	//FOLDER
 	@Builder.Default
@@ -46,11 +54,19 @@ public class MicrosoftDriveItem implements Comparable<MicrosoftDriveItem>{
 	@Builder.Default
 	private List<MicrosoftDriveItem> children = null;
 	
+	//custom setter, we will set the parent (this) to each children
+	public void setChildren(List<MicrosoftDriveItem> children) {
+		this.children = children;
+		if(children != null) {
+			children.stream().forEach(i -> i.setParent(this));
+		}
+	}
+	
 	//when the MicrosoftDriveItem is created, we have the number of children but not the children themselves
 	public boolean hasChildren() {
-        return folder && childCount > 0;
-    }
-    
+		return folder && childCount > 0;
+	}
+	
 	@Override
 	public int compareTo(MicrosoftDriveItem o) {
 		if(this.isFolder() == o.isFolder()) {
@@ -64,14 +80,16 @@ public class MicrosoftDriveItem implements Comparable<MicrosoftDriveItem>{
 	
 	//custom builder
 	public static class MicrosoftDriveItemBuilder{
-		public MicrosoftDriveItemBuilder processPath(String path) {
+		public MicrosoftDriveItemBuilder path(String path) {
 			if(StringUtils.isNotBlank(path)) {
 				String aux = path.replaceFirst(ROOT_PATH, "");
-				aux = aux.replaceFirst(DRIVE_ROOT_PATH, "");
+				this.path = aux;
 				this.depth = aux.split("/").length - 1;
 			} else {
+				this.path = "";
 				this.depth = 0;
 			}
+			
 			return this;
 		}
 	}

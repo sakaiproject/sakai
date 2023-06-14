@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<body>
+		<th:block th:fragment="info-body">
+			<div class="portletBody info-container">
+				<div class="item-container">
+					<th:block th:if="${item}" th:with="df=#{date.format}">
+						<div class="item-property">
+							<div class="thumbnail-container">
+								<img th:if="${item.thumbnail}" th:src="${item.thumbnail}" />
+								<th:block th:if="${item.thumbnail == null}">
+									<span th:if="${item.mimeType.contains(T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter).VIDEO_CONTENT_TYPE)}" class="fa fa-file-video-o"></span>
+									<span th:if="${item.mimeType.contains(T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter).AUDIO_CONTENT_TYPE)}" class="fa fa-file-audio-o"></span>
+								</th:block>
+							</div>
+						</div>
+					
+						<div class="item-property">
+							<label th:text="#{name}">Name:</label>
+							<div th:text="${item.name}">
+							</div>
+						</div>
+
+						<div class="item-property">
+							<label th:text="#{created}">Created:</label>
+							<div th:text="${#temporals.format(item.createdAt, df)}"></div>
+						</div>
+
+						<div class="item-property">
+							<label th:text="#{modified}">Modified:</label>
+							<div th:text="${#temporals.format(item.modifiedAt, df)}"></div>
+						</div>
+
+						<div class="item-property">
+							<label th:text="#{path}">Path:</label>
+							<div th:text="${item.path}">
+							</div>
+						</div>
+					</th:block>
+				
+					<div th:if="${item == null}" th:text="#{item_empty}" class="sak-banner-info"></div>
+				</div>
+			</div>
+		</th:block>
+	</body>
+</html>
