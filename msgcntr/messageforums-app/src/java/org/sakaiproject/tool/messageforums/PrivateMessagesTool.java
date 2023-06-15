@@ -184,6 +184,7 @@ public class PrivateMessagesTool {
   private static final String HIDDEN_SEARCH_TO_ISO_DATE = "searchToDateISO8601";
   
   private Boolean fromPermissions = false;
+  private Boolean fromPreview = false;
 
   /**
    *Dependency Injected 
@@ -312,7 +313,12 @@ public class PrivateMessagesTool {
   private PrivateMessageDecoratedBean detailMsg;
   public void setDetailMsg(PrivateMessageDecoratedBean detailMsg) {
     this.detailMsg = detailMsg;
-    this.selectedTags = "";
+    if (detailMsg == null || (!fromPreview && !detailMsg.getIsPreview() && !detailMsg.getIsPreviewReply() && !detailMsg.getIsPreviewReplyAll() && !detailMsg.getIsPreviewForward())) {
+      this.selectedTags = "";
+      fromPreview = false;
+    } else if (detailMsg.getIsPreview() || detailMsg.getIsPreviewReply() || detailMsg.getIsPreviewReplyAll() || detailMsg.getIsPreviewForward()) {
+      fromPreview = true;
+    }
   }
   private boolean viewChanged = false;
   
@@ -1082,6 +1088,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if (searchPvtMsgs != null)
     	searchPvtMsgs.clear();
     this.selectedTags = "";
+    this.fromPreview = false;
     return DISPLAY_MESSAGES_PG;
   }
 
@@ -1712,6 +1719,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     this.setSelectedLabel("pvt_priority_normal");
     setBooleanReadReceipt(false);
     this.setSelectedTags("");
+    this.fromPreview = false;
   }
   
   public String processPvtMsgPreview(){
@@ -3404,6 +3412,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  return prtMsgManager.isEmailPermit();
   }
 
+  public boolean isCanUseTags() {
+    return securityService.unlock(userDirectoryService.getCurrentUser(), TagService.TAGSERVICE_MANAGE_PERMISSION, getContextSiteId());
+  }
+
   public String processPvtMsgOrganize()
   {
     log.debug("processPvtMsgOrganize()");
@@ -4402,6 +4414,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     public void setMsgNavMode(String msgNavMode) {
 		this.msgNavMode = msgNavMode;
 		this.selectedTags = "";
+		this.fromPreview = false;
 	}	
 	
 	/**
@@ -4538,6 +4551,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    	fromMainOrHp = fromPage;
 	    }
 	    this.selectedTags = "";
+	    this.fromPreview = false;
 	}
 	
 	@SuppressWarnings("unchecked")

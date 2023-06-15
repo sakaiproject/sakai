@@ -123,7 +123,7 @@ export default {
   },
   methods: {
     addTag (newTag, isSelected) {
-      newTag = newTag.replace(',','');
+      newTag = newTag.replaceAll(',','');
       const tag = {
         name: newTag,
         code: newTag

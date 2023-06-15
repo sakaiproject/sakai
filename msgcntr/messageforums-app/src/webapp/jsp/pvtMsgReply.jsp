@@ -349,7 +349,7 @@
 						</h:column>
 						</h:dataTable>   
 
-      <h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
+      <h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}">
         <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
         <h:inputText value="#{PrivateMessagesTool.selectedTags}" styleClass="hidden" id="tag_selector"></h:inputText>
         <sakai-tag-selector 
