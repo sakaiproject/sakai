@@ -532,3 +532,13 @@
 .portal-nav-sidebar {
   overflow-y: hidden !important;
 }
+
+.toast-header {
+  color: var(--sakai-text-color-1);
+  background-color: var(--sakai-background-color-3);
+}
+
+.toast-body {
+  color: var(--sakai-text-color-1);
+  background-color: var(--sakai-background-color-2);
+}
