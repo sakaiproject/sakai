@@ -3908,9 +3908,12 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // If the assignment reference is not equal to the associated gradebook item, then a custom gb item is being used
                 if (!assignmentRef.equals(assignmentAssociateGradebook)) {
-                    Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, assignmentAssociateGradebook).getId();
-                    context.put("associatedToGbItem", true);
-                    context.put("associatedToGbEntityId", associateGradebookAssignmentId);
+                    Optional<org.sakaiproject.service.gradebook.shared.Assignment> assignmentOptional = Optional.ofNullable(gradebookService.getAssignment(gradebookUid, assignmentAssociateGradebook));
+                    if (assignmentOptional.isPresent()) {
+                        Long associateGradebookAssignmentId = assignmentOptional.get().getId();
+                        context.put("associatedToGbItem", true);
+                        context.put("associatedToGbEntityId", associateGradebookAssignmentId);
+                    }
                 }
 
                 if (gradebookService != null && gradebookService.isGradebookDefined(gradebookUid)) {
