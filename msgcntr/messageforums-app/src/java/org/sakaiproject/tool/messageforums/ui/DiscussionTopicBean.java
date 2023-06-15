@@ -40,6 +40,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -1277,6 +1278,8 @@ public class DiscussionTopicBean
 		topic.setRestrictPermissionsForGroups(Boolean.parseBoolean(restrictPermissionsForGroups));
 	}
 	public String getHasRubric(){
-		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, topic.getDefaultAssignName()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+
+      Optional<AssociationTransferBean> rubricAssociation = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, topic.getDefaultAssignName(), forumManager.getContextForTopicById(topic.getId()));
+      return rubricAssociation.isPresent() ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 }

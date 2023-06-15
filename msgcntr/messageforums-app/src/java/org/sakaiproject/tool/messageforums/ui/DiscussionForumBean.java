@@ -26,6 +26,7 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import javax.faces.model.SelectItem;
@@ -36,6 +37,7 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -615,7 +617,9 @@ public class DiscussionForumBean
 	}
 
 	public String getHasRubric(){
-		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, forum.getDefaultAssignName()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+
+        Optional<AssociationTransferBean> rubricAssociation = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, forum.getDefaultAssignName(), forumManager.getContextForForumById(forum.getId()));
+        return rubricAssociation.isPresent() ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 
 	public void setOpenDateISO(String openDateISO) {
