@@ -934,7 +934,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Set<String> activeSubmitters = allowAddSubmissionUsers.stream().map(Entity::getId).collect(Collectors.toSet());
 
         // Get users who are visible to the current user from all groups
-        List<User> visibleUsers = assignmentService.getSelectedGroupUsers(ALL, site.getTitle(), assignment, allowAddSubmissionUsers);
+        List<User> visibleUsers = assignmentService.getSelectedGroupUsers(ALL, site.getId(), assignment, allowAddSubmissionUsers);
         Set<String> visibleUserIds = visibleUsers.stream().map(Entity::getId).collect(Collectors.toSet());
 
         // Get sorted submissions visible for the current user
