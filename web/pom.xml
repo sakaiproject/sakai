@@ -9,6 +9,7 @@
   </parent>
 
   <name>Sakai Web Project</name>
+  
   <groupId>org.sakaiproject</groupId>
   <artifactId>web-base</artifactId>
   <packaging>pom</packaging>
