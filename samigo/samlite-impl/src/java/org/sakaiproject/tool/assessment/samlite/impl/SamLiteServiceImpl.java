@@ -98,13 +98,13 @@ public class SamLiteServiceImpl implements SamLiteService {
 	
 	public void init() {	
 		// Initialization		
-		startOfQuestionNumericPattern = Pattern.compile("^(\\d+\\.|\\)|\\]\\s*)", Pattern.CASE_INSENSITIVE);
+		startOfQuestionNumericPattern = Pattern.compile("^(<.+>)*(\\d+\\.|\\)|\\]\\s*)", Pattern.CASE_INSENSITIVE);
 		correctAnswerPattern = Pattern.compile("^\\*");
-		correctMultipleChoicePattern = Pattern.compile("^\\*\\s*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
+		correctMultipleChoicePattern = Pattern.compile("^(<.+>)*\\*\\s*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
 		correctFillInPattern = Pattern.compile("^\\*\\s*(?!\\{)(.*)");
-		answerPattern = Pattern.compile("^([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
-		feedbackOKPattern=Pattern.compile("^#FBOK:\\s*(.*)$");
-		feedbackNOKPattern=Pattern.compile("^#FBNOK:\\s*(.*)$");
+		answerPattern = Pattern.compile("^(<.+>)*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
+		feedbackOKPattern = Pattern.compile("^#FBOK:\\s*(.*)$");
+		feedbackNOKPattern = Pattern.compile("^#FBNOK:\\s*(.*)$");
 		
 		// REGEX: ^(\d+\.+ ).*\[[a-z[ ,]]*\].* - start with digits point space then string containing brackets with [a-z] commas or spaces 
 		extendedMatchingCorrectAnswersPattern = Pattern.compile("^(\\d+\\.+ ).*\\[[a-z[ ,]]*\\].*", Pattern.CASE_INSENSITIVE);
@@ -282,9 +282,11 @@ public class SamLiteServiceImpl implements SamLiteService {
 	
 	
 	private void parseLine(Question question, String line) {				
+		String originalLine = line;
+		line = this.cleanLine(line);
 		boolean isEndOfQuestion = endQuestionPattern.matcher(line).find();
 		boolean isCorrectAnswer = correctAnswerPattern.matcher(line).lookingAt();
-		Matcher answerMatcher = answerPattern.matcher(line);
+		Matcher answerMatcher = answerPattern.matcher(originalLine);
 		boolean isAnswer = answerMatcher.find();
 		boolean isEmptyTrue = unnecessaryTruePattern.matcher(line).find();
 		boolean isEmptyFalse = unnecessaryFalsePattern.matcher(line).find();		
@@ -300,14 +302,14 @@ public class SamLiteServiceImpl implements SamLiteService {
 		if (isEndOfQuestion) {
 			// Do nothing, we just want to ignore this line
 		} else if (isAnswer) {
-			question.addAnswer(answerMatcher.group(1), answerMatcher.group(2), false);
+			question.addAnswer(answerMatcher.group(2), answerMatcher.group(3), false);
 		} else if (isEMICorrectAnswer) {
 	  		question.setQuestionType(Question.EXTENDED_MATCHING_ITEMS_QUESTION);
 	  		String answerId = line.substring(0, line.indexOf("."));
 	  		String questionAnswers = (line.substring(line.indexOf(".")+1)).trim();
 			question.addAnswer(answerId, questionAnswers, true);
 		} else if (isCorrectAnswer) {
-			Matcher multipleChoiceMatcher = correctMultipleChoicePattern.matcher(line);
+			Matcher multipleChoiceMatcher = correctMultipleChoicePattern.matcher(originalLine);
 			boolean isMC = multipleChoiceMatcher.find();
 			Matcher fillInMatcher = correctFillInPattern.matcher(line);
 			boolean isFI = fillInMatcher.find();
@@ -320,8 +322,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 				String earlierCorrectAnswer = question.getCorrectAnswer();
 				boolean hasOneCorrectAnswerAlready = (null != earlierCorrectAnswer && !"".equals(earlierCorrectAnswer.trim()));
 				
-				question.setCorrectAnswer(multipleChoiceMatcher.group(1));
-			  	question.addAnswer(multipleChoiceMatcher.group(1), multipleChoiceMatcher.group(2), true);
+				question.setCorrectAnswer(multipleChoiceMatcher.group(2));
+			  	question.addAnswer(multipleChoiceMatcher.group(2), multipleChoiceMatcher.group(3), true);
 			  	
 			  	if (hasOneCorrectAnswerAlready)
 			  		question.setQuestionType(Question.MULTIPLE_CHOICE_MULTIPLE_ANSWER_QUESTION);
@@ -349,9 +351,9 @@ public class SamLiteServiceImpl implements SamLiteService {
 		} else if (isEmptyTrue || isEmptyFalse) {
 			// Do nothing, since the 'correct' true or false answer is all we need.
 		} else if (hasfeedbackOK) {
-			question.setFeedbackOK(feedbackOKMatcher.group(1));
+			question.setFeedbackOK(feedbackOKMatcher.group(2));
 		} else if (hasfeedbackNOK) {
-			question.setFeedbackNOK(feedbackNOKMatcher.group(1));
+			question.setFeedbackNOK(feedbackNOKMatcher.group(2));
 		} else if (randomize) {
 			if (question.getQuestionType() == Question.MULTIPLE_CHOICE_QUESTION || 
 				question.getQuestionType() == Question.MULTIPLE_CHOICE_MULTIPLE_ANSWER_QUESTION) {
@@ -373,8 +375,12 @@ public class SamLiteServiceImpl implements SamLiteService {
 
 		else {
 			// If we didn't match anything, then assume it's just part of the question text
-			question.append(line);
+			question.append(originalLine);
 		}
+	}
+
+	public String cleanLine(String line) {
+		return line.replaceAll("<[^>]+>", "");
 	}
 	
 	public Document createDocument(QuestionGroup questionGroup) {
