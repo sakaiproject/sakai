@@ -99,7 +99,14 @@
 		 <p/>
 		 <div class="row">
 		 	<div class="col-md-6">
-		 		<h:inputTextarea id="data" value="#{samLiteBean.data}" rows="15" cols="75"/>
+				<h:panelGroup layout="block" styleClass="toggle_link_container_for_richtextarea" rendered="#{!samLiteBean.richTextarea}">
+					<a class="toggle_link" id="samLiteEntryForm:data_toggle" href="javascript:pre_show_editor()">
+						<h:outputText value="#{samLiteMessages.rich_text_label}"/>
+					</a>
+				</h:panelGroup>
+				<h:inputHidden value="#{samLiteBean.samigoFrameId}" id="data_textinput_current_status"/>
+				<h:inputHidden value="#{samLiteBean.data}" id="data_value"/>
+				<h:inputTextarea id="data" value="#{samLiteBean.data}" rows="15" cols="75" />
 		 		<div>
 					<%-- immediate=true bypasses the valueChangeListener --%>
 					<h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
@@ -126,6 +133,20 @@
 					   			</ul>
 					   			<h:outputText value="#{samLiteMessages.general_instructions_conclude}"/><p/>
 								<h:outputText value="#{samLiteMessages.general_instructions_feedback}"/>
+				    	</div>
+		 			</div>
+		 			<div class="col-md-12">
+						<a href="javascript:toggleLayer('rich_editor_instructions');"><h:outputText value="#{samLiteMessages.rich_editor_instructions_label}"/></a>
+					    	<div id="rich_editor_instructions" class="inopPanel" style="display:none">
+					   			<h:outputText value="#{samLiteMessages.rich_editor_instructions_prelude}"/><p/>
+					   			<h:outputText value="#{samLiteMessages.rich_editor_instructions_prelude_2}"/><p/>
+					   			<ol>
+					   				<li><h:outputText value="#{samLiteMessages.rich_editor_instructions_recomendation_1}"/></li>
+					   				<li><h:outputText value="#{samLiteMessages.rich_editor_instructions_recomendation_2}"/></li>
+					   				<li><h:outputText value="#{samLiteMessages.rich_editor_instructions_recomendation_3}"/></li>
+					   				<li><h:outputText value="#{samLiteMessages.rich_editor_instructions_recomendation_4}"/></li>
+					   				<li><h:outputText value="#{samLiteMessages.rich_editor_instructions_recomendation_5}"/></li>
+					   			</ol>
 				    	</div>
 		 			</div>
 		 			<div class="col-md-12">
@@ -212,6 +233,40 @@
 		</h:form>
 		</div>
  		<!-- end content -->
+		<script>
+			function pre_show_editor() {
+				show_editor('samLiteEntryForm:data', document.getElementById('samLiteEntryForm:data_textinput_current_status').value, 1000000);
+			}
+			function chef_setupformattedtextarea(client_id, shouldToggle, frame_id, max_chars) {
+				if (shouldToggle == true) {
+					var input_text = document.getElementById(client_id);
+					var input_text_value = input_text.value;
+					var input_text_encoded = encodeHTML(input_text_value);
+					input_text.value = input_text_encoded;
+				}
+
+				config = ''
+				if (max_chars) {
+					config = 
+						{
+							wordcount: {'maxCharCount' : max_chars},
+							toolbarCanCollapse: false,
+							toolbar: 'Basic',
+							toolbar_Basic: [
+								['Bold','Italic','Underline','-','TextColor','BGColor','-','Subscript','Superscript','-','Image','Link','Unlink'],
+							],
+						}
+				}
+				
+				sakai.editor.launch(client_id, config,'450','240');
+			}
+		</script>
+		<h:panelGroup styleClass="" rendered="#{samLiteBean.richTextarea}">
+			<script>
+				pre_show_editor();
+				document.getElementById('samLiteEntryForm:data').value=document.getElementById('samLiteEntryForm:data_value').value;
+			</script>
+		</h:panelGroup>
       </body>
     </html>
   </f:view>
