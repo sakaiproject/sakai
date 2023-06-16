@@ -195,7 +195,7 @@ public class GradebookNgBusinessService {
 
 	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
-	public static final String ICON_SAKAI = "icon-sakai--";
+	public static final String ICON_SAKAI = "si si-";
 	public static final String ALL = "all";
 
 	private static final String SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES = "gradebookng.allowStudentsToCompareGradesWithClassmates";
