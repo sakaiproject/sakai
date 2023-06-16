@@ -167,6 +167,11 @@ h4.samigo-category-subhead-2 {
 .toggle_link_container{
 	text-align:right;
 }
+
+.toggle_link_container_for_richtextarea {
+	text-align:left;
+}
+
 .toggle_link{
 	font-size:85%;
 	border-right:1px solid var(--sakai-border-color);
