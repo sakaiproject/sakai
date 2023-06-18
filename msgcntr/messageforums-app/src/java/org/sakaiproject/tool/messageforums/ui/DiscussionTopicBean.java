@@ -40,7 +40,6 @@ import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
