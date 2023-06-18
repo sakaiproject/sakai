@@ -617,9 +617,7 @@ public class DiscussionForumBean
 	}
 
 	public String getHasRubric(){
-
-        Optional<AssociationTransferBean> rubricAssociation = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, forum.getDefaultAssignName(), forumManager.getContextForForumById(forum.getId()));
-        return rubricAssociation.isPresent() ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+        return rubricsService.hasVisibleAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, forum.getDefaultAssignName()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 
 	public void setOpenDateISO(String openDateISO) {

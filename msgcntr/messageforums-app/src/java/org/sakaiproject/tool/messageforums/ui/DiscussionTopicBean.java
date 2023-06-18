@@ -1278,8 +1278,6 @@ public class DiscussionTopicBean
 		topic.setRestrictPermissionsForGroups(Boolean.parseBoolean(restrictPermissionsForGroups));
 	}
 	public String getHasRubric(){
-
-      Optional<AssociationTransferBean> rubricAssociation = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, topic.getDefaultAssignName(), forumManager.getContextForTopicById(topic.getId()));
-      return rubricAssociation.isPresent() ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+      return rubricsService.hasVisibleAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, topic.getDefaultAssignName()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 }
