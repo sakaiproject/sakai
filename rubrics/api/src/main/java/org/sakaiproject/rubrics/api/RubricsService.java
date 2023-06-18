@@ -114,9 +114,27 @@ public interface RubricsService {
 
     EvaluationTransferBean cancelDraftEvaluation(Long draftEvaluationId);
 
+    /**
+     * Checks if there is an associated rubric for the given tool and ID, considering
+     * only users who have permissions to edit the rubric association.
+     *
+     * @param toolId                 The tool name or identifier.
+     * @param associatedToolItemId   The ID of the associated item.
+     * @return True if an associated rubric is found, false otherwise.
+     */
     boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
 
     boolean hasAssociatedRubric(String toolId, String associatedToolItemId, String siteId);
+
+    /**
+     * Checks if there is a visible associated rubric for the given tool ID and associated item ID,
+     * considering users who have permissions to view the rubric association.
+     *
+     * @param toolId               The tool name or identifier.
+     * @param associatedToolItemId The ID of the associated item.
+     * @return True if a visible associated rubric is found, false otherwise.
+     */
+    boolean hasVisibleAssociatedRubric(String toolId, String associatedToolItemId);
 
     Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId, String associatedToolItemId);
 

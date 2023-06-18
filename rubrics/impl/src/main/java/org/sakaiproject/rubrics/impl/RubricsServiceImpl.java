@@ -124,6 +124,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     private static Predicate<ToolItemRubricAssociation> canEdit;
     private static Predicate<ToolItemRubricAssociation> canEvaluate;
+    private static Predicate<ToolItemRubricAssociation> canBeEvaluated;
     private static Predicate<ToolItemRubricAssociation> isCreator;
 
     private AssignmentService assignmentService;
@@ -154,6 +155,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         canEdit = tira -> isEditor(tira.getRubric().getOwnerId());
         canEvaluate = tira -> isEvaluator(tira.getRubric().getOwnerId());
+        canBeEvaluated = tira -> isEvaluee(toolManager.getCurrentPlacement().getContext());
         isCreator = tira -> tira.getCreatorId().equalsIgnoreCase(sessionManager.getCurrentSessionUserId());
 
         // register as an entity producer
@@ -870,6 +872,15 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         if (StringUtils.isBlank(id)) return false;
 
         return associationRepository.findByToolIdAndItemId(tool, id).filter(canEvaluate.or(canEdit).or(isCreator)).isPresent();
+    }
+
+    public boolean hasVisibleAssociatedRubric(String toolId, String associatedToolItemId) {
+
+        if (StringUtils.isBlank(toolId)) return false;
+
+        return associationRepository.findByToolIdAndItemId(toolId, associatedToolItemId)
+                .filter(canEvaluate.or(canEdit).or(isCreator).or(canBeEvaluated))
+                .isPresent();
     }
 
     public Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, final Map<String, String> params) {
