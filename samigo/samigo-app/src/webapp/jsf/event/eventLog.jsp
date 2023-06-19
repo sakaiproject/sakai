@@ -39,7 +39,7 @@
   </div>
 
   <h:panelGroup styleClass="b5 d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1" layout="block" rendered="#{not empty eventLog.eventLogDataList}">
-    <h:panelGroup styleClass="b5 d-flex align-items-center" layout="block">
+    <h:panelGroup styleClass="b5 d-flex flex-wrap flex-sm-nowrap align-items-center" layout="block">
      <h:outputLabel styleClass="b5 text-nowrap" value="#{eventLogMessages.filterBy}" />
      <h:outputText value="&#160;" escape="false" />
      <h:selectOneMenu styleClass="form-control" value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
