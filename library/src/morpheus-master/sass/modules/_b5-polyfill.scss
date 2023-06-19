@@ -24,6 +24,10 @@ TODO Master merge: Remove this file
     justify-content: space-between !important;
   }
 
+  &.align-items-center {
+    align-items: center !important;
+  }
+
   &.me-0 {
     margin-right: 0;
   }
@@ -45,5 +49,9 @@ TODO Master merge: Remove this file
   &.text-break {
     word-wrap: break-word !important;
     word-break: break-word !important;
+  }
+
+  &.text-nowrap {
+    white-space: nowrap;
   }
 }

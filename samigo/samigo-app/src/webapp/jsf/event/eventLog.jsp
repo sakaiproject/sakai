@@ -38,11 +38,11 @@
     </h1>
   </div>
 
-  <h:panelGroup styleClass="b5 d-flex justify-content-between flex-wrap gap-1 mb-1" layout="block" rendered="#{not empty eventLog.eventLogDataList}">
-    <h:panelGroup styleClass="" layout="block">
-     <h:outputLabel value="#{eventLogMessages.filterBy}" />
+  <h:panelGroup styleClass="b5 d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1" layout="block" rendered="#{not empty eventLog.eventLogDataList}">
+    <h:panelGroup styleClass="b5 d-flex align-items-center" layout="block">
+     <h:outputLabel styleClass="b5 text-nowrap" value="#{eventLogMessages.filterBy}" />
      <h:outputText value="&#160;" escape="false" />
-     <h:selectOneMenu value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
+     <h:selectOneMenu styleClass="form-control" value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
          required="true" onchange="document.forms[0].submit();">
         <f:selectItems value="#{eventLog.assessments}"/>
         <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
