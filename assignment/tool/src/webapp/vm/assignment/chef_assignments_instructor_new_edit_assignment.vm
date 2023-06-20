@@ -1248,7 +1248,7 @@ function showExternalIframe(title, doreload) {
 
 	<a name="extraNodesTop"></a>
 
-	#if ($!tagsEnabled)
+	#if ($!tagsEnabled && $!allowAddTags)
 		<h4>$!tlang.getString('tags_header')</h4>
 		#set($assignmentParts = $assignmentId.split("/"))
 		#set($lastIndex = $assignmentParts.size() - 1)
