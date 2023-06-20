@@ -13,9 +13,14 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cardgame.api.CardGameService;
 import org.sakaiproject.cardgame.api.model.CardGameStatItem;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -31,11 +36,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
+import org.sakaiproject.api.privacy.PrivacyManager;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +56,12 @@ public class CardGameController extends AbstractSakaiApiController {
     private static final double MIN_HIT_RATIO_DEFAULT = 0.5;
     private static final boolean SHOW_OFFICIAL_PHOTO_DEFAULT = true;
     private static final String[] ALLOWED_ROLE_IDS_DEFAULT = new String[] { "access", "Student" };
+    private static final String ROSTER_PERM_VIEW_HIDDEN = "roster.viewhidden";
+    private static final String ROSTER_PERM_VIEW_ALL_MEMBERS = "roster.viewallmembers";
 
+
+    @Autowired
+    private SecurityService securityService;
 
     @Autowired
     private ServerConfigurationService serverConfigurationService;
@@ -60,6 +72,8 @@ public class CardGameController extends AbstractSakaiApiController {
     @Autowired
     private CardGameService cardGameService;
 
+    @Autowired
+    private PrivacyManager privacyManager;
 
     @GetMapping(value = "/sites/{siteId}/card-game/config", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getConfig(@PathVariable String siteId) {
@@ -84,13 +98,7 @@ public class CardGameController extends AbstractSakaiApiController {
         HashMap<String, CardGameStatItem> statItems = cardGameService.findStatItemByPlayerId(currentUserId).stream()
                 .collect(Collectors.toMap(statItem -> statItem.getUserId(), statItem -> statItem, (prev, next) -> next, HashMap::new));
 
-        Set<String> userIds = site.getMembers().stream()
-                .filter(member -> Arrays.stream(getAllowedRoles())
-                        .anyMatch(allowedRole -> allowedRole.equals(member.getRole().getId())))
-                .map(member -> member .getUserId())
-                .collect(Collectors.toSet());
-
-        return userDirectoryService.getUsers(userIds).stream()
+        return userDirectoryService.getUsers(getVisibleUsersIds(currentUserId, site)).stream()
                 .sorted(new UserSortNameComparator(true, true))
                 .map(user -> CardGameUserRestBean.of(user, statItems.get(user.getId())))
                 .collect(Collectors.toList());
@@ -135,6 +143,67 @@ public class CardGameController extends AbstractSakaiApiController {
         return ResponseEntity.ok().build();
     }
 
+    private Set<String> getVisibleUsersIds(String userId, Site site) {
+        if (StringUtils.isBlank(userId) || site == null) {
+            return Collections.emptySet();
+        }
+
+        String siteRef = site.getReference();
+
+        Set<Group> userGroups = site.getGroups().stream()
+                .filter(group -> group.getMember(userId) != null)
+                .collect(Collectors.toSet());
+
+        String[] allowedRoles = getAllowedRoles();
+
+        Predicate<Member> memberFilter = member -> {
+            return member != null
+                    // Filter for active users
+                    && member.isActive()
+                    // Filter for allowed roles
+                    && ArrayUtils.contains(allowedRoles, member.getRole().getId())
+                    // Filter out current user
+                    && !StringUtils.equals(member.getUserId(), userId);
+        };
+
+        Set<String> userIds;
+        if (securityService.unlock(userId, ROSTER_PERM_VIEW_ALL_MEMBERS, siteRef)) {
+            userIds = site.getMembers().stream()
+                    .filter(memberFilter)
+                    .map(Member::getUserId)
+                    .collect(Collectors.toSet());
+
+            log.info("view all; users: {}", userIds.toArray());
+            if (!securityService.unlock(userId, ROSTER_PERM_VIEW_HIDDEN, siteRef)) {
+                Set<String> hiddenUsersIds = privacyManager.findHidden(site.getReference(), userIds);
+                userIds.removeAll(hiddenUsersIds);
+            }
+        } else {
+            HashMap<String, Set<String>> hiddenUsersByGroup = new HashMap<>();
+            for (Group group : userGroups) {
+                if (!securityService.unlock(userId, ROSTER_PERM_VIEW_HIDDEN, group.getReference())) {
+                    Set<String> groupMemberIds = group.getMembers().stream()
+                            .map(Member::getUserId)
+                            .collect(Collectors.toSet());
+                    Set<String> hiddenUsersIds = privacyManager.findHidden(site.getReference(), groupMemberIds);
+                    hiddenUsersByGroup.put(group.getId(), hiddenUsersIds);
+                }
+            }
+
+            // Map each group's members to a set of userIds
+            userIds = userGroups.stream()
+                    .flatMap(group -> group.getMembers().stream()
+                            .filter(memberFilter)
+                            .filter(member -> {
+                                Set<String> hiddenUsers = hiddenUsersByGroup.get(group.getId());
+                                return hiddenUsers == null || !hiddenUsers.contains(member.getUserId());
+                            })
+                            .map(Member::getUserId))
+                    .collect(Collectors.toSet());
+        }
+
+        return userIds;
+    }
 
     private String[] getAllowedRoles() {
         String[] configuredAllowedRoles = serverConfigurationService.getStrings("cardgame.allowedRoles");
