@@ -45,7 +45,7 @@ public class PublishedItemText
 
   private Set<ItemTextAttachmentIfc> itemTextAttachmentSet;
   private Integer requiredOptionsCount;
-  private boolean addedButNotExtracted = false;
+  private Boolean addedButNotExtracted = false;
 
   public PublishedItemText() {}
 
@@ -307,11 +307,11 @@ public class PublishedItemText
 			return correctOptionLabels;	
 		}
 
-		public boolean isAddedButNotExtracted() {
+		public Boolean isAddedButNotExtracted() {
 			return addedButNotExtracted;
 		}
 
-		public void setAddedButNotExtracted(boolean addedButNotExtracted) {
+		public void setAddedButNotExtracted(Boolean addedButNotExtracted) {
 			this.addedButNotExtracted = addedButNotExtracted;
 		}
 
