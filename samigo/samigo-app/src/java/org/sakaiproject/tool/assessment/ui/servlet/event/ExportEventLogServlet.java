@@ -3,6 +3,7 @@ package org.sakaiproject.tool.assessment.ui.servlet.event;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.ui.servlet.SamigoBaseServlet;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.opencsv.CSVWriter;
@@ -82,9 +85,10 @@ public class ExportEventLogServlet extends SamigoBaseServlet {
                 SamigoConstants.SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED);
 
         // Set headers
-        String filename = StringUtils.replace(RESOURCE_BUNDLE.getString("log"), " ", "_");
-        res.setContentType("text/csv; charset=utf-8");
-        res.setHeader("Content-Disposition", "\"attachment;filename=\"" + filename + ".csv\";");
+        res.setContentType("text/csv;charset=" + StandardCharsets.ISO_8859_1.name());
+
+        String filename = StringUtils.replace(RESOURCE_BUNDLE.getString("log"), " ", "_") + ".csv";
+        res.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build().toString());
 
         // Get data
         EventLogService eventLogService = new EventLogService();

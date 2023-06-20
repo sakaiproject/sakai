@@ -248,25 +248,25 @@ implements ActionListener, ValueChangeListener
 						// ENTRY DATE
 						add(DataTableColumn.builder()
 								.orderable(true)
-								.searchable(false)
+								.searchable(true)
 								.type(DataTableColumn.TYPE_NUM)
 								.build());
 						// DATE SUBMITTED
 						add(DataTableColumn.builder()
 								.orderable(true)
-								.searchable(false)
+								.searchable(true)
 								.type(DataTableColumn.TYPE_NUM)
 								.build());
 						// DURATION
 						add(DataTableColumn.builder()
 								.orderable(true)
-								.searchable(false)
+								.searchable(true)
 								.type(DataTableColumn.TYPE_ANY_NUM)
 								.build());
 						// ERRORS
 						add(DataTableColumn.builder()
 								.orderable(true)
-								.searchable(false)
+								.searchable(true)
 								.build());
 						// IP ADDRESS
 						if (displayIpAddressColumn) {

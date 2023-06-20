@@ -7,6 +7,10 @@ Usage - Use other, non bootstrap classes first, add the "b5" class, and then the
 TODO Master merge: Remove this file
 */
 
+@mixin flex-nowrap {
+  flex-wrap: nowrap !important;
+}
+
 .b5 {
   &.d-flex {
     display: flex !important;
@@ -16,12 +20,20 @@ TODO Master merge: Remove this file
     flex-wrap: wrap !important;
   }
 
+  &.flex-nowrap {
+    @include flex-nowrap();
+  }
+
   &.flex-column {
     flex-direction: column !important;
   }
 
   &.justify-content-between {
     justify-content: space-between !important;
+  }
+
+  &.align-items-center {
+    align-items: center !important;
   }
 
   &.me-0 {
@@ -45,5 +57,16 @@ TODO Master merge: Remove this file
   &.text-break {
     word-wrap: break-word !important;
     word-break: break-word !important;
+  }
+
+  &.text-nowrap {
+    white-space: nowrap;
+  }
+
+  // SM
+  @media (min-width: 576px) {
+    &.flex-sm-nowrap {
+      @include flex-nowrap();
+    }
   }
 }
