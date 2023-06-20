@@ -5061,4 +5061,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public String getContentReviewServiceName() {
         return this.contentReviewService.getServiceName();
     }
+
+    @Override
+    public boolean allowAddTags(String context) {
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        return permissionCheck(TagService.TAGSERVICE_MANAGE_PERMISSION, resourceString, null);
+    }
 }

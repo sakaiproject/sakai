@@ -2873,6 +2873,7 @@ public class AssignmentAction extends PagedResourceActionII {
             });
             context.put("tagsEnabled", Boolean.TRUE);
             context.put("tagTool", TagService.TOOL_ASSIGNMENTS);
+            context.put("allowAddTags", assignmentService.allowAddTags(contextString));
             context.put("tagsMap", tagsMap);
             context.put("siteId", contextString);
             List<String> allTaggedGroupsAndInstructors = new ArrayList<String>(allTaggedGroupsAndInstructorsSet);
@@ -3520,6 +3521,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
             context.put("tagsEnabled", Boolean.TRUE);
             context.put("tagTool", TagService.TOOL_ASSIGNMENTS);
+            context.put("allowAddTags", assignmentService.allowAddTags(contextString));
         }
 
         // put role information into context
@@ -8695,7 +8697,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     aProperties.put(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE, (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE));
                 }
 
-                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {
+                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(siteId)) {
                     aProperties.put(NEW_ASSIGNMENT_TAG_CREATOR, Boolean.toString(checkAddInstructorTags));
                     aProperties.put(NEW_ASSIGNMENT_TAG_GROUPS, Boolean.toString(checkAddGroupTags));
                 }
@@ -8714,7 +8716,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), rubricParams);
                 }
 
-                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true)) {                
+                if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(siteId)) {                
                     List<String> tagIds = new ArrayList<>();
                     if (state.getAttribute(TAG_SELECTOR) != null && StringUtils.trimToNull((String) state.getAttribute(TAG_SELECTOR)) != null) {
                         tagIds.addAll(Arrays.asList(((String) state.getAttribute(TAG_SELECTOR)).split(",")));
