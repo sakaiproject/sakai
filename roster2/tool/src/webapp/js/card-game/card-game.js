@@ -347,7 +347,7 @@ export default class CardGame extends BaseGame {
     }
 
     calcUserOptionsData() {
-        return this.state.allUsers.map(({ id, displayName }) => {
+        return this.state.learnUsers.map(({ id, displayName }) => {
             return { id, text: displayName };
         });
     }
