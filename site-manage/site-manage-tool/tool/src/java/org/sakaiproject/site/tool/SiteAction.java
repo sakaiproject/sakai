@@ -8880,7 +8880,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
 				if (StringUtils.isNotBlank(joinableSet)) {
 					//check that the max limit hasn't been reached:
-					int max = Integer.parseInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX));
+					int max = NumberUtils.toInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX), 0);
 					int size = siteGroup.getMembers().size();
 					if(size < max) {
 						// add current user as the maintainer
