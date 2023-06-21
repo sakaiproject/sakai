@@ -8878,7 +8878,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
 				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
-				if(joinableSet != null && !"".equals(joinableSet.trim())){
+				if (StringUtils.isNotBlank(joinableSet)) {
 					//check that the max limit hasn't been reached:
 					int max = Integer.parseInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX));
 					int size = siteGroup.getMembers().size();
