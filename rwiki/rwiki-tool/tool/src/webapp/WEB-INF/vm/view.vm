@@ -85,7 +85,7 @@
 				${rlb.getFormattedMessage("jsp_last_modified_by", $value.toArray())}
 				<a id="toCommentsLink" href="#tocomments" style="display:none" style="padding:0 1em 0 0">${rlb.jsp_comment_gotolink} <span></span></a>
 			 </div>
-			#if($rwikiObjectGroups && $groups.size() > 0)
+			#if($groups && $rwikiObjectGroups && $rwikiObjectGroups.size() > 0)
 				<div class="groupsforthispage specialLink" >
 					${rlb.view_groups_text}
 					<span class="bold-text">

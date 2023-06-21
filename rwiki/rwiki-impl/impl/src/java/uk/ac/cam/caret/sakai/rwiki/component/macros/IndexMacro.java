@@ -175,13 +175,13 @@ public class IndexMacro extends BaseMacro
 					emitSpaceChange(writer, nextNameChars, lastSep,
 							nextSpaceIndex, true);
 				}
-				String[] rwikiPageGroupsArray = next.getPageGroupsAsArray();
+				List<String> rwikiPageGroupsArray = next.getPageGroupsAsList();
 				String pageGroupsString = "";
 				
 				boolean showPage = objectService.checkRead(next);
 				if (rwikiPageGroupsArray != null) {
 					Site site = context.getSite();
-					String[] groupNames = new String[rwikiPageGroupsArray.length];
+					String[] groupNames = new String[rwikiPageGroupsArray.size()];
 					int count = 0;
 					for(String rwikigroupId : rwikiPageGroupsArray) {
 						Group group = site.getGroup(rwikigroupId);

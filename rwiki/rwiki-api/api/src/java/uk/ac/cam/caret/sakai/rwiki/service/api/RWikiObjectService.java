@@ -147,10 +147,11 @@ public interface RWikiObjectService extends EntityProducer, EntityTransferrer, C
 	 * @param version
 	 * @param content
 	 * @param pageGroups
+	 * @param permissions
 	 * @throws PermissionException
 	 * @throws VersionException
 	 */
-	void update(String name, String realm, Date version, String content, String[] pageGroups, RWikiPermissions permissions)
+	void update(String name, String realm, Date version, String content, List<String> pageGroups, RWikiPermissions permissions)
 			throws PermissionException, VersionException;
 
 	/**

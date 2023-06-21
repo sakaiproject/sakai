@@ -238,7 +238,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 				} catch (IdUnusedException ex) {
 					log.warn("Site not found for id: {}", siteId);
 				}
-				String[] pageGroupIds = rwo.getPageGroupsAsArray();
+				List<String> pageGroupIds = rwo.getPageGroupsAsList();
 				if (pageGroupIds != null) {
 					for (String groupId : pageGroupIds) {
 						Group group = site.getGroup(groupId);

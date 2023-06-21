@@ -23,6 +23,8 @@
 package uk.ac.cam.caret.sakai.rwiki.service.api.model;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The base object for a Wiki page, id, name, realm, permissions, revision,
@@ -337,30 +339,30 @@ public interface RWikiObject extends Comparable
 	String getSource();
 
 	/**
-	 * The pageGroups String for this page
+	 * The pageGroups Set for this page
 	 * 
 	 * @param pageGroups
 	 */
-	void setPageGroups(String pageGroups);
+	void setPageGroups(Set<String> pageGroups);
 
 	/**
-	 * The pageGroups String for this page
+	 * @return The pageGroups Set for this page
+	 * @return
+	 */
+	Set<String> getPageGroups();
+
+	/**
+	 * The pageGroups List for this page
 	 * 
 	 * @param pageGroups
 	 */
-	void setPageGroupsAsString(String pageGroups);
+	void setPageGroupsAsList(List<String> pageGroups);
 
 	/**
-	 * @return The pageGroups String for this page
+	 * @return The pageGroups List for this page
 	 * @return
 	 */
-	String getPageGroups();
-
-	/**
-	 * @return The pageGroups list for this page
-	 * @return
-	 */
-	String[] getPageGroupsAsArray();
+	List<String> getPageGroupsAsList();
 
 }
 

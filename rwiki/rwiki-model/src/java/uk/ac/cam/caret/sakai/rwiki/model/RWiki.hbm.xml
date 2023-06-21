@@ -104,8 +104,8 @@
 		<property name="sha1" length="64" />
 		<property name="revision"  type="int"/>
 		<set name="pageGroups" table="rwikipagegroups" cascade="all" lazy="false">
-			<key column="rwikiobjectid" />
-			<element column="groupid" type="string" />
+		  <key column="rwikiobjectid" />
+		  <element column="groupid" type="string" />
 		</set>
 	</class>
 </hibernate-mapping>

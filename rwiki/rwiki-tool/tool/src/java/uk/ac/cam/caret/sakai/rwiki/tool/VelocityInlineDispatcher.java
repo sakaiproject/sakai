@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -122,14 +123,14 @@ public class VelocityInlineDispatcher implements Dispatcher
 			log.warn("Failing getting the AdminPermissions");
 		}
 		
-		String[] rwikiObjectGroups = null;
+		List<String> rwikiObjectGroups = null;
 		try {
-			rwikiObjectGroups = requestScopeSuperBean.getCurrentRWikiObject().getPageGroupsAsArray();
+			rwikiObjectGroups = requestScopeSuperBean.getCurrentRWikiObject().getPageGroupsAsList();
 		} catch(Exception ex) {
 			log.warn("Failing getting the groups from the current RwikiObject");
 		}
 		if (rwikiObjectGroups != null) {
-			vcontext.put("rwikiObjectGroups", new ArrayList<String>(Arrays.asList(rwikiObjectGroups)));
+			vcontext.put("rwikiObjectGroups", (rwikiObjectGroups.toArray(new String[rwikiObjectGroups.size()])));
 		}
 		try
 		{

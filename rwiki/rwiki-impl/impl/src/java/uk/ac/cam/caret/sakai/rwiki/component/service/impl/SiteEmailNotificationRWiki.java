@@ -471,9 +471,9 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 			// add any other users
 			addSpecialRecipients(users, ref);
 			
-			if (rwikiObject.getPageGroupsAsArray() != null) {
+			if (rwikiObject.getPageGroupsAsList() != null) {
 				List<User> auxUsers = new ArrayList<User>();
-				String[] groupIds = rwikiObject.getPageGroupsAsArray();
+				List<String> groupIds = rwikiObject.getPageGroupsAsList();
 				for (Object userObject : users) {
 					boolean isUserMember = false;
 					User user = (User) userObject;
