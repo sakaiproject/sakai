@@ -128,9 +128,6 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 
 		Map<User, Boolean> recipients = getRecipients(pvtMsg);
 
-		pvtMsg.setCreated(pvtMsg.getScheduledDate());
-		pvtMsg.setModified(pvtMsg.getScheduledDate());
-		pvtMsg.setScheduledDate(null);
 		pvtMsg.setScheduler(false);
 		pvtMsg.setDraft(false);
 
