@@ -113,9 +113,13 @@ public class VelocityInlineDispatcher implements Dispatcher
 
 		String localPage = requestScopeSuperBean.getViewBean().getLocalName();
 		String homePage = requestScopeSuperBean.getHomeBean().getHomeLinkValue();
-		if (!StringUtils.equalsIgnoreCase(homePage, localPage) && requestScopeSuperBean.hasAdminPermission()) {
-			Collection<Group> groups = requestScopeSuperBean.getGroups();
-			vcontext.put("groups", groups);
+		try {
+			if (!StringUtils.equalsIgnoreCase(homePage, localPage) && requestScopeSuperBean.hasAdminPermission()) {
+				Collection<Group> groups = requestScopeSuperBean.getGroups();
+				vcontext.put("groups", groups);
+			}
+		} catch (Exception ex) {
+			log.warn("Failing getting the AdminPermissions");
 		}
 		
 		String[] rwikiObjectGroups = null;

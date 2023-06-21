@@ -335,31 +335,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			else if (wikiSecurityService
 					.checkRead((RWikiEntity) getEntity(returnable)))
 			{
-				if(returnable.getPageGroupsAsArray() != null && name.indexOf("/home") == -1) {
-					Site site = null;
-					String siteId = wikiSecurityService.getSiteId();
-					try {
-						site = siteService.getSite(siteId);
-					} catch (IdUnusedException idEx) {
-						log.warn("Site not found for id: {}", siteId);
-					}
-					String[] groupIds = returnable.getPageGroupsAsArray();
-					String owner = returnable.getOwner();
-					if (user.equals(owner) || securityService.isSuperUser()) {
-						return returnable;
-					} else {
-						for (String groupId : groupIds) {
-							Group group = site.getGroup(groupId);
-							if (group != null) {
-								Member currentMember = group.getMember(user);
-								if (currentMember != null) {
-									return returnable;
-								}
-							}
-						}
-					}
-					throw new ReadPermissionException(user, returnable);
-				}
 				// Allowed to read this object
 				return returnable;
 			}
@@ -425,8 +400,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			throw new ReadPermissionException(user, realm);
 		}
-
-		return cdao.findByGlobalNameAndContents(criteria, user, realm);
+		List<RWikiObject> searchList = cdao.findByGlobalNameAndContents(criteria, user, realm);
+		List<RWikiObject> finalSearchList = new ArrayList<RWikiObject>();
+		for (RWikiObject searchedPage : searchList) {
+			if (this.checkRead(searchedPage)) {
+				finalSearchList.add(searchedPage);
+			}
+		}
+		return finalSearchList;
 	}
 
 	public RWikiCurrentObjectDao getRWikiCurrentObjectDao()
@@ -929,7 +910,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				String newCommentName = MessageFormat.format(
 						"{0}.{1,number,000}", new Object[] { name, //$NON-NLS-1$
 								Integer.valueOf(cnum) });
-				update(newCommentName, realm, version, content);
+				String originRwikiPageName = NameHelper.globaliseName(name.substring(0, (name.lastIndexOf(".") != -1? name.lastIndexOf(".") : name.length())), realm);
+				RWikiObject originRwikiPage = cdao.findByGlobalName(originRwikiPageName);
+				String[] originRwikiPageGroups = originRwikiPage.getPageGroupsAsArray();
+				if (originRwikiPageGroups != null) {
+					update(newCommentName, realm, version, content, originRwikiPageGroups, null);
+				} else {
+					update(newCommentName, realm, version, content);
+				}
 				break;
 			}
 			catch (VersionException e)

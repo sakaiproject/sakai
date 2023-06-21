@@ -44,6 +44,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderContextFactory;
 import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderEngineFactory;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.UpdatePermissionException;
+import uk.ac.cam.caret.sakai.rwiki.service.exception.CreatePermissionException;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 /**
@@ -116,6 +117,8 @@ public class RenderServiceImpl implements RenderService
 					showPage = objectService.checkRead(objectService.getRWikiObject(content.substring(startRwikiName+1, finishRwikiName), rwo.getRealm()));
 				} catch (ReadPermissionException ex) {
 					showPage = false;
+				} catch (CreatePermissionException ex) {
+					showPage = true;
 				}
 				
 				boolean showGroups;
@@ -124,6 +127,8 @@ public class RenderServiceImpl implements RenderService
 				} catch (ReadPermissionException ex) {
 					showGroups = false;
 				} catch (UpdatePermissionException ex) {
+					showGroups = false;
+				} catch (CreatePermissionException ex) {
 					showGroups = false;
 				}
 				

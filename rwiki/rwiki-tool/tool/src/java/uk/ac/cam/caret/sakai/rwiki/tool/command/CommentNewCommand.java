@@ -29,7 +29,7 @@ import java.util.Date;
 public class CommentNewCommand extends CommentSaveCommand
 {
 	protected void doUpdate(String name, String realm, Date versionDate,
-			String content)
+			String content, String[] pageGroups, String displayTo)
 	{
 		objectService.updateNewComment(name, realm, new Date(), content);
 	}
