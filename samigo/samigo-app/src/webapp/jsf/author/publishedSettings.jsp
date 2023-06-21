@@ -351,7 +351,8 @@
 <!-- SECURITY AND PROCTORING -->
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_security_proctoring}">
     <div class="samigo-subheading">
-        <h:outputLabel value="#{assessmentSettingsMessages.heading_high_security}"/>
+        <h:outputLabel rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}" value="#{assessmentSettingsMessages.heading_high_security}"/>
+        <h:outputLabel rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable!=true and assessmentSettings.valueMap.passwordRequired_isInstructorEditable!=true}" value="#{assessmentSettingsMessages.high_security_none}"/>
     </div>
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true}">
         <h:outputLabel value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-2 form-control-label"/>
