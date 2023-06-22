@@ -360,7 +360,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			log.warn("Rwiki page not found for name: {}", name);
 		}
 		String groupNames = "";
-		if(returnable != null && returnable.getPageGroupsAsArray() != null && name.indexOf("/home") == -1) {
+		if(returnable != null && returnable.getPageGroupsAsList() != null && name.indexOf("/home") == -1) {
 			Site site = null;
 			String siteId = wikiSecurityService.getSiteId();
 			try {
@@ -368,7 +368,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			} catch (IdUnusedException idEx) {
 				log.warn("Site not found for id: {}", siteId);
 			}
-			String[] groupIds = returnable.getPageGroupsAsArray();
+			List<String> groupIds = returnable.getPageGroupsAsList();
 			String owner = returnable.getOwner();
 			List<String> pageGroups = new ArrayList();
 			for (String groupId : groupIds) {
@@ -456,7 +456,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 * @throws VersionException
 	 */
 	private void update(String name, String user, String realm, Date version,
-			String content, String[] pageGroups, RWikiPermissions permissions)
+			String content, List<String> pageGroups, RWikiPermissions permissions)
 			throws PermissionException, VersionException, RuntimeException
 	{
 
@@ -466,10 +466,10 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		RWikiHistoryObject rwho = null;
 
 		if (pageGroups != null) {
-			if (pageGroups.length == 0) {
-				rwo.setPageGroupsAsString(null);
+			if (pageGroups.size() == 0) {
+				rwo.setPageGroupsAsList(null);
 			} else {
-				rwo.setPageGroupsAsString(StringUtils.join(pageGroups, ","));
+				rwo.setPageGroupsAsList(pageGroups);
 			}
 		}
 		if (wikiSecurityService.checkUpdate((RWikiEntity) getEntity(rwo)))
@@ -621,7 +621,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	}
 
 	public void update(String name, String realm, Date version, String content, 
-			String[] pageGroups, RWikiPermissions permissions) throws PermissionException, VersionException 
+			List<String> pageGroups, RWikiPermissions permissions) throws PermissionException, VersionException 
 	{
 		String user = sessionManager.getCurrentSessionUserId();
 		RWikiCurrentObject rwo = getRWikiObject(name, realm);
@@ -912,7 +912,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 								Integer.valueOf(cnum) });
 				String originRwikiPageName = NameHelper.globaliseName(name.substring(0, (name.lastIndexOf(".") != -1? name.lastIndexOf(".") : name.length())), realm);
 				RWikiObject originRwikiPage = cdao.findByGlobalName(originRwikiPageName);
-				String[] originRwikiPageGroups = originRwikiPage.getPageGroupsAsArray();
+				List<String> originRwikiPageGroups = originRwikiPage.getPageGroupsAsList();
 				if (originRwikiPageGroups != null) {
 					update(newCommentName, realm, version, content, originRwikiPageGroups, null);
 				} else {

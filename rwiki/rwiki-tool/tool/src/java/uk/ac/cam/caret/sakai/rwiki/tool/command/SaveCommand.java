@@ -23,6 +23,9 @@ package uk.ac.cam.caret.sakai.rwiki.tool.command;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -207,7 +210,7 @@ public class SaveCommand implements HttpCommand
 		
 		try
 		{
-			doUpdate(name, realm, versionDate, content, pageGroups, displayTo);
+			doUpdate(name, realm, versionDate, content, ((pageGroups != null)? new ArrayList<String>(Arrays.asList(pageGroups)) : new ArrayList<String>()), displayTo);
 		}
 		catch (VersionException e)
 		{
@@ -260,12 +263,12 @@ public class SaveCommand implements HttpCommand
 	}
 
 	protected void doUpdate(String name, String realm, Date versionDate,
-			String content, String[] pageGroups, String displayTo)
+			String content, List<String> pageGroups, String displayTo)
 	{
 		if (pageGroups != null && StringUtils.equals("groupsel", displayTo)) {
 			objectService.update(name, realm, versionDate, content, pageGroups, null);
 		} else if (StringUtils.equals("sitesel", displayTo)) {
-			objectService.update(name, realm, versionDate, content, new String[0], null);
+			objectService.update(name, realm, versionDate, content, new ArrayList<String>(), null);
 		} else {
 			objectService.update(name, realm, versionDate, content);
 		}
