@@ -99,7 +99,7 @@
 		 <p/>
 		 <div class="row">
 		 	<div class="col-md-6">
-				<h:panelGroup layout="block" styleClass="toggle_link_container" rendered="#{!samLiteBean.richTextarea}">
+				<h:panelGroup layout="block" styleClass="toggle_link_container_for_richtextarea" rendered="#{!samLiteBean.richTextarea}">
 					<a class="toggle_link" id="samLiteEntryForm:data_toggle" href="javascript:pre_show_editor()">
 						<h:outputText value="#{samLiteMessages.rich_text_label}"/>
 					</a>
@@ -253,7 +253,7 @@
 							toolbarCanCollapse: false,
 							toolbar: 'Basic',
 							toolbar_Basic: [
-								['Source','-','Bold','Italic','Underline','-','TextColor','BGColor','-','Subscript','Superscript','-','Image','Link','Unlink'],
+								['Bold','Italic','Underline','-','TextColor','BGColor','-','Subscript','Superscript','-','Image','Link','Unlink'],
 							],
 						}
 				}
