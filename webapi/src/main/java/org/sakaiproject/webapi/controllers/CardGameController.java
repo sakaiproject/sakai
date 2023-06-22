@@ -175,7 +175,7 @@ public class CardGameController extends AbstractSakaiApiController {
 
             log.info("view all; users: {}", userIds.toArray());
             if (!securityService.unlock(userId, ROSTER_PERM_VIEW_HIDDEN, siteRef)) {
-                Set<String> hiddenUsersIds = privacyManager.findHidden(site.getReference(), userIds);
+                Set<String> hiddenUsersIds = privacyManager.findHidden(siteRef, userIds);
                 userIds.removeAll(hiddenUsersIds);
             }
         } else {
@@ -185,7 +185,7 @@ public class CardGameController extends AbstractSakaiApiController {
                     Set<String> groupMemberIds = group.getMembers().stream()
                             .map(Member::getUserId)
                             .collect(Collectors.toSet());
-                    Set<String> hiddenUsersIds = privacyManager.findHidden(site.getReference(), groupMemberIds);
+                    Set<String> hiddenUsersIds = privacyManager.findHidden(siteRef, groupMemberIds);
                     hiddenUsersByGroup.put(group.getId(), hiddenUsersIds);
                 }
             }
