@@ -14,7 +14,7 @@ if (portal?.user?.id) {
 
     // Permission has neither been granted or denied yet.
 
-    portal.notifications.debug && console.debug("No permission set or user changed");
+    console.debug("No permission set or user changed");
 
     navigator.serviceWorker.register("/api/sakai-service-worker.js").then(registration => {
 
@@ -36,7 +36,7 @@ if (portal?.user?.id) {
 
       window.addEventListener("DOMContentLoaded", () => {
 
-        portal.notifications.debug && console.debug("DOM loaded. Setting up permission triggers ...");
+        console.debug("DOM loaded. Setting up permission triggers ...");
 
         // We're using the bullhorn buttons to trigger the permission request from the user. You
         // can only instigate a permissions request from a user action.
@@ -53,23 +53,23 @@ if (portal?.user?.id) {
 
   portal.notifications.subscribeIfPermitted = registration => {
 
-    portal.notifications.debug && console.debug("Requesting notifications permission ...");
+    console.debug("Requesting notifications permission ...");
 
     Notification.requestPermission().then(permission => {
 
       if (permission === "granted") {
 
-        portal.notifications.debug && console.debug("Permission granted. Subscribing ...");
+        console.debug("Permission granted. Subscribing ...");
 
         // We have permission, Grab the public app server key.
         fetch("/api/keys/sakaipush").then(r => r.text()).then(key => {
 
-          portal.notifications.debug && console.debug("Got the key. Subscribing for push ...");
+          console.debug("Got the key. Subscribing for push ...");
 
           // Subscribe with the public key
           registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key }).then(sub => {
 
-            portal.notifications.debug && console.debug("Subscribed. Sending details to Sakai ...");
+            console.debug("Subscribed. Sending details to Sakai ...");
 
             const params = {
               endpoint: sub.endpoint,
@@ -90,7 +90,7 @@ if (portal?.user?.id) {
                 throw new Error(`Network error while posting push endpoint: ${url}`);
               }
 
-              portal.notifications.debug && console.debug("Subscription details sent successfully");
+              console.debug("Subscription details sent successfully");
             })
             .catch (error => console.error(error));
           });
@@ -101,16 +101,11 @@ if (portal?.user?.id) {
 
   portal.notifications.setupServiceWorkerListener = () => {
 
-    portal.notifications.debug && console.debug("setupServiceWorkerListener");
+    console.debug("setupServiceWorkerListener");
 
     // When the worker's EventSource receives an event it will message us (the client). This
     // code looks up the matching callback and calls it.
     navigator.serviceWorker.addEventListener('message', e => {
-
-      if (portal.notifications.debug) {
-        console.debug("PUSH MESSAGE RECEIVED");
-        console.debug(e.data);
-      }
 
       const allCallbacks = portal.notifications.pushCallbacks.get("all");
       allCallbacks && allCallbacks.forEach(cb => cb(e.data));
@@ -121,7 +116,7 @@ if (portal?.user?.id) {
 
   portal.notifications.registerPushCallback = (toolOrAll, cb) => {
 
-    portal.notifications.debug && console.debug(`Registering push callback for ${toolOrAll}`);
+    console.debug(`Registering push callback for ${toolOrAll}`);
 
     const callbacks = portal.notifications.pushCallbacks.get(toolOrAll) || [];
     callbacks.push(cb);
@@ -136,7 +131,7 @@ if (portal?.user?.id) {
    */
   portal.notifications.setup = new Promise((resolve, reject) => {
 
-    portal.notifications.debug && console.debug("Registering worker ...");
+    console.debug("Registering worker ...");
 
     navigator.serviceWorker.register("/api/sakai-service-worker.js")
       .then(registration => {
@@ -148,31 +143,31 @@ if (portal?.user?.id) {
           // The serivce worker is already active, setup the listener and register function.
 
           portal.notifications.setupServiceWorkerListener();
-          portal.notifications.debug && console.debug("Worker registered and setup");
+          console.debug("Worker registered and setup");
           resolve();
         } else {
-          portal.notifications.debug && console.debug("No active worker. Waiting for update ...");
+          console.debug("No active worker. Waiting for update ...");
 
           // Not active. We'll listen for an update then hook things up.
 
           registration.addEventListener("updatefound", () => {
 
-            portal.notifications.debug && console.debug("Worker updated. Waiting for state change ...");
+            console.debug("Worker updated. Waiting for state change ...");
 
             const installingWorker = registration.installing;
 
             installingWorker.addEventListener("statechange", e => {
 
-              portal.notifications.debug && console.debug("Worker state changed");
+              console.debug("Worker state changed");
 
               if (e.target.state === "activated") {
 
-                portal.notifications.debug && console.debug("Worker activated. Setting up ...");
+                console.debug("Worker activated. Setting up ...");
 
                 // The service worker has been updated, setup the listener and register function.
 
                 portal.notifications.setupServiceWorkerListener();
-                portal.notifications.debug && console.debug("Worker registered and setup");
+                console.debug("Worker registered and setup");
                 resolve();
               }
             });
