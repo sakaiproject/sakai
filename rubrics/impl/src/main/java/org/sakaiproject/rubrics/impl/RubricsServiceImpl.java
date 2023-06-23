@@ -1008,10 +1008,12 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     @Transactional(readOnly = true)
     public String getRubricEvaluationObjectId(String itemId, String userId, String toolId, String siteId) {
 
-        ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
-            .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
+        Optional<ToolItemRubricAssociation> optAssociation = associationRepository.findByToolIdAndItemId(toolId, itemId);
+        if (optAssociation.isEmpty()) {
+            return null;
+        }
 
-        Optional<Evaluation> optEvaluation = evaluationRepository.findByAssociationIdAndUserId(association.getId(), userId);
+        Optional<Evaluation> optEvaluation = evaluationRepository.findByAssociationIdAndUserId(optAssociation.get().getId(), userId);
 
         if (optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId)) {
             return optEvaluation.get().getEvaluatedItemId();
