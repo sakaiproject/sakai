@@ -148,10 +148,10 @@
                         <td>
                             <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" />
                             <h:outputText value=" #{msgs.pvt_openb}" />
-                            <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" >
+                            <h:outputText value="#{((PrivateMessagesTool.userId ne PrivateMessagesTool.detailMsg.msg.createdBy) and (! empty PrivateMessagesTool.detailMsg.msg.scheduledDate)) ? PrivateMessagesTool.detailMsg.msg.scheduledDate: PrivateMessagesTool.detailMsg.msg.created}" >
                                 <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
                             </h:outputText>
-                            <h:outputText value=" #{msgs.pvt_closeb}" />
+                            <h:outputText value="#{msgs.pvt_closeb}" />
                         </td>
                     </tr>
                     <tr>
