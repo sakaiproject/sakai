@@ -8890,7 +8890,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							try{
 								authzGroupService.joinGroup(groupRef, member.getRole().getId(), max);
 							} catch (Exception e) {
-								log.error(".doJoinableSet: User with id {} cannot be inserted in group with id {}. {}", userId, siteGroup.getId(), e.getMessage());
+								log.error("User [{}] cannot be inserted into group [{}], {}", userId, siteGroup.getId(), e.toString());
 							}
 						}
 					} else {
