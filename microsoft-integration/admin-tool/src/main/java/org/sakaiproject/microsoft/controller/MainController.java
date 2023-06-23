@@ -16,7 +16,7 @@
 
 package org.sakaiproject.microsoft.controller;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -24,19 +24,21 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
 import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
+import org.sakaiproject.microsoft.api.SakaiProxy;
 import org.sakaiproject.microsoft.api.data.MicrosoftTeam;
-import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
-import org.sakaiproject.microsoft.api.model.GroupSynchronization;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
-import org.sakaiproject.microsoft.controller.auxiliar.SetForcedResponse;
+import org.sakaiproject.microsoft.controller.auxiliar.AjaxResponse;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.util.ResourceLoader;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -70,6 +72,9 @@ public class MainController {
 	
 	@Autowired
 	MicrosoftConfigurationService microsoftConfigurationService;
+	
+	@Autowired
+	private SakaiProxy sakaiProxy;
 	
 	private static final String INDEX_TEMPLATE = "index";
 	private static final String REDIRECT_INDEX = "redirect:/index";
@@ -122,6 +127,10 @@ public class MainController {
 						return map.get(i1.getTeamId()).getName().compareToIgnoreCase(map.get(i2.getTeamId()).getName());
 					case "siteTitle":
 						return i1.getSite().getTitle().compareToIgnoreCase(i2.getSite().getTitle());
+					case "syncDateFrom":
+						return i1.getSyncDateFrom().compareTo(i2.getSyncDateFrom());
+					case "syncDateTo":
+						return i1.getSyncDateTo().compareTo(i2.getSyncDateTo());
 					case "status":
 					default:
 						return i1.getStatus().getCode().compareTo(i2.getStatus().getCode());
@@ -206,9 +215,9 @@ public class MainController {
 	//called by AJAX - returns JSON
 	@GetMapping(path = {"/setForced-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public SetForcedResponse updateSiteSynchronizationForced(@PathVariable String id, @RequestParam Boolean forced,  Model model) {
+	public AjaxResponse updateSiteSynchronizationForced(@PathVariable String id, @RequestParam Boolean forced,  Model model) {
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build());
-		SetForcedResponse ret = new SetForcedResponse();
+		AjaxResponse ret = new AjaxResponse();
 		ret.setStatus(false);
 		ret.setError(rb.getString("error.set_forced_synchronization"));
 		if(ss != null) {
@@ -228,8 +237,60 @@ public class MainController {
 		return ret;
 	}
 	
+	//called by AJAX - returns JSON
+	@GetMapping(path = {"/setDate-siteSynchronization/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public AjaxResponse updateSiteSynchronizationDate(
+			@PathVariable String id,
+			@RequestParam String name,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, 
+			Model model
+	) {
+		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build());
+		AjaxResponse ret = new AjaxResponse();
+		ret.setStatus(false);
+		ret.setError(rb.getString("error.set_dates"));
+		
+		if(ss != null) {
+			try {
+				switch(name) {
+					case "from":
+						ss.setSyncDateFrom(date.atStartOfDay(sakaiProxy.getUserTimeZoneId()));
+						break;
+					case "to":
+						ss.setSyncDateTo(date.atStartOfDay(sakaiProxy.getUserTimeZoneId()).plusHours(23).plusMinutes(59));
+						break;
+					default:
+						ret.setError(rb.getString("error.dates"));
+						return ret;
+				}
+				
+				//validate dates
+				if(ss.getSyncDateFrom().isAfter(ss.getSyncDateTo())) {
+					ret.setError(rb.getString("error.dates_order"));
+					return ret;
+				}
+			
+				microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
+				ret.setStatus(true);
+				ret.setError("");
+				//run button is enabled based on current date
+				ret.setBody(Boolean.toString(ss.onDate()));
+			} catch(Exception e) {
+				ret.setError(rb.getString("error.dates"));
+			}
+		}
+
+		return ret;
+	}
+	
 	@PostMapping(path = {"/update-siteSynchronizations"}, consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
-	public String updateSiteSynchronizations(@RequestParam List<String> selectedIds, @RequestParam String action,  Model model, RedirectAttributes redirectAttributes) throws MicrosoftCredentialsException {
+	public String updateSiteSynchronizations(
+			@RequestParam(required = false) List<String> selectedIds,
+			@RequestParam String action,
+			Model model,
+			RedirectAttributes redirectAttributes
+	) throws MicrosoftCredentialsException {
 		if(selectedIds != null && selectedIds.size() > 0) {
 			switch(action) {
 				case "delete":
@@ -241,41 +302,15 @@ public class MainController {
 				break;
 				
 				case "clean":
-					boolean hasError = false;
+					boolean ok = true;
 					for(String id : selectedIds) {
 						SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(id).build(), true);
 						if(ss != null) {
 							//remove all users from team
-							boolean ok = microsoftCommonService.removeAllMembersFromTeam(ss.getTeamId());
-							
-							//get all relationships for selected team
-							List<SiteSynchronization> auxList = microsoftSynchronizationService.getSiteSynchronizationsByTeam(ss.getTeamId());
-							for(SiteSynchronization aux_ss : auxList) {
-								//update status
-								if(!ok) {
-									hasError = true;
-									aux_ss.setStatus(SynchronizationStatus.ERROR);
-								} else {
-									aux_ss.setStatus(SynchronizationStatus.KO);
-								}
-								aux_ss.setStatusUpdatedAt(ZonedDateTime.now());
-								microsoftSynchronizationService.saveOrUpdateSiteSynchronization(aux_ss);
-								
-								if(aux_ss.getGroupSynchronizationsList().size() > 0) {
-									for(GroupSynchronization gs : aux_ss.getGroupSynchronizationsList()) {
-										if(!ok) {
-											gs.setStatus(SynchronizationStatus.ERROR);
-										} else {
-											gs.setStatus(SynchronizationStatus.KO);
-										}
-										gs.setStatusUpdatedAt(ZonedDateTime.now());
-										microsoftSynchronizationService.saveOrUpdateGroupSynchronization(gs);
-									}
-								}
-							}
+							ok = ok && microsoftSynchronizationService.removeUsersFromSynchronization(ss);
 						}
 					}
-					if(hasError) {
+					if(!ok) {
 						redirectAttributes.addFlashAttribute("exception_error", rb.getString("error.cleaning_team"));
 					}
 				break;

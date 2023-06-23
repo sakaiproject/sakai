@@ -16,6 +16,7 @@
 
 package org.sakaiproject.microsoft.controller;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,7 +41,8 @@ import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.model.GroupSynchronization;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.microsoft.controller.auxiliar.AutoConfigSessionBean;
-import org.sakaiproject.microsoft.controller.auxiliar.AutoconfigRequest;
+import org.sakaiproject.microsoft.controller.auxiliar.AutoConfigConfirmRequest;
+import org.sakaiproject.microsoft.controller.auxiliar.AutoConfigRequest;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.ResourceLoader;
@@ -83,7 +85,7 @@ public class AutoConfigController {
 	
 	@PostMapping(path = {"/autoConfig"})
 	public String autoConfig(
-			@RequestBody AutoconfigRequest requestBody,
+			@RequestBody AutoConfigRequest requestBody,
 			HttpServletRequest request,
 			Model model
 	) throws Exception {
@@ -188,6 +190,10 @@ public class AutoConfigController {
 			model.addAttribute("countTeams", teamsMap.size());
 			model.addAttribute("countLink", count_link);
 			model.addAttribute("countNew", count_new);
+			
+			long syncDuration = microsoftConfigurationService.getSyncDuration();
+			model.addAttribute("syncDateFrom", ZonedDateTime.now().toLocalDate());
+			model.addAttribute("syncDateTo", ZonedDateTime.now().plusMonths(syncDuration).toLocalDate());
 		}
 		
 		return "fragments/autoConfig :: confirm";
@@ -196,14 +202,16 @@ public class AutoConfigController {
 	@PostMapping(path = {"/autoConfig-confirm"}, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Boolean autoConfigConfirm(
-			@RequestBody List<String> siteIdList,
+			@RequestBody AutoConfigConfirmRequest payload,
 			HttpServletRequest request,
 			Model model
 	) throws Exception {
-		
-		if(siteIdList == null || siteIdList.size() == 0) {
+		if(payload.getSiteIdList() == null || payload.getSiteIdList().size() == 0 || payload.getSyncDateFrom() == null || payload.getSyncDateTo() == null) {
 			return false;
 		}
+		
+		ZonedDateTime syncDateFrom = payload.getSyncDateFrom().atStartOfDay(sakaiProxy.getUserTimeZoneId());
+		ZonedDateTime syncDateTo = payload.getSyncDateTo().atStartOfDay(sakaiProxy.getUserTimeZoneId()).plusHours(23).plusMinutes(59);
 		
 		HttpSession session = request.getSession();
 		MicrosoftCredentials credentials = microsoftConfigurationService.getCredentials();
@@ -220,11 +228,11 @@ public class AutoConfigController {
 			
 			if(!autoConfigSessionBean.isRunning()) {
 				//start running
-				autoConfigSessionBean.startRunning(siteIdList.size());
+				autoConfigSessionBean.startRunning(payload.getSiteIdList().size());
 				
 				Map<String, Object> map = autoConfigSessionBean.getConfirmMap();
 				
-				for(String siteId : siteIdList) {
+				for(String siteId : payload.getSiteIdList()) {
 					//get stored site from session bean
 					Site site = autoConfigSessionBean.getSitesMap().get(siteId);
 					if(site != null) {
@@ -240,6 +248,8 @@ public class AutoConfigController {
 												.siteId(siteId)
 												.teamId(teamId)
 												.forced(false)
+												.syncDateFrom(syncDateFrom)
+												.syncDateTo(syncDateTo)
 												.build();
 						
 										log.debug("saving NEW: siteId={}, teamId={}", siteId, teamId);
@@ -300,6 +310,10 @@ public class AutoConfigController {
 									autoConfigSessionBean.addError(siteId, site.getTitle(), rb.getString("error.site_synchronization_already_forced"));
 									continue;
 								}
+								
+								//set dates
+								ss.setSyncDateFrom(syncDateFrom);
+								ss.setSyncDateTo(syncDateTo);
 								
 								log.debug("saving site-team: siteId={}, teamId={}", siteId, ss.getTeamId());
 								microsoftSynchronizationService.saveOrUpdateSiteSynchronization(ss);
