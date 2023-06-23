@@ -993,9 +993,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 if ( ! submission.containsKey("userSubmission") ) continue;
                 String ltiSubmissionLaunch = null;
                 if (submission.containsKey("submitters")) {
-                    for ( SimpleSubmitter submitter: (List<SimpleSubmitter>) submission.get("submitters") ) {
-                        if ( submitter.id != null ) {
-                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
+                    for (Map<String, Object> submitter: (List<Map<String, Object>>) submission.get("submitters")) {
+                        if ( submitter.get("id") != null ) {
+                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.get("id");
 
                             // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
                             // Delegate the complex understanding of the launch to SakaiBLTIUtil
