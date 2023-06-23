@@ -8878,56 +8878,24 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
 				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
-				if(joinableSet != null && !"".equals(joinableSet.trim())){
+				if (StringUtils.isNotBlank(joinableSet)) {
 					//check that the max limit hasn't been reached:
-					int max = 0;
-					try{
-						max = Integer.parseInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX));
-						AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
-						int size = group.getMembers().size();
-						if(size < max){
-							//check that the user isn't already a member
-							String userId = userDirectoryService.getCurrentUser().getId();
-							boolean found =  false;
-							for(Member member : group.getMembers()){
-								if(member.getUserId().equals(userId)){
-									found = true;
-									break;
-								}
+					int max = NumberUtils.toInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX), 0);
+					int size = siteGroup.getMembers().size();
+					if(size < max) {
+						// add current user as the maintainer
+						String userId = userDirectoryService.getCurrentUser().getId();
+						Member member = currentSite.getMember(userId);
+						if(member != null) {
+							try{
+								authzGroupService.joinGroup(groupRef, member.getRole().getId(), max);
+							} catch (Exception e) {
+								log.error("User [{}] cannot be inserted into group [{}], {}", userId, siteGroup.getId(), e.toString());
 							}
-							if(!found){
-								// add current user as the maintainer
-								Member member = currentSite.getMember(userId);
-								if(member != null){
-									SecurityAdvisor yesMan = new SecurityAdvisor() {
-										public SecurityAdvice isAllowed(String userId, String function, String reference) {
-											if (StringUtils.equalsIgnoreCase(function, siteService.SECURE_UPDATE_SITE)) {
-												return SecurityAdvice.ALLOWED;
-											} else {
-												return SecurityAdvice.PASS;
-											}
-										}
-									};
-
-									try{
-										siteGroup.insertMember(userId, member.getRole().getId(), true, false);
-
-										securityService.pushAdvisor(yesMan);
-										siteService.saveGroupMembership(currentSite);
-									} catch (AuthzRealmLockException e) {
-										log.error(".doJoinableSet: User with id {} cannot be inserted in group with id {} because the group is locked", userId, siteGroup.getId());
-									} catch (IdUnusedException e) {
-										log.error("IdUnusedException while joining site, userId={}, siteId={}, groupId={}", userId, currentSite.getId(), siteGroup.getId());
-									} catch (PermissionException e) {
-										log.error("doJoinableSet could not save new membership because of permissions", e);
-									} finally {
-										securityService.popAdvisor(yesMan);
-									}
-								}
-							}
-						}	
-					} catch (GroupNotDefinedException e) {
-						log.error("Error adding user to group because group does not exist: {}", groupRef, e);
+						}
+					} else {
+						SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+						addAlert(state, rb.getString("sinfo.list.joinable.full"));
 					}
 				}
 			}
