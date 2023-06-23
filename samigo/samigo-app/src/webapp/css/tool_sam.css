@@ -54,11 +54,16 @@ table.presentation p {
 .progress-bar {
   background-color: var(--sakai-active-color-1);
 }
-.samigo-subheading {
+.samigo-subheading, .samigo-sub-subheading {
   font-weight: 400;
-  border-bottom: 1px solid var(--sakai-border-color);
-  font-size: 1.1em;
   margin: 8px 0;
+}
+.samigo-subheading {
+  font-size: 1.2em;
+  border-bottom: 1px solid var(--sakai-border-color);
+}
+.samigo-sub-subheading {
+  font-size: 1.1em;
 }
 h4.samigo-category-subhead {
   font-weight: bold;
@@ -1501,4 +1506,12 @@ td.stats-correctness {
 
 #autosave-lasttime-msg {
 	display: none;
+}
+ul.feedback-delivery label {
+  display: inline-block;
+  max-width: 600px;
+}
+ul.feedback-delivery input {
+  vertical-align: top;
+  margin-top: 2px;
 }
