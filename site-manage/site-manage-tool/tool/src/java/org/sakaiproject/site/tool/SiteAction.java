@@ -8893,6 +8893,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								log.error(".doJoinableSet: User with id {} cannot be inserted in group with id {}. {}", userId, siteGroup.getId(), e.getMessage());
 							}
 						}
+					} else {
+						SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+						addAlert(state, rb.getString("sinfo.list.joinable.full"));
 					}
 				}
 			}
