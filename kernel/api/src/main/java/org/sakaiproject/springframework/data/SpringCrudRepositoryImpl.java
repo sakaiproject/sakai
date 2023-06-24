@@ -125,7 +125,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
         List<T> list = new ArrayList<>();
         if (ids != null) {
-            ids.forEach(id -> findById(id).ifPresent(found -> list.add(found)));
+            ids.forEach(id -> findById(id).ifPresent(list::add));
         }
         return list;
     }
@@ -137,9 +137,9 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
         Session session = sessionFactory.getCurrentSession();
 
         try {
-            session.delete(entity);
+            findById(entity.getId()).ifPresent(session::delete);
         } catch (Exception he) {
-            session.delete(session.merge(entity));
+            he.printStackTrace();
         }
     }
 
@@ -161,7 +161,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     @Override
     @Transactional
     public void deleteById(ID id) {
-        findById(id).ifPresent(found -> delete(found));
+        findById(id).ifPresent(this::delete);
     }
 
     /**
