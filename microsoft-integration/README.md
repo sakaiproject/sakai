@@ -79,6 +79,8 @@ TeamMember.ReadWrite.All
 User.Invite.All
 User.Read
 User.Read.All
+-- Media-Gallery Tool Links (TODO: maybe these links can be used in Meetings and OneDrive integration)
+Sites.FullControl.All
 ```
 
 Then you must click on the _Grant admin consent_ button for your Azure directory.
