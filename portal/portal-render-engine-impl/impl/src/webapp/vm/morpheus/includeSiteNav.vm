@@ -3,6 +3,8 @@
     ## Remove those special site chars. They don't play well with html attributes.
     #set ($safeSiteId = $site.id.replace("!", "").replace("~", ""))
 
+    #set($siteResetUrl = $sitePages.pageNavTools.get(0).pageResetUrl)
+
     #if ($site.isPinned)
         #set ($pinTitle = $rloader.sitenav_btn_unpin)
         #set ($pinIconClass = "si si-pin-fill")
@@ -33,7 +35,7 @@
                         aria-controls="${type}-site-${safeSiteId}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
-                <a href="$site.url" class="text-break" title="${site.title}">${site.title}</a>
+                <a href="$!{siteResetUrl}" class="text-break" title="${site.title}">${site.title}</a>
             </div>
             #if ($loggedIn && !${site.isHome})
                 <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"

@@ -30,10 +30,11 @@
       </button>
     </div>
     #if (${userIsLoggedIn})
-    <div class="align-items-center portal-header-breadcrumb d-none d-md-flex">
-      <div id="header-site-title" class="ms-3 portal-header-breadcrumb-item">
-        <a href="$!{siteUrl}">$!{siteTitle}</a>
-      </div>
+      #set($siteResetUrl = $sitePages.pageNavTools.get(0).pageResetUrl)
+      <div class="align-items-center portal-header-breadcrumb d-none d-md-flex">
+        <div id="header-site-title" class="ms-3 portal-header-breadcrumb-item">
+          <a href="$!{siteResetUrl}">$!{siteTitle}</a>
+        </div>
       #foreach( $page in $sitePages.pageNavTools )
         #if ($page.current)
           <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block"></div>
