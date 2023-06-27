@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class AutoconfigRequest {
+public class AutoConfigRequest {
 	private SakaiSiteFilter filter = new SakaiSiteFilter();
 	private String teamPattern = "";
 	private boolean newTeam = false;

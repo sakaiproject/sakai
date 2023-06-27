@@ -13,7 +13,7 @@
 			</div>
 
 			<div th:replace="fragments/common :: error" />
-			<div class="sak-banner-error hidden" id="forced_error"></div>
+			<div class="sak-banner-error hidden" id="ajax_error"></div>
 
 			<div th:replace="fragments/autoConfig :: progressbar"></div>
 
@@ -73,27 +73,40 @@
 				<div id="table-container" class="admin-table container-fluid">
 					<div class="row table-space table-row index-background"
 					th:with="icon=(${sortOrder} == 'DESC' ? 'fa fa-sort-down' : 'fa fa-sort-up')">
-						<div class="col-md-4" role="button" data="saveValues('siteTitle')">
+						<!-- Sakai Site Title -->
+						<div class="col-md-2" role="button" data="saveValues('siteTitle')" th:aria-label="#{site}">
 							<span class="site-title-margin text-bold" th:text="#{site}" tabindex="0"></span>
 							<i th:if="${sortBy} == 'siteTitle'" th:classappend="${icon}"></i>
 						</div>
-						<div class="col-md-3" role="button" data="saveValues('teamTitle')">
+						<!-- Microsoft Team Title -->
+						<div class="col-md-2" role="button" data="saveValues('teamTitle')" th:aria-label="#{team}">
 							<span class="text-bold" th:text="#{team}" tabindex="0"></span>
 							<i th:if="${sortBy} == 'teamTitle'" th:classappend="${icon}"></i>
 						</div>
-						<div class="col-md-1 text-center" role="button" data="saveValues('status')">
+						<!-- Start Date -->
+						<div class="col-md-2" role="button" data="saveValues('syncDateFrom')" th:aria-label="#{index.start_date}">
+							<span class="text-bold" th:text="#{index.start_date}" tabindex="0"></span>
+							<i th:if="${sortBy} == 'syncDateFrom'" th:classappend="${icon}"></i>
+						</div>
+						<!-- End Date -->
+						<div class="col-md-2" role="button" data="saveValues('syncDateTo')" th:aria-label="#{index.end_date}">
+							<span class="text-bold" th:text="#{index.end_date}" tabindex="0"></span>
+							<i th:if="${sortBy} == 'syncDateTo'" th:classappend="${icon}"></i>
+						</div>
+						<!-- Status -->
+						<div class="col-md-1 text-center" role="button" data="saveValues('status')" th:aria-label="#{status}">
 							<span class="text-bold" th:text="#{status}" tabindex="0"></span>
 							<i th:if="${sortBy} == 'status'" th:classappend="${icon}"></i>
 						</div>
-						<div class="col-md-1 text-center">
-							<span class="text-bold" th:text="#{index.run}"></span>
-						</div>
+						<!-- Forced -->
 						<div class="col-md-1 text-center">
 							<span class="text-bold" th:text="#{forced}"></span>
 						</div>
+						<!-- Actions (Run, Edit Groups) -->
 						<div class="col-md-1 text-center">
-							<span class="text-bold" th:text="#{index.groups}"></span>
+							<span class="text-bold" th:text="#{index.actions}"></span>
 						</div>
+						<!-- Select -->
 						<div class="col-md-1">
 							<input type="checkbox" onchange="toggleCheckboxes(this)" data="selectedIds" />
 						</div>
@@ -150,18 +163,67 @@
 				}
 			}
 
-			async function changeForced(input, baseUrl) {
-				let url = baseUrl + "?forced=" + input.checked;
+			async function changeForced(input) {
+				let baseURL = "[(@{/setForced-siteSynchronization/})]";
+				let rowId = input.closest('.table-row').id.replace('row_', '');
+				let url = baseURL + rowId + "?forced=" + input.checked;
+				
 				let response = await fetch(url);
 				let data = await response.json();
 				if (data.status == false) {
 					input.checked = !input.checked;
-					showForcedError(data.error);
+					showAjaxError(data.error);
 				}
 			}
 
-			function showForcedError(error) {
-				let elem = document.getElementById('forced_error');
+			var dateTimeout = null;
+			async function changeDate(input) {
+				if(dateTimeout != null){
+					clearTimeout(dateTimeout);
+				}
+				
+				//wait 1 sec before process the input, so user can write a year with 4 mumbers
+				clearTimeout = setTimeout(() => changeDate_(input), 1000);
+			}
+			
+			async function changeDate_(input) {
+				let baseURL = "[(@{/setDate-siteSynchronization/})]";
+				let parentRow = input.closest('.table-row');
+				let rowId = parentRow.id.replace('row_', '');
+				let url = baseURL + rowId + '?name=' + input.dataset.name + '&date=' + input.value;
+
+				let response = await fetch(url);
+				let data = await response.json();
+				if (data.status == false) {
+					input.value = input.defaultValue;
+					showAjaxError(data.error);
+				} else {
+					input.defaultValue = input.value;
+					
+					//show/hide run button based on returned 'body'
+					parentRow.querySelectorAll('.run-button').forEach((item) => {
+						if(data.body == 'true'){
+							//show
+							item.classList.remove("hidden");
+						} else {
+							//hide
+							item.classList.add("hidden");
+						}
+					});
+					parentRow.querySelectorAll('.run-button-disabled').forEach((item) => {
+						if(data.body == 'false'){
+							//show
+							item.classList.remove("hidden");
+						} else {
+							//hide
+							item.classList.add("hidden");
+						}
+					});
+				}
+			}
+
+			function showAjaxError(error) {
+				let elem = document.getElementById('ajax_error');
 				elem.classList.remove('hidden');
 				elem.innerHTML = error;
 				setTimeout(() => { elem.classList.add('hidden') }, 10000);
@@ -190,10 +252,13 @@
 				loadRow(id, baseURL);
 			}
 
-			function doRun(id) {
-				let baseURL = "[(@{/runSiteSynchronization/})]";
+			function doRun(elem) {
+				event.preventDefault();
 
-				loadRow(id, baseURL);
+				let baseURL = "[(@{/runSiteSynchronization/})]";
+				let rowId = elem.closest('.table-row').id.replace('row_', '');
+
+				loadRow(rowId, baseURL);
 			}
 
 			async function loadRow(id, baseURL) {

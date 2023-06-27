@@ -27,6 +27,7 @@ public class MicrosoftMessage {
 	public enum Topic {
 		CREATE_ELEMENT,
 		DELETE_ELEMENT,
+		MODIFY_ELEMENT,
 		ADD_MEMBER_TO_AUTHZGROUP,
 		REMOVE_MEMBER_FROM_AUTHZGROUP,
 		TEAM_CREATION,
@@ -34,7 +35,7 @@ public class MicrosoftMessage {
 	}
 	
 	public enum Action {
-		CREATE, DELETE, ADD, REMOVE, REMOVE_ALL, ENABLE, DISABLE;
+		CREATE, DELETE, ADD, REMOVE, REMOVE_ALL, ENABLE, DISABLE, UNPUBLISH;
 	}
 	public enum Type {
 		SITE, GROUP, TEAM;

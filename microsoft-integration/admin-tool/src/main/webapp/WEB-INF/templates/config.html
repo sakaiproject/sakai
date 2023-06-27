@@ -17,16 +17,33 @@
 			<form id="userform" th:action="@{/save-config}" method="post">
 				<fieldset class="config-fieldset">
 					<legend th:text="#{config.synchronization_config}"></legend>
-					<div class="form-group" th:each="item : ${synch_config_items}">
+					<div class="form-group" th:classappend="${item.key == 'SYNCH:DELETE_TEAM'}? 'form-child'" th:each="item : ${synch_config_items}">
 						<input class="form-control" type='checkbox' th:id="|cb_${item.key}|" name="synch_config_items" th:checked="${item.value}" th:value="${item.key}" />
-						<label class="control-label" th:for="|cb_${item.key}|" th:text="#{|config.${item.key}|}"></label>
+						<label th:for="|cb_${item.key}|" th:text="#{|config.${item.key}|}"></label>
 						
-						<div id="site-filter"
-							th:if="${item.key} == 'SYNCH:CREATE_TEAM'"
-							th:classappend="${item.value} ? '' : 'hidden'"
-							th:insert="fragments/siteFilter :: siteFilter (prefix='siteFilter',columnClassName='col-md-2')">
+						<div id="newsite-container" th:if="${item.key} == 'SYNCH:CREATE_TEAM'">
+							<div th:classappend="${item.value} ? '' : 'hidden'"
+								th:insert="fragments/siteFilter :: siteFilter (prefix='siteFilter',columnClassName='col-md-2')">
+							</div>
+							<div>
+								<div class="row form-group">
+									<div class="col-md-2 text-right text-bold property-filter">
+										<label th:text="#{config.sync_duration}" for="syncDuration"></label>
+									</div>
+									<div class="col-md-4">
+										<input name="syncDuration" id="syncDuration" type="number" min="1" th:value="${syncDuration}" />
+									</div>
+								</div>
+							</div>
 						</div>
-						
+					</div>
+				</fieldset>
+
+				<fieldset class="config-fieldset">
+					<legend th:text="#{config.job_config}"></legend>
+					<div class="form-group">
+						<div th:insert="fragments/siteFilter :: siteFilter (prefix='jobSiteFilter',columnClassName='col-md-2')">
+						</div>
 					</div>
 				</fieldset>
 				
@@ -35,7 +52,7 @@
 					<div class="form-group">
 						<label>
 							<input class="form-control" type='checkbox' name="onedriveEnabled" th:checked="${onedriveEnabled}" />
-							<span class="control-label title-row" th:text="#{config.onedrive_enabled}">OneDrive enabled</span>
+							<span class="title-row" th:text="#{config.onedrive_enabled}">OneDrive enabled</span>
 						</label>
 					</div>
 				</fieldset>
@@ -62,24 +79,35 @@
 							</select>
 						</div>
 					</div>
-					</fieldset>
-					<div class="act">
-						<input class="active control-label" type='submit' th:value="#{save}" />
-						<input type='button' th:value="#{cancel}" th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
-					</div>
+				</fieldset>
+				<div class="act">
+					<input class="active" type='submit' th:value="#{save}" />
+					<input type='button' th:value="#{cancel}" th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
+				</div>
 			</form>
 		</div>
 		
 		<script th:inline="javascript">
-			document.getElementById('cb_SYNCH:CREATE_TEAM').addEventListener('change', function(e){
-				if(this.checked){
-					//show
-					document.getElementById('site-filter').classList.remove('hidden');
-				} else {
-					//hide
-					document.getElementById('site-filter').classList.add('hidden');
-				}
-			});
+			(function () {
+				document.getElementById('cb_SYNCH:CREATE_TEAM').addEventListener('change', function(e){
+					if(this.checked){
+						//show
+						document.getElementById('newsite-container').classList.remove('hidden');
+					} else {
+						//hide
+						document.getElementById('newsite-container').classList.add('hidden');
+					}
+				});
+
+				document.getElementById('cb_SYNCH:DELETE_TEAM').disabled = !document.getElementById('cb_SYNCH:DELETE_SYNCH').checked;
+				document.getElementById('cb_SYNCH:DELETE_SYNCH').addEventListener('change', function(e){
+					document.getElementById('cb_SYNCH:DELETE_TEAM').disabled = !this.checked;
+				});
+				
+				document.querySelectorAll('.my-info-class').forEach((item) => {
+					$(item).popover();
+				});
+			})();
 		</script>
 	</div>
 </body>

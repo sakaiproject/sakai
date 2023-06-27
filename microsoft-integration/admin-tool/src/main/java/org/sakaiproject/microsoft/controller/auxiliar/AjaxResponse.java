@@ -5,7 +5,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class SetForcedResponse {
+public class AjaxResponse {
 	private Boolean status = true;
 	private String error = "";
+	private String body = "";
 }
