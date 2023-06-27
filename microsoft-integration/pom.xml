@@ -42,6 +42,7 @@
 		<module>admin-tool</module>
 		<module>authorization-tool</module>
 		<module>media-gallery-tool</module>
+		<module>collaborative-documents</module>
 	</modules>
 
 </project>

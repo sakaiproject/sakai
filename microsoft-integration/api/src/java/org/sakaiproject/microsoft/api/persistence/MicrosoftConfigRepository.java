@@ -39,6 +39,9 @@ public interface MicrosoftConfigRepository extends SerializableRepository<Micros
 	public static final String PREFIX_ONEDRIVE = "ONEDRIVE:";
 	public static final String ONEDRIVE_ENABLED = PREFIX_ONEDRIVE + "ENABLED";
 	
+	public static final String PREFIX_COLLABORATIVE_DOCUMENTS = "COLLABDOCS:";
+	public static final String MAX_UPLOAD_SIZE = PREFIX_COLLABORATIVE_DOCUMENTS + "MAX_UPLOAD_SIZE";
+	
 	Optional<MicrosoftConfigItem> getConfigItemByKey(String key);
 	String getConfigItemValueByKey(String key);
 	//------------------------------ CREDENTIALS -------------------------------------------------------
