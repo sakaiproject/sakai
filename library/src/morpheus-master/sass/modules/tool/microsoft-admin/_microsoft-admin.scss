@@ -114,6 +114,16 @@
 		}
 	}
 
+	.multi-button {
+		display: flex;
+		justify-content: space-evenly;
+		align-items: center;
+	}
+
+	.run-button-disabled {
+		color: lightgrey;
+	}
+
 
 	// Auto Config styles -------------------------
 	.align-center {
@@ -185,6 +195,33 @@
 		display: flex;
 	}
 
+	.dates-container {
+		display: flex;
+		flex-direction: column;
+		margin-top: 10px;
+		padding: 0 30px;
+
+		.date-element {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+			margin-top: 10px;
+	
+			div {
+				min-width: 120px;
+				text-align: right;
+				font-weight: bold;
+			}
+	
+			input {
+				padding: 5px;
+			}
+		}
+	}
+	
+	
+	
+
 	@media (max-width: 1200px) {
 		.synchContainer {
 			display: block;
@@ -204,5 +241,9 @@
 			padding: 0.5em;
 			border: 0 none;
 		}
+	}
+
+	.form-child {
+		padding-left: 40px;
 	}
 }
