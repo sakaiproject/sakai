@@ -16,6 +16,7 @@
 
 package org.sakaiproject.microsoft.controller;
 
+import java.time.ZonedDateTime;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -72,6 +73,11 @@ public class GlobalController {
         localeResolver.setLocale(request, response, loc);
         return loc;
     }
+	
+	@ModelAttribute("today")
+	public ZonedDateTime today() {
+		return ZonedDateTime.now();
+	}
 
 	@ExceptionHandler(MicrosoftGenericException.class)
 	public String handleCredentialsError(HttpServletRequest req, Exception ex, RedirectAttributes redirectAttributes) {

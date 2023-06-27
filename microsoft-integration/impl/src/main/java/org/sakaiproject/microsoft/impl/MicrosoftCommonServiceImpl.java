@@ -953,13 +953,13 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			for(String userId : groupMemberIds) {
 				ret = ret && removeUserFromGroup(userId, teamId);
 			}
+			return ret;
 		}catch(MicrosoftCredentialsException e) {
 			throw e;
 		}catch (Exception e) {
 			log.debug("Error removing all members from teamId={}", teamId);
 			return false;
 		}
-		return true;
 	}
 	
 	// ------------------------------------------ CHANNELS ----------------------------------------------------

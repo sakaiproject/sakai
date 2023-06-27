@@ -15,6 +15,7 @@
 */
 package org.sakaiproject.microsoft.api;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,6 +47,7 @@ public interface SakaiProxy {
 	
 	// ------------------------------------------ LOCALE ----------------------------------------------------
 	Locale getLocaleForCurrentUser();
+	ZoneId getUserTimeZoneId();
 	
 	// ------------------------------------------ SITES ----------------------------------------------------
 	String getCurrentSiteId();

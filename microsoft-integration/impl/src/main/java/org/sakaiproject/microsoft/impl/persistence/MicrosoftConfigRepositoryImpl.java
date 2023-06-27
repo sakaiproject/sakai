@@ -64,12 +64,14 @@ public class MicrosoftConfigRepositoryImpl extends BasicSerializableRepository<M
 		List<String> valid_keys = Arrays.asList(
 				CREATE_TEAM,
 				CREATE_CHANNEL,
+				DELETE_SYNCH,
 				DELETE_TEAM,
 				DELETE_CHANNEL,
 				ADD_USER_TO_TEAM,
 				ADD_USER_TO_CHANNEL,
 				REMOVE_USER_FROM_TEAM,
 				REMOVE_USER_FROM_CHANNEL,
+				REMOVE_USERS_WHEN_UNPUBLISH,
 				CREATE_INVITATION
 		);
 		return IntStream.range(0, valid_keys.size())
@@ -95,6 +97,9 @@ public class MicrosoftConfigRepositoryImpl extends BasicSerializableRepository<M
 	public Boolean isAllowedCreateTeam() {
 		return Boolean.valueOf(getConfigItemValueByKey(CREATE_TEAM));
 	}
+	public Boolean isAllowedDeleteSynch() {
+		return Boolean.valueOf(getConfigItemValueByKey(DELETE_SYNCH));
+	}
 	public Boolean isAllowedDeleteTeam() {
 		return Boolean.valueOf(getConfigItemValueByKey(DELETE_TEAM));
 	}
@@ -116,6 +121,9 @@ public class MicrosoftConfigRepositoryImpl extends BasicSerializableRepository<M
 	public Boolean isAllowedRemoveUserFromChannel() {
 		return Boolean.valueOf(getConfigItemValueByKey(REMOVE_USER_FROM_CHANNEL));
 	}
+	public Boolean isAllowedRemoveUsersWhenUnpublish() {
+		return Boolean.valueOf(getConfigItemValueByKey(REMOVE_USERS_WHEN_UNPUBLISH));
+	}
 	public Boolean isAllowedCreateInvitation() {
 		return Boolean.valueOf(getConfigItemValueByKey(CREATE_INVITATION));
 	}
@@ -123,8 +131,27 @@ public class MicrosoftConfigRepositoryImpl extends BasicSerializableRepository<M
 	//------------------------------- MICROSOFT SYNCHRONIZATION - NEW SITE ------------------------------------
 	public SakaiSiteFilter getNewSiteFilter() {
 		SakaiSiteFilter ret = new SakaiSiteFilter();
-		ret.setSiteType(getConfigItemValueByKey(SITE_TYPE));
-		ret.setPublished(Boolean.valueOf(getConfigItemValueByKey(SITE_PUBLISHED)));
+		ret.setSiteType(getConfigItemValueByKey(NEW_SITE_TYPE));
+		ret.setPublished(Boolean.valueOf(getConfigItemValueByKey(NEW_SITE_PUBLISHED)));
+		ret.setSiteProperty(getConfigItemValueByKey(NEW_SITE_PROPERTY));
+		return ret;
+	}
+	
+	public long getSyncDuration() {
+		try {
+			return Long.valueOf(getConfigItemValueByKey(MicrosoftConfigRepository.NEW_SITE_SYNC_DURATION));
+		} catch(NumberFormatException e) {
+			//DEFAULT: 12 months
+			return 12;
+		}
+	}
+	
+	//------------------------------- MICROSOFT SYNCHRONIZATION - JOB ------------------------------------
+	public SakaiSiteFilter getJobSiteFilter() {
+		SakaiSiteFilter ret = new SakaiSiteFilter();
+		ret.setSiteType(getConfigItemValueByKey(JOB_SITE_TYPE));
+		ret.setPublished(Boolean.valueOf(getConfigItemValueByKey(JOB_SITE_PUBLISHED)));
+		ret.setSiteProperty(getConfigItemValueByKey(JOB_SITE_PROPERTY));
 		return ret;
 	}
 }

@@ -1554,7 +1554,16 @@ public class BaseSite implements Site
 	public void setPublished(boolean published)
 	{
 		m_published = published;
-
+		
+		//send message to (ignite) MicrosoftMessagingService
+		if(!published) {
+			microsoftMessagingService.send(MicrosoftMessage.Topic.MODIFY_ELEMENT, MicrosoftMessage.builder()
+					.action(MicrosoftMessage.Action.UNPUBLISH)
+					.type(MicrosoftMessage.Type.SITE)
+					.siteId(this.getId())
+					.build()
+			);
+		}
 	}
 
 	/**
