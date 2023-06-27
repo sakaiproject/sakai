@@ -18,6 +18,7 @@ package org.sakaiproject.microsoft.api;
 import java.util.List;
 
 import org.sakaiproject.microsoft.api.data.SynchronizationStatus;
+import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.model.GroupSynchronization;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
@@ -38,10 +39,9 @@ public interface MicrosoftSynchronizationService {
 	
 	void saveOrUpdateSiteSynchronization(SiteSynchronization ss);
 	
+	boolean removeUsersFromSynchronization(SiteSynchronization ss) throws MicrosoftCredentialsException;
 	SynchronizationStatus checkStatus(SiteSynchronization ss);
 	SynchronizationStatus runSiteSynchronization(SiteSynchronization ss) throws MicrosoftGenericException;
-	
-	
 
 	// ------------ Group Synchronization ---------------------------
 	List<GroupSynchronization> getAllGroupSynchronizationsBySiteSynchronizationId(String siteSynchronizationId);

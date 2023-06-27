@@ -63,6 +63,8 @@ public class ConfigController {
 		Collections.sort(synchConfigItems, (i1, i2) -> i1.getIndex().compareTo(i2.getIndex()));
 		model.addAttribute("synch_config_items", synchConfigItems);
 		model.addAttribute("siteFilter", microsoftConfigurationService.getNewSiteFilter());
+		model.addAttribute("syncDuration", microsoftConfigurationService.getSyncDuration());
+		model.addAttribute("jobSiteFilter", microsoftConfigurationService.getJobSiteFilter());
 
 		model.addAttribute("onedriveEnabled", microsoftConfigurationService.isOneDriveEnabled());
 		
@@ -77,12 +79,15 @@ public class ConfigController {
 		Map<String, MicrosoftConfigItem> default_items = microsoftConfigurationService.getDefaultSynchronizationConfigItems();
 		payload.getSynch_config_items().stream().forEach(item -> default_items.get(item).setValue(Boolean.TRUE.toString()));
 		microsoftConfigurationService.saveConfigItems(new ArrayList<MicrosoftConfigItem>(default_items.values()));
+		microsoftConfigurationService.saveNewSiteFilter(payload.getSiteFilter());
+		microsoftConfigurationService.saveSyncDuration(payload.getSyncDuration());
+		
+		microsoftConfigurationService.saveJobSiteFilter(payload.getJobSiteFilter());
 		
 		microsoftConfigurationService.saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.ONEDRIVE_ENABLED).value(Boolean.toString(payload.isOnedriveEnabled())).build());
 		
 		microsoftConfigurationService.saveMappedSakaiUserId(payload.getMapped_sakai_user_id());
 		microsoftConfigurationService.saveMappedMicrosoftUserId(payload.getMapped_microsoft_user_id());
-		microsoftConfigurationService.saveNewSiteFilter(payload.getSiteFilter());
 		return REDIRECT_INDEX;
 	}
 }

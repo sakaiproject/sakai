@@ -42,6 +42,12 @@ public interface MicrosoftConfigurationService {
 	//------------------------------- MICROSOFT SYNCHRONIZATION - NEW SITE ------------------------------------
 	SakaiSiteFilter getNewSiteFilter();
 	void saveNewSiteFilter(SakaiSiteFilter filter);
+	long getSyncDuration();
+	void saveSyncDuration(long syncDuration);
+	
+	//------------------------------- MICROSOFT SYNCHRONIZATION - JOB ------------------------------------
+	SakaiSiteFilter getJobSiteFilter();
+	void saveJobSiteFilter(SakaiSiteFilter filter);
 	
 	//------------------------------- SAKAI - MICROSOFT USER MAPPING ------------------------------------
 	SakaiUserIdentifier getMappedSakaiUserId();

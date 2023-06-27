@@ -2,25 +2,25 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head></head>
 <body>
-	<th:block th:fragment="siteFilter" th:with="aux=${columnClassName} ?: 'col-md-4'">
+	<th:block th:fragment="siteFilter" th:with="aux=${columnClassName} ?: 'col-xs-4'">
 		<div class="row form-group">
 			<label th:classappend="${aux}" class="text-right" th:text="#{filter.site_type}"></label>
-			<div class="col-md-8">
+			<div class="col-xs-8" th:with="siteType=${prefix} ? ${__${prefix}__.siteType} : ${filter_siteType}">
 				<div>
 					<label>
-						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="course" th:checked="${filter_siteType} == 'course'" />
+						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="course" th:checked="${siteType}  == 'course'" />
 						<span th:text="#{filter.site_type.course}"></span>
 					</label>
 				</div>
 				<div>
 					<label>
-						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="project" th:checked="${filter_siteType} == 'project'" />
+						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="project" th:checked="${siteType} == 'project'" />
 						<span th:text="#{filter.site_type.project}"></span>
 					</label>
 				</div>
 				<div>
 					<label>
-						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="all" th:checked="${filter_siteType} == 'all' or ${filter_siteType} == null" />
+						<input th:name="${prefix} ? |${prefix}.siteType| : 'siteType'" type="radio" value="all" th:checked="${siteType} == 'all' or ${siteType} == null" />
 						<span th:text="#{filter.site_type.all}"></span>
 					</label>
 				</div>
@@ -28,24 +28,27 @@
 		</div>
 		<div class="row form-group">
 			<div th:classappend="${aux}" class="text-right text-bold" th:text="#{filter.published}"></div>
-			<div class="col-md-4">
-				<input th:name="${prefix} ? |${prefix}.published| : 'published'" type="checkbox" th:checked="${filter_published}" />
+			<div class="col-xs-4">
+				<input th:name="${prefix} ? |${prefix}.published| : 'published'" type="checkbox" th:checked="${prefix} ? ${__${prefix}__.published} : ${filter_published}" th:aria-label="#{filter.published}" />
 			</div>
 		</div>
-		<div th:if="${showSiteProperty}" class="row form-group">
-			<div class="col-md-4 text-right text-bold property-filter">
-				<a href='#'
+		<div class="row form-group">
+			<div class="text-right text-bold property-filter" th:classappend="${aux}">
+				<a  tabindex="0"
+					role="button"
 					th:attr="data-content=#{filter.site_property_info}"
 					class="my-info-class fa fa-info-circle"
 					data-trigger="focus"
 					data-toggle="popover"
 					data-placement="top"
 					data-html="true"
-				></a>
+				>
+					<span class="sr-only" th:text="#{filter.site_property_info}"></span>
+				</a>
 				<div th:text="#{filter.site_property}"></div>
 			</div>
-			<div class="col-md-4">
-				<input id="search-property" th:name="${prefix} ? |${prefix}.siteProperty| : 'siteProperty'" type="text" th:value="${filter_siteProperty}" data="doRefresh('teams-container')" />
+			<div class="col-xs-4">
+				<input th:name="${prefix} ? |${prefix}.siteProperty| : 'siteProperty'" type="text" th:value="${prefix} ? ${__${prefix}__.siteProperty} : ${filter_siteProperty}" th:aria-label="#{filter.site_property}" />
 			</div>
 		</div>
 	</th:block>
