@@ -15,6 +15,7 @@
 */
 package org.sakaiproject.microsoft.impl;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,6 +46,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -58,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -87,6 +90,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	@Autowired
 	private TimeService timeService;
+	
+	@Setter
+	private UserTimeService userTimeService;
 	
 	@Autowired
 	private EmailService emailService;
@@ -189,6 +195,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public Locale getLocaleForCurrentUser() {
 		String userId = sessionManager.getCurrentSessionUserId();
 		return StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+	}
+	
+	public ZoneId getUserTimeZoneId() {
+		return userTimeService.getLocalTimeZone().toZoneId();
 	}
 	
 	
