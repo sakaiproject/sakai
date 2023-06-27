@@ -60,6 +60,12 @@ public class SiteSynchronization {
 	@Column(name = "forced")
 	private boolean forced;
 	
+	@Column(name = "date_from")
+	private ZonedDateTime syncDateFrom;
+	
+	@Column(name = "date_to")
+	private ZonedDateTime syncDateTo;
+	
 	@Column(name = "status_updated_at")
 	private ZonedDateTime statusUpdatedAt;
 	
@@ -70,4 +76,14 @@ public class SiteSynchronization {
 	
 	@Transient
 	private Site site;
+	
+	@Transient
+	public boolean onDate() {
+		try {
+			ZonedDateTime today = ZonedDateTime.now();
+			return today.isAfter(syncDateFrom) && today.isBefore(syncDateTo);
+		}catch(Exception e) {
+			return false;
+		}
+	}
 }

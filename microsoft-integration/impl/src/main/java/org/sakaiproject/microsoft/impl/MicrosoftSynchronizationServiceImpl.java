@@ -15,6 +15,7 @@
 */
 package org.sakaiproject.microsoft.impl;
 
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
@@ -108,6 +109,11 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 		microsoftMessagingService.listen(MicrosoftMessage.Topic.DELETE_ELEMENT, message -> {
 			printMessage(MicrosoftMessage.Topic.DELETE_ELEMENT, message);
 			elementDeleted(message);
+		});
+		
+		microsoftMessagingService.listen(MicrosoftMessage.Topic.MODIFY_ELEMENT, message -> {
+			printMessage(MicrosoftMessage.Topic.MODIFY_ELEMENT, message);
+			elementModified(message);
 		});
 		
 		microsoftMessagingService.listen(MicrosoftMessage.Topic.ADD_MEMBER_TO_AUTHZGROUP, message -> {
@@ -257,6 +263,49 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 		} else {
 			microsoftSiteSynchronizationRepository.update(ss);
 		}
+	}
+	
+	@Override
+	public boolean removeUsersFromSynchronization(SiteSynchronization ss) throws MicrosoftCredentialsException {
+		boolean ok = false;
+		if(ss != null) {
+			//remove all users from team
+			ok = microsoftCommonService.removeAllMembersFromTeam(ss.getTeamId());
+
+			//get all relationships for selected team
+			List<SiteSynchronization> auxList = getSiteSynchronizationsByTeam(ss.getTeamId());
+			for(SiteSynchronization aux_ss : auxList) {
+				//update status
+				if(!ok) {
+					aux_ss.setStatus(SynchronizationStatus.ERROR);
+				} else {
+					aux_ss.setStatus(SynchronizationStatus.KO);
+				}
+				aux_ss.setStatusUpdatedAt(ZonedDateTime.now());
+				saveOrUpdateSiteSynchronization(aux_ss);
+
+				if(aux_ss.getGroupSynchronizationsList().size() > 0) {
+					for(GroupSynchronization gs : aux_ss.getGroupSynchronizationsList()) {
+						if(!ok) {
+							gs.setStatus(SynchronizationStatus.ERROR);
+						} else {
+							gs.setStatus(SynchronizationStatus.KO);
+						}
+						gs.setStatusUpdatedAt(ZonedDateTime.now());
+						saveOrUpdateGroupSynchronization(gs);
+					}
+				}
+			}
+			
+			//save log
+			microsoftLoggingRepository.save(MicrosoftLog.builder()
+					.event(MicrosoftLog.EVENT_ALL_USERS_REMOVED_FROM_TEAM)
+					.status((ok) ? MicrosoftLog.Status.OK : MicrosoftLog.Status.KO)
+					.addData("siteId", ss.getSiteId())
+					.addData("teamId", ss.getTeamId())
+					.build());
+		}
+		return ok;
 	}
 	
 	@Override
@@ -434,6 +483,10 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 	public SynchronizationStatus runSiteSynchronization(SiteSynchronization ss) throws MicrosoftGenericException {
 		SynchronizationStatus ret = SynchronizationStatus.ERROR;
 		log.debug(".................runSiteSynchronization................");
+		if(!ss.onDate()) {
+			log.debug("SS: siteId={}, teamId={} --> OUT OF DATE", ss.getSiteId(), ss.getTeamId());
+			return ret;
+		}
 		
 		//save log
 		microsoftLoggingRepository.save(MicrosoftLog.builder()
@@ -959,26 +1012,27 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 				Site site = sakaiProxy.getSite(siteId);
 				if(site != null) {
 					//check filters
-					//if only published sites are allowed
-					if(siteFilter.isPublished() && !site.isPublished()) {
+					if(!siteFilter.match(site)) {
 						break;
 					}
-					//if site type matches
-					if(siteFilter.getSiteType().equals(SakaiSiteFilter.TYPE_ALL) || site.getType().equals(siteFilter.getSiteType())) {
-						teamId = microsoftCommonService.createTeam(site.getTitle(), credentials.getEmail());
-						if(teamId != null) {
-							//create relationship
-							SiteSynchronization ss = SiteSynchronization.builder()
-									.siteId(siteId)
-									.teamId(teamId)
-									.forced(false)
-									.build();
-			
-							log.debug("saving NEW site-team: siteId={}, teamId={}", siteId, teamId);
-							saveOrUpdateSiteSynchronization(ss);
-						}
-					} else {
-						break;
+
+					teamId = microsoftCommonService.createTeam(site.getTitle(), credentials.getEmail());
+					if(teamId != null) {
+						long syncDuration = microsoftConfigRepository.getSyncDuration();
+						ZonedDateTime today_midnight = ZonedDateTime.now().with(LocalTime.of(0, 0));
+						ZonedDateTime future_midnight = today_midnight.plusMonths(syncDuration).with(LocalTime.of(23, 59));
+						
+						//create relationship
+						SiteSynchronization ss = SiteSynchronization.builder()
+								.siteId(siteId)
+								.teamId(teamId)
+								.forced(false)
+								.syncDateFrom(today_midnight)
+								.syncDateTo(future_midnight)
+								.build();
+		
+						log.debug("saving NEW site-team: siteId={}, teamId={}", siteId, teamId);
+						saveOrUpdateSiteSynchronization(ss);
 					}
 				}
 				count--;
@@ -1096,7 +1150,7 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 	}
 	
 	private void siteDeleted(String siteId) throws MicrosoftGenericException {
-		if(microsoftConfigRepository.isAllowedDeleteTeam()) {
+		if(microsoftConfigRepository.isAllowedDeleteSynch()) {
 			//get all synchronizations linked to this site
 			List<SiteSynchronization> list = microsoftSiteSynchronizationRepository.findBySite(siteId);
 			//for every synchronization
@@ -1104,10 +1158,12 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 				//remove synch
 				microsoftSiteSynchronizationRepository.delete(ss.getId());;
 			
-				//check if Team is no longer related to any other site
-				if(microsoftSiteSynchronizationRepository.countSiteSynchronizationsByTeamId(ss.getTeamId(), false) == 0) {
-					//remove team
-					microsoftCommonService.deleteTeam(ss.getTeamId());
+				if(microsoftConfigRepository.isAllowedDeleteTeam()) {
+					//check if Team is no longer related to any other site
+					if(microsoftSiteSynchronizationRepository.countSiteSynchronizationsByTeamId(ss.getTeamId(), false) == 0) {
+						//remove team
+						microsoftCommonService.deleteTeam(ss.getTeamId());
+					}
 				}
 			}
 			
@@ -1145,6 +1201,62 @@ public class MicrosoftSynchronizationServiceImpl implements MicrosoftSynchroniza
 		}
 	}
 	
+	//element modified (at this moment, only Unpublished Sites)
+	private void elementModified(MicrosoftMessage msg) {
+		try {
+			if(msg.getType() == MicrosoftMessage.Type.SITE && msg.getAction() == MicrosoftMessage.Action.UNPUBLISH) {
+				siteUnpublished(msg.getSiteId());
+			}
+		}catch(Exception e) {
+			//save log
+			MicrosoftLogBuilder builder = MicrosoftLog.builder();
+			builder.event(MicrosoftLog.ERROR_ELEMENT_MODIFIED)
+				.status(MicrosoftLog.Status.KO)
+				.addData("type", msg.getType().name())
+				.addData("action", msg.getAction().name())
+				.addData("siteId", msg.getSiteId());
+				if(msg.getType() == MicrosoftMessage.Type.GROUP) {
+					builder.addData("groupId", msg.getGroupId());
+				}
+			microsoftLoggingRepository.save(builder.build());
+		}
+	}
+	
+	//new site created
+	private void siteUnpublished(String siteId) throws MicrosoftGenericException {
+		if(microsoftConfigRepository.isAllowedRemoveUsersWhenUnpublish()) {
+			int count = 5;
+			boolean end = false;
+			while(!end && count > 0) {
+				//wait 1 sec
+				//site unpublish process in Sakai is done in two steps: 1) set unpublished, 2) save site
+				//hook is launched when property is set, so at this point it's possible the value is not stored yet... so, we wait a bit
+				try { Thread.sleep(1000); } catch (InterruptedException e) {}
+				
+				Site site = sakaiProxy.getSite(siteId);
+				if(site != null && !site.isPublished()) {
+					end = true;
+					//get all synchronizations linked to this site
+					List<SiteSynchronization> list = microsoftSiteSynchronizationRepository.findBySite(siteId);
+					if(list != null) {
+						for(SiteSynchronization ss : list) {
+							log.debug("Removing users from temId={}, iter={}", ss.getTeamId(), 6 - count);
+							end = end && removeUsersFromSynchronization(ss);
+						}
+					}
+				}
+				
+				count--;
+			}
+			
+			//save log
+			microsoftLoggingRepository.save(MicrosoftLog.builder()
+				.event(MicrosoftLog.EVENT_SITE_UNPUBLISHED)
+				.status((end) ? MicrosoftLog.Status.OK : MicrosoftLog.Status.KO)
+				.addData("siteId", siteId)
+				.build());
+		}
+	}
 	
 	//User added to Site or Group
 	private void userAddedToAuthzGroup(MicrosoftMessage msg) {

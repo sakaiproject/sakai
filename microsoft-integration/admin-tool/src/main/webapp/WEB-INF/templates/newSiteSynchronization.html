@@ -16,8 +16,7 @@
 
 			<div th:include="fragments/common :: error" />
 
-			<form id="siteSynchForm" th:action="@{/save-siteSynchronization}"
-				method="post">
+			<form id="siteSynchForm" th:action="@{/save-siteSynchronization}" method="post">
 				<div class="col-sm-12 synchContainer">
 					<div class="col-lg-5">
 						<h3 th:text="#{site_synch.sakai_sites}">Sakai Sites</h3>
@@ -26,11 +25,11 @@
 								<legend class="collapse-button" role="button" data="toggleContent()"
 									th:text="#{site_synch.filters}" tabindex="0"></legend>
 								<div class="fieldset-content" hidden>
-									<div th:replace="fragments/siteFilter :: siteFilter (showSiteProperty=true)">
+									<div th:replace="fragments/siteFilter :: siteFilter">
 									</div>
 
 									<div class="act">
-										<input type="button" class="active control-label"
+										<input type="button" class="active"
 											th:value="#{site_synch.filter}" onclick="filterSites(false)" />
 										<input type='button' th:value="#{site_synch.filter.clear}"
 											onclick="filterSites(true)" />
@@ -51,7 +50,7 @@
 											<label>
 												<input class="form-control" type='checkbox' name="selectedSiteIds"
 												th:value="${site.id}" />
-												<span class="control-label title-row" th:text="${site.title}"></span>
+												<span class="title-row" th:text="${site.title}"></span>
 											</label>
 										</li>
 									</th:block>
@@ -88,7 +87,7 @@
 							<ul id="teams-container" class="list-unstyled" style="flex-grow: 1;">
 								<li>
 									<input id="new-team-checkbox" class="form-control" type='checkbox' name="selectedTeamIds" value="NEW" onchange="checkNewTeam(this.id)" />
-									<label class="control-label" th:text="#{new}"></label>
+									<label th:text="#{new}"></label>
 									<input type='text' name="newTeamName" disabled />
 								</li>
 								<div id="teams-list">
@@ -98,7 +97,7 @@
 												<input class="form-control" type='checkbox' name="selectedTeamIds" th:value="${team.key}"
 													th:checked="${team.key} == ${selectedTeamId}"
 													th:disabled="${siteSynchronizationId != null}" />
-												<span class="control-label title-row" th:text="${team.value.name}"></span>
+												<span class="title-row" th:text="${team.value.name}"></span>
 											</label>
 										</li>
 									</th:block>
@@ -107,9 +106,23 @@
 						</div>
 					</div>
 				</div>
+				
+				<div class="col-sm-12 dates-container">
+					<div id="dates-error"></div>
+					
+					<div class="date-element">
+						<div th:text="#{sync_start_date}"></div>
+						<input type="date" name="syncDateFrom" th:value="${syncDateFrom}" th:aria-label="#{index.start_date}" />
+					</div>
+					<div class="date-element">
+						<div th:text="#{sync_end_date}"></div>
+						<input type="date" name="syncDateTo" th:value="${syncDateTo}" th:aria-label="#{index.end_date}" />
+					</div>
+				</div>
+				
 				<div class="act col-sm-12">
 					<div class="col-sm-12">
-						<input class="active control-label" type='button' th:value="#{save}" onclick="validateForm()" />
+						<input class="active" type='submit' th:value="#{save}" />
 						<input type='button' th:value="#{cancel}"
 							th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
 					</div>
@@ -127,14 +140,6 @@
 
 				parentDiv.addEventListener('click', handleButtonClick);
 				parentDiv.addEventListener('keypress', handleButtonClick);
-
-				let input = document.getElementById("search-property");
-				input.addEventListener("keyup", function(event) {
-					if (event.keyCode === 13) {
-						event.preventDefault();
-						filterSites(false);
-					}
-				});
 			})();
 
 			async function doRefresh(id) {
@@ -209,6 +214,7 @@
 				spinnerElement.remove();
 				sitesList.classList.remove('hidden');
 			}
+
 			function checkNewTeam(id) {
 				const newTeamCheckbox = document.getElementById(id);
 				const newTeamText = document.getElementsByName('newTeamName')[0];
@@ -225,35 +231,72 @@
 
 			var siteTimeoutId = null;
 			var teamsTimeoutId = null;
-			function validateForm() {
-				var sakaiContainer = document.querySelector('#sakai-error');
-				var microsoftContainer = document.querySelector('#microsoft-error');
+			var datesTimeoutId = null;
+			
+			const onSubmitForm = (event) => {
+				event.preventDefault();
 
-				const sakaiSelected = document.querySelector('input[name="selectedSiteIds"]:checked');
-				const teamsSelected = document.querySelector('input[name="selectedTeamIds"]:checked');
+				const formObject = event.currentTarget;
+				const formElements = formObject.elements;
 
+				Array.prototype.slice.call(formElements).forEach((element) => {
+					const { type, required, dataset } = element;
+
+					if (["submit", "reset", "button"].includes(type) || !required) return;
+
+					const validationType = dataset.validation;
+					const value = element.value?.trim();
+					const valueToMatch = validationType === "passwordConfirm" ? formElements.password?.value?.trim() : null;
+					const { isValid, message } = validations[validationType]({ value, valueToMatch });
+
+					setInputControlClassName({ element, isValid, message });
+				});
+			};
+			
+			function validateForm(formElem) {
+				const sakaiSelected = formElem.querySelector('input[name="selectedSiteIds"]:checked');
 				if (!sakaiSelected) {
 					if(siteTimeoutId != null){
 						clearTimeout(siteTimeoutId);
 					}
-					var errorSakaiDiv = createError(sakaiContainer);
+					let sakaiContainer = document.getElementById('sakai-error');
+					let errorSakaiDiv = createError(sakaiContainer);
 					errorSakaiDiv.innerHTML = '[(#{error.sakai_sites})]';
-					siteTimeoutId = setTimeout(() => {console.log('Removing...'); errorSakaiDiv.remove() }, 5000);
+					siteTimeoutId = setTimeout(() => errorSakaiDiv.remove(), 5000);
 					return false;
 				}
 
+				const teamsSelected = formElem.querySelector('input[name="selectedTeamIds"]:checked');
 				if (!teamsSelected) {
 					if(teamsTimeoutId != null){
 						clearTimeout(teamsTimeoutId);
 					}
-					var errorMicrosoftDiv = createError(microsoftContainer);
+					let microsoftContainer = document.getElementById('microsoft-error');
+					let errorMicrosoftDiv = createError(microsoftContainer);
 					errorMicrosoftDiv.innerHTML = '[(#{error.microsoft_teams})]';
-					teamsTimeoutId = setTimeout(() => {console.log('Removing...'); errorMicrosoftDiv.remove() }, 10000);
+					teamsTimeoutId = setTimeout(() => errorMicrosoftDiv.remove(), 5000);
+					return false;
+				}
+				
+				const syncDateFrom = formElem.elements['syncDateFrom'].value;
+				const syncDateTo = formElem.elements['syncDateTo'].value;
+				if(!syncDateFrom || !syncDateTo || new Date(syncDateTo).getTime() < new Date(syncDateFrom).getTime() ){
+					if(datesTimeoutId != null){
+						clearTimeout(datesTimeoutId);
+					}
+					let container = document.getElementById('dates-error');
+					let errorDatesDiv = createError(container);
+					errorDatesDiv.innerHTML = (!syncDateFrom || !syncDateTo) ? '[(#{error.dates})]' : '[(#{error.dates_order})]';
+					datesTimeoutId = setTimeout(() => errorDatesDiv.remove(), 5000);
 					return false;
 				}
 
-				document.getElementById('siteSynchForm').submit();
+				return true;
 			}
+			
+			document.getElementById('siteSynchForm').onsubmit = function() {
+				return validateForm(this);
+			};
 		</script>
 	</div>
 </body>
