@@ -435,12 +435,7 @@ public class SiteHandler extends WorksiteHandler
 		// Lookup the page in the site - enforcing access control
 		// business rules
 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
-		if (page != null)
-		{
-			if (ServerConfigurationService.getBoolean("portal.rememberSitePage", true)) {
-				// store the last page visited
-				session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
-			}
+		if (page != null) {
 			title += " : " + page.getTitle();
 		}
 
