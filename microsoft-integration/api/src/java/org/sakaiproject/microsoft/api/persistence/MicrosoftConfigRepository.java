@@ -13,6 +13,7 @@ import org.sakaiproject.serialization.SerializableRepository;
 public interface MicrosoftConfigRepository extends SerializableRepository<MicrosoftConfigItem, String> {
 	public static final String PREFIX_SYNCH = "SYNCH:";
 	public static final String CREATE_TEAM = PREFIX_SYNCH + "CREATE_TEAM";
+	public static final String DELETE_SYNCH = PREFIX_SYNCH + "DELETE_SYNCH";
 	public static final String DELETE_TEAM = PREFIX_SYNCH + "DELETE_TEAM";
 	public static final String ADD_USER_TO_TEAM = PREFIX_SYNCH + "ADD_USER_TO_TEAM";
 	public static final String REMOVE_USER_FROM_TEAM = PREFIX_SYNCH + "REMOVE_USER_FROM_TEAM";
@@ -20,11 +21,20 @@ public interface MicrosoftConfigRepository extends SerializableRepository<Micros
 	public static final String DELETE_CHANNEL = PREFIX_SYNCH + "DELETE_CHANNEL";
 	public static final String ADD_USER_TO_CHANNEL = PREFIX_SYNCH + "ADD_USER_TO_CHANNEL";
 	public static final String REMOVE_USER_FROM_CHANNEL = PREFIX_SYNCH + "REMOVE_USER_FROM_CHANNEL";
+	public static final String REMOVE_USERS_WHEN_UNPUBLISH = PREFIX_SYNCH + "REMOVE_USERS_WHEN_UNPUBLISH";
 	public static final String CREATE_INVITATION = PREFIX_SYNCH + "CREATE_INVITATION";
-
+	
 	public static final String PREFIX_NEWSITE = "NEWSITE:";
-	public static final String SITE_TYPE = PREFIX_NEWSITE + "TYPE";
-	public static final String SITE_PUBLISHED = PREFIX_NEWSITE + "PUBLISHED";
+	public static final String NEW_SITE_TYPE = PREFIX_NEWSITE + "TYPE";
+	public static final String NEW_SITE_PUBLISHED = PREFIX_NEWSITE + "PUBLISHED";
+	public static final String NEW_SITE_PROPERTY = PREFIX_NEWSITE + "PROPERTY";
+	public static final String NEW_SITE_SYNC_DURATION = PREFIX_NEWSITE + "SYNC_DURATION";
+	
+	public static final String PREFIX_JOB = "JOB:";
+	public static final String PREFIX_SITE = "SITE:";
+	public static final String JOB_SITE_TYPE = PREFIX_JOB + PREFIX_SITE + "TYPE";
+	public static final String JOB_SITE_PUBLISHED = PREFIX_JOB + PREFIX_SITE + "PUBLISHED";
+	public static final String JOB_SITE_PROPERTY = PREFIX_JOB + PREFIX_SITE + "PROPERTY";
 	
 	public static final String PREFIX_ONEDRIVE = "ONEDRIVE:";
 	public static final String ONEDRIVE_ENABLED = PREFIX_ONEDRIVE + "ENABLED";
@@ -43,6 +53,7 @@ public interface MicrosoftConfigRepository extends SerializableRepository<Micros
 	Map<String, MicrosoftConfigItem> getAllSynchronizationConfigItems();
 	
 	Boolean isAllowedCreateTeam();
+	Boolean isAllowedDeleteSynch();
 	Boolean isAllowedDeleteTeam();
 	Boolean isAllowedAddUserToTeam();
 	Boolean isAllowedRemoveUserFromTeam();
@@ -50,8 +61,13 @@ public interface MicrosoftConfigRepository extends SerializableRepository<Micros
 	Boolean isAllowedDeleteChannel();
 	Boolean isAllowedAddUserToChannel();
 	Boolean isAllowedRemoveUserFromChannel();
+	Boolean isAllowedRemoveUsersWhenUnpublish();
 	Boolean isAllowedCreateInvitation();
 	
 	//------------------------------- MICROSOFT SYNCHRONIZATION - NEW SITE ------------------------------------
-	public SakaiSiteFilter getNewSiteFilter();
+	SakaiSiteFilter getNewSiteFilter();
+	long getSyncDuration();
+	
+	//------------------------------- MICROSOFT SYNCHRONIZATION - JOB ------------------------------------
+	SakaiSiteFilter getJobSiteFilter();
 }

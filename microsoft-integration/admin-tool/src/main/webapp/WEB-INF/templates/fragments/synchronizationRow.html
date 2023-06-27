@@ -1,5 +1,6 @@
 <th:block th:fragment="siteRow(row)" th:with="df=#{date.format}">
-	<div class="col-md-4">
+	<!-- Sakai Site Title -->
+	<div class="col-md-2">
 		<th:block th:if="${row.groupSynchronizationsList?.size() > 0}">
 			<div role="button" th:title="#{site.id(${row.siteId})}" th:data="|toggleGroupRow('${row.id}')|" tabindex="0">
 				<i th:id="|toggleIcon_${row.id}|" class="fa fa-caret-right"></i>
@@ -8,7 +9,8 @@
 		</th:block>
 		<span th:if="${row.groupSynchronizationsList?.size() == 0}" class="site-title-margin" th:text="${row?.site?.title} ?: '???'"></span>
 	</div>
-	<div class="col-md-3" th:title="#{team.id(${row.teamId})}">
+	<!-- Microsoft Team Title -->
+	<div class="col-md-2" th:title="#{team.id(${row.teamId})}">
 		<span th:text="${teamsMap[row.teamId]?.name} ?: '???'" />
 		<a href='#'
 			th:if="${teamsMap[row.teamId]?.fullyCreated == false}"
@@ -22,6 +24,15 @@
 			<span class="sr-only" th:text="#{team.partially_created}"></span>
 		</a>
 	</div>
+	<!-- Start Date -->
+	<div class="col-md-2">
+		<input type="date" th:value="${row.syncDateFrom.toLocalDate()}" data-name="from" onchange="changeDate(this)" th:aria-label="#{index.start_date}" />
+	</div>
+	<!-- End Date -->
+	<div class="col-md-2">
+		<input type="date" th:value="${row.syncDateTo.toLocalDate()}" data-name="to" onchange="changeDate(this)" th:aria-label="#{index.end_date}" />
+	</div>
+	<!-- Status -->
 	<div class="col-md-1 container-flex" th:switch="${row.status}" th:title="${row.status}">
 		<div style="color: green;" th:case="${T(org.sakaiproject.microsoft.api.data.SynchronizationStatus).OK}" th:text="#{status.OK}" />
 		<div style="color: orange;" th:case="${T(org.sakaiproject.microsoft.api.data.SynchronizationStatus).KO}" th:text="#{status.KO}" />
@@ -29,20 +40,26 @@
 		<div style="color: red;" th:case="${T(org.sakaiproject.microsoft.api.data.SynchronizationStatus).ERROR}" th:text="#{status.ERROR}" />
 		<div style="color: red;" th:case="${T(org.sakaiproject.microsoft.api.data.SynchronizationStatus).ERROR_GUEST}" th:text="#{status.ERROR_GUEST}" />
 	</div>
-	<div class="col-md-1  text-center"
-		th:title="${row.statusUpdatedAt != null} ? #{index.run_updated_at(${#calendars.format(row.statusUpdatedAt, df)})} : #{index.run_not_date}">
-		<i class="fa fa-play" role="button" th:data="|doRun('${row.id}')|" tabindex="0"></i>
-	</div>
+	<!-- Forced -->
 	<div class="col-md-1 text-center">
-		<input type="checkbox" th:checked="${row.forced}" th:attr="onchange=|changeForced(this, '@{/setForced-siteSynchronization/{id}(id=${row.id})}')|" />
+		<input type="checkbox" th:checked="${row.forced}" onchange="changeForced(this)" th:aria-label="#{forced}" />
 	</div>
-	<div class="col-md-1 text-center" th:title="#{index.edit_groups}">
-		<a th:href="@{/editGroupSynchronization/{id}(id=${row.id})}">
-			<i role="button" class="fa fa-users"></i>
+	<!-- Actions (Run, Edit Groups) -->
+	<div class="col-md-1 multi-button">
+		<!-- Run -->
+		<a href="#" onclick="doRun(this)" class="run-button" th:classappend="(${today.isBefore(row.syncDateFrom)} or ${today.isAfter(row.syncDateTo)})? 'hidden'">
+			<i class="fa fa-play" tabindex="0" th:title="#{index.run}"></i>
+		</a>
+		<i class="run-button-disabled fa fa-play" th:classappend="(${today.isAfter(row.syncDateFrom)} and ${today.isBefore(row.syncDateTo)})? 'hidden'" th:title="#{index.run.disabled}"></i>
+		
+		<!-- Edit Groups -->
+		<a th:href="@{/editGroupSynchronization/{id}(id=${row.id})}" th:title="#{index.edit_groups}">
+			<i class="fa fa-users"></i>
 		</a>
 	</div>
+	<!-- Select -->
 	<div class="col-md-1 text-center">
-		<input name="selectedIds" class="col-md-1" type="checkbox" th:value="${row.id}">
+		<input name="selectedIds" class="col-md-1" type="checkbox" th:value="${row.id}" th:aria-label="#{index.selected_id}" />
 	</div>
 </th:block>
 
