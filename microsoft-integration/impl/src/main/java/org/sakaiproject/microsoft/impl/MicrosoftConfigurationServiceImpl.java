@@ -76,8 +76,28 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 	}
 	
 	public void saveNewSiteFilter(SakaiSiteFilter filter) {
-		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.SITE_TYPE).value(filter.getSiteType()).build());
-		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.SITE_PUBLISHED).value(Boolean.toString(filter.isPublished())).build());
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.NEW_SITE_TYPE).value(filter.getSiteType()).build());
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.NEW_SITE_PUBLISHED).value(Boolean.toString(filter.isPublished())).build());
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.NEW_SITE_PROPERTY).value(filter.getSiteProperty()).build());
+	}
+	
+	public long getSyncDuration() {
+		return microsoftConfigRepository.getSyncDuration();
+	}
+	
+	public void saveSyncDuration(long syncDuration) {
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.NEW_SITE_SYNC_DURATION).value(String.valueOf(syncDuration)).build());
+	}
+	
+	//------------------------------- MICROSOFT SYNCHRONIZATION - JOB ------------------------------------
+	public SakaiSiteFilter getJobSiteFilter() {
+		return microsoftConfigRepository.getJobSiteFilter();
+	}
+	
+	public void saveJobSiteFilter(SakaiSiteFilter filter) {
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.JOB_SITE_TYPE).value(filter.getSiteType()).build());
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.JOB_SITE_PUBLISHED).value(Boolean.toString(filter.isPublished())).build());
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftConfigRepository.JOB_SITE_PROPERTY).value(filter.getSiteProperty()).build());
 	}
 	
 	//------------------------------- SAKAI - MICROSOFT USER MAPPING ------------------------------------

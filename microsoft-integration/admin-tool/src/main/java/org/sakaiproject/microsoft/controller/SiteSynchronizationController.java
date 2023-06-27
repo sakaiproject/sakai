@@ -17,6 +17,7 @@
 package org.sakaiproject.microsoft.controller;
 
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
 import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
@@ -27,6 +28,7 @@ import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.microsoft.controller.auxiliar.SiteSynchronizationRequest;
 import org.sakaiproject.util.ResourceLoader;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -73,9 +75,13 @@ public class SiteSynchronizationController {
 	@GetMapping(value = {"/newSiteSynchronization"})
 	public String newSiteSynchronization(Model model) throws MicrosoftGenericException {
 		log.debug("NEW site synchronization");
+		
+		long syncDuration = microsoftConfigurationService.getSyncDuration();
 
 		model.addAttribute("sitesList", sakaiProxy.getSakaiSites());
 		model.addAttribute("teamsMap", microsoftCommonService.getTeams());
+		model.addAttribute("syncDateFrom", ZonedDateTime.now().toLocalDate());
+		model.addAttribute("syncDateTo", ZonedDateTime.now().plusMonths(syncDuration).toLocalDate());
 
 		return NEW_SITE_SYNCH_TEMPLATE;
 	}
@@ -114,6 +120,21 @@ public class SiteSynchronizationController {
 			
 			return REDIRECT_NEW_SITE_SYNCH_TEMPLATE;
 		}
+		ZonedDateTime syncDateFrom, syncDateTo;
+		try {
+			syncDateFrom = payload.getSyncDateFrom().atStartOfDay(sakaiProxy.getUserTimeZoneId());
+			syncDateTo = payload.getSyncDateTo().atStartOfDay(sakaiProxy.getUserTimeZoneId()).plusHours(23).plusMinutes(59);
+		} catch(Exception e) {
+			redirectAttributes.addFlashAttribute("exception_error", rb.getString("error.dates"));
+			
+			return REDIRECT_NEW_SITE_SYNCH_TEMPLATE;
+		}
+		//validate dates
+		if(syncDateFrom.isAfter(syncDateTo)) {
+			redirectAttributes.addFlashAttribute("exception_error", rb.getString("error.dates_order"));
+			
+			return REDIRECT_NEW_SITE_SYNCH_TEMPLATE;
+		}
 		
 		String teamCreatedId = null;
 		for(String siteId: payload.getSelectedSiteIds()) {
@@ -130,6 +151,8 @@ public class SiteSynchronizationController {
 					.siteId(siteId)
 					.teamId(teamId.equals(NEW) ? teamCreatedId : teamId)
 					.forced(payload.isForced())
+					.syncDateFrom(syncDateFrom)
+					.syncDateTo(syncDateTo)
 				.build();
 				
 				SiteSynchronization aux_ss = microsoftSynchronizationService.getSiteSynchronization(ss);
