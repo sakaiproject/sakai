@@ -21,7 +21,9 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
 import org.sakaiproject.microsoft.api.MicrosoftSynchronizationService;
+import org.sakaiproject.microsoft.api.data.SakaiSiteFilter;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.tool.api.Session;
@@ -42,6 +44,9 @@ public class RunSynchronizationsJob implements Job {
 	@Setter
 	private MicrosoftSynchronizationService microsoftSynchronizationService;
 	
+	@Setter
+	MicrosoftConfigurationService microsoftConfigurationService;
+	
 	public void init() {
 		log.info("Initializing Run Synchronizations Job");
 	}
@@ -55,9 +60,17 @@ public class RunSynchronizationsJob implements Job {
 			session.setUserEid("admin");
 			session.setUserId("admin");
 			
+			SakaiSiteFilter siteFilter = microsoftConfigurationService.getJobSiteFilter();
+			
 			List<SiteSynchronization> list = microsoftSynchronizationService.getAllSiteSynchronizations(true);
 			for(SiteSynchronization ss : list) {
 				try {
+					//check filters
+					if(ss.getSite() == null || !siteFilter.match(ss.getSite())) {
+						log.debug("Site with id={} skipped due to filter restrinctions", ss.getSiteId());
+						continue;
+					}
+					
 					microsoftSynchronizationService.runSiteSynchronization(ss);
 				} catch (MicrosoftGenericException e) {
 					log.debug("Exception running Site Synchronization for siteId={}, teamId={}", ss.getSiteId(), ss.getTeamId());

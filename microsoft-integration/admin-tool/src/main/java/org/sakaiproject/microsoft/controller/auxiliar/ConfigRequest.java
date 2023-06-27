@@ -18,4 +18,6 @@ public class ConfigRequest {
 	SakaiUserIdentifier mapped_sakai_user_id;
 	MicrosoftUserIdentifier mapped_microsoft_user_id;
 	SakaiSiteFilter siteFilter;
+	long syncDuration;
+	SakaiSiteFilter jobSiteFilter;
 }
