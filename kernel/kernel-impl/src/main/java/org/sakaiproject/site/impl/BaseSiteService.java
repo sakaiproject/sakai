@@ -1461,6 +1461,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		microsoftMessagingService().send(MicrosoftMessage.Topic.CREATE_ELEMENT, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.CREATE)
+				.type(MicrosoftMessage.Type.SITE)
+				.siteId(id)
+				.build()
+		);
 
 		return site;
 	}
