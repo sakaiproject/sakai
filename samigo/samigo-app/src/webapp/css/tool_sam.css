@@ -1513,3 +1513,7 @@ td.stats-correctness {
 #autosave-lasttime-msg {
 	display: none;
 }
+
+input[type="submit"].print_button {
+	font-size: 14px;
+}

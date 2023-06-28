@@ -171,6 +171,12 @@
             <version>1.1.01</version>
         </dependency>-->
         <dependency>
+            <groupId>org.scilab.forge</groupId>
+            <artifactId>jlatexmath</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+
+        <dependency>
 			<groupId>OKI</groupId>
 			<artifactId>OkiOSID</artifactId>
 		</dependency>
@@ -275,6 +281,11 @@
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>${sakai.jakarta.jstl-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${sakai.org.json.version}</version>
         </dependency>
     </dependencies>
     
