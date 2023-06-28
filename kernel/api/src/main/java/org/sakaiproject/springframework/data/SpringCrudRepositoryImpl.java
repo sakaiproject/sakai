@@ -17,6 +17,7 @@ package org.sakaiproject.springframework.data;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Transactional(readOnly = true)
 public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, ID extends Serializable> implements SpringCrudRepository<T, ID> {
 
@@ -139,7 +141,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
         try {
             findById(entity.getId()).ifPresent(session::delete);
         } catch (Exception he) {
-            he.printStackTrace();
+            log.error("Failed to delete the entity: " + he.getMessage());
         }
     }
 
