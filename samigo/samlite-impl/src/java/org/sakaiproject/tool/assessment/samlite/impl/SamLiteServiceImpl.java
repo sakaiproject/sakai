@@ -103,8 +103,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		correctMultipleChoicePattern = Pattern.compile("^(<.+>)*\\*\\s*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
 		correctFillInPattern = Pattern.compile("^\\*\\s*(?!\\{)(.*)");
 		answerPattern = Pattern.compile("^(<.+>)*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
-		feedbackOKPattern = Pattern.compile("^(<.+>)*#FBOK:\\s*(.*)$");
-		feedbackNOKPattern = Pattern.compile("^(<.+>)*#FBNOK:\\s*(.*)$");
+		feedbackOKPattern = Pattern.compile("^#FBOK:\\s*(.*)$");
+		feedbackNOKPattern = Pattern.compile("^#FBNOK:\\s*(.*)$");
 		
 		// REGEX: ^(\d+\.+ ).*\[[a-z[ ,]]*\].* - start with digits point space then string containing brackets with [a-z] commas or spaces 
 		extendedMatchingCorrectAnswersPattern = Pattern.compile("^(\\d+\\.+ ).*\\[[a-z[ ,]]*\\].*", Pattern.CASE_INSENSITIVE);
@@ -290,9 +290,9 @@ public class SamLiteServiceImpl implements SamLiteService {
 		boolean isAnswer = answerMatcher.find();
 		boolean isEmptyTrue = unnecessaryTruePattern.matcher(line).find();
 		boolean isEmptyFalse = unnecessaryFalsePattern.matcher(line).find();		
-		Matcher feedbackOKMatcher = feedbackOKPattern.matcher(originalLine);
+		Matcher feedbackOKMatcher = feedbackOKPattern.matcher(line);
 		boolean hasfeedbackOK = feedbackOKMatcher.find();
-		Matcher feedbackNOKMatcher = feedbackNOKPattern.matcher(originalLine);
+		Matcher feedbackNOKMatcher = feedbackNOKPattern.matcher(line);
 		boolean hasfeedbackNOK = feedbackNOKMatcher.find();
 		boolean randomize = randomizePattern.matcher(line).find();
 		boolean rationale = rationalePattern.matcher(line).find();
