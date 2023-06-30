@@ -432,6 +432,8 @@
   .sakai-sitesAndToolsNav {
     padding-bottom: 96px;
     overflow-y: scroll;
+    position: sticky;
+    top: 0;
   }
 
   .btn-nav {
