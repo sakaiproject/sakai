@@ -1340,18 +1340,6 @@
     }
   }
 
-  /* Bootstrap > Morpheus overrides */
-  .checkbox input[type="checkbox"][disabled],
-  .radio input[type="radio"][disabled]{
-    background-color: var(--sakai-background-color-3);
-  }
-  .checkbox input[type="checkbox"][disabled]+span,
-  .radio input[type="radio"][disabled]+span,
-  .checkbox input[type="checkbox"][disabled]+label,
-  .radio input[type="radio"][disabled]+label{
-    color: var(--sakai-text-color-dimmed);
-  }
-
   /* reset the padding and add to link instead, to make whole div clickable. See #3756 */
   .panel-heading {
     padding: 0 !important;
@@ -1392,16 +1380,6 @@
   .dropdown-menu>li>a,
   .nav>li>a {
     text-decoration: none;
-  }
-  .checkbox input[type="checkbox"][disabled],
-  .radio input[type="radio"][disabled]{
-    background-color: var(--sakai-background-color-3);
-  }
-  .checkbox input[type="checkbox"][disabled]+span,
-  .radio input[type="radio"][disabled]+span,
-  .checkbox input[type="checkbox"][disabled]+label,
-  .radio input[type="radio"][disabled]+label{
-    color: var(--sakai-text-color-dimmed);
   }
 
   .modal-add-or-edit-gbitem input[type="text"] {
@@ -1519,6 +1497,20 @@
   }
 }
 
+div.wicket-modal, .#{$namespace}sakai-gradebookng {
+  /* Bootstrap > Morpheus overrides */
+  .checkbox input[type="checkbox"][disabled],
+  .radio input[type="radio"][disabled]{
+    background-color: var(--sakai-background-color-3);
+    cursor: not-allowed;  
+  }
+  .checkbox input[type="checkbox"][disabled]+span,
+  .radio input[type="radio"][disabled]+span,
+  .checkbox input[type="checkbox"][disabled]+label,
+  .radio input[type="radio"][disabled]+label{
+    color: var(--sakai-text-color-dimmed);
+  }
+}
 div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
 }
