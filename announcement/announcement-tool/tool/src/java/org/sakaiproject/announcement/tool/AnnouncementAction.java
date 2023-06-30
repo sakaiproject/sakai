@@ -1773,7 +1773,9 @@ public class AnnouncementAction extends PagedResourceActionII
 			Role[] siteRoles = site.getRoles().toArray(new Role[site.getRoles().size()]);
 			List<String> siteRolesIds = new ArrayList<String>();
 			for (Role role: siteRoles){
-				siteRolesIds.add(role.getId());
+				if (site.getUsersHasRole(role.getId()).size() > 0) {
+					siteRolesIds.add(role.getId());
+				}
 			}
 			Collections.sort(siteRolesIds); 
 			context.put("siteRolesIds", siteRolesIds);
