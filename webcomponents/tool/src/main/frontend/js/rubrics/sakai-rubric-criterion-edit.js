@@ -51,7 +51,10 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
       const save = document.querySelector(".popover.show .btn-primary");
       save.addEventListener("click", this.saveEdit);
-      save.closest(".popover-body").querySelector("input").focus();
+
+      const titleInput = save.closest(".popover-body").querySelector("input");
+      titleInput.setSelectionRange(0, titleInput.value.length);
+      titleInput.focus();
 
       document.querySelector(".popover.show .btn-secondary")
         .addEventListener("click", this.cancelEdit);
