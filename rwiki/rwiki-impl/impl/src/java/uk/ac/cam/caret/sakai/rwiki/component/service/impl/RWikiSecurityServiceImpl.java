@@ -239,7 +239,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 					log.warn("Site not found for id: {}", siteId);
 				}
 				List<String> pageGroupIds = rwo.getPageGroupsAsList();
-				if (pageGroupIds != null) {
+				if (pageGroupIds != null && pageGroupIds.size() > 0) {
 					for (String groupId : pageGroupIds) {
 						Group group = site.getGroup(groupId);
 						if (group != null) {
