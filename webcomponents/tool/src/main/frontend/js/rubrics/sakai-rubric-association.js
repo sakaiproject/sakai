@@ -172,6 +172,7 @@ class SakaiRubricAssociation extends RubricsElement {
                   @click="${this._associate}"
                   name="rbcs-associate"
                   type="radio"
+                  class="me-1"
                   .value="${this.dontAssociateValue}"
                   ?checked=${!this.isAssociated}
                   ?disabled=${this.readOnly}>${this.dontAssociateLabel}
@@ -180,7 +181,7 @@ class SakaiRubricAssociation extends RubricsElement {
 
           <div class="form-check">
             <label>
-              <input @click="${this._associate}" name="rbcs-associate" type="radio" .value="${this.associateValue}" ?checked=${this.isAssociated} ?disabled=${this.readOnly}>${this.associateLabel}
+              <input @click="${this._associate}" name="rbcs-associate" type="radio" class="me-1" .value="${this.associateValue}" ?checked=${this.isAssociated} ?disabled=${this.readOnly}>${this.associateLabel}
             </label>
           </div>
         `}
@@ -207,6 +208,7 @@ class SakaiRubricAssociation extends RubricsElement {
                   <input
                       name="rbcs-config-fineTunePoints"
                       type="checkbox"
+                      class="me-1"
                       @click=${this._toggleFineTunePoints}
                       ?checked=${this.selectedConfigOptions.fineTunePoints}
                       value="1"
@@ -215,7 +217,7 @@ class SakaiRubricAssociation extends RubricsElement {
               </div>
               <div class="form-check">
                 <label>
-                  <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
+                  <input name="rbcs-config-hideStudentPreview" type="checkbox" class="me-1" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
                 </label>
               </div>
             </div>
