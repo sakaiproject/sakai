@@ -1414,10 +1414,15 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	// ---------------------------------------- ONE-DRIVE (APPLICATION) --------------------------------------------------------
 	@Override
 	public List<MicrosoftDriveItem> getGroupDriveItems(String groupId) throws MicrosoftCredentialsException {
+		return getGroupDriveItems(groupId, null);
+	}
+	
+	@Override
+	public List<MicrosoftDriveItem> getGroupDriveItems(String groupId, List<String> channelIds) throws MicrosoftCredentialsException {
 		List<MicrosoftDriveItem> ret = getGroupDriveItemsByItemId(groupId, null);
 		//at this point we only have root files and folders, excluding private channels folders.
 		//we need to get all private channels from Team (bypassing the cache), and the DriveItem related to it
-		for(String channelId : getTeamPrivateChannels(groupId, true).keySet()) {
+		for(String channelId : (channelIds == null) ? getTeamPrivateChannels(groupId, true).keySet() : channelIds) {
 			MicrosoftDriveItem item = getDriveItemFromChannel(groupId, channelId);
 			if(item != null) {
 				ret.add(item);
@@ -1489,10 +1494,10 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	}
 	
 	@Override
-	public List<MicrosoftDriveItem> getAllGroupDriveItems(String groupId, MicrosoftDriveItemFilter filter) throws MicrosoftCredentialsException {
+	public List<MicrosoftDriveItem> getAllGroupDriveItems(String groupId, List<String> channelIds, MicrosoftDriveItemFilter filter) throws MicrosoftCredentialsException {
 		List<MicrosoftDriveItem> ret = new ArrayList<>();
 		try {
-			ret.addAll(getGroupDriveItems(groupId)
+			ret.addAll(getGroupDriveItems(groupId, channelIds)
 					.stream()
 					.filter(i -> (filter != null) ? filter.matches(i) : true)
 					.collect(Collectors.toList())
