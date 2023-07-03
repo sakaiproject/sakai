@@ -16,11 +16,13 @@
 
 package org.sakaiproject.microsoft.mediagallery.controller;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,9 @@ import org.sakaiproject.microsoft.api.exceptions.MicrosoftNoCredentialsException
 import org.sakaiproject.microsoft.api.model.MicrosoftAccessToken;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.microsoft.mediagallery.auxiliar.MediaGallerySessionBean;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.ResourceLoader;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -92,6 +96,7 @@ public class MainController {
 	
 	private static final String INDEX_TEMPLATE = "index";
 	private static final String INDEX_WS_TEMPLATE = "index_ws";
+	private static final String BODY_TEMPLATE = "body";
 	private static final String INFO_TEMPLATE = "info :: info-body";
 	private static final String ERROR_TEMPLATE = "error";
 	private static final String REDIRECT_INDEX = "redirect:/index";
@@ -124,96 +129,104 @@ public class MainController {
 	}
 
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
-	public String showIndex(
-			@RequestParam(defaultValue = "") String refreshSection,
-			@RequestParam(defaultValue = "name:0") String sortBy,
-			@RequestParam(defaultValue = "false") Boolean treeView,
-			Model model,
-			HttpServletRequest req,
-			RedirectAttributes redirectAttributes
-		) throws MicrosoftGenericException {
-		
-		//check if properties are pre-populated from a redirect before to add them to the model
-		if(model.getAttribute("refreshSection") == null) {
-			model.addAttribute("refreshSection", refreshSection);
-		}
-		if(model.getAttribute("sortBy") == null) {
-			model.addAttribute("sortBy", sortBy);
-		}
-		if(model.getAttribute("treeView") == null) {
-			model.addAttribute("treeView", treeView);
-		}
-		model.addAttribute("firstTime", mediaGallerySessionBean.isFirstTime());
+	public String showIndex(Model model, HttpServletRequest req) throws MicrosoftGenericException {
 		
 		if(sakaiProxy.isMyWorkspace()) {
-			return doIndexMyWorkspace(refreshSection, sortBy, treeView, model, req, redirectAttributes);
+			String userId = sakaiProxy.getCurrentUserId();
+			
+			try {
+				//check delegated client -> will throw an exception if access token is invalid
+				microsoftAuthorizationService.checkDelegatedClient(userId);
+			}catch(MicrosoftInvalidTokenException e) {
+				//our configured access token is not valid. Try to get a new one through the automatic authorization process 
+				//(automatic: no confirmation screen will be shown)
+				return sendMicrosoftAuthorizationRedirect(true, req);
+			}catch(MicrosoftNoCredentialsException e) {
+				//this means there is no access token configured. Do nothing, continue and show the "configure" button.
+			}catch(MicrosoftCredentialsException e) {
+				//unexpected error. Remove current access token and let the process starts from the beginning
+				microsoftAuthorizationService.revokeAccessToken(userId);
+			}
+			
+			MicrosoftAccessToken mcAccessToken = microsoftAuthorizationService.getAccessToken(userId);
+			model.addAttribute("delegatedClientConfigured", (mcAccessToken != null));
+			if(mcAccessToken != null) {
+				model.addAttribute("mcUserAccount", mcAccessToken.getMicrosoftUserId());
+			}
+			
+			return INDEX_WS_TEMPLATE;
 		} else {
-			return doIndexSite(refreshSection, sortBy, treeView, model, redirectAttributes);
+			return INDEX_TEMPLATE;
 		}
 	}
 	
 	/**
-	 * Called the first time by AJAX. Load all items by default into the model
+	 * Called by AJAX. Load all items into the model. Returns FRAGMENT
 	 * @param model
-	 * @return
+	 * @return FRAGMENT
 	 * @throws MicrosoftGenericException
 	 */
 	@RequestMapping(value = {"/items"}, method = RequestMethod.GET)
-	public String loadItems(Model model) throws MicrosoftGenericException {
+	public String loadItems(
+			@RequestParam(defaultValue = "") String refreshSection,
+			@RequestParam(defaultValue = "name:0") String sortBy,
+			@RequestParam(defaultValue = "false") Boolean treeView,
+			Model model
+	) throws MicrosoftGenericException {
 		
-		String defaultRefreshSection = "";
-		String defaultSortBy = "name:0";
-		boolean defaultTreeView = false;
-		
-		model.addAttribute("refreshSection", defaultRefreshSection);
-		model.addAttribute("sortBy", defaultSortBy);
-		model.addAttribute("treeView", defaultTreeView);
-		model.addAttribute("firstTime", false);
+		model.addAttribute("refreshSection", refreshSection);
+		model.addAttribute("sortBy", sortBy);
+		model.addAttribute("treeView", treeView);
 
 		if(sakaiProxy.isMyWorkspace()) {
-			doIndexMyWorkspace(defaultRefreshSection, defaultSortBy, defaultTreeView, model, null, null);
+			doIndexMyWorkspace(refreshSection, sortBy, treeView, model);
 		} else {
-			doIndexSite(defaultRefreshSection, defaultSortBy, defaultTreeView, model, null);
+			doIndexSite(refreshSection, sortBy, treeView, model);
 		}
-		return INDEX_TEMPLATE + " :: common-body";
+		return BODY_TEMPLATE;
 	}
 	
 	//Main screen (Site Tool)
-	private String doIndexSite(String refreshSection, String sortBy,  Boolean treeView, Model model, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
-		//first time, loading process could require some time, just show a loading spinner and items will be loaded by AJAX
-		if(mediaGallerySessionBean.isFirstTime()) {
-			mediaGallerySessionBean.setFirstTime(false);
-			return INDEX_TEMPLATE;
-		}
-		
-		//when refreshing, call a redirect to clean all GET parameters from URL. Avoid "hard" refresh if user press F5
+	private void doIndexSite(String refreshSection, String sortBy,  Boolean treeView, Model model) throws MicrosoftGenericException {
 		if(StringUtils.isNotBlank(refreshSection)) {
 			mediaGallerySessionBean.resetItems(refreshSection);
 			microsoftCommonService.resetDriveItemsCache();
 			microsoftCommonService.resetGroupDriveItemsCache(refreshSection);
-			
-			redirectAttributes.addFlashAttribute("refreshSection", refreshSection);
-			redirectAttributes.addFlashAttribute("sortBy", sortBy);
-			redirectAttributes.addFlashAttribute("treeView", treeView);
-			mediaGallerySessionBean.setFirstTime(true);
-			
-			return REDIRECT_INDEX;
 		}
 		
-		String reset = (String)mediaGallerySessionBean.getReset();
 		Map<String, MicrosoftDriveItem> itemsMap = mediaGallerySessionBean.getItemsMap();
-		if(itemsMap.isEmpty() || reset != null) {
+		if(itemsMap.isEmpty() || StringUtils.isNotBlank(refreshSection)) {
 			String siteId = sakaiProxy.getCurrentSiteId();
+			Site site = sakaiProxy.getSite(siteId);
+			String userId = sakaiProxy.getCurrentUserId();
+			
 			List<SiteSynchronization> ssList = microsoftSynchronizationService.getSiteSynchronizationsBySite(siteId);
 			for(SiteSynchronization ss : ssList) {
-				if(reset == null || reset.equals(ss.getTeamId())) {
+				if(StringUtils.isBlank(refreshSection) || refreshSection.equals(ss.getTeamId())) {
 					//check if team exists
 					MicrosoftTeam team = microsoftCommonService.getTeam(ss.getTeamId());
 					
 					if(team != null) {
 						mediaGallerySessionBean.addType(team.getId(), team.getName());
 						
-						List<MicrosoftDriveItem> items = microsoftCommonService.getAllGroupDriveItems(team.getId(), filter);
+						//teacher -> get all elements (including all private channels)
+						List<String> channelIds = null;
+						//student -> filter elements based on group
+						if(!sakaiProxy.canUpdateSite(site.getReference(), userId)) {
+							channelIds = new ArrayList<>();
+							
+							if(site.hasGroups() && ss.getGroupSynchronizationsList() != null && !ss.getGroupSynchronizationsList().isEmpty()) {
+								//get all groups user pertains to
+								Set<String> pertainsTo = site.getGroupsWithMember(userId).stream().map(g -> g.getId()).collect(Collectors.toSet());
+								//get Microsoft channels related to these groups
+								channelIds = ss.getGroupSynchronizationsList().stream()
+									.filter(gs -> pertainsTo.contains(gs.getGroupId()))
+									.map(gs -> gs.getChannelId())
+									.collect(Collectors.toList());
+							}
+						}
+						
+						List<MicrosoftDriveItem> items = microsoftCommonService.getAllGroupDriveItems(team.getId(), channelIds, filter);
 						if(items != null && !items.isEmpty()) {
 							mediaGallerySessionBean.getItemsByType().put(team.getId(), items);
 							
@@ -237,97 +250,59 @@ public class MainController {
 		model.addAttribute("typesKeys", mediaGallerySessionBean.getSortedTypeKeys());
 		model.addAttribute("allItemsByType", mediaGallerySessionBean.getAllItemsByType());
 		model.addAttribute("itemsByType", mediaGallerySessionBean.getItemsByType());
-		
-		return INDEX_TEMPLATE;
 	}
 	
 	//Main screen (MyWorkspace Tool)
-	private String doIndexMyWorkspace(String refreshSection, String sortBy,  Boolean treeView, Model model, HttpServletRequest req, RedirectAttributes redirectAttributes) throws MicrosoftGenericException {
+	private void doIndexMyWorkspace(String refreshSection, String sortBy,  Boolean treeView, Model model) throws MicrosoftGenericException {
 		
 		String userId = sakaiProxy.getCurrentUserId();
-		try {
-			//check delegated client -> will throw an exception if access token is invalid
-			microsoftAuthorizationService.checkDelegatedClient(userId);
-		}catch(MicrosoftInvalidTokenException e) {
-			//our configured access token is not valid. Try to get a new one through the automatic authorization process 
-			//(automatic: no confirmation screen will be shown)
-			return sendMicrosoftAuthorizationRedirect(true, req);
-		}catch(MicrosoftNoCredentialsException e) {
-			//this means there is no access token configured. Do nothing, continue and show the "configure" button.
-		}catch(MicrosoftCredentialsException e) {
-			//unexpected error. Remove current access token and let the process starts from the beginning
-			microsoftAuthorizationService.revokeAccessToken(userId);
+		
+		if(StringUtils.isNotBlank(refreshSection)) {
+			mediaGallerySessionBean.resetItems(MediaGallerySessionBean.Type.valueOf(refreshSection));
+			microsoftCommonService.resetDriveItemsCache();
+			microsoftCommonService.resetUserDriveItemsCache(userId);
 		}
 		
-		MicrosoftAccessToken mcAccessToken = microsoftAuthorizationService.getAccessToken(userId);
-		model.addAttribute("delegatedClientConfigured", (mcAccessToken != null));
-		
-		if(mcAccessToken != null) {
-			model.addAttribute("mcUserAccount", mcAccessToken.getMicrosoftUserId());
-			
-			//first time, loading process could require some time, just show a loading spinner and items will be loaded by AJAX
-			if(mediaGallerySessionBean.isFirstTime()) {
-				mediaGallerySessionBean.setFirstTime(false);
-				return INDEX_WS_TEMPLATE;
-			}
-			
-			//when refreshing, call a redirect to clean all GET parameters from URL. Avoid "hard" refresh if user press F5
-			if(StringUtils.isNotBlank(refreshSection)) {
-				mediaGallerySessionBean.resetItems(MediaGallerySessionBean.Type.valueOf(refreshSection));
-				microsoftCommonService.resetDriveItemsCache();
-				microsoftCommonService.resetUserDriveItemsCache(userId);
+		Map<String, MicrosoftDriveItem> itemsMap = mediaGallerySessionBean.getItemsMap();
+		if(itemsMap.isEmpty() || StringUtils.isNotBlank(refreshSection)) {
+			//USER items
+			if(StringUtils.isBlank(refreshSection) || MediaGallerySessionBean.Type.USER.name().equals(refreshSection)) {
+				mediaGallerySessionBean.addType(MediaGallerySessionBean.Type.USER, rb.getString(MediaGallerySessionBean.Type.USER.name()));
 
-				redirectAttributes.addFlashAttribute("refreshSection", refreshSection);
-				redirectAttributes.addFlashAttribute("sortBy", sortBy);
-				redirectAttributes.addFlashAttribute("treeView", treeView);
-				mediaGallerySessionBean.setFirstTime(true);
-				
-				return REDIRECT_INDEX;
-			}
-			
-			MediaGallerySessionBean.Type reset = (MediaGallerySessionBean.Type)mediaGallerySessionBean.getReset();
-			Map<String, MicrosoftDriveItem> itemsMap = mediaGallerySessionBean.getItemsMap();
-			if(itemsMap.isEmpty() || reset != null) {
-				//USER items
-				if(reset == null || reset == MediaGallerySessionBean.Type.USER) {
-					mediaGallerySessionBean.addType(MediaGallerySessionBean.Type.USER, rb.getString(MediaGallerySessionBean.Type.USER.name()));
-
-					List<MicrosoftDriveItem> userItems = microsoftCommonService.getAllMyDriveItems(userId, filter);
-					if(userItems != null && !userItems.isEmpty()) {
-						mediaGallerySessionBean.getItemsByType().put(MediaGallerySessionBean.Type.USER, userItems);
-						
-						//iterate all items and add them to the session maps
-						exploreAndDoSomething(userItems, (i) -> mediaGallerySessionBean.addItem(MediaGallerySessionBean.Type.USER, i));
-					}
-				}
-				
-				//SHARED items
-				if(reset == null || reset == MediaGallerySessionBean.Type.SHARED) {
-					mediaGallerySessionBean.addType(MediaGallerySessionBean.Type.SHARED, rb.getString(MediaGallerySessionBean.Type.SHARED.name()));
-
-					List<MicrosoftDriveItem> sharedItems = microsoftCommonService.getAllMySharedDriveItems(userId, filter);
-					if(sharedItems != null && !sharedItems.isEmpty()) {
-						mediaGallerySessionBean.getItemsByType().put(MediaGallerySessionBean.Type.SHARED, sharedItems);
-						
-						//iterate all items and add them to the session maps
-						exploreAndDoSomething(sharedItems, (i) -> mediaGallerySessionBean.addItem(MediaGallerySessionBean.Type.SHARED, i));
-					}
+				List<MicrosoftDriveItem> userItems = microsoftCommonService.getAllMyDriveItems(userId, filter);
+				if(userItems != null && !userItems.isEmpty()) {
+					mediaGallerySessionBean.getItemsByType().put(MediaGallerySessionBean.Type.USER, userItems);
+					
+					//iterate all items and add them to the session maps
+					exploreAndDoSomething(userItems, (i) -> mediaGallerySessionBean.addItem(MediaGallerySessionBean.Type.USER, i));
 				}
 			}
 			
-			//sort items by name or date
-			Comparator<MicrosoftDriveItem> comparator = new ItemsComparator(sortBy);
-			for(Object typeKey : mediaGallerySessionBean.getTypesMap().keySet()) {
-				exploreAndSort(mediaGallerySessionBean.getItemsByType().get(typeKey), comparator);
-				sort(mediaGallerySessionBean.getAllItemsByType().get(typeKey), comparator);
+			//SHARED items
+			if(StringUtils.isBlank(refreshSection) || MediaGallerySessionBean.Type.SHARED.name().equals(refreshSection)) {
+				mediaGallerySessionBean.addType(MediaGallerySessionBean.Type.SHARED, rb.getString(MediaGallerySessionBean.Type.SHARED.name()));
+
+				List<MicrosoftDriveItem> sharedItems = microsoftCommonService.getAllMySharedDriveItems(userId, filter);
+				if(sharedItems != null && !sharedItems.isEmpty()) {
+					mediaGallerySessionBean.getItemsByType().put(MediaGallerySessionBean.Type.SHARED, sharedItems);
+					
+					//iterate all items and add them to the session maps
+					exploreAndDoSomething(sharedItems, (i) -> mediaGallerySessionBean.addItem(MediaGallerySessionBean.Type.SHARED, i));
+				}
 			}
-						
-			model.addAttribute("typesMap", mediaGallerySessionBean.getTypesMap());
-			model.addAttribute("typesKeys", mediaGallerySessionBean.getSortedTypeKeys());
-			model.addAttribute("allItemsByType", mediaGallerySessionBean.getAllItemsByType());
-			model.addAttribute("itemsByType", mediaGallerySessionBean.getItemsByType());
 		}
-		return INDEX_WS_TEMPLATE;
+		
+		//sort items by name or date
+		Comparator<MicrosoftDriveItem> comparator = new ItemsComparator(sortBy);
+		for(Object typeKey : mediaGallerySessionBean.getTypesMap().keySet()) {
+			exploreAndSort(mediaGallerySessionBean.getItemsByType().get(typeKey), comparator);
+			sort(mediaGallerySessionBean.getAllItemsByType().get(typeKey), comparator);
+		}
+					
+		model.addAttribute("typesMap", mediaGallerySessionBean.getTypesMap());
+		model.addAttribute("typesKeys", mediaGallerySessionBean.getSortedTypeKeys());
+		model.addAttribute("allItemsByType", mediaGallerySessionBean.getAllItemsByType());
+		model.addAttribute("itemsByType", mediaGallerySessionBean.getItemsByType());
 	}
 	
 	@GetMapping(value = {"/thumbnail/{itemId}"}, produces = MediaType.APPLICATION_JSON_VALUE)

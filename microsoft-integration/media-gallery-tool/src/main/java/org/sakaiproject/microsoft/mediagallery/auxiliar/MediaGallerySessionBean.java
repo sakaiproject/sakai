@@ -14,10 +14,6 @@ import lombok.Data;
 @Data
 public class MediaGallerySessionBean {
 	public static enum Type { USER, SHARED }
-	/**
-	 * Indicates if is the first time the data is loading
-	 */
-	private boolean firstTime = true; 
 	
 	/**
 	 * Contains all hierarchy indexed by Type: USER, SHARED or {TeamId}
@@ -52,11 +48,6 @@ public class MediaGallerySessionBean {
 	 * TeamA_id	-> TeamA_name
 	 */
 	Map<Object, String> typesMap = new HashMap<>();
-	
-	/**
-	 * Indicates if we are refreshing
-	 */
-	Object reset = null;
 
 	public void addItem(Object type, MicrosoftDriveItem item) {
 		allItemsByType.computeIfAbsent(type, k -> new ArrayList<>()).add(item);
@@ -106,16 +97,5 @@ public class MediaGallerySessionBean {
 	public void resetItems(Object type) {
 		allItemsByType.remove(type);
 		itemsByType.remove(type);
-		reset = type;
-	}
-	
-	/**
-	 * Custom getter for reset. We remove the value after get it
-	 * @return reset
-	 */
-	public Object getReset() {
-		Object ret = this.reset;
-		this.reset = null;
-		return ret;
 	}
 }
