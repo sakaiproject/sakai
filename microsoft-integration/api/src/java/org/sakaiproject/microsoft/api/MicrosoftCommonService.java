@@ -110,8 +110,9 @@ public interface MicrosoftCommonService {
 	
 	// ---------------------------------------- ONE-DRIVE (APPLICATION) --------------------------------------------------------
 	List<MicrosoftDriveItem> getGroupDriveItems(String groupId) throws MicrosoftCredentialsException;
+	List<MicrosoftDriveItem> getGroupDriveItems(String groupId, List<String> channelIds) throws MicrosoftCredentialsException;
 	List<MicrosoftDriveItem> getGroupDriveItemsByItemId(String groupId, String itemId) throws MicrosoftCredentialsException;
-	List<MicrosoftDriveItem> getAllGroupDriveItems(String groupId, MicrosoftDriveItemFilter filter) throws MicrosoftCredentialsException;
+	List<MicrosoftDriveItem> getAllGroupDriveItems(String groupId, List<String> channelIds, MicrosoftDriveItemFilter filter) throws MicrosoftCredentialsException;
 	MicrosoftDriveItem getDriveItemFromLink(String link) throws MicrosoftCredentialsException;
 	MicrosoftDriveItem getDriveItemFromChannel(String teamId, String channelId) throws MicrosoftCredentialsException;
 	boolean grantReadPermissionToTeam(String driveId, String itemId, String teamId) throws MicrosoftCredentialsException;
