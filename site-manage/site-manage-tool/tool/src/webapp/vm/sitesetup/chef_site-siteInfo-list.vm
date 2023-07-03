@@ -29,7 +29,6 @@
 </script>
 
 <div class ="portletBody specialLink container-fluid">
-	<div id="desc-modal"></div>
 	<div id="group-modal"></div>
 	#if($menu)#toolbar($menu)#end
 	## header for site info page
@@ -310,6 +309,7 @@
 			## strip the HTML, trim by x chars, add an ellipsis and add a link to the full description
 			$siteTextEdit.doPlainTextAndLimit($desc,100,"$ell")
 			<a class="getSiteDesc" href="#" id="$!siteId">$tlang.getString("sinfo.list.desc.more")</a>
+			<div id="desc-modal_$!siteId"></div>
 		</div>
 		#end
 		#if ($!sections.size() > 0)

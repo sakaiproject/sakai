@@ -1,5 +1,4 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-list.vm,v 1.3 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
-<div id="dialog"></div>
 <script type="text/javascript">
 	$(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
@@ -212,6 +211,7 @@
 									#else
 										<a href="$site.Url" target="_top">$formattedText.escapeHtml($site.getTitle())</a>
 									#end
+									<div id="dialog_$site.Id"></div>
 									<a href="#" id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
 										<img src="#imageLink("sakai/information_gray.png")" border="0" title="$tlang.getString('list.moreinfotooltip')" alt="$tlang.getString('list.moreinfotooltip')" />
 									</a>

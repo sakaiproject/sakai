@@ -8,69 +8,75 @@ $.ajaxSetup({
 });
 
 /*
- calling template has dom placeholder for dialog,
- args:class of trigger, id of dialog, message strings
+ calling template has dom placeholder for one or more dialogs,
+ args:class of trigger(s), id of dialog (will get a site id suffix), message strings
  */
 sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
-  $("." + trigger).click(function(e){
-    e.preventDefault();
-    bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTarget)).show();
-  });
-  const siteId = $("." + trigger).attr('id');
-  if (!siteId) {
-    return;
-  }
-  const siteURL = `/direct/site/${siteId}/info.json`;
-  jQuery.getJSON(siteURL, function (data) {
-    var desc = '', shortdesc = '', title = '', owner = '', email = '';
-    if (data.description) {
-      desc = unescape(data.description);
-    }
-    else {
-      desc = nold;
-    }
-    if (data.shortDescription) {
-      shortdesc = data.shortDescription;
-    }
-    else {
-      shortdesc = nosd;
+  $("." + trigger).each(function(){
+    const siteId = $(this).attr('id');
+    if (!siteId) {
+      return;
     }
 
-    if (data.contactName) {
-      owner = data.contactName;
-    }
+    const dialogTargetSite = dialogTarget + "_" + siteId;
 
-    if (data.contactEmail) {
-      email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
-    }
+    $(this).click(function(e){
+       e.preventDefault();
+       bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTargetSite)).show();
+     });
 
-    if (data.props) {
-      if (data.props['contact-name']) {
-        owner = data.props['contact-name'];
+    const siteURL = `/direct/site/${siteId}/info.json`;
+    jQuery.getJSON(siteURL, function (data) {
+      var desc = '', shortdesc = '', title = '', owner = '', email = '';
+      if (data.description) {
+        desc = unescape(data.description);
+      }
+      else {
+        desc = nold;
+      }
+      if (data.shortDescription) {
+        shortdesc = data.shortDescription;
+      }
+      else {
+        shortdesc = nosd;
       }
 
-      if (data.props['contact-email']) {
-        email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
+      if (data.contactName) {
+        owner = data.contactName;
       }
-    }
 
-    sitetitle = data.title.escapeHTML();
-    content = (
-      '<div class="modal-dialog modal-md">' +
-        '<div class="modal-content">' +
-          '<div class="modal-header">' +
-            '<h5 class="modal-title">' + sitetitle + '</h5>' +
-            '<button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+      if (data.contactEmail) {
+        email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
+      }
+
+      if (data.props) {
+        if (data.props['contact-name']) {
+          owner = data.props['contact-name'];
+        }
+
+        if (data.props['contact-email']) {
+          email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
+        }
+      }
+
+      sitetitle = data.title.escapeHTML();
+      content = (
+        '<div class="modal-dialog modal-md">' +
+          '<div class="modal-content">' +
+            '<div class="modal-header">' +
+              '<h5 class="modal-title">' + sitetitle + '</h5>' +
+              '<button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+            '</div>' +
+            '<div class="modal-body">' +
+              '<p>' + shortdesc + '</p>' +
+              '<div>' + desc + '</div>' +
+            '</div>' +
           '</div>' +
-          '<div class="modal-body">' +
-            '<p>' + shortdesc + '</p>' +
-            '<div>' + desc + '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>'
-    );
-    $("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
-    return false;
+        '</div>'
+      );
+      $("#" + CSS.escape(dialogTargetSite)).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+      return false;
+    });
   });
 };
 
