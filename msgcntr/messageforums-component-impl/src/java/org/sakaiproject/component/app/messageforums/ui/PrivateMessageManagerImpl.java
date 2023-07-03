@@ -72,14 +72,12 @@ import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
-import org.sakaiproject.api.app.messageforums.scheduler.PrivateMessageSchedulerService;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -144,7 +142,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private ToolManager toolManager;
   private UserDirectoryService userDirectoryService;
   private LearningResourceStoreService learningResourceStoreService;
-  private PrivateMessageSchedulerService privateMessageSchedulerService;
   @Setter private PreferencesService preferencesService;
   @Setter private ServerConfigurationService serverConfigurationService;
   @Setter private FormattedText formattedText;
@@ -625,10 +622,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       if (element.getTypeUuid().equals(oldTopicTypeUuid) && (element.getUserId().equals(getCurrentUser())))
       {
         element.setTypeUuid(newTopicTypeUuid);
-      }
-      if(Boolean.TRUE.equals((message.getScheduler())) && (message.getScheduledDate()!=null) && (Boolean.TRUE.equals((message.getDraft()))))
-      {
-        privateMessageSchedulerService.scheduleDueDateReminder(message.getId());
       }
     }
     savePrivateMessage(message, false);
@@ -1280,8 +1273,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
         List<DraftRecipient> allDraftRecipients = getDraftRecipients(savedMessage.getId(), draftRecipients, draftBccRecipients);
         messageManager.deleteDraftRecipientsByMessageId(savedMessage.getId());
         messageManager.saveDraftRecipients(savedMessage.getId(), allDraftRecipients);
-
-        privateMessageSchedulerService = ComponentManager.get(PrivateMessageSchedulerService.class);
 
         return;
     }

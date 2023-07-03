@@ -3930,10 +3930,16 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	else
     	{
     		for (PrivateMessageDecoratedBean decoMessage : (List<PrivateMessageDecoratedBean>) selectedMoveToFolderItems ) {
-		        final PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(decoMessage.getMsg());
+		        PrivateMessage message = decoMessage.getMsg();
+		        final PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(message);
     			decoMessage = new PrivateMessageDecoratedBean(initPrivateMessage);
     			
     			prtMsgManager.movePvtMsgTopic(decoMessage.getMsg(), oldTopic, newTopic);
+
+				if(Boolean.TRUE.equals((message.getScheduler())) && (message.getScheduledDate()!=null) && (Boolean.TRUE.equals((message.getDraft()))))
+				{
+					PrivateMessageSchedulerService.scheduleDueDateReminder(message.getId());
+				}
     		}
     	}
 	    
