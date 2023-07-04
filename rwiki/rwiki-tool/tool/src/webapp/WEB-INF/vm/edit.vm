@@ -248,7 +248,7 @@
 											<p class="checkbox" style="border:none">
 											<label for ="smallchange"><input type="checkbox" id="smallchange" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}</label></p>
 										#end
-										#if ($groups)
+										#if ($groups && $groups.size() > 0)
 											<input type="hidden" id="groups-size" value=$groups.size() />
 											<div class="siteAccess">
 												<h4>${rlb.displayto_access}</h4>
