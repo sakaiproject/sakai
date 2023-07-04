@@ -35,6 +35,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 
@@ -125,9 +126,20 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		}
 	}
 
-	public String getSiteId()
+	/**
+	 *
+	 * @param reference /wiki/site/SITE/pagename
+	 * @return
+	 */
+	public String getSiteId(String reference)
 	{
-		return toolManager.getCurrentPlacement().getContext();
+		Placement placement = toolManager.getCurrentPlacement();
+		if (placement != null) {
+			return placement.getContext();
+		} else {
+			String[] parts = reference.split("/");
+			return parts[3];
+		}
 	}
 
 	public boolean checkGetPermission(String reference)
@@ -231,7 +243,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 					log.debug("User is in group and allowed to read"); //$NON-NLS-1$
 				}
 
-				String siteId = this.getSiteId();
+				String siteId = this.getSiteId(permissionsReference);
 				Site site = null;
 				try {
 					site = siteService.getSite(siteId);
@@ -239,7 +251,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 					log.warn("Site not found for id: {}", siteId);
 				}
 				List<String> pageGroupIds = rwo.getPageGroupsAsList();
-				if (pageGroupIds != null) {
+				if (pageGroupIds != null && pageGroupIds.size() > 0) {
 					for (String groupId : pageGroupIds) {
 						Group group = site.getGroup(groupId);
 						if (group != null) {
