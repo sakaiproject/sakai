@@ -95,11 +95,11 @@ public interface RWikiSecurityService
 	boolean checkSearchPermission(String reference);
 
 	/**
-	 * Get the current site ID
+	 * Get the current site ID, if fails then get the site from the reference
 	 * 
 	 * @return
 	 */
-	String getSiteId();
+	String getSiteId(String reference);
 
 	/**
 	 * generate a default reference to a permission from the page space URL

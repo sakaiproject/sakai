@@ -362,7 +362,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		String groupNames = "";
 		if(returnable != null && returnable.getPageGroupsAsList() != null && name.indexOf("/home") == -1) {
 			Site site = null;
-			String siteId = wikiSecurityService.getSiteId();
+			String reference = "/wiki" + name;
+			String siteId = wikiSecurityService.getSiteId(reference);
 			try {
 				site = siteService.getSite(siteId);
 			} catch (IdUnusedException idEx) {
