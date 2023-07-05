@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
@@ -64,7 +65,7 @@ public class TagsController extends AbstractSakaiApiController {
 				Site site = checkSite(siteId);
 				ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
 				String optionTagsValue = tc.getPlacementConfig().getProperty(AssignmentConstants.SHOW_TAGS_STUDENT);
-				if (Boolean.TRUE.equals(optionTagsValue)) {
+				if (Boolean.TRUE.equals(optionTagsValue) && securityService.unlock(SiteService.SITE_VISIT, "/site/" + siteId)) {
 					return;
 				}
 			}
