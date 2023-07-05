@@ -351,9 +351,9 @@ public class SamLiteServiceImpl implements SamLiteService {
 		} else if (isEmptyTrue || isEmptyFalse) {
 			// Do nothing, since the 'correct' true or false answer is all we need.
 		} else if (hasfeedbackOK) {
-			question.setFeedbackOK(feedbackOKMatcher.group(2));
+			question.setFeedbackOK(feedbackOKMatcher.group(1));
 		} else if (hasfeedbackNOK) {
-			question.setFeedbackNOK(feedbackNOKMatcher.group(2));
+			question.setFeedbackNOK(feedbackNOKMatcher.group(1));
 		} else if (randomize) {
 			if (question.getQuestionType() == Question.MULTIPLE_CHOICE_QUESTION || 
 				question.getQuestionType() == Question.MULTIPLE_CHOICE_MULTIPLE_ANSWER_QUESTION) {
