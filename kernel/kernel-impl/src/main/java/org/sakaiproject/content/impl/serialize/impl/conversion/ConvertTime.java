@@ -22,6 +22,7 @@
 package org.sakaiproject.content.impl.serialize.impl.conversion;
 
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -335,6 +336,10 @@ public class ConvertTime implements Time
 	 */
 	public String getDisplay()
 	{
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+	@Override
+	public Instant toInstant() {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 }

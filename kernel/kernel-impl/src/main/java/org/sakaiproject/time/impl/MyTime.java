@@ -25,6 +25,7 @@ import java.text.ParsePosition;
 import java.text.DateFormat;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -537,5 +538,10 @@ public class MyTime implements Time
 	public String getDisplay()
 	{
 		return this.toStringLocalFull();
+	}
+
+	@Override
+	public Instant toInstant() {
+		return Instant.ofEpochMilli(m_millisecondsSince);
 	}
 }

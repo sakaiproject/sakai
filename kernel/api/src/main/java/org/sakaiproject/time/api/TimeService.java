@@ -30,7 +30,7 @@ import java.util.TimeZone;
  * </p>
  * @deprecated Please use {@link UserTimeService} or the new {@link java.time} package.
  */
-public interface TimeService extends UserTimeService
+public interface TimeService extends UserTimeService, TimeRangeService
 {
 	/** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
 	static final String APPLICATION_ID = "sakai:time";
@@ -160,64 +160,7 @@ public interface TimeService extends UserTimeService
 	 */
 	TimeBreakdown newTimeBreakdown(int year, int month, int day, int hour, int minute, int second, int millisecond);
 
-	/**
-	 * Get a TimeRange, from parts.
-	 * 
-	 * @param start
-	 *        The start Time.
-	 * @param end
-	 *        The end Time.
-	 * @param startIncluded
-	 *        true if start is part of the range, false if not.
-	 * @param endIncluded
-	 *        true of end is part of the range, false if not.
-	 * @return A TimeRange.
-	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
-	 */
-	TimeRange newTimeRange(Time start, Time end, boolean startIncluded, boolean endIncluded);
 
-	/**
-	 * Get a TimeRange, from our string format.
-	 * 
-	 * @param value
-	 *        The TimeRange string.
-	 * @return A TimeRange.
-	 */
-	TimeRange newTimeRange(String value);
-
-	/**
-	 * Get a TimeRange, from a single time.
-	 * 
-	 * @param startAndEnd
-	 *        The Time for the range.
-	 * @return A TimeRange.
-	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
-	 */
-	TimeRange newTimeRange(Time startAndEnd);
-
-	/**
-	 * Get a TimeRange, from a time value long start and duration
-	 * 
-	 * @param start
-	 *        The long start time (milliseconds since).
-	 * @param duration
-	 *        The long milliseconds duration.
-	 * @return A TimeRange.
-	 * 
-	 */
-	TimeRange newTimeRange(long start, long duration);
-
-	/**
-	 * Get a TimeRange, from two times, inclusive.
-	 * 
-	 * @param start
-	 *        The start time.
-	 * @param end
-	 *        The end time.
-	 * @return A TimeRange.
-	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
-	 */
-	TimeRange newTimeRange(Time start, Time end);
 
 
 	/**

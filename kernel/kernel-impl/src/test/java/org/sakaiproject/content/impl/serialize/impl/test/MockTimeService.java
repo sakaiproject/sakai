@@ -42,4 +42,22 @@ public class MockTimeService
 		});
 		return timeService;
 	}
+
+	@Override
+	public TimeRange newTimeRange(Instant startAndEnd) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TimeRange newTimeRange(Instant start, Instant end) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TimeRange newTimeRange(Instant start, Instant end, boolean startIncluded, boolean endIncluded) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
