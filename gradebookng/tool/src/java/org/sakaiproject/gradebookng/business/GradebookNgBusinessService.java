@@ -1785,7 +1785,7 @@ public class GradebookNgBusinessService {
 		try {
 			role = this.getUserRole(siteId);
 		} catch (final GbAccessDeniedException e) {
-			log.warn("GbAccessDeniedException trying to getGradebookCategories", e);
+			log.warn("Could not fetch the users role in site [{}], {}", siteId, e.toString());
 			return rval;
 		}
 
