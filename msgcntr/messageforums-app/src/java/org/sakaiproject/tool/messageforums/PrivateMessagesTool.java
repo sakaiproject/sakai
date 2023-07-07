@@ -4563,7 +4563,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	@SuppressWarnings("unchecked")
 	public String processActionPermissions()
 	{
-    multiDeleteSuccess = false;
+		multiDeleteSuccess = false;
 
 		if(fromPermissions) {
 			fromPermissions = false;
