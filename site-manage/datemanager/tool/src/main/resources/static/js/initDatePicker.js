@@ -67,24 +67,60 @@ DTMN.attachDatePicker = function (selector, updates, notModified) {
     var dataTool = $hidden.data('tool');
     var dataField = $hidden.data('field');
     var dataIdx = $hidden.data('idx');
+    var $clearBtn = $(elt).siblings('a');
+
+    if (dataTool === 'assessments' || dataTool === 'gradebookItems' || dataTool === 'resources' || dataTool === 'forums' || dataTool === 'lessons' 
+       || dataTool === 'announcements' || dataTool === 'assignments' || dataTool === 'signupMeetings' || dataTool === 'calendarEvents') {
+       $clearBtn.addClass('ui-datepicker-clear-date');
+       $clearBtn.show();
+    } else {
+      $clearBtn.hide();
+    }
+
     $td.attr('id', 'cell_' + dataTool + '_' + dataField + '_' + dataIdx);
+
+    $clearBtn.on('click', function() {
+    if ($(this).nextAll('input').attr('data-null-date') === 'false') {
+      // clear date on datepicker
+      $(this).parent().children('.form-control.datepicker.hasDatepicker').val('');
+      // clear date on hidden element
+      $(this).nextAll('input').val('');
+      // force event for hidden element so that clear btn will follow same update logic as backspace/delete in datapicker 
+      $(this).nextAll('input').trigger('change');
+    } 
+  });
 
     $hidden.on('change', function () {
       const idx = $(this).data('idx');
       const field = $(this).data('field');
       const tool = $(this).data('tool');
+      const fieldVal = $(this).val();
+      const dataDateWasNull = $(this).attr('data-null-date');
+      const elemDateTime = $(this).siblings('input.datepicker').val();
 
       updates[tool][idx][field] = $(this).val().split('+')[0];
       updates[tool][idx][field + '_label'] = $(this).siblings('input.datepicker').val();
+
+      // set title for date input field
+      $(this).parent().find('.datepicker').attr('title', elemDateTime);
+
       // Show day of the week in case there is a date selected
       if ($(this).parent().find('.datepicker').val() !== '') {
         updates[tool][idx][field + '_day_of_week'] = moment(updates[tool][idx][field]).locale(sakai.locale.userLocale).format('dddd');
         $(this).parent().find('.day-of-week').text(updates[tool][idx][field + '_day_of_week']);
+      // Clear day of the week if date has been cleared
+      } else {
+          $(this).parent().find('.day-of-week').text('');
       }
 
-      if (notModified.includes(tool + idx + field)) {
+      if (notModified.includes(tool + idx + field) || dataDateWasNull === 'true') {
         updates[tool][idx].idx = idx;
         updates[tool + 'Upd'][idx] = updates[tool][idx];
+        if (dataDateWasNull === 'true' && fieldVal !== '') {
+          $(this).attr('data-null-date', false);
+        } else if (dataDateWasNull === 'false' && fieldVal === '') {
+                 $(this).attr('data-null-date', true);
+        }
         $('#submit-form-button').prop('disabled', false);
       }
       notModified.push(tool + idx + field);
@@ -106,9 +142,9 @@ DTMN.attachDatePicker = function (selector, updates, notModified) {
         iso8601: 'hidden_datepicker_' + DTMN.nextIndex,
       }
     };
-    // Allow null dates where appropriate
-    if (dataTool === 'gradebookItems' || dataTool === 'resources' || dataTool === 'forums' || dataTool === 'lessons' || dataTool === 'announcements' ||
-        (dataTool === 'assessments' && (dataField === 'accept_until' || dataField === 'due_date' || dataField === 'feedback_end' || dataField === 'feedback_start'))) {
+    // Allow null dates during editing then enforce rules for required fields serverside
+    if (dataTool === 'assessments' || dataTool === 'gradebookItems' || dataTool === 'resources' || dataTool === 'forums' || dataTool === 'lessons' 
+       || dataTool === 'announcements' || dataTool === 'assignments' || dataTool === 'signupMeetings' || dataTool === 'calendarEvents') {
       datepickerOpts.allowEmptyDate = true;
     }
 
@@ -120,22 +156,28 @@ DTMN.attachDatePicker = function (selector, updates, notModified) {
     if ($hidden.val() !== '') datepickerOpts.val = $hidden.val();
     localDatePicker(datepickerOpts);
 
+    //reposition the clear button between the datepicker and datepicker trigger button
+    $(elt).after($clearBtn);
+
     // Disable accept_until date input if no late submissions (assessments) allowed
     if (dataTool === 'assessments' && dataField === 'accept_until') {
       var disabled = !updates[dataTool][dataIdx].late_handling;
       $(elt).prop('disabled', disabled);
       $td.find('.ui-datepicker-trigger').prop('disabled', disabled);
+      $td.find('.ui-datepicker-clear-date > i').attr('disabled',disabled);
     }
     // Disable feedback start and end date inputs if feedback on date not used (assessments)
     if (dataTool === 'assessments' && (dataField === 'feedback_start' || dataField === 'feedback_end')) {
       var disabled = !updates[dataTool][dataIdx].feedback_by_date;
       $(elt).prop('disabled', disabled);
       $td.find('.ui-datepicker-trigger').prop('disabled', disabled);
+      $td.find('.ui-datepicker-clear-date > i').attr('disabled',disabled);
     }
     if (dataTool === 'forums' && (dataField === 'open_date' || dataField === 'due_date')) {
       var disabled = !updates[dataTool][dataIdx].restricted;
       $(elt).prop('disabled', disabled);
       $td.find('.ui-datepicker-trigger').prop('disabled', disabled);
+      $td.find('.ui-datepicker-clear-date > i').attr('disabled',disabled);
     }
   });
 };
