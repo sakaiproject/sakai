@@ -1679,7 +1679,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * @return - pvtMsgCompose
    */ 
   public String processPvtMsgCompose() {
-    	multiDeleteSuccess = false;
+	  multiDeleteSuccess = false;
 
 	  //reset incase draft still has left over data
 	  setDetailMsg(null);
