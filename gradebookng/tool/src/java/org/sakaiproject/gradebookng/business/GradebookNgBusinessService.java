@@ -1781,10 +1781,18 @@ public class GradebookNgBusinessService {
 
 		final List<GbGroup> rval = new ArrayList<>();
 
+		GbRole role;
+		try {
+			role = this.getUserRole(siteId);
+		} catch (final GbAccessDeniedException e) {
+			log.warn("Could not fetch the users role in site [{}], {}", siteId, e.toString());
+			return rval;
+		}
+
 		// get groups (handles both groups and sections)
 		try {
 			final Site site = this.siteService.getSite(siteId);
-			final Collection<Group> groups = isSuperUser() ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+			final Collection<Group> groups = isSuperUser() || role == GbRole.INSTRUCTOR ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
 
 			for (final Group group : groups) {
 				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
@@ -1795,13 +1803,6 @@ public class GradebookNgBusinessService {
 			log.error("Error retrieving groups", e);
 		}
 
-		GbRole role;
-		try {
-			role = this.getUserRole(siteId);
-		} catch (final GbAccessDeniedException e) {
-			log.warn("GbAccessDeniedException trying to getGradebookCategories", e);
-			return rval;
-		}
 
 		// if user is a TA, get the groups they can see and filter the GbGroup
 		// list to keep just those
