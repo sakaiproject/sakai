@@ -141,7 +141,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
         try {
             findById(entity.getId()).ifPresent(session::delete);
         } catch (Exception e) {
-            log.error("Failed to delete the entity: " + he.getMessage());
+            log.warn("Could not delete entity [{}:{}], {}", entity.getClass().getName(), entity.getId(), e.toString());
         }
     }
 
