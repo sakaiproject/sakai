@@ -137,13 +137,17 @@ public class TagServiceImpl implements TagService {
             if (StringUtils.isEmpty(tagId) || oldAssociationIds.contains(tagId)) {
                 continue;
             }
+            byte[] bytes = tagId.getBytes();
+            byte[] copy = new byte[TAG_MAX_LABEL];
+            // new tag, we create it
+            if (bytes.length > TAG_MAX_LABEL) {
+                System.arraycopy(bytes, 0, copy, 0, TAG_MAX_LABEL);
+                tagId = new String(copy);
+            }
             // new association, check tag exists
             Tag t = tags.getForId(tagId).orElse(null);
             if (t == null) {
-                // new tag, we create it
-                if (tagId.length() > TAG_MAX_LABEL) {
-                    tagId = tagId.substring(0, TAG_MAX_LABEL);
-                }
+                
                 t = new Tag(null, collectionId, tagId, null, null,
                         0L, null, 0L, null, null, Boolean.FALSE, 0L,
                         Boolean.FALSE, 0L, null, null, null, null, null);
