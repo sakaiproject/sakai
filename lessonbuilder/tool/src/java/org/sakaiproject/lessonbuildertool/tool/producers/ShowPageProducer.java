@@ -1395,13 +1395,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    UIOutput itemicon = UIOutput.make(linkdiv,"item-icon");
 					    switch (i.getType()) {
 					    case SimplePageItem.FORUM:
-						itemicon.decorate(new UIStyleDecorator("icon-sakai--sakai-forums"));
+						itemicon.decorate(new UIStyleDecorator("si si-sakai-forums"));
 						break;
 					    case SimplePageItem.ASSIGNMENT:
-						itemicon.decorate(new UIStyleDecorator("icon-sakai--sakai-assignment-grades"));
+						itemicon.decorate(new UIStyleDecorator("si si-sakai-assignment-grades"));
 						break;
 					    case SimplePageItem.ASSESSMENT:
-						itemicon.decorate(new UIStyleDecorator("icon-sakai--sakai-samigo"));
+						itemicon.decorate(new UIStyleDecorator("si si-sakai-samigo"));
 						break;
 					    case SimplePageItem.BLTI:
 						String bltiIcon = "fa-globe";
