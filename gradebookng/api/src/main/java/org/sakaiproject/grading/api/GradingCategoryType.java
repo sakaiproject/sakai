@@ -26,6 +26,7 @@ import java.util.Map;
  */
 public enum GradingCategoryType {
 
+    UNKNOWN_CATEGORY(0),
     NO_CATEGORY(1),
     ONLY_CATEGORY(2),
     WEIGHTED_CATEGORY(3);
