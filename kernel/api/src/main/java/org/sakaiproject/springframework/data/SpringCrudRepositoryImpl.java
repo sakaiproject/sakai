@@ -29,9 +29,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import org.sakaiproject.springframework.data.PersistableEntity;
-import org.sakaiproject.springframework.data.Repository;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,14 +88,14 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     public Optional<T> findById(ID id) {
 
         Assert.notNull(id, "The id cannot be null");
-        return Optional.ofNullable((T) sessionFactory.getCurrentSession().get(domainClass, id));
+        return Optional.ofNullable(sessionFactory.getCurrentSession().get(domainClass, id));
     }
 
     @Override
     public T getById(ID id) {
 
         Assert.notNull(id, "The id cannot be null");
-        return (T) sessionFactory.getCurrentSession().load(domainClass, id);
+        return sessionFactory.getCurrentSession().load(domainClass, id);
     }
 
     @Override
@@ -118,7 +115,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
         Criteria criteria = sessionFactory.getCurrentSession().createCriteria(domainClass);
         criteria.setFirstResult((int) pageable.getOffset());
-        criteria.setMaxResults((int) pageable.getPageSize());
+        criteria.setMaxResults(pageable.getPageSize());
         return new PageImpl(criteria.list());
     }
 
@@ -135,13 +132,10 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     @Override
     @Transactional
     public void delete(T entity) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        try {
-            findById(entity.getId()).ifPresent(session::delete);
-        } catch (Exception e) {
-            log.warn("Could not delete entity [{}:{}], {}", entity.getClass().getName(), entity.getId(), e.toString());
+        if (entity != null) {
+            deleteById(entity.getId());
+        } else {
+            log.warn("Can not perform delete on a null entity");
         }
     }
 
@@ -163,7 +157,12 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     @Override
     @Transactional
     public void deleteById(ID id) {
-        findById(id).ifPresent(this::delete);
+        if (id != null) {
+            Session session = sessionFactory.getCurrentSession();
+            findById(id).ifPresent(session::delete);
+        } else {
+            log.warn("Can not perform delete with a null id");
+        }
     }
 
     /**
