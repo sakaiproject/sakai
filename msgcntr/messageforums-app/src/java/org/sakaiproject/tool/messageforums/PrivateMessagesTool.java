@@ -1684,6 +1684,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * @return - pvtMsgCompose
    */ 
   public String processPvtMsgCompose() {
+	  multiDeleteSuccess = false;
+
 	  //reset incase draft still has left over data
 	  setDetailMsg(null);
 	  attachments.clear();
@@ -3438,6 +3440,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public String processPvtMsgSettings()
   {
+    multiDeleteSuccess = false;
+
     log.debug("processPvtMsgSettings()");    
     return MESSAGE_SETTING_PG;
   }
@@ -3565,6 +3569,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
   
   public String processPvtMsgFolderSettingAdd() {
+    multiDeleteSuccess = false;
+
     log.debug("processPvtMsgFolderSettingAdd()");
     
     setFromMainOrHp();
@@ -4562,6 +4568,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	@SuppressWarnings("unchecked")
 	public String processActionPermissions()
 	{
+		multiDeleteSuccess = false;
+
 		if(fromPermissions) {
 			fromPermissions = false;
 			return null;
