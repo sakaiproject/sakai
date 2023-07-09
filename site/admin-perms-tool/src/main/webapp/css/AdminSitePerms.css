@@ -22,7 +22,7 @@
 }
 .permsControls fieldset {
     border-radius: 10px;
-    background: #eee;
+    background: var(--site-nav-bg);
     margin: 20px 10px;
     padding: 16px;
     box-shadow: 0 0 10px rgba(0,0,0,.3);
@@ -63,20 +63,17 @@
 .button-link {
     font: 12px Arial;
     padding: 1px 6px;
-    background: #EEEEEE;
-    color: #000000;
+    background: var(--bs-btn-bg);
+    color: var(--bs-btn-color);
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
-    border-radius: 10px;
-    border-left: 1px solid #999999;
-    border-top: 1px solid #999999;
-    border-right: 1px solid #333333;
-    border-bottom: 1px solid #333333;
+    border: var(--bs-btn-border-width) solid var(--bs-btn-border-color);
+    border-radius: var(--bs-btn-border-radius);
     user-select:none;
     text-decoration: none;
 }
 .button-link:hover {
-    background: #FFFFFF;
-    border: solid 1px #2A4E77;
-    color: #333333;
+    color: var(--bs-btn-hover-color);
+    background-color: var(--bs-btn-hover-bg);
+    border-color: var(--bs-btn-hover-border-color);
 }
