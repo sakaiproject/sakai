@@ -317,4 +317,13 @@ public interface SakaiProxy {
      * @return the profile tool link. Null if user doesn't have profile tool.
      */
     public String getProfileToolLink(String otherUserId);
+
+    /**
+     * Returns the section category name based on the category id.
+     *
+     * @param categoryId example "02.lab"
+     * @return category name if it's found, else the category id.
+     */
+    public String getCategoryName(String categoryId);
+
 }
