@@ -2827,9 +2827,9 @@ public class ExtractionHelper
       List<String> variableMaxs = (List) itemMap.get("variableMaxs");
       List<String> variableDecimalPlaces = (List) itemMap.get("variableDecimalPlaces");
       
-      List<String> globalvariableNames = (List) itemMap.get("globalvariableNames");
-      List<String> globalvariableTexts = (List) itemMap.get("globalvariableTexts");
-      List<String> globalvariableAddedButNotExtracted = (List) itemMap.get("globalvariableAddedButNotExtracted");
+      List<String> globalvariableNames = (itemMap.get("globalvariableNames") == null) ? new ArrayList<>() : (List<String>) itemMap.get("globalvariableNames");
+      List<String> globalvariableTexts = (itemMap.get("globalvariableTexts") == null) ? new ArrayList<>() : (List<String>) itemMap.get("globalvariableTexts");
+      List<String> globalvariableAddedButNotExtracted = (itemMap.get("globalvariableAddedButNotExtracted") == null) ? new ArrayList<>() : (List<String>) itemMap.get("globalvariableAddedButNotExtracted");
 
       List<String> formulaNames = (List) itemMap.get("formulaNames");
       List<String> formulaTexts = (List) itemMap.get("formulaTexts");
