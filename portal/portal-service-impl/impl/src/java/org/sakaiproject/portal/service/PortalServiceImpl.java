@@ -31,9 +31,10 @@ import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Observer;
 import java.util.Observable;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -49,6 +50,7 @@ import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.exolab.castor.util.Configuration.Property;
 import org.exolab.castor.util.LocalConfiguration;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -186,9 +188,6 @@ public class PortalServiceImpl implements PortalService, Observer
 				Site site = null;
 				try {
 					site = siteService.getSite(e.getContext());
-					if (!site.isPublished()) {
-						return;
-					}
 				} catch (IdUnusedException idue) {
 					log.error("No site for id {}", e.getContext());
 					return;
@@ -201,20 +200,34 @@ public class PortalServiceImpl implements PortalService, Observer
 					String[] userParts = userPart.split("=");
 					if (userParts.length == 2) {
 						String userId = userParts[1];
-						addPinnedSite(userId, e.getContext());
+						if (isSiteAvailableToUser(userId, e.getContext())) {
+							addPinnedSite(userId, e.getContext());
+						}
 					}
 				}
 				break;
 			case SiteService.EVENT_SITE_PUBLISH:
 
+				String siteId = e.getContext();
+				if (StringUtils.isEmpty(siteId)) {
+					String[] resourceParts = e.getResource().split("/");
+					if (resourceParts.length == 3) {
+						siteId = resourceParts[2];
+					}
+				}
+
 				try {
-					site = siteService.getSite(e.getContext());
+					site = siteService.getSite(siteId);
 				} catch (IdUnusedException idue) {
-					log.error("No site for id {}", e.getContext());
+					log.error("No site for id {}", siteId);
 					return;
 				}
 
-				site.getUsers().forEach(userId -> addPinnedSite(userId, e.getContext()));
+				for (String userId : site.getUsers()) {
+					if (!isSiteUnpinned(userId, siteId) && isSiteAvailableToUser(userId, siteId)) {
+						addPinnedSite(userId, siteId);
+					}
+				}
 
 				break;
 			case SiteService.EVENT_SITE_UNPUBLISH:
@@ -226,7 +239,23 @@ public class PortalServiceImpl implements PortalService, Observer
 					return;
 				}
 
-				site.getMembers().forEach(m -> removePinnedSite(m.getUserId(), e.getContext()));
+				site.getMembers().forEach(m -> {
+						if (!canUserUpdateSite(m.getUserId(), e.getContext())) {
+							// Remove pinned site if it actually exists and was not explicitly unpinned
+							if (isSiteAvailableToUser(m.getUserId(), e.getContext()) &&
+							    !isSiteUnpinned(m.getUserId(), e.getContext())) {
+								removePinnedSite(m.getUserId(), e.getContext());
+							}
+
+							List<RecentSite> recentSites = recentSiteRepository.findByUserId(m.getUserId());
+							for (RecentSite recentSite : recentSites) {
+								if (StringUtils.equals(recentSite.getSiteId(), e.getContext())) {
+									recentSiteRepository.deleteByUserIdAndSiteId(m.getUserId(), e.getContext());
+									break;
+								}
+							}
+						}
+					});
 
 				break;
 
@@ -264,6 +293,13 @@ public class PortalServiceImpl implements PortalService, Observer
 
 					if (!siteUsers.contains(userId)) {
 						recentSiteRepository.deleteByUserIdAndSiteId(userId, e.getContext());
+					}
+				});
+
+				siteUsers.forEach(userId -> {
+
+					if (!pinnedUserIds.contains(userId) && isSiteAvailableToUser(userId, e.getContext())) {
+						addPinnedSite(userId, e.getContext());
 					}
 				});
 
@@ -806,6 +842,30 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	}
 
+        private boolean canUserUpdateSite(String userId, String siteId) {
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (IdUnusedException idue) {
+			log.error("No site for id {}", siteId);
+			return false;
+		}
+		return site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+	}
+
+        private boolean isSiteAvailableToUser(String userId, String siteId) {
+		Site site = null;
+		Member m = null;
+		try {
+			site = siteService.getSite(siteId);
+			m = site.getMember(userId);
+		} catch (IdUnusedException idue) {
+			log.error("No site for id {}", siteId);
+			return false;
+		}
+		return (m != null && (site.isPublished() && m.isActive()) || canUserUpdateSite(userId, siteId));
+	}
+
 	@Transactional
 	@Override
 	public void addPinnedSite(String userId, String siteId) {
@@ -814,21 +874,65 @@ public class PortalServiceImpl implements PortalService, Observer
 			return;
 		}
 
-		List<PinnedSite> pinned = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
+		Optional<PinnedSite> o = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId);
+		PinnedSite pin = null;
+		if (! o.isEmpty()) {
+			pin = o.get();
+		}
+		else {
+			pin = new PinnedSite();
+			pin.setUserId(userId);
+			pin.setSiteId(siteId);
+		}
 
+		List<PinnedSite> pinned = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
 		int position = pinned.size() > 0 ? pinned.get(pinned.size() - 1).getPosition() + 1 : 1;
 
-		PinnedSite pin = new PinnedSite();
-		pin.setUserId(userId);
-		pin.setSiteId(siteId);
 		pin.setPosition(position);
+		pin.setHasBeenUnpinned(false);
 		pinnedSiteRepository.save(pin);
 	}
 
 	@Transactional
 	@Override
-	public void removePinnedSite(String userId, String siteId) {
+	public void unpinPinnedSite(String userId, String siteId) {
+		
+		if (StringUtils.isBlank(userId)) {
+			return;
+		}
 
+		Optional<PinnedSite> o = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId);
+		if (o.isEmpty()) {
+			log.error("Unexpectedly could not find pinned site {} for user {}", siteId, userId);
+		}
+		else {
+			PinnedSite pin = o.get();
+			pin.setPosition(PinnedSite.UNPINNED_POSITION);
+			pin.setHasBeenUnpinned(true);
+			pinnedSiteRepository.save(pin);
+			addRecentSite(siteId);
+		}
+		
+		List<PinnedSite> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId);
+		for (int i = 0; i < pinnedSites.size(); i++) {
+			PinnedSite pinnedSite = pinnedSites.get(i);
+			pinnedSite.setPosition(i);
+		}
+	}
+
+        private boolean isSiteUnpinned(String userId, String siteId) {
+		// Only return true if a pinned site record is found, and it explicitly hasBeenUnpinned
+		Optional<PinnedSite> o = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId);
+		if (! o.isEmpty()) {
+			return o.get().getHasBeenUnpinned().booleanValue();
+		}
+		return false;
+        }
+
+        @Transactional
+	@Override
+	public void removePinnedSite(String userId, String siteId) {
+		
 		if (StringUtils.isBlank(userId)) {
 			return;
 		}
@@ -858,7 +962,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		currentPinned.forEach(cp -> {
 
 			if (!siteIds.contains(cp)) {
-				removePinnedSite(userId, cp);
+				unpinPinnedSite(userId, cp);
 			}
 		});
 
@@ -867,11 +971,18 @@ public class PortalServiceImpl implements PortalService, Observer
 		int start = getPinnedSites().size();
 
 		for (int i = 0; i < siteIds.size(); i++) {
-
-			PinnedSite pin = new PinnedSite();
-			pin.setUserId(userId);
-			pin.setSiteId(siteIds.get(i));
+			Optional<PinnedSite> o = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteIds.get(i));
+			PinnedSite pin = null;
+			if (! o.isEmpty()) {
+				pin = o.get();
+			}
+			else {
+				pin = new PinnedSite();
+				pin.setUserId(userId);
+				pin.setSiteId(siteIds.get(i));
+			}
 			pin.setPosition(i + start);
+			pin.setHasBeenUnpinned(false);
 			pinnedSiteRepository.save(pin);
 		};
 	}
@@ -912,6 +1023,19 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	@Override
+	public List<String> getUnpinnedSites() {
+
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		if (StringUtils.isBlank(userId)) {
+			return Collections.<String>emptyList();
+		}
+
+		return pinnedSiteRepository.findByUserIdOrderByPosition(userId, true).stream()
+				.map(ps -> ps.getSiteId()).collect(Collectors.toList());
+	}
+
+	@Override
 	public List<String> getRecentSites() {
 
 		String userId = sessionManager.getCurrentSessionUserId();
@@ -934,7 +1058,8 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		String userId = sessionManager.getCurrentSessionUserId();
 
-		if (StringUtils.isBlank(userId) || siteId.equals(siteService.getUserSiteId(userId))) {
+		if (StringUtils.isBlank(userId) || siteId.equals(siteService.getUserSiteId(userId)) ||
+		    !isSiteAvailableToUser(userId, siteId)) {
 			return;
 		}
 

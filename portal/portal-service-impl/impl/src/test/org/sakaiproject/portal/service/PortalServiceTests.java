@@ -107,6 +107,9 @@ public class PortalServiceTests extends SakaiTests {
 
         assertEquals(2, portalService.getPinnedSites().size());
 
+        Member m1 = mock(Member.class);
+        when(m1.isActive()).thenReturn(true);
+        when(site3.getMember(user1)).thenReturn(m1);
         when(site3.isPublished()).thenReturn(true);
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
         assertEquals(3, portalService.getPinnedSites().size());
@@ -144,11 +147,13 @@ public class PortalServiceTests extends SakaiTests {
 
         Member member1 = mock(Member.class);
         when(member1.getUserId()).thenReturn(user1);
+        when(member1.isActive()).thenReturn(false);
         Set<Member> members = new HashSet<>();
         members.add(member1);
 
         Site site1 = mock(Site.class);
         when(site1.getUsers()).thenReturn(users);
+        when(site1.getMember(user1)).thenReturn(member1);
         when(site1.getMembers()).thenReturn(members);
         when(site1.isPublished()).thenReturn(false);
         try {
@@ -163,12 +168,14 @@ public class PortalServiceTests extends SakaiTests {
         when(event.getContext()).thenReturn(site1Id);
         when(event.getResource()).thenReturn("uid=" + user1 + ";role=access;active=true;siteId=" + site1Id);
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
-
         assertEquals(0, portalService.getPinnedSites().size());
 
         when(site1.isPublished()).thenReturn(true);
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
+        assertEquals(0, portalService.getPinnedSites().size());
 
+        when(member1.isActive()).thenReturn(true);
+        ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
         assertEquals(1, portalService.getPinnedSites().size());
 
         when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_UNPUBLISH);
@@ -259,13 +266,57 @@ public class PortalServiceTests extends SakaiTests {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
 
+        String user1SiteId = "~user1";
+        when(siteService.getUserSiteId(user1)).thenReturn(user1SiteId);
+
+        Set<String> users = new HashSet<>();
+        users.add(user1);
+
+        Member member1 = mock(Member.class);
+        when(member1.getUserId()).thenReturn(user1);
+        when(member1.isActive()).thenReturn(true);
+        Set<Member> members = new HashSet<>();
+        members.add(member1);
+
+        Site site1 = mock(Site.class);
+        when(site1.getMembers()).thenReturn(members);
+        when(site1.getMember(user1)).thenReturn(member1);
+        when(site1.isPublished()).thenReturn(true);
+        try {
+            when(siteService.getSite(site1Id)).thenReturn(site1);
+        } catch (IdUnusedException idue) {
+            System.out.println(idue.toString());
+        }
+
         portalService.addRecentSite(site1Id);
         assertEquals(1, portalService.getRecentSites().size());
 
-        portalService.addRecentSite("site2");
+        Site site2 = mock(Site.class);
+        String site2Id = "site2";
+        when(site2.getMembers()).thenReturn(members);
+        when(site2.getMember(user1)).thenReturn(member1);
+        when(site2.isPublished()).thenReturn(true);
+        try {
+            when(siteService.getSite(site2Id)).thenReturn(site2);
+        } catch (IdUnusedException idue) {
+            System.out.println(idue.toString());
+        }
+
+        portalService.addRecentSite(site2Id);
         assertEquals(2, portalService.getRecentSites().size());
 
-        portalService.addRecentSite("site3");
+        Site site3 = mock(Site.class);
+        String site3Id = "site3";
+        when(site3.getMembers()).thenReturn(members);
+        when(site3.getMember(user1)).thenReturn(member1);
+        when(site3.isPublished()).thenReturn(true);
+        try {
+            when(siteService.getSite(site3Id)).thenReturn(site3);
+        } catch (IdUnusedException idue) {
+            System.out.println(idue.toString());
+        }
+
+        portalService.addRecentSite(site3Id);
         assertEquals(3, portalService.getRecentSites().size());
 
         portalService.addRecentSite(SiteService.SITE_ERROR);
@@ -276,7 +327,18 @@ public class PortalServiceTests extends SakaiTests {
         assertEquals("site2", recentSites.next());
         assertEquals("site1", recentSites.next());
 
-        portalService.addRecentSite("site4");
+        Site site4 = mock(Site.class);
+        String site4Id = "site4";
+        when(site4.getMembers()).thenReturn(members);
+        when(site4.getMember(user1)).thenReturn(member1);
+        when(site4.isPublished()).thenReturn(true);
+        try {
+            when(siteService.getSite(site4Id)).thenReturn(site4);
+        } catch (IdUnusedException idue) {
+            System.out.println(idue.toString());
+        }
+
+        portalService.addRecentSite(site4Id);
         assertEquals(3, portalService.getRecentSites().size());
 
         recentSites = portalService.getRecentSites().iterator();
