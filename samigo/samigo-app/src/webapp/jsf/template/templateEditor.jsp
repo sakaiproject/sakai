@@ -48,32 +48,8 @@
 <!-- content... -->
  <div class="portletBody">
   <h:form id="templateEditorForm">
-  
-<ul class="navIntraTool actionToolbar" role="menu">
-    <li role="menuitem">
-        <span>
-            <h:commandLink title="#{generalMessages.t_assessment}" action="author" id="authorLink" immediate="true">
-               <h:outputText value="#{generalMessages.assessment}" />
-               <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-            </h:commandLink>
-        </span>
-    </li>
-    <li role="menuitem">
-        <span>
-            <h:commandLink title="#{generalMessages.t_template}" action="template" id="templateLink" immediate="true">
-                <h:outputText value="#{generalMessages.template}" />
-                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-            </h:commandLink>
-        </span>
-    </li>
-    <li role="menuitem">
-        <span>
-            <h:commandLink title="#{generalMessages.t_questionPool}" action="poolList" id="poolLink" immediate="true">
-                <h:outputText value="#{templateMessages.link_pool}" />
-            </h:commandLink>
-        </span>
-    </li>
-</ul>
+  <!-- HEADINGS -->
+  <%@ include file="/jsf/template/templateHeadings.jsp" %>
 
 <h3><h:outputText value="#{templateMessages.template_editor}"/>
      <h:outputText value="#{template.templateName}"/>
@@ -157,7 +133,7 @@
   </div>
   </samigo:hideDivision>
 
-  <!-- *** HIGH SECURITY *** -->
+  <!-- *** SECURITY AND PROCTORING *** -->
   <samigo:hideDivision title="#{templateMessages.high_security}" id="div5">
     <div class="tier2">
    <div class="longtext">
@@ -613,19 +589,6 @@
 
 
 </div>
-  </samigo:hideDivision>
-
- <!-- *** HUONG COLORS AND GRAPHICS *** -->
- <samigo:hideDivision title="#{templateMessages.graphics}" id="div13">
-    <div class="tier2">
- <div class="longtext"><h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
- <div class="tier3">
-        <h:selectBooleanCheckbox id="graphics"
-          value="#{template.valueMap.bgColor_isInstructorEditable}"/>
-        <h:outputLabel for="graphics" value="#{templateMessages.bg}"/>
-        </div>
-
-    </div>
   </samigo:hideDivision>
 
   <!-- *** META *** -->
