@@ -130,7 +130,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                 </span>
                 ${c.title}
                 <sakai-rubric-criterion-edit
-                    id="criterion-edit-${this.criterion.id}"
+                    id="criterion-edit-${c.id}"
                     @criterion-edited="${this.criterionEdited}"
                     site-id="${this.siteId}"
                     rubric-id="${this.rubricId}"
