@@ -829,8 +829,8 @@ $Id$
        <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                         rendered="#{questionScores.hasAssociatedRubric}"
                         value="#"
-                        onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
-                        onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
+                        onclick="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;"
+                        onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;" >
         <h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon1" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
       </h:outputLink>
       <%@ include file="/jsf/evaluation/rubricModal.jsp" %> 
@@ -860,8 +860,8 @@ $Id$
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                     rendered="#{questionScores.hasAssociatedRubric}"
                     value="#"
-                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
-                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
+                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;" >
 	  	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon2" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
 	  <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
@@ -890,8 +890,8 @@ $Id$
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                     rendered="#{questionScores.hasAssociatedRubric}"
                     value="#"
-                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
-                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
+                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;" >
 	  	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon3" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
        <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
