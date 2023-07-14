@@ -1181,6 +1181,7 @@ public class ExtractionHelper
 		  String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
 		  String filename = attachmentInfo[1];
 		  ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
+		  // contentResource could be null but is OK (exception catched)
 		  itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
 		  itemAttachment.setItem(item.getData());
 		  set.add(itemAttachment);

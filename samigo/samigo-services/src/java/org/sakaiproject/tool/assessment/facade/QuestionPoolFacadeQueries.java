@@ -639,9 +639,11 @@ public class QuestionPoolFacadeQueries
       }
 
       // #5. delete all subpools if any, this is recursive
-      Iterator citer = (tree.getChildList(poolId)).iterator();
-      while (citer.hasNext()) {
-        deletePool( (Long) citer.next(), agent, tree);
+      if (tree != null) {
+        Iterator citer = (tree.getChildList(poolId)).iterator();
+        while (citer.hasNext()) {
+          deletePool( (Long) citer.next(), agent, tree);
+        }
       }
     }
     catch (DataAccessException e) {
