@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I set up and use WebDAV on Windows 10/11?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="" name="description">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
+    $(document).ready(function(){
+      $("a.screensteps-image-zoom").featherlight({
+        type: { image:true },
+        closeOnClick: 'anywhere'
+      }); 
+    });   
+</script>
+</head>
+<body>
+  <div><div>
+<div><h1 class="article-title">How do I set up and use WebDAV on Windows 10/11?</h1></div>
+<div>
+
+
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div id="text-content_85C8492B-735D-4209-A834-9CDBF150198B" class="text-block-content">
+    <p>Upload or download resources from your local computer to the Resources tool using the WebDAV protocol. This page describes how you can create a WebDAV connection between your computer and the Resources tool within your site and then how you can move content between locations.</p>
+<p><strong>Additional resources:</strong></p>
+<ul>
+<li>If you prefer to use Cyberduck to manage your WebDAV connections, see <a href="content.hlp?docId=howdoisetupandusewebdavwithcyberduck">How do I set up and use WebDAV with Cyberduck?</a>.</li>
+<li>If you use a MacOS computer to manage your site, see <a href="content.hlp?docId=howdoisetupandusewebdavonmacos108andup">How do I set up and use WebDAV on MacOS (10.8 and up)?</a>.</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>Due to how Windows 10 establishes WebDAV connections, a WebDAV connection will not persist after you restart your computer. Use the steps in this article to re-create the connection as needed. To establish a persistent WebDAV connection that you can reuse after restarting your computer, see <a href="content.hlp?docId=howdoisetupandusewebdavwithcyberduck">How do I set up and use WebDAV with Cyberduck?</a>.</li>
+<li>There must be at least one item (a file or folder) in the site's Resources tool before you begin the WebDAV setup procedure.</li>
+</ul>
+  </div>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="creating-the-webdav-connection">
+    <h2 class="step-title screensteps-heading">Creating the WebDAV connection</h2>
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Go to Resources.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/575/097/original/728a89a7-3f8d-4f9e-b052-81630f8cada6.png" alt="" height="114" width="196">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_8065ee84-d667-4ff0-bfcd-a4f82293a9bc" class="text-block-content">
+    <p>Select the <strong>Resources</strong> tool from the Tool Menu of your site.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="click-transfer-files">
+    <h3 class="step-title screensteps-heading">Click Transfer Files.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/575/099/original/920dacff-891b-4f75-833e-19c2ea3ed4e0.png" alt="" height="53" width="514">
+  </div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="copy-the-site-s-webdav-url">
+    <h3 class="step-title screensteps-heading">Copy the site's WebDAV URL.</h3>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/006/648/037/original/fdc276b1-e660-428c-a3fd-76ca37f03a09.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/006/648/037/medium/fdc276b1-e660-428c-a3fd-76ca37f03a09.png" alt="" height="363" width="855">
+      </a>
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_2f25e5b8-8a16-47b1-bff4-312341d6f7cc" class="text-block-content">
+    <p>Copy the URL that's displayed in the <strong>Step 1</strong> field.</p>
+  </div>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+  <div id="text-content_56d5a7d5-cdc3-4047-b1ce-ae3b375493d9" class="text-block-content">
+    <p><em>Note: the URL that your site supplies for you may look quite different from the example provided on this page.</em></p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="after-logging-into-windows-access-the-file-explorer">
+    <h3 class="step-title screensteps-heading">Access the File Explorer on your local computer.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/575/103/original/2dd6c840-48b8-4e65-91ea-9926a96b55c5.png" alt="Image of the File Explorer icon on a Windows 10 device." height="50" width="193">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_5B1965A9-2C7C-4602-A17B-67A47A6C08DC" class="text-block-content">
+    <p>On your computer's taskbar, open the <strong>File Explorer</strong>. Alternatively, press <strong>Windows button </strong>+<strong> E </strong>on your keyboard to activate the File Explorer area.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="choose-add-a-network-location">
+    <h3 class="step-title screensteps-heading">Add a network location.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/575/105/original/9573ecb5-ce7a-4983-8fe8-030c64ce4e60.png" alt="" height="280" width="452">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_2268BD94-5C99-4BDC-B640-476ADC382A40" class="text-block-content">
+    <ol>
+<li>Right-click <strong>This PC</strong>. </li>
+<li>Select <strong>Add a network location</strong>.</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="click-next">
+    <h3 class="step-title screensteps-heading">Click Next.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/632/597/original/bbac32fd-2109-48a3-adfe-33418d5998ad.png" alt="" height="244" width="582">
+  </div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="choose-a-custom-network-location">
+    <h3 class="step-title screensteps-heading">Choose a custom network location.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/575/109/original/9d91afb9-3e3c-4c76-8471-195ef505bbab.png" alt="" height="207" width="589">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_1BFBE6D4-71D9-431F-AC20-6D497CB54323" class="text-block-content">
+    <ol>
+<li>Select<strong> Choose a custom network location</strong>.</li>
+<li>Click <strong>Next</strong>.</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="enter-the-webdav-url">
+    <h3 class="step-title screensteps-heading">Paste the site's WebDAV URL and then click Next.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/575/111/original/5b9fbf06-d7b5-4bf8-b6d3-badc6109130a.jpg" alt="" height="493" width="597">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_43744725-5FD5-41D9-87ED-4A9E607B847D" class="text-block-content">
+    <ol>
+<li>Paste the the site's WebDAV URL in the <strong>Internet or network address</strong> field. Return to <a href="#copy-the-site-s-webdav-url" target="_self">Copy the site's WebDAV URL</a> above to retrieve the WebDAV URL if you not longer have it available to use.</li>
+<li>Click <strong>Next</strong>.</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="enter-your-username-and-password-click-ok">
+    <h3 class="step-title screensteps-heading">Enter your User name and Password.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/632/709/original/da9ea50e-c70a-4ae1-88c5-fa0a841e15c6.png" alt="" height="345" width="491">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_E6D07EE0-CA5F-44B4-B8AF-F89D786CEC20" class="text-block-content">
+    <ol>
+<li>In the <strong>User name</strong> field, enter the user name that you normally use to log in to the site with which you wish to create a WebDAV connection. This is often your institutional email address.</li>
+<li>In the <strong>Password</strong> field, enter the password that you normally use to log in to the site with which you wish to create a WebDAV connection.</li>
+<li>Click <strong>OK</strong>.</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="enter-a-custom-name-for-the-webdav-connection-optional">
+    <h3 class="step-title screensteps-heading">Enter a custom name for the WebDAV connection. (Optional)</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/575/114/original/2290ec63-0f44-481f-b328-44e8195b9f68.png" alt="" height="463" width="582">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_f8e3754d-0915-44a9-affc-426227ac1611" class="text-block-content">
+    <ol>
+<li>Enter custom name for the WebDAV connection the the site's WebDAV URL in the <strong>Type a name for this network</strong> location field. Taking this step will make it easy for you to identify which site you are about to connect with if you have set up multiple WebDAV connections on your computer.</li>
+<li>Click <strong>Next</strong>.</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Click Finish.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/644/581/original/b8cb5cb1-260d-4a8b-a3a8-821531ddd092.jpg" alt="" height="488" width="593">
+  </div>
+ 
+  </div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="you-can-now-drag-files-and-folders-to-and-from-your-computer-and-the-site-s-folder">
+    <h2 class="step-title screensteps-heading">Modifying Resources contents using the WebDAV connection</h2>
+        <div class="step screensteps-section screensteps-depth-2" id="access-the-file-explorer-on-your-local-computer">
+    <h3 class="step-title screensteps-heading">Access the File Explorer on your local computer.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/644/583/original/66bc5db8-b0e2-4f99-9f37-37de0f09b118.png" alt="" height="50" width="193">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_5afaebbb-4b74-4eea-b5f6-dd62b01b36a3" class="text-block-content">
+    <p>On your computer's taskbar, open the <strong>File Explorer</strong>. Alternatively, press <strong>Windows button </strong>+<strong> E </strong>on your keyboard to activate the File Explorer area.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="open-the-webdav-connection">
+    <h3 class="step-title screensteps-heading">Open the WebDAV connection.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/644/585/original/ef2ceafe-d2b0-4121-bab6-a5ab025706f5.png" alt="" height="246" width="172">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_16c27fb9-f973-4a4d-8481-ed6fc50e119a" class="text-block-content">
+    <p>In the File Explorer, click on the folder that you created while setting up the WebDAV connection.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="modify-contents-using-the-webdav-connection">
+    <h3 class="step-title screensteps-heading">Modify contents using the WebDAV connection. </h3>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/006/655/163/original/cbd75d3c-6da8-4038-ac4d-8cdd2093ff9b.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/006/655/163/medium/cbd75d3c-6da8-4038-ac4d-8cdd2093ff9b.png" alt="" height="319" width="855">
+      </a>
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_846aff6b-5c1d-4717-88be-5c10c48b5ca3" class="text-block-content">
+    <p>Drag, drop, download, and modify files and folders. Changes that you make within the WebDAV connection will update within the Resources tool in your site.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+  <div id="text-content_EBA018CE-28FD-4722-A408-D7A8A715404A" class="text-block-content">
+    <p><strong>Note:</strong> If you have permission to read content in a site, you can download multiple files via WebDAV by dragging the files from the site's folder to a folder on your local computer. You can only save, edit or delete files in the selected site if you have the appropriate permissions in the site.</p>
+  </div>
+</div>
+ 
+  </div>
+
+
+</div>
+</div></div>
+</body>
+</html>
