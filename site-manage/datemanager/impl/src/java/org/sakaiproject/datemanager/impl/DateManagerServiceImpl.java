@@ -1201,7 +1201,7 @@ public class DateManagerServiceImpl implements DateManagerService {
                                         c.cancelEvent(edit);
                                 }
                         } catch (Exception e) {
-                                log.error("Exception thrown: {}", e.getMessage());
+                                log.warn("Could not clear update for calendar, {}", e.toString());
                         }
 		} 
 	}
