@@ -18,6 +18,7 @@ package org.sakaiproject.announcement.api;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,6 +50,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
+
+    private static final String ADD_EVENT = AnnouncementService.SECURE_ANNC_ADD;
+    private static final String UPDATE_EVENT = AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY;
 
     @Resource
     private AnnouncementService announcementService;
@@ -90,11 +94,15 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
         } catch (Exception ex) {
             log.debug("No announcement with id {}", ref);
         }
+
+        boolean isDraft = message.getHeader().getDraft();
+        boolean releasedInFuture = Instant.now().isBefore(message.getHeader().getInstant());
         // TODO: the following code could be simplified. Lots of try catches.
         try {
             // If the announcement has just been hidden or removed, remove any existing alerts for it
+            // Also if it has been saved as draft or with release date in the future
             if ((AnnouncementService.SECURE_ANNC_REMOVE_OWN.equals(e.getEvent()) || AnnouncementService.SECURE_ANNC_REMOVE_ANY.equals(e.getEvent()))
-                        || (AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY.equals(e.getEvent()) && message.getHeader().getDraft())) {
+                        || (UPDATE_EVENT.equals(e.getEvent()) && (isDraft || releasedInFuture))) {
                 try {
                     TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
 
@@ -106,12 +114,13 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                             // for the recipients
                             final List<BullhornAlert> alerts
                                 = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
-                                    .add(Restrictions.eq("event", AnnouncementService.SECURE_ANNC_ADD))
+                                    .add(Restrictions.or(Restrictions.eq("event", ADD_EVENT), Restrictions.eq("event", UPDATE_EVENT)))
                                     .add(Restrictions.eq("ref", ref)).list();
 
 
-                            sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref = :ref")
-                                .setString("event", AnnouncementService.SECURE_ANNC_ADD)
+                            sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :newEvent or event = :reviseEvent and ref = :ref")
+                                .setString("newEvent", ADD_EVENT)
+                                .setString("reviseEvent", UPDATE_EVENT)
                                 .setString("ref", ref).executeUpdate();
                         }
                     });
