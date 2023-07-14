@@ -1364,7 +1364,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Override
 	public void updateForums(DateManagerValidation forumValidation) throws Exception {
                 for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) forumValidation.getUpdates()) {
-                if (update.object instanceof BaseForum) {
+                    if (update.object instanceof BaseForum) {
                                 DiscussionForum forum = (DiscussionForum) update.object;
                                 if(forum.getAvailabilityRestricted()) {
                                         Date openDateTemp = update.openDate != null ? Date.from(update.openDate) : null;
