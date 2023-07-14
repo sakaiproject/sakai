@@ -1526,7 +1526,7 @@ public class DateManagerServiceImpl implements DateManagerService {
                                 announcementService.cancelMessage((AnnouncementMessageEdit) update.getObject());
                         }
                 } catch (Exception e) {
-                        log.error("Exception thrown: {}", e.getMessage());
+                        log.warn("Could not clear update for announcement, {}", e.toString());
                 }
 	}
 
