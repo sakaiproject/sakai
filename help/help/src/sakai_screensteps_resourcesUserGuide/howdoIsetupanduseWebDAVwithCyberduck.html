@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I set up and use WebDAV with Cyberduck?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="" name="description">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
+    $(document).ready(function(){
+      $("a.screensteps-image-zoom").featherlight({
+        type: { image:true },
+        closeOnClick: 'anywhere'
+      }); 
+    });   
+</script>
+</head>
+<body>
+  <div><div>
+<div><h1 class="article-title">How do I set up and use WebDAV with Cyberduck?</h1></div>
+<div>
+
+
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div id="text-content_6B6ABC3C-7456-4EA7-9F2F-0904939442A8" class="text-block-content">
+    <p>Upload or download resources from your local computer to the Resources tool using the WebDAV protocol via the Cyberduck application. This page describes how you can obtain the Cyberduck application, use Cyberduck to create a  WebDAV connection between your computer and the Resources tool within your site, and then how you can edit and move content between locations.</p>
+<p>If you prefer to create a basic WebDAV connection, see <a href="content.hlp?docId=howdoisetupandusewebdavonwindows1011">How do I set up and use WebDAV on Windows 10/11?</a> or <a href="https://sakai.screenstepslive.com/admin/v2/internal_links/1629424?type=article&amp;site_id=5276">How do I set up and use WebDAV on MacOS (10.8 and up)?</a>.</p>
+<p><em><strong>Note:</strong> There must be at least one object (file or folder) in the selected Resources or File Drop tool before you begin the setup procedure. This procedure needs to be done once for each tool before you can use WebDAV to transfer files to and from that tool.</em></p>
+  </div>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="downloading-and-installing-the-cyberduck-webdav-client">
+    <h2 class="step-title screensteps-heading">Downloading and installing the Cyberduck WebDAV client</h2>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/659/883/original/221b28c0-6582-4b37-9ddb-021c372a90fb.png" alt="" height="444" width="596">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_960EA4B8-A3D1-47B8-A8EC-927E9E75F5FD" class="text-block-content">
+    <p>Download the <a href="https://cyberduck.io/?" target="_blank">Cyberduck WebDAV client </a>and install it on your computer. Cyberduck is compatible with Windows and MacOS computers.</p>
+  </div>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+  <div id="text-content_BD10D71E-DC81-4E93-868E-F30F0C54AEA9" class="text-block-content">
+    <p><em><strong>Note: </strong>When you download the software, you may be asked to donate or purchase a registration key. Doing so is not required to use the application.</em></p>
+  </div>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="step-by-step-instructions">
+    <h2 class="step-title screensteps-heading">Creating the WebDAV connection with Cyberduck</h2>
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Go to Resources.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/659/885/original/47ff4d1b-f099-40b7-b50f-21be459c1359.png" alt="" height="114" width="196">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_c16a6e1d-9bd0-4927-9da0-8e99c52b8de3" class="text-block-content">
+    <p>Select the <strong>Resources</strong> tool from the Tool Menu of your site.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Click Transfer Files.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/659/887/original/60567ed0-6e78-439f-8776-f3033cc6eb6d.png" alt="" height="53" width="514">
+  </div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="copy-the-sites-webdav-url">
+    <h3 class="step-title screensteps-heading">Copy the site's WebDAV URL.</h3>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/006/659/889/original/0fa0e701-6aa5-4974-8dc8-40d53fe9f39c.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/006/659/889/medium/0fa0e701-6aa5-4974-8dc8-40d53fe9f39c.png" alt="" height="363" width="855">
+      </a>
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_27f8f264-8a5d-4d62-869a-7a5f1ec4b8bd" class="text-block-content">
+    <p>Copy the URL that's displayed in the <strong>Step 1</strong> field.</p>
+  </div>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock screensteps-wrapper--tip screensteps-wrapper">
+  <div id="text-content_82dff70e-edeb-4da4-89f0-90488dea4fd9" class="text-block-content">
+    <p><em>Note: the URL that your site supplies for you may look quite different from the example provided on this page.</em></p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="open-cyberduck-and-click-open-connection">
+    <h3 class="step-title screensteps-heading">Open Cyberduck and then click the Bookmarks icon.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/659/891/original/6b58c66f-c5de-4cf4-b13d-1475a7c56d12.png" alt="" height="142" width="627">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_452443f0-cf90-4c01-a87f-6fb4cf13e323" class="text-block-content">
+    <p>If you're using a Windows computer, open Cyberduck from your <strong>Start</strong> menu. If you're using a Mac, open Cyberduck from the <strong>Dock</strong> or <strong>Launchpad</strong> areas.</p>
+<p>In the Cyberduck application, click<strong> </strong>the<strong> Bookmarks </strong>icon.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="click-the-icon">
+    <h3 class="step-title screensteps-heading">Click the + icon.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/659/893/original/61447e12-0301-4f7c-9624-396af492ff0d.png" alt="" height="374" width="622">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_676f555d-9615-4243-bc69-35d633d67227" class="text-block-content">
+    <p>Click the + icon that is located near the bottom of the menu in Cyberduck.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="enter-webdav-url-and-login-information-click-connect">
+    <h3 class="step-title screensteps-heading">Configure the WebDAV connection and then click Connect.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/659/895/original/de887e94-397b-4c6c-97bc-e4c460077050.png" alt="Image of the bookmark configuration menu in cyberduck" height="345" width="637">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_85337AFE-7B5A-4377-97B0-A6D96F664F70" class="text-block-content">
+    <ol>
+<li>Change the connection type, which uses 'FTP' by default, to <em>WebDAV (HTTPS)</em>.</li>
+<li>In the <strong>Server</strong> field, paste the WebDAV URL<em>. </em>Return to <a href="#copy-the-sites-webdav-url" target="_self">Copy the site's WebDAV URL</a> above to retrieve the WebDAV URL if you not longer have it available to use.</li>
+<li>Optionally, enter a nickname for the bookmark to assist with locating it next time you open Cyberduck. </li>
+<li>In the <strong>Username</strong> field, enter the user name that you normally use to log in to the site with which you wish to create a WebDAV connection. This is often your institutional email address.</li>
+<li>In the <strong>Password</strong> field, enter the password that you normally use to log in to the site with which you wish to create a WebDAV connection.</li>
+<li>Click the X icon to save and close the bookmark configuration.</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Modifying Resources contents using the WebDAV connection</h2>
+        <div class="step screensteps-section screensteps-depth-2" id="open-the-bookmarked-connection">
+    <h3 class="step-title screensteps-heading">Open the bookmarked connection.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/659/897/original/1e4381e0-4f11-4aae-bcbf-7a32abec25a6.png" alt="Image of the demonstration bookmark in Cyberduck" height="373" width="783">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_a6d8a012-2ac2-4679-9ad1-63ab7b580543" class="text-block-content">
+    <p>Double-click the bookmark to open it.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2">
+    <h3 class="step-title screensteps-heading">Modify contents using the WebDAV connection.</h3>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/006/659/900/original/d1e10673-171f-455e-96dd-328fc103c1a0.png" alt="" height="374" width="790">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_f277b068-4ae0-4049-b805-fedad8872410" class="text-block-content">
+    <p>Drag, drop, download, and modify files and folders. Changes that you make within the WebDAV connection will update within the Resources tool in your site.</p>
+  </div>
+</div>
+ 
+  </div>
+ 
+  </div>
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+  <div id="text-content_58ce7b4f-ac10-47a8-84d8-1f34a5f14567" class="text-block-content">
+    <p><strong>Note:</strong> If you have permission to read content in a site, you can download multiple files via WebDAV by dragging the files from the site's folder to a folder on your local computer. You can only save, edit or delete files in the selected site if you have the appropriate permissions in the site.</p>
+  </div>
+</div>
+
+
+</div>
+</div></div>
+</body>
+</html>
