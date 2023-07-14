@@ -240,6 +240,11 @@
             background-color: var(--sakai-primary-color-1);
         }
 
+        //keep image from streching when not having 1:1 aspect ratio
+        .img-ratio-cover{
+            object-fit: cover;
+        }
+
         .btn-check {
             flex-grow: 1;
         }
