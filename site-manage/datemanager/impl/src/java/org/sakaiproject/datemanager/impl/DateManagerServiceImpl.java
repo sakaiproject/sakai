@@ -1034,7 +1034,7 @@ public class DateManagerServiceImpl implements DateManagerService {
                                 }
                         }
                 } catch (Exception e) {
-                        log.error("Exception thrown: {}", e.getMessage());
+                        log.warn("Could not clear update for resource, {}", e.toString());
                 }
         }
 
