@@ -1553,7 +1553,7 @@ public class DateManagerServiceImpl implements DateManagerService {
                                 aChannel.commitMessage(msg, NotificationService.NOTI_IGNORE);
                         }
                 } catch (Exception e) {
-                        log.error("Announcement channel {} doesn't exist. {}", anncRef, e.getMessage());
+                        log.warn("Announcement channel {} doesn't exist. {}", anncRef, e.toString());
                 }
 	}
 
