@@ -55,7 +55,7 @@
 
           #if ($allowAddSite)
             <li role="menuitem">
-              <a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp">
+              <a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?sakai_action=doNew_site">
                 <span>${rloader.sit_newsite}</span>
               </a>
             </li>
