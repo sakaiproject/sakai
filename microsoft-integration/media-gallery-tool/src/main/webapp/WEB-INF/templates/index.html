@@ -6,6 +6,8 @@
 	<body>
 		<div th:replace="fragments/common :: bootstrap" />
 
+		<div class="menu" th:insert="fragments/menus :: main (index)" />
+
 		<div class="sak-banner-error hidden" id="exception_error"></div>
 
 		<th:block th:fragment="common-body">
