@@ -42,4 +42,14 @@ public class CriterionTransferBean {
         weight = criterion.getWeight();
         ratings = criterion.getRatings().stream().map(RatingTransferBean::new).collect(Collectors.toList());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || ((CriterionTransferBean) o).getId() == null || id == null) {
+            return false;
+        } else if (o == this) {
+            return true;
+        }
+        return (this.id.equals(((CriterionTransferBean) o).getId()) && ((CriterionTransferBean) o).getRatings().size() == this.ratings.size());
+    }
 }
