@@ -18,6 +18,9 @@
 			
 			<script th:inline="javascript">
 				loadItems('', '', false);
+
+				//accesibility navigation
+				document.getElementById('body-container').addEventListener('keydown', onKeyDown);
 			</script>
 		</th:block>
 	</body>

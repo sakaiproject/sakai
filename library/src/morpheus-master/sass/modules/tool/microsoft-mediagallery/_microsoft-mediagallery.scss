@@ -98,18 +98,28 @@
 				scale: 1.2;
 			}
 		}
+
+		[role=button] {
+			&:focus {
+				outline: 0;
+				outline-offset: 0;
+				text-decoration: none;
+				border: thin solid;
+			}
+		}
 	}
 	
 	/* Items (video/folder) in rows */
 	.display-flex {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: flex-end;
+		align-items: stretch;
 		
 		>.video-item {
 			display: flex;
 			flex-direction: column;
 			margin-bottom: 10px;
+			justify-content: flex-end;
 		}
 	}
 	
@@ -145,10 +155,10 @@
 				justify-content: center;
 				align-items: center;
 				font-size: 40px;
-				color: $color_play;
 				
 				.play-icon {
 					text-decoration: none;
+					color: $color_play;
 					
 					&:hover {
 						color: $color_play_hover;

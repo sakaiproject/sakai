@@ -3,7 +3,7 @@
 <th:block th:if="${typesKeys != null and !typesKeys.empty}">
 	<div class="container-view container-fluid collapse" th:classappend="${!treeView}? 'in'">
 		<div class="container-header">
-			<h2><span th:text="#{tree_view}"/><span role="button" class="icon-toggle fa fa-toggle-off" onclick="toggleView()" th:title="#{tree_view_off}"></span></h2>
+			<h2><span th:text="#{tree_view}"/><span role="button" tabindex="0" class="icon-toggle fa fa-toggle-off" onclick="toggleView()" th:title="#{tree_view_off}"></span></h2>
 			<form>
 				<div>
 					<label th:text="#{order_by}"></label>
@@ -46,9 +46,11 @@
 								class="accordion-toggle" 
 								th:classappend="${(#strings.isEmpty(refreshSection) and !stat.first) or (!#strings.isEmpty(refreshSection) and !#strings.equals(refreshSection, typeKey))}? 'collapsed'"
 								role="button"
+								tabindex="0"
 								data-toggle="collapse" 
 								data-parent="#accordion_all"  
 								th:attr="data-target='#section_all_'+${typeKey}, aria-controls='section_'+${typeKey}, aria-expanded=${#strings.isEmpty(refreshSection) and stat.first or #strings.equals(refreshSection, typeKey)}" 
+								th:title="#{expand_collapse}"
 							>
 								<i class="fa fa-chevron-down collapsed-icon"></i>
 								<span th:text="${typesMap.get(typeKey)}" /> 
@@ -56,6 +58,7 @@
 							<a class="fa fa-refresh refresh-icon"
 								aria-hidden="true"
 								role='button'
+								tabindex="0"
 								th:attr="onclick=|loadItems('${typeKey}','${sortBy}', false)|"
 								th:title="#{refresh}"
 							></a>
@@ -64,8 +67,8 @@
 					<div class="panel-collapse collapse" th:classappend="${#strings.isEmpty(refreshSection) and stat.first or #strings.equals(refreshSection, typeKey)}? 'in'" th:id="|section_all_${typeKey}|">
 						<div class="panel-body">
 							<div th:if="${itemsList}" class="row display-flex">
-								<th:block th:each="item: ${itemsList}">
-									<div th:replace="fragments/driveItems :: printItem(${item})"></div>
+								<th:block th:each="item, stat: ${itemsList}">
+									<div th:insert="fragments/driveItems :: printItem(${item})" class="video-item col-md-3 col-sm-4 col-xs-12" th:tabindex="${stat.first} ? 0 : -1"></div>
 								</th:block>
 							</div>
 							<div th:if="${itemsList == null}" th:text="#{container_empty}" class="sak-banner-info"></div>
@@ -78,7 +81,7 @@
 
 	<div class="container-view container-fluid collapse" th:classappend="${treeView}? 'in'">
 		<div class="container-header">
-			<h2><span th:text="#{tree_view}"/><span role="button" class="icon-toggle fa fa-toggle-on" onclick="toggleView()" th:title="#{tree_view_on}"></span></h2>
+			<h2><span th:text="#{tree_view}"/><span role="button" tabindex="0" class="icon-toggle fa fa-toggle-on" onclick="toggleView()" th:title="#{tree_view_on}"></span></h2>
 			<form>
 				<div>
 					<label th:text="#{order_by}"></label>
@@ -111,9 +114,11 @@
 							class="accordion-toggle" 
 							th:classappend="${(#strings.isEmpty(refreshSection) and !stat.first) or (!#strings.isEmpty(refreshSection) and !#strings.equals(refreshSection, typeKey))}? 'collapsed'"
 							role="button"
+							tabindex="0"
 							data-toggle="collapse" 
 							data-parent="#accordion_tree" 
 							th:attr="data-target='#section_tree_'+${typeKey}, aria-controls='section_'+${typeKey}, aria-expanded=${#strings.isEmpty(refreshSection) and stat.first or #strings.equals(refreshSection, typeKey)}"  
+							th:title="#{expand_collapse}"
 						>
 							<i class="fa fa-chevron-down collapsed-icon"></i>
 							<span th:text="${typesMap.get(typeKey)}" /> 
@@ -121,6 +126,7 @@
 						<a class="fa fa-refresh refresh-icon"
 							aria-hidden="true"
 							role='button'
+							tabindex="0"
 							th:attr="onclick=|loadItems('${typeKey}','${sortBy}', true)|"
 							th:title="#{refresh}"
 						></a>
