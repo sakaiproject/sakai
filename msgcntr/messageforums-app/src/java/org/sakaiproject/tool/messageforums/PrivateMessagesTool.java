@@ -1383,9 +1383,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */ 
   public String processPvtMsgForward() {
 	    log.debug("processPvtMsgForward()");
-	    
-      multiDeleteSuccess = false;
+
 	    setDetailMsgCount = 0;
+	    multiDeleteSuccess = false;
 	    
 	    if (getDetailMsg() == null)
 	    	return null;
@@ -1466,8 +1466,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */ 
   public String processPvtMsgReplyAll() {
 	    log.debug("processPvtMsgReplyAll()");
-	    
-      multiDeleteSuccess = false;
+
+	    multiDeleteSuccess = false;
 	    setDetailMsgCount = 0;
 	    
 	    if (getDetailMsg() == null)
@@ -2073,7 +2073,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */
   public String processDisplayPreviousMsg()
   {
-	multiDeleteSuccess = false;
+  multiDeleteSuccess = false;
 
 	List tempMsgs = getDecoratedPvtMsgs(); // all messages
     int currentMsgPosition = -1;
@@ -2136,10 +2136,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * processDisplayNextMsg()
    * Display the Next message from the list of decorated messages
    */    
-  public String processDisplayNextMsg()
+  public String processDisplayNextMsg() 
   {
 	multiDeleteSuccess = false;
-
 	List tempMsgs = getDecoratedPvtMsgs();
     int currentMsgPosition = -1;
     if(tempMsgs != null)
@@ -2267,7 +2266,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * processDisplayPreviousFolder()
    */
   public String processDisplayPreviousTopic() {
-	multiDeleteSuccess = false;
+    multiDeleteSuccess = false;
     String prevTopicTitle = getExternalParameterByKey("previousTopicTitle");
     if(StringUtils.isNotEmpty(prevTopicTitle))
     {
@@ -2303,8 +2302,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * processDisplayNextFolder()
    */
   public String processDisplayNextTopic()
-  { 
-	multiDeleteSuccess = false;
+  {
+    multiDeleteSuccess = false;
     String nextTitle = getExternalParameterByKey("nextTopicTitle");
     if(StringUtils.isNotEmpty(nextTitle))
     {

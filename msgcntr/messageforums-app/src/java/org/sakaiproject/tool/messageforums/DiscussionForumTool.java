@@ -4318,7 +4318,7 @@ public class DiscussionForumTool {
   
   public String processDfMsgReplyMsg()
   {
-	selectedMessageCount = 0;
+    selectedMessageCount = 0;
 
     boolean isFaqForum = Boolean.TRUE.equals(selectedTopic.getTopic().getFaqTopic());
 
