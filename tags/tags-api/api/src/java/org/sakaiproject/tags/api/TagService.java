@@ -29,9 +29,12 @@ import java.util.List;
  */
 public interface TagService {
 
-    public static final String TAGSERVICE_MANAGE_PERMISSION =  "tagservice.manage";
+    public static final String TAGSERVICE_MANAGE_PERMISSION = "tagservice.manage";
     public static final String TOOL_ASSIGNMENTS = "assignments";
     public static final String TOOL_PRIVATE_MESSAGES = "privatemessages";
+    
+    public static final String TAGSERVICE_ENABLED_INTEGRATION_PROP = "tagservice.enable.integrations";
+    public static final boolean TAGSERVICE_ENABLED_INTEGRATION_DEFAULT = true;
 
     public void init();
 
