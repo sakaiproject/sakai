@@ -1,36 +1,6 @@
 <?xml version="1.0"?>
 <emailTemplates>
 	<emailTemplate>
-		<subject>Joinable Set&lt;#if isNew == "true"&gt; created&lt;#else&gt; updated&lt;/#if&gt;: ${jSetName}</subject>
-		<message>
-			Dear ${userName},
-
-			Joinable Set "${jSetName}" has been &lt;#if isNew == "true"&gt;created &lt;#else&gt;updated &lt;/#if&gt;on the following ${localSakaiName} site: ${siteName}
-
-			It can have several associated groups, you can join one of them.
-			By default each group title is composed by the Joinable Set name followed by a number (e.g ${jSetName} 1).
-			Each group has space for ${maxUsers} member(s).
-			&lt;#if openDate??&gt;
-
-			Available from:  ${openDate}
-			&lt;/#if&gt;
-			&lt;#if closeDate??&gt;
-
-			Enrollment ends:  ${closeDate}
-			&lt;/#if&gt;
-			&lt;#if canUnjoin == "true"&gt;
-
-			Ability to unjoin is active&lt;#if closeDate??&gt; until closing date&lt;/#if&gt;.
-			&lt;#else&gt;
-
-			Ability to unjoin is not active.
-			&lt;/#if&gt;
-
-		</message>
-		<locale></locale>
-	</emailTemplate>
-
-	<emailTemplate>
 		<subject>Conjuto autoinscribible&lt;#if isNew == "true"&gt; creado&lt;#else&gt; actualizado&lt;/#if&gt;: ${jSetName}</subject>
 		<message>
 			Saludos ${userName},
@@ -65,7 +35,7 @@
 		<message>
 			Salutacions ${userName},
 
-			El conjunt subscrivible "${jSetName}" s'ha &lt;#if isNew == "true"&gt;creat &lt;#else&gt;actualitzat &lt;/#if&gt;al seg\u00fcent espai de ${localSakaiName}: ${siteName}
+			El conjunt subscrivible "${jSetName}" s'ha &lt;#if isNew == "true"&gt;creat &lt;#else&gt;actualitzat &lt;/#if&gt;al següent espai de ${localSakaiName}: ${siteName}
 
 			Pot tenir diversos grups associats, pots unir-te a un.
 			Per defecte el títol de cada grup està format pel nom del conjunt seguit d'un nombre (exemple: ${jSetName} 1).
@@ -119,4 +89,35 @@
 		</message>
 		<locale>eu</locale>
 	</emailTemplate>
+	
+	<emailTemplate>
+		<subject>Joinable Set&lt;#if isNew == "true"&gt; created&lt;#else&gt; updated&lt;/#if&gt;: ${jSetName}</subject>
+		<message>
+			Dear ${userName},
+
+			Joinable Set "${jSetName}" has been &lt;#if isNew == "true"&gt;created &lt;#else&gt;updated &lt;/#if&gt;on the following ${localSakaiName} site: ${siteName}
+
+			It can have several associated groups, you can join one of them.
+			By default each group title is composed by the Joinable Set name followed by a number (e.g ${jSetName} 1).
+			Each group has space for ${maxUsers} member(s).
+			&lt;#if openDate??&gt;
+
+			Available from:  ${openDate}
+			&lt;/#if&gt;
+			&lt;#if closeDate??&gt;
+
+			Enrollment ends:  ${closeDate}
+			&lt;/#if&gt;
+			&lt;#if canUnjoin == "true"&gt;
+
+			Ability to unjoin is active&lt;#if closeDate??&gt; until closing date&lt;/#if&gt;.
+			&lt;#else&gt;
+
+			Ability to unjoin is not active.
+			&lt;/#if&gt;
+
+		</message>
+		<locale></locale>
+	</emailTemplate>
+	<!-- Default template (english) has to be the last one, to make sure the rest are stored on database -->
 </emailTemplates>
