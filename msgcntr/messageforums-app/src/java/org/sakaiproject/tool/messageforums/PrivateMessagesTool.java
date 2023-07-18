@@ -3415,7 +3415,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
 
   public boolean isCanUseTags() {
-    return securityService.unlock(userDirectoryService.getCurrentUser(), TagService.TAGSERVICE_MANAGE_PERMISSION, getContextSiteId());
+    boolean tagServiceEnabled = ServerConfigurationService.getBoolean(TagService.TAGSERVICE_ENABLED_INTEGRATION_PROP, TagService.TAGSERVICE_ENABLED_INTEGRATION_DEFAULT);
+    boolean manageTagsAllowed = securityService.unlock(userDirectoryService.getCurrentUser(), TagService.TAGSERVICE_MANAGE_PERMISSION, getContextSiteId());
+
+    log.debug("IsTagServiceEnabled:{}|HasCurrentUserTagPermission:{}", tagServiceEnabled, manageTagsAllowed);
+    
+    return tagServiceEnabled && manageTagsAllowed;
   }
 
   public String processPvtMsgOrganize()
