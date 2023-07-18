@@ -93,7 +93,7 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.instructor}" headerClass="hidden-xs">
+		  <h:column rendered="#{PrivateMessagesTool.canUseTags}" headerClass="hidden-xs">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_tags_header}"/>
 		    </f:facet>
@@ -169,7 +169,7 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.instructor}" headerClass="hidden-xs">
+		  <h:column rendered="#{PrivateMessagesTool.canUseTags}" headerClass="hidden-xs">
 		    <f:facet name="header">
 		       <h:outputText styleClass="hidden-xs" value="#{msgs.pvt_tags_header}"/>
 		    </f:facet>
