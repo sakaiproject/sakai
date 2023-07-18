@@ -60,7 +60,8 @@
                         {"bSortable": true, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }"/>
-                        {"bSortable": true, "bSearchable": true}
+                        {"bSortable": true, "bSearchable": true},
+                        <h:outputText value="{\"bSortable\": false, \"bSearchable\": true}," rendered="#{PrivateMessagesTool.canUseTags}"/>
                     ],
                     "language": {
                         "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
@@ -94,7 +95,8 @@
                         {"bSortable": true, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }"/>
-                        {"bSortable": true, "bSearchable": true}
+                        {"bSortable": true, "bSearchable": true},
+                        <h:outputText value="{\"bSortable\": false, \"bSearchable\": true}," rendered="#{PrivateMessagesTool.canUseTags}" />
                     ],
                     "language": {
                         "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
@@ -214,7 +216,7 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.instructor}" headerClass="hidden-xs">
+		  <h:column rendered="#{PrivateMessagesTool.canUseTags}" headerClass="hidden-xs">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_tags_header}"/>
 		    </f:facet>
@@ -301,7 +303,7 @@
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.instructor}" headerClass="hidden-xs">
+		  <h:column rendered="#{PrivateMessagesTool.canUseTags}" headerClass="hidden-xs">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_tags_header}"/>
 		    </f:facet>
