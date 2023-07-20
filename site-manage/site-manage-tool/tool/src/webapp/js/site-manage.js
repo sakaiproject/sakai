@@ -122,7 +122,7 @@ sakai.getGroupInfo = function (id, dialogTarget, memberstr, printstr, tablestr1,
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>
-						<button type="button" id="printme" class="print-window close" onclick="printPreview('/direct/membership/group/'${id}.json')" aria-label="${printstr}"><span class="fa fa-print" aria-hidden="true"></span></button>
+						<button type="button" id="printme" class="print-window close" onclick="printPreview()" aria-label="${printstr}"><span class="fa fa-print" aria-hidden="true"></span></button>
 						<h4 class="modal-title">${title}</h4>
 					</div>
 					<div class="modal-body" id="groupListContent">
@@ -1221,10 +1221,9 @@ function toggleSelectAll(caller, elementName) {
   }
 }
 
-function printPreview(target) {
+function printPreview() {
 
   var w = window.open('', 'printwindow', 'scrollbars=yes,toolbar=yes,resizable=yes');
-  var content=  "";
   var content=  document.getElementById('groupListContent').innerHTML;
   w.document.writeln(
     '<html><head>'
