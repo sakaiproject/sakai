@@ -317,8 +317,8 @@ document.links[newindex].onclick();
           <h:panelGroup layout="block" styleClass="col-12 col-md-6">
             <h:panelGroup layout="block" styleClass="row">
               <h:panelGroup layout="block" styleClass="col-12">
-                <div class="input-group">
-                  <p class="input-group-text m-0">
+                <div class="input-group my-3">
+                  <p class="samigo-input-group-text m-0 pe-4 border-end-0">
                     <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
                     <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
                   </p>

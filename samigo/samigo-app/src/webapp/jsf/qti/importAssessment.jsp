@@ -32,6 +32,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorImportExport.import_a}" /></title>
+      <script src="/library/js/spinner.js" type="text/javascript"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
@@ -71,7 +72,7 @@
     <br/>
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.import_action}" type="submit"
-       style="act" action="#{author.getImportOutcome}" />
+       style="act" action="#{author.getImportOutcome}" onclick="SPNR.disableControlsAndSpin( this, null );"/>
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>
