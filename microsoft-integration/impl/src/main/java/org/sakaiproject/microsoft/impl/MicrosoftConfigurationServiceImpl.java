@@ -115,6 +115,19 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftUserIdentifier.KEY).value(identifier.getCode()).build());
 	}
 	
+	//------------------------------ COLLABORATIVE DOCUMENTS -------------------------------------------------------
+	public long getMaxUploadSize() {
+		String strValue = microsoftConfigRepository.getConfigItemValueByKey(MicrosoftConfigRepository.MAX_UPLOAD_SIZE);
+		try {
+			return Long.valueOf(strValue);
+		} catch(Exception e) {
+			if(strValue != null) {
+				log.warn("Invalid Long value in DB for mc_config_item -> "+MicrosoftConfigRepository.MAX_UPLOAD_SIZE);
+			}
+			return 0;
+		}
+	}
+	
 	//------------------------------------------- COMMON ------------------------------------------------
 	public String getConfigItemValueByKey(String key) {
 		return microsoftConfigRepository.getConfigItemValueByKey(key);
