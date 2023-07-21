@@ -565,6 +565,10 @@
     }
   }
 
+  div.no-margin-top {
+    margin-top: 0;
+  }
+
   .siteinfo-tableHeading
   {
     @include justify-content(space-between);
