@@ -121,7 +121,8 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                                     .add(Restrictions.eq("ref", ref)).list();
 
 
-                            sessionFactory.getCurrentSession().createQuery("delete UserNotification where event = :newEvent or event = :reviseEvent and ref = :ref")
+                            // Remove notifications related to the same announcement, whether they are 'annc.new' or 'annc.revise.availability'
+                            sessionFactory.getCurrentSession().createQuery("delete UserNotification where (event = :newEvent or event = :reviseEvent) and ref = :ref")
                                 .setString("newEvent", ADD_EVENT)
                                 .setString("reviseEvent", UPDATE_EVENT)
                                 .setString("ref", ref).executeUpdate();
