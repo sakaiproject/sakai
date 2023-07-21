@@ -1,6 +1,7 @@
 package org.sakaiproject.microsoft.api.data;
 
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
@@ -15,6 +17,20 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class MicrosoftDriveItem implements Comparable<MicrosoftDriveItem>{
+	private static final String DEFAULT_CREATED_BY = "SharePoint App";
+	public static enum TYPE { 
+		FOLDER(""),
+		DOC_WORD(".docx"),
+		DOC_PPT(".pptx"),
+		DOC_EXCEL(".xlsx");
+		
+		@Getter
+		private String ext;
+		
+		private TYPE(String ext) {
+			this.ext = ext;
+		}
+	}
 	
 	private static final String ROOT_PATH = "^.*?/root:";
 
@@ -23,8 +39,9 @@ public class MicrosoftDriveItem implements Comparable<MicrosoftDriveItem>{
 	private String url;
 	private String driveId;
 	
-	private OffsetDateTime createdAt;
-	private OffsetDateTime modifiedAt;
+	private ZonedDateTime createdAt;
+	private ZonedDateTime modifiedAt;
+	private String modifiedBy;
 
 	private MicrosoftDriveItem parent;
 	
@@ -59,7 +76,35 @@ public class MicrosoftDriveItem implements Comparable<MicrosoftDriveItem>{
 		this.children = children;
 		if(children != null) {
 			children.stream().forEach(i -> i.setParent(this));
+			childCount = children.size();
 		}
+	}
+	
+	public void addChild(MicrosoftDriveItem child) {
+		if(child != null) {
+			if(children == null) {
+				children = new ArrayList<MicrosoftDriveItem>();
+			}
+			children.add(child);
+			child.setParent(this);
+			childCount = children.size();
+		}
+	}
+	
+	public void removeChild(MicrosoftDriveItem child) {
+		if(children != null) {
+			children.remove(child);
+			childCount = children.size();
+		}
+	}
+	
+	//custom getter for modifiedBy. DriveItems created with Microsoft Graph API (application permissions) are allways authored as "SharePoint App"
+	//in these cases, we will show it empty
+	public String getModifiedBy() {
+		if(modifiedBy != null && modifiedBy.equalsIgnoreCase(DEFAULT_CREATED_BY)) {
+			return "";
+		}
+		return modifiedBy;
 	}
 	
 	//when the MicrosoftDriveItem is created, we have the number of children but not the children themselves
