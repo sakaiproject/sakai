@@ -1,24 +1,11 @@
 <?xml version="1.0"?>
 <emailTemplates>
 	<emailTemplate>
-		<subject>Reminder: Joinable Set is closing soon</subject>
-		<message>
-			Dear ${userName},
-
-			Joinable Set "${jSetName}" will be closed in 24h.
-			You can join one of its associated groups until then.
-			Available on the following ${localSakaiName} site: ${siteName}
-
-		</message>
-		<locale></locale>
-	</emailTemplate>
-
-	<emailTemplate>
-		<subject>Recordatorio: un conjuto autoinscribible se cerrar\u00e1 pronto</subject>
+		<subject>Recordatorio: un conjunto autoinscribible se cerrará pronto</subject>
 		<message>
 			Saludos ${userName},
 
-			El conjuto autoinscribible "${jSetName}" se cerrar\u00e1 en 24 horas.
+			El conjunto autoinscribible "${jSetName}" se cerrará en 24 horas.
 			Puedes unirte a uno de sus grupos asociados hasta entonces.
 			Disponible en el siguiente sitio de ${localSakaiName}: ${siteName}
 
@@ -40,15 +27,29 @@
 	</emailTemplate>
 
 	<emailTemplate>
-		<subject>Recordatorio: un conjuto autoinscribible se cerrar\u00e1 pronto</subject>
+		<subject>Recordatorio: un conjunto autoinscribible se cerrará pronto</subject>
 		<message>
 			Saludos ${userName},
 
-			El conjuto autoinscribible "${jSetName}" se cerrará en 24 horas.
+			El conjunto autoinscribible "${jSetName}" se cerrará en 24 horas.
 			Puedes unirte a uno de sus grupos asociados hasta entonces.
 			Disponible en el siguiente sitio de ${localSakaiName}: ${siteName}
 
 		</message>
 		<locale>eu</locale>
 	</emailTemplate>
+
+	<emailTemplate>
+		<subject>Reminder: Joinable Set is closing soon</subject>
+		<message>
+			Dear ${userName},
+
+			Joinable Set "${jSetName}" will be closed in 24h.
+			You can join one of its associated groups until then.
+			Available on the following ${localSakaiName} site: ${siteName}
+
+		</message>
+		<locale></locale>
+	</emailTemplate>
+	<!-- Default template (english) has to be the last one, to make sure the rest are stored on database -->
 </emailTemplates>
