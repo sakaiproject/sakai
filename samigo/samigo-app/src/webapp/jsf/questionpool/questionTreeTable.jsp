@@ -20,10 +20,13 @@
 --%>
 -->
 
-<div class="table-responsive">
-  <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped tablesorter" id="questionpool-questions" rowIndexVar="row">
+<script>includeWebjarLibrary('datatables');</script>
+<script src="/samigo-app/js/dataTables.js"></script>
 
-<h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" >
+<div class="table-responsive">
+  <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped table-hover" id="questionpool-questions" rowIndexVar="row">
+
+<h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" headerClass="columnCheckDelete">
   <f:facet name="header">
     <h:selectManyCheckbox immediate="true" id="selectall" onclick="toggleRemove();checkUpdate()" title="#{questionPoolMessages.t_checkAll}" styleClass="checkall">
       <f:selectItem itemValue="1" itemLabel="<span class=\"hidden\">Select All</span>" escape="false" />
@@ -34,7 +37,7 @@
   </h:selectManyCheckbox>
 </h:column>
 
-    <h:column>
+    <h:column headerClass="columnText">
       <f:facet name="header">      
 		<h:panelGroup>
           <h:outputText value="#{questionPoolMessages.q_text}" />
@@ -76,10 +79,13 @@
 </h:commandLink>
 
  <f:verbatim></span></f:verbatim>
+ <f:verbatim><span class="hidden"></f:verbatim>
+    <h:outputText value='#{question.getItemMetaDataByLabel("KEYWORD")}'/>
+ <f:verbatim></span></f:verbatim>
     </h:column>
 
 
-      <h:column rendered="#{questionpool.showTags == 'true'}" >
+      <h:column rendered="#{questionpool.showTags == 'true'}" headerClass="columnTag">
           <f:facet name="header">
               <h:panelGroup>
                   <h:outputText value="#{questionPoolMessages.t_tags}" />
@@ -92,6 +98,13 @@
               (<h:outputText value="#{tag.tagCollectionName}"/>)
               <f:verbatim></span></span></br>  </f:verbatim>
           </t:dataList>
+          <h:panelGroup rendered='#{not (empty question.getItemMetaDataByLabel("KEYWORD"))}'>
+              <f:verbatim><ul><li><span></f:verbatim>
+              <h:outputText value='#{question.getItemMetaDataByLabel("KEYWORD")}'/>
+              <f:verbatim><span class="collection"></f:verbatim>
+                  (<h:outputText value="#{assessmentSettingsMessages.metadata_keywords}"/>)
+              <f:verbatim></span></span></br>  </f:verbatim>
+          </h:panelGroup>
       </h:column>
 
 
@@ -140,7 +153,7 @@
        </h:outputText>
     </h:column>    
 
-    <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
+    <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" headerClass="columnCheckImport">
       <f:facet name="header">
         <h:panelGroup>
             <h:outputText value="#{questionPoolMessages.impToAuthor} "/>
@@ -155,4 +168,15 @@
 
 
   </t:dataTable>
+
+<script>
+    $(document).ready(function() {
+        const dataTableConfig = JSON.parse('<h:outputText value="#{questionpool.dataTableConfig.json}" />');
+
+        const column_checkDelete = document.getElementById('editform:questionpool-questions:selectall');
+        dataTableConfig['order'] = [[(column_checkDelete) ? 1 : 0, "asc"]];
+
+        setupDataTable("editform:questionpool-questions", dataTableConfig);
+    });
+</script>
 </div>
