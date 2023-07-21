@@ -15,6 +15,7 @@
 */
 package org.sakaiproject.microsoft.api;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,13 @@ import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 
 public interface MicrosoftCommonService {
+	public static final String PERM_VIEW_ALL_CHANNELS = "microsoft.channels.view.all";
+	public static final String PERM_CREATE_FILES = "microsoft.documents.create.files";
+	public static final String PERM_CREATE_FOLDERS = "microsoft.documents.create.folders";
+	public static final String PERM_DELETE_FILES = "microsoft.documents.delete.files";
+	public static final String PERM_DELETE_FOLDERS = "microsoft.documents.delete.folders";
+	public static final String PERM_UPLOAD_FILES = "microsoft.documents.upload.files";
+	
 	public static enum PermissionRoles { READ, WRITE }
 	
 	void resetCache();
@@ -114,11 +122,13 @@ public interface MicrosoftCommonService {
 	List<MicrosoftDriveItem> getGroupDriveItemsByItemId(String groupId, String itemId) throws MicrosoftCredentialsException;
 	List<MicrosoftDriveItem> getAllGroupDriveItems(String groupId, List<String> channelIds, MicrosoftDriveItemFilter filter) throws MicrosoftCredentialsException;
 	MicrosoftDriveItem getDriveItemFromLink(String link) throws MicrosoftCredentialsException;
+	MicrosoftDriveItem getDriveItemFromTeam(String teamId) throws MicrosoftCredentialsException;
 	MicrosoftDriveItem getDriveItemFromChannel(String teamId, String channelId) throws MicrosoftCredentialsException;
 	boolean grantReadPermissionToTeam(String driveId, String itemId, String teamId) throws MicrosoftCredentialsException;
 	String createLinkForTeams(MicrosoftDriveItem item, List<String> teamIds, PermissionRoles role) throws MicrosoftCredentialsException;
 	String createLinkForTeams(String driveId, String itemId, List<String> teamIds, PermissionRoles role) throws MicrosoftCredentialsException;
 	String getThumbnail(MicrosoftDriveItem item, Integer maxWidth, Integer maxHeight) throws MicrosoftCredentialsException;
+	boolean deleteDriveItem(MicrosoftDriveItem item) throws MicrosoftCredentialsException;
 	
 	// ---------------------------------------- ONE-DRIVE (DELEGATED) --------------------------------------------------------
 	List<MicrosoftDriveItem> getMyDriveItems(String userId) throws MicrosoftCredentialsException;
@@ -131,4 +141,6 @@ public interface MicrosoftCommonService {
 	MicrosoftDriveItem getDriveItem(String driveId, String itemId, String delegatedUserId) throws MicrosoftCredentialsException;
 	List<MicrosoftDriveItem> getDriveItems(String driveId, String delegatedUserId) throws MicrosoftCredentialsException;
 	List<MicrosoftDriveItem> getDriveItemsByItemId(String driveId, String itemId, String delegatedUserId) throws MicrosoftCredentialsException;
+	MicrosoftDriveItem createDriveItem(MicrosoftDriveItem parent, MicrosoftDriveItem.TYPE type, String name, String delegatedUserId) throws MicrosoftCredentialsException;
+	MicrosoftDriveItem uploadDriveItem(MicrosoftDriveItem parent, File file, String name, String delegatedUserId) throws MicrosoftCredentialsException;
 }
