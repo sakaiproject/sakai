@@ -55,6 +55,9 @@ public interface MicrosoftConfigurationService {
 	void saveMappedSakaiUserId(SakaiUserIdentifier identifier);
 	void saveMappedMicrosoftUserId(MicrosoftUserIdentifier identifier);
 	
+	//------------------------------ COLLABORATIVE DOCUMENTS -------------------------------------------------------
+	long getMaxUploadSize();
+	
 	//------------------------------------------- COMMON ------------------------------------------------
 	String getConfigItemValueByKey(String key);
 	void saveOrUpdateConfigItem(MicrosoftConfigItem item);

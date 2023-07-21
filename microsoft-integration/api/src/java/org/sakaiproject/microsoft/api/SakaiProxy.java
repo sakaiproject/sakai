@@ -34,6 +34,7 @@ public interface SakaiProxy {
 	boolean isAdmin();
 	boolean canUpdateSite(String siteReference, String userId);
 	boolean canCurrentUserAccessSite(String siteId);
+	boolean checkPermissions(String userId, String perm, String ref);
 	
 	// --------------------------------------------- SESSION -----------------------------------------------------
 	Session getCurrentSession();

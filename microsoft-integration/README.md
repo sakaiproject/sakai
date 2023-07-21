@@ -100,6 +100,64 @@ User.Read
 - .../webapps/sakai-onedrive-tool
 - .../webapps/sakai-onedrive-tool.war
 
+## Sakai - Microsoft Media Gallery Tool
+Used to browse Media elements (Video and Audio) stored in Microsoft OneDrive.
+This tool could be added to a Site (course or project) or in MyWorkspace. Site tool requires a valid Site-Team synchonization. MyWorkspace tool requires delegated access.
+
+## Sakai - Microsoft Collaborative Documents Tool
+Used to browse Microsoft collaborative documents (Word, Excel or PowerPoint) stored in OneDrive.
+This tool could be added to a Site (course or project) and requires a valid Site-Team synchonization.
+
+Requires Sakai permissions:
+```sh
+microsoft.channels.view.all: Allow uesr to view all Microsoft private channels
+microsoft.documents.create.files: Allow user to create new documents
+microsoft.documents.create.folders: Allow user to create new folders
+microsoft.documents.delete.files: Allow user to delete files
+microsoft.documents.delete.folders: Allow to delete folders
+microsoft.documents.upload.files: Allow to upload files
+```
+
+Also Requires additional delegated permissions:
+```sh
+Files.ReadWrite
+Files.ReadWrite.All
+Sites.ReadWrite.All
+```
+
+## Microsoft Permissions (summarized, including meetings)
+```sh
+-- Application (20)
+ChannelMember.Read.All
+ChannelMember.ReadWrite.All
+Chat.Read.All
+ChatMessage.Read.All
+Directory.Read.All
+Directory.ReadWrite.All
+Files.ReadWrite.All
+Group.Create
+Group.Read.All
+Group.ReadWrite.All
+Mail.Send
+OnlineMeetings.ReadWrite.All
+Sites.FullControl.All
+Sites.Manage.All
+Sites.ReadWrite.All
+Team.Create
+TeamMember.Read.All
+TeamMember.ReadWrite.All
+User.Invite.All
+User.Read.All
+
+-- Delegated (6)
+Files.Read.All
+Files.ReadWrite
+Files.ReadWrite.All
+Sites.Read.All
+Sites.ReadWrite.All
+User.Read
+```
+
 ## Sakai configuration
 Everything will be configured through the administration tool.
 
