@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+	<th:block th:fragment="main (active)">
+		<th:block th:if="${allowPermissions}">
+			<ul class="navIntraTool">
+				<li class="firstToolBarItem">
+					<span th:class="${active == 'index' ? 'current' : ''}">
+						<a th:href="@{/index}" th:title="#{menu_index.title}" th:text="#{menu_index}">Main</a>
+					</span>
+				</li>
+
+				<li>
+					<span th:class="${active == 'permissions' ? 'current' : ''}">
+						<a th:href="@{/permissions}" th:title="#{menu_permissions.title}" th:text="#{menu_permissions}">Permissions</a>
+					</span>
+				</li>
+			</ul>
+		</th:block>
+	</th:block>
+</body>
+</html>

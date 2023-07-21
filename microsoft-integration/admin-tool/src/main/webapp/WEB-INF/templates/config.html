@@ -56,6 +56,16 @@
 						</label>
 					</div>
 				</fieldset>
+
+				<fieldset class="config-fieldset">
+					<legend th:text="#{config.collaborative_documents_config}"></legend>
+					<div class="form-group">
+						<label>
+							<span class="title-row" th:text="#{config.max_upload_size}">Max Upload Size</span>
+							<input class="form-control" type='number' min="0" name="maxUploadSize" th:value="${maxUploadSize}" />
+						</label>
+					</div>
+				</fieldset>
 				
 				<fieldset class="config-fieldset">
 					<legend th:text="#{config.id_mapping}"></legend>
