@@ -1164,6 +1164,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 				RosterGroup rosterGroup = new RosterGroup(group.getId());
 				rosterGroup.setTitle(group.getTitle());
 				rosterGroup.setUserIds(group.getMembers().stream().map(Member::getUserId).collect(Collectors.toList()));
+				rosterGroup.setSectionCategory(group.getProperties().getProperty("sections_category"));
 				siteGroups.add(rosterGroup);
 			}
 		}
@@ -1410,5 +1411,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 });
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getCategoryName(String categoryId) {
+        String categoryName = courseManagementService.getSectionCategoryDescription(categoryId);
+        if(categoryName == null) {
+            return categoryId;
+        }
+        return categoryName;
     }
 }
