@@ -46,7 +46,6 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -121,7 +120,6 @@ import org.sakaiproject.util.api.FormattedText;
 public class ItemAddListener implements ActionListener {
 
   private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
-  public static final int MAX_FEEDBACK_CHARS = 4000;
     //private static ContextUtil cu;
   //private String scalename; // used for multiple choice Survey
   private boolean error = false;
@@ -199,15 +197,6 @@ public class ItemAddListener implements ActionListener {
 		context.addMessage(null,new FacesMessage(noPairMatching_err));
 		error=true;
 	    }
-	}
-
-	if(StringUtils.length(item.getCorrFeedback()) > MAX_FEEDBACK_CHARS || StringUtils.length(item.getIncorrFeedback()) > MAX_FEEDBACK_CHARS
-			|| StringUtils.length(item.getGeneralFeedback()) > MAX_FEEDBACK_CHARS
-			|| (CollectionUtils.isNotEmpty(item.getMultipleChoiceAnswers()) && item.getMultipleChoiceAnswers().stream().anyMatch(mc -> StringUtils.length(mc.getFeedback()) > MAX_FEEDBACK_CHARS))
-			|| (CollectionUtils.isNotEmpty(item.getMatchItemBeanList()) && item.getMatchItemBeanList().stream().anyMatch(mi -> StringUtils.length(mi.getCorrMatchFeedback()) > MAX_FEEDBACK_CHARS || StringUtils.length(mi.getIncorrMatchFeedback()) > MAX_FEEDBACK_CHARS))) {
-		String feedbackTooLong = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "feedbackTooLong");
-		context.addMessage(null, new FacesMessage(MessageFormat.format(feedbackTooLong, new Object[]{MAX_FEEDBACK_CHARS})));
-		error = true;
 	}
 
     if(error) { 
@@ -740,6 +729,7 @@ public class ItemAddListener implements ActionListener {
       log.debug("**** isEditPendingAssessmentFlow : " + isEditPendingAssessmentFlow);
       String target = itemauthor.getTarget();
       boolean isFromQuestionPool = false;
+      String newFeedback;
       if (target != null && (target.equals(ItemAuthorBean.FROM_QUESTIONPOOL) && ! author.getIsEditPoolFlow())) {
     	  isFromQuestionPool = true;
       }
@@ -830,15 +820,18 @@ public class ItemAddListener implements ActionListener {
           // prepare feedback, because this is UPDATE
           // if it's an empty string, we need to update feedback to an empty string
           // not like below (below we don't ADD if the feedback is null or empty string)
-          if ((bean.getCorrFeedback() != null)) {
-            		updateItemFeedback(item, ItemFeedbackIfc.CORRECT_FEEDBACK, stripPtags(bean.getCorrFeedback()));
-              }
-              if ((bean.getIncorrFeedback() != null)) {
-                	updateItemFeedback(item, ItemFeedbackIfc.INCORRECT_FEEDBACK, stripPtags(bean.getIncorrFeedback()));
-              }
-              if ((bean.getGeneralFeedback() != null)) {
-                	updateItemFeedback(item, ItemFeedbackIfc.GENERAL_FEEDBACK, stripPtags(bean.getGeneralFeedback()));
-           }
+          if (StringUtils.isNotEmpty(bean.getCorrFeedback())) {
+                newFeedback = stripPtags(bean.getCorrFeedback());
+                updateItemFeedback(item, ItemFeedbackIfc.CORRECT_FEEDBACK, newFeedback, newFeedback);
+          }
+          if (StringUtils.isNotEmpty(bean.getIncorrFeedback())) {
+                newFeedback = stripPtags(bean.getIncorrFeedback());
+                updateItemFeedback(item, ItemFeedbackIfc.INCORRECT_FEEDBACK, newFeedback, newFeedback);
+          }
+          if (StringUtils.isNotEmpty(bean.getGeneralFeedback())) {
+                newFeedback = stripPtags(bean.getGeneralFeedback());
+                updateItemFeedback(item, ItemFeedbackIfc.GENERAL_FEEDBACK, newFeedback, newFeedback);
+          }
       }
       else {
         	//prepare itemText, including answers
@@ -865,17 +858,17 @@ public class ItemAddListener implements ActionListener {
             item.setItemMetaDataSet(prepareMetaData(item, bean));
 
             // prepare feedback, only store if feedbacks are not empty
-            if ( (bean.getCorrFeedback() != null) &&
-      			  (!bean.getCorrFeedback().equals(""))) {
-            	item.setCorrectItemFeedback(stripPtags(bean.getCorrFeedback()));
+      	  	if (StringUtils.isNotEmpty(bean.getCorrFeedback())) {
+      	  		newFeedback = stripPtags(bean.getCorrFeedback());
+      	  		item.setCorrectItemFeedback(newFeedback, newFeedback);
       	  	}
-      	  	if ( (bean.getIncorrFeedback() != null) &&
-      			  (!bean.getIncorrFeedback().equals(""))) {
-      	  		item.setInCorrectItemFeedback(stripPtags(bean.getIncorrFeedback()));
+      	  	if (StringUtils.isNotEmpty(bean.getIncorrFeedback())) {
+      	  		newFeedback = stripPtags(bean.getIncorrFeedback());
+      	  		item.setInCorrectItemFeedback(newFeedback, newFeedback);
       	  	}
-      	  	if ( (bean.getGeneralFeedback() != null) &&
-      			  (!bean.getGeneralFeedback().equals(""))) {
-      	  		item.setGeneralItemFeedback(stripPtags(bean.getGeneralFeedback()));
+      	  	if (StringUtils.isNotEmpty(bean.getGeneralFeedback())) {
+      	  		newFeedback = stripPtags(bean.getGeneralFeedback());
+      	  		item.setGeneralItemFeedback(newFeedback, newFeedback);
       	  	}
       }
 
@@ -2952,29 +2945,30 @@ public class ItemAddListener implements ActionListener {
 		}
 	}
 
-  private void updateItemFeedback(ItemFacade item, String feedbackTypeId, String feedbackText) {
+  private void updateItemFeedback(ItemFacade item, String feedbackTypeId, String feedbackText, String feedbackTextValue) {
 	  Set itemFeedbackSet = item.getItemFeedbackSet();
 	  if ((itemFeedbackSet == null || itemFeedbackSet.size() == 0)) {
-		  item.addItemFeedback(feedbackTypeId, feedbackText);
+		  item.addItemFeedback(feedbackTypeId, feedbackText, feedbackTextValue);
 	  }
 	  else {
-          boolean feedbackTypeExists = false;
+		  boolean feedbackTypeExists = false;
 		  Iterator iter = itemFeedbackSet.iterator();
 		  while (iter.hasNext()) {
 			  ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) iter.next();
 			  if (itemFeedback.getTypeId().equals(feedbackTypeId)) {
-                  feedbackTypeExists = true;
+				  feedbackTypeExists = true;
 				  itemFeedback.setText(feedbackText);
+				  itemFeedback.setTextValue(feedbackTextValue);
 				  break;
 			  }
 		  }
-          //If the feedback type was not found in the set, add it so changes are not lost.
-          if (!feedbackTypeExists) {
-        	  item.addItemFeedback(feedbackTypeId, feedbackText);
-          }
+		  //If the feedback type was not found in the set, add it so changes are not lost.
+		  if (!feedbackTypeExists) {
+			  item.addItemFeedback(feedbackTypeId, feedbackText, feedbackTextValue);
+		  }
 	  }
   }
-  
+
   private String [] getSurveyChoices(String scalename) {
 	  String[] choices = new String[2];
 	  // label is null because we don't use labels in survey
