@@ -646,6 +646,14 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
+    public double getDouble(String name, double defaultValue)
+    {
+        return NumberUtils.toDouble(getString(name), defaultValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean getBoolean(String name, boolean dflt)
     {
         String value = getString(name);
