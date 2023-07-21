@@ -76,8 +76,6 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
     private static final String LOGIN_SERVLET_PATH = "/samigo-app/servlet/Login";
     private static final String SEB_ALWAYS_ENABLED = "always";
     private static final String SEB_ALWAYS_ENABLED_PROPERTY = "seb.enabled";
-    private static final String SEB_DOWNLOAD_LINK_DEFAULT = "https://safeexambrowser.org/download_en.html";
-    private static final String SEB_DOWNLOAD_LINK_PROPERTY = "seb.download.link";
     private static final String SEB_SCRIPT_PATH = "/samigo-app/js/deliverySafeExamBrowser.js";
     // The property added to a site
     private static final String SEB_SITE_ENABLED_PROPERTY = "sebEnabled";
@@ -95,6 +93,8 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
     private SecurityAdvisor alwaysAllowSecurityAdvisor = (String userId, String function, String reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 
     public static final String MODULE_NAME = "Safe Exam Browser";
+    public static final String SEB_DOWNLOAD_LINK_DEFAULT = "https://safeexambrowser.org/download_en.html";
+    public static final String SEB_DOWNLOAD_LINK_PROPERTY = "seb.download.link";
 
     public boolean initialize() {
         Objects.requireNonNull(persistenceService);
