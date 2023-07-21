@@ -19,8 +19,8 @@
 **********************************************************************************/
 --%>
 -->
-<div class="table">
-  <h:dataTable styleClass="table table-striped" id="TreeTable" value="#{questionpool.qpools}" var="pool">
+<div class="table-responsive">
+  <h:dataTable styleClass="table table-bordered table-striped" id="TreeTable" value="#{questionpool.qpools}" var="pool">
     <h:column id="col1">
 
      <f:facet name="header">
@@ -242,7 +242,7 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
        <h:outputText value="#{questionPoolMessages.remove_chbox}"/>
      </f:facet>
 
-      <h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}">
+      <h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}" styleClass="checkboxTable">
 	    <f:selectItem itemValue="#{pool.questionPoolId}"  itemLabel=""/>
       </h:selectManyCheckbox>
     </h:column>

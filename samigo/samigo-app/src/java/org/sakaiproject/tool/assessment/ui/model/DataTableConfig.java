@@ -62,6 +62,7 @@ public class DataTableConfig {
     private List<Set<Object>> lengthMenu;
     private Set<Set<Object>> order;
     private List<DataTableColumn> columns;
+    private List<DataTableColumn> columnDefs;
     private Map<String, Object> language;
 
 
