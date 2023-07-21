@@ -485,7 +485,6 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 				String headerTo = userEmail;
 				String replyTo = from;
 
-				Locale locale = new ResourceLoader().getLocale();
 				String openDate = joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
 				String closeDate = joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
 				// Create the map of replacement values
@@ -501,7 +500,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 				replacementValues.put("isNew", Boolean.toString(isNew));
 
 				// Send email
-				emailTemplateServiceSend(NOTIFY_ABOUT_JOINABLE_SET, locale, user, from, to, headerTo, replyTo, replacementValues);
+				emailTemplateServiceSend(NOTIFY_ABOUT_JOINABLE_SET, null, user, from, to, headerTo, replyTo, replacementValues);
 			} else {
 				log.warn("No sender email address found");
 			}
@@ -523,7 +522,6 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			String headerTo = userEmail;
 			String replyTo = from;
 
-			Locale locale = new ResourceLoader().getLocale();
 			// Create the map of replacement values
 			Map<String, Object> replacementValues = new HashMap<>();
 			replacementValues.put("localSakaiName", serverConfigurationService.getString("ui.service", ""));
@@ -532,7 +530,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			replacementValues.put("jSetName", jSetName);
 
 			// Send email
-			emailTemplateServiceSend(NOTIFY_JOINABLE_SET_DAY_LEFT, locale, user, from, to, headerTo, replyTo, replacementValues);
+			emailTemplateServiceSend(NOTIFY_JOINABLE_SET_DAY_LEFT, null, user, from, to, headerTo, replyTo, replacementValues);
 		} else {
 			log.warn("No sender email address found");
 		}
