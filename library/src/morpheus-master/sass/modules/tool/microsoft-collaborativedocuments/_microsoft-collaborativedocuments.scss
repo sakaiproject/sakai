@@ -1,0 +1,166 @@
+.#{$namespace}microsoft-collaborativedocuments {
+
+	$color-hover: var(--button-hover-text-color);
+	$color-active: var(--button-active-text-color);
+
+	$background-color: var(--sakai-background-color-2);
+	$background-color-hover: var(--sakai-background-color-3);
+	$background-color-button-hover: var(--button-hover-background);
+	$background-color-button-active: var(--button-active-background);
+
+	$shadow-button-hover: var(--button-hover-shadow);
+	$shadow-button-active: var(--button-active-shadow);
+
+	$border-color-button: var(--button-border-color);
+	$border-color-hover: var(--button-hover-border-color);
+	$border-color-active: var(--button-active-border-color);
+	
+	#loading-container {
+		font-size: 22px;
+	}
+
+	/* Accordion section */
+	/* Section Title */
+	.section-title {
+		display: flex;
+		justify-content: space-between;
+		.collapsed-icon {
+			transition: 0.3s transform ease-in-out;
+		}
+		.collapsed {
+			.collapsed-icon {
+				transform: rotate(-90deg);
+			}
+		}
+		.refresh-icon {
+			text-decoration: none;
+			&:hover {
+				text-decoration: none;
+				scale: 1.2;
+			}
+			&:focus {
+				text-decoration: none;
+				scale: 1.2;
+			}
+		}
+		[role=button] {
+			&:focus {
+				outline: 0;
+				outline-offset: 0;
+				text-decoration: none;
+				border: thin solid;
+			}
+		}
+	}
+
+	/* Team/Folder Container */
+	.breadcrumb-header {
+		border-radius: 4px;
+		padding: 8px 15px;
+		margin-bottom: 20px;
+		background-color: $background-color;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		width: 100%;
+		position: relative;
+		.breadcrumb {
+			padding: 0 15px;
+			margin-left: 3px;
+			margin-bottom: 0;
+		}
+		.act {
+			margin: 0;
+			>button {
+				margin: 0;
+			}
+		}
+		.dropdown-menu {
+			margin: -5px 0 0 15px;
+			a {
+				text-decoration: none;
+			}
+		}
+	}
+	.table-row {
+		display: flex;
+		align-items: center;
+		border: 1px solid #ddd;
+		padding: 10px;
+		&:nth-of-type(even) {
+			background-color: $background-color;
+		}
+		&:hover, &:focus, &.focused-row {
+			background: $background-color-hover;
+			.dropdown-toggle {
+				display: block;
+				&:hover, &:focus  {
+					color: $color-hover;
+					text-decoration: none;
+					background: $background-color-button-hover;
+					border-color: $border-color-hover;
+					box-shadow: $shadow-button-hover;
+				}
+				&:active {
+					outline: 0;
+					color: $color-active;
+					text-decoration: none;
+					background: $background-color-button-active;
+					border-color: $border-color-active;
+					box-shadow: $shadow-button-active;
+				}
+			}
+		}
+		.main-column {
+			display: flex;
+			justify-content: space-between;
+		}
+		.dropdown-toggle {
+			display: none;
+			/*border: 1px solid $border-color-button;*/
+			border-radius: 4px;
+			padding: 0 5px;
+			text-decoration: none;
+			position: relative;
+			.dropdown-menu {
+				position: absolute;
+				margin-top: 5px;
+			}
+		}
+		a {
+			text-decoration: none;
+		}
+	}
+	form.dropzone {
+		margin-top: 10px;
+	}
+
+	/* Login/Logout related items */
+	.menu-container {
+		position: relative;
+		min-height: 40px;
+		display: flex;
+		align-items: flex-end;
+		margin-bottom: 10px;
+		margin-top: 20px;
+		.menu {
+			width: 100%;
+		}
+		.login-header {
+			position: absolute;
+			right: 0;
+			bottom: 7px;
+			.user-account {
+				font-size: smaller;
+				font-weight: bold;
+			}
+		}
+	}
+
+	/* Special margin for small screens */
+	@media (max-width: 800px) {
+		.menu-container {
+			margin-top: 4em;
+		}
+	}
+}
