@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <emailTemplates>
 	<emailTemplate>
-		<subject>Recordatorio: un conjuto autoinscribible se cerrará pronto</subject>
+		<subject>Recordatorio: un conjunto autoinscribible se cerrará pronto</subject>
 		<message>
 			Saludos ${userName},
 
-			El conjuto autoinscribible "${jSetName}" se cerrará en 24 horas.
+			El conjunto autoinscribible "${jSetName}" se cerrará en 24 horas.
 			Puedes unirte a uno de sus grupos asociados hasta entonces.
 			Disponible en el siguiente sitio de ${localSakaiName}: ${siteName}
 
@@ -27,11 +27,11 @@
 	</emailTemplate>
 
 	<emailTemplate>
-		<subject>Recordatorio: un conjuto autoinscribible se cerrará pronto</subject>
+		<subject>Recordatorio: un conjunto autoinscribible se cerrará pronto</subject>
 		<message>
 			Saludos ${userName},
 
-			El conjuto autoinscribible "${jSetName}" se cerrará en 24 horas.
+			El conjunto autoinscribible "${jSetName}" se cerrará en 24 horas.
 			Puedes unirte a uno de sus grupos asociados hasta entonces.
 			Disponible en el siguiente sitio de ${localSakaiName}: ${siteName}
 
