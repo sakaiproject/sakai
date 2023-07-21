@@ -120,6 +120,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return (siteService.isCurrentUserMemberOfSite(siteId) || isAdmin());
 	}
 	
+	public boolean checkPermissions(String userId, String perm, String ref) {
+		return (securityService.unlock(userId, perm, ref) || securityService.isSuperUser(userId));
+	}
+	
 	// --------------------------------------------- SESSION -----------------------------------------------------
 	@Override
 	public Session getCurrentSession() {

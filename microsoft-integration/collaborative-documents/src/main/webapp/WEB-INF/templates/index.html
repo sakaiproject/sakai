@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head th:replace="fragments/common :: head" />
+
+	<body>
+		<div th:replace="fragments/common :: bootstrap" />
+
+		<div class="portletBody">
+			<div class="menu-container">
+				<div class="login-header" th:if="${showLogin}">
+					<a th:if="${!delegatedClientConfigured}" class="btn btn-primary" th:href="@{/configure}" th:text="#{configure}"></a>
+					<a th:if="${delegatedClientConfigured}" class="btn btn-primary" th:href="@{/revoke}">
+						<div th:text="#{revoke}" />
+						<div class="user-account" th:text="|(${mcUserAccount})|" />
+					</a>
+				</div>
+			
+				<div class="menu" th:insert="fragments/menus :: main (index)" />
+			</div>
+
+			<div class="sak-banner-error hidden" id="exception_error"></div>
+			<div class="sak-banner-info hidden" id="info_banner" th:text="#{info.link_copied}"></div>
+
+			<div id="body-container"></div>
+
+			<input type="hidden" id="sortBy" th:value="${sortBy}" />
+			
+			<div id="loading-container" class="text-center hidden">
+				<div class="fa fa-spinner fa-spin" th:title="#{loading}"></div>
+			</div>
+
+			<div id="newitem-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newitem-label" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" th:title="#{close}">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="newitem-label" th:text="#{new.item}" th:aria-label="#{new.item}">New Item</h4>
+						</div>
+
+						<div id="newitem-modal-body-container" class="modal-body">
+							<input type="hidden" id="modalTeamId" />
+							<input type="hidden" id="modalFolderId" />
+							<input type="hidden" id="modalType" />
+							<div class="form-group">
+								<label for="modalName" th:text="#{title}">Title:</label>
+								<input class="form-control" type="text" id="modalName" />
+							</div>
+						</div>
+
+						<div class="modal-footer act">
+							<button type="button" class="active" onclick="addItem()" th:text="#{confirm}" th:aria-label="#{confirm}">OK</button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{cancel}" th:aria-label="#{cancel}">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="confirm-delete-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-delete-label" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							[[#{confirm.delete.title}]]
+						</div>
+						<div id="confirm-delete-modal-body-container" class="modal-body">
+							<input type="hidden" id="modalTeamId" />
+							<input type="hidden" id="modalItemId" />
+							[[#{confirm.delete}]]
+						</div>
+						<div class="modal-footer act">
+							<button class="active" onclick="deleteItem()" th:text="#{delete}" th:aria-label="#{delete}">Delete</button>
+							<button data-dismiss="modal" th:text="#{cancel}" th:aria-label="#{cancel}">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<ul id="itemDropdownMenu" class="dropdown-menu" role="menu" >
+				<li th:if="${allowDeleteFolders}" class="menuitem-delFolder"><a role="menuitem" tabindex="-1" href="#" onclick="loadConfirmDeleteModal(this)" th:text="#{delete.folder}" th:aria-label="#{delete.folder}">Delete folder</a></li>
+				<li th:if="${allowDeleteFiles}" class="menuitem-delFile"><a role="menuitem" tabindex="-1" href="#" onclick="loadConfirmDeleteModal(this)" th:text="#{delete.file}" th:aria-label="#{delete.file}">Delete file</a></li>
+				<li class="menuitem-getLink"><a role="menuitem" tabindex="-1" href="#" onclick="getLink(this)" th:text="#{get.link}" th:aria-label="#{get.link}">Get link</a></li>
+			</ul>
+			
+			<script th:inline="javascript">
+				Dropzone.autoDiscover = false;
+
+				$('#newitem-modal').on('shown.bs.modal', function (event) {
+					document.getElementById('modalName').focus();
+				})
+				
+				//close item dropdowns when clicked anywhere on the screen
+				document.getElementById('body-container').addEventListener('click', function(e){
+					var currentDropdown = null;
+					//check if clicked element is a dropdown itself
+					if(e.target.classList.contains('dropdown-toggle')){
+						currentDropdown = e.target;
+					}
+					this.querySelectorAll('.dropdown-toggle').forEach((elem) => {
+						//close all except the clicked one
+						if(elem != currentDropdown){
+							elem.classList.remove('open');
+						}
+					});
+				})
+				
+				//accesibility navigation
+				document.getElementById('body-container').addEventListener('keydown', onKeyDown);
+
+				loadItems('body-container');
+			</script>
+		</div>
+	</body>
+</html>

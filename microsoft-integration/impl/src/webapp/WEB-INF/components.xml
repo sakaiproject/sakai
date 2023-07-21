@@ -60,6 +60,7 @@
     <bean id="org.sakaiproject.microsoft.api.MicrosoftCommonService" class="org.sakaiproject.microsoft.impl.MicrosoftCommonServiceImpl" init-method="init">
         <property name="microsoftConfigRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository"/>
         <property name="microsoftLoggingRepository" ref="org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
         <property name="cacheManager" ref="org.sakaiproject.ignite.SakaiCacheManager"/>
     </bean>
 
