@@ -34,7 +34,7 @@ public interface EventLogFacadeQueriesAPI {
 	 * @param userFilter String filter value that will be used (if supplied) to limit based on a user id or display name
 	 * @return
 	 */
-	public List<EventLogData> getEventLogData(String siteId, Long assessmentId, String userFilter);
+	public List<EventLogData> getEventLogData(String siteId, Long assessmentId);
 	
 	/**
 	 * Look up all of the assessment tiles for a site's event log.  

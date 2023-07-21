@@ -766,7 +766,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 }
             }
             // outcomeIds should be empty, if not the db contained outcomes not reported in the ui so remove them
-            outcomes.stream().filter(o -> outcomeIds.contains(o.getCriterionId())).forEach(outcomes::remove);
+            outcomes.removeIf(o -> outcomeIds.contains(o.getCriterionId()));
         } else {
             evaluation = new Evaluation();
             evaluation.getCriterionOutcomes().addAll(evaluationBean.getCriterionOutcomes().stream().map(o -> {

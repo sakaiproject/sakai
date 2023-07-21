@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -639,9 +640,11 @@ public class QuestionPoolFacadeQueries
       }
 
       // #5. delete all subpools if any, this is recursive
-      Iterator citer = (tree.getChildList(poolId)).iterator();
-      while (citer.hasNext()) {
-        deletePool( (Long) citer.next(), agent, tree);
+      if (tree != null) {
+        Iterator citer = (tree.getChildList(poolId)).iterator();
+        while (citer.hasNext()) {
+          deletePool( (Long) citer.next(), agent, tree);
+        }
       }
     }
     catch (DataAccessException e) {
@@ -1250,14 +1253,14 @@ public class QuestionPoolFacadeQueries
       item.setItemAttachmentSet(copyAttachment(item.getData(), itemData));
       item.setInstruction(AssessmentService.copyStringAttachment(itemData.getInstruction()));
 
-      if (itemData.getCorrectItemFeedback() != null && !itemData.getCorrectItemFeedback().equals("")) {
-    	  item.setCorrectItemFeedback(AssessmentService.copyStringAttachment(itemData.getCorrectItemFeedback()));
+      if (StringUtils.isNotEmpty(itemData.getCorrectItemFeedback())) {
+    	  item.setCorrectItemFeedback(AssessmentService.copyStringAttachment(itemData.getCorrectItemFeedback()), AssessmentService.copyStringAttachment(itemData.getCorrectItemFeedbackValue()));
       }
-      if (itemData.getInCorrectItemFeedback() != null && !itemData.getInCorrectItemFeedback().equals("")) {
-    	  item.setInCorrectItemFeedback(AssessmentService.copyStringAttachment(itemData.getInCorrectItemFeedback()));
+      if (StringUtils.isNotEmpty(itemData.getInCorrectItemFeedback())) {
+    	  item.setInCorrectItemFeedback(AssessmentService.copyStringAttachment(itemData.getInCorrectItemFeedback()), AssessmentService.copyStringAttachment(itemData.getInCorrectItemFeedbackValue()));
       }
-      if (itemData.getGeneralItemFeedback() != null && !itemData.getGeneralItemFeedback().equals("")) {
-    	  item.setGeneralItemFeedback(AssessmentService.copyStringAttachment(itemData.getGeneralItemFeedback()));
+      if (StringUtils.isNotEmpty(itemData.getGeneralItemFeedback())) {
+    	  item.setGeneralItemFeedback(AssessmentService.copyStringAttachment(itemData.getGeneralItemFeedback()), AssessmentService.copyStringAttachment(itemData.getGeneralItemFeedback()));
       }
       
       return item;

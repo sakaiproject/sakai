@@ -350,6 +350,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
   var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
+  const isExternallyMaintained = column.externallyMaintained ? column.externallyMaintained : false;
   var hasExcuse = column.type === "assignment" ? GbGradeTable.hasExcuse(student, column.assignmentId) : false;
   var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState, isDropped, hasExcuse];
   var cellKey = GbGradeTable.cleanKey(keyValues.join("_"));
@@ -370,6 +371,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     // Or we're replacing the student name cell
     GbGradeTable.templates.cell.setHTML(td, {
       value: value,
+      isExternallyMaintained: isExternallyMaintained,
       hasAssociatedRubric: hasAssociatedRubric
     });
 

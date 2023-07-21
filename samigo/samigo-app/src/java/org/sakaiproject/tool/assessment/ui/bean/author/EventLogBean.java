@@ -19,16 +19,23 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
+import org.sakaiproject.tool.assessment.ui.model.DataTableConfig;
+import org.sakaiproject.tool.assessment.ui.servlet.event.ExportEventLogServlet;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.samigo.util.SamigoConstants;
 
 /* Event Log backing bean. */
 @Slf4j
@@ -41,31 +48,29 @@ public class EventLogBean implements Serializable {
 	public static final int DELETED_STATUS=2;
 	
 	private String siteId;
-	private  Map pageDataMap;
 	private int pageNumber=0;
 	private List<EventLogData> eventLogDataList;
-	private Boolean hasNextPage;
-	private Boolean hasPreviousPage;
+	@Getter @Setter
+	private DataTableConfig dataTableConfig;
 	
 	private String sortType="startDate";
 	private boolean sortAscending = false;
 	
 	private List<SelectItem> assessments = new ArrayList<SelectItem>();
 	private Long filteredAssessmentId = (long) -1;
-	private String filteredUser;
 
 	private String siteTitle;
 	
 	private Map<Long,Integer> statusMap;
 		
-	private static final String SAMIGO_EVENTLOG_IPADDRESS_ENABLE = "samigo.eventlog.ipaddress.enabled";
 	private boolean enabledIpAddress = false;
 	private ServerConfigurationService serverConfigurationService;
 		
 	public EventLogBean()
 	{		
 		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-		enabledIpAddress = serverConfigurationService.getBoolean(SAMIGO_EVENTLOG_IPADDRESS_ENABLE, false);			
+		enabledIpAddress = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EVENTLOG_IPADDRESS_ENABLED,
+				SamigoConstants.SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED);			
 	}
 		
 	/**
@@ -93,12 +98,6 @@ public class EventLogBean implements Serializable {
 		this.siteId = siteId;
 	}
 
-	public Map getPageDataMap() {
-		return pageDataMap;
-	}
-	public void setPageDataMap(Map pageDataMap) {
-		this.pageDataMap = pageDataMap;
-	}
 	public int getPageNumber() {
 		return pageNumber;
 	}
@@ -119,18 +118,6 @@ public class EventLogBean implements Serializable {
 	public void setEventLogDataList(List<EventLogData> eventLogDataList) {
 		this.eventLogDataList = eventLogDataList;		
 	}
-	public Boolean getHasNextPage() {
-		return hasNextPage;
-	}
-	public void setHasNextPage(Boolean hasNextPage) {
-		this.hasNextPage = hasNextPage;
-	}
-	public Boolean getHasPreviousPage() {
-		return hasPreviousPage;
-	}
-	public void setHasPreviousPage(Boolean hasPreviousPage) {
-		this.hasPreviousPage = hasPreviousPage;
-	}
 	public String getSortType() {
 	   return sortType;
 	}
@@ -148,12 +135,6 @@ public class EventLogBean implements Serializable {
    }
    public void setFilteredAssessmentId(Long filteredAssessmentId) {
       this.filteredAssessmentId = filteredAssessmentId;
-   }
-   public String getFilteredUser() {
-      return filteredUser;
-   }
-   public void setFilteredUser(String filteredUser) {
-      this.filteredUser = filteredUser;
    }
    public List<SelectItem> getAssessments() {
       return assessments;
@@ -176,5 +157,16 @@ public class EventLogBean implements Serializable {
    public void setEnabledIpAddress(boolean enabledIpAddress){
 	   this.enabledIpAddress = enabledIpAddress;
    }	
+
+    public String getExportUrl() {
+        Optional<String> assessmentId = filteredAssessmentId != null && filteredAssessmentId != -1
+                ? Optional.of(filteredAssessmentId.toString())
+                : Optional.empty();
+
+        return UriComponentsBuilder.fromPath(SamigoConstants.SERVLET_MAPPING_EXPORT_EVENT_LOG)
+                .queryParam(ExportEventLogServlet.PARAM_SITE_ID, siteId)
+                .queryParamIfPresent(ExportEventLogServlet.PARAM_ASSESSMENT_ID, assessmentId)
+                .build().toUriString();
+    }
    
 }
