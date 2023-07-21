@@ -56,12 +56,17 @@
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
   <div class="sak-banner-info">
      <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+     <br>
+      <h:panelGroup rendered="#{delivery.sebSetup}" layout="block">
+        <h:outputText value="#{deliveryMessages.seb_preview_info}" escape="false" />
+      </h:panelGroup>
+     <br>
+     <br>
      <h:commandButton value="#{deliveryMessages.exit_preview}"
-        styleClass="exitPreviewButton"
-        action="#{person.cleanResourceIdListInPreview}"
-        type="submit"
-        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
-  </div>
+     action="#{person.cleanResourceIdListInPreview}"
+     type="submit"
+     onclick="return returnToHostUrl(\'#{delivery.selectURL}\'');" />
+    </div>
 </h:panelGroup>
 
   <h1>
@@ -283,15 +288,29 @@
   </h:commandButton>
 
   <h:panelGroup rendered="#{delivery.sebSetup}">
-    <a id="sebLaunchSeb" class="active">
-      <h:outputText value="#{deliveryMessages.seb_launch_seb}"/>
-    </a>
-    <a id="sebDownloadSeb" class="button" target="_blank">
-      <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
-    </a>
-    <a id="sebDownloadConfiguration" class="button">
-      <h:outputText value="#{deliveryMessages.seb_download_configuration}"/>
-    </a>
+    <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+      <a id="sebLaunchSeb" class="active">
+        <h:outputText value="#{deliveryMessages.seb_launch_seb}"/>
+      </a>
+      <a id="sebDownloadSeb" class="button">
+        <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
+      </a>
+      <a id="sebDownloadConfiguration" class="button">
+        <h:outputText value="#{deliveryMessages.seb_download_configuration}"/>
+      </a>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment'}">
+      <a id="sebLaunchSeb" class="button disabled">
+        <h:outputText value="#{deliveryMessages.seb_launch_seb}"/>
+      </a>
+      <h:outputLink id="sebDownloadSeb" styleClass="button" value="#{delivery.sebDownloadLink}" target="_blank">
+        <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
+      </h:outputLink >
+      <a id="sebDownloadConfiguration" class="button disabled">
+        <h:outputText value="#{deliveryMessages.seb_download_configuration}"/>
+      </a>
+    </h:panelGroup>
+
   </h:panelGroup>
 
   <h:commandButton id="restViewHidden" styleClass="hidden" value="begin" action="#{delivery.getActionString}" type="submit" rendered="#{delivery.sebSetup}">
@@ -301,7 +320,7 @@
 <!-- CANCEL BUTTON -->
   <h:commandButton id="cancel1" value="#{commonMessages.cancel_action}" action="select" type="submit"
       rendered="#{delivery.actionString=='previewAssessment'
-          || delivery.actionString=='takeAssessment'}"
+      || delivery.actionString=='takeAssessment'}"
       disabled="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>

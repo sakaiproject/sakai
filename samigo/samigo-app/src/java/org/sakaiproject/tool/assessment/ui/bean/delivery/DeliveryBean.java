@@ -505,9 +505,6 @@ public class DeliveryBean implements Serializable {
   private String sebConfigUploadLink;
 
   @Getter @Setter
-  private String sebDownloadLink;
-
-  @Getter @Setter
   private String sebLaunchLink;
 
   /**
@@ -2178,7 +2175,7 @@ public class DeliveryBean implements Serializable {
     if (isViaUrlLogin) {
       String secureDeliveryModuleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
-      if (secureDeliveryModuleId != null) {
+      if (secureDeliveryModuleId != null && !SecureDeliveryServiceAPI.NONE_ID.equals(secureDeliveryModuleId)) {
         validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
 
         if (PhaseStatus.FAILURE.equals(secureDeliveryStatus)) {
@@ -2188,6 +2185,8 @@ public class DeliveryBean implements Serializable {
             return SamigoConstants.OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR;
           }
         }
+      } else {
+        setSebSetup(false);
       }
     }
 
@@ -2740,5 +2739,9 @@ public class DeliveryBean implements Serializable {
         if(!Objects.equals(extendedTimeDeliveryService.getPublishedAssessmentId(), publishedAssessment.getPublishedAssessmentId())) {
             extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
         }
+    }
+
+    public String getSebDownloadLink() {
+      return ServerConfigurationService.getString(SecureDeliverySeb.SEB_DOWNLOAD_LINK_PROPERTY, SecureDeliverySeb.SEB_DOWNLOAD_LINK_DEFAULT);
     }
 }
