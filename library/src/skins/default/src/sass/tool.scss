@@ -228,9 +228,13 @@ label {
   color: var(--sakai-text-color-2);
 }
 
-.form-control-required .form-control-label::after {
-    content: ' *';
-    color: var(--sakai-highlight-color);
+.form-control-required {
+    .form-control-label, .form-label {
+        &::after {
+            content: ' *';
+            color: var(--sakai-highlight-color);
+        }
+    }
 }
 
 

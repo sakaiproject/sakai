@@ -47,4 +47,9 @@ public interface DiscussionForum extends OpenForum {
     public Boolean getRestrictPermissionsForGroups();
     
     public void setRestrictPermissionsForGroups(Boolean restrictPermissionsForGroups);
+
+    public Boolean getFaqForum();
+
+    public void setFaqForum(Boolean isFaqForum);
+
 }
