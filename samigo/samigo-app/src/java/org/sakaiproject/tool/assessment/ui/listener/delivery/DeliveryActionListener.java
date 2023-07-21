@@ -308,6 +308,8 @@ public class DeliveryActionListener
                       delivery.setSebSetup(true);
                     }
                   }
+                } else {
+                  delivery.setSebSetup(false);
                 }
               }
 
