@@ -133,7 +133,6 @@
 
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_poolmanager}"/>
 
-<h:panelGroup layout="block" styleClass="tier1">
 <h:outputText escape="false" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" value="<p class=\"navViewAction\">"/>
 <h:commandLink title="#{questionPoolMessages.t_addPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="add" immediate="true" action="#{questionpool.addPool}">
  <h:outputText value="#{questionPoolMessages.add_new_pool}"/>
@@ -162,15 +161,10 @@
 </h:commandLink>
  
 <h:outputText rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" escape="false" value="</p>"/>
-</h:panelGroup>
 
 <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
  
-<h:panelGroup layout="block" styleClass="tier2">
 <%@ include file="/jsf/questionpool/poolTreeTable.jsp" %>
-
-</h:panelGroup>
-
 
 <h:panelGroup layout="block" styleClass="act">
  
