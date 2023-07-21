@@ -7,8 +7,9 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
+
+import org.sakaiproject.util.ResourceLoader;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,12 +41,13 @@ public class DataTableConfig {
     private static final String I18N_SORT_DESCENDING = "sortDescending";
     private static final String I18N_ZERO_RECORDS = "zeroRecords";
     private static final String I18N_ENTITIES = "entities";
-    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.DataTablesMessages");
+    private static final ResourceLoader RESOURCE_BUNDLE = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DataTablesMessages");
 
     private Boolean paging;
     private List<Set<Object>> lengthMenu;
     private Set<Set<Object>> order;
     private List<DataTableColumn> columns;
+    private List<DataTableColumn> columnDefs;
     private Map<String, Object> language;
 
 
