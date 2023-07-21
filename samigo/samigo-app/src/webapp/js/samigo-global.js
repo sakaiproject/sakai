@@ -189,14 +189,5 @@ $(function () {
       }
     });
   }
-  if ( $("#editform\\:questionpool-questions").length ) {
-    $("#editform\\:questionpool-questions").tablesorter({
-      headers: {
-        0: {
-          sorter: false
-        }
-      }
-    });
-  }
 
 });
