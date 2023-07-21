@@ -191,9 +191,11 @@ export default class CardGame extends BaseGame {
         return `
             <div class="row">
                 <div class="col-sm-4 col-lg-2 col-xl-1 col-xxl-1">
-                    <img class="img-responsive img-thumbnail"
-                            src="${imageSrc}"
-                            alt="${this.tr("user_image_alt")}">
+                    <div class="b5 ratio ratio-1x1">
+                        <img class="img-ratio-cover img-responsive img-thumbnail"
+                                src="${imageSrc}"
+                                alt="${this.tr("user_image_alt")}">
+                    </div>
                 </div>
                 <div class="col-sm-8 col-lg-7 col-xl-6 col-xxl-5">
                     <h2>${this.tr("whats_the_user_name")}</h2>
