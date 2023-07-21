@@ -1,0 +1,149 @@
+<th:block th:fragment="printObject(item)" th:with="df=#{date.format}">
+	<th:block th:if="${item}">
+		<th:block th:if="${item instanceof T(org.sakaiproject.microsoft.api.data.MicrosoftTeamWrapper)}">
+			<th:block th:replace="fragments/driveItems :: printTeam(${item})"></th:block>
+		</th:block>
+
+		<th:block th:if="${item instanceof T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem)}">
+			<th:block th:replace="fragments/driveItems :: printFolder(${item})"></th:block>
+		</th:block>
+	</th:block>
+</th:block>
+
+<th:block th:fragment="printTeam(item)">
+	<div th:class="${allowCreateFolders or allowCreateFiles}? 'breadcrumb-header'">
+		<th:block th:replace="fragments/driveItems :: menuNew(${item})" />
+	</div>
+	
+	<th:block th:if="${item.hasItems()}">
+		<div th:replace="fragments/driveItems :: printItemsHeader()"></div>
+		<th:block th:each="elem: ${item.items}">
+			<div th:replace="fragments/driveItems :: printItem(${elem})"></div>
+		</th:block>
+	</th:block>
+	<div th:if="${!item.hasItems()}" th:text="#{container_empty}" class="sak-banner-info"></div>
+	
+	<form th:if="${allowUploadFiles}" th:action="@{/file-upload}" class="dropzone">
+		<div class="dz-default dz-message"><button type="button" th:text="#{dragndrop.label.dragZoneMessage}"></button></div>
+	</form>
+</th:block>
+
+<th:block th:fragment="printFolder(item)">
+	<div class="folder-container" th:id="${item.id}">
+		<div th:class="${allowCreateFolders or allowCreateFiles}? 'breadcrumb-header'">
+			<th:block th:replace="fragments/driveItems :: menuNew(${item})" />
+			<th:block th:replace="fragments/driveItems :: printBreadcrumbs(${item})" />
+		</div>
+		
+		<th:block th:if="${item.hasChildren()}">
+			<div th:replace="fragments/driveItems :: printItemsHeader()"></div>
+			<th:block th:each="elem: ${item.children}">
+				<div th:replace="fragments/driveItems :: printItem(${elem})"></div>
+			</th:block>
+		</th:block>
+		<div th:if="${!item.hasChildren()}" th:text="#{container_empty}" class="sak-banner-info"></div>
+		
+		<form th:if="${allowUploadFiles}" th:action="@{/file-upload}" class="dropzone">
+			<div class="dz-default dz-message"><button type="button" th:text="#{dragndrop.label.dragZoneMessage}"></button></div>
+		</form>
+	</div>
+</th:block>
+
+<th:block th:fragment="menuNew(item)">
+	<div class="act" th:if="${allowCreateFolders} or ${allowCreateFiles}">
+		<button type="button" class="btn active btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" th:title="#{button.new.item}">
+			<span class="sr-only" th:text="#{button.new.item}">+ New</span>
+			[[#{button.new.item}]]
+			<span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li th:if="${allowCreateFolders}"><a href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).FOLDER}]])" th:text="#{create.folder}" th:aria-label="#{create.folder}">Folder</a></li>
+			<li th:if="${allowCreateFolders} and ${allowCreateFiles}" class="divider"></li>
+			<li th:if="${allowCreateFiles}"><a href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).DOC_WORD}]])" th:text="#{create.word}" th:aria-label="#{create.word}">Word</a></li>
+			<li th:if="${allowCreateFiles}"><a href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).DOC_EXCEL}]])" th:text="#{create.excel}" th:aria-label="#{create.excel}">Excel</a></li>
+			<li th:if="${allowCreateFiles}"><a href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).DOC_PPT}]])" th:text="#{create.powerpoint}" th:aria-label="#{create.powerpoint}">Powerpoint</a></li>
+		</ul>
+	</div>
+</th:block>
+
+<th:block th:fragment="printBreadcrumbs(item)">
+	<ol class="breadcrumb">
+		<li>
+			<a href="#" th:attr="onclick=|loadTeam('${currentTeam?.id}')|" th:text="${currentTeam?.name}" role="button" tabindex="0"></a>
+		</li>
+		<li th:replace="fragments/driveItems :: printHierarchyLink(${item}, true)" />
+	</ol>
+</th:block>
+
+<th:block th:fragment="printHierarchyLink(item, first)">
+	<th:block th:if="${item.parent}">
+		<li th:replace="fragments/driveItems :: printHierarchyLink(${item.parent}, false)" />
+	</th:block>
+	<li>
+		<a th:if="${!first}" href="#" th:data-itemid="${item.id}" onclick="loadFolder(this)" th:text="${item.name}" role="button" tabindex="-1" />
+		<span th:if="${first}" th:text="${item.name}" />
+	</li>
+</th:block>
+
+<div th:fragment="printItemsHeader()" class="table-row" th:with="icon=(${sortBy.endsWith(':1')} ? 'fa fa-sort-down' : 'fa fa-sort-up')" tabindex="0">
+	<a href='#' class="col-xs-4" onclick="sortItems(this, 'name')" role="button" tabindex="-1" th:aria-label="#{header.name}">
+		[[#{header.name}]]
+		<span th:class="${sortBy.startsWith('name')}? ${icon}"></span>
+	</a>
+	<a href='#' class="col-xs-3" onclick="sortItems(this, 'date')" role="button" tabindex="-1" th:aria-label="#{header.updated}">
+		[[#{header.updated}]]
+		<span th:class="${sortBy.startsWith('date')}? ${icon}"></span>
+	</a>
+	<a href='#' class="col-xs-3" onclick="sortItems(this, 'user')" role="button" tabindex="-1" th:aria-label="#{header.updated_by}">
+		[[#{header.updated_by}]]
+		<span th:class="${sortBy.startsWith('user')}? ${icon}"></span>
+	</a>
+</div>
+
+<div th:fragment="printItem(item)" class="table-row drive-item" tabindex="-1">
+	<div class="col-xs-4 main-column" th:if="${!item.isFolder()}">
+		<a href='#' class="icon-container b5 text-break" th:href="${item.url}" target='_blank' role="button" tabindex="-1" th:switch="${item.mimeType}">
+			<span th:case="${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter).DOCUMENT_EXCEL_TYPE}" class="fa fa-file-excel-o"></span>
+			<span th:case="${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter).DOCUMENT_WORD_TYPE}" class="fa fa-file-word-o"></span>
+			<span th:case="${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItemFilter).DOCUMENT_POWERPOINT_TYPE}" class="fa fa-file-powerpoint-o"></span>
+			<span th:case="*" class="fa fa-file-o"></span><!-- This never should be visible -->
+			[[${item.name}]]
+		</a>
+		<a href='#'
+			class="dropdown-toggle"
+			aria-expanded="false"
+			data-toggle="dropdown"
+			th:attr="data-itemid=${item.id}"
+			th:title="#{actions}"
+			th:onclick="toggleDropdown(this, false)"
+			role="button"
+			tabindex="-1"
+		>
+			...
+		</a>
+	</div>
+
+	<div class="col-xs-4 main-column" th:if="${item.isFolder()}">
+		<a href='#' class="icon-container b5 text-break" th:data-itemid="${item.id}" onclick="loadFolder(this)" role="button" tabindex="-1">
+			<span class="folder-item fa fa-folder" th:if="${item.hasChildren()}"></span>
+			<span class="folder-item fa fa-folder-o" th:if="${!item.hasChildren()}"></span>
+			[[${item.name}]]
+		</a>
+		<a href='#'
+			th:if="${allowDeleteFolders}"
+			class="dropdown-toggle"
+			aria-expanded="false"
+			data-toggle="dropdown"
+			th:attr="data-itemid=${item.id}"
+			th:title="#{actions}"
+			th:onclick="toggleDropdown(this, true)"
+			role="button"
+			tabindex="-1"
+		>
+			...
+		</a>
+	</div>
+
+	<div class="col-xs-3" th:text="${#temporals.format(item.modifiedAt, df)}"></div>
+	<div class="col-xs-3" th:text="${item.modifiedBy}"></div>
+</div>

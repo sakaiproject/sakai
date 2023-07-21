@@ -17,6 +17,10 @@ import lombok.Singular;
 public class MicrosoftDriveItemFilter{
 	public static final String VIDEO_CONTENT_TYPE = "video/";
 	public static final String AUDIO_CONTENT_TYPE = "audio/";
+	public static final String MICROSOFT_DOCUMENT_TYPE = "application/vnd.openxmlformats-officedocument.";
+	public static final String DOCUMENT_EXCEL_TYPE = MICROSOFT_DOCUMENT_TYPE + "spreadsheetml.sheet";
+	public static final String DOCUMENT_WORD_TYPE = MICROSOFT_DOCUMENT_TYPE + "wordprocessingml.document";
+	public static final String DOCUMENT_POWERPOINT_TYPE = MICROSOFT_DOCUMENT_TYPE + "presentationml.presentation";
 	
 	private String id;
 	private String name;
@@ -39,7 +43,7 @@ public class MicrosoftDriveItemFilter{
 			}
 			
 			if(contentTypes != null && !contentTypes.isEmpty()) {
-				ret = ret && contentTypes.stream().anyMatch(ct -> item.getMimeType().toLowerCase().contains(ct.toLowerCase()));
+				ret = ret && contentTypes.stream().anyMatch(ct -> (item.getMimeType() != null) ? item.getMimeType().toLowerCase().startsWith(ct.toLowerCase()) : false);
 			}
 		}
 		return ret;

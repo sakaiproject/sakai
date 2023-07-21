@@ -18,6 +18,9 @@ package org.sakaiproject.microsoft.impl;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -36,11 +39,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.messaging.api.MicrosoftMessage;
 import org.sakaiproject.messaging.api.MicrosoftMessage.MicrosoftMessageBuilder;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.microsoft.api.MicrosoftAuthorizationService;
 import org.sakaiproject.microsoft.api.MicrosoftCommonService;
+import org.sakaiproject.microsoft.api.SakaiProxy;
 import org.sakaiproject.microsoft.api.data.MeetingRecordingData;
 import org.sakaiproject.microsoft.api.data.MicrosoftChannel;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
@@ -67,6 +72,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+
+import com.microsoft.graph.tasks.LargeFileUploadTask;
+import com.microsoft.graph.tasks.LargeFileUploadResult;
 import com.microsoft.graph.models.AadUserConversationMember;
 import com.microsoft.graph.models.CallRecordingEventMessageDetail;
 import com.microsoft.graph.models.CallRecordingStatus;
@@ -77,8 +85,11 @@ import com.microsoft.graph.models.ConversationMember;
 import com.microsoft.graph.models.DirectoryObject;
 import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.models.DriveItemCreateLinkParameterSet;
+import com.microsoft.graph.models.DriveItemCreateUploadSessionParameterSet;
 import com.microsoft.graph.models.DriveItemInviteParameterSet;
+import com.microsoft.graph.models.DriveItemUploadableProperties;
 import com.microsoft.graph.models.DriveRecipient;
+import com.microsoft.graph.models.Folder;
 import com.microsoft.graph.models.Group;
 import com.microsoft.graph.models.Identity;
 import com.microsoft.graph.models.IdentitySet;
@@ -94,6 +105,7 @@ import com.microsoft.graph.models.Permission;
 import com.microsoft.graph.models.PermissionGrantParameterSet;
 import com.microsoft.graph.models.Team;
 import com.microsoft.graph.models.ThumbnailSet;
+import com.microsoft.graph.models.UploadSession;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.options.HeaderOption;
 import com.microsoft.graph.options.Option;
@@ -138,6 +150,12 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	@Autowired
 	MicrosoftAuthorizationService microsoftAuthorizationService;
 	
+	@Autowired
+	private SakaiProxy sakaiProxy;
+	
+	@Setter
+	private FunctionManager functionManager;
+	
 	@Setter
 	private CacheManager cacheManager;
 	private Cache cache = null;
@@ -160,6 +178,14 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 
 	public void init() {
 		log.info("Initializing MicrosoftCommonService Service");
+		
+		// register functions
+		functionManager.registerFunction(PERM_VIEW_ALL_CHANNELS, true);
+		functionManager.registerFunction(PERM_CREATE_FILES, true);
+		functionManager.registerFunction(PERM_CREATE_FOLDERS, true);
+		functionManager.registerFunction(PERM_DELETE_FILES, true);
+		functionManager.registerFunction(PERM_DELETE_FOLDERS, true);
+		functionManager.registerFunction(PERM_UPLOAD_FILES, true);
 	}
 	
 	private Cache getCache() {
@@ -1463,8 +1489,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
-						.createdAt(item.createdDateTime)
-						.modifiedAt(item.lastModifiedDateTime)
+						.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
 						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 						.downloadURL((adm!=null) ? adm.getAsString() : null)
 						.path((item.parentReference != null) ? item.parentReference.path : null)
@@ -1536,6 +1563,37 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	}
 	
 	@Override
+	public MicrosoftDriveItem getDriveItemFromTeam(String teamId) throws MicrosoftCredentialsException {
+		MicrosoftDriveItem ret = null;
+		try {
+			DriveItem item = getGraphClient()
+					.groups(teamId)
+					.drive()
+					.root()
+					.buildRequest()
+					.get();
+			ret = MicrosoftDriveItem.builder()
+					.id(item.id)
+					.name(item.name)
+					.url(item.webUrl)
+					.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+					.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+					.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
+					.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
+					.depth(0)
+					.folder(item.folder != null)
+					.childCount((item.folder != null) ? item.folder.childCount : 0)
+					.size(item.size)
+					.build();
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.debug("Error getting driveItem from team={}", teamId);
+		}
+		return ret;
+	}
+	
+	@Override
 	public MicrosoftDriveItem getDriveItemFromChannel(String teamId, String channelId) throws MicrosoftCredentialsException {
 		MicrosoftDriveItem ret = null;
 		try {
@@ -1549,8 +1607,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 					.id(item.id)
 					.name(item.name)
 					.url(item.webUrl)
-					.createdAt(item.createdDateTime)
-					.modifiedAt(item.lastModifiedDateTime)
+					.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+					.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+					.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
 					.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 					.depth(0)
 					.folder(item.folder != null)
@@ -1686,6 +1745,21 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 		return ret;
 	}
 	
+	@Override
+	public boolean deleteDriveItem(MicrosoftDriveItem item) throws MicrosoftCredentialsException {
+		try {
+			getGraphClient().drives(item.getDriveId()).items(item.getId())
+				.buildRequest()
+				.delete();
+			return true;
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.warn("Error deleting DriveItem drive={}, id={}", item.getDriveId(), item.getId());
+		}
+		return false;
+	}
+	
 	// ---------------------------------------- ONE-DRIVE (DELEGATED) --------------------------------------------------------
 	@Override
 	public List<MicrosoftDriveItem> getMyDriveItems(String userId) throws MicrosoftCredentialsException {
@@ -1726,8 +1800,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
-						.createdAt(item.createdDateTime)
-						.modifiedAt(item.lastModifiedDateTime)
+						.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
 						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 						.downloadURL((adm!=null) ? adm.getAsString() : null)
 						.path((item.parentReference != null) ? item.parentReference.path : null)
@@ -1802,8 +1877,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
-						.createdAt(item.createdDateTime)
-						.modifiedAt(item.lastModifiedDateTime)
+						.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
 						.driveId((item.remoteItem != null && item.remoteItem.parentReference != null) ? item.remoteItem.parentReference.driveId : null)
 						.shared(true) //IMPORTANT: identify these items as shared (they have uncompleted data)
 						.downloadURL(null)
@@ -1886,8 +1962,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
-						.createdAt(item.createdDateTime)
-						.modifiedAt(item.lastModifiedDateTime)
+						.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
 						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 						.downloadURL((adm!=null) ? adm.getAsString() : null)
 						.path((item.parentReference != null) ? item.parentReference.path : null)
@@ -1958,8 +2035,9 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.id(item.id)
 						.name(item.name)
 						.url(item.webUrl)
-						.createdAt(item.createdDateTime)
-						.modifiedAt(item.lastModifiedDateTime)
+						.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+						.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
 						.driveId((item.parentReference != null) ? item.parentReference.driveId : null)
 						.downloadURL((adm!=null) ? adm.getAsString() : null)
 						.path((item.parentReference != null) ? item.parentReference.path : null)
@@ -1984,6 +2062,115 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 			throw e;
 		} catch(Exception e) {
 			log.debug("Error getting Drive Items for driveId={} and itemId={}", driveId, itemId);
+		}
+		return ret;
+	}
+	
+	@Override
+	public MicrosoftDriveItem createDriveItem(MicrosoftDriveItem parent, MicrosoftDriveItem.TYPE type, String name, String delegatedUserId) throws MicrosoftCredentialsException {
+		MicrosoftDriveItem ret = null;
+		try {
+			GraphServiceClient client = null;
+			if(StringUtils.isNotBlank(delegatedUserId)) {
+				client = (GraphServiceClient)microsoftAuthorizationService.getDelegatedGraphClient(delegatedUserId);
+			} else {
+				client = getGraphClient();
+			}
+			
+			DriveItem newItem = new DriveItem();
+			newItem.name = name;
+			if(type == MicrosoftDriveItem.TYPE.FOLDER) {
+				newItem.folder = new Folder();
+			} else {
+				if(!name.toLowerCase().endsWith(type.getExt())) {
+					newItem.name = name + type.getExt();
+				}
+				newItem.file = new com.microsoft.graph.models.File();
+			}
+			newItem.additionalDataManager().put("@microsoft.graph.conflictBehavior", new JsonPrimitive("rename"));
+			
+			DriveItem item = client.drives(parent.getDriveId()).items(parent.getId()).children().buildRequest().post(newItem);
+			ret = MicrosoftDriveItem.builder()
+					.id(item.id)
+					.name(item.name)
+					.url(item.webUrl)
+					.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+					.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+					.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
+					.driveId(parent.getDriveId())
+					.path((item.parentReference != null) ? item.parentReference.path : null)
+					.folder(item.folder != null)
+					.childCount(0)
+					.size(item.size)
+					.mimeType((item.file != null) ? item.file.mimeType : null)
+					.build();
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch (Exception e) {
+			log.warn("Error creating DriveItem name={}, type={} in drive={} and parent={}", name, type, parent.getDriveId(), parent.getId());
+		}
+		return ret;
+	}
+	
+	@Override
+	public MicrosoftDriveItem uploadDriveItem(MicrosoftDriveItem parent, File file, String name, String delegatedUserId) throws MicrosoftCredentialsException {
+		MicrosoftDriveItem ret = null;
+		try {
+			GraphServiceClient client = null;
+			if(StringUtils.isNotBlank(delegatedUserId)) {
+				client = (GraphServiceClient)microsoftAuthorizationService.getDelegatedGraphClient(delegatedUserId);
+			} else {
+				client = getGraphClient();
+			}
+			
+			// Get an input stream for the file
+			InputStream fileStream = new FileInputStream(file);
+			long streamSize = file.length();
+	
+			final DriveItemUploadableProperties upProps = new DriveItemUploadableProperties();
+			upProps.additionalDataManager().put("@microsoft.graph.conflictBehavior", new JsonPrimitive("rename"));
+			
+			final DriveItemCreateUploadSessionParameterSet uploadParams = DriveItemCreateUploadSessionParameterSet.newBuilder().withItem(upProps).build();
+			
+			// Create an upload session
+			final UploadSession uploadSession = client
+					.drives(parent.getDriveId())
+					.items(parent.getId())
+					.itemWithPath(name)
+					.createUploadSession(uploadParams)
+					.buildRequest()
+					.post();
+	
+			if (null == uploadSession) {
+				fileStream.close();
+				log.warn("Error creating upload session in drive={} and parent={}", parent.getDriveId(), parent.getId());
+				return null;
+			}
+	
+			LargeFileUploadTask<DriveItem> largeFileUploadTask = new LargeFileUploadTask<DriveItem>(uploadSession, client, fileStream, streamSize, DriveItem.class);
+	
+			// Do the upload
+			LargeFileUploadResult<DriveItem> result = largeFileUploadTask.upload();
+			
+			DriveItem item = result.responseBody;
+			ret = MicrosoftDriveItem.builder()
+				.id(item.id)
+				.name(item.name)
+				.url(item.webUrl)
+				.createdAt((item.createdDateTime != null) ? item.createdDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+				.modifiedAt((item.lastModifiedDateTime != null) ? item.lastModifiedDateTime.atZoneSameInstant(sakaiProxy.getUserTimeZoneId()) : null)
+				.modifiedBy((item.lastModifiedBy != null && item.lastModifiedBy.user != null) ? item.lastModifiedBy.user.displayName : null)
+				.driveId(parent.getDriveId())
+				.path((item.parentReference != null) ? item.parentReference.path : null)
+				.folder(item.folder != null)
+				.childCount(0)
+				.size(item.size)
+				.mimeType((item.file != null) ? item.file.mimeType : null)
+				.build();
+		}catch(MicrosoftCredentialsException e) {
+			throw e;
+		}catch(Exception e) {
+			log.warn("Error uploading DriveItem name={} to drive={} and parent={}", name, parent.getDriveId(), parent.getId());
 		}
 		return ret;
 	}
