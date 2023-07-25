@@ -104,6 +104,11 @@ User.Read
 Used to browse Media elements (Video and Audio) stored in Microsoft OneDrive.
 This tool could be added to a Site (course or project) or in MyWorkspace. Site tool requires a valid Site-Team synchonization. MyWorkspace tool requires delegated access.
 
+Requires Sakai permissions:
+```sh
+microsoft.channels.view.all: Allow user to view all Microsoft private channels
+```
+
 ## Sakai - Microsoft Collaborative Documents Tool
 Used to browse Microsoft collaborative documents (Word, Excel or PowerPoint) stored in OneDrive.
 This tool could be added to a Site (course or project) and requires a valid Site-Team synchonization.
