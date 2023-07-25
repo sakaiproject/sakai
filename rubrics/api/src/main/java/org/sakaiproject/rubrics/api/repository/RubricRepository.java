@@ -31,5 +31,6 @@ public interface RubricRepository extends SpringCrudRepository<Rubric, Long> {
 
     List<Rubric> findByShared(Boolean shared);
     List<Rubric> findByOwnerId(String ownerId);
+    List<Rubric> findAdhocByTitle(String itemId);
     int deleteByOwnerId(String ownerId);
 }

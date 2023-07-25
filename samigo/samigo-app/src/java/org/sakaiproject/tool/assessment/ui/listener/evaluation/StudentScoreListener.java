@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -168,7 +169,13 @@ import lombok.extern.slf4j.Slf4j;
               .forEach(p -> p.getItemContents().stream()
                       .filter(Objects::nonNull)
                       .forEach(i -> {
-                          i.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + i.getItemData().getItemId()));
+                          ToolItemRubricAssociation tira = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + i.getItemData().getItemId()).orElse(null);
+                          boolean associated = tira != null ? true : false;
+                          i.setHasAssociatedRubric(associated);
+                          if (associated) {
+                            String associationType = tira.getFormattedAssociation().get(RubricsConstants.RBCS_ASSOCIATE) != null ? tira.getFormattedAssociation().get(RubricsConstants.RBCS_ASSOCIATE) : "1";
+                            i.setAssociatedRubricType(associationType);
+                          }
                           i.getItemGradingDataArray()
                                   .forEach(d -> itemContentsMap.put(d.getItemGradingId(), i));
                       }));

@@ -276,7 +276,11 @@ public class PublishAssessmentListener
           try {
             Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
             if (rubricAssociation.isPresent()) {
-              rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), rubricAssociation.get().getFormattedAssociation());
+              Map<String, String> params = rubricAssociation.get().getFormattedAssociation();
+              if ("2".equals(params.get(RubricsConstants.RBCS_ASSOCIATE))) {
+                params.put(RubricsConstants.RBCS_LIST, "0");
+              }
+              rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), params, AgentFacade.getCurrentSiteId());
             }
           } catch(HttpClientErrorException hcee) {
             log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());

@@ -33,11 +33,13 @@ import java.text.DateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -258,6 +260,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
 
         return rubricRepository.findByOwnerId(siteId).stream()
+            .filter(r -> r.getAdhoc() == null || !r.getAdhoc())
             .map(r -> decorateRubricBean(new RubricTransferBean(r))).collect(Collectors.toList());
     }
 
@@ -466,6 +469,49 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                         .collect(Collectors.toList()));
                 return criterion;
             }).collect(Collectors.toList()));
+        } else if (bean.getAdhoc()) {
+            rubric = rubricRepository.getById(bean.getId());
+            List<Criterion> oldCriterion = new ArrayList<>();
+
+            // update existing criteria
+            rubric.getCriteria().forEach(c -> bean.getCriteria().stream()
+                    .filter(bc -> bc.getId() != null)
+                    .filter(bc -> bc.getId().equals(c.getId()))
+                    .findAny()
+                    .ifPresentOrElse(bc -> {
+                        c.setTitle(bc.getTitle());
+                        c.setDescription(bc.getDescription());
+                        c.setWeight(bc.getWeight());
+                        c.getRatings().forEach(r -> bc.getRatings().stream()
+                                .filter(br -> br.getId().equals(r.getId()))
+                                .findAny()
+                                .ifPresent(br -> {
+                                    r.setTitle(br.getTitle());
+                                    r.setDescription(br.getDescription());
+                                    r.setPoints(br.getPoints());
+                                }));
+                    }, () -> oldCriterion.add(c))
+            );
+
+            // remove old criterion
+            rubric.getCriteria().removeAll(oldCriterion);
+
+            //add new
+            List<Criterion> newCriterion = new ArrayList<>();
+            newCriterion = bean.getCriteria().stream()
+                    .filter(bc -> bc.getId() == null)
+                    .map(c -> {
+                        Criterion criterion = new Criterion();
+                        criterion.setTitle(c.getTitle());
+                        criterion.setRubric(rubric);
+                        criterion.setDescription(c.getDescription());
+                        criterion.setWeight(c.getWeight());
+                        criterion.setRatings(c.getRatings().stream()
+                                .map(r -> new Rating(null, r.getTitle(), r.getDescription(), r.getPoints(), criterion))
+                                .collect(Collectors.toList()));
+                        return criterion;
+                    }).collect(Collectors.toList());
+            rubric.getCriteria().addAll(newCriterion);
         } else {
             rubric = rubricRepository.getById(bean.getId());
             rubric.getCriteria().forEach(c -> bean.getCriteria().stream()
@@ -492,6 +538,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         rubric.setOwnerId(bean.getOwnerId());
         rubric.setCreatorId(bean.getCreatorId());
         rubric.setShared(bean.getShared());
+        rubric.setAdhoc(bean.getAdhoc());
 
         return new RubricTransferBean(rubricRepository.save(rubric));
     }
@@ -658,6 +705,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
 
         Evaluation evaluation;
+        List<Long> newOutcomesCriterionIds = new ArrayList<>();
         if (evaluationBean.getId() != null) {
             evaluation = evaluationRepository.getById(evaluationBean.getId());
 
@@ -686,11 +734,21 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     // criterion processed so remove it from the list
                     outcomeIds.remove(beanCriterionId);
                 } else {
-                    log.warn("An outcome with id: [{}], was not in the original list", beanCriterionId);
+                    log.info("An outcome with id: [{}], was not in the original list but now it appears (dynamic rubric)", beanCriterionId);
+
+                    CriterionOutcome outcome = new CriterionOutcome();
+                    outcome.setCriterionId(beanCriterionId);
+                    outcome.setPoints(outcomeBean.getPoints());
+                    outcome.setComments(outcomeBean.getComments());
+                    outcome.setPointsAdjusted(outcomeBean.getPointsAdjusted());
+                    outcome.setSelectedRatingId(outcomeBean.getSelectedRatingId());
+                    outcomes.add(outcome);
+                    newOutcomesCriterionIds.add(beanCriterionId);
                 }
             }
             // outcomeIds should be empty, if not the db contained outcomes not reported in the ui so remove them
-            outcomes.stream().filter(o -> outcomeIds.contains(o.getCriterionId())).forEach(outcomes::remove);
+            outcomes.removeIf(o -> outcomeIds.contains(o.getCriterionId()));
+
         } else {
             evaluation = new Evaluation();
             evaluation.getCriterionOutcomes().addAll(evaluationBean.getCriterionOutcomes().stream().map(o -> {
@@ -729,6 +787,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     re.setOverallComment(savedEvaluation.getOverallComment());
                     Map<Long, CriterionOutcome> outcomes = savedEvaluation.getCriterionOutcomes().stream()
                             .collect(Collectors.toMap(CriterionOutcome::getCriterionId, co -> co));
+                    re.getCriterionOutcomes().removeIf(o -> outcomes.get(o.getCriterionId()) == null);
                     re.getCriterionOutcomes().forEach(rco -> {
                         CriterionOutcome o = outcomes.get(rco.getCriterionId());
                         rco.setSelectedRatingId(o.getSelectedRatingId());
@@ -736,6 +795,12 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                         rco.setPoints(o.getPoints());
                         rco.setComments(o.getComments());
                     });
+                    if (!newOutcomesCriterionIds.isEmpty()) {
+                        savedEvaluation.getCriterionOutcomes().stream().filter(o -> newOutcomesCriterionIds.contains(o.getCriterionId())).findAny().ifPresent(o -> {
+                            ReturnedCriterionOutcome rco = new ReturnedCriterionOutcome(o);
+                            re.getCriterionOutcomes().add(rco);
+                        });
+                    }
                     return re;
                 }).orElseGet(() -> {
                     ReturnedEvaluation re = new ReturnedEvaluation();
@@ -793,21 +858,44 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     public Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, final Map<String, String> params) {
+        return saveRubricAssociation(toolId, toolItemId, params, null);
+    }
+
+    public Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, final Map<String, String> params, String siteId) {
 
         if (StringUtils.isNotBlank(toolId) && StringUtils.isNotBlank(toolItemId) && !CollectionUtils.isEmpty(params)) {
 
-            final String optionRubricId = Optional.ofNullable(params.get(RubricsConstants.RBCS_LIST)).orElse(StringUtils.EMPTY);
+            String optionRubricId = Optional.ofNullable(params.get(RubricsConstants.RBCS_LIST)).orElse(StringUtils.EMPTY);
             final String optionRubricAssociate = Optional.ofNullable(params.get(RubricsConstants.RBCS_ASSOCIATE)).orElse(StringUtils.EMPTY);
             final Optional<ToolItemRubricAssociation> existingAssociation = getRubricAssociationCheckPermission(toolId, toolItemId);
 
             Long requestedRubricId = NumberUtils.toLong(optionRubricId);
+
+            // S2U-5 dynamic rubrics with criterions created at evaluation time
+            if (RubricsConstants.RBCS_TOOL_SAMIGO.equals(toolId) && requestedRubricId == 0 && StringUtils.equals(optionRubricAssociate, "2") && siteId != null) {
+                Rubric dynamicRubric = rubricRepository.findAdhocByTitle(siteId).stream().filter(Objects::nonNull).findFirst().orElse(null);
+                if (dynamicRubric == null) {
+                    dynamicRubric = new Rubric();
+                    String currentUserId = sessionManager.getCurrentSessionUserId();
+                    dynamicRubric.setOwnerId(siteId);
+                    dynamicRubric.setCreatorId(currentUserId);
+                    Instant now = Instant.now();
+                    dynamicRubric.setCreated(now);
+                    dynamicRubric.setModified(now);
+                    dynamicRubric.setAdhoc(true);
+                    dynamicRubric.setTitle(toolItemId);
+                    dynamicRubric = rubricRepository.save(dynamicRubric);
+                }
+                requestedRubricId = dynamicRubric.getId();
+                optionRubricId = String.valueOf(requestedRubricId);
+            }
 
             if (existingAssociation.isPresent()) {
                 final ToolItemRubricAssociation association = existingAssociation.get();
                 final Rubric existingRubric = association.getRubric();
                 final boolean isSameRubric = StringUtils.equals(optionRubricId, existingRubric.getId().toString());
 
-                if (StringUtils.equals(optionRubricAssociate, "1")) {
+                if (StringUtils.equals(optionRubricAssociate, "1") || StringUtils.equals(optionRubricAssociate, "2")) {
                     if (isSameRubric) {
                         // We're updating an existing association, not the rubric though.
                         association.setParameters(setConfigurationParameters(params, association.getParameters()));
@@ -907,13 +995,13 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 merged.put(StringUtils.remove(k, RBCS_CONFIG), Integer.valueOf(v));
             } else if (k.startsWith(RBCS_MULTIPLE_OPTIONS_CONFIG)) {
                 merged.put(StringUtils.remove(k, RBCS_MULTIPLE_OPTIONS_CONFIG), Integer.valueOf(v));
-            } else if (!k.startsWith(RubricsConstants.RBCS_LIST) && !k.startsWith(RubricsConstants.RBCS_ASSOCIATE)) {//duplicate or migrate
+            } else if (!k.startsWith(RubricsConstants.RBCS_LIST)) {//duplicate or migrate
                 merged.put(k, Integer.valueOf(v));
             }
         });
 
         oldParams.keySet().stream()
-                .filter(name -> !(params.containsKey(RBCS_CONFIG + name)) && !(params.containsKey(RBCS_MULTIPLE_OPTIONS_CONFIG + name)))
+                .filter(name -> !(params.containsKey(RBCS_CONFIG + name)) && !(params.containsKey(RBCS_MULTIPLE_OPTIONS_CONFIG + name)) && !(params.containsKey(RubricsConstants.RBCS_ASSOCIATE)))
                 .forEach(name -> merged.put(name, 0));
         return merged;
     }
