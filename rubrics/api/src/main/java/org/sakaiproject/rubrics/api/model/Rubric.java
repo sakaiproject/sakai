@@ -96,6 +96,8 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     @Column(name = "max_points")
     private Double maxPoints = 0D;
 
+    private Boolean adhoc = Boolean.FALSE;
+
     @Transient
     private Boolean locked = Boolean.FALSE;
 

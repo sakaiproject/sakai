@@ -66,7 +66,8 @@ $Id$
     initRubricDialog(gradingId
       , <h:outputText value="'#{evaluationMessages.done}'"/>
       , <h:outputText value="'#{evaluationMessages.cancel}'"/>
-      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>);
+      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
+      , <h:outputText value="'#{evaluationMessages.unsavedchangesrubric}'"/>);
   }
 </script>
 <!-- content... -->

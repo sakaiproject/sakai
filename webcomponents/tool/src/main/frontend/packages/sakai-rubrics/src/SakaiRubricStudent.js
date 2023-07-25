@@ -32,6 +32,8 @@ export class SakaiRubricStudent extends RubricsElement {
     this.options = {};
   }
 
+  get dynamic () { return this.options?.["rbcs-associate"] == 2 ?? false; }
+
   attributeChangedCallback(name, oldValue, newValue) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
@@ -57,7 +59,7 @@ export class SakaiRubricStudent extends RubricsElement {
   }
 
   shouldUpdate() {
-    return this.siteId && this.i18nLoaded && this._rubric && (this.instructor || !this.options.hideStudentPreview);
+    return this.siteId && this.i18nLoaded && this._rubric && (this.instructor || !this.options.hideStudentPreview || this.options["rbcs-associate"] != 2);
   }
 
   render() {
@@ -68,19 +70,21 @@ export class SakaiRubricStudent extends RubricsElement {
       <hr class="itemSeparator" />
 
       <div class="rubric-details student-view">
-        <h3>
-          <span>${this._rubric.title}</span>
-          ${this.enablePdfExport ? html`
-            <sakai-rubric-pdf
-                site-id="${this.siteId}"
-                rubric-title="${this._rubric.title}"
-                rubric-id="${this._rubric.id}"
-                tool-id="${this.toolId}"
-                entity-id="${this.entityId}"
-                evaluated-item-id="${this.evaluatedItemId}">
-            </sakai-rubric-pdf>
-          ` : nothing }
-        </h3>
+        ${!this.dynamic ? html`
+          <h3>
+            <span>${this._rubric.title}</span>
+            ${this.enablePdfExport ? html`
+              <sakai-rubric-pdf
+                  site-id="${this.siteId}"
+                  rubric-title="${this._rubric.title}"
+                  rubric-id="${this._rubric.id}"
+                  tool-id="${this.toolId}"
+                  entity-id="${this.entityId}"
+                  evaluated-item-id="${this.evaluatedItemId}">
+              </sakai-rubric-pdf>
+            ` : nothing }
+          </h3>
+        ` : nothing }
 
         ${this.instructor === "true" ? html`
         <div class="rubrics-tab-row">

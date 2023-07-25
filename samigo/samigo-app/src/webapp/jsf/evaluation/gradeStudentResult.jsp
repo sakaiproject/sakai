@@ -38,6 +38,7 @@ $Id$
 
     <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
     <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
     <script src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
     <script src="/samigo-app/js/selection.student.preview.js"></script>
     <script src="/samigo-app/js/selection.author.preview.js"></script>
@@ -102,6 +103,15 @@ function toPoint(id)
   var x=document.getElementById(id).value
   document.getElementById(id).value=x.replace(',','.')
 }
+
+  function initRubricDialogWrapper(gradingId) {
+
+    initRubricDialog(gradingId
+      , <h:outputText value="'#{evaluationMessages.done}'"/>
+      , <h:outputText value="'#{evaluationMessages.cancel}'"/>
+      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
+      , <h:outputText value="'#{evaluationMessages.unsavedchangesrubric}'"/>);
+  }
 
   $(document).ready(function(){
     // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
@@ -239,9 +249,20 @@ function toPoint(id)
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
-              <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
-            </a>
+            <h:panelGroup rendered="#{question.associatedRubricType == '1'}" >
+              <a class="nav-link" data-bs-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
+                <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
+              </a>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{question.associatedRubricType == '2'}" >
+              <h:outputLink title="#{evaluationMessages.saverubricgrading}"
+                    styleClass="nav-link"
+                    value="#"
+                    onclick="initRubricDialogWrapper(#{studentScores.assessmentGradingId}+'.'+#{question.itemData.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{studentScores.assessmentGradingId}+'.'+#{question.itemData.itemId}); return false;" >
+                <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
+              </h:outputLink>
+            </h:panelGroup>
           </li>
         </ul>
 
@@ -336,16 +357,32 @@ function toPoint(id)
         <h:panelGroup rendered="#{question.hasAssociatedRubric}">
           </div>
           <div id="<h:outputText value="rubric#{question.itemData.itemId}" />" class="tab-pane" role="tabpanel">
-            <sakai-rubric-grading
-              id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              tool-id="sakai.samigo"
-              enable-pdf-export="true"
-              site-id='<h:outputText value="#{totalScores.siteId}"/>'
-              entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
-              evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
-            >
-            </sakai-rubric-grading>
+            <h:panelGroup rendered="#{question.associatedRubricType == '1'}" >
+              <sakai-rubric-grading
+                id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                tool-id="sakai.samigo"
+                enable-pdf-export="true"
+                site-id='<h:outputText value="#{totalScores.siteId}"/>'
+                entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
+                evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
+              >
+              </sakai-rubric-grading>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{question.associatedRubricType == '2'}" >
+              <div id='<h:outputText value="#{studentScores.assessmentGradingId}"/>-inputs'></div>
+              <div id='<h:outputText value="modal#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />' style="display:none;overflow:initial">
+                <sakai-dynamic-rubric
+                  id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}-pub.#{totalScores.publishedId}.#{question.itemData.itemId}.#{studentScores.assessmentGradingId}"/>'
+                  grading-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"/>'
+                  entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                  site-id='<h:outputText value="#{totalScores.siteId}"/>'
+                  evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}" />'
+                  previous-grade='<h:outputText value="#{question.pointsForEdit}"/>'
+                  origin='gradeStudentResult'>
+                </sakai-dynamic-rubric>
+              </div>
+            </h:panelGroup>
           </div>
           </div>
         </h:panelGroup>

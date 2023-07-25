@@ -39,6 +39,8 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
   get criteria() { return this._criteria; }
 
+  get dynamic () { return this.association?.parameters["rbcs-associate"] == 2 ?? false; }
+
   set outcomes(newValue) {
 
     const oldValue = this._outcomes;
@@ -92,7 +94,9 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                   <div class="cr-table-row">
                   ${repeat(c.ratings, r => r.id, r => html`
                     <div class="rating-item student ${r.selected ? "selected" : ""}" id="rating-item-${r.id}">
-                      <h5 class="criterion-item-title">${r.title}</h5>
+                      ${!this.dynamic ? html`
+                        <h5 class="criterion-item-title">${r.title}</h5>
+                      ` : nothing }
                       <p>${r.description}</p>
                       <span class="points">
                         ${this.weighted && r.points > 0 ? html`
@@ -110,11 +114,11 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
               </div>
               <div class="criterion-actions">
               ${!this.preview ? html`
-                <sakai-rubric-student-comment criterion="${JSON.stringify(c)}"></sakai-rubric-student-comment>
+                ${!this.dynamic ? html`
+                  <sakai-rubric-student-comment criterion="${JSON.stringify(c)}"></sakai-rubric-student-comment>
+                ` : nothing }
                 <strong class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                  ${c.selectedvalue.toLocaleString(this.locale)}
-                  ${!c.selectedRatingId ? "0" : ""}
-                  &nbsp;
+                  ${c.selectedRatingId ? c.selectedvalue.toLocaleString(this.locale) : "0"}
                 </strong>
                 ${this.isOverridden(c.pointoverride, c.selectedvalue) ?
                   html`<strong class="points-display">${c.pointoverride.toLocaleString(this.locale)}</strong>`
@@ -125,7 +129,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
           `}
         `)}
       </div>
-      ${!this.preview ? html`
+      ${!this.preview && !this.dynamic ? html`
       <div class="rubric-totals" style="margin-bottom: 5px;">
         <div class="total-points"><span>${this._i18n.total}</span>: <strong>${this.totalPoints.toLocaleString(this.locale, { maximumFractionDigits:2 })}</strong></div>
       </div>

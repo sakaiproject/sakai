@@ -128,6 +128,7 @@ public interface RubricsService {
      * @param params A hashmap with all the rbcs params comming from the component. The tool should generate it.
      */
     Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params);
+    Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params, String siteId);
 
     String createContextualFilename(RubricTransferBean rubric, String toolId, String itemId, String evaluatedItemId, String siteId);
 
