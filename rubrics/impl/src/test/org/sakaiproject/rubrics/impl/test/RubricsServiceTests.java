@@ -260,7 +260,6 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         String toolId = "sakai.assignment";
         String toolItem1 = "item1";
         Map<String, String> rbcsParams = new HashMap<>();
-        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
         rbcsParams.put(RubricsConstants.RBCS_LIST, rubricBean.getId().toString());
         Optional<ToolItemRubricAssociation> optAssociation1
             = rubricsService.saveRubricAssociation(toolId, toolItem1, rbcsParams);

@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -996,7 +997,13 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			bean.setAgentResultsByItemGradingId(agentResultsByItemGradingIdMap);
 
 			bean.setRubricStateDetails("");
-			bean.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + bean.getPublishedId() + "." + bean.getItemId()));
+			ToolItemRubricAssociation tira = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + bean.getPublishedId() + "." + bean.getItemId()).orElse(null);
+			boolean associated = tira != null ? true : false;
+			bean.setHasAssociatedRubric(associated);
+			if (associated) {
+				String associationType = tira.getFormattedAssociation().get(RubricsConstants.RBCS_ASSOCIATE) != null ? tira.getFormattedAssociation().get(RubricsConstants.RBCS_ASSOCIATE) : "1";
+				bean.setAssociatedRubricType(associationType);
+			}
 		}
 
 		catch (RuntimeException e) {
