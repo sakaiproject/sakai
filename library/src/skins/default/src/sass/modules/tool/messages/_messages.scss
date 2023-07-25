@@ -102,9 +102,18 @@
   			td.date{
  				width: 18%;
  			}
+			td.dateScheduler{
+				width: 18%;
+			}
   			td.bogus{
  				width: 17%;
  			}
+			td.addressee{
+				width: 17%;
+			}
+			td.priority{
+				width: 7%;
+			}
 
  			&\:pvtmsgs_filter {
  				input[type=search] {

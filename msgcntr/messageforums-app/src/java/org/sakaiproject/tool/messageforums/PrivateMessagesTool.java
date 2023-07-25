@@ -1126,7 +1126,19 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     return DISPLAY_MESSAGES_PG;
   }
-    
+
+  public String calculateColumnClass() {
+	String columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,addressee,priority";
+	if (selectedTopic.getTopic().getTitle().equals("pvt_received")) {
+		columnClasses = "check,attach,reply,specialLink,date,created,priority";
+	} else if (selectedTopic.getTopic().getTitle().equals("pvt_sent")) {
+		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,addressee,priority";
+	} else if (selectedTopic.getTopic().getTitle().equals("pvt_drafts") || selectedTopic.getTopic().getTitle().equals("pvt_deleted") || selectedTopic.getTopic().getTitle().equals("pvt_scheduler")) {
+		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,priority";
+	}
+	return columnClasses;
+  }
+
   /**
    * process Cancel from all JSP's
    * @return - pvtMsg
