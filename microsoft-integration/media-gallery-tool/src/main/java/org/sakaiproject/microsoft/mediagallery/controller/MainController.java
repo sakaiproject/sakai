@@ -98,6 +98,7 @@ public class MainController {
 	private static final String INDEX_WS_TEMPLATE = "index_ws";
 	private static final String BODY_TEMPLATE = "body";
 	private static final String INFO_TEMPLATE = "info :: info-body";
+	private static final String PERMISSIONS_TEMPLATE = "permissions";
 	private static final String ERROR_TEMPLATE = "error";
 	private static final String REDIRECT_INDEX = "redirect:/index";
 	private static final String REDIRECT_ERROR = "redirect:/error";
@@ -114,6 +115,11 @@ public class MainController {
         localeResolver.setLocale(request, response, loc);
         return loc;
     }
+	
+	@ModelAttribute("allowPermissions")
+	public boolean allowPermissions() {
+		return sakaiProxy.canUpdateSite(sakaiProxy.getSite(sakaiProxy.getCurrentSiteId()).getReference(), sakaiProxy.getCurrentUserId());
+	}
 	
 	@ExceptionHandler(MicrosoftGenericException.class)
 	public String handleCredentialsError(HttpServletRequest req, Exception ex, RedirectAttributes redirectAttributes) {
@@ -212,7 +218,7 @@ public class MainController {
 						//teacher -> get all elements (including all private channels)
 						List<String> channelIds = null;
 						//student -> filter elements based on group
-						if(!sakaiProxy.canUpdateSite(site.getReference(), userId)) {
+						if(!sakaiProxy.checkPermissions(userId, MicrosoftCommonService.PERM_VIEW_ALL_CHANNELS, site.getReference())) {
 							channelIds = new ArrayList<>();
 							
 							if(site.hasGroups() && ss.getGroupSynchronizationsList() != null && !ss.getGroupSynchronizationsList().isEmpty()) {
@@ -356,6 +362,12 @@ public class MainController {
 		}
 		
 		return INFO_TEMPLATE;
+	}
+	
+	@GetMapping(value = {"/permissions"})
+	public String showPermissions(Model model) throws MicrosoftGenericException {
+		
+		return PERMISSIONS_TEMPLATE;
 	}
 	
 	@GetMapping(value = {"/configure"})
