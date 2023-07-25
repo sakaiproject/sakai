@@ -104,6 +104,15 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 
+  function initRubricDialogWrapper(gradingId) {
+
+    initRubricDialog(gradingId
+      , <h:outputText value="'#{evaluationMessages.done}'"/>
+      , <h:outputText value="'#{evaluationMessages.cancel}'"/>
+      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
+      , <h:outputText value="'#{evaluationMessages.unsavedchangesrubric}'"/>);
+  }
+
   $(document).ready(function(){
     // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
     var currentLink = $('#editStudentResults\\:totalScoresMenuLink');
@@ -229,9 +238,19 @@ function toPoint(id)
             </a>
           </li>
           <li>
-            <a data-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
-              <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
-            </a>
+            <h:panelGroup rendered="#{question.associatedRubricType == '1'}" >
+              <a data-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
+                <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
+              </a>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{question.associatedRubricType == '2'}" >
+              <h:outputLink title="#{evaluationMessages.saverubricgrading}"
+                    value="#"
+                    onclick="initRubricDialogWrapper(#{studentScores.assessmentGradingId}+'.'+#{question.itemData.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{studentScores.assessmentGradingId}+'.'+#{question.itemData.itemId}); return false;" >
+                <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
+              </h:outputLink>
+            </h:panelGroup>
           </li>
         </ul>
 
@@ -326,15 +345,30 @@ function toPoint(id)
         <h:panelGroup rendered="#{question.hasAssociatedRubric}">
           </div>
           <div class="tab-pane" id="<h:outputText value="rubric#{question.itemData.itemId}" />">
-            <sakai-rubric-grading
-              id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              tool-id="sakai.samigo"
-              site-id='<h:outputText value="#{totalScores.siteId}"/>'
-              entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
-              evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
-            >
-            </sakai-rubric-grading>
+            <h:panelGroup rendered="#{question.associatedRubricType == '1'}" >
+              <sakai-rubric-grading
+                id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                tool-id="sakai.samigo"
+                site-id='<h:outputText value="#{totalScores.siteId}"/>'
+                entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
+                evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
+              >
+              </sakai-rubric-grading>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{question.associatedRubricType == '2'}" >
+              <div id='<h:outputText value="#{studentScores.assessmentGradingId}"/>-inputs'></div>
+              <div id='<h:outputText value="modal#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />' style="display:none;overflow:initial">
+                <sakai-dynamic-rubric
+                  id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}-pub.#{totalScores.publishedId}.#{question.itemData.itemId}.#{studentScores.assessmentGradingId}"/>'
+                  grading-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"/>'
+                  entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                  site-id='<h:outputText value="#{totalScores.siteId}"/>'
+                  evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}" />'
+                  previous-grade='<h:outputText value="#{question.pointsForEdit}"/>'>
+                </sakai-dynamic-rubric>
+              </div>
+            </h:panelGroup>
           </div>
           </div>
         </h:panelGroup>

@@ -25,11 +25,17 @@ package org.sakaiproject.webapi.controllers;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
+import org.sakaiproject.rubrics.api.beans.CriterionOutcomeTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -56,6 +62,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -124,6 +131,113 @@ public class RubricsRestController extends AbstractSakaiApiController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping(value = "/sites/{siteId}/rubrics/adhoc", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<RubricTransferBean> updateRubricAdhoc(@PathVariable String siteId, @RequestBody RubricTransferBean bean, @RequestParam(defaultValue = "false") Boolean pointsUpdated) throws Exception {
+
+        log.debug("Get old criteria from database");
+        List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(bean.getId()).orElse(null).getCriteria();
+        oldCriteria.stream().forEach(c -> log.debug(c.toString()));
+        // confirm rubric changes on database
+        RubricTransferBean saved = rubricsService.saveRubric(bean);
+        log.debug("Get new criteria after saving");
+        List<CriterionTransferBean> newCriteria = saved.getCriteria();
+        newCriteria.stream().forEach(c -> log.debug(c.toString()));
+        if (pointsUpdated) {
+            List<CriterionTransferBean> toAdd = new ArrayList<>(newCriteria);
+            toAdd.removeAll(oldCriteria);
+            List<CriterionTransferBean> toRemove = new ArrayList<>(oldCriteria);
+            toRemove.removeAll(newCriteria);
+            List<CriterionTransferBean> toUpdate = new ArrayList<>(newCriteria);
+            toUpdate.retainAll(oldCriteria);
+
+            log.debug("Criterions to update");
+            toUpdate.stream().forEach(c -> log.debug(c.toString()));
+            log.debug("Criterions to add");
+            toAdd.stream().forEach(c -> log.debug(c.toString()));
+            log.debug("Criterions to remove");
+            toRemove.stream().forEach(c -> log.debug(c.toString()));
+
+            List<CriterionOutcomeTransferBean> toAddOutcome = new ArrayList<>();
+            for (CriterionTransferBean c : toAdd) {
+                CriterionOutcomeTransferBean co = new CriterionOutcomeTransferBean();
+                co.setCriterionId(c.getId());
+                co.setPoints(Double.valueOf(0));
+                toAddOutcome.add(co);
+            }
+            Map<Long, CriterionTransferBean> updateMap = toUpdate.stream().collect(Collectors.toMap(CriterionTransferBean::getId, item -> item));
+            List<Long> removeIds = toRemove.stream().map(CriterionTransferBean::getId).collect(Collectors.toList());
+                
+            // get assessment, itemgradings and rubric evaluations
+            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            GradingService gradingService = new GradingService();
+            String samigoData = bean.getTitle().replace("pub.", "");
+            String[] samigoIds = samigoData.split("\\.");
+            if (samigoIds.length != 2) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            Map<Long, List<ItemGradingData>> itemScores = gradingService.getItemScores(Long.valueOf(samigoIds[0]), Long.valueOf(samigoIds[1]), EvaluationModelIfc.ALL_SCORE.toString(), false);
+            PublishedAssessmentIfc publishedAssessment = publishedAssessmentService.getPublishedAssessment(samigoIds[0]);
+            if (publishedAssessment == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            for (Map.Entry<Long, List<ItemGradingData>> entry : itemScores.entrySet()) {
+                List<ItemGradingData> igds = entry.getValue();
+                log.debug("For published item " + entry.getKey());
+                for (ItemGradingData igd : igds) {
+                    Double scoreDifference = igd.getAutoScore();
+                    boolean matchesPreviousScore = false;
+                    log.debug("Item grading " + igd.getItemGradingId() + " - assessment grading " + igd.getAssessmentGradingId() + " - autoscore " + igd.getAutoScore());
+                    Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId("sakai.samigo", "pub."+samigoData, igd.getAssessmentGradingId()+"."+entry.getKey(), gradingService.load(String.valueOf(igd.getAssessmentGradingId()), false).getAgentId(), siteId, false);
+                    if (optBean.isPresent()) {
+                        EvaluationTransferBean eval = optBean.get();
+                        if (igd.getAutoScore() != null && eval.getOverallComment() != null && igd.getAutoScore().equals(Double.valueOf(eval.getOverallComment()))) {
+                            matchesPreviousScore = true;
+                            log.debug("Previous score matches");
+                        }
+                        log.debug("Evaluation before changes " + eval);
+                        for (CriterionOutcomeTransferBean c : eval.getCriterionOutcomes()) {
+                            // update points and apply difference
+                            if (updateMap.get(c.getCriterionId()) != null && c.getSelectedRatingId() != null) {
+                                Double newPoints = updateMap.get(c.getCriterionId()).getRatings().get(0).getPoints();
+                                Double oldPoints = c.getPoints();
+                                if (matchesPreviousScore && !newPoints.equals(oldPoints)) {
+                                    c.setPoints(newPoints);
+                                    log.debug("Updated criterion, substracting old " + oldPoints + " and adding new " + newPoints);
+                                    scoreDifference -= oldPoints;
+                                    scoreDifference += newPoints;
+                                }
+                            // substract points of removed criterions
+                            } else if (removeIds.contains(c.getCriterionId()) && c.getSelectedRatingId() != null) {
+                                scoreDifference -= c.getPoints();
+                                log.debug("Deleted criterion, substracting " + c.getPoints());
+                            }
+                            // deselect criterions as grade has been modified manually since last rubric evaluation
+                            if (!matchesPreviousScore) {
+                                c.setSelectedRatingId(null);
+                            }
+                        }
+                        // after updating grade, modify list of criterion outcomes
+                        eval.getCriterionOutcomes().removeIf(c -> removeIds.contains(c.getCriterionId()));
+                        eval.getCriterionOutcomes().addAll(toAddOutcome);
+                        log.debug("Evaluation after changes " + eval);
+            
+                        log.debug("Score is " + scoreDifference + " and before it was " + igd.getAutoScore());
+                        eval.setOverallComment(String.valueOf(scoreDifference));
+                        rubricsService.saveEvaluation(eval, siteId);
+                        log.debug("Rubric evaluation successfully updated");
+                        if(!scoreDifference.equals(igd.getAutoScore())) {
+                            igd.setAutoScore(scoreDifference);
+                            gradingService.updateItemScore(igd, 1, publishedAssessment);// if second value is not 0 it will check gb association and update it if necessary    
+                            log.debug("Samigo grading successfully updated");
+                        }                
+                    }
+                }
+            }
+        }
+
+        return ResponseEntity.ok(saved);
     }
 
     @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}", consumes = "application/json-patch+json")

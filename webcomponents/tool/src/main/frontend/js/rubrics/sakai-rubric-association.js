@@ -10,8 +10,9 @@ class SakaiRubricAssociation extends RubricsElement {
 
     this.selectedConfigOptions = {};
 
-    this.isAssociated = false;
+    this.isAssociated = 0;
     this.showSelfReportCheck = false;
+    this.showDynamic = false;
     this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
     this.i18nPromise.then(r => this.i18n = r);
   }
@@ -40,15 +41,14 @@ class SakaiRubricAssociation extends RubricsElement {
     return {
       association: { type: Object },
       associationId: { attribute: "association-id", type: String },
-      isAssociated: Boolean,
+      isAssociated: Number,
       entityId: { attribute: "entity-id", type: String },
       siteId: { attribute: "site-id", type: String },
       toolId: { attribute: "tool-id", type: String },
       selectedRubric: { type: String },
       dontAssociateLabel: { attribute: "dont-associate-label", type: String },
       associateLabel: { attribute: "associate-label", type: String },
-      dontAssociateValue: { attribute: "dont-associate-value", type: Number },
-      associateValue: { attribute: "associate-value", type: Number },
+      associateLabelDyn: { attribute: "associate-label-dyn", type: String },
       fineTunePoints: { attribute: "fine-tune-points", type: String },
       hideStudentPreview: { attribute: "hide-student-preview", type: String },
       studentSelfReport: { attribute: "student-self-report", type: String },
@@ -58,6 +58,7 @@ class SakaiRubricAssociation extends RubricsElement {
       showSelfReportCheck: { attribute: "show-self-report-check", type: Boolean },
       rubrics: { type: Array },
       readOnly: { attribute: "read-only", type: Boolean },
+      showDynamic: { attribute: "show-dynamic", type: Boolean },
     };
   }
 
@@ -74,7 +75,11 @@ class SakaiRubricAssociation extends RubricsElement {
     this._association = value;
     this.selectedRubric = value.rubricId;
     this.selectedConfigOptions = value.parameters ? value.parameters : {};
-    this.isAssociated = true;
+    this.isAssociated = 1;
+    if (this.selectedConfigOptions['rbcs-associate'] == 2) {
+      this.isAssociated = 2;
+      this.selectedConfigOptions = {};
+    }
     this.getRubrics();
   }
 
@@ -90,7 +95,7 @@ class SakaiRubricAssociation extends RubricsElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.rubrics && this.rubrics.length > 0;
+    return this.i18n && this.rubrics && (this.rubrics.length > 0 || this.showDynamic);
   }
 
   render() {
@@ -106,28 +111,30 @@ class SakaiRubricAssociation extends RubricsElement {
                   name="rbcs-associate"
                   id="dont-associate-radio"
                   type="radio"
-                  .value="${this.dontAssociateValue}"
-                  ?checked=${!this.isAssociated}
+                  value="0"
+                  ?checked=${this.isAssociated == 0}
                   ?disabled=${this.readOnly}>${this.dontAssociateLabel}
             </label>
           </div>
-
+        `}
+        ${this.rubrics.length > 0 && !this.readOnly ? html`
           <div class="radio">
             <label>
-              <input @click="${this.associate}" id="do-associate-radio" name="rbcs-associate" type="radio" .value="${this.associateValue}" ?checked=${this.isAssociated} ?disabled=${this.readOnly}>${this.associateLabel}
+              <input @click="${this.associate}" id="do-associate-radio" name="rbcs-associate" type="radio" value="1" ?checked=${this.isAssociated == 1} ?disabled=${this.readOnly}>${this.associateLabel}
             </label>
           </div>
-        `}
+        ` : ""}
+        ${this.rubrics.length > 0 ? html`
         <div class="rubrics-list">
 
           <div class="rubrics-selections">
-            <select @change="${this.rubricSelected}" name="rbcs-rubricslist" aria-label="${tr("rubric_selector_label")}" class="form-control" ?disabled=${!this.isAssociated || this.readOnly}>
+            <select @change="${this.rubricSelected}" name="rbcs-rubricslist" aria-label="${tr("rubric_selector_label")}" class="form-control" ?disabled=${this.isAssociated != 1 || this.readOnly}>
             ${this.rubrics.map(r => html`
               <option value="${r.id}" ?selected=${r.id == this.selectedRubric}>${r.title}</option>
             `)}
             </select>
 
-            <button @click="${this.showRubric}" class="btn btn-link" ?disabled=${!this.isAssociated}>
+            <button @click="${this.showRubric}" class="btn btn-link" ?disabled=${this.isAssociated != 1}>
               <sr-lang key="preview_rubric">Preview Rubric</sr-lang>
             </button>
           </div>
@@ -142,34 +149,34 @@ class SakaiRubricAssociation extends RubricsElement {
                       @click=${this.toggleFineTunePoints}
                       ?checked=${this.selectedConfigOptions.fineTunePoints}
                       value="1"
-                      ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
+                      ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.fineTunePoints}
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
+                  <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.hideStudentPreview}
                 </label>
               </div>
               ${this.showSelfReportCheck ? html`
                 <div class="checkbox">
                   <label>
-                    <input @change="${this.updateStudentSelfReportInput}" id="rbcs-config-studentSelfReport" name="rbcs-config-studentSelfReport" type="checkbox" ?checked=${this.selectedConfigOptions.studentSelfReport} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReport}
+                    <input @change="${this.updateStudentSelfReportInput}" id="rbcs-config-studentSelfReport" name="rbcs-config-studentSelfReport" type="checkbox" ?checked=${this.selectedConfigOptions.studentSelfReport} value="1" ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.studentSelfReport}
                   </label>
                   <div id="rbcs-multiple-options-config-studentSelfReportMode-container" class="rubrics-list ${!this.selectedConfigOptions.studentSelfReport ? 'hidden' : ''}">
                     <div class="rubric-options">
                       <div class="radio">
                         <label>
-                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="0" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "0" || !this.selectedConfigOptions.studentSelfReportMode} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode0}
+                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="0" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "0" || !this.selectedConfigOptions.studentSelfReportMode} ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.studentSelfReportMode0}
                         </label>
                       </div>
                       <div class="radio">
                         <label>
-                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="1" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "1"} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode1}
+                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="1" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "1"} ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.studentSelfReportMode1}
                         </label>
                       </div>
                       <div class="radio">
                         <label>
-                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="2" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "2"} ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReportMode2}
+                          <input name="rbcs-multiple-options-config-studentSelfReportMode" type="radio" value="2" ?checked=${this.selectedConfigOptions.studentSelfReportMode == "2"} ?disabled=${this.isAssociated != 1 || this.readOnly}>${this.studentSelfReportMode2}
                         </label>
                       </div>
                     </div>
@@ -180,6 +187,14 @@ class SakaiRubricAssociation extends RubricsElement {
             </div>
         `}
         </div>
+        ` : ""}
+        ${this.showDynamic ? html`
+          <div class="radio">
+            <label>
+              <input @click="${this.associate}" id="do-associate-dynamic-radio" name="rbcs-associate" type="radio" value="2" ?checked=${this.isAssociated == 2} ?disabled=${this.readOnly}>${this.associateLabelDyn}
+            </label>
+          </div>
+        ` : ""}
       </div>
     `;
   }
@@ -204,7 +219,6 @@ class SakaiRubricAssociation extends RubricsElement {
 
       this.association = assoc;
       if (this.association) {
-        this.isAssociated = 1;
         this.selectedRubric = this.association.rubricId;
       } else {
         this.isAssociated = 0;
@@ -237,8 +251,7 @@ class SakaiRubricAssociation extends RubricsElement {
     this.rubrics = data;
 
     if (this.rubrics.length) {
-      //this.selectedConfigOptions = this.association.parameters ? this.association.parameters : {};
-      if (!this.isAssociated) {
+      if (this.isAssociated != 1) {
         this.selectedRubric = this.rubrics[0].id;
       }
     }
@@ -251,17 +264,17 @@ class SakaiRubricAssociation extends RubricsElement {
   showRubric(e) {
 
     e.preventDefault();
-    if (this.isAssociated) {
+    if (this.isAssociated == 1) {
       this.showRubricLightbox(this.selectedRubric);
     }
   }
 
   associate(e) {
-    this.isAssociated = e.target.value == 1;
+    this.isAssociated = e.target.value;
   }
 
   updateStudentSelfReportInput(e) {
-    if (this.isAssociated) {
+    if (this.isAssociated == 1) {
       const showSelfReportMode = e.srcElement.checked;
       document.getElementById('rbcs-multiple-options-config-studentSelfReportMode-container').classList.toggle('hidden', !showSelfReportMode);
     }
