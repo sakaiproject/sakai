@@ -36,7 +36,7 @@ public interface RubricsConstants {
 	public static final String RBCS_MULTIPLE_OPTIONS_CONFIG = RBCS_PREFIX + "multiple-options-config-";
 	public static final	String RBCS_ASSOCIATION_STATE_DETAILS = RBCS_PREFIX + "state-details";
 	public static final String RBCS_ASSOCIATE_SUFFIX = "associate";
-	public static final	String RBCS_ASSOCIATE = RBCS_PREFIX + RBCS_ASSOCIATE_SUFFIX;
+	public static final	String RBCS_ASSOCIATE = RBCS_PREFIX + RBCS_ASSOCIATE_SUFFIX;// values: 0 or empty no association, 1 regular association, 2 dynamic rubric in Samigo
 	public static final String RBCS_LIST_SUFFIX = "rubricslist";
 	public static final String RBCS_LIST = RBCS_PREFIX + RBCS_LIST_SUFFIX;
 	public static final String RBCS_SOFT_DELETED = RBCS_PREFIX + "soft-deleted";
