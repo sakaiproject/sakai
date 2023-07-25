@@ -361,10 +361,10 @@ public class ItemAddListener implements ActionListener {
 		if (!associationParams.isEmpty()) {
 			if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
 				String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, associationParams);
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, associationParams, AgentFacade.getCurrentSiteId());
 			} else if (assessmentBean.getAssessment() instanceof PublishedAssessmentFacade) {
 				String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, associationParams);
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, associationParams, AgentFacade.getCurrentSiteId());
 			}
 		}
 	}
