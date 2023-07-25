@@ -119,7 +119,6 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
     public Map<String, String> getFormattedAssociation() {
 
         Map<String, String> formattedParams = new HashMap<>();
-        formattedParams.put(RubricsConstants.RBCS_ASSOCIATE,"1");
         formattedParams.put(RubricsConstants.RBCS_LIST, String.valueOf(rubric.getId()));
         parameters.forEach((k, v) -> formattedParams.put(k, String.valueOf(v)));
         return formattedParams;

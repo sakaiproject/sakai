@@ -175,7 +175,9 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 
   @Setter @Getter
   private boolean hasAssociatedRubric;
-
+  @Setter @Getter
+  private String associatedRubricType;
+ 
   @Setter @Getter
   private boolean cancellationAllowed;
 
@@ -196,6 +198,13 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   }
 
 	protected void init() {
+		boolean valueChanged = false;
+		if (ContextUtil.lookupParam("resetCache") != null && ContextUtil.lookupParam("resetCache").equals("true")){
+			allAgents = null;
+			valueChanged = true;
+			searchString = null;;
+		}
+
         defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
 
         if (searchString == null) {
@@ -207,7 +216,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 			matchingAgents = findMatchingAgents(searchString);
 		}
 		else {
-			matchingAgents = getAllAgents();
+			matchingAgents = getAllAgents(valueChanged);
 		}
 		dataRows = matchingAgents.size();
 		List newAgents = new ArrayList();
@@ -516,11 +525,11 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
       }
   }
 
-public List getAllAgents()
+public List getAllAgents(boolean valueChanged)
 {
 	  String publishedId = ContextUtil.lookupParam("publishedId");
 	  QuestionScoreListener questionScoreListener = new QuestionScoreListener();
-	  if (!questionScoreListener.questionScores(publishedId, this, false))
+	  if (!questionScoreListener.questionScores(publishedId, this, valueChanged))
 	  {
 		  throw new RuntimeException("failed to call questionScores.");
 	  }
@@ -558,7 +567,7 @@ public void clear(ActionEvent event) {
 		StringBuilder name1;
 		// name2 example: Doe, John
 		StringBuilder name2;
-		for(Iterator iter = getAllAgents().iterator(); iter.hasNext();) {
+		for(Iterator iter = getAllAgents(false).iterator(); iter.hasNext();) {
 			AgentResults result = (AgentResults)iter.next();
 			// name1 example: John Doe
 			name1 = new StringBuilder(result.getFirstName());

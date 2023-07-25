@@ -95,6 +95,8 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
 
     private Boolean shared = Boolean.FALSE;
 
+    private Boolean adhoc = Boolean.FALSE;
+
     @Transient
     private Boolean locked = Boolean.FALSE;
 

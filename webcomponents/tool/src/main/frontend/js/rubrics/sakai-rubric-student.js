@@ -84,7 +84,7 @@ class SakaiRubricStudent extends RubricsElement {
   }
 
   shouldUpdate() {
-    return this.i18nLoaded && this.rubric && (this.instructor || !this.options.hideStudentPreview);
+    return this.i18nLoaded && this.rubric && (this.instructor || !this.options.hideStudentPreview || this.options['rbcs-associate'] != 2);
   }
 
   render() {
