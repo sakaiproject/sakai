@@ -445,9 +445,6 @@ public class PrivateMessagesTool {
 
   private PrivateMessageSchedulerService PrivateMessageSchedulerService;
 
-  @Getter
-  private String columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,bogus,priority";
-
   public PrivateMessagesTool()
   {    
 	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", true);
@@ -1130,7 +1127,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     setSelectedTopicId(getExternalParameterByKey(EXTERNAL_TOPIC_ID));
    	selectedTopic = new PrivateTopicDecoratedBean(forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)));
-	assignColumnClass();
    	selectedTopicTitle = forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)).getTitle();
    	//"selectedTopicTitle"= "Recibidos"	
     msgNavMode=getSelectedTopicTitle();
@@ -1141,11 +1137,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
     return DISPLAY_MESSAGES_PG;
   }
 
-  private String assignColumnClass() {
+  public String calculateColumnClass() {
+	String columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,addressee,priority";
 	if (selectedTopic.getTopic().getTitle().equals("pvt_received")) {
 		columnClasses = "check,attach,reply,specialLink,date,created,priority";
 	} else if (selectedTopic.getTopic().getTitle().equals("pvt_sent")) {
-		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,bogus,priority";
+		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,addressee,priority";
 	} else if (selectedTopic.getTopic().getTitle().equals("pvt_drafts") || selectedTopic.getTopic().getTitle().equals("pvt_deleted") || selectedTopic.getTopic().getTitle().equals("pvt_scheduler")) {
 		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,priority";
 	}
