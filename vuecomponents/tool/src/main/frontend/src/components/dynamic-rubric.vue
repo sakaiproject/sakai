@@ -1,5 +1,5 @@
 <template>
-  <div ref="component" class="">
+  <div ref="component">
     <div>
       <BButton variant="primary" class="sakai-btn" v-if="!saving" @click="saving=true" :title="i18n.edit_criterions">{{i18n.edit_criterions}}</BButton>
       <BButton variant="primary" class="sakai-btn" @click="confirmChangesRubric" v-if="saving" :title="i18n.confirm_changes">{{i18n.confirm_changes}}</BButton>

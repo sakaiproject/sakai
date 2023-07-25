@@ -734,7 +734,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     // criterion processed so remove it from the list
                     outcomeIds.remove(beanCriterionId);
                 } else {
-                    log.warn("An outcome with id: [{}], was not in the original list but now it appears (dynamic rubric)", beanCriterionId);
+                    log.info("An outcome with id: [{}], was not in the original list but now it appears (dynamic rubric)", beanCriterionId);
 
                     CriterionOutcome outcome = new CriterionOutcome();
                     outcome.setCriterionId(beanCriterionId);
