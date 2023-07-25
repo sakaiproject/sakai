@@ -33,6 +33,11 @@
 						</div>
 
 						<div class="item-property">
+							<label th:text="#{modified_by}">Modified by:</label>
+							<div th:text="${item.modifiedBy}"></div>
+						</div>
+
+						<div class="item-property">
 							<label th:text="#{path}">Path:</label>
 							<div th:text="${item.path}">
 							</div>
