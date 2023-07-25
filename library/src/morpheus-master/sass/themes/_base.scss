@@ -184,4 +184,8 @@ $theme-color-interval: 9 !default;
   @include defineColorHSL(--sakai-color-purple, 240, 94%, 63%);
   @include defineColorHSL(--sakai-color-red, 357, 100%, 40%);
   @include defineColorHSL(--sakai-lessons-navy, 214, 100%, 20%);
+
+  --bs-border-width: 1px;
+  --bs-border-radius: 4px;
+  --bs-border-color: var(--sakai-border-color);
 }

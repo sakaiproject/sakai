@@ -64,6 +64,20 @@ public class RubricRepositoryImpl extends SpringCrudRepositoryImpl<Rubric, Long>
         return session.createQuery(query).list();
     }
 
+    @Transactional(readOnly = true)
+    public List<Rubric> findAdhocByTitle(String itemId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Rubric> query = cb.createQuery(Rubric.class);
+        Root<Rubric> rubric = query.from(Rubric.class);
+        query.where(cb.equal(rubric.get("adhoc"), true));
+        query.where(cb.equal(rubric.get("title"), itemId));
+
+        return session.createQuery(query).list();
+    }
+
     @Transactional
     public int deleteByOwnerId(String ownerId) {
 
