@@ -117,11 +117,13 @@ function initRubricDialog(gradingId, doneText, cancelText, titleText, alertText)
   gradingId = ("" + gradingId).replace(".", "\\.");
 
   const input = document.querySelector(`.adjustedScore${gradingId}`);
-  const previousScore = input.value;
+  let previousScore = input.value;
   let componentFound = findAdhocRubricComponent(gradingIdAux);
 
   $(`#modal${gradingId}`).dialog({
     modal: true,
+    closeOnEscape: false,
+    open: function(event, ui) { $(".ui-dialog-titlebar-close").hide(); },
     buttons: [
       {
         text: doneText,
@@ -141,7 +143,10 @@ function initRubricDialog(gradingId, doneText, cancelText, titleText, alertText)
         text: cancelText,
         click: function () {
           if (this.querySelector(`sakai-rubric-grading`)) { this.querySelector(`sakai-rubric-grading`).cancel(); }
-          else if (this.querySelector(`sakai-dynamic-rubric`)) { this.querySelector(`sakai-dynamic-rubric`).cancel(); }
+          else if (this.querySelector(`sakai-dynamic-rubric`)) {
+            this.querySelector(`sakai-dynamic-rubric`).cancel();
+            previousScore = componentFound.querySelector('input[name="previous'+gradingIdAux+'"]').value;
+          }
           $(this).dialog("close");
           input.value = previousScore;
           input.focus();

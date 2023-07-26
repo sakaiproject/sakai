@@ -2,7 +2,7 @@
   <div class="crit-background">
     <div class="row align-items-center">
       <div class="col-md-2">
-        <BButton @click="toggleColor" :variant="paintSelection" :class="['select-btn']" :disabled="saving || editing" :title="i18n.select_criterion">{{idpos+1}}</BButton>
+        <BButton @click="toggleColor" :variant="paintSelection" :class="['select-btn']" :disabled="saving || editing || !criterion.id" :title="i18n.select_criterion">{{idpos+1}}</BButton>
         <input class="points"
           v-if="saving && editing"
           v-model="criterion.pointsVal"
@@ -22,13 +22,13 @@
       </div>
       <div class="col-md-1">
         <BButton v-if="saving && editing" @click="saveChanges" variant="success" :title="i18n.confirm_criterion">
-          <BIcon icon="check-lg" aria-hidden="true" font-scale="0.75" />
+          <BIcon icon="check-lg" aria-hidden="true" font-scale="0.7" />
         </BButton>
         <BButton v-if="saving && !editing" @click="editing=true" :title="i18n.edit_criterion">
-          <BIcon icon="pencil-fill" aria-hidden="true" font-scale="0.75"/>
+          <BIcon icon="pencil-fill" aria-hidden="true" font-scale="0.7"/>
         </BButton>
         <BButton class="remove-btn" v-if="saving" @click="deleteRow" variant="danger" :title="i18n.remove_criterion">
-          <BIcon icon="trash-fill" aria-hidden="true" font-scale="0.75" />
+          <BIcon icon="trash-fill" aria-hidden="true" font-scale="0.7" />
         </BButton>
       </div>
     </div>

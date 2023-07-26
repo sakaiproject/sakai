@@ -95,7 +95,7 @@ class SakaiRubricAssociation extends RubricsElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.rubrics && this.rubrics.length > 0;
+    return this.i18n && this.rubrics && (this.rubrics.length > 0 || this.showDynamic);
   }
 
   render() {
@@ -116,13 +116,15 @@ class SakaiRubricAssociation extends RubricsElement {
                   ?disabled=${this.readOnly}>${this.dontAssociateLabel}
             </label>
           </div>
-
+        `}
+        ${this.rubrics.length > 0 && !this.readOnly ? html`
           <div class="radio">
             <label>
               <input @click="${this.associate}" id="do-associate-radio" name="rbcs-associate" type="radio" value="1" ?checked=${this.isAssociated == 1} ?disabled=${this.readOnly}>${this.associateLabel}
             </label>
           </div>
-        `}
+        ` : ""}
+        ${this.rubrics.length > 0 ? html`
         <div class="rubrics-list">
 
           <div class="rubrics-selections">
@@ -185,6 +187,7 @@ class SakaiRubricAssociation extends RubricsElement {
             </div>
         `}
         </div>
+        ` : ""}
         ${this.showDynamic ? html`
           <div class="radio">
             <label>

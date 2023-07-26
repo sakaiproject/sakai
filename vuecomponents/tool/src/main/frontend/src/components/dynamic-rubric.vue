@@ -11,6 +11,7 @@
     </div>
     <input type="hidden" :name="'updated'+gradingId" :value="updated" />
     <input type="hidden" :name="'newtotal'+gradingId" :value="calculatedPoints" />
+    <input type="hidden" :name="'previous'+gradingId" :value="previousGrade" />
   </div>
 </template>
 
@@ -85,22 +86,16 @@ export default {
   },
   methods: {
     async confirmChangesRubric() {
-      if (this.updated) {
-        var confirmation = confirm(this.i18n.confirm_recalculation);
-        if (!confirmation) { return; }
-      }    
+      var confirmation = confirm(this.i18n.confirm_recalculation);
+      if (!confirmation) { return; }
 
       let jsoned = JSON.stringify(this.rubric);
       let adhocUrl = '/api/sites/' + this.siteId + '/rubrics/adhoc';
-      if (this.updated) {
+      if (this.checkPointsUpdated()) {
         adhocUrl += '?pointsUpdated=true';
       }
       const ret = await updateAdhocRubric(adhocUrl, jsoned);
       if (ret) {
-        if (!this.updated) {
-          this.loadInitialData();
-          return;
-        }
         let url = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/questionScore';
         var samigoIds = this.rubric.title.replace("pub.", "").split(".");
         url += '?resetCache=true&publishedId=' + samigoIds[0] + '&itemId=' + samigoIds[1];
@@ -127,6 +122,12 @@ export default {
     checkUpdated(event) {
       this.rubric.criteria = this.processData();
       this.updated = !isEqual(
+        this.rubric.criteria.map((crit) => pick(crit, ['id', 'title', 'ratings'])),
+        this.storedCrit.map((crit) => pick(crit, ['id', 'title', 'ratings']))
+      );
+    },
+    checkPointsUpdated() {
+      return !isEqual(
         this.rubric.criteria.map((crit) => pick(crit, ['id', 'ratings'])),
         this.storedCrit.map((crit) => pick(crit, ['id', 'ratings']))
       );
@@ -158,7 +159,7 @@ export default {
         ratinglist.push(auxRatingData);
         auxCriterionData.ratings = ratinglist;
         list.push(auxCriterionData);
-      })
+      });
       return list;
     },
     releaseChanges() {
@@ -238,15 +239,18 @@ export default {
       const host = this.$refs.component.getRootNode()?.host;
       host.cancel = function() {
         $vm.cancelChanges();
-      }
+      };
       host.release = function() {
         $vm.releaseChanges();
-      }
+      };
     },
     cancelChanges() {
-      // reload original evaluation
+      // reload saved evaluation and grade
       this.evaluation = this.storedEvaluation;
+      this.previousGradeMod = this.previousGrade;
+      this.partial = 0;
       this.decorateCriteria();
+      this.updatePartial();
     },
     decorateCriteria() {
       this.evaluation.criterionOutcomes.forEach((ed) => {
