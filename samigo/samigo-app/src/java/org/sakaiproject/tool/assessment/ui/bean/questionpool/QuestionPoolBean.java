@@ -3409,36 +3409,33 @@ String poolId = ContextUtil.lookupParam("qpid");
 				.entitiesMessage(rb.getString("datatables_entities"))
 				.columnDefs(new LinkedList<DataTableColumn>() {{
 					// Order matters: First declarations take precedence over the last ones 
-					// TEXT
-					add(DataTableColumn.builder()
-							.targets("columnText")
-							.searchable(true)
-							.build());
-					// TAGS/KEYWORDS
-					add(DataTableColumn.builder()
-							.targets("columnTag")
-							.searchable(true)
-							.build());
 					// CHECKBOX (delete)
 					add(DataTableColumn.builder()
 							.targets("columnCheckDelete")
 							.orderable(false)
+							.searchable(false)
 							.build());
 					// CHECKBOX (import)
 					add(DataTableColumn.builder()
 							.targets("columnCheckImport")
 							.orderable(false)
+							.searchable(false)
 							.build());
 					// POINTS
 					add(DataTableColumn.builder()
 							.targets("columnPoints")
+							.searchable(false)
+							.build());
+					// DATE
+					add(DataTableColumn.builder()
+							.targets("columnDate")
 							.type(DataTableColumn.TYPE_NUM)
 							.build());
 					// ALL
 					add(DataTableColumn.builder()
 							.targets("_all")
 							.orderable(true)
-							.searchable(false)
+							.searchable(true)
 							.build());
 			}}).build();
 		}

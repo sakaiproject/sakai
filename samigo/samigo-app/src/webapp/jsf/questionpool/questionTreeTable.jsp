@@ -22,9 +22,10 @@
 
 <script>includeWebjarLibrary('datatables');</script>
 <script src="/samigo-app/js/dataTables.js"></script>
+<script src="/samigo-app/js/sortHelper.js"></script>
 
 <div class="table-responsive">
-  <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped table-hover" id="questionpool-questions" rowIndexVar="row">
+  <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped table-hover table-bordered" id="questionpool-questions" rowIndexVar="row">
 
 <h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" headerClass="columnCheckDelete">
   <f:facet name="header">
@@ -37,7 +38,7 @@
   </h:selectManyCheckbox>
 </h:column>
 
-    <h:column headerClass="columnText">
+    <h:column>
       <f:facet name="header">      
 		<h:panelGroup>
           <h:outputText value="#{questionPoolMessages.q_text}" />
@@ -85,7 +86,7 @@
     </h:column>
 
 
-      <h:column rendered="#{questionpool.showTags == 'true'}" headerClass="columnTag">
+      <h:column rendered="#{questionpool.showTags == 'true'}">
           <f:facet name="header">
               <h:panelGroup>
                   <h:outputText value="#{questionPoolMessages.t_tags}" />
@@ -133,24 +134,29 @@
 
     </h:column>
     
-    <h:column>
+    <h:column headerClass="columnPoints">
       <f:facet name="header">
         <h:panelGroup>
           <h:outputText value="#{questionPoolMessages.q_points}" />
         </h:panelGroup>
       </f:facet>
-       <h:outputText value="#{question.score}"/>
+       <h:outputText value="#{question.score}" />
     </h:column>
 
-    <h:column>
+    <h:column headerClass="columnDate">
       <f:facet name="header">
         <h:panelGroup>
           <h:outputText value="#{questionPoolMessages.last_mod}" />
         </h:panelGroup>
       </f:facet>
-       <h:outputText value="#{question.lastModifiedDate}">
-           <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-       </h:outputText>
+       <h:panelGroup styleClass="">
+            <h:outputText value="#{question.lastModifiedDate}">
+                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+            </h:outputText>
+            <h:outputText value="#{question.lastModifiedDate}" styleClass="hidden spanValue">
+                <f:convertDateTime pattern="yyyyMMddHHmmss" />
+            </h:outputText>
+       </h:panelGroup>
     </h:column>    
 
     <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" headerClass="columnCheckImport">
@@ -176,7 +182,11 @@
         const column_checkDelete = document.getElementById('editform:questionpool-questions:selectall');
         dataTableConfig['order'] = [[(column_checkDelete) ? 1 : 0, "asc"]];
 
-        setupDataTable("editform:questionpool-questions", dataTableConfig);
+        const dataTable = setupDataTable("editform:questionpool-questions", dataTableConfig);
+
+        dataTable.on( 'draw.dt', function () {
+            checkUpdate();
+        });
     });
 </script>
 </div>
