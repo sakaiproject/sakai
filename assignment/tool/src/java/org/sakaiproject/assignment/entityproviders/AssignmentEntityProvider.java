@@ -1057,9 +1057,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("The courseId (site id) you supplied is invalid", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        String privateNotes = (String) params.get("privateNotes");
-        String feedbackText = (String) params.get("feedbackText");
-        String feedbackComment = (String) params.get("feedbackComment");
+        String privateNotes = formattedText.escapeHtmlFormattedText((String) params.get("privateNotes"));
+        String feedbackText = formattedText.escapeHtmlFormattedText((String) params.get("feedbackText"));
+        String feedbackComment = formattedText.escapeHtmlFormattedText((String) params.get("feedbackComment"));
 
         String gradeOption = (String) params.get("gradeOption");
         gradeOption = StringUtils.isBlank(gradeOption) ? SUBMISSION_OPTION_SAVE : gradeOption;
