@@ -105,14 +105,27 @@ public abstract class AttributeMappingConstants {
 	 * the physical name of a user entry's group membership attribute
 	 */
 	public static final String DEFAULT_GROUP_MEMBERSHIP_ATTR = "groupMembership";
-	
+
+	public static final String DEFAULT_CANDIDATE_ID_ATTR = "employeeNumber";
+	public static final String DEFAULT_ADDITIONAL_INFO_ATTR = "description";
+	public static final String DEFAULT_STUDENT_NUMBER_ID_ATTR = "employeeNumber";
+	public static final String CANDIDATE_ID_ATTR_MAPPING_KEY = "candidateID";
+	public static final String ADDITIONAL_INFO_ATTR_MAPPING_KEY = "additionalInfo";
+	public static final String STUDENT_NUMBER_ATTR_MAPPING_KEY = "studentNumber";
+	public final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
+
 	/**
 	 * Default set of user entry attribute mappings. Keys are
 	 * logical names, values are physical names.
 	 */
 	public static final Map<String,String> DEFAULT_ATTR_MAPPINGS = 
 		new HashMap<String,String>();
-	
+
+	/**
+	 * Extension of DEFAULT_ATTR_MAPPINGS
+	 */
+	public static final Map<String,String> CANDIDATE_ATTR_MAPPINGS = new HashMap<>();
+
 	static {
 		
 		DEFAULT_ATTR_MAPPINGS.put(LOGIN_ATTR_MAPPING_KEY, DEFAULT_LOGIN_ATTR);
@@ -122,7 +135,11 @@ public abstract class AttributeMappingConstants {
 		DEFAULT_ATTR_MAPPINGS.put(LAST_NAME_ATTR_MAPPING_KEY, DEFAULT_LAST_NAME_ATTR);
 		DEFAULT_ATTR_MAPPINGS.put(EMAIL_ATTR_MAPPING_KEY, DEFAULT_EMAIL_ATTR);
 		DEFAULT_ATTR_MAPPINGS.put(GROUP_MEMBERSHIP_ATTR_MAPPING_KEY, DEFAULT_GROUP_MEMBERSHIP_ATTR);
-		
+
+		CANDIDATE_ATTR_MAPPINGS.putAll(DEFAULT_ATTR_MAPPINGS);
+		CANDIDATE_ATTR_MAPPINGS.put(CANDIDATE_ID_ATTR_MAPPING_KEY, DEFAULT_CANDIDATE_ID_ATTR);
+		CANDIDATE_ATTR_MAPPINGS.put(ADDITIONAL_INFO_ATTR_MAPPING_KEY, DEFAULT_ADDITIONAL_INFO_ATTR);
+		CANDIDATE_ATTR_MAPPINGS.put(STUDENT_NUMBER_ATTR_MAPPING_KEY, DEFAULT_STUDENT_NUMBER_ID_ATTR);
 	}
 	
 	/**
