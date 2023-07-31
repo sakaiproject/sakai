@@ -42,6 +42,7 @@ export class SakaiRubricEdit extends RubricsElement {
           aria-expanded="false"
           aria-controls="edit-rubric-${this.rubric.id}"
           title="${tr("edit_rubric")}"
+          data-preserve-title="${tr("edit_rubric")}"
           aria-label="${tr("edit_rubric")} ${this.rubric.title}">
         <i class="si si-edit"></i>
       </button>
@@ -70,15 +71,16 @@ export class SakaiRubricEdit extends RubricsElement {
   }
 
   firstUpdated() {
+    const buttonTrigger = this.querySelector("button");
 
-    new bootstrap.Popover(this.querySelector("button"), {
+    new bootstrap.Popover(buttonTrigger, {
       content: () => this.querySelector(`#edit-rubric-${this.rubric.id}`).innerHTML,
       html: true,
       placement: "bottom",
       sanitize: false,
     });
 
-    this.querySelector("button").addEventListener("shown.bs.popover", () => {
+    buttonTrigger.addEventListener("shown.bs.popover", () => {
 
       const save = document.querySelector(".popover.show .btn-primary");
       save.addEventListener("click", this.saveEdit);
@@ -90,6 +92,10 @@ export class SakaiRubricEdit extends RubricsElement {
       document.querySelector(".popover.show .btn-secondary")
         .addEventListener("click", this.cancelEdit);
     });
+
+    // It seems that the bootstrap popover removes the title attribute from the trigger when it makes it the title of the popover.
+    // Adding it back to the trigger.
+    buttonTrigger.title = buttonTrigger.dataset.preserveTitle;
   }
 
   cancelEdit(e) {
