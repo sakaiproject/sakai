@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>scorm-base</artifactId>
-        <version>22-SNAPSHOT</version>
+        <version>24-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -46,16 +46,16 @@
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>

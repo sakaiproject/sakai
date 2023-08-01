@@ -34,6 +34,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.GradingService;
 
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
@@ -42,7 +44,7 @@ import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.ui.console.pages.PackageConfigurationPage.AssessmentSetup;
 import org.sakaiproject.scorm.ui.console.pages.PackageConfigurationPage.GradebookSetup;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.wicket.ajax.markup.html.form.SakaiAjaxButton;
 import org.sakaiproject.wicket.ajax.markup.html.form.SakaiAjaxCancelButton;
@@ -64,8 +66,11 @@ public class PackageRemovePage extends ConsoleBasePage
 	{
 		private static final long serialVersionUID = 1L;
 
-		@SpringBean(name = "org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
-		GradebookExternalAssessmentService gradebookExternalAssessmentService;
+		@SpringBean(name = "org.sakaiproject.grading.api.GradingService")
+		GradingService gradingService;
+
+		@SpringBean(name = "org.sakaiproject.site.api.SiteService")
+		SiteService siteService;
 
 		@SpringBean(name = "org.sakaiproject.scorm.dao.api.ContentPackageManifestDao")
 		ContentPackageManifestDao contentPackageManifestDao;
@@ -111,10 +116,10 @@ public class PackageRemovePage extends ConsoleBasePage
 							{
 								String assessmentExternalID = getAssessmentExternalId( gradebookSetup, assessmentSetup );
 								boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
-								boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined( context, assessmentExternalID );
+								boolean has = gradingService.isExternalAssignmentDefined( context, assessmentExternalID );
 								if( has && on )
 								{
-									gradebookExternalAssessmentService.removeExternalAssessment( context, assessmentExternalID );
+									gradingService.removeExternalAssignment( context, assessmentExternalID );
 								}
 							}
 						}
@@ -142,7 +147,9 @@ public class PackageRemovePage extends ConsoleBasePage
 		{
 			String context = getContext();
 			final GradebookSetup gradebookSetup = new GradebookSetup();
-			boolean isGradebookDefined = gradebookExternalAssessmentService.isGradebookDefined( context );
+			boolean isGradebookDefined = false;
+			try { isGradebookDefined = siteService.getSite(context).getToolForCommonId("sakai.gradebookng") != null; }
+			catch (IdUnusedException e) { /* No gradebook, ignore */ }
 			gradebookSetup.setGradebookDefined( isGradebookDefined );
 			gradebookSetup.setContentPackage( contentPackage );
 			if( isGradebookDefined )
@@ -153,7 +160,7 @@ public class PackageRemovePage extends ConsoleBasePage
 				for( AssessmentSetup as : assessments )
 				{
 					String assessmentExternalId = getAssessmentExternalId( gradebookSetup, as );
-					boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined( context, assessmentExternalId );
+					boolean has = gradingService.isExternalAssignmentDefined( context, assessmentExternalId );
 					as.setSynchronizeSCOWithGradebook( has );
 				}
 			}

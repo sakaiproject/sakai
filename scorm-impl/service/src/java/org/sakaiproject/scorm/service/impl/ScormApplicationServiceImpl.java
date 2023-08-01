@@ -46,6 +46,8 @@ import org.adl.validator.contentpackage.ILaunchData;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.sakaiproject.grading.api.CommentDefinition;
+import org.sakaiproject.grading.api.GradingService;
 import static org.sakaiproject.scorm.api.ScormConstants.*;
 import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.dao.LearnerDao;
@@ -66,9 +68,6 @@ import org.sakaiproject.scorm.navigation.impl.NavigationEvent;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -99,8 +98,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	protected abstract ScormSequencingService scormSequencingService();
 
 	protected abstract DataManagerDao dataManagerDao();
-	public abstract GradebookExternalAssessmentService gradebookExternalAssessmentService();
-	public abstract GradebookService gradebookService();
+	public abstract GradingService gradingService();
 	protected abstract LearnerDao learnerDao();
 	protected abstract LearningManagementSystem lms();
 
@@ -1390,13 +1388,12 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	 */
 	protected void updateGradebook(OptionalDouble score, String context, String learnerID, String externalAssessmentID)
 	{
-		GradebookExternalAssessmentService gbeService = gradebookExternalAssessmentService();
+		GradingService gbService = gradingService();
 
-		// Gradebook and gradebook item exist, carry on...
-		if (gbeService.isGradebookDefined(context) && gbeService.isExternalAssignmentDefined(context, externalAssessmentID))
+		// Gradebook item exists, carry on...
+		if (gbService.isExternalAssignmentDefined(context, externalAssessmentID))
 		{
-			GradebookService gbService = gradebookService();
-			long internalAssessmentID = gbeService.getInternalAssessmentID(context, externalAssessmentID).orElse(-1l);
+			long internalAssessmentID = gbService.getExternalAssignment(context, externalAssessmentID).getId();
 			CommentDefinition cd = gbService.getAssignmentScoreComment(context, internalAssessmentID, learnerID);
 			String existingComment = cd != null ? StringUtils.trimToEmpty(cd.getCommentText()) : "";
 			String moduleNoScoreRecorded = resourceLoader.getString("moduleNoScoreRecorded");
@@ -1407,13 +1404,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				double rawScore = score.getAsDouble() * 100d;
 
 				// We don't care about the presence of an existing grade; push the new/updated one
-				gbeService.updateExternalAssessmentScore(context, externalAssessmentID, learnerID, "" + rawScore);
+				gbService.updateExternalAssessmentScore(context, externalAssessmentID, learnerID, "" + rawScore);
 
 				// If there's an existing comment, we need to scan it for the presence of the "no grade recorded" message and remove it, but preserve any instructor added comments
 				if (existingComment.contains(moduleNoScoreRecorded))
 				{
 					String comment = existingComment.replaceAll(moduleNoScoreRecorded, "");
-					gbeService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
+					gbService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
 				}
 			}
 			else // Module did not record a score...
@@ -1422,7 +1419,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				if (!existingComment.contains(moduleNoScoreRecorded))
 				{
 					String comment = moduleNoScoreRecorded + " " + existingComment;
-					gbeService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
+					gbService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
 				}
 			}
 		}

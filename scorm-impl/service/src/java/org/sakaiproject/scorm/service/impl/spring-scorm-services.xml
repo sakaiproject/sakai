@@ -11,8 +11,7 @@
 				<lookup-method name="adlManager" bean="org.sakaiproject.scorm.adl.ADLConsultant" />
 				<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
 				<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
-				<lookup-method name="gradebookExternalAssessmentService" bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
-				<lookup-method name="gradebookService" bean="org.sakaiproject.service.gradebook.GradebookService" />
+				<lookup-method name="gradingService" bean="org.sakaiproject.grading.api.GradingService" />
 				<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
 				<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
 			</bean>
