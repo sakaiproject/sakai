@@ -63,6 +63,12 @@ public class MockServerConfigurationService implements ServerConfigurationServic
     }
 
     @Override
+    public double getDouble( String name, double defaultValue )
+    {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    @Override
     public String getGatewaySiteId()
     {
         throw new UnsupportedOperationException( "Not supported yet." );

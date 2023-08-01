@@ -42,7 +42,12 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -52,11 +57,7 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.ajax.markup.html.form.SakaiAjaxButton;
@@ -162,14 +163,17 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 
-	@SpringBean(name = "org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
-	GradebookExternalAssessmentService gradebookExternalAssessmentService;
+	@SpringBean(name = "org.sakaiproject.grading.api.GradingService")
+	GradingService gradingService;
 
 	@SpringBean(name = "org.sakaiproject.scorm.dao.api.ContentPackageManifestDao")
 	ContentPackageManifestDao contentPackageManifestDao;
 
 	@SpringBean(name = "org.sakaiproject.tool.api.ToolManager")
 	ToolManager toolManager;
+
+	@SpringBean(name = "org.sakaiproject.site.api.SiteService")
+	SiteService siteService;
 
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
@@ -253,7 +257,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 					{
 						AssessmentSetup as = (AssessmentSetup) item.getModelObject();
 						String assessmentExternalId = getAssessmentExternalId( gradebookSetup, as );
-						boolean hasGradebookSync = gradebookExternalAssessmentService.isExternalAssignmentDefined( getContext(), assessmentExternalId );
+						boolean hasGradebookSync = gradingService.isExternalAssignmentDefined( getContext(), assessmentExternalId );
 						boolean isChecked = this.getModelObject();
 						verifySyncWithGradebook.setVisible( hasGradebookSync && !isChecked );
 						target.add( verifySyncWithGradebook );
@@ -293,19 +297,19 @@ public class PackageConfigurationPage extends ConsoleBasePage
 					{
 						boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
 						String assessmentExternalId = getAssessmentExternalId(gradebookSetup, assessmentSetup);
-						boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, assessmentExternalId);
+						boolean has = gradingService.isExternalAssignmentDefined(context, assessmentExternalId);
 						String fixedTitle = getItemTitle(assessmentSetup, context);
 
 						try
 						{
 							if (has && on)
 							{
-								gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, assessmentSetup.numberOffPoints,
+								gradingService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, assessmentSetup.numberOffPoints,
 																							gradebookSetup.getContentPackage().getDueOn(), false);
 							}
 							else if (!has && on)
 							{
-								gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints,
+								gradingService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints,
 																							gradebookSetup.getContentPackage().getDueOn(), "SCORM player", null, false);
 
 								// Push grades on creation of gradebook item
@@ -322,13 +326,8 @@ public class PackageConfigurationPage extends ConsoleBasePage
 							}
 							else if (has && !on)
 							{
-								gradebookExternalAssessmentService.removeExternalAssessment(context, assessmentExternalId);
+								gradingService.removeExternalAssignment(context, assessmentExternalId);
 							}
-						}
-						catch (GradebookNotFoundException ex)
-						{
-							error(getLocalizer().getString("form.error.gradebook.noGradebook", this));
-							onError(target);
 						}
 						catch (AssessmentNotFoundException ex)
 						{
@@ -381,7 +380,10 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	{
 		final GradebookSetup gradebookSetup = new GradebookSetup();
 		String context = getContext();
-		boolean isGradebookDefined = gradebookExternalAssessmentService.isGradebookDefined(context);
+		boolean isGradebookDefined = false;
+		try { isGradebookDefined = siteService.getSite(context).getToolForCommonId("sakai.gradebookng") != null; }
+		catch (IdUnusedException e) { /* No gradebook, ignore */ }
+
 		gradebookSetup.setGradebookDefined(isGradebookDefined);
 		gradebookSetup.setContentPackage(contentPackage);
 		if (isGradebookDefined)
@@ -392,7 +394,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 			for (AssessmentSetup as : assessments)
 			{
 				String assessmentExternalId = getAssessmentExternalId(gradebookSetup, as);
-				boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined(getContext(), assessmentExternalId);
+				boolean has = gradingService.isExternalAssignmentDefined(getContext(), assessmentExternalId);
 				as.setSynchronizeSCOWithGradebook(has);
 			}
 		}
@@ -417,7 +419,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	{
 		String fixedTitle = assessmentSetup.getItemTitle();
 		int count = 1;
-		while (gradebookExternalAssessmentService.isAssignmentDefined(context, fixedTitle))
+		while (gradingService.isAssignmentDefined(context, fixedTitle))
 		{
 			fixedTitle = assessmentSetup.getItemTitle() + " (" + count++ + ")";
 		}
