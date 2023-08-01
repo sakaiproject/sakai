@@ -374,10 +374,10 @@
             <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_manual_help}" />
           </label>
           <label class="help-block info-text small config-mode-help-upload">
-            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_upload_help}" />
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_upload_help} #{assessmentSettingsMessages.seb_exam_keys_recommended}" />
           </label>
           <label class="help-block info-text small config-mode-help-client">
-            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_client_help}" />
+            <h:outputText value="#{assessmentSettingsMessages.seb_config_mode_client_help} #{assessmentSettingsMessages.seb_exam_keys_recommended}" />
           </label>
         </div>
       </h:panelGroup>
@@ -904,6 +904,7 @@
  <!-- save & publish -->
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
       action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);SPNR.disableControlsAndSpin(this, null);" >
+      <f:param name="fromAssessmentSettings" value="true" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
   </h:commandButton>

@@ -91,6 +91,7 @@ public class ConfirmPublishAssessmentListener
     SaveAssessmentSettings s = new SaveAssessmentSettings();
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+    boolean isFromAssessmentSettings = Boolean.TRUE.toString().equals(ContextUtil.lookupParam("fromAssessmentSettings"));
     
     // Check permissions
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
@@ -422,7 +423,9 @@ public class ConfirmPublishAssessmentListener
     	assessmentSettings.setPassword(formattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getPassword())));
 
         SebConfig sebConfig = SebConfig.of(assessment.getAssessmentMetaDataMap());
-        if (sebConfig.getConfigMode() != null) {
+        // This has to happen if we are trying to publish from the assessment builder,
+        // but when publishing from the assessment settings we need to avoid it
+        if (!isFromAssessmentSettings && sebConfig.getConfigMode() != null) {
             assessmentSettings.setSebConfigMode(sebConfig.getConfigMode().toString());
             assessmentSettings.setSebExamKeys(StringUtils.join(sebConfig.getExamKeys(), "\n"));
             assessmentSettings.setSebAllowUserQuitSeb(sebConfig.getAllowUserQuitSeb());
