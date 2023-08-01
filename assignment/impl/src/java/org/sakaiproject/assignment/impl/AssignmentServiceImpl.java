@@ -550,7 +550,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // if subtype is assignment then were downloading all submissions for an assignment
                                 try {
                                     Assignment a = getAssignment(refReckoner.getId());
-                                    String filename = a.getTitle() + "_" + date;
+                                    String filename = escapeInvalidCharsEntry(a.getTitle()) + "_" + date;
                                     res.setContentType("application/zip");
                                     res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
 
@@ -2747,6 +2747,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);
         decomposed = decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", StringUtils.EMPTY);
         decomposed = decomposed.replaceAll("\\?", StringUtils.EMPTY);
+        // To avoid issues, dash variations will be replaced by a regular dash.
+        decomposed = decomposed.replaceAll("\\p{Pd}", "-");
         return decomposed;
     }
 
