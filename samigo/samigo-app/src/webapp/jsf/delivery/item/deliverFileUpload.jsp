@@ -25,7 +25,7 @@ include file for delivering file upload questions
 should be included in file importing DeliveryMessages
 --%>
 <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
-<h:outputText value="#{question.text} <br/>" escape="false">
+<h:outputText value="#{question.text}" escape="false">
   <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
 </h:outputText>
 
@@ -34,8 +34,10 @@ should be included in file importing DeliveryMessages
 
 <h:panelGroup rendered="#{delivery.actionString=='takeAssessment' 
                        || delivery.actionString=='takeAssessmentViaUrl'}">
-  <h:outputText escape="false" value="#{deliveryMessages.upload_instruction} " />
-  <h:outputText escape="false" value=" (#{deliveryMessages.max_file_size} #{delivery.fileUploadSizeMax}#{deliveryMessages.unit}) <br />" styleClass="validate"/>
+  <h:panelGroup styleClass="mb-2" layout="block">
+    <h:outputText escape="false" value="#{deliveryMessages.upload_instruction} " />
+    <h:outputText escape="false" value=" (#{deliveryMessages.max_file_size} #{delivery.fileUploadSizeMax}#{deliveryMessages.unit})" styleClass="validate"/>
+  </h:panelGroup>
 
   <h:outputText value="#{deliveryMessages.file} " />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
@@ -65,10 +67,9 @@ should be included in file importing DeliveryMessages
 
       <%-- media list, note that question is ItemContentBean --%>
 <h:panelGroup rendered="#{question!=null and question.mediaArray!=null}">
-      <h:dataTable value="#{question.mediaArray}" var="media">
+      <h:dataTable styleClass="mt-2 mb-4" value="#{question.mediaArray}" var="media">
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink title="#{deliveryMessages.t_uploadedFile}" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&sam_fileupload_siteId=#{delivery.siteId}" target="new_window">
+          <h:outputLink styleClass="ms-4 me-1" title="#{deliveryMessages.t_uploadedFile}" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&sam_fileupload_siteId=#{delivery.siteId}" target="new_window">
              <h:outputText value="#{media.filename}" />
           </h:outputLink>
         </h:column>
@@ -79,7 +80,7 @@ should be included in file importing DeliveryMessages
         </h:column>
         <h:column rendered="#{delivery.actionString=='takeAssessment' 
                            || delivery.actionString=='takeAssessmentViaUrl'}">
-          <h:commandLink title="#{deliveryMessages.t_removeMedia}" action="confirmRemoveMedia"
+          <h:commandLink styleClass="ms-3" title="#{deliveryMessages.t_removeMedia}" action="confirmRemoveMedia"
             id="removeMedia" onmouseup="saveTime();">
             <h:outputText value="#{commonMessages.remove_action}" />
             <f:param name="mediaId" value="#{media.mediaId}"/>
@@ -92,18 +93,16 @@ should be included in file importing DeliveryMessages
       </h:dataTable>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
+<h:panelGroup styleClass="my-3" layout="block" rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1' && delivery.displayMardForReview }">
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
 	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();" >
-		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=295,scrollbars=yes, resizable=yes');event.preventDefault();" >
+		<h:outputText styleClass="mx-2" value="#{assessmentSettingsMessages.whats_this_link}"/>
 	</h:outputLink>
 </h:panelGroup>
-
-  <f:verbatim><br /></f:verbatim>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
@@ -126,13 +125,11 @@ should be included in file importing DeliveryMessages
           <%@ include file="/jsf/shared/mimeicon.jsp" %>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink value="#{attach.location}" target="new_window">
+          <h:outputLink styleClass="mx-3" value="#{attach.location}" target="new_window">
             <h:outputText value="#{attach.filename}" />
           </h:outputLink>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
           <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
         </h:column>
       </h:dataTable>

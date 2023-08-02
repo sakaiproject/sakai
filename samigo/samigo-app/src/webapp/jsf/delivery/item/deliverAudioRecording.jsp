@@ -47,8 +47,6 @@ should be included in file importing DeliveryMessages
   });
 </script>
 
-<f:verbatim><br /></f:verbatim>
-
 <%-- this invisible text is a trick to get the value set in the component tree
      without displaying it; audioMediaUploadPath will get this to the back end
 --%>
@@ -61,8 +59,6 @@ should be included in file importing DeliveryMessages
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-<f:verbatim><br /></f:verbatim>
-<f:verbatim><br /></f:verbatim>
 <f:verbatim><div id="</f:verbatim><h:outputText value="question#{question.itemData.itemId}" /><f:verbatim>" style="</f:verbatim><h:outputText value="display:none;" rendered="#{question==null or question.hasNoMedia}" /><f:verbatim>" ></f:verbatim>
 
   <h:panelGrid cellpadding="10" columns="1">
@@ -80,7 +76,7 @@ should be included in file importing DeliveryMessages
         }
       </script>
 
-      <f:verbatim><br /></f:verbatim>
+      <f:verbatim><div></f:verbatim>
       <h:outputText value="#{deliveryMessages.open_bracket}"/>
       <f:verbatim><span id="</f:verbatim><h:outputText value="details#{question.itemData.itemId}" /><f:verbatim>"></f:verbatim>
 		<h:outputText styleClass="recordedOn#{question.itemData.itemId}" value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!question.mediaArray[0].durationIsOver}" />
@@ -90,8 +86,8 @@ should be included in file importing DeliveryMessages
       </h:outputText>
       <f:verbatim></span></f:verbatim>
       <h:outputText value="#{deliveryMessages.close_bracket}"/>
-      <f:verbatim><br /></f:verbatim>
-      <h:outputFormat styleClass="can_you_hear_#{question.itemData.itemId}" value=" #{deliveryMessages.can_you_hear}" escape="false">
+      <f:verbatim></div></f:verbatim>
+      <h:outputFormat styleClass="d-block mt-2 can_you_hear_#{question.itemData.itemId}" value=" #{deliveryMessages.can_you_hear}" escape="false">
 		<f:param value="<a href=\"#{delivery.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}&setMimeType=false\"/> #{deliveryMessages.can_you_hear_2}</a>" />
       </h:outputFormat>
     </h:panelGroup>
@@ -116,14 +112,14 @@ should be included in file importing DeliveryMessages
   <h:outputText value=" #{assessmentSettingsMessages.record_no_more_attempts}"/>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
+<h:panelGroup styleClass="my-3" layout="block" rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1' && delivery.displayMardForReview }">
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
 	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
 	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');event.preventDefault();" >
-		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+		<h:outputText styleClass="mx-2" value="#{assessmentSettingsMessages.whats_this_link}"/>
 	</h:outputLink>
 </h:panelGroup>
 
@@ -148,13 +144,11 @@ should be included in file importing DeliveryMessages
           <%@ include file="/jsf/shared/mimeicon.jsp" %>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink value="#{attach.location}" target="new_window">
+          <h:outputLink styleClass="mx-3" value="#{attach.location}" target="new_window">
             <h:outputText value="#{attach.filename}" />
           </h:outputLink>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
           <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
         </h:column>
       </h:dataTable>

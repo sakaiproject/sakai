@@ -70,7 +70,7 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>
     </h:panelGroup>
     <h:panelGroup layout="block" styleClass="mcscFixUpTarget"></h:panelGroup>
-    <h:panelGroup styleClass="mcAnswerText">
+    <h:panelGroup styleClass="mcAnswerText me-3">
       <span class="samigo-answer-label strong" aria-hidden="true">
         <h:outputText value=" #{selection.answer.label}" escape="false" />
         <h:outputText value="#{deliveryMessages.dot} " rendered="#{selection.answer.label ne ''}" />
@@ -83,12 +83,13 @@ should be included in file importing DeliveryMessages
       </h:outputText>
     </h:panelGroup>
 
-    <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
+    <h:panelGroup styleClass="d-block mt-1" rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel && question.itemData.typeId != 3 &&
 	   selection.answer.generalAnswerFeedback != 'null' && selection.answer.generalAnswerFeedback != null && selection.answer.generalAnswerFeedback != '' && selection.response}" >
    	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
-       <f:verbatim><br /></f:verbatim>
+       <f:verbatim><strong></f:verbatim>
        <h:outputText value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+       <f:verbatim></strong></f:verbatim>
        <h:outputText value="#{selection.answer.generalAnswerFeedback}" escape="false" />
     </h:panelGroup>
   </t:dataList>
@@ -126,11 +127,9 @@ should be included in file importing DeliveryMessages
 	<f:param name="radioId" value="#{question.itemData.itemId}" />
   </h:commandLink>
 
-  <h:panelGroup
+  <h:panelGroup styleClass="my-3" layout="block"
     rendered="#{question.itemData.hasRationale && question.itemData.typeId != 3}" >
-    <f:verbatim><br /><br /></f:verbatim>
-    <h:outputLabel for="rationale" value="#{deliveryMessages.rationale}" />
-    <f:verbatim><br /></f:verbatim>
+    <h:outputLabel styleClass="d-block" for="rationale" value="#{deliveryMessages.rationale}" />
     <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
         rendered="#{delivery.actionString!='reviewAssessment' 
                  && delivery.actionString!='gradeAssessment'}" />
@@ -139,17 +138,14 @@ should be included in file importing DeliveryMessages
                  || delivery.actionString=='gradeAssessment'}" escape="false"/>
   </h:panelGroup>
 
-<f:verbatim><br /></f:verbatim>
-<f:verbatim><br /></f:verbatim>
-
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
+<h:panelGroup styleClass="my-3" layout="block" rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1' && delivery.displayMardForReview }">
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
 	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();" >
-		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=295,scrollbars=yes, resizable=yes');event.preventDefault();" >
+		<h:outputText styleClass="mx-2" value="#{assessmentSettingsMessages.whats_this_link}"/>
 	</h:outputLink>
 </h:panelGroup>
 
@@ -182,13 +178,11 @@ should be included in file importing DeliveryMessages
           <%@ include file="/jsf/shared/mimeicon.jsp" %>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink value="#{attach.location}" target="new_window">
+          <h:outputLink styleClass="mx-3" value="#{attach.location}" target="new_window">
             <h:outputText value="#{attach.filename}" />
           </h:outputLink>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
           <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
         </h:column>
       </h:dataTable>

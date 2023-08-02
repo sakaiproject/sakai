@@ -35,7 +35,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 		<head><%= request.getAttribute("html.head") %>
 			<title><h:outputText value="#{authorMessages.multiple_choice_type}" escape="false"/></title>
 		</head>
-		<body onload="<%= request.getAttribute("html.body.onload") %>">
+		<body class="m-4" onload="<%= request.getAttribute("html.body.onload") %>">
 		<h:form>
 		    <h:panelGrid columns="1" border="0">
 				<h:outputText value="#{authorMessages.mc_whats_this_main_text}" escape="false"/>

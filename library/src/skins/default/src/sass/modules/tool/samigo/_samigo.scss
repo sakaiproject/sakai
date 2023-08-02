@@ -44,12 +44,16 @@
 	.samigo-question-callout {
 			border-left: 5px solid var(--tool-border-color);
 			margin: 2em 0;
-			padding: 1.5em 2.5em 1.5em 1.5em;
+			padding: 1px 40px 24px 24px;
 			input[type="checkbox"], input[type="radio"] {
 				margin-right: 0.25em;
 			}
 			label {
 				font-weight: normal;
+			}
+			img {
+			    margin-top: 1rem !important;
+			    margin-bottom: 1rem !important;
 			}
 	}
 
@@ -268,7 +272,7 @@
 	}
 	
 	.navIntraTool {
-		margin: 0px !important;
+		margin: 0 0 1.5rem 0 !important;
 	}
 
 	.ui-autocomplete-input {
@@ -465,6 +469,24 @@
 
 	sakai-user-photo {
 		margin-right: 7px;
+	}
+
+	.all-submissions select {
+	    max-width: 200px;
+	}
+
+	#itemFormHeading\:deleteitem {
+	    margin-left: 10px;
+	}
+
+	div#itemForm\:attachments label {
+	    margin-right: 10px;
+	    font-weight: bold;
+	}
+
+	ol.breadcrumb li {
+	    display: inline-block;
+	    margin-right: 15px;
 	}
 }
 

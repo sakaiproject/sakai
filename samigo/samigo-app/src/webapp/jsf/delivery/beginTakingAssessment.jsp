@@ -77,7 +77,7 @@
   
   <div class="sak-banner-info">
     <!-- ASSESSMENT INTRODUCTION -->
-    <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
+    <h:outputText value="#{delivery.instructorMessage}" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 
   <!-- ASSESSMENT ATTACHMENTS -->
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>

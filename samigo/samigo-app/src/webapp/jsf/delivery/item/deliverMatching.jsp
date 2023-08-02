@@ -61,29 +61,27 @@ should be included in file importing DeliveryMessages
      </t:selectOneMenu>
    </h:column>
    <h:column>
-     <h:outputText value="#{matching.text}" escape="false" styleClass="mcAnswerText">
+     <h:outputText value="#{matching.text}" escape="false" styleClass="mcAnswerText ms-2">
        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
      </h:outputText>
      <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel && 
 	   matching.feedback ne '' && matching.feedback != 'null' && matching.feedback != null}" >
 	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
-       <f:verbatim><br /></f:verbatim>
        <h:outputText value="#{commonMessages.feedback}#{deliveryMessages.column} " />
        <h:outputText value="#{matching.feedback}" escape="false" />
      </h:panelGroup>
   </h:column>
   </h:dataTable>
 
-<f:verbatim><br /></f:verbatim>
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
+<h:panelGroup styleClass="my-3" layout="block" rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1' && delivery.displayMardForReview }">
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
 	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();" >
-		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=295,scrollbars=yes, resizable=yes');event.preventDefault();" >
+		<h:outputText styleClass="mx-2" value="#{assessmentSettingsMessages.whats_this_link}"/>
 	</h:outputLink>
 </h:panelGroup>
 
@@ -116,13 +114,11 @@ should be included in file importing DeliveryMessages
           <%@ include file="/jsf/shared/mimeicon.jsp" %>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink value="#{attach.location}" target="new_window">
+          <h:outputLink styleClass="mx-3" value="#{attach.location}" target="new_window">
             <h:outputText value="#{attach.filename}" />
           </h:outputLink>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
           <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
         </h:column>
       </h:dataTable>

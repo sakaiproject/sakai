@@ -163,8 +163,8 @@ $(document).ready(function(){
     <h:outputText value=" #{totalScores.allSubmissions ne '4' ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}"/>
   </h:panelGroup>
 
-<h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
-  <h:panelGroup styleClass="col-md-6" layout="block">
+<h:panelGroup styleClass="row total-score-box mt-3" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+  <h:panelGroup styleClass="col-md-7" layout="block">
     <h:panelGroup styleClass="all-submissions form-group" layout="block">
       <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}"/>
       <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
@@ -218,7 +218,7 @@ $(document).ready(function(){
 	  </h:panelGroup>
   </h:panelGroup>
    
-  <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">
+  <h:panelGroup layout="block" styleClass="samigo-pager col-md-5" style="text-align: right">
     <sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
   </h:panelGroup>
 </h:panelGroup>
