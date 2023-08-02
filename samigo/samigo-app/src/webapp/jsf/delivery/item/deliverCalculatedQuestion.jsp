@@ -35,10 +35,9 @@ should be included in file importing DeliveryMessages
 
 <samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
   <h:column>
-      <h:outputText id="calcq-question-text" styleClass="calcq-question-text" value="#{answer.text} " escape="false" >
+      <h:outputText id="calcq-question-text" styleClass="calcq-question-text me-1" value="#{answer.text} " escape="false" >
         <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
       </h:outputText>
-      <f:verbatim>&nbsp;</f:verbatim>
       <h:panelGroup styleClass="si si-check-lg" id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
@@ -58,41 +57,35 @@ should be included in file importing DeliveryMessages
   </h:column>
 </samigo:dataLine>
 
-<f:verbatim><br /></f:verbatim>
-
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
+<h:panelGroup styleClass="my-3" layout="block" rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1' && delivery.displayMardForReview }">
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
 	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();">
-		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=295,scrollbars=yes, resizable=yes');event.preventDefault();">
+		<h:outputText styleClass="mx-2" value="#{assessmentSettingsMessages.whats_this_link}"/>
 	</h:outputLink>
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <f:verbatim><br /></f:verbatim>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
-      <f:verbatim></b></f:verbatim>
-    <h:outputText id="answerKeyMC"
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+    <h:panelGroup>
+      <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
+      <h:outputText id="answerKeyMC"
        value="#{question.key}" escape="false"/>
-
-  </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
-    <f:verbatim><br /></f:verbatim>
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
-    <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
-  </h:panelGroup>
+    </h:panelGroup>
+  </h:panelGrid>
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
+    <h:panelGroup>
+      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+      <h:outputText id="feedSC" value="#{question.feedbackValue}" escape="false" />
+    </h:panelGroup>
+  </h:panelGrid>
   <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
-    <f:verbatim><br /></f:verbatim>
-    <f:verbatim><b></f:verbatim>
+    <f:verbatim><strong></f:verbatim>
     <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
+    <f:verbatim></strong></f:verbatim>
     <h:outputText id="commentSC" value="#{question.gradingComment}"
       escape="false" />
   </h:panelGroup>

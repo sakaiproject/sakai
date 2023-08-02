@@ -62,10 +62,8 @@ should be included in file importing DeliveryMessages
 	</h:commandLink> 
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{question.itemData.hasRationale}">
-    <f:verbatim><br /><br /></f:verbatim>
-    <h:outputLabel for="rationale" value="#{deliveryMessages.rationale}" />
-    <f:verbatim><br /></f:verbatim>
+  <h:panelGroup styleClass="my-3" layout="block" rendered="#{question.itemData.hasRationale}">
+    <h:outputLabel styleClass="d-block" for="rationale" value="#{deliveryMessages.rationale}" />
     <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
         rendered="#{delivery.actionString!='reviewAssessment' 
                  && delivery.actionString!='gradeAssessment'}" />
@@ -74,17 +72,14 @@ should be included in file importing DeliveryMessages
                  || delivery.actionString=='gradeAssessment'}" escape="false"/>
   </h:panelGroup>
 
-<f:verbatim><br /></f:verbatim>
-<f:verbatim><br /></f:verbatim>
-
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
+<h:panelGroup styleClass="my-3" layout="block" rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1' && delivery.displayMardForReview }">
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
 	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();" >
-		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=295,scrollbars=yes, resizable=yes');event.preventDefault();" >
+		<h:outputText styleClass="mx-2" value="#{assessmentSettingsMessages.whats_this_link}"/>
 	</h:outputLink>
 </h:panelGroup>
 
@@ -118,13 +113,11 @@ should be included in file importing DeliveryMessages
           <%@ include file="/jsf/shared/mimeicon.jsp" %>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink value="#{attach.location}" target="new_window">
+          <h:outputLink styleClass="mx-3" value="#{attach.location}" target="new_window">
             <h:outputText value="#{attach.filename}" />
           </h:outputLink>
         </h:column>
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
           <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
         </h:column>
       </h:dataTable>
