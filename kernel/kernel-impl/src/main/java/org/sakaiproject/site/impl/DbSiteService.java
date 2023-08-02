@@ -1198,6 +1198,14 @@ public abstract class DbSiteService extends BaseSiteService
 		/**
 		 * @inheritDoc
 		 */
+		public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, String userId)
+		{
+			return getSites(type, ofType, criteria, propertyCriteria, sort, page, true, userId);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		@SuppressWarnings("unchecked")
 		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria,  List excludedSites, SortType sort, PagingPosition page, boolean requireDescription, String userId)
 		{

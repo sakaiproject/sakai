@@ -425,9 +425,8 @@
 				</p>
 				
 				## SAK-24423 - joinable site settings title
-				#if( $joinGroupEnabled || $joinExcludeFromPublicListEnabled || $joinLimitAccountTypesEnabled ||
-						$joinGroupEnabledLocalDisabledGlobal || $joinExcludeEnabledLocalDisabledGlobal ||
-						$joinLimitEnabledLocalDisabledGlobal )
+				#if( $joinGroupEnabled || $joinNotificationEnabled || $joinExcludeFromPublicListEnabled || $joinLimitAccountTypesEnabled ||
+						$joinGroupEnabledLocalDisabledGlobal || $joinExcludeEnabledLocalDisabledGlobal || $joinLimitEnabledLocalDisabledGlobal )
 					<p class="indnt3">$tlang.getString( "ediacc.additionJoinAccessOptions" )</p>
 				#end
 				
@@ -448,7 +447,23 @@
 						#end
 					</p>
 				#end
-				
+
+				## joinable site settings - join notification
+				#if( $joinNotificationEnabled || $joinNotifyEnabledLocalDisabledGlobal )
+					<p class="checkbox indnt4">
+						<input name="chkJoinNotification" id="chkJoinNotification" type="checkbox"
+							#if( $joinNotification ) checked="checked" #end
+							#if( !$joinNotificationEnabled || $joinNotifyEnabledLocalDisabledGlobal ) disabled #end
+						/>
+						<label for="chkJoinNotification" #if( !$joinNotificationEnabled || $joinNotifyEnabledLocalDisabledGlobal ) class="instruction" #end>
+							$tlang.getString( "ediacc.joinNotification" )
+						</label>
+					</p>
+					#if( $joinNotifyEnabledLocalDisabledGlobal )
+						<p class="indnt7 messageInformation">$tlang.getString( "ediacc.notifyEnabledLocalDisabledGlobal" )</p>
+					#end
+				#end
+
 				## SAK-24423 - joinable site settings - exclude from public list
 				#if( $joinExcludeFromPublicListEnabled || $joinExcludeEnabledLocalDisabledGlobal )
 					<p class="checkbox indnt4">

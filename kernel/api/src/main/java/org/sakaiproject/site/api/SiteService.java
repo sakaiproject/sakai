@@ -833,7 +833,14 @@ public interface SiteService extends EntityProducer
      * @return true if the user has same user account type that the site is restricted to, or if the option is disabled system-wide
      */
     boolean isAllowedToJoin(String id);
-    
+
+    /**
+     * determine if current user is actually logged into the system
+     *
+     * @return true if user is logged in with an account
+     */
+    boolean isUserLoggedIn();
+
     /**
      * Get the group that a joining user will be added to upon joining a site, if option is available system-wide
      * 
@@ -863,7 +870,25 @@ public interface SiteService extends EntityProducer
      * @return true if the join site is limiting account types
      */
     boolean isLimitByAccountTypeEnabled(String id);
-    
+
+    /**
+     * Retrieves the boolean value of a boolean site property
+     *
+     * @param id
+     *        The site to retrieve the property from
+     * @return boolean value of the site property; true if the boolean property is found and is set to true
+     */
+    boolean getBooleanSiteProperty(String id, String propertyName);
+
+    /**
+     * Check if the system and the provided site has the ability to send email notifications when a user joins the site
+     *
+     * @param id
+     *        The site to check if the join email notification option is enabled
+     * @return true if the join email notification options are enabled at the system and passed-in site's levels
+     */
+    boolean isJoinNotificationToggled(String id);
+
     /**
      * Get the list of allowed account type categories
      * 
@@ -895,7 +920,13 @@ public interface SiteService extends EntityProducer
      * @return true/false (enabled/disabled)
      */
     boolean isGlobalJoinGroupEnabled();
-    
+
+    /**
+     * Check if join email notification is enabled/disabled globally (sakai.property)
+     * @return true/false (enabled/disabled)
+     */
+    boolean isGlobalJoinNotificationEnabled();
+
     /**
      * Check if exclude from public list is enabled/disabled globally (sakai.property)
      * 
@@ -1326,7 +1357,44 @@ public interface SiteService extends EntityProducer
 	 * @return true if the site is allowed to addRoleSwap(id), false if not.
 	 */
 	boolean allowRoleSwap(String id);
-	
+
+	/**
+	 * Access a list of sites that the specified user can visit, sorted by title, optionally requiring descriptions.
+	 *
+	 * This is a convenience and performance wrapper for getSites.
+	 *
+	 * Unpublished sites are not included; use getSites(String, boolean) to control if unpublished sites are included or not.
+	 *
+	 * The sites returned follow the same semantics as those from
+	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition, boolean, String) getSites}.
+	 *
+	 * @param userId the returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+	 * @return a List<Site> of those sites the user can access.
+	 */
+	List<Site> getUserSites(String userId);
+
+	/**
+	 * Access a list of Site objects that meet specified criteria.
+	 * NOTE: The sites returned will not have child objects loaded. If these sites need to be saved
+	 * a completely populated site should be retrieved from {@link #getSite(String)}
+	 * @param type
+	 *        The SelectionType specifying what sort of selection is intended.
+	 * @param ofType
+	 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
+	 * @param criteria
+	 *        Additional selection criteria: sites returned will match this string somewhere in their id, title, description, or skin.
+	 * @param propertyCriteria
+	 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
+	 * @param sort
+	 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
+	 * @param page
+	 *        The PagePosition subset of items to return.
+	 * @param userId
+	 *        The returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+	 * @return The List<Site> of Site objects that meet the specified criteria.
+	 */
+	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, String userId);
+
 	/**
 	 * returns all type strings that are associated with specified site type.
 	 * Following is an example of site type settings, which defines two strings as "course"-type

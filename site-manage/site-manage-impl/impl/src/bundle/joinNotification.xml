@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<emailTemplates>
+<emailTemplate>
+<subject>${localSakaiName} Join Notification: Someone has joined your "${worksiteName}" site!</subject>
+<message>${currentUserFirstName} ${currentUserLastName} (${currentUserDisplayId}) has joined your "${worksiteName}" site on ${localSakaiName}.
+You will now see ${currentUserDisplayName} listed in your site's Site Info participant list.
+
+If you would like to turn Join Notifications off for this site, please:
+
+    1) Log into ${localSakaiName}
+    2) Navigate to ${worksiteName}
+    3) Click 'Site Info' from the list of tools on the left hand side
+    4) Click 'Manage Access' from the menu bar at the top
+    5) Uncheck 'Notify site maintainers by email when a user joins this site'
+    6) Click the 'Update' button
+
+Regards,
+
+The ${localSakaiName} Administrators
+${institution}
+</message>
+<locale>en</locale>
+<version>1</version>
+</emailTemplate>
+</emailTemplates>

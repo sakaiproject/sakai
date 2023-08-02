@@ -30,6 +30,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -186,6 +187,11 @@ public class SiteServiceTest extends DbSiteService
 	@Override
 	protected NotificationService notificationService() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected EmailService emailService() {
 		return null;
 	}
 }

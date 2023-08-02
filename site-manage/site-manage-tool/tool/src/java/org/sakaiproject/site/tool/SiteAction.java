@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.site.tool;
 
-import static org.sakaiproject.site.util.SiteConstants.SITE_PUBLISH_DATE;
 import static org.sakaiproject.site.util.SiteConstants.STATE_TEMPLATE_INDEX;
 
 import java.io.File;
@@ -30,7 +29,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.Year;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.time.Year;
@@ -79,7 +77,6 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.archive.api.ImportMetadata;
@@ -13550,7 +13547,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		{ 
 			return joinerGroup;
 		}
-		
+
+		public boolean joinNotifications = false;
+		public boolean getJoinNotifications()
+		{
+			return joinNotifications;
+		}
+
 		public boolean joinExcludePublic = false;
 		public boolean getJoinExcludePublic()
 		{ 

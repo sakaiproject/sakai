@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -59,7 +60,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JoinableSiteSettings
 {
-
 	// API's
 	private static final UserDirectoryService 		userDirectoryService 	= (UserDirectoryService) 		ComponentManager.get( UserDirectoryService.class );
 	private static final SiteService 				siteService 			= (SiteService) 				ComponentManager.get( SiteService.class );
@@ -68,6 +68,7 @@ public class JoinableSiteSettings
 	
 	// State variable names
 	private static final String STATE_JOIN_SITE_GROUP_ID				= "state_join_site_group";
+	private static final String STATE_JOIN_SITE_NOTIFICATION			= "state_join_site_notification";
 	private static final String STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST		= "state_join_site_exclude_public_list";
 	private static final String STATE_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE	= "state_join_site_limit_by_account_type";
 	private static final String STATE_JOIN_SITE_ACCOUNT_TYPES 			= "state_join_site_account_types";
@@ -76,7 +77,8 @@ public class JoinableSiteSettings
 	
 	// Site property names
 	private static final String SITE_PROP_JOIN_SITE_GROUP_ID 				= "joinerGroup";
-	private static final String SITE_PROP_JOIN_SITE_GROUP_NO_SEL				= "noSelection";
+	private static final String SITE_PROP_JOIN_SITE_GROUP_NO_SEL			= "noSelection";
+	private static final String SITE_PROP_JOIN_SITE_NOTIFICATION			= "joinNotification";
 	private static final String SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST		= "joinExcludeFromPublicList";
 	private static final String SITE_PROP_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE 	= "joinLimitByAccountType";
 	private static final String SITE_PROP_JOIN_SITE_ACCOUNT_TYPES 			= "joinLimitedAccountTypes";
@@ -84,15 +86,18 @@ public class JoinableSiteSettings
 	// Context variable/element names
 	private static final String CONTEXT_JOIN_SITE_GROUPS										= "siteGroups";
 	private static final String CONTEXT_JOIN_SITE_GROUP_DROP_DOWN								= "selectJoinerGroup";
+	private static final String CONTEXT_JOIN_SITE_NOTIFY_CHECKBOX								= "chkJoinNotification";
 	private static final String CONTEXT_JOIN_SITE_EXCLUDE_PUBLIC_LIST_CHECKBOX					= "chkJoinExcludeFromPublicList";
 	private static final String CONTEXT_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE_CHECKBOX				= "chkJoinLimitByAccountType";
 	private static final String CONTEXT_JOIN_SITE_ACCOUNT_TYPES									= "joinableAccountTypes";
 	private static final String CONTEXT_JOIN_SITE_ACCOUNT_CATEGORIES							= "joinableAccountTypeCategories";
 	private static final String CONTEXT_JOIN_SITE_ACCOUNT_TYPE_CHECKBOX_PREFIX 					= "chkJoin-";
 	private static final String CONTEXT_JOIN_SITE_GROUP_ENABLED									= "joinGroupEnabled";
+	private static final String CONTEXT_JOIN_SITE_NOTIFICATION_ENABLED							= "joinNotificationEnabled";
 	private static final String CONTEXT_JOIN_SITE_EXCLUDE_PUBLIC_LIST_ENABLED					= "joinExcludeFromPublicListEnabled";
 	private static final String CONTEXT_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE_ENABLED					= "joinLimitAccountTypesEnabled";
 	private static final String CONTEXT_JOIN_SITE_GROUP_ID										= SITE_PROP_JOIN_SITE_GROUP_ID;
+	private static final String CONTEXT_JOIN_SITE_NOTIFICATION									= SITE_PROP_JOIN_SITE_NOTIFICATION;
 	private static final String CONTEXT_JOIN_SITE_EXCLUDE_PUBLIC_LIST							= SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST;
 	private static final String CONTEXT_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE							= SITE_PROP_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE;
 	private static final String CONTEXT_JOIN_SITE_LIMIT_ACCOUNT_TYPES							= SITE_PROP_JOIN_SITE_ACCOUNT_TYPES;
@@ -105,14 +110,15 @@ public class JoinableSiteSettings
 	private static final String CONTEXT_JOIN_SITE_LINK											= "link";
 	private static final String CONTEXT_JOIN_SITE_SITE_BROWSER_JOIN_ENABLED						= "siteBrowserJoinEnabled";
 	private static final String CONTEXT_JOIN_SITE_GROUP_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinGroupEnabledLocalDisabledGlobal";
-	private static final String CONTEXT_JOIN_SITE_EXCLUDE_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinExcludeEnabledLocalDisabledGlobal";
+	private static final String CONTEXT_JOIN_SITE_NOTIFICATION_ENABLED_LOCAL_DISABLED_GLOBAL	= "joinNotifyEnabledLocalDisabledGlobal";
+	private static final String CONTEXT_JOIN_SITE_EXCLUDE_ENABLED_LOCAL_DISABLED_GLOBAL 		= "joinExcludeEnabledLocalDisabledGlobal";
 	private static final String CONTEXT_JOIN_SITE_LIMIT_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinLimitEnabledLocalDisabledGlobal";
 	private static final String CONTEXT_UI_SERVICE = "uiService";
 	
 	// Message keys
 	private static final String MSG_KEY_UNJOINABLE 			= "join.unjoinable";
 	private static final String MSG_KEY_LOGIN				= "join.login";
-	private static final String MSG_KEY_ALREADY_MEMBER_1		= "join.alreadyMember1";
+	private static final String MSG_KEY_ALREADY_MEMBER_1	= "join.alreadyMember1";
 	private static final String MSG_KEY_ALREADY_MEMBER_2	= "join.alreadyMember2";
 	private static final String MSG_KEY_NOT_ALLOWED_TO_JOIN	= "join.notAllowed";
 	private static final String MSG_KEY_JOIN_SUCCESS		= "join.success";
@@ -547,7 +553,12 @@ public class JoinableSiteSettings
 		{
 			siteInfo.joinerGroup = params.getString( SITE_PROP_JOIN_SITE_GROUP_ID );
 		}
-		
+
+		if( siteService.isGlobalJoinNotificationEnabled() && params.getString( SITE_PROP_JOIN_SITE_NOTIFICATION ) != null)
+		{
+			siteInfo.joinNotifications = Boolean.valueOf( params.getString( SITE_PROP_JOIN_SITE_NOTIFICATION ) );
+		}
+
 		if( siteService.isGlobalJoinExcludedFromPublicListEnabled() && params.getString( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST ) != null )
 		{
 			siteInfo.joinExcludePublic = Boolean.valueOf( params.getString( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST ) );
@@ -586,7 +597,13 @@ public class JoinableSiteSettings
 		{
 			siteInfo.joinerGroup = props.getProperty( SITE_PROP_JOIN_SITE_GROUP_ID );
 		}
-		
+
+		if( siteService.isGlobalJoinNotificationEnabled() && props.getProperty( SITE_PROP_JOIN_SITE_NOTIFICATION ) != null )
+		{
+			try { siteInfo.joinNotifications = Boolean.valueOf( props.getBooleanProperty( SITE_PROP_JOIN_SITE_NOTIFICATION ) ); }
+			catch( Exception ex ) { siteInfo.joinNotifications = false; }
+		}
+
 		if( siteService.isGlobalJoinExcludedFromPublicListEnabled() && props.getProperty( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST ) != null )
 		{
 			try { siteInfo.joinExcludePublic = Boolean.valueOf( props.getBooleanProperty( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST ) ); }
@@ -628,7 +645,12 @@ public class JoinableSiteSettings
 		{
 			props.addProperty( SITE_PROP_JOIN_SITE_GROUP_ID, siteInfo.joinerGroup );
 		}
-		
+
+		if( siteService.isGlobalJoinNotificationEnabled() )
+		{
+			props.addProperty( SITE_PROP_JOIN_SITE_NOTIFICATION, Boolean.toString( siteInfo.joinNotifications ) );
+		}
+
 		if( siteService.isGlobalJoinExcludedFromPublicListEnabled() )
 		{
 			props.addProperty( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST, Boolean.toString( siteInfo.joinExcludePublic ) );
@@ -691,7 +713,12 @@ public class JoinableSiteSettings
 		{
 			props.addProperty( SITE_PROP_JOIN_SITE_GROUP_ID, (String) state.getAttribute( FORM_PREFIX + CONTEXT_JOIN_SITE_GROUP_DROP_DOWN ) );
 		}
-		
+
+		if( siteService.isGlobalJoinNotificationEnabled() )
+		{
+			props.addProperty( SITE_PROP_JOIN_SITE_NOTIFICATION, (String) state.getAttribute( FORM_PREFIX + CONTEXT_JOIN_SITE_NOTIFY_CHECKBOX ) );
+		}
+
 		if( siteService.isGlobalJoinExcludedFromPublicListEnabled() )
 		{
 			props.addProperty( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST, (String) state.getAttribute( FORM_PREFIX + CONTEXT_JOIN_SITE_EXCLUDE_PUBLIC_LIST_CHECKBOX ) );
@@ -730,7 +757,12 @@ public class JoinableSiteSettings
 		{
 			props.addProperty( SITE_PROP_JOIN_SITE_GROUP_ID, state.getAttribute( STATE_JOIN_SITE_GROUP_ID ).toString() );
 		}
-		
+
+		if( siteService.isGlobalJoinNotificationEnabled() )
+		{
+			props.addProperty( SITE_PROP_JOIN_SITE_NOTIFICATION, state.getAttribute( STATE_JOIN_SITE_NOTIFICATION ).toString() );
+		}
+
 		if( siteService.isGlobalJoinExcludedFromPublicListEnabled() )
 		{
 			props.addProperty( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST, state.getAttribute( STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST ).toString() );
@@ -773,7 +805,16 @@ public class JoinableSiteSettings
 			{
 				siteInfo.joinerGroup = "";
 			}
-			
+
+			if( siteService.isGlobalJoinNotificationEnabled() && state.getAttribute( STATE_JOIN_SITE_NOTIFICATION ) != null )
+			{
+				siteInfo.joinNotifications = Boolean.valueOf( state.getAttribute( STATE_JOIN_SITE_NOTIFICATION ).toString() );
+			}
+			else
+			{
+				siteInfo.joinNotifications = false;
+			}
+
 			if( siteService.isGlobalJoinExcludedFromPublicListEnabled() && state.getAttribute( STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST ) != null )
 			{
 				siteInfo.joinExcludePublic = Boolean.valueOf( state.getAttribute( STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST ).toString() );
@@ -854,7 +895,12 @@ public class JoinableSiteSettings
 		{
 			readInputAndUpdateStateVariable( state, params, CONTEXT_JOIN_SITE_GROUP_DROP_DOWN, STATE_JOIN_SITE_GROUP_ID, false );
 		}
-		
+
+		if( siteService.isGlobalJoinNotificationEnabled() )
+		{
+			readInputAndUpdateStateVariable( state, params, CONTEXT_JOIN_SITE_NOTIFY_CHECKBOX, STATE_JOIN_SITE_NOTIFICATION, true );
+		}
+
 		if( siteService.isGlobalJoinExcludedFromPublicListEnabled() )
 		{
 			readInputAndUpdateStateVariable( state, params, CONTEXT_JOIN_SITE_EXCLUDE_PUBLIC_LIST_CHECKBOX, STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST, true );
@@ -893,7 +939,10 @@ public class JoinableSiteSettings
 		// Get these site properties regardless of if the global toggles are disabled, as we may need them in the state anyways
 		// for clarity to the user (the checkboxes will still hold their initial choices, but will be disabled)
 		state.setAttribute( STATE_JOIN_SITE_GROUP_ID, props.getProperty( SITE_PROP_JOIN_SITE_GROUP_ID ) );
-		
+
+		try { state.setAttribute( STATE_JOIN_SITE_NOTIFICATION, Boolean.valueOf( props.getBooleanProperty( SITE_PROP_JOIN_SITE_NOTIFICATION ) ) ); }
+		catch( Exception ex) { state.setAttribute( STATE_JOIN_SITE_NOTIFICATION, Boolean.FALSE ); }
+
 		try { state.setAttribute( STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST, Boolean.valueOf( props.getBooleanProperty( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST ) ) ); }
 		catch( Exception ex ) { state.setAttribute( STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST, Boolean.FALSE ); }
 		
@@ -924,7 +973,10 @@ public class JoinableSiteSettings
 		
 		try { siteInfo.joinerGroup = props.getProperty( SITE_PROP_JOIN_SITE_GROUP_ID ); }
 		catch( Exception ex ) { siteInfo.joinerGroup = SITE_PROP_JOIN_SITE_GROUP_NO_SEL; }
-		
+
+		try { siteInfo.joinNotifications = props.getBooleanProperty( SITE_PROP_JOIN_SITE_NOTIFICATION ); }
+		catch( Exception ex ) { siteInfo.joinNotifications = false; }
+
 		try { siteInfo.joinExcludePublic = props.getBooleanProperty( SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST ); }
 		catch( Exception ex ) { siteInfo.joinExcludePublic = false; }
 		
@@ -1021,7 +1073,25 @@ public class JoinableSiteSettings
 					context.put( CONTEXT_JOIN_SITE_GROUP_ENABLED_LOCAL_DISABLED_GLOBAL, Boolean.TRUE );
 				}
 			}
-			
+
+			// Repeat the above process for join notification
+			if ( siteService.isGlobalJoinNotificationEnabled() )
+			{
+				if( state.getAttribute( STATE_JOIN_SITE_NOTIFICATION ) != null )
+				{
+					context.put( CONTEXT_JOIN_SITE_NOTIFICATION, state.getAttribute( STATE_JOIN_SITE_NOTIFICATION ) );
+				}
+			}
+			else
+			{
+				if( state.getAttribute( STATE_JOIN_SITE_NOTIFICATION ) != null &&
+					Boolean.valueOf( state.getAttribute( STATE_JOIN_SITE_NOTIFICATION ).toString() ) == Boolean.TRUE )
+				{
+					context.put( CONTEXT_JOIN_SITE_NOTIFICATION, state.getAttribute( STATE_JOIN_SITE_NOTIFICATION ) );
+					context.put( CONTEXT_JOIN_SITE_NOTIFICATION_ENABLED_LOCAL_DISABLED_GLOBAL, Boolean.TRUE );
+				}
+			}
+
 			// Repeat the above process for exclude from public
 			if( siteService.isGlobalJoinExcludedFromPublicListEnabled() )
 			{
@@ -1126,7 +1196,12 @@ public class JoinableSiteSettings
 			{
 				state.removeAttribute( STATE_JOIN_SITE_GROUP_ID );
 			}
-			
+
+			if (siteService.isGlobalJoinNotificationEnabled() )
+			{
+				state.removeAttribute( STATE_JOIN_SITE_NOTIFICATION );
+			}
+
 			if( siteService.isGlobalJoinExcludedFromPublicListEnabled() )
 			{
 				state.removeAttribute( STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST );
@@ -1231,7 +1306,12 @@ public class JoinableSiteSettings
 		{
 			context.put( CONTEXT_JOIN_SITE_GROUP_ID, siteInfo.joinerGroup );
 		}
-		
+
+		if( siteService.isGlobalJoinNotificationEnabled() )
+		{
+			context.put( CONTEXT_JOIN_SITE_NOTIFICATION, Boolean.valueOf( siteInfo.joinNotifications ) );
+		}
+
 		if( siteService.isGlobalJoinExcludedFromPublicListEnabled() )
 		{
 			context.put( CONTEXT_JOIN_SITE_EXCLUDE_PUBLIC_LIST, Boolean.valueOf( siteInfo.joinExcludePublic ) );
@@ -1258,6 +1338,7 @@ public class JoinableSiteSettings
 		}
 		
 		context.put( CONTEXT_JOIN_SITE_GROUP_ENABLED, Boolean.valueOf( siteService.isGlobalJoinGroupEnabled() ) );
+		context.put( CONTEXT_JOIN_SITE_NOTIFICATION_ENABLED, Boolean.valueOf( siteService.isGlobalJoinNotificationEnabled() ) );
 		context.put( CONTEXT_JOIN_SITE_EXCLUDE_PUBLIC_LIST_ENABLED, Boolean.valueOf( siteService.isGlobalJoinExcludedFromPublicListEnabled() ) );
 		context.put( CONTEXT_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE_ENABLED, Boolean.valueOf( siteService.isGlobalJoinLimitByAccountTypeEnabled() ) );
 	}
@@ -1368,7 +1449,7 @@ public class JoinableSiteSettings
 		String paramValue = StringUtils.trimToNull( params.getString( paramName ) );
 		
 		// If the state attribute name is one of the joinable site setting's, flip the value from 'on'/'off' to 'true'/'false'
-		if( STATE_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE.equalsIgnoreCase( stateAttributeName ) ||
+		if( STATE_JOIN_SITE_NOTIFICATION.equalsIgnoreCase( stateAttributeName ) || STATE_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE.equalsIgnoreCase( stateAttributeName ) ||
 				STATE_JOIN_SITE_EXCLUDE_PUBLIC_LIST.equalsIgnoreCase( stateAttributeName ) || stateAttributeName.startsWith( STATE_JOIN_SITE_ACCOUNT_TYPE_PREFIX ) )
 		{
 			if( paramValue != null && paramValue.equalsIgnoreCase( ON_STRING ) )
