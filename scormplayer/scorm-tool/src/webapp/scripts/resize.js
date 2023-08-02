@@ -64,3 +64,7 @@ function getInnerWidth() {
 	}
 	return innerWidth;
 }
+
+addEventListener("resize", (event) => {
+  onResize()
+});
