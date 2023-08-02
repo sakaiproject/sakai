@@ -176,7 +176,7 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.api.common.type.Type"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.component.common.type.TypeImpl"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
