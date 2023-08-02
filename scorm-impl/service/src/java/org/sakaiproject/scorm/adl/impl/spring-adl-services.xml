@@ -27,4 +27,14 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="contentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
 	</bean>
+
+	<bean id="org.sakaiproject.scorm.entity.ScormToolFsVolumeFactory" class="org.sakaiproject.scorm.entity.ScormToolFsVolumeFactory"
+			init-method="init">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
+	</bean>
 </beans>

@@ -1,4 +1,4 @@
-package org.sakaiproject.scorm.service.sakai.impl;
+package org.sakaiproject.scorm.service.sakai.impl.mocks;
 
 import java.util.Collection;
 import java.util.List;
