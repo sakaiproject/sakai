@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.scorm.service.sakai.impl;
+package org.sakaiproject.scorm.service.sakai.impl.mocks;
 
 
 import static org.sakaiproject.scorm.api.ScormConstants.*;
