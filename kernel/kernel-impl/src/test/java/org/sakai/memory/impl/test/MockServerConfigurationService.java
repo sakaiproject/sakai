@@ -60,6 +60,10 @@ public class MockServerConfigurationService implements
 		return 0;
 	}
 
+	public double getDouble(String name, double defaultValue) {
+		return 0.0;
+	}
+
 	public String getLoggedOutUrl() {
 		// TODO Auto-generated method stub
 		return null;

@@ -36,14 +36,14 @@
                                 <input type="checkbox" id="mailsender-rcpt-all" name="rcptsall" onclick="RcptSelect.toggleSelectAll()" th:aria-label="#{a11y_rcpts_all}" th:title="#{a11y_rcpts_all}" value="true"/>
                                 <label th:text="#{select_rcpts_all}" for="mailsender-rcpt-all">All</label>
                             </li>
-                            <li role="presentation">
-                                <button type="button" id="mailsender-tab-roles" onclick="show(this.id)" th:text="#{select_rcpts_by_role}" class="btn-tab" role="tab" aria-controls="mailsender-roles" aria-selected="false">Roles</button>
+                            <li role="presentation" class="nav-item">
+                                <button type="button" id="mailsender-tab-roles" onclick="show(this.id)" th:text="#{select_rcpts_by_role}" class="btn-tab nav-link" role="tab" aria-controls="mailsender-roles" aria-selected="false">Roles</button>
                             </li>
-                            <li role="presentation">
-                                <button type="button" id="mailsender-tab-sections" onclick="show(this.id)" th:text="#{select_rcpts_by_section}" class="btn-tab" role="tab" aria-controls="mailsender-sections" aria-selected="false">Sections</button>
+                            <li role="presentation" class="nav-item">
+                                <button type="button" id="mailsender-tab-sections" onclick="show(this.id)" th:text="#{select_rcpts_by_section}" class="btn-tab nav-link" role="tab" aria-controls="mailsender-sections" aria-selected="false">Sections</button>
                             </li>
-                            <li role="presentation">
-                                <button type="button" id="mailsender-tab-groups" onclick="show(this.id)" th:text="#{select_rcpts_by_group}" class="btn-tab" role="tab" aria-controls="mailsender-groups" aria-selected="false">Groups</button>
+                            <li role="presentation" class="nav-item">
+                                <button type="button" id="mailsender-tab-groups" onclick="show(this.id)" th:text="#{select_rcpts_by_group}" class="btn-tab nav-link" role="tab" aria-controls="mailsender-groups" aria-selected="false">Groups</button>
                             </li>
                         </ul>
 
@@ -53,7 +53,7 @@
                             </li>
                             <li th:unless="${comp.getEmailRoles().size() == 0}" th:each="rol:${comp.getEmailRoles()}" class="userGroupsList">
                                 <input th:id="${rol.getRoleId()}" type="checkbox" name="rolename" th:value="${rol.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" th:aria-label="#{a11y_rcpts_by_role(${rol.getRoleId()})}" th:title="#{a11y_rcpts_by_role(${rol.getRoleId()})}"></input>
-                                <button type="button" onclick="showIndividuals(this)" class="btn-transparent" th:aria-label="#{a11y_show_users(${rol.getRoleId()})}" th:title="#{a11y_show_users(${rol.getRoleId()})}" aria-expanded="false">
+                                <button type="button" onclick="showIndividuals(this)" class="btn btn-transparent" th:aria-label="#{a11y_show_users(${rol.getRoleId()})}" th:title="#{a11y_show_users(${rol.getRoleId()})}" aria-expanded="false">
                                     <b th:text="${rol.getRoleId()} "></b>
                                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                                 </button>
@@ -74,7 +74,7 @@
                             </li>
                             <li th:unless="${comp.getEmailSections().size() == 0}" th:each="rolsec:${comp.getEmailSections()}" class="userGroupsList">
                                 <input th:id="${rolsec.getRoleSingular()}" type="checkbox" name="rolesecname" th:value="${rolsec.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" th:aria-label="#{a11y_rcpts_by_section(${rolsec.getRoleSingular()})}" th:title="#{a11y_rcpts_by_section(${rolsec.getRoleSingular()})}"></input>
-                                <button type="button" onclick="showIndividuals(this)" class="btn-transparent" th:aria-label="#{a11y_show_users(${rolsec.getRoleSingular()})}" th:title="#{a11y_show_users(${rolsec.getRoleSingular()})}" aria-expanded="false">
+                                <button type="button" onclick="showIndividuals(this)" class="btn btn-transparent" th:aria-label="#{a11y_show_users(${rolsec.getRoleSingular()})}" th:title="#{a11y_show_users(${rolsec.getRoleSingular()})}" aria-expanded="false">
                                     <b th:text="${rolsec.getRoleSingular()} "></b>
                                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                                 </button>
@@ -95,7 +95,7 @@
                             </li>
                             <li th:unless="${comp.getEmailGroups().size() == 0}" th:each="rolg:${comp.getEmailGroups()}" class="userGroupsList">
                                 <input th:id="${rolg.getRoleSingular()}" type="checkbox" name="rolegname" th:value="${rolg.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" th:aria-label="#{a11y_rcpts_by_group(${rolg.getRoleSingular()})}" th:title="#{a11y_rcpts_by_group(${rolg.getRoleSingular()})}"></input>
-                                <button type="button" onclick="showIndividuals(this)" class="btn-transparent" th:aria-label="#{a11y_show_users(${rolg.getRoleSingular()})}" th:title="#{a11y_show_users(${rolg.getRoleSingular()})}" aria-expanded="false">
+                                <button type="button" onclick="showIndividuals(this)" class="btn btn-transparent" th:aria-label="#{a11y_show_users(${rolg.getRoleSingular()})}" th:title="#{a11y_show_users(${rolg.getRoleSingular()})}" aria-expanded="false">
                                     <b th:text="${rolg.getRoleSingular()} "></b>
                                     <i class="fa fa-angle-down" aria-hidden="true"></i>
                                 </button>
@@ -113,7 +113,7 @@
                     </div>
                 </div>
                 <div class="headervalue" id="otherRecipientsLink" >
-                    <button th:text="#{addotherrecipients}" onclick="RcptSelect.showOther();return false" class="btn-transparent link-color">Other Recipient(s):</button>
+                    <button th:text="#{addotherrecipients}" onclick="RcptSelect.showOther();return false" class="btn btn-transparent link-color">Other Recipient(s):</button>
                 </div>
 
                 <div class="section" id="otherRecipientsDiv" style="display:none">
@@ -141,10 +141,10 @@
                     <div id="attachInner" class="headervalue">
                         <div id="attachmentArea" name="attachmentArea"/>
                         <div id="attachLink"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" />
-                        <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachlink}" class="btn-transparent link-color">Attach a file</button>
+                        <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachlink}" class="btn btn-transparent link-color">Attach a file</button>
                         </div>
                         <div id="attachMoreLink" style="display:none">
-                            <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachmorelink}" class="btn-transparent link-color">Attach another file</button>
+                            <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachmorelink}" class="btn btn-transparent link-color">Attach another file</button>
                         </div>
                         </div>
                     </div>

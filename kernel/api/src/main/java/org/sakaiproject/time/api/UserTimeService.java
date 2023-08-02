@@ -17,6 +17,7 @@ package org.sakaiproject.time.api;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.Locale;
@@ -160,5 +161,21 @@ public interface UserTimeService {
      * @return a Date object localized to the user's preferred Sakai time zone
      */
 	public Date parseISODateInUserTimezone(String dateString);
+
+    /**
+     * Get datetime conversion from UTC to user's time zone.
+     * @param utcDate datetime without time-zone
+     * @param formatted send Locale to get formatted output, else null
+     * @return datetime with user's time zone, or null
+     */
+    public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted);
+
+    /**
+     * Convert datetime from user's time zone to UTC (meant to be stored in DB).
+     * Output ready to be compared with other date.
+     * @param zonedDate datetime without time-zone
+     * @return datetime object without time-zone
+     */
+    public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate);
 
 }

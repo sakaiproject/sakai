@@ -248,8 +248,8 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 				textSet.add(text);
 			}
 			itemFacade.setItemTextSet(textSet);
-			itemFacade.setCorrectItemFeedback(importableQuestion.getFeedbackWhenCorrect());
-			itemFacade.setInCorrectItemFeedback(importableQuestion.getFeedbackWhenIncorrect());
+			itemFacade.setCorrectItemFeedback(importableQuestion.getFeedbackWhenCorrect(), importableQuestion.getFeedbackWhenCorrect());
+			itemFacade.setInCorrectItemFeedback(importableQuestion.getFeedbackWhenIncorrect(), importableQuestion.getFeedbackWhenIncorrect());
 			itemFacade.setTypeId(Long.valueOf(importableQuestion.getQuestionType()));
 			itemFacade.setScore(importableQuestion.getPointValue());
 			itemFacade.setSequence(importableQuestion.getPosition());

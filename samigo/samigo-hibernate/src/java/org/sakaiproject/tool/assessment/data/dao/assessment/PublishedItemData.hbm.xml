@@ -116,7 +116,7 @@
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
       column="ITEMID" not-null="true" />
     <property name="typeId" type="string" length="255" column="TYPEID" not-null="true" />
-    <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
+    <property name="text" type="materialized_clob" column="TEXT" not-null="false" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer" table="SAM_PUBLISHEDANSWER_T">

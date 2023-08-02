@@ -1293,7 +1293,7 @@ public class GradingServiceImpl implements GradingService {
 
         if (studentUids.isEmpty()) {
             // If there are no enrollments, no need to execute the query.
-            log.info("No enrollments were specified.  Returning an empty List of grade records");
+            log.debug("No enrollments were specified.  Returning an empty List of grade records");
             return Collections.<AssignmentGradeRecord>emptyList();
         } else {
             List<AssignmentGradeRecord> unfilteredRecords = gradingPersistenceManager.getAllAssignmentGradeRecordsForGradebook(gradebookId);
@@ -1305,7 +1305,7 @@ public class GradingServiceImpl implements GradingService {
 
         if (studentUids.isEmpty()) {
             // If there are no enrollments, no need to execute the query.
-            log.info("No enrollments were specified.  Returning an empty List of grade records");
+            log.debug("No enrollments were specified.  Returning an empty List of grade records");
             return Collections.<AssignmentGradeRecord>emptyList();
         } else {
             List<AssignmentGradeRecord> unfilteredRecords = gradingPersistenceManager.getAllAssignmentGradeRecordsForAssignment(gradableObjectId);

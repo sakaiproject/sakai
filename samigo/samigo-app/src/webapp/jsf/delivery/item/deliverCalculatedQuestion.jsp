@@ -82,6 +82,7 @@ should be included in file importing DeliveryMessages
       <h:outputText id="feedSC" value="#{question.feedbackValue}" escape="false" />
     </h:panelGroup>
   </h:panelGrid>
+
   <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><strong></f:verbatim>
     <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />

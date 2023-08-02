@@ -317,6 +317,7 @@
 		<event eventId="content.read" selected="true" resolvable="true"/>
 		<event eventId="content.revise" selected="true" resolvable="true"/>
 		<event eventId="content.delete" selected="true" resolvable="true"/>
+		<event eventId="content.zipdownload" selected="true" resolvable="true"/>
 		<!-- Format: varies, but generally conforms to:
 		/content/<content_reference> where <content_reference> typically contains <site_id> -->
 		<eventParserTip for="contextId" separator="/" index="3"/>

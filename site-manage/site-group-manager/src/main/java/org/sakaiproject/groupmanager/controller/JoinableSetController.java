@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -94,6 +96,14 @@ public class JoinableSetController {
 
             });
 
+            if (!joinableSetGroups.isEmpty()) {
+                Group joinableGroup = joinableSetGroups.get(0);
+                String joinableOpenDate = joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+                String joinableCloseDate = joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+                // Apply the correct time zone to datetimes before being displayed, nulls will be represented as ampty cells.
+                joinableSetForm.setJoinableOpenDate(sakaiService.dateFromUtcToUserTimeZone(joinableOpenDate, false));
+                joinableSetForm.setJoinableCloseDate(sakaiService.dateFromUtcToUserTimeZone(joinableCloseDate, false));
+            }
             joinableSetForm.setGroupNumber(0);
             joinableSetForm.setGroupMaxMembers(1);
         }
@@ -124,6 +134,10 @@ public class JoinableSetController {
         boolean editingJoinableSet = StringUtils.isNotBlank(joinableSetId);
         int joinableSetGroupNumber = joinableSetForm.getGroupNumber();
         int joinableSetMaxMembers = joinableSetForm.getGroupMaxMembers();
+        String joinableOpenDate = joinableSetForm.getJoinableOpenDate();
+        String joinableCloseDate = joinableSetForm.getJoinableCloseDate();
+        boolean sendMail = joinableSetForm.isSendMail();
+        boolean setReminder = joinableSetForm.isSetReminder();
         String allowPreviewMembership = Boolean.toString(joinableSetForm.isAllowPreviewMembership());
         String allowUnjoin = Boolean.toString(joinableSetForm.isAllowUnjoin());
         String allowViewMembership = Boolean.toString(joinableSetForm.isAllowViewMembership());
@@ -143,6 +157,27 @@ public class JoinableSetController {
             return showJoinableSet(model, null);
         }
 
+        LocalDateTime utcOpenDate = null;
+        LocalDateTime utcCloseDate = null;
+        // Convert input datetimes: from user's time zone to UTC.
+        if (StringUtils.isNotBlank(joinableOpenDate)) {
+            utcOpenDate = sakaiService.dateFromUserTimeZoneToUtc(joinableOpenDate);
+        }
+        if (StringUtils.isNotBlank(joinableCloseDate)) {
+            utcCloseDate = sakaiService.dateFromUserTimeZoneToUtc(joinableCloseDate);
+        }
+        // If both dates are provided, make sure openDate comes before closeDate.
+        if (utcOpenDate != null && utcCloseDate != null && utcOpenDate.isAfter(utcCloseDate)) {
+            model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.wrongdateorder", null, userLocale));
+            return showJoinableSet(model, joinableSetId);
+        }
+        if (utcOpenDate != null) {
+            joinableOpenDate = utcOpenDate.toString();
+        }
+        if (utcCloseDate != null) {
+            joinableCloseDate = utcCloseDate.toString();
+        }
+
         if (!editingJoinableSet) {
             //Ensure the set number is inside the limits
             if (joinableSetGroupNumber <= 0 || joinableSetGroupNumber > 999) {
@@ -151,7 +186,7 @@ public class JoinableSetController {
             }
 
             //Ensure the joinable set title is not duplicated
-            if (editingJoinableSet && siteGroups.stream().anyMatch(g -> joinableSetTitle.equalsIgnoreCase(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))) ) {
+            if (siteGroups.stream().anyMatch(g -> joinableSetTitle.equalsIgnoreCase(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))) ) {
                 model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.duplicatedtitle", null, userLocale));
                 return showJoinableSet(model, null);
             }
@@ -165,10 +200,20 @@ public class JoinableSetController {
             // Get the groups that belong to the joinable set
             List<Group> joinableSetGroups = siteGroups.stream().filter(g -> joinableSetId.equalsIgnoreCase(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))).collect(Collectors.toList());
             // For each group, update the joinableSet title and the properties.
-            joinableSetGroups.forEach(group -> {
+            for (Group group : joinableSetGroups) {
                 group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET, joinableSetTitle);
                 group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE, allowUnjoin);
-            });
+                if (joinableOpenDate.isBlank()) {
+                    group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+                } else {
+                    group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE, joinableOpenDate);
+                }
+                if (joinableCloseDate.isBlank()) {
+                    group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+                } else {
+                    group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE, joinableCloseDate);
+                }
+            }
         }
 
         for (int i = 1; i <= joinableSetGroupNumber; i++) {
@@ -186,7 +231,32 @@ public class JoinableSetController {
             newGroup.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW, allowPreviewMembership);
             newGroup.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE, allowUnjoin);
             newGroup.getProperties().addProperty(Group.GROUP_PROP_VIEW_MEMBERS, allowViewMembership);
+            if (StringUtils.isNotBlank(joinableOpenDate)) {
+                newGroup.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE, joinableOpenDate);
+            }
+            if (StringUtils.isNotBlank(joinableCloseDate)) {
+                newGroup.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE, joinableCloseDate);
+            }
             newGroup.setTitle(groupTitle);
+        }
+
+        if (sendMail) {
+            Optional<Group> anyJoinableGroup = site.getGroups().stream()
+                    .filter((Group g) -> joinableSetTitle.equalsIgnoreCase(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET))).findAny();
+            // The properties of one of the groups associated to the current Joinable Set will be used to compose the mail
+            if (anyJoinableGroup.isPresent()) {
+                for (String userId : site.getUsers()) {
+                    sakaiService.notifyAboutJoinableSet(site.getTitle(), userId, anyJoinableGroup.get(), !editingJoinableSet);
+                }
+            } else {
+                log.warn("No group associated to {} Joinable Set", joinableSetTitle);
+            }
+        }
+
+        if (setReminder && StringUtils.isNotBlank(joinableCloseDate)) {
+            // Execute method accepts a single parameter
+            String dataPair = site.getId() + "," + joinableSetTitle;
+            sakaiService.scheduleReminder(utcCloseDate.minusDays(1).toInstant(ZoneOffset.UTC), dataPair);
         }
 
         sakaiService.saveSite(site);
@@ -220,6 +290,8 @@ public class JoinableSetController {
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_MAX);
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW);
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE);
+                group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+                group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
                 anyGroupUpdated = true;
             }
         }

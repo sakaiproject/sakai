@@ -548,7 +548,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
                 if (eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_NEW)
                     || eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_READ)
                     || eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_REVS)
-                    || eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_DEL)) {
+                    || eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_DEL)
+                    || eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_DOW)) {
                     isResourceEvent = true;
                 }
             }

@@ -806,7 +806,7 @@ public class ItemModifyListener implements ActionListener
       }
     }
     // extract the calculation formulas and populate the calcQuestionBean (we are ignoring the error returns for now)
-    CalculatedQuestionExtractListener.createCalculationsFromInstructions(calcQuestionBean, instructions, gs);
+    CalculatedQuestionExtractListener.createCalculationsFromInstructionsOrFeedback(calcQuestionBean, instructions, gs);
     CalculatedQuestionExtractListener.validateCalculations(calcQuestionBean, gs);
     bean.setCalculatedQuestion(calcQuestionBean);
   }

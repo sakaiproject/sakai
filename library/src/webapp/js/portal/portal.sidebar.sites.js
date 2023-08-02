@@ -37,6 +37,10 @@ class SitesSidebar {
 
     const update = (siteId, expanded) => {
 
+      if (! portal.user.id) {
+        return;
+      }
+
       fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?currentExpanded=${expanded}&expandedSite=${siteId}`, { method: "PUT" })
       .then(r => {
 

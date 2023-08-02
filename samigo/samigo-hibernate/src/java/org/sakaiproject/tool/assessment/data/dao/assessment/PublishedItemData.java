@@ -467,18 +467,26 @@ public class PublishedItemData
     return getItemFeedback(PublishedItemFeedback.CORRECT_FEEDBACK);
   }
 
-  public void setCorrectItemFeedback(String text) {
+  public String getCorrectItemFeedbackValue() {
+    return getItemFeedbackValue(PublishedItemFeedback.CORRECT_FEEDBACK);
+  }
+
+  public void setCorrectItemFeedback(String text, String value) {
     removeFeedbackByType(PublishedItemFeedback.CORRECT_FEEDBACK);
-    addItemFeedback(PublishedItemFeedback.CORRECT_FEEDBACK, text);
+    addItemFeedback(PublishedItemFeedback.CORRECT_FEEDBACK, text, value);
   }
 
   public String getInCorrectItemFeedback() {
     return getItemFeedback(PublishedItemFeedback.INCORRECT_FEEDBACK);
   }
 
-  public void setInCorrectItemFeedback(String text) {
+  public String getInCorrectItemFeedbackValue() {
+    return getItemFeedbackValue(PublishedItemFeedback.INCORRECT_FEEDBACK);
+  }
+
+  public void setInCorrectItemFeedback(String text, String value) {
     removeFeedbackByType(PublishedItemFeedback.INCORRECT_FEEDBACK);
-    addItemFeedback(PublishedItemFeedback.INCORRECT_FEEDBACK, text);
+    addItemFeedback(PublishedItemFeedback.INCORRECT_FEEDBACK, text, value);
   }
 
  /**
@@ -493,9 +501,9 @@ public class PublishedItemData
    * Set General Feedback
    * @param text
    */
-  public void setGeneralItemFeedback(String text) {
+  public void setGeneralItemFeedback(String text, String value) {
     removeFeedbackByType(ItemFeedback.GENERAL_FEEDBACK);
-    addItemFeedback(ItemFeedback.GENERAL_FEEDBACK, text);
+    addItemFeedback(ItemFeedback.GENERAL_FEEDBACK, text, value);
   }
 
   public String getItemFeedback(String typeId) {
@@ -509,11 +517,22 @@ public class PublishedItemData
     return null;
   }
 
-  public void addItemFeedback(String typeId, String text) {
+  public String getItemFeedbackValue(String typeId) {
+    for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+      PublishedItemFeedback itemFeedback = (PublishedItemFeedback) i.next();
+      if (itemFeedback.getTypeId().equals(typeId)) {
+        return itemFeedback.getTextValue();
+      }
+    }
+
+    return null;
+  }
+
+  public void addItemFeedback(String typeId, String text, String textValue) {
     if (this.itemFeedbackSet == null) {
       setItemFeedbackSet(new HashSet());
     }
-    this.itemFeedbackSet.add(new PublishedItemFeedback(this, typeId, text));
+    this.itemFeedbackSet.add(new PublishedItemFeedback(this, typeId, text, textValue));
   }
 
   public void removeFeedbackByType(String typeId) {
@@ -521,7 +540,19 @@ public class PublishedItemData
       for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
         PublishedItemFeedback itemFeedback = (PublishedItemFeedback) i.next();
         if (itemFeedback.getTypeId().equals(typeId)) {
-          this.itemFeedbackSet.remove(itemFeedback);
+          i.remove();
+        }
+      }
+    }
+  }
+
+  public void updateFeedbackByType(String typeId, String text, String value) {
+    if (itemFeedbackSet != null) {
+      for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+        PublishedItemFeedback itemFeedback = (PublishedItemFeedback) i.next();
+        if (itemFeedback.getTypeId().equals(typeId)) {
+            itemFeedback.setText(text);
+            itemFeedback.setTextValue(value);
         }
       }
     }

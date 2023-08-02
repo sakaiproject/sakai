@@ -124,9 +124,9 @@ public class ItemHashUtilTest {
         item.setTypeId(TypeIfc.FILL_IN_BLANK);
 
         item.setInstruction(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[0])));
-        item.setCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[1])));
-        item.setInCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])));
-        item.setGeneralItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])));
+        item.setCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[1])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[1])));
+        item.setInCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])));
+        item.setGeneralItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])));
         item.setDescription(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[4])));
 
         // just the "first two" metadata fields should be sufficient to prove metadata is being included
@@ -261,9 +261,9 @@ public class ItemHashUtilTest {
         final ItemText itemText = new ItemText(item, 1L, resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[0])), null);
         item.setItemTextSet(Sets.newSet(itemText));
         item.setInstruction(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[1])));
-        item.setCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])));
-        item.setInCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])));
-        item.setGeneralItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[4])));
+        item.setCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])));
+        item.setInCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])));
+        item.setGeneralItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[4])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[4])));
         item.setDescription(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[5])));
 
         expectServerUrlLookup();
@@ -600,9 +600,9 @@ public class ItemHashUtilTest {
         itemTextSet.add(leadInText);
 
         // no instruction property for EMI
-        item.setCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])));
-        item.setInCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])));
-        item.setGeneralItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[4])));
+        item.setCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[2])));
+        item.setInCorrectItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[3])));
+        item.setGeneralItemFeedback(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[4])), resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[4])));
         item.setDescription(resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[5])));
 
         // just the "first two" metadata fields should be sufficient to prove metadata is being included

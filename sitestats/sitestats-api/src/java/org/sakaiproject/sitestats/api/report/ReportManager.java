@@ -38,6 +38,7 @@ public interface ReportManager {
 	public static final String	WHAT_RESOURCES				= "what-resources";
 	public static final String	WHAT_RESOURCES_ACTION_NEW	= "new";
 	public static final String	WHAT_RESOURCES_ACTION_READ	= "read";
+	public static final String	WHAT_RESOURCES_ACTION_DOW	= "zipdownload";
 	public static final String	WHAT_RESOURCES_ACTION_REVS	= "revise";
 	public static final String	WHAT_RESOURCES_ACTION_DEL	= "delete";
 	public static final String	WHAT_LESSONPAGES			= "what-lessonpages";
