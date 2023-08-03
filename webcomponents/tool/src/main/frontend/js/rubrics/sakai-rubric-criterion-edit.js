@@ -38,8 +38,9 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   get criterion() { return this._criterion; }
 
   firstUpdated() {
+    const buttonTrigger = this.querySelector("button");
 
-    new bootstrap.Popover(this.querySelector("button"), {
+    new bootstrap.Popover(buttonTrigger, {
       content: () => this.querySelector(`#edit-criterion-${this.criterion.id}`).innerHTML,
       customClass: "criterion-edit-popover",
       html: true,
@@ -47,7 +48,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
       sanitize: false,
     });
 
-    this.querySelector("button").addEventListener("shown.bs.popover", () => {
+    buttonTrigger.addEventListener("shown.bs.popover", () => {
 
       const save = document.querySelector(".popover.show .btn-primary");
       save.addEventListener("click", this.saveEdit);
@@ -59,6 +60,11 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
       document.querySelector(".popover.show .btn-secondary")
         .addEventListener("click", this.cancelEdit);
     });
+
+    // It seems that the bootstrap popover removes the title attribute from the trigger when it makes it the title of the popover.
+    // Adding it back to the trigger.
+    buttonTrigger.title = buttonTrigger.dataset.preserveTitle;
+
   }
 
   render() {
@@ -66,12 +72,13 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     return html`
       <button class="btn btn-icon edit"
           id="edit-criterion-trigger-${this.criterion.id}"
-          type="button
+          type="button"
           data-bs-toggle="popup"
           aria-haspopup="true"
           aria-expanded="false"
           aria-controls="edit-criterion-${this.criterion.id}"
           title="${tr("edit_criterion")} ${this.criterion.title}"
+          data-preserve-title="${tr("edit_criterion")} ${this.criterion.title}"
           aria-label="${tr("edit_criterion")} ${this.criterion.title}">
         <i class="si si-edit"></i>
       </button>
