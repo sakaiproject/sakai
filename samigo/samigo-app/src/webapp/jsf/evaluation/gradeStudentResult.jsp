@@ -200,7 +200,7 @@ function toPoint(id)
             <h:panelGroup layout="block" styleClass="col-sm-6">
               <h:panelGroup layout="block" styleClass="row">
                 <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
-                  <p class="input-group-addon">
+                  <p class="input-group-addon m-0">
                     <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
                     <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
                   </p>
@@ -209,7 +209,7 @@ function toPoint(id)
                   </h:inputText>
                 </h:panelGroup>
                 <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
-                  <p class="input-group-addon">
+                  <p class="samigo-input-group-addon">
                     <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
                     <h:outputText value="#{deliveryMessages.pt}" />
                     <h:message for="adjustedScore" styleClass="sak-banner-error" />

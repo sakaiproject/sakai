@@ -501,16 +501,23 @@ table.table-bordered.dataTable {
     border-collapse: collapse !important;
 }
 
-.input-group-addon {
+.input-group-addon, .samigo-input-group-addon, .samigo-input-group-text {
     padding: 6px 12px;
     font-size: 14px;
     font-weight: normal;
-    line-height: 1;
     color: var(--sakai-text-color-1);
     text-align: center;
     background-color: var(--sakai-background-color-2);
     border: 1px solid var(--sakai-border-color);
     border-radius: 4px;
+}
+
+.input-group-addon, .samigo-input-group-addon, .samigo-input-group-text, .input-group input {
+    height: 35px;
+}
+
+.samigo-input-group-addon {
+    width: inherit;
 }
 
 .text-danger {
