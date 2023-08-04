@@ -452,7 +452,7 @@
           </h:selectOneRadio>
         </div>
       </h:panelGroup>
-      <h:panelGroup styleClass="form-group row" layout="block">
+      <h:panelGroup rendered="#{publishedSettings.sebConfigMode == 'UPLOAD'}" styleClass="form-group row" layout="block">
         <label for="sebConfigUpload" class="col-md-2 form-control-label">
           <h:outputText value="#{assessmentSettingsMessages.seb_config_upload}" />
         </label>
