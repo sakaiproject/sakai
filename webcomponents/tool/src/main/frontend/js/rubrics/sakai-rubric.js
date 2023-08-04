@@ -226,12 +226,13 @@ export class SakaiRubric extends RubricsElement {
 
     e && e.preventDefault();
 
+    const isReadOnly = this.tagName === "SAKAI-RUBRIC-READONLY";
     const titlecontainer = this.querySelector(".rubric-title");
 
-    const collapse = $(`#collapse_${this.rubric.id}`);
+    const collapse = isReadOnly ? $(`#collapse_shared_${this.rubric.id}`) : $(`#collapse_${this.rubric.id}`);
     collapse.toggle();
 
-    const icon = $(`#rubric_toggle_${this.rubric.id} span`);
+    const icon = isReadOnly ? $(`#rubric_toggle_shared_${this.rubric.id} span`) : $(`#rubric_toggle_${this.rubric.id} span`);
 
     if (collapse.is(":visible")) {
       this.rubricExpanded = "true";
