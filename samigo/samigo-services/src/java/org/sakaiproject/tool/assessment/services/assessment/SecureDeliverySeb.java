@@ -73,7 +73,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
 
-    private static final String LOGIN_SERVLET_PATH = "/samigo-app/servlet/Login";
+    private static final String SAMIGO_PATH = "/samigo-app";
+    private static final String LOGIN_SERVLET_PATH = SAMIGO_PATH + "/servlet/Login";
     private static final String SEB_ALWAYS_ENABLED = "always";
     private static final String SEB_ALWAYS_ENABLED_PROPERTY = "seb.enabled";
     private static final String SEB_SCRIPT_PATH = "/samigo-app/js/deliverySafeExamBrowser.js";
@@ -443,6 +444,11 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
             log.error("Request url malformed: [{}]", request.getRequestURL().toString());
             // ERROR -> return SUCCESS
             return null;
+        }
+
+        // Double-check that the request is not going through the portal
+        if (!StringUtils.contains(requestUrl.toString(), SAMIGO_PATH)) {
+            return "";
         }
 
         String assessmentAccessId = StringUtils.trimToNull(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS));
