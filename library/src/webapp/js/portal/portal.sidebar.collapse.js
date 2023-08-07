@@ -39,5 +39,4 @@ class SidebarCollapseButton {
       console.error(`Could not set collapsed state "${collapsed}" for sidebar.`);
     }
   }
-
 }
