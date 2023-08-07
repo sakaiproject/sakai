@@ -5017,7 +5017,6 @@ public class SakaiScript extends AbstractWebService {
             userMember.setActive(active);
             authzGroupService.save(realmEdit);
 
-            siteService.getSite(siteid).getUserRole(user.getId()).getId();
             List<String[]> userAuditList = Collections.singletonList(new String[]{siteid,user.getId(),"s",UserAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()});
             userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
