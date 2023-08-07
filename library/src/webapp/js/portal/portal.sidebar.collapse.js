@@ -29,6 +29,7 @@ class SidebarCollapseButton {
   }
 
   async setCollapsed(collapsed) {
+
     if (!portal?.user?.id) {
       return; // Exit the function early if the user is not logged in.
     }
