@@ -24,7 +24,8 @@ For opening help sidebar
           title="${rloader.mainnav_help_tooltip}"
           href="${helpLink}"
           target="_blank">
-        <button class="btn icon-button" type="button">
+        <button class="btn icon-button" type="button"
+	    aria-label="${rloader.mainnav_help_tooltip}">
           <i class="bi bi-question-circle"></i>
         </button>
       </a>
