@@ -254,7 +254,7 @@
 												<h4>${rlb.displayto_access}</h4>
 												<div class="little-subtitle">${rlb.displayto_access_subtitle}</div>
 												<p class="checkbox" style="border:none">
-													<label for ="siteSelect" class="special-margin-left"><input type="radio" id="siteSelect" name="displayTo" onclick="groupSelect('none')" value="sitesel" #if(!$rwikiObjectGroups.size() > 0|| !$displayToGroups) checked="" #end/> ${rlb.displayto_access_all}</label>
+													<label for ="siteSelect" class="special-margin-left"><input type="radio" id="siteSelect" name="displayTo" onclick="groupSelect('none')" value="sitesel" #if(!($rwikiObjectGroups.size() > 0)|| !$displayToGroups) checked="" #end/> ${rlb.displayto_access_all}</label>
 												</p>
 												<p class="checkbox" style="border:none">
 													<label for ="groupSelector" class="special-margin-left"><input type="radio" id="groupSelector" onclick="groupSelect('block')" name="displayTo" value="groupsel" #if($rwikiObjectGroups.size() > 0|| $displayToGroups) checked="" #end/> ${rlb.displayto_access_groups}</label>
