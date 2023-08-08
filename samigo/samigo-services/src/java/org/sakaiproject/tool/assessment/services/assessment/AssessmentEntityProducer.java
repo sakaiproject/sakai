@@ -617,7 +617,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				StreamResult result = new StreamResult(writer);
 				transformer.transform(source, result);
 			} catch (IOException | TransformerException e) {
-				e.printStackTrace();
+				log.error("Unable to write XML to {}: {}", xmlPath, e.getMessage());
 			} finally {
 				if (writer != null) {
 					try {
@@ -679,8 +679,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                             assessmentId,
                             result);
         } catch (SQLException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
+            log.error("Unable to fetch assessment {} attachment IDs: {}", assessmentId, e.getMessage());
         } finally {
             SqlService.returnConnection(db);
         }
@@ -722,8 +721,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                             pubAssessmentId,
                             result);
         } catch (SQLException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
+            log.error("Unable to fetch published assessment {} attachment IDs: {}", pubAssessmentId, e.getMessage());
         } finally {
             SqlService.returnConnection(db);
         }
@@ -746,8 +744,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				" (select itemtextid from SAM_ITEMTEXT_T where itemid = ?)",
 				"resourceid", itemId, result);
 		} catch (SQLException e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
+			log.error("Unable to fetch item {} attachment IDs: {}", itemId, e.getMessage());
 		} finally {
 			SqlService.returnConnection(db);
 		}
@@ -783,8 +780,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			}
 
 		} catch (SQLException e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
+			log.error("Unable to fetch assessment {} pool IDs: {}", assessmentId, e.getMessage());
 		} finally {
 			SqlService.returnConnection(db);
 		}
