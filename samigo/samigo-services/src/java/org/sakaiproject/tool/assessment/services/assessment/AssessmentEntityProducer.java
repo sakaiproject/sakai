@@ -627,7 +627,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				}
 			}
 		} catch (ParserConfigurationException | IdUnusedException e) {
-			e.printStackTrace();
+			log.error("Unable to export question pools for site {}: {}", siteId, e.getMessage());
 		}
 
 		return String.format("archived %d question pool(s) with %d warning(s)\n%s", pools_exported, archive_warnings, warnings.toString());
