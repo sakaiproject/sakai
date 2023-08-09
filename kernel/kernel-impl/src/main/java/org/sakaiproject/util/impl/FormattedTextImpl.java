@@ -46,6 +46,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.vdurmont.emoji.EmojiManager;
+import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -262,6 +264,11 @@ public class FormattedTextImpl implements FormattedText
     */
     public String removeSurrogates(String str) {
         StringBuilder sb = new StringBuilder();
+
+        if (EmojiManager.containsEmoji(str)) {
+            str = EmojiParser.parseToHtmlDecimal(str);
+        }
+
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
             if (!Character.isSurrogate(c)) {
