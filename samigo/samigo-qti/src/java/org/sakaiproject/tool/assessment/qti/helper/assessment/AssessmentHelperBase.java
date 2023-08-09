@@ -481,7 +481,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentD
             attachment.append(attachmentData.getMimeType());
             attachment.append("\n");
         } else {
-            throw new RuntimeException("Unexpected element type: " + elt);
+            log.warn("Unexpected element type: {}", elt);
         }
     }
     assessmentXml.setFieldentry("ATTACHMENT", attachment.toString());

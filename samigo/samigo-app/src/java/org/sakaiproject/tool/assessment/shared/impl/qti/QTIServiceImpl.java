@@ -153,7 +153,9 @@ public class QTIServiceImpl implements QTIServiceAPI
   }
 
     public Document getExportedPublishedAssessment(String assessmentId, int qtiVersion) {
-      throw new RuntimeException("Not supported");
+      // Not used in a UI context
+      log.error("Not supported");
+      return null;
     }
 
   /**
@@ -171,7 +173,9 @@ public class QTIServiceImpl implements QTIServiceAPI
   }
 
     public String getExportedPublishedAssessmentAsString(String assessmentId, int qtiVersion) {
-        throw new RuntimeException("Not supported");
+      // Not used in a UI context
+      log.error("Not supported");
+      return null;
     }
 
 
