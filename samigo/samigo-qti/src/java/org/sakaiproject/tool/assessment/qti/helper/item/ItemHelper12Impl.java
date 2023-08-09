@@ -2252,7 +2252,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 			}else{
 				throw new IllegalArgumentException("Don't know this Mime-type: " + attach.getMimeType());
 			}
-			mat.setAttribute("label", attach.getFilename());
+			mat.setAttribute("label", StringEscapeUtils.escapeXml10(attach.getFilename()));
 			mat.setAttribute("size", String.valueOf(attach.getFileSize()));
 			mat.setAttribute("uri", attach.getLocation());
 			material.appendChild(mat);
