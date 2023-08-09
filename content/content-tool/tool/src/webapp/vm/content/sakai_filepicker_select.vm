@@ -30,36 +30,6 @@ table.listHier .attach {
 			}
 		}
 </script>
-<script  type="text/javascript">
-$(document).ready(function() {
-	jQuery('.portletBody').click(function(e) { 
-
-		if ( e.target.className !='menuOpen' &&e.target.className !='dropdn'  ){
-			$('.makeMenuChild').hide();
-		} else {
-			if( e.target.className =='dropdn' ){
-			    $('.makeMenuChild').hide();
-			    var menuid = $(e.target).parent('li').attr('id');
-			    var menuopen = $('#menu-' + menuid);
-			    if (typeof(menuopen.dialog('instance')) === "undefined") {
-				menuopen.dialog({
-				    autoOpen: false,
-				    modal: true,
-				    resizable: false,
-				    draggable: false
-				});
-			    }
-			    menuopen.dialog('open');
-			} else {
-			    var targetId=e.target.id;
-			    $('.makeMenuChild').hide();
-			    $('#menu-' + targetId).show();
-			}
-		}
-	});
-	$('.makeMenuChild').hide();	
-	});
-</script>
 <div class="portletBody specialLink">
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
@@ -303,26 +273,21 @@ $(document).ready(function() {
 						#if($can_attach_more)
 							#if($item.isCollection())
 								#if($item.addActions && !$item.addActions.isEmpty())
-									<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
-										<li class="menuOpen" id="$actionCount">
-		    							&nbsp;$tlang.getString('gen.add')
-											<span class="fa fa-caret-square-o-down" aria-hidden="true"></span>
-											<span class="sr-only">$tlang.getString('gen.add')</span>
-											<ul  id="menu-$actionCount" class="makeMenuChild">
+									<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu ps-0">
+										<li class="dropdown menuOpenLi"><button type="button" class="menuOpen btn btn-primary dropdown-toggle m-2" data-bs-toggle="dropdown" aria-expanded="false">
+		    							$tlang.getString('gen.add')
+											<span class="sr-only">$tlang.getString('gen.add')</span></button>
+											<ul class="dropdown-menu">
 							        	#foreach($action in $item.addActions)
 													<li>
-														<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
+														<a class="dropdown-item" href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
 										                    $labeler.getLabel($action)
 														</a>
 													</li>							
 				                #end
-												<li style="height:1px;width:1px;display:inline;">
-													<a href="#"  class="skip" onfocus="document.getElementById('menu-$actionCount').style.display='none';document.getElementById('last-$actionCount').focus()" >$tlang.getString("att.menu.end")</a>
-												</li>
 											</ul>
 										</li>
 									</ul>
-									<a href="#" id="last-$actionCount"></a>							
 								#end
 							#elseif($item.canSelect())
 								<div class="itemAction" style="margin:0;">
@@ -482,28 +447,21 @@ $(document).ready(function() {
 								#if($can_attach_more)
 									#if($item.isCollection())
 										#if($item.addActions && !$item.addActions.isEmpty())
-											<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
-												<li class="menuOpen" id="$actionCount">
-												&nbsp;$tlang.getString('gen.add')
-													<span class="fa fa-caret-square-o-down" aria-hidden="true"></span>
-													<span class="sr-only">$tlang.getString('button.add')</span>
-													<ul  id="menu-$actionCount" class="makeMenuChild">
+											<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu ps-0">
+												<li class="dropdown menuOpenLi"><button type="button" class="menuOpen btn btn-primary dropdown-toggle m-2">
+												$tlang.getString('gen.add')
+													<span class="sr-only">$tlang.getString('button.add')</span></button>
+													<ul class="dropdown-menu">
 													#foreach($action in $item.addActions)
 															<li>
-																<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
+																<a class="dropdown-item" href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
 																	$labeler.getLabel($action)
 																</a>
 															</li>							
 													#end                                           
-													<li>
-														<a href="#"  class="skip" onfocus="document.getElementById('menu-$actionCount').style.display='none';document.getElementById('last-$actionCount').focus()" >$tlang.getString("button.endadd")</a>
-													</li>
 												</ul>
 											</li>
 										</ul>
-										<a href="#" id="last-$actionCount"></a>							
-
-
 
 #*
 

@@ -7,7 +7,7 @@
 	#if ($itemAlertMessage)
 		<div id="resourceAlert" class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 	#else
-		<div id="resourceAlert" class="sak-banner-error hide"></div>
+		<div id="resourceAlert" class="sak-banner-error d-none"></div>
 	#end
 	<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
 	<ol class="breadcrumb">

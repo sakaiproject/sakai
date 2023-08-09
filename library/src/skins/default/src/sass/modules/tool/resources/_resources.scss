@@ -277,6 +277,11 @@
 	#content-display-columns-dropdown {
 		margin-left: auto;
 	}
+
+        .specialLink .resource-name {
+	    position: relative;
+	    top: 5px;
+       }
 }
 
 /* this belongs to resources but it is accessed out of its namespace */
