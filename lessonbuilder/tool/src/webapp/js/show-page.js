@@ -2892,6 +2892,7 @@ function checkEditItemForm() {
 }
 
 function checkSubpageForm() {
+  SPNR.disableControlsAndSpin( this, null );
   if ($('#subpage-title').val() === '') {
     $('#subpage-error').text(msg("simplepage.page_notblank"));
     $('#subpage-error-container').show();
@@ -3224,6 +3225,7 @@ function prepareQuestionDialog() {
   updateShortanswers();
 
   $("input[name='" + $("#activeQuestion").val() + "'").val($("#question-text-area-evolved\\:\\:input").val());
+  SPNR.disableControlsAndSpin( this, null );
 
   // RSF bugs out if we don't undisable these before submitting
   $("#multipleChoiceSelect").prop("disabled", false);
