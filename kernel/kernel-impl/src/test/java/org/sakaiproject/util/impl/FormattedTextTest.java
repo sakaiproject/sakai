@@ -1258,4 +1258,11 @@ public class FormattedTextTest {
     	Assert.assertFalse(result.contains("<html>"));
     }
 
+    @Test
+    public void testEmojiEscaping() {
+        String html = "An 😀 awesome 😃 string with a few 😉 emojis!";
+        String ret = formattedText.removeSurrogates(html);
+        Assert.assertEquals(ret, "An &#128512; awesome &#128515; string with a few &#128521; emojis!");
+    }
+
 }
