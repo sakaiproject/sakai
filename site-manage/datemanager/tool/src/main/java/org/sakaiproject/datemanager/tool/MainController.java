@@ -205,6 +205,10 @@ public class MainController {
 				}
 
 				jsonResponse = String.format("{\"status\": \"ERROR\", \"errors\": %s}", errorReport.toJSONString());
+				// Unlock any locks initiated by Resources, Calendar, and Announcements tools
+				dateManagerService.clearUpdateResourceLocks(resourcesValidate);
+				dateManagerService.clearUpdateCalendarLocks(calendarValidate);
+				dateManagerService.clearUpdateAnnouncementLocks(announcementValidate);
 			}
 
 		} catch (Exception e) {

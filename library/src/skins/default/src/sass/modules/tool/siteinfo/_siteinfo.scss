@@ -76,6 +76,16 @@
 			margin-bottom: 0;
 			table-layout: fixed;
 
+			.field-required {
+				&:after {
+					content: "*";
+					color: var(--errorBanner-color);
+					position: relative;
+					top: 3px;
+					left: 3px;
+				}
+			}
+
 			td {
 				&.ajax-error {
 					background-color: var(--errorBanner-bgcolor);
@@ -94,6 +104,35 @@
 					border-bottom-right-radius: 0;
 				}
 
+				.hasDatepicker {
+					padding-right: 22%;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+
+				.ui-datepicker-trigger {
+					position: absolute;
+					top: 0;
+					right: 8px;
+				}
+
+				.ui-datepicker-clear-date {
+					position: relative;
+					top: 16%;
+					right: 22px;
+					cursor: text;
+					text-decoration: none;
+				}
+
+				.ui-datapicker-clear-date-icon {
+					cursor: pointer;
+				}
+
+				.ui-datepicker-clear-date > i[disabled] {
+					cursor: not-allowed;
+					color:#757575;
+				}
+				
 				.day-of-week {
 					text-transform: capitalize;
 				}
