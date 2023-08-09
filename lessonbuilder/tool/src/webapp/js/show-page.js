@@ -8,6 +8,7 @@ var editrow;
 var delete_orphan_enabled = true;
 // for generating ids
 var nextid = 0;
+const ONE_KB = 1024;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -68,6 +69,14 @@ function safeParseInt(s) {
   return parseInt(s);
 }
 
+function formatFileSize(bytes) {
+  if(bytes == 0) return '0 Bytes';
+  var k = 1000,
+  sizes = ['Bytes', 'KB', 'MB', 'GB'],
+  i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
 // get the right error message. called when ifFinite(i) returns false
 // that happens if it is not a number or is too big
 function intError(i) {
@@ -81,6 +90,9 @@ var blankRubricRow;
 // Note from Chuck S. - Is there a strong reason to do this before ready()?
 // $(function () {
 $(document).ready(function () {
+  
+  maxFileUploadSize = $("#mm-max-file-upload-size").text();
+  accumulatedFileSize = 0;
   // if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
   $("div.multimediaType iframe, div.multimediaType object, div.multimediaType embed, div.multimediaType video").each(function () {
@@ -2669,6 +2681,9 @@ $(document).ready(function () {
   $(".add-link").click(buttonOpenDropdowna);
   $(".add-bottom").click(buttonOpenDropdownb);
 
+  // trap jquery close so we can clean up
+  $("[aria-describedby='add-multimedia-dialog'] .ui-dialog-titlebar-close")
+  .click(xCloseAddMultimediaDialog);
   $('.no-highlight').folderListing({
     enableHighlight: false,
   });
@@ -2685,6 +2700,16 @@ $(document).ready(function () {
 
   return false;
 }); // document.ready
+
+function xCloseAddMultimediaDialog() {
+  // reset controls & clear error message
+  $('.selector-helper').val('');		//remove file from the visible input/picker as well
+  $("p.add-another-file").last().next('input').removeAttr('disabled');
+  $("#mm-add-item").removeAttr('disabled');
+  $("#mm-error").text('');
+  $("#mm-error-container").hide();
+  accumulatedFileSize = 0; 
+}
 
 function setCollapsedStatus(header, collapse) {
 
@@ -2977,6 +3002,24 @@ $(function () {
   });
 
   function mmFileInputDelete() {
+    let wasOverUploadSize = accumulatedFileSize / ONE_KB / ONE_KB > maxFileUploadSize ;
+
+    let deleteTargets = $(this).parent().parent().find('.mm-file-input-size-save');
+
+    deleteTargets.each(
+      function (i) {
+        let removeSize = $(this).text();
+        accumulatedFileSize -= removeSize;
+      }
+    );
+
+    // check if now under the limit following delete
+    if (wasOverUploadSize && (accumulatedFileSize / ONE_KB / ONE_KB <= maxFileUploadSize )) {
+      $("p.add-another-file").last().next('input').removeAttr('disabled');
+      $("#mm-add-item").removeAttr('disabled');
+      $("#mm-error").text('');
+      $("#mm-error-container").hide();
+    }
 
     $(this).parent().parent().remove(); //remove file name
     $('.selector-helper').val('');    //remove file from the visible input/picker as well
@@ -3004,7 +3047,10 @@ $(function () {
     $('.add-another-file').last().show().parent().addClass('add-another-file-div');
     // Loop through the new files in reverse order so that they can be added just after the lastInput element.
     for (i = lastInput[0].files.length-1; i >= 0; i--) {
-      var newStuff = '<p><span class="mm-file-input-name h5">' + lastInput[0].files[i].name + '</span>';
+      accumulatedFileSize += lastInput[0].files[i].size;
+      var newStuff = '<p><span class="mm-file-input-name h5" title="' + lastInput[0].files[i].name + '">' + lastInput[0].files[i].name + '</span>';
+      newStuff += '<span class="mm-file-input-size h6">' + formatFileSize(lastInput[0].files[i].size) + '</span>';
+      newStuff += '<span class="mm-file-input-size-save" style="display:none">' + lastInput[0].files[i].size + '</span>';
       if (doingNames) {
         var valueContent = '';
         if (i === 0 && previousTitle){
@@ -3018,9 +3064,17 @@ $(function () {
       lastInput.after(newStuff);
       lastInput.parent().addClass('mm-file-group');
     }
+
+    if (accumulatedFileSize / ONE_KB / ONE_KB > maxFileUploadSize) {
+      $("p.add-another-file").last().next('input').attr('disabled','disabled');
+      $("#mm-add-item").attr('disabled','disabled');
+      $("#mm-error").text(msg("simplepage.max-file-upload-size") + ' ' + maxFileUploadSize + ' ' + msg("simplepage.max-file-upload-size-save"));
+      $("#mm-error-container").show();
+    }
+
     var nextStuff = '<span class="remove-upload" title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-trash"></span></span>';
     lastInput.after(nextStuff);
-    $('.mm-file-input-delete').on('click', mmFileInputDelete);
+    $('.mm-file-input-delete').off('click').on('click', mmFileInputDelete);
     // hide the original button as a new one has been created with the annotation of the new number of files.
     lastInput.hide();
     lastInput.removeClass('selector-helper'); //this empty class is used as a selector for deletion...we do NOT want to clear existing files' inputs, so they should not have this class; only the clones [created above] should.

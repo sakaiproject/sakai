@@ -4627,6 +4627,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UILink.make(tofill, "mm-additional-website-instructions", messageLocator.getMessage("simplepage.additional-website-instructions-label"), 
 			    getLocalizedURL( "website.html", true));
 
+		
+		
+		UIOutput.make(tofill, "mm-max-file-upload-size", String.valueOf(uploadMax));
 		UIForm form = UIForm.make(tofill, "add-multimedia-form");
 		makeCsrf(form, "csrf9");
 
