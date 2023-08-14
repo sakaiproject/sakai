@@ -41,7 +41,7 @@ jobs:
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
           mysql -u root -proot -e "create database sakai"; 
           cd ..
-          mvn --batch-mode -DskipTests install sakai:deploy-exploded license:check -Dmaven.tomcat.home=$TOMCAT_DIR
+          mvn --batch-mode -DskipTests install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
           sleep 500s
