@@ -33,7 +33,7 @@ jobs:
           export TOMCAT_DIR=$PWD/tomcat
           mkdir $TOMCAT_DIR
           cd $TOMCAT_DIR
-          curl -s -o tomcat.tar.gz https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.78/bin/apache-tomcat-9.0.78.tar.gz
+          curl -s -o tomcat.tar.gz https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.79/bin/apache-tomcat-9.0.79.tar.gz
           tar --strip-components=1 -xzf tomcat.tar.gz
           git clone https://github.com/sakaiproject/nightly-config.git sakai
           cp sakai/cypress.properties sakai/sakai.properties
