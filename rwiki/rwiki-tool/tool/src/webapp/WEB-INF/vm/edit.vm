@@ -88,22 +88,22 @@
 	<div class="rwiki_edit_wrapper">	
 	<div id="rwiki_head" >		
 		<div id="rwiki_tabholder">
-	        <ul class="tabs" >
+			<ul class="tabs" >
 			<li id="edit" class="tabHeadOn" >
-	  		  <p class="tabhead specialLink" title="${rlb.jsp_edit}" >
-		       <a href="#" onClick="selectTabs('tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;" >
-		       ${rlb.jsp_edit}
-		       </a>
-		     </p>
-		    </li>
-		    <li id="preview" class="tabHeadOff"  >
-		    	<p class="tabhead specialLink" title="${rlb.jsp_preview}">
-				   		<a href="#" onClick="selectTabs('tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" >
-				   		${rlb.jsp_preview}
-				   		</a>
-				</p>		
-		    </li>
-		    </ul>
+			<p class="tabhead specialLink" title="${rlb.jsp_edit}" >
+				<a href="#" onClick="selectTabs('previewTab','tabOn','tabOff','editTab','tabOff','tabOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;">
+					${rlb.jsp_edit}
+				</a>
+			</p>
+			</li>
+			<li id="preview" class="tabHeadOff"  >
+				<p class="tabhead specialLink" title="${rlb.jsp_preview}">
+					<a href="#" onClick="selectTabs('previewTab','tabOff','tabOn','editTab','tabOn','tabOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;">
+						${rlb.jsp_preview}
+					</a>
+				</p>
+			</li>
+			</ul>
 		</div>
 		#sidebar_switcher()
 	</div>
