@@ -31,7 +31,8 @@ export class SakaiRubricCriteria extends RubricsElement {
   _setupSortable(li, sortable, isRating) {
 
     li.addEventListener("keyup", e => {
-      if (e.target.tagName === "INPUT") {
+
+      if (e.target && e.target.tagName && ["input", "textarea"].includes(e.target.tagName.toLowerCase())) {
         return; // Don't process the keyup event for input elements
       }
 
