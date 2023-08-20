@@ -31,6 +31,9 @@ export class SakaiRubricCriteria extends RubricsElement {
   _setupSortable(li, sortable, isRating) {
 
     li.addEventListener("keyup", e => {
+      if (e.target.tagName === "INPUT") {
+        return; // Don't process the keyup event for input elements
+      }
 
       e.stopPropagation();
 
