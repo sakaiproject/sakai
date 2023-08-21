@@ -98,4 +98,6 @@ public interface ComposeLogic
 	int countUsersByGroup(String groupId);
 
 	List<User> getUsers() throws IdUnusedException;
+
+	int getMaxUploadFileSize();
 }

@@ -33,6 +33,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.logic.ComposeLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
@@ -357,6 +358,16 @@ public class ComposeLogicImpl implements ComposeLogic
 		// to save repeating the logic in the presentation layer.
 		userIds.remove(curUser);
 		return userIds;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.mailsender.logic.ComposeLogic#getMaxUploadFileSize()
+	 */
+	public int getMaxUploadFileSize()
+	{
+		return serverConfigurationService.getInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE);
 	}
 
 	/**
