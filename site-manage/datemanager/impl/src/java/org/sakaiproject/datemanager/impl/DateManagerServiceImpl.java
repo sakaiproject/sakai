@@ -646,9 +646,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
-					if (update.feedbackEndDate != null) {
-						control.setFeedbackEndDate(Date.from(update.feedbackEndDate));
-					}
+					Date feedbackEndDateTemp = 
+						update.feedbackEndDate != null ? Date.from(update.feedbackEndDate) : null;
+					control.setFeedbackEndDate(feedbackEndDateTemp);
 				}
 				assessment.setAssessmentAccessControl(control);
 				pubAssessmentServiceQueries.saveOrUpdate(assessment);
