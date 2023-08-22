@@ -24,7 +24,9 @@
 			e.preventDefault();
 			copyToClipboardNoScroll(this, $(this).attr('href'));
 		});
-		(new bootstrap.Popover(document.getElementById("publicInfoPopover")));
+
+		document.querySelector('#publicInfoPopover') && new bootstrap.Popover(document.querySelector('#publicInfoPopover'));
+
 	});
 </script>
 
@@ -228,7 +230,7 @@
 					#else
 						$tlang.getString("sitegen.siteinfolist.no")
 					#end
-					<button id="publicInfoPopover" class="info-icon" data-bs-trigger="hover focus" data-bs-content='$tlang.getString("ediacc.dismysit.h")' aria-label='$tlang.getString("feat.more.info")'>
+					<button id="publicInfoPopover" class="info-icon" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content='$tlang.getString("ediacc.dismysit.h")' aria-label='$tlang.getString("feat.more.info")'>
 						<i class="si si-info-circle"></i>
 					</button>
 				</td>
