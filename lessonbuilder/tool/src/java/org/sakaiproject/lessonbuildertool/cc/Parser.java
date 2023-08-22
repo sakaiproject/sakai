@@ -187,15 +187,15 @@ public class Parser extends AbstractParser {
         }
       } 
       //now we need to check for the question bank and omitted dependencies
-      if (the_manifest.getChild(CC_RESOURCES, ns.getNs()) != null &&
-	  the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()) != null)
-      for (Iterator iter=the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()).iterator(); iter.hasNext(); ) {
-	  // this is called for question banks and other things that aren't really items, but that's OK
-        Element resource=(Element)iter.next();
-	// create the resource if it wasn't already on a page
-	the_handler.setCCItemXml(null, resource, this, utils, true);
-	processResource(resource, the_handler);
-      }
+        if (the_manifest.getChild(CC_RESOURCES, ns.getNs()) != null &&
+                the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()) != null)
+            for (Iterator iter = the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()).iterator(); iter.hasNext(); ) {
+                // this is called for question banks and other things that aren't really items, but that's OK
+                Element resource = (Element) iter.next();
+                // create the resource if it wasn't already on a page
+                the_handler.setCCItemXml(null, resource, this, utils, true);
+                processResource(resource, the_handler);
+            }
       the_handler.endManifest();
     } catch (JDOMException e) {
       log.warn(e.getMessage());
@@ -290,8 +290,7 @@ public class Parser extends AbstractParser {
 			  the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
 			  the_item.getChildText(CC_ITEM_TITLE, ns.getNs()));
 			  the_handler.setCCItemXml(the_item, resource, this, utils, false);
-			  processResource(resource,
-                      the_handler);
+			  processResource(resource, the_handler);
 			  the_handler.endCCItem();
 		  } else {
 
