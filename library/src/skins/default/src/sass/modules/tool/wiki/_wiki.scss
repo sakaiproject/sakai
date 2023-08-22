@@ -883,3 +883,21 @@
       margin: 0;
   }
 }
+
+/* Default: Remove underline for everything inside #rwiki_content */
+#rwiki_content * {
+    text-decoration: none;
+}
+
+/* Add underline only for h1, h2, h3, h4 and their nested anchor tags */
+#rwiki_content h1, 
+#rwiki_content h2, 
+#rwiki_content h3, 
+#rwiki_content h4,
+#rwiki_content h1 a, 
+#rwiki_content h2 a, 
+#rwiki_content h3 a, 
+#rwiki_content h4 a {
+    text-decoration: underline;
+}
+
