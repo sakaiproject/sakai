@@ -70,7 +70,7 @@
                         </ul>
                         <ul id="mailsender-sections" class="rolesArea d-none" role="tabpanel" aria-labelledBy="mailsender-tab-sections">
                             <li th:if="${comp.getEmailSections().size() == 0}" class="not-found">
-                                <span th:text="#{no.role.found}" aria-live="polite"/>
+                                <span th:text="#{no.section.found}" aria-live="polite"/>
                             </li>
                             <li th:unless="${comp.getEmailSections().size() == 0}" th:each="rolsec:${comp.getEmailSections()}" class="userGroupsList">
                                 <input th:id="${rolsec.getRoleSingular()}" type="checkbox" name="rolesecname" th:value="${rolsec.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" th:aria-label="#{a11y_rcpts_by_section(${rolsec.getRoleSingular()})}" th:title="#{a11y_rcpts_by_section(${rolsec.getRoleSingular()})}"></input>
@@ -80,7 +80,7 @@
                                 </button>
                                 <ul class="d-none scrollable-list" th:aria-label="${rolsec.getRoleSingular()}" tabindex="-1">
                                     <li th:if="${comp.countUsersByGroup(rolsec.getRoleId()) == 0}" aria-live="polite">
-                                        <span th:text="#{no.role.members.found}"/>
+                                        <span th:text="#{no.section.members.found}"/>
                                     </li>
                                     <li th:unless="${comp.countUsersByGroup(rolsec.getRoleId()) == 0}" th:each="usersec:${comp.getUsersByGroup(rolsec.getRoleId())}">
                                         <input th:id="'sec-'+${usersec.getId()}" type="checkbox" name="user" th:value="${usersec.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${usersec.getEmail().isEmpty()}?@{disabled}" />
@@ -91,7 +91,7 @@
                         </ul>
                         <ul id="mailsender-groups" class="rolesArea d-none" role="tabpanel" aria-labelledBy="mailsender-tab-groups">
                             <li th:if="${comp.getEmailGroups().size() == 0}" class="not-found">
-                                <span th:text="#{no.role.found}" aria-live="polite"/>
+                                <span th:text="#{no.group.found}" aria-live="polite"/>
                             </li>
                             <li th:unless="${comp.getEmailGroups().size() == 0}" th:each="rolg:${comp.getEmailGroups()}" class="userGroupsList">
                                 <input th:id="${rolg.getRoleSingular()}" type="checkbox" name="rolegname" th:value="${rolg.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" th:aria-label="#{a11y_rcpts_by_group(${rolg.getRoleSingular()})}" th:title="#{a11y_rcpts_by_group(${rolg.getRoleSingular()})}"></input>
@@ -101,7 +101,7 @@
                                 </button>
                                 <ul class="d-none scrollable-list" th:aria-label="${rolg.getRoleSingular()}" tabindex="-1">
                                     <li th:if="${comp.countUsersByGroup(rolg.getRoleId()) == 0}" aria-live="polite">
-                                        <span th:text="#{no.role.members.found}"/>
+                                        <span th:text="#{no.group.members.found}"/>
                                     </li>
                                     <li th:unless="${comp.countUsersByGroup(rolg.getRoleId()) == 0}" th:each="userg:${comp.getUsersByGroup(rolg.getRoleId())}">
                                         <input th:id="'gro-'+${userg.getId()}" type="checkbox" name="user" th:value="${userg.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${userg.getEmail().isEmpty()}?@{disabled}" />
