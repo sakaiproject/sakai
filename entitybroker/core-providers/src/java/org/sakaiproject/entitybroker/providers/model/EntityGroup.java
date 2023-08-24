@@ -70,6 +70,12 @@ public class EntityGroup implements Group {
     private long lastModified;
     private String[] userRoles;
 
+    // it is difficult to work with this class externally to partially sanitize it, so we resort
+    // to tracking flags internally and reference them when necessary to modify output
+    private boolean isMaintainer = false;
+    private boolean isMember = false;
+    private boolean isAdmin = false;
+
     public Map<String, String> props;
     public Map<String, String> getProps() {
         if (props == null) {
@@ -115,7 +121,7 @@ public class EntityGroup implements Group {
         getUserRoles(); // populate the user roles
     }
 
-    public EntityGroup(Group group) {
+    public EntityGroup(Group group, boolean isMaintainer, boolean isMember, boolean isAdmin) {
         this.group = group;
         Site site = group.getContainingSite();
         this.siteId = site.getId();
@@ -123,17 +129,26 @@ public class EntityGroup implements Group {
         this.title = group.getTitle();
         this.description = group.getDescription();
         this.joinerRole = site.getJoinerRole();
-        this.maintainRole = group.getMaintainRole();
-        this.providerGroupId = group.getProviderGroupId();
-        this.owner = group.getCreatedBy() == null ? null : group.getCreatedBy().getId();
         this.lastModified = group.getModifiedDate() == null ? System.currentTimeMillis() : group.getModifiedDate().getTime();
-        getUserRoles(); // populate the user roles
-        // properties
-        ResourceProperties rp = group.getProperties();
-        for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
-            String name = iterator.next();
-            String value = rp.getProperty(name);
-            this.setProperty(name, value);
+
+        this.isMaintainer = isMaintainer;
+        this.isMember = isMember;
+        this.isAdmin = isAdmin;
+        if (isAdmin || isMaintainer) {
+            this.maintainRole = group.getMaintainRole();
+            this.providerGroupId = group.getProviderGroupId();
+            this.owner = group.getCreatedBy() == null ? null : group.getCreatedBy().getId();
+            getUserRoles(); // populate the user roles
+        }
+
+        if (isAdmin) {
+            // properties
+            ResourceProperties rp = group.getProperties();
+            for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
+                String name = iterator.next();
+                String value = rp.getProperty(name);
+                this.setProperty(name, value);
+            }
         }
     }
 
@@ -180,6 +195,11 @@ public class EntityGroup implements Group {
         } else {
             owner = new Owner(this.owner, this.owner);
         }
+
+        if (isMember && !isMaintainer) {
+            owner.setUserEntityURL("");
+            owner.setUserId("");
+        }
         return owner;
     }
 
@@ -188,7 +208,7 @@ public class EntityGroup implements Group {
         if (group != null) {
             this.lastModified = group.getModifiedDate() == null ? lastModified : group.getModifiedDate().getTime();
         }
-        return lastModified;
+        return noAccess() || (isMember && !isMaintainer) ? 0 : lastModified;
     }
 
 	
@@ -240,6 +260,9 @@ public class EntityGroup implements Group {
     }
 
     public String[] getUserRoles() {
+        if (isMember && !isMaintainer) {
+            return new String[0];
+        }
         if (userRoles == null) {
             if (group == null) {
                 userRoles = new String[] {maintainRole, joinerRole};
@@ -285,7 +308,7 @@ public class EntityGroup implements Group {
     
     public Date getModifiedDate() {
     	if (group != null) {
-            return group.getModifiedDate();
+            return noAccess() || (isMember && !isMaintainer) ? null : group.getModifiedDate();
         }
         throw new UnsupportedOperationException();
 	}
@@ -299,7 +322,7 @@ public class EntityGroup implements Group {
 
     public boolean isActiveEdit() {
         if (group != null) {
-            return group.isActiveEdit();
+            return noAccess() || (isMember && !isMaintainer) ? false : group.isActiveEdit();
         }
         throw new UnsupportedOperationException();
     }
@@ -422,7 +445,7 @@ public class EntityGroup implements Group {
 
     public Set getUsers() {
         if (group != null) {
-            return group.getUsers();
+            return noAccess() || (isMember && !isMaintainer) ? Collections.emptySet() : group.getUsers();
         }
         throw new UnsupportedOperationException();
     }
@@ -457,7 +480,7 @@ public class EntityGroup implements Group {
 
     public boolean isEmpty() {
         if (group != null) {
-            return group.isEmpty();
+            return noAccess() || (isMember && !isMaintainer) ? false : group.isEmpty();
         }
         return false;
     }
@@ -472,7 +495,7 @@ public class EntityGroup implements Group {
     @Override
     public RealmLockMode getRealmLock() {
         if (group != null) {
-            return group.getRealmLock();
+            return !isAdmin ? null : group.getRealmLock();
         }
         return RealmLockMode.NONE;
     }
@@ -480,7 +503,7 @@ public class EntityGroup implements Group {
     @Override
     public List<String[]> getRealmLocks() {
         if (group != null) {
-            return group.getRealmLocks();
+            return !isAdmin ? Collections.emptyList() : group.getRealmLocks();
         }
         return Collections.emptyList();
     }
@@ -488,7 +511,7 @@ public class EntityGroup implements Group {
     @Override
     public RealmLockMode getLockForReference(String reference) {
         if (group != null) {
-            return group.getLockForReference(reference);
+            return !isAdmin ? null : group.getLockForReference(reference);
         }
         return RealmLockMode.NONE;
     }
@@ -553,5 +576,9 @@ public class EntityGroup implements Group {
             return group.getContainingSite();
         }
         throw new UnsupportedOperationException();
+    }
+
+    private boolean noAccess() {
+        return !isAdmin && !isMaintainer && !isMember;
     }
 }
