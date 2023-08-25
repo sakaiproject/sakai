@@ -3763,7 +3763,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 				prtMsgManager.movePvtMsgTopic(message, oldTopic, newTopic);
 
-				if(Boolean.TRUE.equals((message.getScheduler())) && (message.getScheduledDate()!=null) && (Boolean.TRUE.equals((message.getDraft()))) && newTopic.getTitle().equals(PVTMSG_MODE_SCHEDULER))
+				if(Boolean.TRUE.equals((message.getScheduler())) && (message.getScheduledDate()!=null) && (Boolean.TRUE.equals((message.getDraft()))))
 				{
 					PrivateMessageSchedulerService.scheduleDueDateReminder(message.getId());
 				}
