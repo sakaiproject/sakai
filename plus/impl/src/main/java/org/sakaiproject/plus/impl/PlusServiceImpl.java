@@ -659,7 +659,10 @@ public class PlusServiceImpl implements PlusService {
 
 				HttpHeaders responseHeaders = response.headers();
 				List<String> allValuesOfLink = responseHeaders.allValues("Link");
+				log.debug("allValuesOfLink length={} content={}", allValuesOfLink.size(),allValuesOfLink);
 				String nextLink = HttpUtil.extractLinkByRel(allValuesOfLink, "next");
+				log.debug("nextLink={}", nextLink);
+
 				// If this is not null, we will loop back up and continue to page in results for multi-request NRPS
 				contextMemberships = null;
 				if ( isNotEmpty(nextLink) ) {
