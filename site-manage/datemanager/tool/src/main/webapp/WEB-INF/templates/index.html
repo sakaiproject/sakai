@@ -269,7 +269,11 @@
               var $cell = $('#' + id);
               $cell.addClass('ajax-error');
               $cell.find('.errors').text(elt.msg);
-              $('#form-errors').find('ul').append('<li>' + elt.toolTitle + ' - ' + elt.msg + '</li>');
+              if ('toolTitle' in elt) {
+                $('#form-errors').find('ul').append('<li>' + elt.toolTitle + ' - ' + elt.msg + '</li>');
+              } else {
+                $('#form-errors').find('ul').append('<li>' + elt + '</li>');
+              }
             });
             $('html, body').animate({ scrollTop: 0 }, 'slow');
           }
@@ -344,7 +348,8 @@
             var json = '{"assignments": ' + assignmentsStr + ', "assessments": ' + assessmentsStr + ', "gradebookItems": ' + gradebookStr + ', "signupMeetings": ' + signupStr + ', "resources": ' + resourcesStr + ', "calendarEvents": ' + calendarStr + ', "forums": ' + forumsStr + ', "announcements": ' + announcementsStr + ', "lessons": ' + lessonsStr + '}';
 
             $.ajax({
-              url: window.location + '/date-manager/update',
+              // This replace is here to remove any anchor from the end of the URL
+              url: window.location.href.replace(/#.*$/, '') + '/date-manager/update',
               processData: false,
               dataType : 'json',
               contentType: 'application/json; charset=utf-8',
@@ -359,6 +364,12 @@
                 } else {
                   printSuccess();
                 }
+              },
+              error: function(xhr, textStatus, errorThrown) {
+                  var parser = new DOMParser();
+                  var responseDoc = parser.parseFromString(xhr.responseText, 'text/html');
+                  errors = [responseDoc.body.innerHTML];
+                  printErrors();
               }
             });
           }
