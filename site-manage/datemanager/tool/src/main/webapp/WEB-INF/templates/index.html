@@ -366,8 +366,8 @@
                 }
               },
               error: function(xhr, textStatus, errorThrown) {
-                  var parser = new DOMParser();
-                  var responseDoc = parser.parseFromString(xhr.responseText, 'text/html');
+                  const parser = new DOMParser();
+                  const responseDoc = parser.parseFromString(xhr.responseText, 'text/html');
                   errors = [responseDoc.body.innerHTML];
                   printErrors();
               }
