@@ -33,11 +33,11 @@
 			 line-height: 1em;
 		}
 	}
-	/*.portletBody > * {
-		position: inherit;
-		top: 0;
+
+	.menuOpenLi {
+		list-style-type: none;
 	}
-    */
+
 	.mainList {
 		list-style: none;
 		padding: 0 0 0 0;
