@@ -1641,7 +1641,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Check for a returned error message from LTI
 		String lti_errormsg = data.getParameters().getString("lti_errormsg");
-		if (lti_errormsg != null && lti_errormsg.trim().length() > 0) {
+		if (StringUtils.isNotBlank(lti_errormsg)) {
 			addAlert(state, lti_errormsg);
 			switchPanel(state, errorPanel);
 			return;
@@ -1657,8 +1657,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Retrieve the tool associated with the content item
-		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
-		if (toolKey == 0 || toolKey < 0) {
+		Long toolKey = foorm.getLong(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		if (toolKey <= 0) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
 			switchPanel(state, errorPanel);
 			return;
