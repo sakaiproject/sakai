@@ -15,6 +15,7 @@ package org.sakaiproject.webapi.controllers;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.webapi.beans.AnnouncementRestBean;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -24,6 +25,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -36,9 +39,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +55,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 public class AnnouncementsController extends AbstractSakaiApiController {
+
+	public static int DEFAULT_NUM_ANNOUNCEMENTS = 3;
+	public static int DEFAULT_DAYS_IN_PAST = 10;
 
 	@Resource
 	private AnnouncementService announcementService;
@@ -68,6 +76,9 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 
 	@Resource
 	private UserDirectoryService userDirectoryService;
+
+	@Resource
+	private TimeService timeService;
 
 	@GetMapping(value = "/users/{userId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getUserAnnouncements(@PathVariable String userId) throws UserNotDefinedException {
@@ -95,12 +106,18 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	@GetMapping(value = "/sites/{siteId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getSiteAnnouncements(@PathVariable String siteId) throws UserNotDefinedException {
 
+        int numberOfAnnouncements = DEFAULT_NUM_ANNOUNCEMENTS;
+        int numberOfDaysInThePast = DEFAULT_DAYS_IN_PAST;
+
+        //get the Sakai Time for the given java Date
+        Time t = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
+
 		Session session = checkSakaiSession();
 
         try {
             Site site = siteService.getSite(siteId);
             String channelRef = announcementService.channelReference(siteId, "main");
-            return ((List<AnnouncementMessage>) announcementService.getMessages(channelRef, null, false, true))
+            return ((List<AnnouncementMessage>) announcementService.getMessages(channelRef, new ViewableFilter(null, t, numberOfAnnouncements, announcementService), false, true))
                 .stream()
                 .map(am -> {
                     Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
@@ -114,4 +131,12 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 
         return Collections.EMPTY_LIST;
 	}
+
+    private Date getTimeForDaysInPast(int n) {
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -n);
+
+        return cal.getTime();
+    }
 }

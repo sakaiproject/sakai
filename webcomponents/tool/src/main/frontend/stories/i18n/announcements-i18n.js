@@ -1,5 +1,5 @@
 export const announcementsI18n = `
-viewing=(viewing announcements from the last 10 days)
+viewing=(viewing 3 announcements from the last 10 days)
 site=Site
 site_tooltip=Filter by site
 search=Search
