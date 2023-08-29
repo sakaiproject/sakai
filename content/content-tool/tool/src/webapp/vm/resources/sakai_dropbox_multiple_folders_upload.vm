@@ -9,7 +9,7 @@
 	#if ($alertMessage)
 		<br /><div class="sak-banner-error" id="resourceAlert">$clang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
 	#else
-		<br /><div id="resourceAlert" class="sak-banner-error hide"></div>
+		<br /><div id="resourceAlert" class="sak-banner-error d-none"></div>
 	#end
 	#if (!$!alreadyUploadedFile)
 	<p class="instruction">
@@ -47,7 +47,7 @@
 			<small>
 				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</small>
-			<div id="copyright_status" #if (!$!copyrightStatus_selection || $!copyrightStatus_selection != ${USE_THIS_COPYRIGHT}) class="hide" #end>
+			<div id="copyright_status" #if (!$!copyrightStatus_selection || $!copyrightStatus_selection != ${USE_THIS_COPYRIGHT}) class="d-none" #end>
 				<label for="newcopyright">$tlang.getString("cright.info")</label>
 				#if ($!copyrightInfo_selection)
 					#set ($newCopyright = $!copyrightInfo_selection)
@@ -217,12 +217,12 @@
 		if (fileField.files[0].size > maxFileSize)
 		{
 			resourceAlert.innerText = "$tlang.getFormattedMessage('size.exceeded', $!uploadMaxSize)";
-			resourceAlert.classList.remove('hide');
+			resourceAlert.classList.remove('d-none');
 			submitButton.disabled = true;
 		}
 		else
 		{
-			resourceAlert.classList.add('hide');
+			resourceAlert.classList.add('d-none');
 			resourceAlert.innerText = '';
 			submitButton.disabled = false;
 		}
