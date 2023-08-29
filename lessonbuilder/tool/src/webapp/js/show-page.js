@@ -2280,7 +2280,48 @@ $(document).ready(function () {
     var tail_cols = addAboveLI.parent().parent().nextAll();
     var section = addAboveLI.parent().parent().parent();
     var sectionId = "sectionid" + (nextid++);
-    section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span aria-hidden="true" class="collapseIcon fa-caret-down"></span><span class="sectionHeaderText"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="lb-offscreen">' + msg('simplepage.break-here') + '</h3><button type="button" data-merge-id="' + newitem + '" aria-label="' + msg('simplepage.join-items') + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></button></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div></div></div>');
+
+    const joinItemsMsg = msg('simplepage.join-items');
+    const breakHereMsg = msg('simplepage.break-here');
+    const columnOpenMsg = msg('simplepage.columnopen');
+    const newHtml = `
+    <div>
+      <h3 class="sectionHeader skip">
+        <span aria-hidden="true" class="collapseIcon fa-caret-down"></span>
+        <span class="sectionHeaderText"></span>
+        <span class="toggleCollapse">${msg('simplepage.clickToCollapse')}</span>
+      </h3>
+      <div class="section">
+        <div class="column">
+          <div class="editsection">
+            <span class="sectionedit">
+              <h3 class="lb-offscreen">${breakHereMsg}</h3>
+              <button type="button" data-merge-id="${newitem}" aria-label="${joinItemsMsg}" title="${joinItemsMsg}" class="section-merge-link">
+                <span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span>
+              </button>
+            </span>
+            <span class="sectionedit sectionedit2">
+              <a href="#" title="${columnOpenMsg}" class="columnopen" style="text-decoration: none;" data-bs-toggle="modal" data-bs-target="#column-dialog" aria-controls="column-dialog" aria-expanded="false">
+                <span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span>
+              </a>
+            </span>
+          </div>
+          <span class="sectionedit addbottom">
+            <a href="#" title="Add new item at bottom of this column" class="add-bottom">
+              <span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span>
+            </a>
+          </span>
+          <div border="0" role="list" style="z-index: 1;" class="indent mainList">
+            <div class="breakitem breaksection" role="listitem">
+              <span style="display:none" class="itemid">${newitem}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+    section.prev('.sectionHeader').parent().after(newHtml);
+	  
     // now go to new section
     section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2320,8 +2361,38 @@ $(document).ready(function () {
     // current section DIV
     var tail_uls = addAboveLI.parent().nextAll();
     var column = addAboveLI.parent().parent();
-    column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="lb-offscreen">' + msg('simplepage.break-column-here') + '</h3><button type="button" data-merge-id="' + newitem + '" aria-label="' + msg('simplepage.join-items') + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></button></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="breakitem breakcolumn" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div>');
-
+    const joinItemsMsg = msg('simplepage.join-items');
+    const breakHereMsg = msg('simplepage.break-here');
+    const columnOpenMsg = msg('simplepage.columnopen');
+    const newHtml = `
+    <div class="column">
+      <div class="editsection">
+        <span class="sectionedit">
+          <h3 class="lb-offscreen">${breakHereMsg}</h3>
+          <button type="button" data-merge-id="${newitem}" aria-label="${joinItemsMsg}" title="${joinItemsMsg}" class="column-merge-link">
+            <span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span>
+          </button>
+        </span>
+        <span class="sectionedit sectionedit2">
+          <a href="#" title="${columnOpenMsg}" class="columnopen" style="text-decoration: none;" data-bs-toggle="modal" data-bs-target="#column-dialog" aria-controls="column-dialog" aria-expanded="false">
+            <span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span>
+          </a>
+        </span>
+      </div>
+      <span class="sectionedit addbottom">
+        <a href="#" title="Add new item at bottom of this column" class="add-bottom">
+          <span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span>
+        </a>
+      </span>
+      <div border="0" role="list" style="z-index: 1;" class="indent mainList">
+        <div class="breakitem breakcolumn" role="listcolumn">
+          <span style="display:none" class="itemid">${newitem}</span>
+        </div>
+      </div>
+    </div>
+    `;
+    column.after(newHtml);
+	  
     // now go to new section
     column = column.next();
     // and move current item and following into the first col of the new section
