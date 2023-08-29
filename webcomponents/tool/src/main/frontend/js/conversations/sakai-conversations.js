@@ -659,7 +659,11 @@ export class SakaiConversations extends SakaiElement {
               ${this.state === STATE_DISPLAYING_TOPIC ? this.renderCurrentTopic() : ""}
               ${this.state === STATE_NOTHING_SELECTED ? html`
                 <div id="conv-nothing-selected">
-                  <div>${this.i18n.nothing_selected}</div>
+                  ${this.data.canCreateDiscussion || this.data.canCreateQuestion ? html`
+                    <div>${this.i18n.nothing_selected}</div>
+                  ` : html`
+                    <div>${this.i18n.nothing_selected_no_create}</div>
+                  `}
                 </div>
               ` : ""}
             </div>
