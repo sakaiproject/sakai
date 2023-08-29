@@ -599,14 +599,18 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             conversationsService.hideTopic(savedBean.id, false, true);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
-            assertFalse(topics.get(0).hidden);
+
+            // Hidden is true because we adjust state based on user actions. So, when
+            // getTopicsForSite is called and a topic has a hide date in the past, hidden is set
+            // to true.
+            assertTrue(topics.get(0).hidden);
 
             // If the hide date is after the show date, hide date should always win.
             savedBean.showDate = Instant.now().minus(2, ChronoUnit.HOURS);
             savedBean.hideDate = Instant.now().minus(1, ChronoUnit.HOURS);
             conversationsService.saveTopic(savedBean, true);
             savedBean = conversationsService.getTopicsForSite(topicBean.siteId).get(0);
-            //assertTrue(savedBean.hidden);
+            assertTrue(savedBean.hidden);
         } catch (ConversationsPermissionsException cpe) {
             cpe.printStackTrace();
             fail("Unexpected exception when testing topic hiding");

@@ -566,7 +566,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     showDateContext.setWasNew(isNew);
                     String context = objectMapper.writeValueAsString(showDateContext);
                     if (!topic.getDraft()) {
-                        String invocationId = scheduledInvocationManager.createDelayedInvocation(showDate, "org.sakaiproject.conversations.impl.TopicShowDateMessager", context);
+                        String invocationId = scheduledInvocationManager.createDelayedInvocation(showDate, "org.sakaiproject.conversations.api.TopicShowDateMessager", context);
                         topic.setShowMessageScheduleId(invocationId);
                         topicRepository.save(topic);
                     }
@@ -685,11 +685,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         }
 
         topic.setHidden(hidden);
-
-        if (!hidden) {
-            topic.setHideDate(null);
-            topic.setShowDate(null);
-        }
 
         return topicRepository.save(topic);
     }
