@@ -104,11 +104,18 @@ public class ConversationsController extends AbstractSakaiApiController {
             ConversationsRestBean bean = new ConversationsRestBean();
             bean.userId = currentUserId;
             bean.siteId = siteId;
-            bean.groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
+            bean.canUpdatePermissions = securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef);
+            bean.isInstructor = securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
+
+            if (bean.canUpdatePermissions || bean.isInstructor) {
+                bean.groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
+            } else {
+                bean.groups = site.getGroupsWithMember(currentUserId).stream().map(SimpleGroup::new).collect(Collectors.toList());
+            }
+
             bean.topics = conversationsService.getTopicsForSite(siteId).stream()
                 .map(tb -> entityModelForTopicBean(tb)).collect(Collectors.toList());
             Settings settings = conversationsService.getSettingsForSite(siteId);
-            bean.canUpdatePermissions = securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef);
 
             if (!settings.getSiteLocked()
                 || securityService.unlock(Permissions.MODERATE.label, siteRef)) {
@@ -119,7 +126,6 @@ public class ConversationsController extends AbstractSakaiApiController {
             }
             bean.canViewSiteStatistics = securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef);
             bean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
-            bean.isInstructor = securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
             bean.canViewAnonymous = securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef);
             //bean.canViewHidden = securityService.unlock(Permissions.POST_VIEW_HIDDEN.label, siteRef);
             bean.maxThreadDepth = serverConfigurationService.getInt(ConversationsService.PROP_MAX_THREAD_DEPTH, 5);
