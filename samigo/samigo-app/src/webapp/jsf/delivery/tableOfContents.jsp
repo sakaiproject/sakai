@@ -147,11 +147,11 @@ function saveTime()
   <h5>
     <h:outputLabel value="#{deliveryMessages.key}"/>
   </h5>
-  <h:graphicImage  alt="#{deliveryMessages.alt_unans_q}" url="/images/whiteBubble15.png" />
+  <h:graphicImage styleClass="mx-1" alt="#{deliveryMessages.alt_unans_q}" url="/images/whiteBubble15.png" />
   <h:outputText value="#{deliveryMessages.unans_q}" /><br/>
-  <h:graphicImage  alt="#{deliveryMessages.alt_ans_q}" url="/images/blackBubble15.png" />
+  <h:graphicImage styleClass="mx-1" alt="#{deliveryMessages.alt_ans_q}" url="/images/blackBubble15.png" />
   <h:outputText value="#{deliveryMessages.ans_q}" /><br/>
-  <h:graphicImage  alt="#{deliveryMessages.alt_q_marked}" url="/images/questionMarkBubble15.png" rendered="#{delivery.displayMardForReview}" />
+  <h:graphicImage styleClass="mx-1" alt="#{deliveryMessages.alt_q_marked}" url="/images/questionMarkBubble15.png" rendered="#{delivery.displayMardForReview}" />
   <h:outputText value="#{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
 
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
@@ -169,11 +169,11 @@ function saveTime()
           <h:column>
             <f:verbatim><div class="tier3"></f:verbatim>
             <h:panelGroup>
-            <h:graphicImage alt="#{deliveryMessages.alt_unans_q}" 
+            <h:graphicImage styleClass="mx-1" alt="#{deliveryMessages.alt_unans_q}" 
                url="/images/whiteBubble15.png" rendered="#{question.unanswered}"/>
-            <h:graphicImage alt="#{deliveryMessages.alt_unans_q}" 
+            <h:graphicImage styleClass="mx-1" alt="#{deliveryMessages.alt_unans_q}" 
                url="/images/blackBubble15.png" rendered="#{!question.unanswered}"/>
-            <h:graphicImage alt="#{deliveryMessages.alt_q_marked}"
+            <h:graphicImage styleClass="mx-1" alt="#{deliveryMessages.alt_q_marked}"
                url="/images/questionMarkBubble15.png"  rendered="#{question.review}"/>
               <h:commandLink title="#{deliveryMessages.t_takeAssessment}" immediate="true" action="takeAssessment"> 
                 <h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot} #{question.strippedText}">
