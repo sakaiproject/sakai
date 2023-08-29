@@ -1648,7 +1648,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    SimplePageItem i = simplePageToolDao.findItem(item.getId());
 		    if (item != null) {
 			i.setHtml(newBody);
-			log.debug("html - (post mod):"+msgBody);
+			log.debug("html - (post mod): {}", msgBody);
 			simplePageToolDao.quickUpdate(i);
 		    }
 		}
@@ -1974,94 +1974,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     final int ITEMDUMMYLEN = ITEMDUMMY.length();
 
-    /**
-     * Takes a URL and then decides if it should be replaced.
-     * 
-     * @param value
-     * @return
-     */
-    private String processUrl(ContentCopyContext context, String value,
-			      String contentUrl, Map<Long,Long>itemMap) {
-	// Need to deal with backticks.
-	// - /access/group/{siteId}/
-	// - /web/{siteId}/
-	// - /dav/{siteId}/
-	// http(s)://weblearn.ox.ac.uk/ - needs trimming
-	try {
-	    URI uri = new URI(value);
-	    uri = uri.normalize();
-	    if (value.startsWith(ITEMDUMMY)) {
-		String num = value.substring(ITEMDUMMYLEN);
-		int i = num.indexOf("/");
-		if (i >= 0)
-		    num = num.substring(0, i);
-		else 
-		    return value;
-		long oldItem = 0;
-		try {
-		    oldItem = Long.parseLong(num);
-		} catch (Exception e) {
-		    return value;
-		}
-		Long newItem = itemMap.get(oldItem);
-		if (newItem == null)
-		    return value;
-		return ITEMDUMMY + newItem + "/";
-	    } else if ("http".equals(uri.getScheme())
-		|| "https".equals(uri.getScheme())) {
-		if (uri.getHost() != null) {
-		    // oldserver is the server that this archive is coming from
-		    // oldserver null means it's a local copy, e.g. duplicate site
-		    // for null we match URL against all of our server names
-		    String oldServer = context.getOldServer();
-		    if (oldServer == null && servers.contains(uri.getHost()) ||
-			uri.getHost().equals(oldServer)) {
-			// Drop the protocol and the host.
-			uri = new URI(null, null, null, -1, uri.getPath(),
-				      uri.getQuery(), uri.getFragment());
-		    }
-		}
-	    }
-	    // Only do replacement on our URLs.
-	    if (uri.getHost() == null && uri.getPath() != null) {
-		// Need to attempt todo path replacement now.
-		String path = uri.getPath();
-		Matcher matcher = pathPattern.matcher(path);
-
-		if (matcher.matches()
-		    && context.getOldSiteId().equals(matcher.group(1))) {
-		    // Need to push the old URL onto the list of resources to
-		    // process. Except that we can't do that inside Lesson Builder
-		    //		    addPath(context, path);
-		    String replacementPath = path
-			.substring(0, matcher.start(1))
-			+ context.getNewSiteId()
-			+ path.substring(matcher.end(1));
-		    // Create a new URI with the new path
-		    uri = new URI(uri.getScheme(), uri.getUserInfo(),
-				  uri.getHost(), uri.getPort(), replacementPath,
-				  uri.getQuery(), uri.getFragment());
-		} else if (!path.startsWith("/") && contentUrl != null) {
-		    // Relative URL.
-		    try {
-			URI base = new URI(contentUrl);
-			URI link = base.resolve(uri);
-			// sorry, no can do
-			//addPath(context, link.getPath());
-		    } catch (URISyntaxException e) {
-			log.error("Supplied contentUrl isn't valid: {}", contentUrl);
-		    }
-		}
-	    }
-	    return uri.toString();
-	} catch (URISyntaxException e) {
-	    // Logger this so we may get an idea of the things that are breaking
-	    // the parser.
-	    log.error("Failed to parse URL: {} {}", value, e.getMessage());
-	}
-	return value;
-    }
-    
     /* support for /direct. 
        For the moment the only operation is loading a Common Cartridge file.
        This is a particularly horrendous operation.
@@ -2313,7 +2225,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
             Elements links = doc.select("a[href]");
             Elements media = doc.select("[src]");
             Elements imports = doc.select("link[href]");
-            List<String> references = new ArrayList<String>();
+            Set<String> references = new HashSet<>();
             // href ...
             for (org.jsoup.nodes.Element link : links) {
                 references.add(link.attr("abs:href"));
@@ -2339,7 +2251,19 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
                         oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "https://", "http://"), StringUtils.EMPTY);
                         oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "http://", "https://"), StringUtils.EMPTY);
                         String newReferenceId = StringUtils.replace(oldReferenceId, oldSiteId, newSiteId);
-                        contentHostingService.copy(oldReferenceId, newReferenceId);
+
+                        // Avoid creating duplicates if Resources already copied the item
+                        boolean sourceFileExists = false;
+                        boolean targetFileExists = false;
+                        try {
+                            sourceFileExists = contentHostingService.getResource(oldReferenceId).getId() != null;
+                            targetFileExists = contentHostingService.getResource(newReferenceId).getId() != null;
+                        } catch(IdUnusedException e) {
+                            log.debug("Check for source {} and target file {} in site {}", sourceFileExists, targetFileExists, newSiteId);
+                        }
+                        if (sourceFileExists && !targetFileExists) {
+                            contentHostingService.copy(oldReferenceId, newReferenceId);
+                        }
                         replacedBody = StringUtils.replace(replacedBody, oldSiteId, newSiteId);
                         } catch(IdUnusedException ide) {
                             log.warn("Warn transfering file from site {} to site {}.", oldSiteId, newSiteId, ide);
@@ -2369,26 +2293,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		return sakaiId;
 	}
 
-	private Long getLong(Object key) {
-		Long retval = getLongNull(key);
-		if (retval != null)
-			return retval;
-		return new Long(-1);
-	}
 
-	private Long getLongNull(Object key) {
-		if (key == null)
-			return null;
-		if (key instanceof Number)
-			return new Long(((Number) key).longValue());
-		if (key instanceof String) {
-			try {
-				return new Long((String) key);
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		return null;
-	}
 
 }
