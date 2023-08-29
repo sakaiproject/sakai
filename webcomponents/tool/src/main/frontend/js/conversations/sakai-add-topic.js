@@ -425,7 +425,11 @@ export class SakaiAddTopic extends SakaiElement {
           ` : ""}
           ${this.canEditTags ? html`
           <span id="conv-edit-tags-link-wrapper">
-            <a href="javascript:;" @click=${this.editAvailableTags}>Edit tags for this course</a>
+            <button type="button"
+                class="btn btn-link"
+                @click=${this.editAvailableTags}>
+              ${this.i18n.edit_tags}
+            </button>
           </span>
           ` : ""}
           <div id="tags">
