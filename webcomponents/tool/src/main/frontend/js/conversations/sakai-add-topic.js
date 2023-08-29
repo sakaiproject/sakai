@@ -31,6 +31,7 @@ export class SakaiAddTopic extends SakaiElement {
       showLockDatePicker: { attribute: false, type: Boolean },
       showDue: { attribute: false, type: Boolean },
       showAcceptUntil: { attribute: false, type: Boolean },
+      lockDateInvalid: { attribute: false, type: Boolean },
     };
   }
 
@@ -103,6 +104,14 @@ export class SakaiAddTopic extends SakaiElement {
 
     if (this.topic.title.length < 4) {
       this.querySelector("#summary").focus();
+      return;
+    }
+
+    if (this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate) {
+      this.lockDateInvalid = true;
+      this.updateComplete.then(() => {
+        document.querySelector('.portal-main-container').scrollTo({ top: 0, behaviour: "smooth" });
+      });
       return;
     }
 
@@ -257,10 +266,6 @@ export class SakaiAddTopic extends SakaiElement {
     this.topic.dueDate = e.detail.epochSeconds;
   }
 
-  setAcceptUntilDate(e) {
-    this.topic.acceptUntilDate = e.detail.epochSeconds;
-  }
-
   setAvailableNow() {
 
     this.topic.availability = AVAILABILITY_NOW;
@@ -349,6 +354,9 @@ export class SakaiAddTopic extends SakaiElement {
     return html`
       ${this.topic.beingEdited ? html`
       <div class="sak-banner-info">${this.i18n.editing_topic}</div>
+      ` : ""}
+      ${this.lockDateInvalid ? html`
+      <div class="sak-banner-error">${this.i18n.invalid_lock_date}</div>
       ` : ""}
       <div class="add-topic-wrapper">
         <h1>${this.new ? this.i18n.add_a_new_topic : this.i18n.edit_topic}</h1>
