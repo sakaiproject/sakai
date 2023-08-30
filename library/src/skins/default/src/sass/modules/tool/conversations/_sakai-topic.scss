@@ -104,13 +104,12 @@
     padding: 4px;
   }
 
-  .topic-option a {
-    //text-decoration: none;
-  }
-
   .good-question-on {
-    background: #D4EBF9;
+    background: var(--sakai-selected-page-bg-color);
     border-radius: 2px;
+    a, sakai-icon, a:hover {
+      color: var(--sakai-selected-page-color);
+    }
   }
   .topic-message-bottom-bar a {
     text-decoration: none;
