@@ -141,6 +141,10 @@
             <groupId>org.sakaiproject.cardgame</groupId>
             <artifactId>sakai-card-game-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.conditions</groupId>
+            <artifactId>sakai-conditions-api</artifactId>
+        </dependency>
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>

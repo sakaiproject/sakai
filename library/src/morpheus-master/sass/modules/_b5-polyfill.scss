@@ -64,8 +64,30 @@ TODO Master merge: Remove this file
   }
 
   /* https://getbootstrap.com/docs/5.2/utilities/spacing/#maps */
+  &.mt-1 {
+    margin-top: $standard-spacing * 0.25 !important;
+  }
+
+  &.mt-2 {
+    margin-top: $standard-spacing * 0.5 !important;
+  }
+
   &.mb-1 {
     margin-bottom: $standard-spacing * 0.25 !important;
+  }
+
+  &.mb-2 {
+    margin-bottom: $standard-spacing * 0.5 !important;
+  }
+
+  &.my-1 {
+    @extend .mt-1;
+    @extend .mb-1;
+  }
+
+  &.my-2 {
+    @extend .mt-2;
+    @extend .mb-2;
   }
 
   &.gap-1 {
