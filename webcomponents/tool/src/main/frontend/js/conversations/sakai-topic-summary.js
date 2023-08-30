@@ -22,7 +22,7 @@ export class SakaiTopicSummary extends SakaiElement {
   topicSelected(e) {
 
     e.target.focus();
-    window.scrollTo(0, 0);
+    document.querySelector('.portal-main-container').scrollTo({ top: 0, behaviour: "smooth" });
     this.dispatchEvent(new CustomEvent("topic-selected", { detail: { topic: this.topic }, bubbles: true }));
   }
 
