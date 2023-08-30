@@ -460,7 +460,7 @@ export class SakaiConversations extends SakaiElement {
         ` : ""}
 
         <div class="conv-settings-and-create d-flex align-items-center">
-          ${this.data.canUpdatePermissions ? html`
+          ${this.data.canUpdatePermissions || this.data.isInstructor ? html`
           <div>
             <button type="button"
                 @click=${this._handleSearch}
@@ -632,7 +632,7 @@ export class SakaiConversations extends SakaiElement {
       : html`
         <div id="overlay"></div>
         <div id="conv-desktop">
-          ${this.showingSettings && this.data.canUpdatePermissions ? html`
+          ${this.showingSettings && (this.data.canUpdatePermissions || this.data.isInstructor) ? html`
           <div>
             <div id="conv-back-button-block">
               <a href="javascript:;" @click=${this.resetState}>
