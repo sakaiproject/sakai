@@ -100,7 +100,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
         try {
             Site site = siteService.getSite(siteId);
             String channelRef = announcementService.channelReference(siteId, "main");
-            return ((List<AnnouncementMessage>) announcementService.getMessages(channelRef, null, false, true))
+            return ((List<AnnouncementMessage>) announcementService.getViewableAnnouncementsForSite(channelRef, 10))
                 .stream()
                 .map(am -> {
                     Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
@@ -108,8 +108,8 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                 }).collect(Collectors.toList());
         } catch (IdUnusedException idue) {
             log.error("No announcements for id {}", siteId);
-        } catch (PermissionException pe) {
-            log.warn("The current user does not have permission to get announcements for this site {}", siteId);
+        } catch (Exception ex) {
+            log.warn("Error getting announcements for this site {}", siteId, ex);
         }
 
         return Collections.EMPTY_LIST;
