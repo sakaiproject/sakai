@@ -336,6 +336,21 @@ export class SakaiAddTopic extends SakaiElement {
     this.saveWip();
   }
 
+  _renderTitle() {
+
+    return html`
+      ${this.canCreateQuestion && !this.canCreateDiscussion ? html`
+        <h1>${this.new ? this.i18n.add_a_new_question : this.i18n.edit_question}</h1>
+      ` : ""}
+      ${this.canCreateDiscussion && !this.canCreateQuestion ? html`
+        <h1>${this.new ? this.i18n.add_a_new_discussion : this.i18n.edit_discussion}</h1>
+      ` : ""}
+      ${this.canCreateDiscussion && this.canCreateQuestion ? html`
+        <h1>${this.new ? this.i18n.add_a_new_topic : this.i18n.edit_topic}</h1>
+      ` : ""}
+    `;
+  }
+
   firstUpdated() {
 
     this.querySelector("#summary").focus();
@@ -359,7 +374,7 @@ export class SakaiAddTopic extends SakaiElement {
       <div class="sak-banner-error">${this.i18n.invalid_lock_date}</div>
       ` : ""}
       <div class="add-topic-wrapper">
-        <h1>${this.new ? this.i18n.add_a_new_topic : this.i18n.edit_topic}</h1>
+        ${this._renderTitle()}
 
         ${this.disableDiscussions ? "" : html`
         <div class="add-topic-block">
