@@ -306,6 +306,7 @@ export class SakaiConversations extends SakaiElement {
       const index1 = topic.tags.findIndex(t => t.id == e.detail.id);
       topic.tags.splice(index1, 1);
     });
+
     this.requestUpdate();
   }
 
