@@ -58,6 +58,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           if (r.ok) {
             // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
             postIds.forEach(postId => observer.unobserve(entries.find(e => e.target.dataset.postId === postId).target));
+            this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds, topicId: this.topic.id } }));
           } else {
             throw new Error("Network error while marking posts as viewed");
           }
