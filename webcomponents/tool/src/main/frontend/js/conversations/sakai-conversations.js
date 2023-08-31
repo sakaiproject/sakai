@@ -53,7 +53,7 @@ export class SakaiConversations extends SakaiElement {
       //this.state = e.state.state;
 
       if (e.state.topicId) {
-        this.selectTopic(e.state.topicId);
+        this._selectTopic(e.state.topicId);
       }
     };
     */
@@ -81,7 +81,7 @@ export class SakaiConversations extends SakaiElement {
         this.data = data;
 
         if (this.topicId) {
-          this.selectTopic(this.topicId);
+          this._selectTopic(this.topicId);
         }
 
         // If this topic has some sessions stored changes, load them up into wipTopic.
@@ -99,7 +99,7 @@ export class SakaiConversations extends SakaiElement {
 
     this._topicId = value;
     if (this.siteId && this.dataPromise) {
-      this.dataPromise.then(() => this.selectTopic(value));
+      this.dataPromise.then(() => this._selectTopic(value));
     }
   }
 
@@ -145,7 +145,7 @@ export class SakaiConversations extends SakaiElement {
 
   get state() { return this._state; }
 
-  addTopic(e) {
+  _addTopic(e) {
 
     e.preventDefault();
     if (this.wipTopic && !this.wipTopic.id) {
@@ -156,7 +156,7 @@ export class SakaiConversations extends SakaiElement {
     this.state = STATE_ADDING_TOPIC;
   }
 
-  topicDeleted(e) {
+  _topicDeleted(e) {
 
     const index = this.data.topics.findIndex(t => t.id === e.detail.topic.id);
     this.data.topics.splice(index, 1);
@@ -164,7 +164,7 @@ export class SakaiConversations extends SakaiElement {
     this.state = STATE_NOTHING_SELECTED;
   }
 
-  saveWipTopic(e) {
+  _saveWipTopic(e) {
 
     this.wipTopic = e.detail.topic;
     if (!this.wipTopic.id) {
@@ -173,7 +173,7 @@ export class SakaiConversations extends SakaiElement {
     sessionStorage.setItem(this.wipTopicKey, JSON.stringify(e.detail.topic));
   }
 
-  topicSaved(e) {
+  _topicSaved(e) {
 
     this.wipTopic = null;
     this.topicBeingEdited = null;
@@ -214,7 +214,13 @@ export class SakaiConversations extends SakaiElement {
     this.state = STATE_ADDING_TOPIC;
   }
 
-  topicUpdated(e) {
+  _postsViewed(e) {
+
+    this.data.topics.find(t => t.id === e.detail.topicId).numberOfUnreadPosts -= e.detail.postIds.length;
+    this.requestUpdate();
+  }
+
+  _topicUpdated(e) {
 
     const topic = e.detail.topic;
 
@@ -226,13 +232,13 @@ export class SakaiConversations extends SakaiElement {
     }
   }
 
-  topicSelected(e) {
+  _topicSelected(e) {
 
     const topicId = e.detail.topic.id;
 
     this.postId = undefined;
 
-    this.selectTopic(topicId);
+    this._selectTopic(topicId);
 
     /*
     const url = `${this.baseUrl}/topics/${topicId}`;
@@ -244,7 +250,7 @@ export class SakaiConversations extends SakaiElement {
     history.pushState({}, "", this.baseUrl);
   }
 
-  selectTopic(topicId, onlySelectInList) {
+  _selectTopic(topicId, onlySelectInList) {
 
     if (topicId) {
       const topic = this.data.topics.find(t => t.id === topicId);
@@ -259,7 +265,7 @@ export class SakaiConversations extends SakaiElement {
     }
   }
 
-  cancelAddTopic() {
+  _cancelAddTopic() {
 
     this.wipTopic = null;
     this.topicBeingEdited = null;
@@ -323,13 +329,13 @@ export class SakaiConversations extends SakaiElement {
       this.state = STATE_ADDING_TOPIC;
     } else if (this.currentTopic) {
       this.state = STATE_DISPLAYING_TOPIC;
-      this.selectTopic();
+      this._selectTopic();
     } else {
       this.state = STATE_NOTHING_SELECTED;
     }
   }
 
-  settingUpdated(e) {
+  _settingUpdated(e) {
 
     const setting = e.detail.setting;
 
@@ -344,7 +350,7 @@ export class SakaiConversations extends SakaiElement {
     this.requestUpdate();
   }
 
-  guidelinesSaved(e) {
+  _guidelinesSaved(e) {
 
     this.data.settings.guidelines = e.detail.guidelines;
     this.requestUpdate();
@@ -370,7 +376,7 @@ export class SakaiConversations extends SakaiElement {
     this.requestUpdate();
   }
 
-  editTags() {
+  _editTags() {
 
     this.wasAddingTopic = true;
     this.state = STATE_MANAGING_TAGS;
@@ -495,7 +501,7 @@ export class SakaiConversations extends SakaiElement {
           ` : ""}
 
           ${this.data.canCreateTopic ? html`
-          <a href="javascript:;" @click=${this.addTopic}>
+          <a href="javascript:;" @click=${this._addTopic}>
             <div class="conv-add-topic">
                 <span class="add-topic-text">
                 ${this.i18n.create_new}
@@ -542,8 +548,9 @@ export class SakaiConversations extends SakaiElement {
             ?can-view-deleted=${this.data.canViewDeleted}
             topic="${JSON.stringify(this.currentTopic)}"
             @edit-topic=${this.editTopic}
-            @topic-deleted=${this.topicDeleted}
-            @topic-updated=${this.topicUpdated}
+            @posts-viewed=${this._postsViewed}
+            @topic-deleted=${this._topicDeleted}
+            @topic-updated=${this._topicUpdated}
             @topic-unread-updated=${this.topicUnreadUpdated}>
       </sakai-topic>
     `;
@@ -567,11 +574,10 @@ export class SakaiConversations extends SakaiElement {
         site-id="${this.siteId}"
         .tags="${this.data.tags}"
         .groups="${this.data.groups}"
-        @topic-saved=${this.topicSaved}
-        @save-wip-topic=${this.saveWipTopic}
-        @topic-add-cancelled=${this.cancelAddTopic}
-        @topic-dirty=${this.topicDirty}
-        @edit-tags=${this.editTags}
+        @topic-saved=${this._topicSaved}
+        @save-wip-topic=${this._saveWipTopic}
+        @topic-add-cancelled=${this._cancelAddTopic}
+        @edit-tags=${this._editTags}
         ?can-create-discussion=${this.data.canCreateDiscussion}
         ?can-create-question=${this.data.canCreateQuestion}
         ?can-pin=${this.data.canPin}
@@ -589,8 +595,8 @@ export class SakaiConversations extends SakaiElement {
     return html`
       <sakai-conversations-settings
           settings="${JSON.stringify(this.data.settings)}"
-          @setting-updated=${this.settingUpdated}
-          @guidelines-saved=${this.guidelinesSaved}
+          @setting-updated=${this._settingUpdated}
+          @guidelines-saved=${this._guidelinesSaved}
           site-id="${this.siteId}">
       </sakai-conversations-settings>
     `;
@@ -604,7 +610,7 @@ export class SakaiConversations extends SakaiElement {
             id="conv-topic-list"
             site-id="${this.data.siteId}"
             .data="${this.data}"
-            @topic-selected=${this.topicSelected}>
+            @topic-selected=${this._topicSelected}>
         </sakai-topic-list>
       </div>
     `;
