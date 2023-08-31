@@ -17,6 +17,7 @@ export class SakaiTopicList extends SakaiElement {
       expandDraft: { type: Boolean },
       expandTheRest: { type: Boolean },
       tagsInUse: { attribute: false, type: Array },
+      _selectedTag: { attribute: false, type: String },
     };
   }
 
@@ -27,7 +28,7 @@ export class SakaiTopicList extends SakaiElement {
     this.expandDraft = true;
     this.expandTheRest = true;
 
-    this.NONE = "none";
+    this.ANY = "any";
     this.BY_QUESTION = "by_question";
     this.BY_RESOLVED_QUESTION = "by_resolved_question";
     this.BY_DISCUSSION = "by_discussion";
@@ -36,7 +37,7 @@ export class SakaiTopicList extends SakaiElement {
     this.BY_MODERATED = "by_moderated";
     this.BY_UNVIEWED = "by_unviewed";
 
-    this.currentFilter = this.NONE;
+    this.currentFilter = this.ANY;
 
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
@@ -47,7 +48,7 @@ export class SakaiTopicList extends SakaiElement {
 
     this.initialFilter();
 
-    this.filter(this.currentFilter);
+    this.filter();
 
     this.tagsInUse = [];
 
@@ -84,10 +85,15 @@ export class SakaiTopicList extends SakaiElement {
     this.filteredUnpinnedTopics = this.unpinnedTopics;
   }
 
-  filter(filter) {
+  filter() {
 
-    switch (filter) {
+    this.filteredPinnedTopics = this.pinnedTopics;
+    this.filteredUnpinnedTopics = this.unpinnedTopics;
 
+    switch (this.currentFilter) {
+
+      case undefined:
+        break;
       case this.BY_QUESTION:
         this.filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === QUESTION);
         this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === QUESTION);
@@ -118,21 +124,25 @@ export class SakaiTopicList extends SakaiElement {
         this.filteredUnpinnedTopics = this.unpinnedTopics;
     }
 
-    this.currentFilter = filter;
+    if (this._selectedTag) {
+      this.filteredUnpinnedTopics = this.filteredUnpinnedTopics.filter(t => t.tags.find(tag => tag.id == this._selectedTag));
+    }
   }
 
   filterSelected(e) {
-    this.filter(e.target.value);
+
+    this.currentFilter = e.target.value;
+    this.filter();
   }
 
   tagSelected(e) {
 
-    if (e.target.value === "none") {
-      this.filteredPinnedTopics = this.pinnedTopics;
-      this.filteredUnpinnedTopics = this.unpinnedTopics;
+    if (e.target.value === this.ANY) {
+      this._selectedTag = undefined;
     } else {
-      this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.tags.find(tag => tag.id == e.target.value));
+      this._selectedTag = e.target.value;
     }
+    this.filter();
   }
 
   _toggleExpandDraft() { this.expandDraft = !this.expandDraft; }
@@ -151,7 +161,7 @@ export class SakaiTopicList extends SakaiElement {
         <div id="topic-list-filters">
           <div>
             <select @change=${this.tagSelected} aria-label="${this.i18n.filter_by_tag_tooltip}">
-              <option value="none">${this.i18n.tag_any}</option>
+              <option value="${this.ANY}">${this.i18n.tag_any}</option>
             ${this.tagsInUse.map(tag => html`
               <option value="${tag.id}">${this.i18n.tag} ${tag.label}</option>
             `)}
@@ -159,7 +169,7 @@ export class SakaiTopicList extends SakaiElement {
           </div>
           <div>
             <select @change=${this.filterSelected} aria-label="${this.i18n.filter_by_various_tooltip}">
-              <option value="none">${this.i18n.filter_none}</option>
+              <option value="${this.ANY}">${this.i18n.filter_any}</option>
               <option value="${this.BY_QUESTION}">${this.i18n.filter_questions}</option>
               <option value="${this.BY_RESOLVED_QUESTION}">${this.i18n.filter_answered}</option>
               <option value="${this.BY_DISCUSSION}">${this.i18n.filter_discussions}</option>
