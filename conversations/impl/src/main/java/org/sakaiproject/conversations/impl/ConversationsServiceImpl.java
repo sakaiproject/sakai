@@ -1253,6 +1253,20 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         int pageSize = serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10);
 
+        // This method is only ever called on a topic click. So, if there are no posts we can just
+        // assume that the topic has been viewed in its entirety.
+        if (fullList.isEmpty()) {
+            TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+                .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
+            topicStatus.setViewed(true);
+            try {
+                topicStatusRepository.save(topicStatus);
+            } catch (ConstraintViolationException e) {
+                log.debug("Caught a constraint exception while saving topic status. This can happen " +
+                    "due to the way the client detects posts scrolling into view");
+            }
+        }
+
         if (fullList.size() < pageSize) {
             return fullList;
         } else if (requestedThreadId != null) {
@@ -1623,6 +1637,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                     topicBean.bookmarked = s.getBookmarked();
                     topicBean.hasPosted = s.getPosted();
+                    topicBean.viewed = s.getViewed();
                 });
 
             topicBean.myReactions = topicReactionRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
