@@ -120,6 +120,12 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       this.getPosts(this.topic, 0, SORT_OLDEST, this.postId).then(posts => {
 
         this.topic.posts = posts;
+
+        // We've clicked on a topic and it has no posts. Ergo, it has been "viewed".
+        if (this.topic.posts.length === 0) {
+          this.topic.viewed = true;
+        }
+
         sortAndUpdate();
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic, dontUpdateCurrent: true }, bubbles: true }));
       });

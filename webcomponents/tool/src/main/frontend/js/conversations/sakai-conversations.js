@@ -216,7 +216,9 @@ export class SakaiConversations extends SakaiElement {
 
   _postsViewed(e) {
 
-    this.data.topics.find(t => t.id === e.detail.topicId).numberOfUnreadPosts -= e.detail.postIds.length;
+    const topic = this.data.topics.find(t => t.id === e.detail.topicId);
+    topic.numberOfUnreadPosts -= e.detail.postIds.length;
+    if (topic.numberOfUnreadPosts === 0) topic.viewed = true;
     this.requestUpdate();
   }
 

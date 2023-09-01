@@ -117,7 +117,7 @@ export class SakaiTopicList extends SakaiElement {
         this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.hidden || t.locked);
         break;
       case this.BY_UNVIEWED:
-        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.numberOfUnreadPosts > 0);
+        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => !t.viewed);
         break;
       default:
         this.filteredPinnedTopics = this.pinnedTopics;
