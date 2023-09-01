@@ -165,6 +165,17 @@ function toPoint(id)
   <h:outputText value="#{deliveryMessages.table_of_contents}" />
 </h2>
 
+<h:panelGroup rendered="#{totalScores.isOneSelectionType}">
+  <fieldset>
+    <legend><h:outputText value="#{evaluationMessages.summary_title}" rendered="true" /></legend>
+    <ul>
+      <li><h4 style="display: inline;"><h:outputText value="#{evaluationMessages.correct_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][0]}" /></h4></li>
+      <li><h4 style="display: inline;"><h:outputText value="#{evaluationMessages.incorrect_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][1]}" /></h4></li>
+      <li><h4 style="display: inline;"><h:outputText value="#{evaluationMessages.empty_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][2]}" /></h4></li>
+    <ul>
+  </fieldset>
+</h:panelGroup>
+
 <div class="toc-holder">
   <t:dataList styleClass="part-wrapper" value="#{delivery.tableOfContents.partsContents}" var="part">
     <h:panelGroup styleClass="toc-part">
