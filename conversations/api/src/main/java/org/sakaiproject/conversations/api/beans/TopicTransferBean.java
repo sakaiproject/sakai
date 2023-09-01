@@ -47,6 +47,7 @@ public class TopicTransferBean implements Entity {
     public long numberOfPosts;
     public long numberOfThreads;
     public long numberOfUnreadPosts;
+    public boolean viewed;
     public String creator;
     public Instant created;
     public String formattedCreatedDate;
