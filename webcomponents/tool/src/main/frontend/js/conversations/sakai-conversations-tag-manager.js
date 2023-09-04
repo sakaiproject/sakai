@@ -8,8 +8,8 @@ export class SakaiConversationsTagManager extends SakaiElement {
     return {
       siteId: { attribute: "site-id", type: String },
       tags: { type: Array },
-      tagsBeingEdited: { attribute: false, type: Array },
-      saveable: { attribute: false, type: Boolean },
+      _tagsBeingEdited: { attribute: false, type: Array },
+      _saveable: { attribute: false, type: Boolean },
     };
   }
 
@@ -17,16 +17,12 @@ export class SakaiConversationsTagManager extends SakaiElement {
 
     super();
 
-    this.tagsBeingEdited = [];
+    this._tagsBeingEdited = [];
 
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
 
-  shouldUpdate() {
-    return this.i18n;
-  }
-
-  createTags() {
+  _createTags() {
 
     const field = this.querySelector("#tag-creation-field");
 
@@ -72,20 +68,20 @@ export class SakaiConversationsTagManager extends SakaiElement {
     });
   }
 
-  editTag(e) {
+  _editTag(e) {
 
-    this.tagsBeingEdited.push(parseInt(e.target.dataset.tagId));
+    this._tagsBeingEdited.push(parseInt(e.target.dataset.tagId));
     this.requestUpdate();
   }
 
-  cancelTagEditing(e) {
+  _cancelTagEditing(e) {
 
-    const index = this.tagsBeingEdited.indexOf(e.target.dataset.tagId);
-    this.tagsBeingEdited.splice(index, 1);
+    const index = this._tagsBeingEdited.indexOf(e.target.dataset.tagId);
+    this._tagsBeingEdited.splice(index, 1);
     this.requestUpdate();
   }
 
-  saveTag(e) {
+  _saveTag(e) {
 
     const id = e.target.dataset.tagId;
     const label = this.querySelector(`#tag-${id}-editor`)?.value;
@@ -110,13 +106,13 @@ export class SakaiConversationsTagManager extends SakaiElement {
     })
     .then(tag => {
 
-      this.cancelTagEditing(e);
+      this._cancelTagEditing(e);
       this.dispatchEvent(new CustomEvent("tag-updated", { detail: { tag }, bubbles: true }));
     })
     .catch (error => console.error(error));
   }
 
-  deleteTag(e) {
+  _deleteTag(e) {
 
     if (!confirm("Deleting this tag will remove it from all the topics in this site. Continue?")) {
       return;
@@ -142,7 +138,11 @@ export class SakaiConversationsTagManager extends SakaiElement {
     });
   }
 
-  _setSaveable() { this.saveable = true; }
+  _setSaveable() { this._saveable = true; }
+
+  shouldUpdate() {
+    return this.i18n;
+  }
 
   render() {
 
@@ -159,8 +159,8 @@ export class SakaiConversationsTagManager extends SakaiElement {
             <div id="tag-creation-instruction" class="topic-option-label-text">Add multiple tags separated by a comma</div>
           </div>
           <div class="act" style="white-space: nowrap;">
-            <input type="button" @click=${this.cancel} value="${this.i18n.cancel}" ?disabled=${!this.saveable}>
-            <input type="button" class="active" @click=${this.createTags} value="Add New Tags" ?disabled=${!this.saveable}>
+            <input type="button" @click=${this.cancel} value="${this.i18n.cancel}" ?disabled=${!this._saveable}>
+            <input type="button" class="active" @click=${this._createTags} value="Add New Tags" ?disabled=${!this._saveable}>
           </div>
         </div>
         <div id="current-tags">
@@ -169,18 +169,18 @@ export class SakaiConversationsTagManager extends SakaiElement {
             <div class="tag-label">${tag.label}</div>
             <div>
               <div class="tag-buttons">
-                <input type="button" data-tag-id="${tag.id}" @click=${this.editTag} value="${this.i18n.edit}">
-                <input type="button" data-tag-id="${tag.id}" @click=${this.deleteTag} value="${this.i18n.delete}">
+                <input type="button" data-tag-id="${tag.id}" @click=${this._editTag} value="${this.i18n.edit}">
+                <input type="button" data-tag-id="${tag.id}" @click=${this._deleteTag} value="${this.i18n.delete}">
               </div>
             </div>
           </div>
-          ${this.tagsBeingEdited.includes(tag.id) ? html`
+          ${this._tagsBeingEdited.includes(tag.id) ? html`
           <div class="add-topic-label">Tag Name</div>
           <div class="tag-editor">
             <div><input id="tag-${tag.id}-editor" type="text" value="${tag.label}"></div>
             <div class="act">
-              <input type="button" class="active" data-tag-id="${tag.id}" @click=${this.saveTag} value="${this.i18n.save}">
-              <input type="button" data-tag-id="${tag.id}" @click=${this.cancelTagEditing} value="${this.i18n.cancel}">
+              <input type="button" class="active" data-tag-id="${tag.id}" @click=${this._saveTag} value="${this.i18n.save}">
+              <input type="button" data-tag-id="${tag.id}" @click=${this._cancelTagEditing} value="${this.i18n.cancel}">
             </div>
           </div>
           ` : ""}

@@ -89,4 +89,18 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
 
         return session.createQuery(update).executeUpdate();
     }
+
+    @Transactional
+    public Integer setViewedByTopicIdAndUserId(String topicId, String userId, Boolean viewed) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<TopicStatus> update = cb.createCriteriaUpdate(TopicStatus.class);
+        Root<TopicStatus> status = update.from(TopicStatus.class);
+        update.set(status.get("viewed"), viewed).where(cb.and(cb.equal(status.get("topicId"), topicId)), cb.equal(status.get("userId"), userId));
+
+        return session.createQuery(update).executeUpdate();
+    }
+
 }

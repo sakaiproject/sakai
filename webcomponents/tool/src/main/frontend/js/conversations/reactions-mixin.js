@@ -67,7 +67,6 @@ export const reactionsMixin = Base => class extends Base {
     const reaction = e.target.dataset.reaction;
 
     this.myReactions[reaction] = !this.myReactions[reaction];
-    console.log(this.myReactions);
-    this.postReactions();
+    this._postReactions();
   }
 };

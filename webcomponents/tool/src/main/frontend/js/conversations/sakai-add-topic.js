@@ -26,12 +26,12 @@ export class SakaiAddTopic extends SakaiElement {
       disableDiscussions: { attribute: "disable-discussions", type: Boolean },
       canEditTags: { attribute: "can-edit-tags", type: Boolean },
       topic: { type: Object },
-      showShowDatePicker: { attribute: false, type: Boolean },
-      showHideDatePicker: { attribute: false, type: Boolean },
-      showLockDatePicker: { attribute: false, type: Boolean },
-      showDue: { attribute: false, type: Boolean },
-      showAcceptUntil: { attribute: false, type: Boolean },
-      lockDateInvalid: { attribute: false, type: Boolean },
+      _showShowDatePicker: { attribute: false, type: Boolean },
+      _showHideDatePicker: { attribute: false, type: Boolean },
+      _showLockDatePicker: { attribute: false, type: Boolean },
+      _showDue: { attribute: false, type: Boolean },
+      _showAcceptUntil: { attribute: false, type: Boolean },
+      _lockDateInvalid: { attribute: false, type: Boolean },
     };
   }
 
@@ -61,11 +61,11 @@ export class SakaiAddTopic extends SakaiElement {
     } else {
       this.topic.availability = AVAILABILITY_NOW;
     }
-    this.showShowDatePicker = this.topic.showDate !== null;
-    this.showLockDatePicker = this.topic.lockDate !== null;
-    this.showHideDatePicker = this.topic.hideDate !== null;
-    this.showDue = this.topic.dueDate !== null;
-    this.showAcceptUntil = this.topic.lockDate !== null;
+    this._showShowDatePicker = this.topic.showDate !== null;
+    this._showLockDatePicker = this.topic.lockDate !== null;
+    this._showHideDatePicker = this.topic.hideDate !== null;
+    this._showDue = this.topic.dueDate !== null;
+    this._showAcceptUntil = this.topic.lockDate !== null;
 
     const nowMillis = Date.now();
     this.topic.showDateMillis = this.topic.showDate ? this.topic.showDate * 1000 : nowMillis;
@@ -108,7 +108,7 @@ export class SakaiAddTopic extends SakaiElement {
     }
 
     if (this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate) {
-      this.lockDateInvalid = true;
+      this._lockDateInvalid = true;
       this.updateComplete.then(() => {
         document.querySelector('.portal-main-container').scrollTo({ top: 0, behaviour: "smooth" });
       });
@@ -222,8 +222,8 @@ export class SakaiAddTopic extends SakaiElement {
 
   toggleShowDue(e) {
 
-    this.showDue = e.target.checked;
-    if (!this.showDue) {
+    this._showDue = e.target.checked;
+    if (!this._showDue) {
       this.topic.dueDate = undefined;
     } else {
       this.topic.dueDate = Date.now() / 1000;
@@ -232,8 +232,8 @@ export class SakaiAddTopic extends SakaiElement {
 
   toggleShowAcceptUntil(e) {
 
-    this.showAcceptUntil = e.target.checked;
-    if (!this.showAcceptUntil) {
+    this._showAcceptUntil = e.target.checked;
+    if (!this._showAcceptUntil) {
       this.topic.acceptUntilDate = undefined;
     } else {
       this.topic.acceptUntilDate = Date.now();
@@ -270,11 +270,11 @@ export class SakaiAddTopic extends SakaiElement {
 
     this.topic.availability = AVAILABILITY_NOW;
     this.topic.showDate = null;
-    this.topic.showHideDatePicker = null;
-    this.topic.showLockDatePicker = null;
-    this.showShowDatePicker = false;
-    this.showHideDatePicker = false;
-    this.showLockDatePicker = false;
+    this.topic._showHideDatePicker = null;
+    this.topic._showLockDatePicker = null;
+    this._showShowDatePicker = false;
+    this._showHideDatePicker = false;
+    this._showLockDatePicker = false;
     this.requestUpdate();
   }
 
@@ -286,7 +286,7 @@ export class SakaiAddTopic extends SakaiElement {
 
   toggleShowDatePicker(e) {
 
-    this.showShowDatePicker = e.target.checked;
+    this._showShowDatePicker = e.target.checked;
     if (!e.target.checked) {
       this.topic.showDate = undefined;
     }
@@ -294,7 +294,7 @@ export class SakaiAddTopic extends SakaiElement {
 
   toggleLockDatePicker(e) {
 
-    this.showLockDatePicker = e.target.checked;
+    this._showLockDatePicker = e.target.checked;
     if (!e.target.checked) {
       this.topic.lockDate = undefined;
     }
@@ -302,7 +302,7 @@ export class SakaiAddTopic extends SakaiElement {
 
   toggleHideDatePicker(e) {
 
-    this.showHideDatePicker = e.target.checked;
+    this._showHideDatePicker = e.target.checked;
     if (!e.target.checked) {
       this.topic.hideDate = undefined;
     }
@@ -370,7 +370,7 @@ export class SakaiAddTopic extends SakaiElement {
       ${this.topic.beingEdited ? html`
       <div class="sak-banner-info">${this.i18n.editing_topic}</div>
       ` : ""}
-      ${this.lockDateInvalid ? html`
+      ${this._lockDateInvalid ? html`
       <div class="sak-banner-error">${this.i18n.invalid_lock_date}</div>
       ` : ""}
       <div class="add-topic-wrapper">
@@ -550,7 +550,7 @@ export class SakaiAddTopic extends SakaiElement {
                 </div>
                 <div>
                   <div id="add-topic-show-label">${this.i18n.show}</div>
-                  ${this.showShowDatePicker ? html`
+                  ${this._showShowDatePicker ? html`
                   <div>
                     <span>${this.i18n.date}</span>
                     <sakai-date-picker
@@ -571,7 +571,7 @@ export class SakaiAddTopic extends SakaiElement {
                 </div>
                 <div>
                   <div id="add-topic-lock-label">${this.i18n.lock}</div>
-                  ${this.showLockDatePicker ? html`
+                  ${this._showLockDatePicker ? html`
                   <div>
                     <span>${this.i18n.date}</span>
                     <sakai-date-picker
@@ -592,7 +592,7 @@ export class SakaiAddTopic extends SakaiElement {
                 </div>
                 <div>
                   <div id="add-topic-hide-label">${this.i18n.hide}</div>
-                  ${this.showHideDatePicker ? html`
+                  ${this._showHideDatePicker ? html`
                   <div>
                     <span>${this.i18n.date}</span>
                     <sakai-date-picker
@@ -624,7 +624,7 @@ export class SakaiAddTopic extends SakaiElement {
                 <span>${this.i18n.duedate}</span>
                 <span>${this.i18n.duedate_explanation}</span>
               </div>
-              ${this.showDue ? html`
+              ${this._showDue ? html`
               <div>
                 <span>${this.i18n.date}</span>
                 <sakai-date-picker
@@ -643,7 +643,7 @@ export class SakaiAddTopic extends SakaiElement {
                       <span>${this.i18n.acceptuntildate}</span>
                       <span>${this.i18n.acceptuntildate_explanation}</span>
                     </div>
-                    ${this.showAcceptUntil ? html`
+                    ${this._showAcceptUntil ? html`
                     <div>
                       <span>${this.i18n.date}</span>
                       <sakai-date-picker
