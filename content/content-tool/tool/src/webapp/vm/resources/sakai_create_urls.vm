@@ -20,7 +20,7 @@
 	#if ($itemAlertMessage)
 		<div id="resourceAlert" class="sak-banner-success">$itemAlertMessage</div>
 	#else
-		<div id="resourceAlert" class="sak-banner-error hide"></div>
+		<div id="resourceAlert" class="sak-banner-error d-none"></div>
 	#end
 
 	<p class="instruction">
@@ -136,7 +136,7 @@
 		var alertDiv = document.getElementById("resourceAlert");
 		if (alertDiv)
 		{
-			alertDiv.classList.add("hide");
+			alertDiv.classList.add("d-none");
 			alertDiv.innerHTML = "";
 		}
 
