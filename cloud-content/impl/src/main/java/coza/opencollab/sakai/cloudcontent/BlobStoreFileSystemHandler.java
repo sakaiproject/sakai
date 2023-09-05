@@ -58,6 +58,12 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * The jclouds provider name to use.
      */
     private String provider = "aws-s3";
+
+    /**
+     * The connection endpoint to the s3-compatible storage.
+     */
+    private String endpoint = "https://s3.amazonaws.com";
+
     /**
      * The identity/user to connect to the BlobStore.
      */
@@ -131,6 +137,13 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     }
 
     /**
+     * The connection endpoint to the s3-compatible storage.
+     */
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    /**
      * The identity/user to connect to the BlobStore.
      */
     public void setIdentity(String identity) {
@@ -194,6 +207,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         ProviderRegistry.registerProvider(new AWSS3ProviderMetadata());
 
         context = ContextBuilder.newBuilder(provider)
+                .endpoint(endpoint)
                 .credentials(identity, credential)
                 .modules(modules)
                 .buildView(BlobStoreContext.class);
