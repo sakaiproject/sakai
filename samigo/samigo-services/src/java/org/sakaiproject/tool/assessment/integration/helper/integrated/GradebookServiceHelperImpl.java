@@ -117,7 +117,6 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     {
       g.addExternalAssessment(gradebookUId,
               publishedAssessment.getPublishedAssessmentId().toString(),
-              null,
               title,
               publishedAssessment.getTotalScore(),
               publishedAssessment.getAssessmentAccessControl().getDueDate(),
@@ -151,7 +150,6 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     log.debug("before g.isAssignmentDefined()");
 	g.updateExternalAssessment(gradebookUId,
             publishedAssessment.getPublishedAssessmentId().toString(),
-            null,
             null,
             publishedAssessment.getTitle(),
             publishedAssessment.getTotalScore(),

@@ -45,10 +45,10 @@ public class GradebookIfc {
 	gradingService = s;
     }
 
-    public boolean addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
+    public boolean addExternalAssessment(final String gradebookUid, final String externalId,
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
 	try {
-	    gradingService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
+	    gradingService.addExternalAssessment(gradebookUid, externalId, title, points, dueDate, externalServiceDescription, null);
 	} catch (ConflictingAssignmentNameException cane) {
 	    // already exists
 	    log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane.getMessage());
@@ -60,10 +60,10 @@ public class GradebookIfc {
 	return true;
     }
 
-    public boolean updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
+    public boolean updateExternalAssessment(final String gradebookUid, final String externalId,
 					    final String title, final double points, final Date dueDate) {
 	try {
-	    gradingService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, points, dueDate);
+	    gradingService.updateExternalAssessment(gradebookUid, externalId, null, title, points, dueDate);
 	} catch (Exception e) {
 	    return false;
 	}

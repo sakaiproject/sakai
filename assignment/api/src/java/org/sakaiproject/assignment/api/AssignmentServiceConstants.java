@@ -121,7 +121,7 @@ public final class AssignmentServiceConstants {
                     ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID,
                     ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID,
                     AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
-                    AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)));
+                    AssignmentConstants.PROP_GRADEBOOK_ASSIGNMENT_ID)));
 
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final String SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS = "assignment.merge.import.submissions";

@@ -300,7 +300,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         Object result = startCriteriaQuery()
                 .createAlias("properties", "p")
                 .add(Restrictions.eq("context", context))
-                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
+                .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentConstants.PROP_GRADEBOOK_ASSIGNMENT_ID))
                 .add(Restrictions.eq("p." + CollectionPropertyNames.COLLECTION_ELEMENTS, linkId))
                 .setProjection(Projections.property("id"))
                 .uniqueResult();

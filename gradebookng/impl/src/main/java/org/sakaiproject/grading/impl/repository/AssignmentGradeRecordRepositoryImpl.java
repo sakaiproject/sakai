@@ -16,7 +16,6 @@
 package org.sakaiproject.grading.impl.repository;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,8 +34,6 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
-
-import org.sakaiproject.hibernate.HibernateCriterionUtils;
 
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
@@ -130,17 +127,6 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         Join<GradableObject, Gradebook> gb = go.join("gradebook");
         query.where(cb.and(cb.equal(gb.get("id"), gradebookId), cb.equal(go.get("removed"), false), agr.get("studentId").in(studentIds)));
         return session.createQuery(query).list();
-
-        /*
-        return (List<AssignmentGradeRecord>) sessionFactory.getCurrentSession()
-            .createCriteria(AssignmentGradeRecord.class)
-            .createAlias("gradableObject", "go")
-            .createAlias("gradableObject.gradebook", "gb")
-            .add(Restrictions.equal("gb.id", gradebookId))
-            .add(Restrictions.equal("go.removed", false))
-            .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
-            .list();
-            */
     }
 
     @Transactional(readOnly = true)
@@ -152,14 +138,6 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         Root<AssignmentGradeRecord> agr = query.from(AssignmentGradeRecord.class);
         query.where(cb.and(cb.equal(agr.get("gradableObject"), assignment), agr.get("studentId").in(studentIds)));
         return session.createQuery(query).list();
-
-        /*
-        return (List<AssignmentGradeRecord>) sessionFactory.getCurrentSession()
-            .createCriteria(AssignmentGradeRecord.class)
-            .add(Restrictions.equal("gradableObject", assignment))
-            .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
-            .list();
-        */
     }
 
 

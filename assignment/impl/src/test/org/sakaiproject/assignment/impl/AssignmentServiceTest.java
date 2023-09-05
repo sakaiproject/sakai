@@ -22,9 +22,13 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
@@ -40,6 +44,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -1324,7 +1329,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         try {
             AssignmentSubmission newSubmission = createNewSubmission(context, submitterId, null);
             Assignment assignment = newSubmission.getAssignment();
-            assignment.getProperties().put(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, itemId.toString());
+            assignment.getProperties().put(AssignmentConstants.PROP_GRADEBOOK_ASSIGNMENT_ID, itemId.toString());
             assignment.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
             assignment.setScaleFactor(assignmentService.getScaleFactor());
 
@@ -1456,6 +1461,97 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             assignmentService.updateSubmission(submission);
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void integrateGradebookAddItem() {
+
+        String siteId = UUID.randomUUID().toString();
+
+        Assignment assignment = createNewAssignment(siteId);
+        assignment.setScaleFactor(assignmentService.getScaleFactor());
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        when(gradingService.currentUserHasGradingPerm(siteId)).thenReturn(true);
+        when(gradingService.isExternalAssignmentDefined(siteId, assignmentRef)).thenReturn(true);
+
+        String oldTitle = "oldAss";
+        String newTitle = "newAss";
+        int maxPoints = 100;
+        String associateGradebookAssignment = null;
+        String addUpdateRemoveAssignment = AssignmentConstants.GRADEBOOK_INTEGRATION_ADD;
+        Instant in8Days = Instant.now().plus(8, ChronoUnit.DAYS);
+        String submissionRef = null;
+        String updateRemoveSubmission = "update";
+        long category = -1L;
+
+        when(gradingService.addAssignment(any(), any())).thenReturn(null);
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("siteId", siteId);
+
+        //AssignmentServiceImpl impl = (AssignmentServiceImpl) AopTestUtils.getTargetObject(assignmentService);
+        when(assignmentService.allowGradeSubmission(assignmentRef)).thenReturn(true);
+
+        assignmentService.synchronizeGradingItem(options, assignmentRef, associateGradebookAssignment,
+            addUpdateRemoveAssignment, oldTitle, newTitle, maxPoints, in8Days, category, false);
+
+        verify(gradingService, times(1)).addAssignment(any(), any());
+    }
+
+    @Test
+    public void integrateGradebookUpdateItem() {
+
+        String siteId = UUID.randomUUID().toString();
+
+        Assignment assignment = createNewAssignment(siteId);
+        assignment.setScaleFactor(assignmentService.getScaleFactor());
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        when(gradingService.currentUserHasGradingPerm(siteId)).thenReturn(true);
+        when(gradingService.isExternalAssignmentDefined(siteId, assignmentRef)).thenReturn(true);
+
+        String oldTitle = "oldAss";
+        String newTitle = "newAss";
+        int maxPoints = 100;
+        String associateGradebookAssignment = assignment.getId();
+        String addUpdateRemoveAssignment = AssignmentConstants.GRADEBOOK_INTEGRATION_UPDATE;
+        Instant in8Days = Instant.now().plus(8, ChronoUnit.DAYS);
+        String submissionRef = null;
+        String updateRemoveSubmission = "update";
+        long category = -1L;
+        when(gradingService.isExternalAssignmentDefined(siteId, associateGradebookAssignment)).thenReturn(true);
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("siteId", siteId);
+
+        when(assignmentService.allowGradeSubmission(assignmentRef)).thenReturn(true);
+
+        assignmentService.synchronizeGradingItem(options, assignmentRef, associateGradebookAssignment,
+            addUpdateRemoveAssignment, oldTitle, newTitle, maxPoints, in8Days, category, false);
+
+        verify(gradingService, times(1)).updateExternalAssessment(siteId, associateGradebookAssignment, null, newTitle, maxPoints / (double) assignment.getScaleFactor(), Date.from(in8Days), false);
+    }
+
+    @Test
+    public void isDraftSubmission() {
+
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        try {
+            AssignmentSubmission savedSubmission = createNewSubmission(context, submitterId, null);
+            Assert.assertFalse(assignmentService.isDraftSubmission(savedSubmission.getId()));
+            savedSubmission.setSubmitted(false);
+            savedSubmission.setSubmittedText("something");
+            Assert.assertTrue(assignmentService.isDraftSubmission(savedSubmission.getId()));
+            savedSubmission.setSubmittedText("");
+            Assert.assertFalse(assignmentService.isDraftSubmission(savedSubmission.getId()));
+            Set<String> attachments = new HashSet<>();
+            attachments.add("something");
+            savedSubmission.setAttachments(attachments);
+            Assert.assertTrue(assignmentService.isDraftSubmission(savedSubmission.getId()));
+        } catch (Exception e) {
         }
     }
 

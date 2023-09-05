@@ -247,12 +247,11 @@ public class Assignments extends AbstractWebService {
 
     		// If necessary, update the assignment grade in the Gradebook
 
-			String associateGradebookAssignment = assign.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
     		String sReference = AssignmentReferenceReckoner.reckoner().submission(sub).reckon().getReference();
 
+			String gradebookAssignmentId = assign.getProperties().get(AssignmentConstants.PROP_GRADEBOOK_ASSIGNMENT_ID);
     		// update grade in gradebook
-    		integrateGradebook(aReference, associateGradebookAssignment, null, null, -1, null, sReference, "update", context);
-
+			integrateGradebook(aReference, gradebookAssignmentId, null, null, -1, null, sReference, "update", context);
     	}
     	catch (Exception e)
     	{
@@ -476,8 +475,7 @@ public class Assignments extends AbstractWebService {
     	String gradebookUid = context;
     	String assignmentToolTitle = "Assignments";
 
-        boolean isExternalAssignmentDefined=gradingService.isExternalAssignmentDefined(gradebookUid, assignmentRef);
-        boolean isExternalAssociateAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
+        boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, assignmentRef);
         boolean isAssignmentDefined = gradingService.isAssignmentDefined(gradebookUid, associateGradebookAssignment);
 
         if (addUpdateRemoveAssignment != null)
@@ -490,7 +488,6 @@ public class Assignments extends AbstractWebService {
                     // add assignment to gradebook
                     gradingService.addExternalAssessment(gradebookUid,
                             assignmentRef,
-                            null,
                             newAssignment_title,
                             newAssignment_maxPoints/10,
                             new Date(newAssignment_dueTime.getTime()),
@@ -518,7 +515,6 @@ public class Assignments extends AbstractWebService {
                                 // add assignment to gradebook
                                 gradingService.addExternalAssessment(gradebookUid,
                                         assignmentRef,
-                                        null,
                                         newTitle,
                                         newAssignment_maxPoints/10,
                                         new Date(newAssignment_dueTime.getTime()),
@@ -593,7 +589,7 @@ public class Assignments extends AbstractWebService {
                         {
                             if (associateGradebookAssignment != null)
                             {
-                                if (isExternalAssociateAssignmentDefined)
+                                if (isExternalAssignmentDefined)
                                 {
                                     // the associated assignment is externally maintained
                                     gradingService.updateExternalAssessmentScores(gradebookUid, associateGradebookAssignment, m);
@@ -670,7 +666,7 @@ public class Assignments extends AbstractWebService {
                             AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
                             Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
                             String submitter = submitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().get().getSubmitter();
-                            if (isExternalAssociateAssignmentDefined)
+                            if (isExternalAssignmentDefined)
                             {
                                 // if the old associated assignment is an external maintained one
                                 gradingService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitter, null);
