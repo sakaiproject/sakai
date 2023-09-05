@@ -79,6 +79,42 @@
   }
 }
 
+/* 
+ * WARNING: This CSS uses deprecated properties because there's currently no alternative way
+ * to achieve multi-line text truncation. 
+ * These properties are:
+ * - display: -webkit-box;
+ * - -webkit-line-clamp: 2;
+ * - -webkit-box-orient: vertical;
+ * 
+ * These may break in future browser versions, so monitor this and update if a more standardized 
+ * approach becomes available.
+ */
+ @media (min-width: 767px) {
+  .sidebar-site-title {
+    width: 128px;
+    display: -webkit-box;  /* Deprecated, but necessary for multi-line text truncation */
+    -webkit-line-clamp: 2; /* Deprecated, but necessary for multi-line text truncation */
+    line-clamp: 2;
+    -webkit-box-orient: vertical;  /* Deprecated, but necessary for multi-line text truncation */
+    overflow: hidden;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    text-overflow: ellipsis;
+    max-height: 47px; /* Fallback: Setting max-height as a fallback measure */
+  }
+}
+
+@media #{$phone} {
+  .sidebar-site-title {
+    overflow: hidden;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+}
+
 // Responsive header for mobile
 @media (max-width: 767px) {
   .portal-header {
