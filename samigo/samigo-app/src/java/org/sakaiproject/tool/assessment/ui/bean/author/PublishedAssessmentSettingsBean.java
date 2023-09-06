@@ -200,6 +200,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   private boolean showSelectionLevelFeedback = false; // must be MC
   private boolean showGraderComments = false;
   private boolean showStatistics = false;
+  private boolean showCorrection = true;
   
   // properties of PublishedEvaluationModel
   private boolean anonymousGrading;
@@ -444,6 +445,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
       this.showSelectionLevelFeedback = (Boolean.TRUE).equals(feedback.getShowSelectionLevelFeedback()); // must be MC
       this.showGraderComments = (Boolean.TRUE).equals(feedback.getShowGraderComments());
       this.showStatistics = (Boolean.TRUE).equals(feedback.getShowStatistics());
+      this.showCorrection = (Boolean.TRUE).equals(feedback.getShowCorrection());
       }
 
       // properties of EvaluationModel
@@ -956,6 +958,14 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   public void setShowStatistics(boolean showStatistics) {
     this.showStatistics = showStatistics;
+  }
+
+  public boolean getShowCorrection() {
+    return showCorrection;
+  }
+
+  public void setShowCorrection(boolean showCorrection) {
+    this.showCorrection = showCorrection;
   }
 
   public boolean getAnonymousGrading() {
