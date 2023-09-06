@@ -2020,7 +2020,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
 
             if (this.submitters.isEmpty()) {
-                throw new Exception("No submitters for this submission");
+                throw new Exception("No submitters for this submission: " + as.getId());
             }
 
             this.canSubmit = assignmentService.canSubmit(as.getAssignment(), this.submitters.stream().findAny().get().getId());
