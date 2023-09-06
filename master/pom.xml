@@ -110,7 +110,7 @@
     <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
     <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
     <ckeditor.image2.version>4.21.0</ckeditor.image2.version>
-    <ckeditor.html5video.version>1.1</ckeditor.html5video.version>
+    <ckeditor.html5video.version>1.1.1</ckeditor.html5video.version>
 
   </properties>
   <distributionManagement>
