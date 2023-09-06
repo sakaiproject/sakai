@@ -933,15 +933,21 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     replacements.put("creatorDisplayName", decoratedBean.creatorDisplayName);
                     replacements.put("bundle", new ResourceLoader("conversations_notifications"));
 
-                    if (topic.getType() == TopicType.QUESTION && decoratedBean.isInstructor) {
-                        Set<User> siteUsers = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+                    if (topic.getType() == TopicType.QUESTION) {
                         String topicCreator = topic.getMetadata().getCreator();
                         Set<User> questionCreator = Collections.singleton(userDirectoryService.getUser(topicCreator));
-                        siteUsers.removeAll(questionCreator);
-                        sendMessage(siteUsers, decoratedBean.siteId, replacements, "instructoranswer");
+                        if (decoratedBean.isInstructor) {
+                            Set<User> siteUsers = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+                            siteUsers.removeAll(questionCreator);
+                            sendMessage(siteUsers, decoratedBean.siteId, replacements, "instructoranswer");
+                            // Send a specific message to the question poster
+                            sendMessage(questionCreator, decoratedBean.siteId, replacements, "instructorreply");
+                        } else {
+                            // The creator of this post is not an instructor, so just send the
+                            // generic reply message.
+                            sendMessage(questionCreator, decoratedBean.siteId, replacements, "reply");
+                        }
 
-                        // Send a specific message to the question poster
-                        sendMessage(questionCreator, decoratedBean.siteId, replacements, "instructorreply");
                     } else if (topic.getType() == TopicType.DISCUSSION && optParent.isPresent()) {
                         String parentCreator = optParent.get().getMetadata().getCreator();
                         if (!parentCreator.equals(currentUserId)) {
