@@ -34,6 +34,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Closeables;
 import com.google.inject.Module;
 
+import lombok.Setter;
+
 /**
  * The jclouds BlobStore implementation of FileSystemHandler.
  * <p/>
@@ -42,6 +44,7 @@ import com.google.inject.Module;
  * @author OpenCollab
  * @author botimer
  */
+@Setter
 public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
     /**
@@ -55,7 +58,11 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     private ServerConfigurationService serverConfigurationService;
 
     /**
-     * The jclouds provider name to use.
+     * The jclouds BlobStore provider name to use.
+     *
+     * The provider must be packaged with the component and registered with
+     * the ServiceLoader or ProviderRegistry. By default, these are only
+     * aws-s3 and openstack-swift.
      */
     private String provider = "aws-s3";
 
@@ -68,27 +75,41 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * The identity/user to connect to the BlobStore.
      */
     private String identity;
+
     /**
      * The credential for the identity/user.
      */
     private String credential;
+
     /**
      * The base container/bucket to use.
+     *
+     * Default is not set, but it is required for e.g., S3.
      */
     private String baseContainer;
+
     /**
-     * Whether to delete empty containers after a resource delete.
+     * Whether to delete empty containers after a resource delete and there 
+     * is no more resources in the container.
+     * 
+     * The Default is false.
      */
     private boolean deleteEmptyContainers = false;
+
     /**
-     * Whether to use the id for the file path.
+     * Whether to use the id for the resource path.
+     * 
+     * The default is false, so the filePath will be used.
      */
     private boolean useIdForPath = false;
+
     /**
      * The regular expression for all the characters that is not valid 
      * for container and resource names.
+     * Default is null.
      */
     private String invalidCharactersRegex = "[:*?<|>]";
+
     /**
      * The maximum buffer size, which dictates the maximum file upload.
      *
@@ -119,79 +140,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * Default constructor.
      */
     public BlobStoreFileSystemHandler() {
-    }
-
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
-    /**
-     * The jclouds BlobStore provider name to use.
-     *
-     * The provider must be packaged with the component and registered with
-     * the ServiceLoader or ProviderRegistry. By default, these are only
-     * aws-s3 and openstack-swift.
-     */
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
-
-    /**
-     * The connection endpoint to the s3-compatible storage.
-     */
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    /**
-     * The identity/user to connect to the BlobStore.
-     */
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
-
-    /**
-     * The credential for the identity/user.
-     */
-    public void setCredential(String credential) {
-        this.credential = credential;
-    }
-
-    /**
-     * The base container/bucket to use.
-     *
-     * Default is not set, but it is required for e.g., S3.
-     */
-    public void setBaseContainer(String baseContainer) {
-        this.baseContainer = baseContainer;
-    }
-
-    /**
-     * Whether to delete empty containers after a resource delete and there 
-     * is no more resources in the container.
-     * 
-     * The Default is false.
-     */
-    public void setDeleteEmptyContainers(boolean deleteEmptyContainers) {
-        this.deleteEmptyContainers = deleteEmptyContainers;
-    }
-    
-    /**
-     * Whether to use the id for the resource path.
-     * 
-     * The default is false, so the filePath will be used.
-     */
-    public void setUseIdForPath(boolean useIdForPath){
-        this.useIdForPath = useIdForPath;
-    }
-
-    /**
-     * The regular expression for all the characters that is not valid 
-     * for container and resource names.
-     * Default is null.
-     */
-    public void setInvalidCharactersRegex(String invalidCharactersRegex) {
-        this.invalidCharactersRegex = invalidCharactersRegex;
     }
 
     /**
