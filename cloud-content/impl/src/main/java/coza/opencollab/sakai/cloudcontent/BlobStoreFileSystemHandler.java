@@ -89,16 +89,16 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     private String baseContainer;
 
     /**
-     * Whether to delete empty containers after a resource delete and there 
+     * Whether to delete empty containers after a resource delete and there
      * is no more resources in the container.
-     * 
+     *
      * The Default is false.
      */
     private boolean deleteEmptyContainers = false;
 
     /**
      * Whether to use the id for the resource path.
-     * 
+     *
      * The default is false, so the filePath will be used.
      */
     private boolean useIdForPath = false;
