@@ -463,6 +463,25 @@
 	sakai-user-photo {
 		margin-right: 7px;
 	}
+
+	.mcAnswerText {
+		display:inline;
+		float:unset;
+
+		label, .samigo-answer-label, .samigo-answer-text {
+			font-weight: normal;
+		}
+
+		/* Someone put a paragraph in a multiple choice answer */
+		p:first-child {
+			display: inline;
+			margin: 0 0 1em 0;
+		}
+	}
+
+	.tableTF label {
+		font-weight: normal;
+	}
 }
 
 .#{$namespace}sakai-samigo, .#{$namespace}toolBody--sakai-samigo {

@@ -50,9 +50,7 @@ should be included in file importing DeliveryMessages
 <h:panelGroup>
   <f:verbatim><br /></f:verbatim>
   <h:panelGroup>
-    <f:verbatim><b></f:verbatim>
     <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
-      <f:verbatim></b></f:verbatim>
     <h:outputText id="answerKeyMC" value="#{question.key}" escape="false"/>
   </h:panelGroup>
   <h:panelGroup>

@@ -1258,7 +1258,7 @@ public String getAddOrEdit()
 		setOutComeParams();
 		getCheckedQuestion();
 		GradingService delegate = new GradingService();
-		Map<Integer, String> answersMap = new HashMap<Integer, String>();
+		Map<Integer, String> answersMap = new HashMap<>();
 		LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
 		ItemDataIfc item = (ItemDataIfc) this.currentItems.get(0);
 
@@ -1270,7 +1270,7 @@ public String getAddOrEdit()
 		delegate.replaceSolutionOnFeedbackWithNumbers(answersMapValues, item, texts);
 
 		ItemContentsBean itemBean = new ItemContentsBean();
-		List<ItemGradingData> datas = new ArrayList();
+		List<ItemGradingData> datas = new ArrayList<>();
 		String keysString = "";
 		int i = 0;
 
@@ -1318,15 +1318,17 @@ public String getAddOrEdit()
 		itemBean.setPointsForEdit(item.getScore().toString());
 		itemBean.setMaxPoints(item.getScore());
 		itemBean.setFeedbackValue(item.getCorrectItemFeedbackValue());
-		itemBean.setInfeedbackValue(item.getInCorrectItemFeedbackValue());
+		itemBean.setIncorrectFeedbackValue(item.getInCorrectItemFeedbackValue());
 		itemBean.setKey(keysString);
 		itemBean.setItemGradingDataArray(datas);
 
 		FinBean fbean = new FinBean();
-		if (texts.toArray().length>i)
+		if (texts.toArray().length > i) {
 			fbean.setText( (String) texts.get(0).toArray()[i]);
-		else
+		}
+		else {
 			fbean.setText("");
+		}
 		fbean.setHasInput(Boolean.FALSE);
 		fins.add(fbean);
 

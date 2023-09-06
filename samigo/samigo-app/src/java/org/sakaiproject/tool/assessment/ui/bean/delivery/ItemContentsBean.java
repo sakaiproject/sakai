@@ -88,7 +88,7 @@ public class ItemContentsBean implements Serializable {
 
 	private String feedbackValue;
 
-	private String infeedbackValue;
+	private String incorrectFeedbackValue;
 
 	private String responseId = "2";
 
@@ -677,18 +677,18 @@ public class ItemContentsBean implements Serializable {
 	 *
 	 * @return the item level incorrect feedback value
 	 */
-	public String getInfeedbackValue() {
-		return infeedbackValue;
+	public String getIncorrectFeedbackValue() {
+		return incorrectFeedbackValue;
 	}
 
 	/**
 	 * item level incorrect feedback value
 	 *
-	 * @param feedbackValue
+	 * @param incorrectFeedbackValue
 	 *            the item level incorrect feedback value
 	 */
-	public void setInfeedbackValue(String infeedbackValue) {
-		this.infeedbackValue = infeedbackValue;
+	public void setIncorrectFeedbackValue(String incorrectFeedbackValue) {
+		this.incorrectFeedbackValue = incorrectFeedbackValue;
 	}
 
 	/**
