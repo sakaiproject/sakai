@@ -42,6 +42,7 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -467,13 +468,13 @@ public class XMLImportBean implements Serializable {
     String sourceType = ContextUtil.lookupParam("sourceType");
     String uploadFile = (String) e.getNewValue();
 
-    if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
+    if (StringUtils.isNotBlank(uploadFile) && StringUtils.startsWith(uploadFile, "SizeTooBig:")) {
         Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "20480"));
         String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
         FacesMessage message = new FacesMessage(sizeTooBigMessage);
         FacesContext.getCurrentInstance().addMessage(null, message);
         // remove unsuccessful file
-        log.debug("****Clean up file: {}", uploadFile);
+        log.debug("Clean up file: {}", uploadFile);
         File upload = new File(uploadFile);
         upload.delete();
         authorBean.setImportOutcome("importPool");
@@ -534,14 +535,14 @@ public class XMLImportBean implements Serializable {
           File f1 = new File(fileName);
           success = f1.delete();
           if (!success) {
-            log.error("Failed to delete file {}", fileName);
+            log.warn("Failed to delete file {}", fileName);
           }
         }
         if (isCP) {
             File f2 = new File(uploadFile);
             success = f2.delete();
             if (!success) {
-                log.error("Failed to delete file {}", uploadFile);
+                log.warn("Failed to delete file {}", uploadFile);
             }
             File f3 = new File(unzipLocation);
             deleteDirectory(f3);

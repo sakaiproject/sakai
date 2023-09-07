@@ -274,7 +274,7 @@ public class DownloadCPServlet extends HttpServlet {
 				zos.closeEntry();
 			}
 		} catch (IOException e) {
-			log.error(e.getMessage());
+			log.error(e.toString());
 			throw e;
 		} finally {
 			if (zos != null) {
