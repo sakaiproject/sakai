@@ -103,8 +103,8 @@ public class HttpUtil {
 		return builder.toString();
 	}
 
-    // https://www.imsglobal.org/spec/lti-nrps/v2p0#limit-query-parameter
-    // All values of Link: [<http://localhost:8080/imsblis/lti13/namesandroles/8b206920-d4d9-4df5-9aba-bd100a2a0af0?start=2&limit=2>; rel="next"]
+	// https://www.imsglobal.org/spec/lti-nrps/v2p0#limit-query-parameter
+	// All values of Link: [<http://localhost:8080/imsblis/lti13/namesandroles/8b206920-d4d9-4df5-9aba-bd100a2a0af0?start=2&limit=2>; rel="next"]
 	public static String extractLinkByRel(List<String> allValuesOfLink, String rel)
 	{
 		if ( rel == null || allValuesOfLink == null ) return null;
@@ -114,7 +114,22 @@ public class HttpUtil {
 				return m.group(1);
 			}
 		}
-		return null;
+
+		// Some LMSs (cough, cough) return one long string with commas and no space
+		// This confuses the java.util.net.HttpHeaders.allValues() so we compensate
+
+		if ( allValuesOfLink.size() != 1 ) return null;
+
+		String [] pieces = allValuesOfLink.get(0).split(",");
+		for(String value: pieces) {
+			value = value.trim();
+
+			Matcher m = p.matcher(value);
+			if (m.find() && rel.equals(m.group(2)) ) {
+				return m.group(1);
+			}
+		}
+		return null;  // Foiled again
 	}
 
 	// Retry-After: Date: Wed, 21 Oct 2015 07:28:00 GMT
