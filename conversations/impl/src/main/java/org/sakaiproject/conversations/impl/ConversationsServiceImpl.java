@@ -1101,6 +1101,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
                         PostTransferBean parent = postBeanMap.get(pb.parentPost);
                         if (parent != null) {
                             parent.posts.add(pb);
+                            pb.parentIsPrivate = parent.privatePost;
                         } else {
                             log.error("No post for parent post id {}", pb.parentPost);
                         }
