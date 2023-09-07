@@ -131,7 +131,7 @@
 	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
-					 columnClasses="#{PrivateMessagesTool.calculateColumnClass()}">
+					 columnClasses="check,attach,reply,specialLink,created,date,bogus">
 
 		  <h:column>
 		    <f:facet name="header">
@@ -221,7 +221,7 @@
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
 	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
-								 columnClasses="#{PrivateMessagesTool.calculateColumnClass()}">
+								 columnClasses="check,attach,reply,specialLink,created,date,bogus">
 		 	<h:column>
 		    <f:facet name="header">
 				<h:panelGroup>
