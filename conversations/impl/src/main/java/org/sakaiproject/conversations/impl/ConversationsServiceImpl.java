@@ -528,6 +528,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         TopicTransferBean outTopicBean = TopicTransferBean.of(topic);
 
+        if (isNew) {
+            topicStatusRepository.setViewedByTopicId(topic.getId(), true);
+            outTopicBean.viewed = true;
+        } else {
+            topicStatusRepository.setViewedByTopicId(topic.getId(), false);
+            outTopicBean.viewed = false;
+        }
+
         outTopicBean.tags = topic.getTagIds().stream()
             .map(tagId -> tagRepository.findById(tagId).orElse(null))
             .collect(Collectors.toList());
@@ -864,8 +872,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         ConversationsPost post = postBean.asPost();
 
         if ((topic.getLocked() || (topic.getLockDate() != null && now.isAfter(topic.getLockDate()))) && !securityService.unlock(Permissions.MODERATE.label, siteRef)) {
-                throw new ConversationsPermissionsException("Current user cannot update posts on locked topics.");
-            }
+            throw new ConversationsPermissionsException("Current user cannot update posts on locked topics.");
+        }
 
         Optional<ConversationsPost> parent = Optional.empty();
         if (StringUtils.isNotBlank(postBean.parentPost)) {
@@ -886,7 +894,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         postsCache.remove(postBean.topic);
 
-        if (StringUtils.isNotBlank(postBean.parentThread)) {
+        if (StringUtils.isNotBlank(postBean.parentThread) && !postBean.draft) {
             postRepository.findById(postBean.parentThread).ifPresent(thread -> {
 
                 thread.setNumberOfThreadReplies(thread.getNumberOfThreadReplies() + 1);
@@ -906,9 +914,18 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
             .orElse(new TopicStatus(postBean.siteId, postBean.topic, currentUserId));
         topicStatus.setPosted(true);
+        boolean topicWasViewed = topicStatus.getViewed();
         topicStatusRepository.save(topicStatus);
 
+        // If a post is either created or saved, it doesn't matter. The topic has changes and is
+        // therefore not viewed.
         topicStatusRepository.setViewedByTopicId(topic.getId(), false);
+
+        // However, if the current user had previously viewed the topic, set that back. This post
+        // is the current user's, so they've viewed the post.
+        if (topicWasViewed) {
+            topicStatusRepository.setViewedByTopicIdAndUserId(topic.getId(), currentUserId, true);
+        }
 
         PostTransferBean decoratedBean = decoratePostBean(PostTransferBean.of(post), postBean.siteId, topic, currentUserId, settings, null);
 

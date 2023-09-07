@@ -13,7 +13,7 @@ export class SakaiComment extends SakaiElement {
       comment: { type: Object },
       topicId: { attribute: "topic-id", type: String },
       siteId: { attribute: "site-id", type: String },
-      editing: { type: Boolean },
+      _editing: { attribute: false, type: Boolean },
     };
   }
 
@@ -24,7 +24,7 @@ export class SakaiComment extends SakaiElement {
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
 
-  deleteComment() {
+  _deleteComment() {
 
     if (!confirm(this.i18n.confirm_comment_delete)) {
       return;
@@ -46,15 +46,15 @@ export class SakaiComment extends SakaiElement {
     .catch(error => console.error(error));
   }
 
-  commentUpdated(e) {
+  _commentUpdated(e) {
 
     this.comment = e.detail.comment;
-    this.editing = false;
+    this._editing = false;
   }
 
-  _startEditing() { this.editing = true; }
+  _startEditing() { this._editing = true; }
 
-  _stopEditing() { this.editing = false; }
+  _stopEditing() { this._editing = false; }
 
   updated() {
 
@@ -67,7 +67,7 @@ export class SakaiComment extends SakaiElement {
     return this.i18n && this.comment;
   }
 
-  renderOptionsMenu() {
+  _renderOptionsMenu() {
 
     return html`
       <options-menu placement="bottom-left">
@@ -95,7 +95,7 @@ export class SakaiComment extends SakaiElement {
           ${this.comment.canDelete ? html`
           <div>
             <a href="javascript:;"
-                @click=${this.deleteComment}
+                @click=${this._deleteComment}
                 title="${this.i18n.delete_this_comment}"
                 aria-label="${this.i18n.delete_this_comment}">
               ${this.i18n.delete}
@@ -132,15 +132,15 @@ export class SakaiComment extends SakaiElement {
         <div class="post-main">
           <div class="post-upvote-block">
           </div>
-            ${this.editing ? html`
+            ${this._editing ? html`
             <div class="post-edit-comment-block">
               <sakai-comment-editor
                   post-id="${this.comment.post}"
                   site-id="${this.siteId}"
                   topic-id="${this.topicId}"
                   comment="${JSON.stringify(this.comment)}"
-                  @comment-updated=${this.commentUpdated}
-                  @editing-cancelled="${this._stopEditing}"
+                  @comment-updated=${this._commentUpdated}
+                  @editing-cancelled=${this._stopEditing}
                   show-buttons>
               </sakai-comment-editor>
             </div>
@@ -149,7 +149,7 @@ export class SakaiComment extends SakaiElement {
             <div class="post-message">${unsafeHTML(this.comment.message)}</div>
             <div class="post-reactions-block">
               ${!this.comment.locked && (this.comment.canEdit || this.comment.canDelete) ? html `
-              ${this.renderOptionsMenu()}
+              ${this._renderOptionsMenu()}
               ` : ""}
             </div>
             `}

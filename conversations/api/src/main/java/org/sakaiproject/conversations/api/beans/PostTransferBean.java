@@ -39,7 +39,6 @@ public class PostTransferBean implements Entity {
     public String id;
     public String message;
     public int numberOfComments;
-    public int numberOfThreadReplies;
     public int numberOfThreadReactions;
     public int howActive;
     public List<CommentTransferBean> comments = new ArrayList<>();
@@ -64,7 +63,7 @@ public class PostTransferBean implements Entity {
     public String parentPost;
     public String parentThread;
     public boolean isThread;
-    public List posts = new ArrayList();
+    public List<PostTransferBean> posts = new ArrayList<>();
 
     public String creatorDisplayName;
     public String verifierDisplayName;
@@ -107,7 +106,6 @@ public class PostTransferBean implements Entity {
         postBean.id = post.getId();
         postBean.message = post.getMessage();
         postBean.numberOfComments = post.getNumberOfComments();
-        postBean.numberOfThreadReplies = post.getNumberOfThreadReplies();
         postBean.numberOfThreadReactions = post.getNumberOfThreadReactions();
         postBean.howActive = post.getHowActive();
         Metadata metadata = post.getMetadata();
@@ -137,7 +135,6 @@ public class PostTransferBean implements Entity {
         post.setId(this.id);
         post.setMessage(this.message);
         post.setNumberOfComments(this.numberOfComments);
-        post.setNumberOfThreadReplies(this.numberOfThreadReplies);
         post.setNumberOfThreadReactions(this.numberOfThreadReactions);
         post.setHowActive(this.howActive);
 

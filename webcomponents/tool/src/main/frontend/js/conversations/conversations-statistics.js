@@ -10,7 +10,7 @@ export class ConversationsStatistics extends SakaiElement {
 
     return {
       statsUrl: { attribute: "stats-url", type: String },
-      stats: { attribute: false, type: Object },
+      _stats: { attribute: false, type: Object },
     };
   }
 
@@ -18,33 +18,36 @@ export class ConversationsStatistics extends SakaiElement {
 
     super();
 
-    this.sort = "nameAscending";
-    this.sortByNameAscending = true;
-    this.count = 0;
+    this._sort = "nameAscending";
+    this._sortByNameAscending = true;
+    this._count = 0;
 
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
 
   set statsUrl(value) {
 
+    const oldValue = this._statsUrl;
     this._statsUrl = value;
-    this.loadStatsPage(1);
-    this.requestUpdate();
+
+    this._loadStatsPage(1);
+
+    this.requestUpdate("statsUrl", oldValue);
   }
 
   get statsUrl() { return this._statsUrl; }
 
-  loadStatsPage(page) {
+  _loadStatsPage(page) {
 
-    if (!this.statsUrl) return;
+    if (!this._statsUrl) return;
 
     const options = {
       page,
-      sort: this.sort,
+      sort: this._sort,
       interval: typeof(this.interval) === "undefined" ? THIS_WEEK : this.interval,
     };
 
-    fetch(`${this.statsUrl}`, {
+    fetch(`${this._statsUrl}`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -59,10 +62,9 @@ export class ConversationsStatistics extends SakaiElement {
     })
     .then(data => {
 
-      this.count = Math.ceil(data.total / data.pageSize);
-      this.stats = data.stats;
-      this.currentPage = data.currentPage;
-      this.requestUpdate();
+      this._count = Math.ceil(data.total / data.pageSize);
+      this._stats = data.stats;
+      this._currentPage = data.currentPage;
     })
     .catch(error => console.error(error));
   }
@@ -70,7 +72,7 @@ export class ConversationsStatistics extends SakaiElement {
   set interval(value) {
 
     this._interval = value;
-    this.loadStatsPage(1);
+    this._loadStatsPage(1);
   }
 
   get interval() { return this._interval; }
@@ -78,50 +80,44 @@ export class ConversationsStatistics extends SakaiElement {
   set sort(value) {
 
     this._sort = value;
-    this.loadStatsPage(1);
+    this._loadStatsPage(1);
   }
 
   get sort() { return this._sort; }
 
-  selectTopic(e) {
+  _pageClicked(e) {
 
-    const topicId = e.target.dataset.topicId;
-    this.dispatchEvent(new CustomEvent("select-topic", { detail: { topicId }, bubbles: true }));
-  }
-
-  pageClicked(e) {
-
-    this.loadStatsPage(e.detail.page);
+    this._loadStatsPage(e.detail.page);
     this.requestUpdate();
   }
 
-  toggleSort(e) {
+  _toggleSort(e) {
 
     switch (e.target.dataset.sort) {
       case SORT_NAME:
-        this.sortByNameAscending = !this.sortByNameAscending;
-        this.sort = this.sortByNameAscending ? "nameAscending" : "nameDescending";
+        this._sortByNameAscending = !this._sortByNameAscending;
+        this._sort = this._sortByNameAscending ? "nameAscending" : "nameDescending";
         break;
       case SORT_TOPICS_CREATED:
-        this.sortByTopicsCreatedAscending = !this.sortByTopicsCreatedAscending;
-        this.sort = this.sortByTopicsCreatedAscending ? "topicsCreatedAscending" : "topicsCreatedDescending";
+        this._sortByTopicsCreatedAscending = !this._sortByTopicsCreatedAscending;
+        this._sort = this._sortByTopicsCreatedAscending ? "topicsCreatedAscending" : "topicsCreatedDescending";
         break;
       case SORT_TOPICS_VIEWED:
-        this.sortByTopicsViewedAscending = !this.sortByTopicsViewedAscending;
-        this.sort = this.sortByTopicsViewedAscending ? "topicsViewedAscending" : "topicsViewedDescending";
+        this._sortByTopicsViewedAscending = !this._sortByTopicsViewedAscending;
+        this._sort = this._sortByTopicsViewedAscending ? "topicsViewedAscending" : "topicsViewedDescending";
         break;
       case SORT_REACTIONS_MADE:
-        this.sortByReactionsMadeAscending = !this.sortByReactionsMadeAscending;
-        this.sort = this.sortByReactionsMadeAscending ? "reactionsMadeAscending" : "reactionsMadeDescending";
+        this._sortByReactionsMadeAscending = !this._sortByReactionsMadeAscending;
+        this._sort = this._sortByReactionsMadeAscending ? "reactionsMadeAscending" : "reactionsMadeDescending";
         break;
       case SORT_POSTS_CREATED:
-        this.sortByPostsCreatedAscending = !this.sortByPostsCreatedAscending;
-        this.sort = this.sortByPostsCreatedAscending ? "postsCreatedAscending" : "postsCreatedDescending";
+        this._sortByPostsCreatedAscending = !this._sortByPostsCreatedAscending;
+        this._sort = this._sortByPostsCreatedAscending ? "postsCreatedAscending" : "postsCreatedDescending";
         break;
       default:
     }
 
-    this.loadStatsPage(1);
+    this._loadStatsPage(1);
   }
 
   _setThisWeek() { this.interval = THIS_WEEK; }
@@ -129,7 +125,7 @@ export class ConversationsStatistics extends SakaiElement {
   _setAllTime() { this.interval = ALL_TIME; }
 
   shouldUpdate() {
-    return this.i18n && this.stats;
+    return this.i18n && this._stats;
   }
 
   render() {
@@ -150,7 +146,7 @@ export class ConversationsStatistics extends SakaiElement {
               @click="${this._setAllTime}">${this.i18n.all_time}
         </div>
       </div>
-        <sakai-pager count="${this.count}" current="${this.currentPage}" @page-selected=${this.pageClicked}></sakai-pager>
+        <sakai-pager count="${this._count}" current="${this._currentPage}" @page-selected=${this._pageClicked}></sakai-pager>
         <table id="statistics-report-table" class="table table-hover table-striped table-bordered">
           <thead>
             <tr>
@@ -159,11 +155,11 @@ export class ConversationsStatistics extends SakaiElement {
                     data-sort="${SORT_NAME}"
                     title="${this.i18n.sort_by_author}"
                     aria-label="${this.i18n.sort_by_author}"
-                    @click=${this.toggleSort}>
+                    @click=${this._toggleSort}>
                   <div class="header-sort-block">
                     <div>${this.i18n.name_header}</div>
                     <div>
-                      <sakai-icon type="${this.sortByNameAscending ? "down" : "up"}" size="small"></sakai-icon>
+                      <sakai-icon type="${this._sortByNameAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
                   </div>
                 </a>
@@ -173,11 +169,11 @@ export class ConversationsStatistics extends SakaiElement {
                     data-sort="${SORT_TOPICS_CREATED}"
                     title="${this.i18n.sort_by_created_topics}"
                     aria-label="${this.i18n.sort_by_created_topics}"
-                    @click=${this.toggleSort}>
+                    @click=${this._toggleSort}>
                   <div class="header-sort-block">
                     <div>${this.i18n.topics_created_header}</div>
                     <div>
-                      <sakai-icon type="${this.sortByTopicsCreatedAscending ? "down" : "up"}" size="small"></sakai-icon>
+                      <sakai-icon type="${this._sortByTopicsCreatedAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
                   </div>
                 </a>
@@ -187,11 +183,11 @@ export class ConversationsStatistics extends SakaiElement {
                     data-sort="${SORT_TOPICS_VIEWED}"
                     title="${this.i18n.sort_by_viewed_topics}"
                     aria-label="${this.i18n.sort_by_viewed_topics}"
-                    @click=${this.toggleSort}>
+                    @click=${this._toggleSort}>
                   <div class="header-sort-block">
                     <div>${this.i18n.topics_read_header}</div>
                     <div>
-                      <sakai-icon type="${this.sortByTopicsViewedAscending ? "down" : "up"}" size="small"></sakai-icon>
+                      <sakai-icon type="${this._sortByTopicsViewedAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
                   </div>
                 </a>
@@ -201,11 +197,11 @@ export class ConversationsStatistics extends SakaiElement {
                     data-sort="${SORT_REACTIONS_MADE}"
                     title="${this.i18n.sort_by_reactions_made}"
                     aria-label="${this.i18n.sort_by_reactions_made}"
-                    @click=${this.toggleSort}>
+                    @click=${this._toggleSort}>
                   <div class="header-sort-block">
                     <div>${this.i18n.reactions_header}</div>
                     <div>
-                      <sakai-icon type="${this.sortByReactionsMadeAscending ? "down" : "up"}" size="small"></sakai-icon>
+                      <sakai-icon type="${this._sortByReactionsMadeAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
                   </div>
                 </a>
@@ -215,11 +211,11 @@ export class ConversationsStatistics extends SakaiElement {
                     data-sort="${SORT_POSTS_CREATED}"
                     title="${this.i18n.sort_by_created_posts}"
                     aria-label="${this.i18n.sort_by_created_posts}"
-                    @click=${this.toggleSort}>
+                    @click=${this._toggleSort}>
                   <div class="header-sort-block">
                     <div>${this.i18n.posts_header}</div>
                     <div>
-                      <sakai-icon type="${this.sortByPostsCreatedAscending ? "down" : "up"}" size="small"></sakai-icon>
+                      <sakai-icon type="${this._sortByPostsCreatedAscending ? "down" : "up"}" size="small"></sakai-icon>
                     </div>
                   </div>
                 </a>
@@ -227,7 +223,7 @@ export class ConversationsStatistics extends SakaiElement {
             </tr>
           </thead>
           <tbody>
-        ${this.stats.map(stat => html`
+        ${this._stats.map(stat => html`
           <tr>
             <td>${stat.name}</td>
             <td>${stat.topicsCreated}</td>

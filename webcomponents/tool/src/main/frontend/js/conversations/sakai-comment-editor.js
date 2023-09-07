@@ -10,11 +10,11 @@ export class SakaiCommentEditor extends SakaiElement {
 
     return {
       comment: { type: Object },
-      editing: { type: Boolean },
       postId: { attribute: "post-id", type: String },
       siteId: { attribute: "site-id", type: String },
       topicId: { attribute: "topic-id", type: String },
-      i18n: { attribute: false, type: Object },
+      _editing: { attribute: false, type: Boolean },
+      _i18n: { attribute: false, type: Object },
     };
   }
 
@@ -22,18 +22,18 @@ export class SakaiCommentEditor extends SakaiElement {
 
     super();
 
-    loadProperties("conversations").then(r => this.i18n = r);
+    loadProperties("conversations").then(r => this._i18n = r);
   }
 
   set comment(value) {
 
     this._comment = value;
-    this.editing = true;
+    this._editing = true;
   }
 
   get comment() { return this._comment; }
 
-  commentOnPost() {
+  _commentOnPost() {
 
     this.comment = this.comment || { message: "" };
 
@@ -67,7 +67,7 @@ export class SakaiCommentEditor extends SakaiElement {
     .then(comment => {
 
       this.dispatchEvent(new CustomEvent(isNew ? "comment-created" : "comment-updated", { detail: { comment }, bubbles: true }));
-      this.editing = false;
+      this._editing = false;
       this.comment.message = "";
     })
     .catch (error => {
@@ -77,35 +77,35 @@ export class SakaiCommentEditor extends SakaiElement {
   }
 
   _startEditing() {
-    this.editing = true;
+    this._editing = true;
   }
 
-  cancelEditing() {
+  _cancelEditing() {
 
-    this.editing = false;
+    this._editing = false;
     this.dispatchEvent(new CustomEvent("editing-cancelled", { bubbles: true }));
   }
 
   shouldUpdate() {
-    return this.i18n && this.postId;
+    return this._i18n && this.postId;
   }
 
   render() {
 
     return html`
       <div>
-        ${this.editing ? html`
+        ${this._editing ? html`
         <sakai-editor content=${ifDefined(this.comment ? this.comment.message : undefined)} set-focus></sakai-editor>
         <div class="act">
-          <input type="button" class="active" @click=${this.commentOnPost} value="${this.i18n.publish}">
-          <input type="button" @click=${this.cancelEditing} value="${this.i18n.cancel}">
+          <input type="button" class="active" @click=${this._commentOnPost} value="${this._i18n.publish}">
+          <input type="button" @click=${this._cancelEditing} value="${this._i18n.cancel}">
         </div>
         ` : html`
         <input class="comment-editor-input"
-            aria-label="${this.i18n.comment_editor_placeholder}"
-            value="${this.i18n.add_a_comment}"
-            @click="${this._startEditing}"
-            @keydown="${this._startEditing}" />
+            aria-label="${this._i18n.comment_editor_placeholder}"
+            value="${this._i18n.add_a_comment}"
+            @click=${this._startEditing}
+            @keydown=${this._startEditing} />
         `}
       </div>
     `;

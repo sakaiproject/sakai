@@ -19,7 +19,7 @@ export class SakaiTopicSummary extends SakaiElement {
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
 
-  topicSelected(e) {
+  _topicSelected(e) {
 
     e.target.focus();
     document.querySelector('.portal-main-container').scrollTo({ top: 0, behavior: "smooth" });
@@ -33,7 +33,7 @@ export class SakaiTopicSummary extends SakaiElement {
   render() {
 
     return html`
-      <a href="javascript:;" @click=${this.topicSelected} class="topic-summary-link">
+      <a href="javascript:;" @click=${this._topicSelected} class="topic-summary-link">
         <div class="topic-summary
               ${this.topic.numberOfUnreadPosts > 0 && !this.topic.selected ? " unread" : ""}
               ${this.topic.selected ? "selected" : ""}"

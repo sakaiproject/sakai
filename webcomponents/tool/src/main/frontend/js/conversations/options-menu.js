@@ -6,8 +6,8 @@ class OptionsMenu extends LitElement {
 
     return {
       placement: { type: String },
-      showing: { type: Boolean },
-      transform: { attribute: false, type: String },
+      _showing: { attribute: false, type: Boolean },
+      _transform: { attribute: false, type: String },
     };
   }
 
@@ -16,19 +16,19 @@ class OptionsMenu extends LitElement {
     this._placement = value;
     switch (value) {
       case "top":
-        this.transform = "translate(-50%, -130%);";
+        this._transform = "translate(-50%, -130%);";
         break;
       case "right":
-        this.transform = "translate(20px, -50%);";
+        this._transform = "translate(20px, -50%);";
         break;
       case "bottom":
-        this.transform = "translateX(-50%);";
+        this._transform = "translateX(-50%);";
         break;
       case "left":
-        this.transform = "translate(-100%, -50%);";
+        this._transform = "translate(-100%, -50%);";
         break;
       case "bottom-left":
-        this.transform = "translateX(-100%);";
+        this._transform = "translateX(-100%);";
         break;
       default:
     }
@@ -39,14 +39,14 @@ class OptionsMenu extends LitElement {
   _toggleShowing(e) {
 
     e.stopPropagation();
-    this.showing = !this.showing;
+    this._showing = !this._showing;
   }
 
   render() {
 
     return html`
       <slot name="trigger" @click="${this._toggleShowing}"></slot>
-      <slot name="content" class="content" style="display: ${this.showing ? "block" : "none"}; transform: ${this.transform}"></slot>
+      <slot name="content" class="content" style="display: ${this._showing ? "block" : "none"}; transform: ${this._transform}"></slot>
     `;
   }
 

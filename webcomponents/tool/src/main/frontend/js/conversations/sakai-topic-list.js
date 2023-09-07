@@ -11,13 +11,19 @@ export class SakaiTopicList extends SakaiElement {
       aboutRef: { attribute: "about-ref", type: String },
       siteId: { attribute: "site-id", type: String },
       data: { type: Array },
-      filteredPinnedTopics: { type: Array },
-      filteredDraftTopics: { attribute: false, type: Array },
-      filteredUnpinnedTopics: { attribute: false,  type: Array },
-      expandDraft: { type: Boolean },
-      expandTheRest: { type: Boolean },
-      tagsInUse: { attribute: false, type: Array },
+      _filteredPinnedTopics: { attribute: false, type: Array },
+      _filteredDraftTopics: { attribute: false, type: Array },
+      _filteredUnpinnedTopics: { attribute: false,  type: Array },
+      _expandDraft: { attribute: false, type: Boolean },
+      _expandTheRest: { attribute: false, type: Boolean },
+      _tagsInUse: { attribute: false, type: Array },
       _selectedTag: { attribute: false, type: String },
+      _hasBookmarked: { attribute: false, type: Boolean },
+      _hasAnsweredQuestions: { attribute: false, type: Boolean },
+      _hasQuestions: { attribute: false, type: Boolean },
+      _hasDiscussions: { attribute: false, type: Boolean },
+      _hasDiscussionsWithPosts: { attribute: false, type: Boolean },
+      _hasUnviewed: { attribute: false, type: Boolean },
     };
   }
 
@@ -25,8 +31,8 @@ export class SakaiTopicList extends SakaiElement {
 
     super();
 
-    this.expandDraft = true;
-    this.expandTheRest = true;
+    this._expandDraft = true;
+    this._expandTheRest = true;
 
     this.ANY = "any";
     this.BY_QUESTION = "by_question";
@@ -37,26 +43,36 @@ export class SakaiTopicList extends SakaiElement {
     this.BY_MODERATED = "by_moderated";
     this.BY_UNVIEWED = "by_unviewed";
 
-    this.currentFilter = this.ANY;
+    this._currentFilter = this.ANY;
 
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
 
   set data(value) {
 
+    const oldValue = this._data;
+
     this._data = value;
 
-    this.initialFilter();
+    this._initialFilter();
 
-    this.filter();
+    this._filter();
 
-    this.tagsInUse = [];
+    this._tagsInUse = [];
 
     value.topics.forEach(topic => {
-      topic.tags.forEach(t => { if (!this.tagsInUse.find(e => e.id === t.id)) this.tagsInUse.push(t); });
+      topic.tags.forEach(t => { if (!this._tagsInUse.find(e => e.id === t.id)) this._tagsInUse.push(t); });
     });
 
-    this.requestUpdate();
+    this._hasBookmarked = value.topics.some(t => t.bookmarked);
+    this._hasQuestions = value.topics.some(t => t.type === QUESTION);
+    this._hasAnweredQuestions = value.topics.some(t => t.type === QUESTION && t.resolved);
+    this._hasDiscussions = value.topics.some(t => t.type === DISCUSSION);
+    this._hasDiscussionsWithPosts = value.topics.some(t => t.type === DISCUSSION && t.posts);
+    this._hasUnviewed = value.topics.some(t => !t.viewed);
+    this._hasModerated = value.topics.some(t => t.hidden || t.locked);
+
+    this.requestUpdate("data", oldValue);
   }
 
   get data() { return this._data; }
@@ -73,81 +89,81 @@ export class SakaiTopicList extends SakaiElement {
 
   get aboutRef() { return this._aboutRef; }
 
-  initialFilter() {
+  _initialFilter() {
 
     this.pinnedTopics = this.data.topics.filter(t => t.pinned);
-    this.filteredPinnedTopics = this.pinnedTopics;
+    this._filteredPinnedTopics = this.pinnedTopics;
 
     this.draftTopics = this.data.topics.filter(t => t.draft);
-    this.filteredDraftTopics = this.draftTopics;
+    this._filteredDraftTopics = this.draftTopics;
 
     this.unpinnedTopics = this.data.topics.filter(t => !t.pinned && !t.draft);
-    this.filteredUnpinnedTopics = this.unpinnedTopics;
+    this._filteredUnpinnedTopics = this.unpinnedTopics;
   }
 
-  filter() {
+  _filter() {
 
-    this.filteredPinnedTopics = this.pinnedTopics;
-    this.filteredUnpinnedTopics = this.unpinnedTopics;
+    this._filteredPinnedTopics = this.pinnedTopics;
+    this._filteredUnpinnedTopics = this.unpinnedTopics;
 
-    switch (this.currentFilter) {
+    switch (this._currentFilter) {
 
       case undefined:
         break;
       case this.BY_QUESTION:
-        this.filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === QUESTION);
-        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === QUESTION);
+        this._filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === QUESTION);
+        this._filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === QUESTION);
         break;
       case this.BY_DISCUSSION:
-        this.filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === DISCUSSION);
-        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === DISCUSSION);
+        this._filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === DISCUSSION);
+        this._filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === DISCUSSION);
         break;
       case this.BY_RESOLVED_QUESTION:
-        this.filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === QUESTION && t.resolved);
-        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === QUESTION && t.resolved);
+        this._filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === QUESTION && t.resolved);
+        this._filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === QUESTION && t.resolved);
         break;
       case this.BY_DISCUSSION_WITH_POSTS:
-        this.filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === DISCUSSION && t.numberOfPosts);
-        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === DISCUSSION && t.numberOfPosts);
+        this._filteredPinnedTopics = this.pinnedTopics.filter(t => t.type === DISCUSSION && t.numberOfPosts);
+        this._filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.type === DISCUSSION && t.numberOfPosts);
         break;
       case this.BY_BOOKMARKED:
-        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.bookmarked);
+        this._filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.bookmarked);
         break;
       case this.BY_MODERATED:
-        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.hidden || t.locked);
+        this._filteredUnpinnedTopics = this.unpinnedTopics.filter(t => t.hidden || t.locked);
         break;
       case this.BY_UNVIEWED:
-        this.filteredUnpinnedTopics = this.unpinnedTopics.filter(t => !t.viewed);
+        this._filteredUnpinnedTopics = this.unpinnedTopics.filter(t => !t.viewed);
         break;
       default:
-        this.filteredPinnedTopics = this.pinnedTopics;
-        this.filteredUnpinnedTopics = this.unpinnedTopics;
+        this._filteredPinnedTopics = this.pinnedTopics;
+        this._filteredUnpinnedTopics = this.unpinnedTopics;
     }
 
     if (this._selectedTag) {
-      this.filteredUnpinnedTopics = this.filteredUnpinnedTopics.filter(t => t.tags.find(tag => tag.id == this._selectedTag));
+      this._filteredUnpinnedTopics = this._filteredUnpinnedTopics.filter(t => t.tags.find(tag => tag.id == this._selectedTag));
     }
   }
 
-  filterSelected(e) {
+  _filterSelected(e) {
 
-    this.currentFilter = e.target.value;
-    this.filter();
+    this._currentFilter = e.target.value;
+    this._filter();
   }
 
-  tagSelected(e) {
+  _tagSelected(e) {
 
     if (e.target.value === this.ANY) {
       this._selectedTag = undefined;
     } else {
       this._selectedTag = e.target.value;
     }
-    this.filter();
+    this._filter();
   }
 
-  _toggleExpandDraft() { this.expandDraft = !this.expandDraft; }
+  _toggleExpandDraft() { this._expandDraft = !this._expandDraft; }
 
-  _toggleExpandTheRest() { this.expandTheRest = !this.expandTheRest; }
+  _toggleExpandTheRest() { this._expandTheRest = !this._expandTheRest; }
 
   shouldUpdate() {
     return this.i18n && this.data;
@@ -160,23 +176,41 @@ export class SakaiTopicList extends SakaiElement {
 
         <div id="topic-list-filters">
           <div>
-            <select @change=${this.tagSelected} aria-label="${this.i18n.filter_by_tag_tooltip}">
-              <option value="${this.ANY}">${this.i18n.tag_any}</option>
-            ${this.tagsInUse.map(tag => html`
-              <option value="${tag.id}">${this.i18n.tag} ${tag.label}</option>
-            `)}
+            <select @change=${this._tagSelected} aria-label="${this.i18n.filter_by_tag_tooltip}" ?disabled=${!this._tagsInUse?.length}>
+              ${!this._tagsInUse?.length ? html`
+                <option value="none">No tags in use</option>
+                ` : html`
+                <option value="${this.ANY}">${this.i18n.tag_any}</option>
+                ${this._tagsInUse.map(tag => html`
+                  <option value="${tag.id}">${this.i18n.tag} ${tag.label}</option>
+                `)}
+              `}
             </select>
           </div>
           <div>
-            <select @change=${this.filterSelected} aria-label="${this.i18n.filter_by_various_tooltip}">
+            <select @change=${this._filterSelected} aria-label="${this.i18n.filter_by_various_tooltip}">
               <option value="${this.ANY}">${this.i18n.filter_any}</option>
+              ${this._hasQuestions ? html`
               <option value="${this.BY_QUESTION}">${this.i18n.filter_questions}</option>
+              ` : ""}
+              ${this._hasAnsweredQuestions ? html`
               <option value="${this.BY_RESOLVED_QUESTION}">${this.i18n.filter_answered}</option>
+              ` : ""}
+              ${this._hasDiscussions ? html`
               <option value="${this.BY_DISCUSSION}">${this.i18n.filter_discussions}</option>
+              ` : ""}
+              ${this._hasDiscussionsWithPosts ? html`
               <option value="${this.BY_DISCUSSION_WITH_POSTS}">${this.i18n.filter_discussions_with_posts}</option>
+              ` : ""}
+              ${this._hasBookmarked ? html`
               <option value="${this.BY_BOOKMARKED}">${this.i18n.filter_bookmarked}</option>
+              ` : ""}
+              ${this._hasModerated ? html`
               <option value="${this.BY_MODERATED}">${this.i18n.filter_moderated}</option>
+              ` : ""}
+              ${this._hasUnviewed ? html`
               <option value="${this.BY_UNVIEWED}">${this.i18n.filter_unviewed}</option>
+              ` : ""}
             </select>
           </div>
         </div>
@@ -187,28 +221,28 @@ export class SakaiTopicList extends SakaiElement {
           <div id="no-topics-yet-message"><div>${this.i18n.no_topics_yet}</div></div>
           ` : ""}
 
-          ${this.filteredPinnedTopics.length > 0 ? html`
+          ${this._filteredPinnedTopics.length > 0 ? html`
             <div class="topic-list-pinned-header">
               <div>${this.i18n.pinned}</div>
             </div>
-            ${this.filteredPinnedTopics.map(t => html`
+            ${this._filteredPinnedTopics.map(t => html`
             <div class="topic-list-topic-wrapper">
               <sakai-topic-summary topic="${JSON.stringify(t)}"></sakai-topic-summary>
             </div>
             `)}
           ` : ""}
 
-          ${this.filteredDraftTopics.length > 0 ? html`
+          ${this._filteredDraftTopics.length > 0 ? html`
           <a href="javascript:;" @click="${this._toggleExpandDraft}">
             <div class="topic-list-pinned-header">
               <div class="topic-header-icon">
-                <sakai-icon type="${this.expandDraft ? "chevron-down" : "chevron-up"}" size="small"></sakai-icon>
+                <sakai-icon type="${this._expandDraft ? "chevron-down" : "chevron-up"}" size="small"></sakai-icon>
               </div>
               <div>${this.i18n.draft}</div>
             </div>
           </a>
-            ${this.expandDraft ? html`
-              ${this.filteredDraftTopics.map(t => html`
+            ${this._expandDraft ? html`
+              ${this._filteredDraftTopics.map(t => html`
               <div class="topic-list-topic-wrapper">
                 <sakai-topic-summary topic="${JSON.stringify(t)}"></sakai-topic-summary>
               </div>
@@ -217,17 +251,17 @@ export class SakaiTopicList extends SakaiElement {
           ` : ""}
 
 
-          ${this.filteredUnpinnedTopics.length > 0 ? html`
+          ${this._filteredUnpinnedTopics.length > 0 ? html`
           <a href="javascript:;" @click="${this._toggleExpandTheRest}">
             <div class="topic-list-pinned-header">
               <div class="topic-header-icon">
-                <sakai-icon type="${this.expandTheRest ? "chevron-down" : "chevron-up"}" size="small"></sakai-icon>
+                <sakai-icon type="${this._expandTheRest ? "chevron-down" : "chevron-up"}" size="small"></sakai-icon>
               </div>
               <div>${this.i18n.all_topics}</div>
             </div>
           </a>
-            ${this.expandTheRest ? html`
-              ${this.filteredUnpinnedTopics.map(t => html`
+            ${this._expandTheRest ? html`
+              ${this._filteredUnpinnedTopics.map(t => html`
                 <div class="topic-list-topic-wrapper">
                   <sakai-topic-summary topic="${JSON.stringify(t)}"></sakai-topic-summary>
                 </div>
