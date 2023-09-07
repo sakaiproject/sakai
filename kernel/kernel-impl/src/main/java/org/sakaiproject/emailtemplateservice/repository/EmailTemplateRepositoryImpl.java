@@ -1,5 +1,6 @@
 package org.sakaiproject.emailtemplateservice.impl.repository;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
@@ -21,6 +22,22 @@ public class EmailTemplateRepositoryImpl extends SpringCrudRepositoryImpl<EmailT
         List<EmailTemplate> templates = session.createCriteria(EmailTemplate.class)
             .add(Restrictions.eq("key", key))
             .add(Restrictions.eq("locale", locale)).list();
+        return templates.size() > 0 ? Optional.of(templates.get(0)) : Optional.empty();
+    }
+
+    @Transactional
+    public Optional<EmailTemplate> findByKeyAndLocaleAndNotTemplateId(String key, String locale, Long templateId) {
+
+        Session session = sessionFactory.getCurrentSession();
+        Criteria criteria = session.createCriteria(EmailTemplate.class)
+                .add(Restrictions.eq("key", key))
+                .add(Restrictions.eq("locale", locale));
+
+        if (templateId != null) {
+            criteria.add(Restrictions.ne("id", templateId));
+        }
+
+        List<EmailTemplate> templates = criteria.list();
         return templates.size() > 0 ? Optional.of(templates.get(0)) : Optional.empty();
     }
 }
