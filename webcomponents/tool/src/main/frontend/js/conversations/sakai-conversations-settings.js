@@ -11,7 +11,7 @@ export class SakaiConversationsSettings extends SakaiElement {
     return {
       settings: { type: Object },
       siteId: { attribute: "site-id", type: String },
-      editingGuidelines: { attribute: false, type: Boolean },
+      _editingGuidelines: { attribute: false, type: Boolean },
     };
   }
 
@@ -22,7 +22,7 @@ export class SakaiConversationsSettings extends SakaiElement {
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
 
-  setSetting(e) {
+  _setSetting(e) {
 
     e.stopPropagation();
 
@@ -72,15 +72,15 @@ export class SakaiConversationsSettings extends SakaiElement {
         throw new Error("Network error while saving guidelines");
       } else {
         this.dispatchEvent(new CustomEvent("guidelines-saved", { detail: { guidelines }, bubbles: true }));
-        this.editingGuidelines = false;
+        this._editingGuidelines = false;
       }
     })
     .catch(error => console.error(error));
   }
 
-  _startEditingGuidelines() { this.editingGuidelines = true; }
+  _startEditingGuidelines() { this._editingGuidelines = true; }
 
-  _stopEditingGuidelines() { this.editingGuidelines = false; }
+  _stopEditingGuidelines() { this._editingGuidelines = false; }
 
   render() {
 
@@ -90,7 +90,7 @@ export class SakaiConversationsSettings extends SakaiElement {
         <div id="settings-grid">
           <div id="setting-allow-reactions">${this.i18n.allow_reactions}</div>
           <div>
-            <sakai-toggle @toggled=${this.setSetting}
+            <sakai-toggle @toggled=${this._setSetting}
                 data-setting="allowReactions"
                 text-on="${this.i18n.on}"
                 text-off="${this.i18n.off}"
@@ -100,7 +100,7 @@ export class SakaiConversationsSettings extends SakaiElement {
           </div>
           <div id="setting-allow-upvoting">${this.i18n.allow_upvoting}</div>
           <div>
-            <sakai-toggle @toggled=${this.setSetting}
+            <sakai-toggle @toggled=${this._setSetting}
                 data-setting="allowUpvoting"
                 text-on="${this.i18n.on}"
                 text-off="${this.i18n.off}"
@@ -110,7 +110,7 @@ export class SakaiConversationsSettings extends SakaiElement {
           </div>
           <div id="setting-allow-anon-posting">${this.i18n.allow_anon_posting}</div>
           <div>
-            <sakai-toggle @toggled=${this.setSetting}
+            <sakai-toggle @toggled=${this._setSetting}
                 data-setting="allowAnonPosting"
                 text-on="${this.i18n.on}"
                 text-off="${this.i18n.off}"
@@ -120,7 +120,7 @@ export class SakaiConversationsSettings extends SakaiElement {
           </div>
           <div id="setting-allow-bookmarking">${this.i18n.allow_bookmarking}</div>
           <div>
-            <sakai-toggle @toggled=${this.setSetting}
+            <sakai-toggle @toggled=${this._setSetting}
                 data-setting="allowBookmarking"
                 text-on="${this.i18n.on}"
                 text-off="${this.i18n.off}"
@@ -130,7 +130,7 @@ export class SakaiConversationsSettings extends SakaiElement {
           </div>
           <div id="setting-allow-pinning">${this.i18n.allow_pinning}</div>
           <div>
-            <sakai-toggle @toggled=${this.setSetting}
+            <sakai-toggle @toggled=${this._setSetting}
                 data-setting="allowPinning"
                 text-on="${this.i18n.on}"
                 text-off="${this.i18n.off}"
@@ -140,7 +140,7 @@ export class SakaiConversationsSettings extends SakaiElement {
           </div>
           <div id="setting-lock-site">${this.i18n.lock_this_site}</div>
           <div>
-            <sakai-toggle @toggled=${this.setSetting}
+            <sakai-toggle @toggled=${this._setSetting}
                 data-setting="siteLocked"
                 text-on="${this.i18n.on}"
                 text-off="${this.i18n.off}"
@@ -149,7 +149,7 @@ export class SakaiConversationsSettings extends SakaiElement {
             </sakai-toggle></div>
           <div id="setting-require-guidelines">${this.i18n.enable_community_guidelines}</div>
           <div>
-            <sakai-toggle @toggled=${this.setSetting}
+            <sakai-toggle @toggled=${this._setSetting}
                 data-setting="requireGuidelinesAgreement"
                 text-on="${this.i18n.on}"
                 text-off="${this.i18n.off}"
@@ -164,7 +164,7 @@ export class SakaiConversationsSettings extends SakaiElement {
             <div>${this.i18n.community_guidelines_preview_heading}</div>
             <sakai-conversations-guidelines guidelines="${this.settings.guidelines}"></sakai-conversations-guidelines>
           </div>
-          ${this.editingGuidelines ? html`
+          ${this._editingGuidelines ? html`
           <div id="settings-guidelines-editor-block">
             <sakai-editor id="settings-guidelines-editor" content="${this.settings.guidelines}"></sakai-editor>
             <div class="act">

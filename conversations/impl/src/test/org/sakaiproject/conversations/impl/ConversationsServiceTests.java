@@ -1424,7 +1424,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             threads = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(1, threads.size());
-            assertEquals(2, ((List<PostTransferBean>) threads).get(0).numberOfThreadReplies);
+            assertEquals(1, ((List<PostTransferBean>) threads).get(0).posts.size());
             assertEquals(2, ((List<PostTransferBean>) threads).get(0).howActive);
             assertEquals(1, threads.iterator().next().posts.size());
             topics = conversationsService.getTopicsForSite(site1Id);
@@ -1456,6 +1456,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             when(securityService.unlock(Permissions.POST_DELETE_OWN.label, site1Ref)).thenReturn(false);
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.deletePost(topicBean.siteId, topicBean.id, postBean.id, false));
+
             when(securityService.unlock(Permissions.POST_DELETE_OWN.label, site1Ref)).thenReturn(true);
             conversationsService.deletePost(topicBean.siteId, topicBean.id, postBean.id, false);
             Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
@@ -1464,7 +1465,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topics = conversationsService.getTopicsForSite(site1Id);
             assertEquals(0, topics.get(0).numberOfPosts);
 
-            //when(securityService.unlock(Permissions.POST_UPDATEDELETE_ANY.label, site1Ref)).thenReturn(true);
             postBean.id = "";
             postBean = conversationsService.savePost(postBean, true);
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
@@ -1485,7 +1485,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             reply1 = conversationsService.savePost(reply1, true);
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
-            assertEquals(1, posts.iterator().next().getNumberOfThreadReplies());
+            assertEquals(1, posts.iterator().next().posts.size());
 
             topics = conversationsService.getTopicsForSite(site1Id);
             assertEquals(2, topics.get(0).numberOfPosts);
@@ -1496,7 +1496,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(1, posts.size());
-            assertEquals(0, posts.iterator().next().getNumberOfThreadReplies());
+            assertEquals(0, posts.iterator().next().posts.size());
         } catch (ConversationsPermissionsException cpe) {
             cpe.printStackTrace();
             fail("Unexpected exception when deleting post");

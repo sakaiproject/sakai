@@ -17,21 +17,17 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     return {
       topic: { type: Object },
       postId: { attribute: "post-id", type: String },
-      creatingPost: Boolean,
       isInstructor: { attribute: "is-instructor", type: Boolean },
       canViewAnonymous: { attribute: "can-view-anonymous", type: Boolean },
       canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
-      replyEditorDisplayed: { type: Array },
-      postEditorDisplayed: { type: Boolean },
-      replying: { type: Boolean },
+      _postEditorDisplayed: { attribute: false, type: Boolean },
+      _replying: { attribute: false, type: Boolean },
     };
   }
 
   constructor() {
 
     super();
-
-    this.replyEditorDisplayed = [];
 
     this.sort = SORT_OLDEST;
 
@@ -57,7 +53,12 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
           if (r.ok) {
             // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
-            postIds.forEach(postId => observer.unobserve(entries.find(e => e.target.dataset.postId === postId).target));
+            postIds.forEach(postId => {
+
+              observer.unobserve(entries.find(e => e.target.dataset.postId === postId).target);
+              findPost(this.topic, { postId }).viewed = true;
+              this.requestUpdate();
+            });
             this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds, topicId: this.topic.id } }));
           } else {
             throw new Error("Network error while marking posts as viewed");
@@ -74,9 +75,11 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
   set topic(value) {
 
+    const oldValue = this._topic;
+
     this._topic = value;
 
-    this.postEditorDisplayed = false;
+    this._postEditorDisplayed = false;
 
     this.myReactions = value.myReactions || {};
 
@@ -101,7 +104,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         }
       }
 
-      this.requestUpdate();
+      this.requestUpdate("topic", oldValue);
 
       this.updateComplete.then(() => {
 
@@ -112,19 +115,17 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
         // We have to use a timeout for this to satisfy Safari. updateComplete does not fulfil after
         // the full render has happened on Safari, so the elements may well not be there.
-        setTimeout(() => { this.registerPosts(this.topic.posts); }, 100);
+        setTimeout(() => { this._registerPosts(this.topic.posts); }, 100);
       });
     };
 
     if (!this.topic.posts && (!this.topic.mustPostBeforeViewing || this.topic.canPost)) {
-      this.getPosts(this.topic, 0, SORT_OLDEST, this.postId).then(posts => {
+      this._getPosts(this.topic, 0, SORT_OLDEST, this.postId).then(posts => {
 
         this.topic.posts = posts;
 
         // We've clicked on a topic and it has no posts. Ergo, it has been "viewed".
-        if (this.topic.posts.length === 0) {
-          this.topic.viewed = true;
-        }
+        if (this.topic.posts.length === 0) this.topic.viewed = true;
 
         sortAndUpdate();
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic, dontUpdateCurrent: true }, bubbles: true }));
@@ -136,34 +137,16 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
   get topic() { return this._topic; }
 
-  shouldUpdate() {
-    return this.i18n && this.topic;
+
+  _savePostAsDraft() {
+    this._postToTopic(true);
   }
 
-  toggleCreatePost() {
-    this.creatingPost = !this.creatingPost;
+  _publishPost() {
+    this._postToTopic(false);
   }
 
-  toggleReplyToPost(e) {
-
-    e.preventDefault();
-
-    const postId = e.target.dataset.postId;
-    this.replyEditorDisplayed[postId] = !this.replyEditorDisplayed[postId];
-    this.requestUpdate();
-  }
-
-  savePostAsDraft() {
-    this.postToTopic(true);
-  }
-
-  publishPost() {
-    this.postToTopic(false);
-  }
-
-  postToTopic(draft) {
-
-    this.creatingPost = false;
+  _postToTopic(draft) {
 
     const postData = {
       message: document.getElementById(`topic-${this.topic.id}-post-editor`).getContent(),
@@ -199,7 +182,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       if (this.topic.mustPostBeforeViewing && !this.topic.hasPosted) {
         // This user must have just posted to a post before viewing topic. We
         // need to load up the posts.
-        this.getPosts(this.topic, 0, this.sort).then(posts => {
+        this._getPosts(this.topic, 0, this.sort).then(posts => {
 
           this.topic.posts = posts;
           this.topic.hasPosted = true;
@@ -208,8 +191,8 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       } else {
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
       }
-      this.postEditorDisplayed = false;
-      this.replying = false;
+      this._postEditorDisplayed = false;
+      this._replying = false;
 
       this.updateComplete.then(() => {
 
@@ -220,13 +203,13 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch (error => console.error(error));
   }
 
-  editTopic(e) {
+  _editTopic(e) {
 
     e.preventDefault();
     this.dispatchEvent(new CustomEvent("edit-topic", { detail: { topic: this.topic }, bubbles: true }));
   }
 
-  commentDeleted(e) {
+  _commentDeleted(e) {
 
     e.stopPropagation();
 
@@ -236,7 +219,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       { detail: { topicId: this.topic.id, ...e.detail }, bubbles: true }));
   }
 
-  deleteTopic() {
+  _deleteTopic() {
 
     if (!confirm(this.i18n.confirm_topic_delete)) return;
 
@@ -256,7 +239,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
-  toggleBookmarked() {
+  _toggleBookmarked() {
 
     const url = this.topic.links.find(l => l.rel === "bookmark").href;
     fetch(url, {
@@ -277,7 +260,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
-  toggleLocked() {
+  _toggleLocked() {
 
     const url = this.topic.links.find(l => l.rel === "lock").href;
     fetch(url, {
@@ -297,7 +280,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .then(topic => {
 
       topic.selected = true;
-      this.getPosts(topic).then(posts => {
+      this._getPosts(topic).then(posts => {
 
         topic.posts = posts;
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic }, bubbles: true }));
@@ -306,7 +289,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
-  toggleHidden() {
+  _toggleHidden() {
 
     const url = this.topic.links.find(l => l.rel === "hide").href;
     fetch(url, {
@@ -327,7 +310,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
-  togglePinned() {
+  _togglePinned() {
 
     const url = this.topic.links.find(l => l.rel === "pin").href;
     fetch(url, {
@@ -348,7 +331,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
-  postReactions() {
+  _postReactions() {
 
     const url = this.topic.links.find(l => l.rel === "react").href;
     fetch(url, {
@@ -374,7 +357,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
-  postUpdated(e) {
+  _postUpdated(e) {
 
     e.stopPropagation();
 
@@ -392,6 +375,8 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       post.keepExpanded = true;
     }
 
+    if (e.detail.created) this.topic.numberOfPosts += 1;
+
     if (post.parentThread) {
       const thread = findPost(this.topic, { postId: post.parentThread });
       thread.keepExpanded = true;
@@ -408,7 +393,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
   }
 
-  postDeleted(e) {
+  _postDeleted(e) {
 
     e.stopPropagation();
 
@@ -433,7 +418,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
   }
 
-  continueThread(e) {
+  _continueThread(e) {
 
     e.detail.post.continued = true;
     const thread = findPost(this.topic, { postId: e.detail.post.parentThread });
@@ -451,7 +436,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     });
   }
 
-  viewAllPosts() {
+  _viewAllPosts() {
 
     this.topic.posts = [...this.topic.allPosts];
     this.topic.allPosts = undefined;
@@ -459,7 +444,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
   }
 
-  registerPosts(posts) {
+  _registerPosts(posts) {
 
     posts.forEach(p => {
 
@@ -468,39 +453,39 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       }
 
       if (p.posts) {
-        this.registerPosts(p.posts);
+        this._registerPosts(p.posts);
       }
     });
   }
 
-  getMoreReplies() {
+  _getMoreReplies() {
 
     this.page += 1;
 
-    this.getPosts(this.topic, this.page, this.sort).then(posts => {
+    this._getPosts(this.topic, this.page, this.sort).then(posts => {
 
       this.topic.posts = this.topic.posts.concat(posts);
       this.requestUpdate();
       this.updateComplete.then(() => {
-        setTimeout(() => { this.registerPosts(posts); }, 100);
+        setTimeout(() => { this._registerPosts(posts); }, 100);
       });
 
     });
   }
 
-  postSortSelected(e) {
+  _postSortSelected(e) {
 
     this.sort = e.target.value;
     this.page = 0;
 
-    this.getPosts(this.topic, this.page, this.sort).then(posts => {
+    this._getPosts(this.topic, this.page, this.sort).then(posts => {
 
       this.topic.posts = posts;
       this.requestUpdate();
     });
   }
 
-  getPosts(topic, page = 0, sort = SORT_OLDEST, postId) {
+  _getPosts(topic, page = 0, sort = SORT_OLDEST, postId) {
 
     const url = `${topic.links.find(l => l.rel === "posts").href}?page=${page}&sort=${sort}${
        postId ? `&postId=${postId}` : ""}`;
@@ -517,20 +502,13 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
-  _unsetReplying() { this.replying = false; }
+  _unsetReplying() { this._replying = false; }
 
-  _setReplying() { this.replying = true; }
+  _setReplying() { this._replying = true; }
 
   _toggleShowingMyReactions() { this.showingMyReactions = !this.showingMyReactions; }
 
-  updated() {
-
-    if (typeof MathJax !== "undefined") {
-      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-    }
-  }
-
-  renderPostEditor() {
+  _renderPostEditor() {
 
     return html`
       <div class="conv-post-editor-wrapper">
@@ -552,12 +530,23 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         </div>
         ` : ""}
         <div class="act">
-          <input type="button" class="active" @click=${this.publishPost} value="${this.i18n.publish}">
-          <input type="button" @click=${this.savePostAsDraft} value="${this.i18n.save_as_draft}">
+          <input type="button" class="active" @click=${this._publishPost} value="${this.i18n.publish}">
+          <input type="button" @click=${this._savePostAsDraft} value="${this.i18n.save_as_draft}">
           <input type="button" @click="${this._unsetReplying}" value="${this.i18n.cancel}">
         </div>
       </div>
     `;
+  }
+
+  shouldUpdate() {
+    return this.i18n && this.topic;
+  }
+
+  updated() {
+
+    if (typeof MathJax !== "undefined") {
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    }
   }
 
   render() {
@@ -611,7 +600,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 ${this.topic.canEdit ? html`
                 <div>
                   <a href="javascript:;"
-                      @click=${this.editTopic}
+                      @click=${this._editTopic}
                       aria-label="${this.i18n.edit_topic_tooltip}"
                       title="${this.i18n.edit_topic_tooltip}">
                     ${this.i18n.edit}
@@ -622,7 +611,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 ${this.topic.canDelete ? html`
                 <div>
                   <a href="javascript:;"
-                      @click=${this.deleteTopic}
+                      @click=${this._deleteTopic}
                       aria-label="${this.i18n.delete_topic_tooltip}"
                       title="${this.i18n.delete_topic_tooltip}">
                     ${this.i18n.delete}
@@ -635,7 +624,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                   <a href="javascript:;"
                       aria-label="${this.i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
                       title="${this.i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
-                      @click=${this.toggleHidden}>
+                      @click=${this._toggleHidden}>
                     ${this.i18n[this.topic.hidden ? "show" : "hide"]}
                   </a>
                 </div>
@@ -645,7 +634,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                   <a href="javascript:;"
                       aria-label="${this.i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       title="${this.i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
-                      @click=${this.toggleLocked}>
+                      @click=${this._toggleLocked}>
                     ${this.i18n[this.topic.locked ? "unlock" : "lock"]}
                   </a>
                 </div>
@@ -695,7 +684,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           ${this.topic.canBookmark ? html`
           <div>
             <a href="javascript:;"
-                @click=${this.toggleBookmarked}
+                @click=${this._toggleBookmarked}
                 aria-label="${this.i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
                 title="${this.i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
             >
@@ -711,7 +700,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           ${this.topic.canPin ? html`
           <div>
             <a href="javascript:;"
-                @click=${this.togglePinned}
+                @click=${this._togglePinned}
                 aria-label="${this.topic.pinned ? this.i18n.unpin_tooltip : this.i18n.pin_tooltip}"
                 title="${this.topic.pinned ? this.i18n.unpin_tooltip : this.i18n.pin_tooltip}">
               <div class="topic-option">
@@ -783,15 +772,15 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         ${this.renderReactionsBar(this.topic.reactionTotals)}
         <hr>
         ${!this.topic.continued && !this.topic.locked ? html`
-        <div class="topic-reply-block ${!this.replying ? "padded" : ""}">
+        <div class="topic-reply-block ${!this._replying ? "padded" : ""}">
             ${this.topic.pastDueDate ? html`
             <div class="sak-banner-warn">${this.i18n.duedate_passed_info}</div>
             ` : ""}
             ${this.topic.mustPostBeforeViewing && !this.topic.canPost ? html`
             <div class="sak-banner-warn">${this.i18n.post_before_viewing_message}</div>
             ` : ""}
-            ${this.replying ? html`
-              ${this.renderPostEditor()}
+            ${this._replying ? html`
+              ${this._renderPostEditor()}
             ` : html`
             <a href="javascript:;" @click="${this._setReplying}">
               <div class="editor-placeholder">
@@ -811,7 +800,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
               <div>${this.topic.type === QUESTION ? this.i18n.answers : this.i18n.responses}</div>
               ${this.topic.type === DISCUSSION ? html`
               <div>
-                <select @change=${this.postSortSelected}>
+                <select @change=${this._postSortSelected}>
                   <option value="${SORT_OLDEST}">oldest</option>
                   <option value="${SORT_NEWEST}">most recent</option>
                   <option value="${SORT_ASC_CREATOR}">ascending author</option>
@@ -826,7 +815,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
             ${this.topic.continued ? html`
             <div id="conv-back-button-block">
-              <a href="javascript:;" @click=${this.viewAllPosts}>
+              <a href="javascript:;" @click=${this._viewAllPosts}>
                 <div><sakai-icon type="left-arrow"></sakai-icon></div>
                 <div>${this.i18n.back_to_all}</div>
               </a>
@@ -841,22 +830,22 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                   ?can-view-anonymous="${this.canViewAnonymous}"
                   ?can-view-deleted="${this.canViewDeleted}"
                   site-id="${this.topic.siteId}"
-                  @post-updated=${this.postUpdated}
-                  @post-deleted=${this.postDeleted}
-                  @continue-thread=${this.continueThread}
-                  @comment-deleted=${this.commentDeleted}></sakai-post>
+                  @post-updated=${this._postUpdated}
+                  @post-deleted=${this._postDeleted}
+                  @continue-thread=${this._continueThread}
+                  @comment-deleted=${this._commentDeleted}></sakai-post>
               ` : ""}
             `)}
           ${this.topic.numberOfThreads > this.topic.posts.length && !this.topic.continued ? html`
           <div class="topic-more-replies-block">
-            <a href="javascript:;" @click=${this.getMoreReplies}>${this.topic.type === QUESTION ? this.i18n.more_answers : this.i18n.more_replies}</a>
+            <a href="javascript:;" @click=${this._getMoreReplies}>${this.topic.type === QUESTION ? this.i18n.more_answers : this.i18n.more_replies}</a>
           </div>
           ` : ""}
           </div>
         ` : html`
-          ${this.postEditorDisplayed ? html`
+          ${this._postEditorDisplayed ? html`
           <div>
-            ${this.renderPostEditor()}
+            ${this._renderPostEditor()}
           </div>
           ` : html`
           `}
