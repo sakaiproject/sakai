@@ -157,6 +157,8 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
     const reply = {
       message: document.getElementById(`post-${this.post.id}-reply-editor`).getContent(),
       parentPost: this.post.id,
+      // If the post being replied to is private, the reply must be private.
+      privatePost: this._privateReply || this.post.privatePost,
       parentThread: this.post.parentThread || this.post.id,
       draft,
     };
@@ -380,6 +382,8 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
   _setPrivatePost(e) { this.post.privatePost = e.target.checked; }
 
+  _setPrivateReply(e) { this._privateReply = e.target.checked; }
+
   _unsetReplying() { this._replying = false; }
 
   _toggleReplying() { this._replying = !this._replying; }
@@ -467,7 +471,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
         <sakai-editor id="post-${this.post.id}-editor" content="${this.post.message}" set-focus></sakai-editor>
         <div class="conv-private-checkbox-block">
           <label>
-            <input type="checkbox" .checked=${this.post.privatePost} @click="${this._setPrivatePost}">
+            <input type="checkbox" .checked=${this.post.privatePost} @click="${this._setPrivatePost}" ?disabled=${this.post.parentIsPrivate}>
             <span>${this.i18n.private_reply}</span>
           </label>
         </div>
@@ -487,7 +491,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
         <sakai-editor id="post-${this.post.id}-reply-editor" set-focus></sakai-editor>
         <div class="conv-private-checkbox-block">
           <label>
-            <input type="checkbox" @click="${this._setPrivatePost}">
+            <input type="checkbox" @click="${this._setPrivateReply}" .checked=${this.post.privatePost} ?disabled=${this.post.privatePost}>
             <span>${this.i18n.private_reply}</span>
           </label>
         </div>
