@@ -62,10 +62,9 @@ export class SakaiConversationsTagManager extends SakaiElement {
 
       field.value = "";
       this.dispatchEvent(new CustomEvent("tags-created", { detail: { tags }, bubbles: true }));
+      this._saveable = false;
     })
-    .catch (error => {
-      console.error(error);
-    });
+    .catch (error => console.error(error));
   }
 
   _editTag(e) {
@@ -148,20 +147,19 @@ export class SakaiConversationsTagManager extends SakaiElement {
 
     return html`
       <div class="add-topic-wrapper">
-        <h1>Manage Tags</h1>
-        <div class="add-topic-label">Tags</div>
-        <div id="tag-creation-block" style="flex-wrap: wrap;">
+        <h1>${this.i18n.manage_tags}</h1>
+        <div class="add-topic-label">${this.i18n.tags}</div>
+        <div>
           <div>
             <textarea id="tag-creation-field"
                 aria-labelledby="tag-creation-instruction"
-                @input="${this._setSaveable}">
-            </textarea>
-            <div id="tag-creation-instruction" class="topic-option-label-text">Add multiple tags separated by a comma</div>
+                @input=${this._setSaveable}></textarea>
+            <div id="tag-creation-instruction" class="topic-option-label-text">${this.i18n.add_new_tags_instruction}</div>
           </div>
-          <div class="act" style="white-space: nowrap;">
-            <input type="button" @click=${this.cancel} value="${this.i18n.cancel}" ?disabled=${!this._saveable}>
-            <input type="button" class="active" @click=${this._createTags} value="Add New Tags" ?disabled=${!this._saveable}>
-          </div>
+        </div>
+        <div class="act">
+          <button type="button" class="btn btn-secondary" @click=${this.cancel} ?disabled=${!this._saveable}>${this.i18n.cancel}</button>
+          <button type="button" class="btn btn-primary" @click=${this._createTags} ?disabled=${!this._saveable}>${this.i18n.add_new_tags}</button>
         </div>
         <div id="current-tags">
           ${this.tags.map(tag => html`
@@ -175,7 +173,7 @@ export class SakaiConversationsTagManager extends SakaiElement {
             </div>
           </div>
           ${this._tagsBeingEdited.includes(tag.id) ? html`
-          <div class="add-topic-label">Tag Name</div>
+          <div class="add-topic-label">${this.i18n.tag_name}</div>
           <div class="tag-editor">
             <div><input id="tag-${tag.id}-editor" type="text" value="${tag.label}"></div>
             <div class="act">

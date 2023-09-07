@@ -5,20 +5,6 @@
     font-size: 34px;
     color: var(--sakai-text-color);
   }
-  #tag-creation-block {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: start;
-    margin-bottom: 40px;
-  }
-  #tag-creation-block > div:nth-child(1) {
-    margin-right: 40px;
-    margin-top: 0;
-  }
-
-  #tag-creation-block .act > input:nth-child(1) {
-    margin-right: 16px;
-  }
   #tag-creation-field {
     background: var(--sakai-background-color);
     border: 1px solid var(--sakai-border-color);
