@@ -109,7 +109,7 @@ public class PagerRenderer extends Renderer
 		// get stuff for page size selection and display
 		
 		String textPageSize = getString(context, component, "textPageSize", "Show {0}");
-		String pageSizesStr = getString(context, component, "pageSizes", "5,10,20,50,100");
+		String pageSizesStr = getString(context, component, "pageSizes", "20,100,200");
 		String[] pageSizes = pageSizesStr.split(",");
 		String idSelect = clientId+"_pageSize";
 		
