@@ -1222,6 +1222,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                         PostTransferBean parent = postBeanMap.get(pb.parentPost);
                         if (parent != null) {
                             parent.posts.add(pb);
+                            pb.parentIsPrivate = parent.privatePost;
                         } else {
                             log.error("No post for parent post id {}", pb.parentPost);
                         }

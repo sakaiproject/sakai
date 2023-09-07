@@ -61,6 +61,7 @@ public class PostTransferBean implements Entity {
     public int depth;
     public String topic;
     public String parentPost;
+    public boolean parentIsPrivate;
     public String parentThread;
     public boolean isThread;
     public List<PostTransferBean> posts = new ArrayList<>();
