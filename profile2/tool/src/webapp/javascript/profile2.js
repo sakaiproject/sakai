@@ -77,4 +77,24 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  //Keyboard navigation for the edit buttons
+  const editableDivs = document.querySelectorAll('.editable');
+  //All edit buttons in the panel
+  const panelEditButtons = document.querySelectorAll('.main-profile-tabpanel .edit-button');
+
+  editableDivs.forEach(editableDiv => {
+    const editButton = editableDiv.querySelector('.edit-button');
+    //Show buttons when focused on the div
+    editableDiv.addEventListener('focus', () => {
+      //When we get focus hide all buttons except the one in this
+      panelEditButtons.forEach(panelEditButton => { 
+          panelEditButton.style.display = 'none';
+          panelEditButton.setAttribute('tabindex', '-1');
+      });
+      editButton.classList.add('show-edit-button');
+      editButton.setAttribute('tabindex', '0');
+      editButton.style.display = 'block';
+    });
+  });
 });
