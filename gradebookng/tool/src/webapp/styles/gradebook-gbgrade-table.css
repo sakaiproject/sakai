@@ -198,15 +198,17 @@
   bottom: 5px;
   right: 5px;
 }
-#gradeTableWrapper .btn-group > a {
+#gradeTableWrapper .dropdown > button,
+#gradeTableWrapper .btn-group > button {
   line-height: 10px;
   padding: 0 10px;
   opacity: 0.2;
   border-color: var(--sakai-border-color);
 }
-#gradeTableWrapper th:hover .btn-group > a,
-#gradeTableWrapper td:hover .btn-group > a,
-#gradeTableWrapper .highlight .btn-group > a {
+#gradeTableWrapper th:hover .dropdown > button,
+#gradeTableWrapper th:hover .btn-group > button,
+#gradeTableWrapper td:hover .btn-group > button,
+#gradeTableWrapper .highlight .btn-group > button {
   opacity: 1;
 }
 

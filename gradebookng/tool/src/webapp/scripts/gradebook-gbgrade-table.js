@@ -2677,7 +2677,8 @@ GbGradeTable.setupKeyboardNavigation = function() {
   });
 
   GbGradeTable.instance.addHook("beforeKeyDown", function(event) {
-    var handled = false;
+
+    let handled = false;
 
     function iGotThis(allowDefault) {
       event.stopImmediatePropagation();
@@ -2687,85 +2688,71 @@ GbGradeTable.setupKeyboardNavigation = function() {
       handled = true;
     }
 
-    var $current = $(GbGradeTable.instance.rootElement).find("td.current:visible:last"); // get the last and visible, as may be multiple due to fixed columns
-    var $focus = $(":focus");
-    var editing = GbGradeTable.instance.getActiveEditor() && GbGradeTable.instance.getActiveEditor()._opened;
+    const current = GbGradeTable.instance.rootElement.querySelector("td.current"); // get the last and visible, as may be multiple due to fixed columns
+    let focus = document.activeElement;
 
-    if ($current.length > 0) {
+    if (current) {
       // Allow accessibility shortcuts (no conflicts they said.. sure..)
       if (event.altKey && event.ctrlKey) {
         return iGotThis(true);
       }
 
+      const editing = GbGradeTable.instance.getActiveEditor() && GbGradeTable.instance.getActiveEditor()._opened;
+
       // space - open menu
       if (!editing && event.keyCode == 32) {
         iGotThis();
 
-        var $dropdown;
-
         // ctrl+space to open the header menu
-        if (event.ctrlKey) {
-          var $th = $(GbGradeTable.instance.rootElement).find("th.currentCol");
-          $dropdown = $th.find(".dropdown-toggle");
+        const dropdownToggle = event.ctrlKey ? 
+          GbGradeTable.instance.rootElement.querySelector("th.currentCol .dropdown-toggle")
+            : current.querySelector(".dropdown-toggle");
 
-        // space to open the current cell's menu
-        } else {
-           $dropdown = $current.find(".dropdown-toggle");
-        }
+        $(dropdownToggle).dropdown("toggle");
 
-        $dropdown.dropdown("toggle");
         setTimeout(function() {
           $(".dropdown-menu:visible li:not(.hidden):first a").focus();
         });
       }
 
       // menu focused
-      if ($focus.closest(".dropdown-menu ").length > 0) {
-		  
-		  
-		switch (event.keyCode) {
-			case 38: //up arrow
-				iGotThis(true);
-				if ($focus.closest("li").index() == 0) {
-					// first item, so close the menu
-					$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-					$current.focus();
-				} else {
-					$focus.closest("li").prev().find("a").focus();
-				}
-				break;
-			case 40: //down arrow
-				iGotThis();
-				$focus.closest("li").next().find("a").focus();
-				break;
-			case 37: //left arrow
-				iGotThis(true);
-				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-				$current.focus();
-				break;
-			case 39: //right arrow
-				iGotThis(true);
-				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-				$current.focus();
-				break;
-			case 27: //esc
-				iGotThis(true);
-				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-				$current.focus();
-				break;
-			case 13: //enter
-				iGotThis(true);
-				// deselect cell so keyboard focus is given to the menu's action
-				GbGradeTable.instance.deselectCell();
-				break;
-			case 9: //tab
-				iGotThis(true);
-				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
-				$current.focus();
-				break;
-			default:
-				break;
-		}
+      if (focus.closest(".dropdown-menu")) {
+
+        switch (event.keyCode) {
+          case 38: //up arrow
+            iGotThis()
+            focus.closest("li").previousElementSibling?.querySelector("a").focus();
+            break;
+          case 40: //down arrow
+            iGotThis();
+            focus.closest("li").nextElementSibling?.querySelector("a").focus();
+            break;
+          case 37: //left arrow
+            iGotThis(true);
+            current.focus();
+            break;
+          case 39: //right arrow
+            iGotThis(true);
+            current.focus();
+            break;
+          case 27: //esc
+            iGotThis(true);
+            $(document.querySelector(".open .dropdown-toggle")).dropdown("toggle");
+            break;
+          case 13: //enter
+            iGotThis(true);
+            // deselect cell so keyboard focus is given to the menu's action
+            GbGradeTable.instance.deselectCell();
+            break;
+          case 9: //tab
+            iGotThis(true);
+            current.focus();
+            break;
+          default:
+            break;
+        }
+        focus = document.activeElement;
+
         if (handled) {
           GbGradeTable.hideMetadata();
           return;
@@ -2785,15 +2772,14 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
       // return on student cell should invoke student summary
       if (!editing && event.keyCode == 13) {
-          if ($current.find('.gb-view-grade-summary').length > 0) {
-              iGotThis();
-              $current.find('.gb-view-grade-summary').trigger('click');
-          }
+        if (current.querySelector('.gb-view-grade-summary')) {
+          iGotThis();
+          current.querySelector('.gb-view-grade-summary').click();
+        }
       }
     }
   });
 };
-
 
 GbGradeTable.clearMetadata = function() {
   $(".gb-metadata").remove();
