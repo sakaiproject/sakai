@@ -200,4 +200,6 @@ public interface AnnouncementService extends MessageService
 	public List getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
 
 	public Map<String, List<AnnouncementMessage>> getViewableAnnouncementsForCurrentUser(Integer maxAgeInDays);
+
+	public List<AnnouncementMessage> getViewableAnnouncementsForSite(String channelRef, Integer maxAgeInDays);
 }
