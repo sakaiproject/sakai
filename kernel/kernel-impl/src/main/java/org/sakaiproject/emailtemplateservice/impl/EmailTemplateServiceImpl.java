@@ -145,10 +145,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         return optionalET.orElse(null);
     }
 
-    public boolean templateExists(String key, Locale locale) {
+    public boolean templateExistsWithDifferentId(String key, Locale locale, Long templateId) {
 
         String localeString = locale == null ? EmailTemplate.DEFAULT_LOCALE: locale.toString();
-        return repository.findByKeyAndLocale(key, localeString).isPresent();
+        return repository.findByKeyAndLocaleAndNotTemplateId(key, localeString, templateId).isPresent();
     }
 
     public List<EmailTemplate> getEmailTemplates(int max, int start) {
