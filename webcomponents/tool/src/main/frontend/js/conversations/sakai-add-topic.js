@@ -32,6 +32,7 @@ export class SakaiAddTopic extends SakaiElement {
       _showDue: { attribute: false, type: Boolean },
       _showAcceptUntil: { attribute: false, type: Boolean },
       _lockDateInvalid: { attribute: false, type: Boolean },
+      _dueDateInPast: { attribute: false, type: Boolean },
     };
   }
 
@@ -88,19 +89,15 @@ export class SakaiAddTopic extends SakaiElement {
 
   get tags() { return this._tags; }
 
-  saveAsDraft() {
-    this.save(true);
-  }
+  _saveAsDraft() { this._save(true); }
 
-  saveWip() {
+  _saveWip() {
     this.dispatchEvent(new CustomEvent("save-wip-topic", { detail: { topic: this.topic }, bubbles: true }));
   }
 
-  publish() {
-    this.save(false);
-  }
+  _publish() { this.save(false); }
 
-  save(draft) {
+  _save(draft) {
 
     if (this.topic.title.length < 4) {
       this.querySelector("#summary").focus();
@@ -129,11 +126,11 @@ export class SakaiAddTopic extends SakaiElement {
     })
     .then(r => {
 
-      if (!r.ok) {
-        throw new Error("Network error while creating topic.");
-      } else {
+      if (r.ok) {
         return r.json();
       }
+
+      throw new Error("Network error while creating topic.");
     })
     .then(topic => {
 
@@ -143,25 +140,25 @@ export class SakaiAddTopic extends SakaiElement {
     .catch (error => console.error(error));
   }
 
-  updateMessage(e) {
+  _updateMessage(e) {
 
     this.topic.message = e.detail.content;
     this.dispatchEvent(new CustomEvent("topic-dirty", { bubbles: true }));
-    this.saveWip();
+    this._saveWip();
   }
 
-  updateSummary(e) {
+  _updateSummary(e) {
 
     this.topic.title = e.target.value;
     this.dispatchEvent(new CustomEvent("topic-dirty", { bubbles: true }));
-    this.saveWip();
+    this._saveWip();
   }
 
-  cancel() {
+  _cancel() {
     this.dispatchEvent(new CustomEvent("topic-add-cancelled", { bubbles: true }));
   }
 
-  setType(e) {
+  _setType(e) {
 
     if (e.code && e.code === "Enter") {
       this.topic.type = e.target.dataset.type;
@@ -169,10 +166,10 @@ export class SakaiAddTopic extends SakaiElement {
       this.topic.type = e.target.dataset.type;
     }
 
-    this.saveWip();
+    this._saveWip();
   }
 
-  selectTag() {
+  _selectTag() {
 
     const tagId = this.selectedTagId;
 
@@ -184,12 +181,12 @@ export class SakaiAddTopic extends SakaiElement {
       this.topic.tags.push(tag);
     }
 
-    this.saveWip();
+    this._saveWip();
 
     this.requestUpdate();
   }
 
-  removeTag(e) {
+  _removeTag(e) {
 
     const tagId = e.target.dataset.tagId;
     const existingIndex = this.topic.tags.findIndex(t => t.id == tagId);
@@ -197,13 +194,13 @@ export class SakaiAddTopic extends SakaiElement {
     this.requestUpdate();
   }
 
-  editAvailableTags() {
+  _editAvailableTags() {
 
-    this.saveWip();
+    this._saveWip();
     this.dispatchEvent(new CustomEvent("edit-tags", { bubbles: true }));
   }
 
-  toggleGroup(e) {
+  _toggleGroup(e) {
 
     const groupRef = e.target.value;
     this.topic.groups = this.topic.groups || [];
@@ -217,10 +214,10 @@ export class SakaiAddTopic extends SakaiElement {
       }
     }
 
-    this.saveWip();
+    this._saveWip();
   }
 
-  toggleShowDue(e) {
+  _toggleShowDue(e) {
 
     this._showDue = e.target.checked;
     if (!this._showDue) {
@@ -230,7 +227,7 @@ export class SakaiAddTopic extends SakaiElement {
     }
   }
 
-  toggleShowAcceptUntil(e) {
+  _toggleShowAcceptUntil(e) {
 
     this._showAcceptUntil = e.target.checked;
     if (!this._showAcceptUntil) {
@@ -240,33 +237,29 @@ export class SakaiAddTopic extends SakaiElement {
     }
   }
 
-  setVisibility(e) {
+  _setVisibility(e) {
 
     this.topic.visibility = e.target.dataset.visibility;
     if (this.topic.visibility != GROUP) {
       this.topic.groups = [];
     }
-    this.saveWip();
+    this._saveWip();
     this.requestUpdate();
   }
 
-  setShowDate(e) {
-    this.topic.showDate = e.detail.epochSeconds;
-  }
+  _setShowDate(e) { this.topic.showDate = e.detail.epochSeconds; }
 
-  setLockDate(e) {
-    this.topic.lockDate = e.detail.epochSeconds;
-  }
+  _setLockDate(e) { this.topic.lockDate = e.detail.epochSeconds; }
 
-  setHideDate(e) {
-    this.topic.hideDate = e.detail.epochSeconds;
-  }
+  _setHideDate(e) { this.topic.hideDate = e.detail.epochSeconds; }
 
-  setDueDate(e) {
+  _setDueDate(e) {
+
     this.topic.dueDate = e.detail.epochSeconds;
+    this._dueDateInPast = e.detail.epochMillis < Date.now();
   }
 
-  setAvailableNow() {
+  _setAvailableNow() {
 
     this.topic.availability = AVAILABILITY_NOW;
     this.topic.showDate = null;
@@ -278,13 +271,13 @@ export class SakaiAddTopic extends SakaiElement {
     this.requestUpdate();
   }
 
-  setAvailableDated() {
+  _setAvailableDated() {
 
     this.topic.availability = AVAILABILITY_DATED;
     this.requestUpdate();
   }
 
-  toggleShowDatePicker(e) {
+  _toggleShowDatePicker(e) {
 
     this._showShowDatePicker = e.target.checked;
     if (!e.target.checked) {
@@ -292,7 +285,7 @@ export class SakaiAddTopic extends SakaiElement {
     }
   }
 
-  toggleLockDatePicker(e) {
+  _toggleLockDatePicker(e) {
 
     this._showLockDatePicker = e.target.checked;
     if (!e.target.checked) {
@@ -300,7 +293,7 @@ export class SakaiAddTopic extends SakaiElement {
     }
   }
 
-  toggleHideDatePicker(e) {
+  _toggleHideDatePicker(e) {
 
     this._showHideDatePicker = e.target.checked;
     if (!e.target.checked) {
@@ -315,25 +308,25 @@ export class SakaiAddTopic extends SakaiElement {
   _setPinned(e) {
 
     this.topic.pinned = e.target.checked;
-    this.saveWip();
+    this._saveWip();
   }
 
   _setAnonymous(e) {
 
     this.topic.anonymous = e.target.checked;
-    this.saveWip();
+    this._saveWip();
   }
 
   _setAllowAnonymousPosts(e) {
 
     this.topic.allowAnonymousPosts = e.target.checked;
-    this.saveWip();
+    this._saveWip();
   }
 
   _setMustPostBeforeViewing(e) {
 
     this.topic.mustPostBeforeViewing = e.target.checked;
-    this.saveWip();
+    this._saveWip();
   }
 
   _renderTitle() {
@@ -381,8 +374,8 @@ export class SakaiAddTopic extends SakaiElement {
           ${this.canCreateQuestion && this.canCreateDiscussion ? html`
           <div id="post-type-label" class="add-topic-label">${this.i18n.topic_type}</div>
           <div id="topic-type-toggle-block">
-            <div @click=${this.setType}
-                @keydown=${this.setType}
+            <div @click=${this._setType}
+                @keydown=${this._setType}
                 tabindex="0"
                 data-type="${QUESTION}"
                 class="topic-type-toggle ${this.topic.type === QUESTION ? "active" : ""}">
@@ -392,8 +385,8 @@ export class SakaiAddTopic extends SakaiElement {
               </div>
               <div class="topic-type-description">${this.i18n.question_type_description}</div>
             </div>
-            <div @click=${this.setType}
-                @keydown=${this.setType}
+            <div @click=${this._setType}
+                @keydown=${this._setType}
                 tabindex="0"
                 data-type="${DISCUSSION}"
                 class="topic-type-toggle ${this.topic.type === DISCUSSION ? "active" : ""}">
@@ -411,7 +404,7 @@ export class SakaiAddTopic extends SakaiElement {
         <div class="add-topic-block">
           <div id="summary-label" class="add-topic-label">${this.i18n.summary} *</div>
           <input id="summary"
-            @change=${this.updateSummary}
+            @change=${this._updateSummary}
             .value="${this.topic.title}" />
           <div class="required">
             <span>* ${this.i18n.required}</span>
@@ -423,7 +416,7 @@ export class SakaiAddTopic extends SakaiElement {
           <sakai-editor
               toolbar="basic"
               content="${this.topic.message}"
-              @changed=${this.updateMessage}
+              @changed=${this._updateMessage}
               id="topic-details-editor">
           </sakai-editor>
         </div>
@@ -436,13 +429,13 @@ export class SakaiAddTopic extends SakaiElement {
             <option value="${tag.id}">${tag.label}</option>
             `)}
           </select>
-          <input type="button" value="Add" @click=${this.selectTag}>
+          <input type="button" value="Add" @click=${this._selectTag}>
           ` : ""}
           ${this.canEditTags ? html`
           <span id="conv-edit-tags-link-wrapper">
             <button type="button"
                 class="btn btn-link"
-                @click=${this.editAvailableTags}>
+                @click=${this._editAvailableTags}>
               ${this.i18n.edit_tags}
             </button>
           </span>
@@ -451,7 +444,7 @@ export class SakaiAddTopic extends SakaiElement {
           ${this.topic.tags.map(tag => html`
             <div class="tag">
               <div>${tag.label}</div>
-              <a href="javascript:;" data-tag-id="${tag.id}" @click=${this.removeTag}>
+              <a href="javascript:;" data-tag-id="${tag.id}" @click=${this._removeTag}>
                 <div class="tag-remove-icon">
                   <sakai-icon type="close" size="small"></sakai-icon>
                 </div>
@@ -471,7 +464,7 @@ export class SakaiAddTopic extends SakaiElement {
                   type="radio"
                   name="post-to"
                   data-visibility="${SITE}"
-                  @click=${this.setVisibility}
+                  @click=${this._setVisibility}
                   ?checked=${this.topic.visibility === SITE}>${this.i18n.everyone}
               </label>
             </div>
@@ -481,7 +474,7 @@ export class SakaiAddTopic extends SakaiElement {
                     type="radio"
                     name="post-to"
                     data-visibility="${INSTRUCTORS}"
-                    @click=${this.setVisibility}
+                    @click=${this._setVisibility}
                     ?checked=${this.topic.visibility === INSTRUCTORS}>${this.i18n.instructors}
               </label>
             </div>
@@ -492,7 +485,7 @@ export class SakaiAddTopic extends SakaiElement {
                       type="radio"
                       name="post-to"
                       data-visibility="${GROUP}"
-                      @click=${this.setVisibility}
+                      @click=${this._setVisibility}
                       ?checked=${this.topic.visibility === GROUP}>${this.i18n.groups}
                 </label>
               </div>
@@ -500,7 +493,7 @@ export class SakaiAddTopic extends SakaiElement {
               <div id="add-topic-groups-block">
                 ${this.groups.map(group => html`
                 <div class="add-topic-group-block">
-                  <input type="checkbox" @click=${this.toggleGroup} value="${group.reference}" ?checked=${this.topic.groups.includes(group.reference)}>${group.title}</input>
+                  <input type="checkbox" @click=${this._toggleGroup} value="${group.reference}" ?checked=${this.topic.groups.includes(group.reference)}>${group.title}</input>
                 </div>
                 `)}
               </div>
@@ -521,7 +514,7 @@ export class SakaiAddTopic extends SakaiElement {
                     id="add-topic-now"
                     aria-labelledby="availability-now-label"
                     name="availabilitytype"
-                    @click=${this.setAvailableNow}
+                    @click=${this._setAvailableNow}
                     ?checked=${this.topic.availability === AVAILABILITY_NOW}>
               </div>
               <div id="availability-now-label">${this.i18n.make_available_now}</div>
@@ -533,7 +526,7 @@ export class SakaiAddTopic extends SakaiElement {
                     type="radio"
                     aria-labelledby="availability-dated-label"
                     name="availabilitytype"
-                    @click=${this.setAvailableDated}
+                    @click=${this._setAvailableDated}
                     ?checked=${this.topic.availability === AVAILABILITY_DATED} />
               </div>
               <div id="availability-dated-label">${this.i18n.make_available_dated}</div>
@@ -545,7 +538,7 @@ export class SakaiAddTopic extends SakaiElement {
                 <div>
                   <input type="checkbox"
                       aria-labelledby="add-topic-show-label"
-                      @click=${this.toggleShowDatePicker}
+                      @click=${this._toggleShowDatePicker}
                       ?checked=${this.topic.showDate}>
                 </div>
                 <div>
@@ -554,7 +547,7 @@ export class SakaiAddTopic extends SakaiElement {
                   <div>
                     <span>${this.i18n.date}</span>
                     <sakai-date-picker
-                        @datetime-selected=${this.setShowDate}
+                        @datetime-selected=${this._setShowDate}
                         epoch-millis="${this.topic.showDateMillis}"
                         label="${this.i18n.showdate_picker_tooltip}">
                     </sakai-date-picker>
@@ -566,7 +559,7 @@ export class SakaiAddTopic extends SakaiElement {
                 <div>
                   <input type="checkbox"
                       aria-labelledby="add-topic-lock-label"
-                      @click=${this.toggleLockDatePicker}
+                      @click=${this._toggleLockDatePicker}
                       ?checked=${this.topic.lockDate}>
                 </div>
                 <div>
@@ -575,7 +568,7 @@ export class SakaiAddTopic extends SakaiElement {
                   <div>
                     <span>${this.i18n.date}</span>
                     <sakai-date-picker
-                        @datetime-selected=${this.setLockDate}
+                        @datetime-selected=${this._setLockDate}
                         epoch-millis="${this.topic.lockDateMillis}"
                         label="${this.i18n.lockdate_picker_tooltip}">
                     </sakai-date-picker>
@@ -587,7 +580,7 @@ export class SakaiAddTopic extends SakaiElement {
                 <div>
                   <input type="checkbox"
                       aria-labelledby="add-topic-hide-label"
-                      @click=${this.toggleHideDatePicker}
+                      @click=${this._toggleHideDatePicker}
                       ?checked=${this.topic.hideDate}>
                 </div>
                 <div>
@@ -596,7 +589,7 @@ export class SakaiAddTopic extends SakaiElement {
                   <div>
                     <span>${this.i18n.date}</span>
                     <sakai-date-picker
-                        @datetime-selected=${this.setHideDate}
+                        @datetime-selected=${this._setHideDate}
                         epoch-millis="${this.topic.hideDateMillis}"
                         label="${this.i18n.hidedate_picker_tooltip}">
                     </sakai-date-picker>
@@ -613,10 +606,13 @@ export class SakaiAddTopic extends SakaiElement {
         ${this.topic.canModerate ? html`
         <div id="conversations-grading-and-duedate-block" class="add-topic-block">
           <div class="add-topic-label">${this.i18n.grading_and_duedate}</div>
+          ${this._dueDateInPast ? html`
+            <div class="sak-banner-warn">${this.i18n.duedate_in_past_warning}</div>
+          ` : ""}
           <div class="add-topic-date-checkbox">
             <div>
               <input type="checkbox"
-                  @click=${this.toggleShowDue}
+                  @click=${this._toggleShowDue}
                   ?checked=${this.topic.dueDate}>
             </div>
             <div>
@@ -628,14 +624,14 @@ export class SakaiAddTopic extends SakaiElement {
               <div>
                 <span>${this.i18n.date}</span>
                 <sakai-date-picker
-                    @datetime-selected=${this.setDueDate}
+                    @datetime-selected=${this._setDueDate}
                     epoch-millis="${this.topic.dueDateMillis}"
                     label="${this.i18n.duedate_picker_tooltip}">
                 </sakai-date-picker>
                 <div class="add-topic-date-checkbox">
                   <div>
                     <input type="checkbox"
-                        @click=${this.toggleShowAcceptUntil}
+                        @click=${this._toggleShowAcceptUntil}
                         ?checked=${this.topic.lockDate}>
                   </div>
                   <div>
@@ -647,7 +643,7 @@ export class SakaiAddTopic extends SakaiElement {
                     <div>
                       <span>${this.i18n.date}</span>
                       <sakai-date-picker
-                          @datetime-selected=${this.setLockDate}
+                          @datetime-selected=${this._setLockDate}
                           epoch-millis="${this.topic.lockDateMillis}"
                           label="${this.i18n.acceptuntildate_picker_tooltip}">
                       </sakai-date-picker>
@@ -702,9 +698,9 @@ export class SakaiAddTopic extends SakaiElement {
         </div>
 
         <div id="button-block" class="act">
-          <input type="button" class="active" @click=${this.publish} value="${this.i18n.publish}">
-          <input type="button" @click=${this.saveAsDraft} value="${this.i18n.save_as_draft}">
-          <input type="button" @click=${this.cancel} value="${this.i18n.cancel}">
+          <input type="button" class="active" @click=${this._publish} value="${this.i18n.publish}">
+          <input type="button" @click=${this._saveAsDraft} value="${this.i18n.save_as_draft}">
+          <input type="button" @click=${this._cancel} value="${this.i18n.cancel}">
         </div>
 
       </div>
