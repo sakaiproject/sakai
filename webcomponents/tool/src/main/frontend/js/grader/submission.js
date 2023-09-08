@@ -21,6 +21,7 @@ class Submission {
 
       this.hasRubricEvaluation = init.hasRubricEvaluation;
       this.showExtension = true;
+
       if (init.dateSubmitted) {
         this.submittedTime = init.dateSubmitted;
         this.submittedText = init.submittedText;

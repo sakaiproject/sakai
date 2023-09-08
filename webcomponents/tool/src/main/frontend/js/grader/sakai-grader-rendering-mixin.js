@@ -153,7 +153,7 @@ export const graderRenderingMixin = Base => class extends Base {
           </button>
         </div>
         `}
-        ${this.submission.submittedTime || this.submission.draft && this.submission.visible ? html`
+        ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
           ${this.submittedTextMode ? html`
             <div id="grader-submitted-text-block">
               <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>
