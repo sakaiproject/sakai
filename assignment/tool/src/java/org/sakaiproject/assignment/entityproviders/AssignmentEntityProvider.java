@@ -690,6 +690,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             boolean visible = Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
                 && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now()));
 
+            submission.put("visible", visible);
+
             if (as.getSubmitted() || (draft && visible)) {
 
                 String submittedText = as.getSubmittedText();
