@@ -95,7 +95,7 @@ export class SakaiAddTopic extends SakaiElement {
     this.dispatchEvent(new CustomEvent("save-wip-topic", { detail: { topic: this.topic }, bubbles: true }));
   }
 
-  _publish() { this.save(false); }
+  _publish() { this._save(false); }
 
   _save(draft) {
 
