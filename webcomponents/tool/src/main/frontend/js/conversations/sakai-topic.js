@@ -137,14 +137,9 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
   get topic() { return this._topic; }
 
+  _savePostAsDraft() { this._postToTopic(true); }
 
-  _savePostAsDraft() {
-    this._postToTopic(true);
-  }
-
-  _publishPost() {
-    this._postToTopic(false);
-  }
+  _publishPost() { this._postToTopic(false); }
 
   _postToTopic(draft) {
 
@@ -782,7 +777,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
             ${this._replying ? html`
               ${this._renderPostEditor()}
             ` : html`
-            <a href="javascript:;" @click="${this._setReplying}">
+            <a href="javascript:;" @click=${this._setReplying}>
               <div class="editor-placeholder">
                 <div><sakai-user-photo user-id="${window.top.portal.user.id}"></sakai-user-photo></div>
                 <div>${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.reply_to}</div>
