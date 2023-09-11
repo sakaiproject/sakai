@@ -582,69 +582,74 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           </div>
           <div class="topic-options-menu">
           ${this.topic.canModerate || this.topic.canEdit || this.topic.canDelete || this.topic.canViewStatistics ? html`
-            <options-menu icon="menu" placement="bottom-left">
-              <div slot="trigger">
-                <a href="javascript:;"
-                    title="${this._i18n.topic_options_menu_tooltip}"
-                    aria-haspopup="true"
-                    aria-label="${this._i18n.topic_options_menu_tooltip}">
-                  <sakai-icon type="menu" size="small"></sakai-icon>
-                </a>
-              </div>
-              <div slot="content" class="options-menu" role="dialog">
+            <div class="dropdown">
+              <button class="btn btn-transparent"
+                  id="topic-options-toggle-${this.topic.id}"
+                  type="button"
+                  title="${this._i18n.topic_options_menu_tooltip}"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-label="${this._i18n.topic_options_menu_tooltip}">
+                <sakai-icon type="menu" size="small"></sakai-icon>
+              </button>
+              <ul class="dropdown-menu conv-dropdown-menu"
+                  aria-labelledby="topic-options-toggle-${this.topic.id}">
 
                 ${this.topic.canEdit ? html`
-                <div>
-                  <a href="javascript:;"
+                <li>
+                  <a class="dropdown-item"
+                      href="javascript:;"
                       @click=${this._editTopic}
                       aria-label="${this._i18n.edit_topic_tooltip}"
                       title="${this._i18n.edit_topic_tooltip}">
                     ${this._i18n.edit}
                   </a>
-                </div>
+                </li>
                 ` : ""}
 
                 ${this.topic.canDelete ? html`
-                <div>
-                  <a href="javascript:;"
+                <li>
+                  <a class="dropdown-item"
+                      href="javascript:;"
                       @click=${this._deleteTopic}
                       aria-label="${this._i18n.delete_topic_tooltip}"
                       title="${this._i18n.delete_topic_tooltip}">
                     ${this._i18n.delete}
-                    </a>
-                </div>
+                  </a>
+                </li>
                 ` : ""}
 
                 ${this.topic.canModerate ? html`
-                <div>
-                  <a href="javascript:;"
+                <li>
+                  <a class="dropdown-item"
+                      href="javascript:;"
                       aria-label="${this._i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
                       title="${this._i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
                       @click=${this._toggleHidden}>
                     ${this._i18n[this.topic.hidden ? "show" : "hide"]}
                   </a>
-                </div>
-                ` : ""}
-                ${this.topic.canModerate ? html`
-                <div>
-                  <a href="javascript:;"
+                </li>
+                <li>
+                  <a class="dropdown-item"
+                      href="javascript:;"
                       aria-label="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       title="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       @click=${this._toggleLocked}>
                     ${this._i18n[this.topic.locked ? "unlock" : "lock"]}
                   </a>
-                </div>
+                </li>
                 ` : ""}
                 ${this.topic.canViewStatistics ? html`
-                <div>
-                  <a href="javascript:;"
+                <li>
+                  <a class="dropdown-item"
+                      href="javascript:;"
                       @click=${this.showStatistics}>
                     ${this._i18n.view_statistics}
                   </a>
-                </div>
+                </li>
                 ` : ""}
-              </div>
-            </options-menu>
+              </ul>
             ` : ""}
           </div>
         </div>
@@ -738,25 +743,18 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           ${this.topic.canReact ? html`
           <div>
             <div class="topic-option">
-              <options-menu placement="bottom">
-                <div class="topic-option" slot="trigger">
-                  <div><sakai-icon type="smile" size="small"></sakai-icon></div>
-                  <div id="my-reactions-link-${this.topic.id}">
-                    <a href="javascript:;"
-                        @click="${this._toggleShowingMyReactions}"
-                        aria-label="${this._i18n.reactions_tooltip}"
-                        aria-haspopup="true"
-                        title="${this._i18n.reactions_tooltip}">
-                      ${this._i18n.add_a_reaction}
-                    </a>
-                  </div>
-                </div>
-                <div slot="content">
-                  <div class="topic-reactions-popup" role="dialog">
-                    ${this.renderMyReactions(this.topic.myReactions)}
-                  </div>
-                </div>
-              </options-menu>
+              <div class="dropdown">
+                <button class="btn btn-transparent"
+                    id="topic-reactions-id-${this.topic.id}"
+                    type="button"
+                    aria-expanded="false"
+                    data-bs-toggle="dropdown">
+                  <sakai-icon type="smile" size="small"></sakai-icon>
+                </button>
+                <ul class="dropdown-menu conv-dropdown-menu" aria-labelledby="topic-reactions-${this.topic.id}">
+                  ${this.renderMyReactions(this.topic.myReactions)}
+                </ul>
+              </div>
             </div>
           </div>
           ` : ""}

@@ -14,6 +14,7 @@ export class SakaiComment extends SakaiElement {
       topicId: { attribute: "topic-id", type: String },
       siteId: { attribute: "site-id", type: String },
       _editing: { attribute: false, type: Boolean },
+      _i18n: { attribute: false, type: Boolean },
     };
   }
 
@@ -21,12 +22,12 @@ export class SakaiComment extends SakaiElement {
 
     super();
 
-    this.loadTranslations("conversations").then(r => this.i18n = r);
+    this.loadTranslations("conversations").then(r => this._i18n = r);
   }
 
   _deleteComment() {
 
-    if (!confirm(this.i18n.confirm_comment_delete)) {
+    if (!confirm(this._i18n.confirm_comment_delete)) {
       return;
     }
 
@@ -64,41 +65,43 @@ export class SakaiComment extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this.i18n && this.comment;
+    return this._i18n && this.comment;
   }
 
   _renderOptionsMenu() {
 
     return html`
-      <options-menu placement="bottom-left">
-        <div slot="trigger">
-          <button
-              class="comment-menu-button"
-              title="${this.i18n.comment_options_menu_tooltip}"
-              aria-haspopup="true"
-              aria-label="${this.i18n.comment_options_menu_tooltip}">
-            <sakai-icon type="menu" size="small"></sakai-icon>
-          </button>
-        </div>
-
-        <div slot="content" class="options-menu" role="dialog">
+      <div class="dropdown">
+        <button class="btn btn-transparent"
+            id="comment-options-${this.comment.id}"
+            type="button"
+            title="${this._i18n.comment_options_menu_tooltip}"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-label="${this._i18n.comment_options_menu_tooltip}">
+          <sakai-icon type="menu" size="small"></sakai-icon>
+        </button>
+        <ul class="dropdown-menu conv-dropdown-menu" aria-labelledby="comment-options-${this.comment.id}">
           ${this.comment.canEdit ? html`
-          <div>
-            <a href="javascript:;"
-                title="${this.i18n.edit_this_comment}"
+          <li>
+            <button class="dropdown-item"
+                type="button"
+                title="${this._i18n.edit_this_comment}"
                 @click="${this._startEditing}"
-                aria-label="${this.i18n.edit_this_comment}">
-              ${this.i18n.edit}
-            </a>
-          </div>
+                aria-label="${this._i18n.edit_this_comment}">
+              ${this._i18n.edit}
+            </button>
+          </li>
           ` : ""}
           ${this.comment.canDelete ? html`
-          <div>
-            <a href="javascript:;"
+          <li>
+            <button class="dropdown-item
+                type="button"
                 @click=${this._deleteComment}
-                title="${this.i18n.delete_this_comment}"
-                aria-label="${this.i18n.delete_this_comment}">
-              ${this.i18n.delete}
+                title="${this._i18n.delete_this_comment}"
+                aria-label="${this._i18n.delete_this_comment}">
+              ${this._i18n.delete}
             </a>
           </div>
           ` : ""}

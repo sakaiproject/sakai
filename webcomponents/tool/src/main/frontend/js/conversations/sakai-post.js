@@ -9,7 +9,6 @@ import "../sakai-editor.js";
 import "./sakai-comment.js";
 import "./sakai-comment-editor.js";
 import "../sakai-icon.js";
-import "./options-menu.js";
 
 export class SakaiPost extends reactionsMixin(SakaiElement) {
 
@@ -394,54 +393,58 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
       <div>
         ${this.post.canEdit || this.post.canDelete || this.post.canModerate ? html`
-
-          <options-menu placement="bottom-left">
-            <a slot="trigger"
-                id="options-menu-link-${this.post.id}"
-                aria-label="${this._i18n.post_options_menu_tooltip}"
+          <div class="dropdown">
+            <button class="btn btn-transparent"
+                id="post-menu-${this.post.id}"
+                type="button"
+                data-bs-toggle="dropdown"
                 title="${this._i18n.post_options_menu_tooltip}"
+                aria-label="${this._i18n.post_options_menu_tooltip}"
                 aria-haspopup="true"
-                href="javascript:;">
+                aria-expanded="false">
               <div><sakai-icon type="menu" size="small"></sakai-icon></div>
-            </a>
-            <div slot="content" class="options-menu" role="dialog">
+            </button>
+            <ul class="dropdown-menu conv-dropdown-menu" aria-labelledby="post-menu-${this.post.id}">
               ${this.post.canEdit ? html`
-              <div class="edit-post">
-                <a href="javascript:;"
+              <li>
+                <button class="dropdown-item"
+                    type="button"
                     @click=${this._setEditing}
                     title="${this._i18n.edit_this_post}"
                     aria-label="${this._i18n.edit_this_post}">
                   ${this._i18n.edit}
-                </a>
-              </div>
+                </button>
+              </li>
               ` : ""}
               ${this.post.canDelete ? html`
-              <div class="delete-post">
-                <a href="javascript:;"
+              <li>
+                <button class="dropdown-item"
+                    type="button"
                     @click=${this._deletePost}
                     title="${this._i18n.delete_this_post}"
                     aria-label="${this._i18n.delete_this_post}">
                   ${this._i18n.delete}
-                </a>
-              </div>
+                </button>
+              </li>
               ` : ""}
               ${this.post.canModerate ? html`
-              <div>
-                <a href="javascript:;"
+              <li>
+                <button class="dropdown-item"
+                    type="button"
                     @click=${this._toggleHidden}>
                   ${this._i18n[this.post.hidden ? "show" : "hide"]}
-                </a>
-              </div>
-              <div>
-                <a href="javascript:;"
+                </button>
+              </li>
+              <li>
+                <button class="dropdown-item"
+                    type="button"
                     @click=${this._toggleLocked}>
                   ${this._i18n[this.post.locked ? "unlock" : "lock"]}
-                </a>
-              </div>
+                </button>
+              </li>
               ` : ""}
-
-            </div>
-          </options-menu>
+            </ul>
+          </div>
         ` : ""}
       </div>
     `;
@@ -661,19 +664,22 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
         ${this.post.canReact ? html`
         <div class="post-option single">
-          <options-menu placement="bottom">
-            <div slot="trigger" class="reactions-link">
-              <a href="javascript:;"
-                  @click=${this._toggleShowingMyReactions}
-                  aria-label="${this._i18n.reactions_tooltip}"
-                  title="${this._i18n.reactions_tooltip}">
-                <sakai-icon type="smile" size="small"></sakai-icon>
-              </a>
-            </div>
-            <div slot="content" class="topic-reactions-popup" role="dialog">
+          <div class="dropdown">
+            <button class="btn btn-transparent"
+                id="post-reactions-${this.post.id}"
+                type="button"
+                @click=${this._toggleShowingMyReactions}
+                data-bs-toggle="dropdown"
+                aria-label="${this._i18n.reactions_tooltip}"
+                aria-expanded="false"
+                title="${this._i18n.reactions_tooltip}">
+              <sakai-icon type="smile" size="small"></sakai-icon>
+            </button>
+            <ul class="dropdown-menu conv-dropdown-menu"
+                aria-labelledby="post-reactions-${this.post.id}">
               ${this.renderMyReactions(this.post.myReactions)}
-            </div>
-          </options-menu>
+            </ul>
+          </div>
         </div>
         ` : ""}
     `;
