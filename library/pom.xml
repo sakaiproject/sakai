@@ -579,15 +579,6 @@
 					</plugin>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>remove-skin</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>clean</goal>
-								</goals>
-							</execution>
-						</executions>
 						<configuration>
 							<filesets>
 								<fileset>
@@ -595,6 +586,18 @@
 								</fileset>
 								<fileset>
 									<directory>${basedir}/src/webapp/assets</directory>
+								</fileset>
+								<fileset>
+									<directory>${basedir}/src/skins/default/node_modules</directory>
+								</fileset>
+								<fileset>
+									<directory>${basedir}/src/skins/default/target</directory>
+								</fileset>
+								<fileset>
+									<directory>${basedir}/src/webapp</directory>
+									<includes>
+										<include>templates.js</include>
+									</includes>
 								</fileset>
 							</filesets>
 						</configuration>
