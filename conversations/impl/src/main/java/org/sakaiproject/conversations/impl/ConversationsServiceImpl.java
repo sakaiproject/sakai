@@ -1885,6 +1885,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         if (!alreadyUpvoted) {
             post.setUpvotes(post.getUpvotes() + 1);
         }
+
+        postsCache.remove(topicId);
+
         return PostTransferBean.of(postRepository.save(post));
     }
 
@@ -1915,6 +1918,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         status.setUpvoted(Boolean.FALSE);
         postStatusRepository.save(status);
         post.setUpvotes(post.getUpvotes() - 1);
+
+        postsCache.remove(post.getTopicId());
+
         return PostTransferBean.of(postRepository.save(post));
     }
 

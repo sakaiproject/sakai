@@ -22,6 +22,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
       _postEditorDisplayed: { attribute: false, type: Boolean },
       _replying: { attribute: false, type: Boolean },
+      _i18n: { attribute: false, type: Boolean },
     };
   }
 
@@ -70,7 +71,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     }, options);
 
 
-    this.loadTranslations("conversations").then(r => this.i18n = r);
+    this.loadTranslations("conversations").then(r => this._i18n = r);
   }
 
   set topic(value) {
@@ -221,7 +222,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
   _deleteTopic() {
 
-    if (!confirm(this.i18n.confirm_topic_delete)) return;
+    if (!confirm(this._i18n.confirm_topic_delete)) return;
 
     const url = this.topic.links.find(l => l.rel === "delete").href;
     fetch(url, {
@@ -513,33 +514,33 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     return html`
       <div class="conv-post-editor-wrapper">
         <div class="conv-post-editor-header">
-          <span>${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.reply_to}</span>
+          <span>${this.topic.type === QUESTION ? this._i18n.answer_this_question : this._i18n.reply_to}</span>
           <span>${this.topic.title}</span>
         </div>
         <sakai-editor id="topic-${this.topic.id}-post-editor" set-focus></sakai-editor>
         <div class="conv-private-checkbox-block">
           <label>
-            <input id="conv-post-editor-private-checkbox" type="checkbox">${this.i18n.private_topic_reply}
+            <input id="conv-post-editor-private-checkbox" type="checkbox">${this._i18n.private_topic_reply}
           </label>
         </div>
         ${this.topic.allowAnonymousPosts ? html`
         <div class="conv-private-checkbox-block">
           <label>
-            <input id="conv-post-editor-anonymous-checkbox" type="checkbox">${this.i18n.post_anonymously}
+            <input id="conv-post-editor-anonymous-checkbox" type="checkbox">${this._i18n.post_anonymously}
           </label>
         </div>
         ` : ""}
         <div class="act">
-          <input type="button" class="active" @click=${this._publishPost} value="${this.i18n.publish}">
-          <input type="button" @click=${this._savePostAsDraft} value="${this.i18n.save_as_draft}">
-          <input type="button" @click="${this._unsetReplying}" value="${this.i18n.cancel}">
+          <input type="button" class="active" @click=${this._publishPost} value="${this._i18n.publish}">
+          <input type="button" @click=${this._savePostAsDraft} value="${this._i18n.save_as_draft}">
+          <input type="button" @click="${this._unsetReplying}" value="${this._i18n.cancel}">
         </div>
       </div>
     `;
   }
 
   shouldUpdate() {
-    return this.i18n && this.topic;
+    return this._i18n && this.topic;
   }
 
   updated() {
@@ -554,19 +555,19 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     return html`
       <div class="topic">
         ${this.topic.draft ? html`
-        <div class="sak-banner-warn">${this.i18n.draft_warning}</div>
+        <div class="sak-banner-warn">${this._i18n.draft_warning}</div>
         ` : ""}
         ${this.topic.hidden ? html`
-        <div class="sak-banner-warn">${this.i18n.topic_hidden}</div>
+        <div class="sak-banner-warn">${this._i18n.topic_hidden}</div>
         ` : ""}
         ${this.topic.locked ? html`
-        <div class="sak-banner-warn">${this.topic.canModerate ? this.i18n.moderator_topic_locked : this.i18n.topic_locked}</div>
+        <div class="sak-banner-warn">${this.topic.canModerate ? this._i18n.moderator_topic_locked : this._i18n.topic_locked}</div>
         ` : ""}
         ${this.topic.visibility === INSTRUCTORS ? html`
-        <div class="sak-banner-warn">${this.i18n.topic_instructors_only_tooltip}</div>
+        <div class="sak-banner-warn">${this._i18n.topic_instructors_only_tooltip}</div>
         ` : ""}
         ${this.topic.visibility === GROUP ? html`
-        <div class="sak-banner-warn">${this.i18n.topic_groups_only_tooltip}</div>
+        <div class="sak-banner-warn">${this._i18n.topic_groups_only_tooltip}</div>
         ` : ""}
         <div class="topic-tags">
           ${this.topic.tags.map(tag => html`
@@ -579,7 +580,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
             <div>
               <div class="author-details">
                 <div class="topic-creator-name">${this.topic.creatorDisplayName}</div>
-                <div class="topic-question-asked">${this.topic.type === QUESTION ? this.i18n.asked : this.i18n.posted}</div>
+                <div class="topic-question-asked">${this.topic.type === QUESTION ? this._i18n.asked : this._i18n.posted}</div>
                 <div class="topic-created-date">${this.topic.formattedCreatedDate}</div>
               </div>
             </div>
@@ -589,9 +590,9 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
             <options-menu icon="menu" placement="bottom-left">
               <div slot="trigger">
                 <a href="javascript:;"
-                    title="${this.i18n.topic_options_menu_tooltip}"
+                    title="${this._i18n.topic_options_menu_tooltip}"
                     aria-haspopup="true"
-                    aria-label="${this.i18n.topic_options_menu_tooltip}">
+                    aria-label="${this._i18n.topic_options_menu_tooltip}">
                   <sakai-icon type="menu" size="small"></sakai-icon>
                 </a>
               </div>
@@ -601,9 +602,9 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 <div>
                   <a href="javascript:;"
                       @click=${this._editTopic}
-                      aria-label="${this.i18n.edit_topic_tooltip}"
-                      title="${this.i18n.edit_topic_tooltip}">
-                    ${this.i18n.edit}
+                      aria-label="${this._i18n.edit_topic_tooltip}"
+                      title="${this._i18n.edit_topic_tooltip}">
+                    ${this._i18n.edit}
                   </a>
                 </div>
                 ` : ""}
@@ -612,9 +613,9 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 <div>
                   <a href="javascript:;"
                       @click=${this._deleteTopic}
-                      aria-label="${this.i18n.delete_topic_tooltip}"
-                      title="${this.i18n.delete_topic_tooltip}">
-                    ${this.i18n.delete}
+                      aria-label="${this._i18n.delete_topic_tooltip}"
+                      title="${this._i18n.delete_topic_tooltip}">
+                    ${this._i18n.delete}
                     </a>
                 </div>
                 ` : ""}
@@ -622,20 +623,20 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 ${this.topic.canModerate ? html`
                 <div>
                   <a href="javascript:;"
-                      aria-label="${this.i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
-                      title="${this.i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
+                      aria-label="${this._i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
+                      title="${this._i18n[this.topic.hidden ? "show_topic_tooltip" : "hide_topic_tooltip"]}"
                       @click=${this._toggleHidden}>
-                    ${this.i18n[this.topic.hidden ? "show" : "hide"]}
+                    ${this._i18n[this.topic.hidden ? "show" : "hide"]}
                   </a>
                 </div>
                 ` : ""}
                 ${this.topic.canModerate ? html`
                 <div>
                   <a href="javascript:;"
-                      aria-label="${this.i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
-                      title="${this.i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
+                      aria-label="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
+                      title="${this._i18n[this.topic.locked ? "unlock_topic_tooltip" : "lock_topic_tooltip"]}"
                       @click=${this._toggleLocked}>
-                    ${this.i18n[this.topic.locked ? "unlock" : "lock"]}
+                    ${this._i18n[this.topic.locked ? "unlock" : "lock"]}
                   </a>
                 </div>
                 ` : ""}
@@ -643,7 +644,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 <div>
                   <a href="javascript:;"
                       @click=${this.showStatistics}>
-                    ${this.i18n.view_statistics}
+                    ${this._i18n.view_statistics}
                   </a>
                 </div>
                 ` : ""}
@@ -662,21 +663,21 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
               ${this.topic.resolved ? html`
                 <sakai-icon type="check_circle"
                     class="answered-icon"
-                    title="${this.i18n.answered_tooltip}">
+                    title="${this._i18n.answered_tooltip}">
                 </sakai-icon>
               ` : html`
                 <sakai-icon type="questioncircle"
                     class="unanswered-icon"
-                    title="${this.i18n.unanswered_tooltip}">
+                    title="${this._i18n.unanswered_tooltip}">
                 </sakai-icon>
               `}
             </div>
-            <div class="topic-status-text">${this.i18n[this.topic.resolved ? "answered" : "unanswered"]}</div>
+            <div class="topic-status-text">${this._i18n[this.topic.resolved ? "answered" : "unanswered"]}</div>
           </div>
           ` : ""}
         </div>
         ${this.topic.formattedDueDate ? html`
-        <div id="topic-duedate-block"><span>${this.i18n.duedate_label}</span><span>${this.topic.formattedDueDate}</span></div>
+        <div id="topic-duedate-block"><span>${this._i18n.duedate_label}</span><span>${this.topic.formattedDueDate}</span></div>
         ` : ""}
         <div class="topic-message">${unsafeHTML(this.topic.message)}</div>
         ${this.topic.draft ? "" : html`
@@ -685,13 +686,13 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           <div>
             <a href="javascript:;"
                 @click=${this._toggleBookmarked}
-                aria-label="${this.i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
-                title="${this.i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
+                aria-label="${this._i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
+                title="${this._i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
             >
               <div class="topic-option">
                 <div><sakai-icon type="favourite" size="small"></sakai-icon></div>
                 <div>
-                  ${this.i18n[this.topic.bookmarked ? "unbookmark" : "bookmark"]}
+                  ${this._i18n[this.topic.bookmarked ? "unbookmark" : "bookmark"]}
                 </div>
               </div>
             </a>
@@ -701,12 +702,12 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           <div>
             <a href="javascript:;"
                 @click=${this._togglePinned}
-                aria-label="${this.topic.pinned ? this.i18n.unpin_tooltip : this.i18n.pin_tooltip}"
-                title="${this.topic.pinned ? this.i18n.unpin_tooltip : this.i18n.pin_tooltip}">
+                aria-label="${this.topic.pinned ? this._i18n.unpin_tooltip : this._i18n.pin_tooltip}"
+                title="${this.topic.pinned ? this._i18n.unpin_tooltip : this._i18n.pin_tooltip}">
               <div class="topic-option">
                 <div><sakai-icon type="pin" size="small"></sakai-icon></div>
                 <div>
-                  ${this.i18n[this.topic.pinned ? "unpin" : "pin"]}
+                  ${this._i18n[this.topic.pinned ? "unpin" : "pin"]}
                 </div>
               </div>
             </a>
@@ -721,7 +722,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
               ${this.topic.isMine && this.topic.reactionTotals.GOOD_QUESTION > 0 ? html`
                 <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
                 <div>
-                ${this.i18n.goodquestion} ${this.isInstructor && this.topic.reactionTotals.GOOD_QUESTION ? ` - ${this.topic.reactionTotals.GOOD_QUESTION}` : ""}
+                ${this._i18n.goodquestion} ${this.isInstructor && this.topic.reactionTotals.GOOD_QUESTION ? ` - ${this.topic.reactionTotals.GOOD_QUESTION}` : ""}
                 </div>
               ` : ""}
               ${!this.topic.isMine ? html`
@@ -730,9 +731,9 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 <a href="javascript:;"
                     data-reaction="GOOD_QUESTION"
                     @click=${this.toggleReaction}
-                    aria-label="${this.topic.myReactions.GOOD_QUESTION ? this.i18n.ungoodquestion_tooltip : this.i18n.goodquestion_tooltip}"
-                    title="${this.topic.myReactions.GOOD_QUESTION ? this.i18n.ungoodquestion_tooltip : this.i18n.goodquestion_tooltip}">
-                  ${this.i18n.goodquestion} ${this.isInstructor && this.topic.reactionTotals.GOOD_QUESTION ? ` - ${this.topic.reactionTotals.GOOD_QUESTION}` : ""}
+                    aria-label="${this.topic.myReactions.GOOD_QUESTION ? this._i18n.ungoodquestion_tooltip : this._i18n.goodquestion_tooltip}"
+                    title="${this.topic.myReactions.GOOD_QUESTION ? this._i18n.ungoodquestion_tooltip : this._i18n.goodquestion_tooltip}">
+                  ${this._i18n.goodquestion} ${this.isInstructor && this.topic.reactionTotals.GOOD_QUESTION ? ` - ${this.topic.reactionTotals.GOOD_QUESTION}` : ""}
                 </a>
               </div>
               ` : ""}
@@ -748,10 +749,10 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                   <div id="my-reactions-link-${this.topic.id}">
                     <a href="javascript:;"
                         @click="${this._toggleShowingMyReactions}"
-                        aria-label="${this.i18n.reactions_tooltip}"
+                        aria-label="${this._i18n.reactions_tooltip}"
                         aria-haspopup="true"
-                        title="${this.i18n.reactions_tooltip}">
-                      ${this.i18n.add_a_reaction}
+                        title="${this._i18n.reactions_tooltip}">
+                      ${this._i18n.add_a_reaction}
                     </a>
                   </div>
                 </div>
@@ -774,10 +775,10 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         ${!this.topic.continued && !this.topic.locked ? html`
         <div class="topic-reply-block ${!this._replying ? "padded" : ""}">
             ${this.topic.pastDueDate ? html`
-            <div class="sak-banner-warn">${this.i18n.duedate_passed_info}</div>
+            <div class="sak-banner-warn">${this._i18n.duedate_passed_info}</div>
             ` : ""}
             ${this.topic.mustPostBeforeViewing && !this.topic.canPost ? html`
-            <div class="sak-banner-warn">${this.i18n.post_before_viewing_message}</div>
+            <div class="sak-banner-warn">${this._i18n.post_before_viewing_message}</div>
             ` : ""}
             ${this._replying ? html`
               ${this._renderPostEditor()}
@@ -785,7 +786,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
             <a href="javascript:;" @click="${this._setReplying}">
               <div class="editor-placeholder">
                 <div><sakai-user-photo user-id="${window.top.portal.user.id}"></sakai-user-photo></div>
-                <div>${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.reply_to}</div>
+                <div>${this.topic.type === QUESTION ? this._i18n.answer_this_question : this._i18n.reply_to}</div>
                 <div>${this.topic.title}</div>
               </div>
             </a>
@@ -797,7 +798,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           <div class="topic-posts-block">
             ${!this.topic.continued ? html`
             <div class="topic-posts-header">
-              <div>${this.topic.type === QUESTION ? this.i18n.answers : this.i18n.responses}</div>
+              <div>${this.topic.type === QUESTION ? this._i18n.answers : this._i18n.responses}</div>
               ${this.topic.type === DISCUSSION ? html`
               <div>
                 <select @change=${this._postSortSelected}>
@@ -817,7 +818,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
             <div id="conv-back-button-block">
               <a href="javascript:;" @click=${this._viewAllPosts}>
                 <div><sakai-icon type="left-arrow"></sakai-icon></div>
-                <div>${this.i18n.back_to_all}</div>
+                <div>${this._i18n.back_to_all}</div>
               </a>
             </div>
             ` : ""}
@@ -838,7 +839,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
             `)}
           ${this.topic.numberOfThreads > this.topic.posts.length && !this.topic.continued ? html`
           <div class="topic-more-replies-block">
-            <a href="javascript:;" @click=${this._getMoreReplies}>${this.topic.type === QUESTION ? this.i18n.more_answers : this.i18n.more_replies}</a>
+            <a href="javascript:;" @click=${this._getMoreReplies}>${this.topic.type === QUESTION ? this._i18n.more_answers : this._i18n.more_replies}</a>
           </div>
           ` : ""}
           </div>
