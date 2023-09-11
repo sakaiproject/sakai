@@ -5,3 +5,6 @@
 
 @import "themes/light";
 @import "themes/dark";
+
+@import "customization-lib"; //it is copied from the user supplied file by maven
+@import "customization-main"; //it is copied from the user supplied file by maven
