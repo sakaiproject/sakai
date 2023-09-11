@@ -39,6 +39,15 @@
     align-items: start;
   }
 
+  .conv-dropdown-menu {
+    min-width: min-content;
+    max-width: min-content;
+
+    sakai-icon {
+      pointer-events: none;
+    }
+  }
+
   .post-bottom-bar {
     margin-top: 10px;
   }
