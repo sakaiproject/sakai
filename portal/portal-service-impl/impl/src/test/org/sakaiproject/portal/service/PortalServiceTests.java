@@ -123,7 +123,7 @@ public class PortalServiceTests extends SakaiTests {
 
         assertEquals(2, portalService.getPinnedSites().size());
 
-        when(event.getEvent()).thenReturn(SiteService.SECURE_REMOVE_SITE);
+        when(event.getEvent()).thenReturn(SiteService.SOFT_DELETE_SITE);
 
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
 
@@ -310,12 +310,31 @@ public class PortalServiceTests extends SakaiTests {
         assertEquals("site4", recentSites.next());
         assertEquals("site3", recentSites.next());
 
-        when(event.getEvent()).thenReturn(SiteService.SECURE_REMOVE_SITE);
+        when(event.getEvent()).thenReturn(SiteService.SOFT_DELETE_SITE);
         when(event.getContext()).thenReturn("site4");
 
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
 
         assertEquals(1, portalService.getRecentSites().size());
+    }
+
+    @Test
+    public void testSoftDeletedSiteRemovalFromPinsAndRecent() {
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
+
+        portalService.addRecentSite(site1Id);
+        portalService.addPinnedSite(user1, site1Id);
+        assertEquals(1, portalService.getRecentSites().size());
+        assertEquals(1, portalService.getPinnedSites().size());
+
+        Event softDeleteEvent = mock(Event.class);
+        when(softDeleteEvent.getContext()).thenReturn(site1Id);
+        when(softDeleteEvent.getEvent()).thenReturn(SiteService.SOFT_DELETE_SITE);
+
+        ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, softDeleteEvent);
+
+        assertEquals(0, portalService.getRecentSites().size());
+        assertEquals(0, portalService.getPinnedSites().size());
     }
 }
 
