@@ -492,7 +492,7 @@ public class JoinSiteDelegate
             Map<String, Object> replacementValues = new HashMap<>();
             replacementValues.put(TMPLT_VAR_SITE_NAME, site.getTitle());
             replacementValues.put(TMPLT_VAR_INSTITUTE, ServerConfigurationService.getString(SAK_PROP_UI_INSTITUTION));
-            if (!StringUtils.isBlank(currentUser.getFirstName()))
+            if (StringUtils.isNotBlank(currentUser.getFirstName()))
             {
                 replacementValues.put(TMPLT_VAR_SHORT_NAME, currentUser.getFirstName());
             }
