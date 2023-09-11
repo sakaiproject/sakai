@@ -33,6 +33,8 @@ export class SakaiAddTopic extends SakaiElement {
       _showAcceptUntil: { attribute: false, type: Boolean },
       _lockDateInvalid: { attribute: false, type: Boolean },
       _dueDateInPast: { attribute: false, type: Boolean },
+      _showDateAfterDueDate: { attribute: false, type: Boolean },
+      _hideDateBeforeDueDate: { attribute: false, type: Boolean },
     };
   }
 
@@ -247,16 +249,38 @@ export class SakaiAddTopic extends SakaiElement {
     this.requestUpdate();
   }
 
-  _setShowDate(e) { this.topic.showDate = e.detail.epochSeconds; }
+  _setShowDate(e) {
+
+    this.topic.showDate = e.detail.epochSeconds;
+    this._validateShowDate();
+  }
+
+  _validateShowDate() {
+
+    this._showDateAfterDueDate = this.topic.showDate && this.topic.dueDate
+                                    && this.topic.dueDate <= this.topic.showDate;
+  }
+
+  _validateHideDate() {
+
+    this._hideDateBeforeDueDate = this.topic.hideDate && this.topic.dueDate
+                                    && this.topic.dueDate > this.topic.hideDate;
+  }
 
   _setLockDate(e) { this.topic.lockDate = e.detail.epochSeconds; }
 
-  _setHideDate(e) { this.topic.hideDate = e.detail.epochSeconds; }
+  _setHideDate(e) {
+
+    this.topic.hideDate = e.detail.epochSeconds;
+    this._validateHideDate();
+  }
 
   _setDueDate(e) {
 
     this.topic.dueDate = e.detail.epochSeconds;
     this._dueDateInPast = e.detail.epochMillis < Date.now();
+    this._validateShowDate();
+    this._validateHideDate();
   }
 
   _setAvailableNow() {
@@ -608,6 +632,12 @@ export class SakaiAddTopic extends SakaiElement {
           <div class="add-topic-label">${this.i18n.grading_and_duedate}</div>
           ${this._dueDateInPast ? html`
             <div class="sak-banner-warn">${this.i18n.duedate_in_past_warning}</div>
+          ` : ""}
+          ${this._showDateAfterDueDate ? html`
+            <div class="sak-banner-warn">${this.i18n.showdate_after_duedate_warning}</div>
+          ` : ""}
+          ${this._hideDateBeforeDueDate ? html`
+            <div class="sak-banner-warn">${this.i18n.hidedate_before_duedate_warning}</div>
           ` : ""}
           <div class="add-topic-date-checkbox">
             <div>
