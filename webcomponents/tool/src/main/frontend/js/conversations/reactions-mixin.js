@@ -17,8 +17,8 @@ export const reactionsMixin = Base => class extends Base {
           <div>
             <a href="javascript:;"
                 @click=${this.toggleReaction}
-                title="${this.i18n[pair[0]]}"
-                aria-label="${this.i18n[pair[0]]}">
+                title="${this._i18n[pair[0]]}"
+                aria-label="${this._i18n[pair[0]]}">
               <sakai-icon type="${reactionIcons[pair[0]]}"
                   data-reaction="${pair[0]}"
                   size="small"
