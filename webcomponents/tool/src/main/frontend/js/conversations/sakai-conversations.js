@@ -37,6 +37,7 @@ export class SakaiConversations extends SakaiElement {
       _showingSettings: { attribute: false, Boolean },
       _state: { attribute: false, type: String },
       _loadingData: { attribute: false, type: Boolean },
+      _i18n: { attribute: false, type: Object },
     };
   }
 
@@ -58,7 +59,7 @@ export class SakaiConversations extends SakaiElement {
     };
     */
 
-    this.loadTranslations("conversations").then(r => this.i18n = r);
+    this.loadTranslations("conversations").then(r => this._i18n = r);
   }
 
   set siteId(value) {
@@ -413,19 +414,19 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <div class=${ifDefined(this._state === STATE_SETTINGS ? "setting-active" : undefined)}>
-        <button class="btn btn-transparent" @click="${this._setStateSettings}">${this.i18n.general_settings}</button>
+        <button class="btn btn-transparent" @click="${this._setStateSettings}">${this._i18n.general_settings}</button>
       </div>
       <div class=${ifDefined(this._state === STATE_PERMISSIONS ? "setting-active" : undefined)}>
-        <button class="btn btn-transparent" @click="${this._setStatePermissions}">${this.i18n.permissions}</button>
+        <button class="btn btn-transparent" @click="${this._setStatePermissions}">${this._i18n.permissions}</button>
       </div>
       ${this._data.canEditTags ? html`
       <div class=${ifDefined(this._state === STATE_MANAGING_TAGS ? "setting-active" : undefined)}>
-        <button class="btn btn-transparent" @click="${this._setStateManagingTags}">${this.i18n.manage_tags}</button>
+        <button class="btn btn-transparent" @click="${this._setStateManagingTags}">${this._i18n.manage_tags}</button>
       </div>
       ` : ""}
       ${this._data.canViewSiteStatistics ? html`
       <div class=${ifDefined(this._state === STATE_STATISTICS ? "setting-active" : undefined)}>
-        <button class="btn btn-transparent" @click="${this._setStateStatistics}">${this.i18n.statistics}</button>
+        <button class="btn btn-transparent" @click="${this._setStateStatistics}">${this._i18n.statistics}</button>
       </div>
       ` : ""}
     `;
@@ -464,7 +465,7 @@ export class SakaiConversations extends SakaiElement {
               <div slot="trigger">
                 <button type="button" class="btn icon-button">
                   <i class="si si-settings"></i>
-                  <span>${this.i18n.settings}</span>
+                  <span>${this._i18n.settings}</span>
                 </button>
               </div>
               <div slot="content" id="settings-menu" class="options-menu" role="dialog">
@@ -475,7 +476,7 @@ export class SakaiConversations extends SakaiElement {
           <div class="conv-settings-link">
             <button type="button" class="btn icon-button text-nowrap" @click="${this._setStateSettings}">
               <i class="si si-settings"></i>
-              <span>${this.i18n.settings}</span>
+              <span>${this._i18n.settings}</span>
             </button>
           </div>
           `}
@@ -485,7 +486,7 @@ export class SakaiConversations extends SakaiElement {
           <a href="javascript:;" @click=${this._addTopic}>
             <div class="conv-add-topic">
                 <span class="add-topic-text">
-                ${this.i18n.create_new}
+                ${this._i18n.create_new}
                 </span>
                 <sakai-icon class="add-topic-icon" type="add" size="medium"></sakai-icon>
             </div>
@@ -500,7 +501,7 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <div class="add-topic-wrapper">
-        <h1 id="permissions-title">${this.i18n.permissions}</h1>
+        <h1 id="permissions-title">${this._i18n.permissions}</h1>
         <sakai-permissions tool="conversations" @permissions-complete=${this._permissionsComplete} fire-event></sakai-permissions>
       </div>
     `;
@@ -597,17 +598,15 @@ export class SakaiConversations extends SakaiElement {
     `;
   }
 
-  shouldUpdate() {
-    return this.i18n;
-  }
+  shouldUpdate() { return this._i18n; }
 
   render() {
 
     if (this._loadingData) {
       return html`
         <div class="sak-banner-info">
-          <div class="mb-3 fs-5 fw-bold">${this.i18n.loading_1}</div>
-          <div>${this.i18n.loading_2}</div>
+          <div class="mb-3 fs-5 fw-bold">${this._i18n.loading_1}</div>
+          <div>${this._i18n.loading_2}</div>
         </div>
       `;
     }
@@ -617,7 +616,7 @@ export class SakaiConversations extends SakaiElement {
       ${this._data.showGuidelines ? html`
         <sakai-conversations-guidelines guidelines="${this._data.settings.guidelines}"></sakai-conversations-guidelines>
         <div class="act">
-          <input type="button" class="active" @click=${this._agreeToGuidelines} value="${this.i18n.agree}">
+          <input type="button" class="active" @click=${this._agreeToGuidelines} value="${this._i18n.agree}">
         </div>
       `
       : html`
@@ -628,7 +627,7 @@ export class SakaiConversations extends SakaiElement {
             <div id="conv-back-button-block">
               <a href="javascript:;" @click=${this._resetState}>
                 <div><sakai-icon type="left-arrow"></sakai-icon></div>
-                <div>${this.i18n.back}</div>
+                <div>${this._i18n.back}</div>
               </a>
             </div>
             <div id="conv-settings">
@@ -651,9 +650,9 @@ export class SakaiConversations extends SakaiElement {
               ${this._state === STATE_NOTHING_SELECTED ? html`
                 <div id="conv-nothing-selected">
                   ${this._data.canCreateDiscussion || this._data.canCreateQuestion ? html`
-                    <div>${this.i18n.nothing_selected}</div>
+                    <div>${this._i18n.nothing_selected}</div>
                   ` : html`
-                    <div>${this.i18n.nothing_selected_no_create}</div>
+                    <div>${this._i18n.nothing_selected_no_create}</div>
                   `}
                 </div>
               ` : ""}
