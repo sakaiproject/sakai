@@ -864,7 +864,7 @@ public class LessonBuilderAccessService {
 							return;
 						}
 						else if (ServerConfigurationService.getBoolean("cloud.content.directurl", true)) {
-							res.addHeader("Content-Length", 0);
+							res.addHeader("Content-Length", "0");
 							res.sendRedirect(directLinkUri.toString());
 							return;
 						}
