@@ -268,7 +268,7 @@ public class PortalServiceImpl implements PortalService, Observer
 				});
 
 				break;
-			case SiteService.SECURE_REMOVE_SITE:
+			case SiteService.SOFT_DELETE_SITE:
 				pinnedSiteRepository.deleteBySiteId(e.getContext());
 				recentSiteRepository.deleteBySiteId(e.getContext());
 				break;

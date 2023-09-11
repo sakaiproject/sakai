@@ -91,6 +91,9 @@ public interface SiteService extends EntityProducer
 
 	/** Name for the event of removing a site. */
 	static final String SECURE_REMOVE_SITE = "site.del";
+
+	/** Name for the event for soft deleting a site */
+	static final String SOFT_DELETE_SITE = "site.del.soft";
 	
 	/** Name for the event of removing a site that has already been softly deleted */
 	static final String SECURE_REMOVE_SOFTLY_DELETED_SITE = "site.del.softly.deleted";
