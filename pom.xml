@@ -54,6 +54,7 @@
                 <module>citations</module>
                 <module>common</module>
                 <module>commons</module>
+                <module>conditions</module>
                 <module>config</module>
                 <module>conversations</module>
                 <module>cloud-content</module>

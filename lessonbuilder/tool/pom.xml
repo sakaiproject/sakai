@@ -34,6 +34,10 @@
             <version>${sakai.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.conditions</groupId>
+            <artifactId>sakai-conditions-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>
