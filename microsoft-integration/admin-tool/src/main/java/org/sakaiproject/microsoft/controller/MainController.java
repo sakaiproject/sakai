@@ -34,6 +34,7 @@ import org.sakaiproject.microsoft.api.exceptions.MicrosoftCredentialsException;
 import org.sakaiproject.microsoft.api.exceptions.MicrosoftGenericException;
 import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.microsoft.controller.auxiliar.AjaxResponse;
+import org.sakaiproject.microsoft.controller.auxiliar.MainSessionBean;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -76,25 +77,51 @@ public class MainController {
 	@Autowired
 	private SakaiProxy sakaiProxy;
 	
+	@Autowired
+	private MainSessionBean mainSessionBean;
+	
 	private static final String INDEX_TEMPLATE = "index";
+	private static final String BODY_TEMPLATE = "body";
 	private static final String REDIRECT_INDEX = "redirect:/index";
 	private static final String ROW_SITE_SYNCH_FRAGMENT = "fragments/synchronizationRow :: siteRow";
 	private static final String LIST_GROUP_SYNCH_FRAGMENT = "fragments/synchronizationRow :: groupRows";
-
-	private static final Integer DEFAULT_PAGE_SIZE = 50;
 	
 	@GetMapping(value = {"/", "/index"})
-	public String index(
-			@RequestParam(defaultValue = "status") String sortBy,
-			@RequestParam(defaultValue = "ASC") String sortOrder,
-			@RequestParam(defaultValue = "0") Integer pageNum,
+	public String index(Model model) {
+		
+		return INDEX_TEMPLATE;
+	}
+	
+	//called by AJAX - returns FRAGMENT/BODY
+	@GetMapping(value = {"/loadItems"})
+	public String loadItems(
+			@RequestParam(required = false) String sortBy,
+			@RequestParam(required = false) String sortOrder,
+			@RequestParam(required = false) Integer pageNum,
 			@RequestParam(required = false) Integer pageSize,
 			@RequestParam(required = false) String search,
 			Model model
-	)  throws MicrosoftGenericException {		
-		if(pageSize == null || pageSize <= 0) {
-			pageSize = DEFAULT_PAGE_SIZE;
+	)  throws MicrosoftGenericException {
+		if(sortBy == null) {
+			sortBy = mainSessionBean.getSortBy();
 		}
+		if(sortOrder == null) {
+			sortOrder = mainSessionBean.getSortOrder();
+		}
+		if(pageNum == null) {
+			pageNum = mainSessionBean.getPageNum();
+		}
+		if(pageSize == null) {
+			pageSize = mainSessionBean.getPageSize();
+		}
+		if(search == null) {
+			search = mainSessionBean.getSearch();
+		}
+		mainSessionBean.setSortBy(sortBy);
+		mainSessionBean.setSortOrder(sortOrder);
+		mainSessionBean.setPageNum(pageNum);
+		mainSessionBean.setPageSize(pageSize);
+		mainSessionBean.setSearch(search);
 		
 		List<SiteSynchronization> list = microsoftSynchronizationService.getAllSiteSynchronizations(true);
 		Map<String, MicrosoftTeam> map = microsoftCommonService.getTeams();
@@ -112,13 +139,15 @@ public class MainController {
 
 		//sort elements
 		if(StringUtils.isNotBlank(sortBy)) {
+			String finalSortBy = sortBy;
+			String finalSortOrder = sortOrder;
 			Collections.sort(list, (i1, i2) -> {
-				if("DESC".equals(sortOrder)) {
+				if("DESC".equals(finalSortOrder)) {
 					SiteSynchronization aux = i1;
 					i1 = i2;
 					i2 = aux;
 				}
-				switch(sortBy) {
+				switch(finalSortBy) {
 					case "siteId":
 						return i1.getSiteId().compareTo(i2.getSiteId());
 					case "teamId":
@@ -164,12 +193,12 @@ public class MainController {
 		model.addAttribute("maxPage", maxPage);
 		model.addAttribute("search", search);
 
-		return INDEX_TEMPLATE;
+		return BODY_TEMPLATE;
 	}
 	
 	//called by AJAX
 	@GetMapping(value = {"/listGroupSynchronizations/{siteSynchronizationId}"})
-	public String index(@PathVariable String siteSynchronizationId, Model model)  throws MicrosoftGenericException {
+	public String groupSynchronizations(@PathVariable String siteSynchronizationId, Model model)  throws MicrosoftGenericException {
 		log.debug("List group synchronizations for siteSynchronizationId={}", siteSynchronizationId);
 		SiteSynchronization ss = microsoftSynchronizationService.getSiteSynchronization(SiteSynchronization.builder().id(siteSynchronizationId).build(), true);
 		if(ss != null) {
