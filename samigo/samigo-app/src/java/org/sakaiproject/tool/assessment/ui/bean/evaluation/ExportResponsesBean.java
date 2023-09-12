@@ -148,6 +148,7 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
   	  	Iterator detailedStats = histogramListener.getDetailedStatisticsSpreadsheetData(assessmentId).iterator(); 
   	  	detailedStats.next();
   	  	boolean showPartAndTotalScoreSpreadsheetColumns = true;
+  	  	boolean isOneSelectionType = totalScores.getIsOneSelectionType();
   		boolean showDetailedStatisticsSheet = (Boolean) detailedStats.next();
 
         String audioMessage = ContextUtil.getLocalizedString(MSG_BUNDLE,"audio_message");
@@ -165,7 +166,9 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
         String submitTimeString = ContextUtil.getLocalizedString(MSG_BUNDLE,"submit_time");
         
         List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
-        		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, responseString, rationaleString, itemGradingCommentsString, useridMap, responseCommentsString);
+			showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, responseString, rationaleString, itemGradingCommentsString, 
+			useridMap, responseCommentsString, isOneSelectionType);
+
         //SAM-1693 the returned list could be null -DH
         List<List<Object>> list = new ArrayList<List<Object>>();
         if (exportResponsesDataList != null) {
@@ -199,6 +202,12 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 	  	  	}
 	        
 	        headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"tot"));
+
+	        if (isOneSelectionType) {
+	          	headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "correct_answers_title"));
+	          	headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "incorrect_answers_title"));
+	          	headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE, "empty_answers_title"));
+	        }
 	        headerList.add(itemGradingCommentsString);
         }
         //SAM-1693 the returned list could be null -DH
