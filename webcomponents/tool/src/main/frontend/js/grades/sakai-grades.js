@@ -7,11 +7,19 @@ import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
 
 export class SakaiGrades extends SakaiPageableElement {
 
+  static get properties() {
+
+    return {
+      _i18n: { attribute: false, type: Object },
+    };
+  }
+
   constructor() {
 
     super();
+
     this.showPager = true;
-    this.loadTranslations("grades").then(r => this.i18n = r);
+    this.loadTranslations("grades").then(r => this._i18n = r);
   }
 
   async loadAllData() {
@@ -24,8 +32,8 @@ export class SakaiGrades extends SakaiPageableElement {
         if (r.ok) {
           return r.json();
         }
-        throw new Error(`Failed to get grades from ${url}`);
 
+        throw new Error(`Failed to get grades from ${url}`);
       })
       .then(data => {
 
@@ -73,8 +81,8 @@ export class SakaiGrades extends SakaiPageableElement {
     this.repage();
   }
 
-  shouldUpdate(changed) {
-    return super.shouldUpdate(changed) && this.dataPage;
+  shouldUpdate(changedProperties) {
+    return this._i18n && super.shouldUpdate(changedProperties);
   }
 
   content() {
@@ -83,29 +91,29 @@ export class SakaiGrades extends SakaiPageableElement {
       <div id="topbar">
         <div id="filter">
           <select @change=${this.sortChanged}
-              title="${this.i18n.sort_tooltip}"
-              aria-label="${this.i18n.sort_tooltip}">
-            <option value="${NEW_LOW_TO_HIGH}">${this.i18n.sort_new_low_to_high}</option>
-            <option value="${NEW_HIGH_TO_LOW}">${this.i18n.sort_new_high_to_low}</option>
-            <option value="${AVG_LOW_TO_HIGH}">${this.i18n.sort_average_low_to_high}</option>
-            <option value="${AVG_HIGH_TO_LOW}">${this.i18n.sort_average_high_to_low}</option>
-            <option value="${ASSIGNMENT_A_TO_Z}">${this.i18n.sort_assignment_a_to_z}</option>
-            <option value="${ASSIGNMENT_Z_TO_A}">${this.i18n.sort_assignment_z_to_a}</option>
+              title="${this._i18n.sort_tooltip}"
+              aria-label="${this._i18n.sort_tooltip}">
+            <option value="${NEW_LOW_TO_HIGH}">${this._i18n.sort_new_low_to_high}</option>
+            <option value="${NEW_HIGH_TO_LOW}">${this._i18n.sort_new_high_to_low}</option>
+            <option value="${AVG_LOW_TO_HIGH}">${this._i18n.sort_average_low_to_high}</option>
+            <option value="${AVG_HIGH_TO_LOW}">${this._i18n.sort_average_high_to_low}</option>
+            <option value="${ASSIGNMENT_A_TO_Z}">${this._i18n.sort_assignment_a_to_z}</option>
+            <option value="${ASSIGNMENT_Z_TO_A}">${this._i18n.sort_assignment_z_to_a}</option>
             ${this.siteId ? "" : html`
-            <option value="${COURSE_A_TO_Z}">${this.i18n.sort_course_a_to_z}</option>
-            <option value="${COURSE_Z_TO_A}">${this.i18n.sort_course_z_to_a}</option>
+            <option value="${COURSE_A_TO_Z}">${this._i18n.sort_course_a_to_z}</option>
+            <option value="${COURSE_Z_TO_A}">${this._i18n.sort_course_z_to_a}</option>
             `}
           </select>
         </div>
       </div>
 
       <div id="grades">
-        <div class="header">${this.i18n.course_assignment}</div>
-        <div class="header">${this.i18n.course_average}</div>
-        <div class="header">${this.i18n.view}</div>
+        <div class="header">${this._i18n.course_assignment}</div>
+        <div class="header">${this._i18n.course_average}</div>
+        <div class="header">${this._i18n.view}</div>
         ${this.dataPage.map((a, i) => html`
         <div class="assignment cell ${i % 2 === 0 ? "even" : "odd"}">
-          <div class="new-count">${a.ungraded} ${this.i18n.new_submissions}</div>
+          <div class="new-count">${a.ungraded} ${this._i18n.new_submissions}</div>
           ${this.siteId ? html`
           <div class="title">${a.name}</div>
           ` : html`
@@ -115,8 +123,8 @@ export class SakaiGrades extends SakaiPageableElement {
         <div class="average cell ${i % 2 === 0 ? "even" : "odd"}">${a.noneGradedYet ? "-" : a.averageScore.toFixed(2)}</div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
           <a href="${a.url}"
-              aria-label="${this.i18n.url_tooltip}"
-              title="${this.i18n.url_tooltip}">
+              aria-label="${this._i18n.url_tooltip}"
+              title="${this._i18n.url_tooltip}">
             <sakai-icon type="right" size="small">
           </a>
         </div>
