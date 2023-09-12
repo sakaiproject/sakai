@@ -11,10 +11,8 @@ function setLoading(elem) {
 
 function handleButtonClick(event) {
     const button = event.target.closest('[role="button"]');
-    if (button) {
-        if (event.type === 'click' || event.keyCode === 13) {
-            eval(button.getAttribute('data'));
-        }
+    if (button && event.keyCode === 13) {
+        button.click();
     }
 }
 
