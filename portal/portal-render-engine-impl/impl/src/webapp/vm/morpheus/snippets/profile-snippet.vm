@@ -74,7 +74,7 @@
         <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
           <div class="accordion-body p-2">
             ## Calendar webcomponent
-            <sakai-calendar></sakai-calendar>
+            <sakai-calendar user-id="${loginUserId}"></sakai-calendar>
           </div>
         </div>
       </div>
