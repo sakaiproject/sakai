@@ -175,13 +175,12 @@ DTMN.validateShiftInput = function()
   DTMN.hideShiftError();
 
   DTMN.shiftAllBtn.disabled = days === 0;
-
   DTMN.shiftVisibleBtn.disabled = days === 0 || DTMN.findExpandedSections().length === 0;
 };
 
 DTMN.findExpandedSections = function()
 {
-  return DTMN.collapseElements.filter(function (e) { return e.getAttribute("aria-expanded") === "true"; });
+  return DTMN.collapseElements.filter(function (e) { return e.classList.contains("show") === true; });
 };
 
 DTMN.hideShiftError = function()
