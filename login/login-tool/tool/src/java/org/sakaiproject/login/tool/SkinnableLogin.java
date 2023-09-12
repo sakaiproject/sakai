@@ -558,7 +558,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		if (returnUrl == null)
 		{
 			returnUrl = serverConfigurationService.getPortalUrl();
-			log.info("complete: nowhere set to go, going to portal");
+			log.debug("Empty url detected changing to portal, session: [{}]", session);
 		}
 
 		// redirect to the done URL
