@@ -47,7 +47,7 @@ if (tomcatPath) {
 
   //Run build/deploy process
   run(
-    `node_modules/.bin/vue-cli-service build --target wc --name sakai --dest ${deploymentPath} --watch './src/components/*'`,
+    `node_modules/.bin/vue-cli-service build --inline-vue --target wc --name sakai --dest ${deploymentPath} --watch './src/components/*'`,
     { stdio: "inherit" }
   );
 } else {

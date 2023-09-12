@@ -39,9 +39,10 @@
 					<label for="active-folder"><span rsf:id="msg=simplepage.active-folder"></span></label><br />
 					<input type="text" name="active-folder" id="active-folder" readonly="true"/>
 				</div>
-				<div rsf:id="prerequisite-block">
+				<div rsf:id="prerequisite-block" class="b5 my-2">
 					<input type="checkbox" id="question-prerequisite" rsf:id="question-prerequisite"/><label rsf:id="msg=simplepage.prerequisites_label" for="question-prerequisite"></label>
 				</div>
+				<sakai-condition-picker rsf:id="folder-condition-picker" id="folder-condition-picker" class="hidden"></sakai-condition-picker>
 				<p class="act">
 					<input type="submit" class="bold" rsf:id="submit" />
 					<input type="submit" rsf:id="cancel" />

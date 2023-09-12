@@ -28,9 +28,10 @@
 				<textarea rsf:id="page:">
 				</textarea>
             </div>
-	 <div rsf:id="prerequisite-block">
+	 <div rsf:id="prerequisite-block" class="b5 my-2">
             <input type="checkbox" id="question-prerequisite" rsf:id="question-prerequisite"/><label rsf:id="msg=simplepage.prerequisites_label" for="question-prerequisite"></label>
 	 </div>
+	<sakai-condition-picker rsf:id="edit-condition-picker" id="edit-condition-picker" class="hidden"></sakai-condition-picker>
 			
 <span style="display:none;" id="deleteButtonLangSupp" rsf:id="msg=simplepage.delete_page_confirm"></span>
 <script type="text/javascript">
@@ -51,6 +52,15 @@ jQuery(document).ready(function($) {
     $('.deleteButton').click(function() {
         return confirm(confirmMsg);
     });
+
+    const itemId = document.querySelector("input[name='itemId']")?.value;
+
+    // RSF doesn't like the javascript and operator
+    if (itemId) if (itemId != -1) {
+        const editConditionPicker = document.getElementById("edit-condition-picker");
+        editConditionPicker.setAttribute("item-id", itemId);
+        editConditionPicker.classList.remove("hidden");
+    }
 });
 
 </script>
