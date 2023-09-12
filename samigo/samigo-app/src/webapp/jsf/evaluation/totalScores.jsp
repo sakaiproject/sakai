@@ -682,6 +682,18 @@ $(document).ready(function(){
         <h:outputText value="#{evaluationMessages.no_submission}" rendered="#{description.attemptDate == null}"/>
     </h:column>
 
+    <!-- ANSWERS SUMMARY FOR ONE SELECTION TYPE -->
+    <h:column rendered="#{totalScores.isOneSelectionType}">
+      <f:facet name="header">
+        <h:outputText value="#{evaluationMessages.answers_title}"/>
+      </f:facet>
+      <h:panelGroup rendered="#{description.attemptDate != null}">
+        <div><h:outputText value="#{evaluationMessages.correct_title}"/>: <h:outputText value="#{totalScores.results[description.agentId][0]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.incorrect_title}"/>: <h:outputText value="#{totalScores.results[description.agentId][1]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.empty_title}"/>: <h:outputText value="#{totalScores.results[description.agentId][2]}"/></div>
+      </h:panelGroup>
+    </h:column>
+
     <!-- TIME -->
     <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType!='timeElapsed'}">
       <f:facet name="header">
