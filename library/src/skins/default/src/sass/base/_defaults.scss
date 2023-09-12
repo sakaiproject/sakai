@@ -56,7 +56,7 @@ a{
     color: var(--sakai-text-color-1);
     text-decoration: none;
   }
-  &[href]:not(.btn, .page-link) {  // This means a[href]
+  &[href] {  // This means a[href]. Do not make this selector more specific.
     color: var(--link-color);
     &:focus{
       outline: $sakai-focus-outline;
@@ -73,11 +73,14 @@ a{
       background-color: var(--link-active-background-color);
       outline: 0;   // no focus outline on click
     }
-    &.btn{
-      text-decoration: none;
+    &.btn{ // Extend the Bootstrap button style to links
+      @extend .btn;
     }
     &.btn-primary{
       @include sakai_primary_button();
+    }
+    &.page-link{ // Extend the pagination link style
+      @extend .page-link;
     }
   }
   &.url{
