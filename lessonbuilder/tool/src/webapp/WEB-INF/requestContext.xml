@@ -317,6 +317,7 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="conditionService" ref="org.sakaiproject.condition.api.ConditionService" />
 		<property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
 	</bean>
 	
