@@ -60,58 +60,67 @@ export class SakaiCalendar extends LionCalendar {
   static get properties() {
 
     return {
-      i18n: { attribute: false, type: Object },
-      siteId: { attribute: "site-id", type: String },
       userId: { attribute: "user-id", type: String },
-      selectedDate: { attribute: false, type: Date },
-      events: { attribute: false, type: Array },
-      days: { attribute: false, type: Number },
+      siteId: { attribute: "site-id", type: String },
+      _i18n: { attribute: false, type: Object },
+      _selectedDate: { attribute: false, type: Date },
+      _events: { attribute: false, type: Array },
+      _days: { attribute: false, type: Number },
     };
   }
 
   constructor() {
 
     super();
-    loadProperties("calendar").then(r => this.i18n = r);
-    this.daysEvents = [];
+
+    this._daysEvents = [];
 
     this.addEventListener("user-selected-date-changed", event => {
 
       const time = event.detail.selectedDate.getTime();
-      this.daysEvents = this.events.filter(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
-      this.selectedDate = event.detail.selectedDate;
+      this._daysEvents = this._events.filter(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
+      this._selectedDate = event.detail.selectedDate;
     });
+
+    // This is a hack. There's something about the way Lion's calendar connects and renders which
+    // means we can't wait for this._i18n in shouldUpdate. So, we add placeholders in the _i18n
+    // object. Nasty. If I can work it out, I'll come back and fix this.
+    //TODO: Fix this properly
+    this._i18n = { days_message: "", events_for: "", today: "" };
+
+    loadProperties("calendar").then(r => this._i18n = r);
   }
-
-  set siteId(value) {
-
-    this._siteId = value;
-    this.loadData();
-  }
-
-  get siteId() { return this._siteId; }
 
   set userId(value) {
 
+    const old = this._userId;
+
     this._userId = value;
-    this.loadData();
+    this._loadData();
+
+    this.requestUpdate("userId", old);
   }
 
   get userId() { return this._userId; }
 
-  shouldUpdate(changed) {
-    return super.shouldUpdate(changed);
+  set siteId(value) {
+
+    const old = this._siteId;
+
+    this._siteId = value;
+    this._loadData();
+
+    this.requestUpdate("siteId", old);
   }
 
-  loadData() {
+  get siteId() { return this._siteId; }
+
+  _loadData() {
 
     const url = this.siteId
       ? `/api/sites/${this.siteId}/calendar` : `/api/users/current/calendar`;
 
-    fetch(url, {
-      cache: "no-cache",
-      credentials: "same-origin"
-    })
+    fetch(url, { cache: "no-cache", credentials: "same-origin"})
     .then(r => {
 
       if (r.ok) {
@@ -122,20 +131,15 @@ export class SakaiCalendar extends LionCalendar {
     })
     .then(data => {
 
-      this.events = data.events;
-      this.days = data.days;
+      this._events = data.events;
+      this._days = data.days;
     })
     .catch (error => console.error(error));
   }
 
-  firstUpdated() {
+  update(changedProperties) {
 
-    this.loadData();
-  }
-
-  update(changed) {
-
-    super.update(changed);
+    super.update(changedProperties);
 
     this.shadowRoot.querySelectorAll(".calendar__day-button").forEach(c => {
 
@@ -144,8 +148,8 @@ export class SakaiCalendar extends LionCalendar {
 
       const time = c.date.getTime();
 
-      if (this.events) {
-        const matchingEvent = this.events.find(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
+      if (this._events) {
+        const matchingEvent = this._events.find(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
         if (matchingEvent) {
           c.classList.add("has-events");
           if (matchingEvent.type === "deadline") {
@@ -163,7 +167,7 @@ export class SakaiCalendar extends LionCalendar {
       <div class="sakai-calendar__navigation-wrapper">
         ${super.__renderNavigation()}
         <div class="sakai-calendar__navigation__today">
-          <a href="javascript:;" @click=${() => { this.selectedDate = null; this.initCentralDate(); } }>${this.i18n.today}</a>
+          <a href="javascript:;" @click=${() => { this._selectedDate = null; this.initCentralDate(); } }>${this._i18n.today}</a>
         </div>
       </div>
     `;
@@ -173,16 +177,16 @@ export class SakaiCalendar extends LionCalendar {
 
     return html`
 
-      <div class="calendar-msg">${this.i18n.days_message.replace("{}", this.days)}</div>
+      <div class="calendar-msg">${this._i18n.days_message.replace("{}", this._days)}</div>
 
       <div id="container">
         ${super.render()}
-        ${this.selectedDate && this.daysEvents.length > 0 ? html`
+        ${this._selectedDate && this._daysEvents.length > 0 ? html`
         <div id="days-events">
           <div id="days-events-title">
-            ${this.i18n.events_for} ${this.selectedDate.toLocaleDateString(undefined, { dateStyle: "medium"})}
+            ${this._i18n.events_for} ${this._selectedDate.toLocaleDateString(undefined, { dateStyle: "medium"})}
           </div>
-          ${this.daysEvents.map(e => html`
+          ${this._daysEvents.map(e => html`
             <div>
               <a href="${e.url}">
                 <sakai-icon type="${e.tool}" size="small"></sakai-icon>
