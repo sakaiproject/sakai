@@ -251,7 +251,9 @@
             <bean id="org.sakaiproject.content.impl.HtmlPageFilter"
                   class="org.sakaiproject.content.impl.HtmlPageFilter">
               <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+              <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
               <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+              <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
               <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
             </bean>
 
