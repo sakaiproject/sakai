@@ -79,6 +79,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
+import org.sakaiproject.lessonbuildertool.util.LessonConditionUtil;
 import org.sakaiproject.lessonbuildertool.util.SimplePageItemUtilities;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -1691,6 +1692,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 							}
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
+							UIOutput.make(tableRow, "type", Integer.valueOf(i.getType()).toString());
 						        try {
 							    itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
 							} catch (IdUnusedException e) {
@@ -4574,6 +4576,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UISelect.make(form, "assignment-dropdown", SimplePageBean.GRADES, "#{simplePageBean.dropDown}", SimplePageBean.GRADES[0]);
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
 
+		LessonConditionUtil.makeConditionEditor(simplePageBean, form, "common-condition-editor");
+		LessonConditionUtil.makeConditionPicker(simplePageBean, form, "common-condition-picker");
+
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
 
 		String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
@@ -4887,6 +4892,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (!simplePageBean.isStudentPage(currentPage)) {
 		    UIOutput.make(form, "multi-prerequisite-section");
 		    UIBoundBoolean.make(form, "multi-prerequisite", "#{simplePageBean.prerequisite}",false);
+
+			LessonConditionUtil.makeConditionPicker(simplePageBean, form, "multimedia-condition-picker");
 		}
 
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
@@ -5193,6 +5200,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "comments-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "comments-prerequisite", "#{simplePageBean.prerequisite}");
 
+		LessonConditionUtil.makeConditionPicker(simplePageBean, form, "comments-condition-picker");
+
 		UICommand.make(form, "delete-comments-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-comments", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateComments}");
 		UICommand.make(form, "cancel-comments", messageLocator.getMessage("simplepage.cancel"), null);
@@ -5211,6 +5220,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-comments-anon", "#{simplePageBean.forcedAnon}");
 		UIBoundBoolean.make(form, "student-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "student-prerequisite", "#{simplePageBean.prerequisite}");
+
+		LessonConditionUtil.makeConditionPicker(simplePageBean, form, "student-condition-picker");
 		
 		UIOutput.make(form, "peer-evaluation-creation");
 		
@@ -5276,6 +5287,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}");
 		UIInput.make(form, "question-text-input", "#{simplePageBean.questionText}");
 		UIInput.make(form, "question-answer-full-shortanswer", "#{simplePageBean.questionAnswer}");
+
+		LessonConditionUtil.makeConditionPicker(simplePageBean, form, "question-condition-picker");
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookQuestionsDiv");
 		if(simplePageBean.getCurrentTool(simplePageBean.GRADEBOOK_TOOL_ID) == null) {

@@ -41,6 +41,9 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.condition.api.ConditionService;
+import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -72,6 +75,7 @@ import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -462,6 +466,7 @@ public class SimplePageBean {
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private FormattedText formattedText;
     @Setter private UserTimeService userTimeService;
+    @Setter private ConditionService conditionService;
 
     private LessonEntity forumEntity = null;
     	public void setForumEntity(Object e) {
@@ -2185,6 +2190,13 @@ public class SimplePageBean {
 					it.setSequence(it.getSequence() - 1);
 					update(it);
 				}
+			}
+		}
+
+		// When a question item is deleted, remove assotiated Conditions
+		if (deleted && item.getType() == SimplePageItem.QUESTION) {
+			for (Condition condition : getItemConditions(item)) {
+				conditionService.deleteCondition(condition.getId());
 			}
 		}
 
@@ -5532,6 +5544,13 @@ public class SimplePageBean {
 			popAdvisor(advisor);
 		}
 
+		Condition rootCondition = conditionService.getRootConditionForItem(currentSiteId, LESSONBUILDER_ID,
+				Long.toString(item.getId())).orElse(null);
+
+		if (rootCondition != null) {
+			return conditionService.evaluateCondition(rootCondition, currentUserId);
+		}
+
 		try {
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
@@ -7828,6 +7847,22 @@ public class SimplePageBean {
 
 		saveOrUpdate(item);
 
+		// Create a condition for every new question item
+		Long savedItemId = Long.valueOf(item.getId());
+		List<Condition> itemConditions = conditionService.getConditionsForItem(currentSiteId,
+				LessonBuilderConstants.TOOL_COMMON_ID, savedItemId.toString());
+
+		if (itemConditions.isEmpty() && savedItemId >= 0) {
+			Condition itemCondition = Condition.builder()
+					.siteId(currentSiteId)
+					.toolId(LessonBuilderConstants.TOOL_COMMON_ID)
+					.itemId(savedItemId.toString())
+					.type(ConditionType.COMPLETED)
+					.build();
+
+			conditionService.saveCondition(itemCondition);
+		}
+
 		if(questionType.equals("multipleChoice")) {
 			simplePageToolDao.syncQRTotals(item);
 		}
@@ -9208,5 +9243,16 @@ public class SimplePageBean {
 			status = "cancel";
 		}
 		return status;
+	}
+
+	public List<Condition> getItemConditions() {
+		return itemOk(itemId)
+				? getItemConditions(findItem(itemId))
+				: Collections.emptyList();
+	}
+
+	public List<Condition> getItemConditions(SimplePageItem item) {
+		return conditionService.getConditionsForItem(currentSiteId,
+				LessonBuilderConstants.TOOL_COMMON_ID, Long.valueOf(item.getId()).toString());
 	}
 }

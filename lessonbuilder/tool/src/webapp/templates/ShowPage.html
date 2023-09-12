@@ -1378,6 +1378,10 @@
                                    </span>
                                   <label for="assignment-points" id="assignment-points-label"> points on the assignment</label>
                               </p>
+                              <hr />
+                              <sakai-condition-editor rsf:id="common-condition-editor" id="common-condition-editor"></sakai-condition-editor>
+                              <hr />
+                              <sakai-condition-picker rsf:id="common-condition-picker" id="common-condition-picker"></sakai-condition-picker>
                           </div>
                       </div>
                   </div>
@@ -1638,6 +1642,8 @@
                                     <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
                                     <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
                                 </p>
+                                <hr />
+                                <sakai-condition-picker rsf:id="multimedia-condition-picker" id="multimedia-condition-picker"></sakai-condition-picker>
                             </div>
                             </div>
 
@@ -2024,6 +2030,7 @@
                           <input type="checkbox" name="comments-required" id="comments-required" rsf:id="comments-required" />
                           <label for="comments-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
                        </p>
+                        <sakai-condition-picker rsf:id="comments-condition-picker" id="comments-condition-picker"></sakai-condition-picker>
                         <p id="editgroups-comments">
                           <a role="button" href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
@@ -2180,6 +2187,7 @@
                           <input type="checkbox" name="student-required" id="student-required" rsf:id="student-required" />
                           <label for="student-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
                         </p>
+                    <sakai-condition-picker rsf:id="student-condition-picker" id="student-condition-picker"></sakai-condition-picker>
                        <p id="editgroups-student" class="editgroups-student">
                         <a role="button" href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                       </p>
@@ -2396,6 +2404,7 @@
                                 <input type="checkbox" name="question-required" id="question-required" rsf:id="question-required" />
                                 <label for="question-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
                             </p>
+                            <sakai-condition-picker rsf:id="question-condition-picker" id="question-condition-picker"></sakai-condition-picker>
                         </div>
                     </div>
                     <p id="question-editgroups" class="edit-group">
