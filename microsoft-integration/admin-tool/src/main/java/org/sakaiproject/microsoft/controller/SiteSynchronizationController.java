@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.extern.slf4j.Slf4j;
@@ -78,8 +79,6 @@ public class SiteSynchronizationController {
 		
 		long syncDuration = microsoftConfigurationService.getSyncDuration();
 
-		model.addAttribute("sitesList", sakaiProxy.getSakaiSites());
-		model.addAttribute("teamsMap", microsoftCommonService.getTeams());
 		model.addAttribute("syncDateFrom", ZonedDateTime.now().toLocalDate());
 		model.addAttribute("syncDateTo", ZonedDateTime.now().plusMonths(syncDuration).toLocalDate());
 
@@ -97,9 +96,9 @@ public class SiteSynchronizationController {
 	}
 	
 	@GetMapping(value = {"/refreshTeams"})
-	public String refreshTeams(Model model) throws MicrosoftGenericException {
+	public String refreshTeams(@RequestParam(defaultValue = "false") Boolean forced, Model model) throws MicrosoftGenericException {
 		log.debug("Refresh teams");
-		model.addAttribute("teamsMap", microsoftCommonService.getTeams(true));
+		model.addAttribute("teamsMap", microsoftCommonService.getTeams(forced));
 
 		return NEW_SITE_SYNCH_TEMPLATE + " :: teams";
 	}
