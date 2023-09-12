@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="org.sakaiproject.condition"/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <bean id="assessmentConditionEvaluator" class="org.sakaiproject.condition.impl.evaluator.AssessmentConditionEvaluator" />
+    <bean id="assignmentConditionEvaluator" class="org.sakaiproject.condition.impl.evaluator.AssignmentConditionEvaluator" />
+    <bean id="lessonsConditionEvaluator" class="org.sakaiproject.condition.impl.evaluator.LessonsConditionEvaluator" />
+
+    <bean id="" class="org.sakaiproject.condition.impl.evaluator.LessonsConditionEvaluator" />
+
+    <bean id="org.sakaiproject.condition.api.ConditionService"
+            class="org.sakaiproject.condition.impl.ConditionServiceImpl" init-method="init">
+        <property name="ConditionEvaluators">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.String"
+                    value-type="org.sakaiproject.condition.api.ConditionEvaluator">
+                <entry key="sakai.assessment"><ref bean="assessmentConditionEvaluator" /></entry>
+                <entry key="sakai.assignment"><ref bean="assignmentConditionEvaluator" /></entry>
+                <entry key="sakai.lessonbuildertool"><ref bean="lessonsConditionEvaluator" /></entry>
+            </util:map>
+        </property>
+    </bean>
+
+    <!--  Hibernate persistence -->
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.Condition"
+            class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.condition.api.model.Condition</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.condition.api.persistence.ConditionRepository"
+            class="org.sakaiproject.condition.impl.persistence.ConditionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+</beans>
