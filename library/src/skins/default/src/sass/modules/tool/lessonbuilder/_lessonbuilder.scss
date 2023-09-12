@@ -704,9 +704,20 @@
   .mm-file-input {
     display:inline;
   }
-  span.mm-file-input-name {
+  .mm-file-input-name {
+    display: inline-block;
+    line-height: 1.6 !important;
+    vertical-align: bottom;
+    white-space: nowrap;
+    max-width: 300px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+  span.mm-file-input-name,
+  span.mm-file-input-size {
     margin-bottom: 0;
     margin-right: 14px;
+    width: 300px;
   }
   .mm-file-input-delete {
     cursor: pointer;
@@ -744,6 +755,7 @@
   }
   span.remove-upload {
     margin-left: 6px;
+    margin-top: 11px;
     font-size: 22px;
     float: right;
   }
@@ -2059,7 +2071,7 @@
   }
   .PagePicker {
     margin-top:12px;
-  }
+  }   
   /* 800 is when the left margin collapses */
   @media only screen and (max-width: 800px) {
     .Mrphs-container--toolTitleNav {
