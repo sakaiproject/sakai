@@ -18,6 +18,7 @@ package org.sakaiproject.microsoft;
 
 import java.nio.charset.StandardCharsets;
 
+import org.sakaiproject.microsoft.controller.auxiliar.MainSessionBean;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -25,6 +26,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -61,6 +63,12 @@ public class ThymeleafConfig implements WebMvcConfigurer, ApplicationContextAwar
 		ResourceLoaderMessageSource messages = new ResourceLoaderMessageSource();
 		messages.setBasename("Messages");
 		return messages;
+	}
+	
+	@Bean
+	@SessionScope
+	public MainSessionBean mainSessionBean() {
+		return new MainSessionBean();
 	}
 
 	@Bean
