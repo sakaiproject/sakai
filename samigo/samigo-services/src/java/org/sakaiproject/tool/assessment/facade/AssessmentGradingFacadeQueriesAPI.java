@@ -244,6 +244,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String sectionString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString);
   
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String sectionString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean oneSelectionType);
+  
   public boolean getHasGradingData(Long publishedAssessmentId);
 
   public void removeUnsubmittedAssessmentGradingData(AssessmentGradingData data);

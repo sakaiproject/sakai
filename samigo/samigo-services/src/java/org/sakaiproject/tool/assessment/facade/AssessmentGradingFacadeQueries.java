@@ -1955,8 +1955,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return getHibernateTemplate().execute(hcb);
     }
 
+    public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, 
+                                       String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, 
+                                       String partString, String questionString, String textString, String rationaleString, 
+                                       String itemGradingCommentsString, Map useridMap, String responseCommentString) 
+    {
+        return this.getExportResponsesData(publishedAssessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
+                                    showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, 
+                                    rationaleString, itemGradingCommentsString, useridMap, responseCommentString, false);
+    }
 
-    public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+    public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, 
+                                       String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, 
+                                       String partString, String questionString, String textString, String rationaleString, 
+                                       String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean isOneSelectionType)
+    {
         List dataList = new ArrayList();
         List headerList = new ArrayList();
         List finalList = new ArrayList(2);
@@ -2064,6 +2077,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         log.debug("finalScore is NULL");
                         responseList.add(0d);
                     }
+                }
+                int emptyIndex = 0;
+                if (isOneSelectionType) {
+                    responseList.add(0);
+                    responseList.add(0);
+                    responseList.add(0);
+                    emptyIndex = responseList.size() - 1;
                 }
 
                 String assessmentGradingComments = "";
@@ -2309,12 +2329,24 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             if (answerid != null) {
                                 AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerid);
                                 if (answer != null) {
+                                    if (isOneSelectionType) {
+                                        if (!answer.getIsCorrect()) {
+                                            // For incorrect answers cases
+                                            responseList.set(emptyIndex-1, ((int) responseList.get(emptyIndex-1)) + 1);
+                                        } else {
+                                            // For correct answers cases
+                                            responseList.set(emptyIndex-2, ((int) responseList.get(emptyIndex-2)) + 1);
+                                        }
+                                    }
                                     String temptext = answer.getText();
                                     if (temptext != null)
                                         thistext = temptext;
                                 } else {
                                     log.warn("Published answer for " + answerid + " is null");
                                 }
+                            } else if (isOneSelectionType) {
+                                // For empty answers cases
+                                responseList.set(emptyIndex, ((int) responseList.get(emptyIndex)) + 1);
                             }
 
                             if (count == 0)
