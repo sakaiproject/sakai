@@ -129,6 +129,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 				  res.addHeader("X-Sendfile", linkPath);
 				  return;
 			  } else if (serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+				  res.setContentLength(0);
 				  res.sendRedirect(directLink.toString());
 				  return;
 			  }

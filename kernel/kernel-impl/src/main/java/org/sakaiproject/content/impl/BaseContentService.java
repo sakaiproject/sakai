@@ -7115,6 +7115,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							return;
 						}
 						else if (m_serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+							res.setContentLength(0);
 							res.sendRedirect(directLinkUri.toString());
 							return;
 						}
