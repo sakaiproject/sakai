@@ -25,14 +25,15 @@ if (portal?.user?.id) {
       }
 
       if (differentUser) {
-        registration.pushManager.getSubscription().then(subscription => {
 
-          subscription.unsubscribe().then(successful => {
-
-            portal.notifications.subscribeIfPermitted(registration);
-          });
-        });
-      }
+        registration.pushManager.getSubscription()
+          .then(subscription => {
+            if (subscription) {
+                return subscription.unsubscribe();
+            }
+          })
+          .then(() => portal.notifications.subscribeIfPermitted(registration));
+      }    
 
       window.addEventListener("DOMContentLoaded", () => {
 
