@@ -104,10 +104,10 @@
     padding: 4px;
   }
 
-  .good-question-on {
+  .good-question-on, .good-answer-on {
     background: var(--sakai-selected-page-bg-color);
     border-radius: 2px;
-    a, sakai-icon, a:hover {
+    a, div, sakai-icon, a:hover {
       color: var(--sakai-selected-page-color);
     }
   }
@@ -139,9 +139,14 @@
     pointer-events: auto;
   }
 
-  .reaction-on {
-    background: var(--sakai-background-color);
-    border-radius: 2px;
+  button.dropdown-item > div {
+    display: inline-block;
+    pointer-events: none;
+    padding: 4px;
+  }
+
+  .reaction-on > div {
+    background: var(--sakai-background-color-4);
   }
 
   sakai-icon.heart {

@@ -741,7 +741,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           </div>
           ` : ""}
           ${this.topic.canReact ? html`
-          <div>
+          <div class="reactions-block">
             <div class="topic-option">
               <div class="dropdown">
                 <button class="btn btn-transparent"
@@ -756,6 +756,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 </ul>
               </div>
             </div>
+            ${this.renderReactionsBar(this.topic.reactionTotals)}
           </div>
           ` : ""}
           <div>
@@ -763,7 +764,6 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
             </div>
           </div>
         </div>
-        ${this.renderReactionsBar(this.topic.reactionTotals)}
         <hr>
         ${!this.topic.continued && !this.topic.locked ? html`
         <div class="topic-reply-block ${!this._replying ? "padded" : ""}">
