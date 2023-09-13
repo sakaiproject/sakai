@@ -533,6 +533,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
             ${this._editing ? "" : html`
             <div class="discussion-post-bottom-bar">
               <div class="post-actions-block">
+                ${this.post.canViewUpvotes ? html`
                 <div class="post-upvote-block">
                   ${this.post.canUpvote ? html`
                   <a href="javascript:;"
@@ -545,6 +546,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
                   ` : this._renderUpvote()
                   }
                 </div>
+                ` : ""}
               ${!this.post.hidden || this.post.canModerate ? html`
                 ${this._renderReactionsBlock()}
                 ${this.renderReactionsBar(this.post.reactionTotals)}
@@ -628,60 +630,60 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
   _renderReactionsBlock() {
 
     return html`
-        <div class="post-option
-            ${this.post.myReactions.GOOD_ANSWER ? "reaction-on" : ""}
-            ${this.post.isMine && this.post.reactionTotals.GOOD_ANSWER > 0 ? "reaction-on" : ""}"
-        >
-          ${this.post.isMine && this.post.reactionTotals.GOOD_ANSWER > 0 ? html`
-          <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
-          <div>
-            ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
-            ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
-          </div>
-          ` : ""}
-          ${!this.post.isMine && this.post.canReact ? html`
-          <div>
-          ${!this.post.locked && this.post.canReact ? html`
-            <a href="javascript:;"
-                class="post-option"
-                data-reaction="GOOD_ANSWER"
-                @click=${this.toggleReaction}
-                aria-label="${this._getGoodAnswerTooltip()}"
-                title="${this._getGoodAnswerTooltip()}">
-              <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
-              <div>
-                ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
-                ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
-              </div>
-            </a>
-          ` : html`
-            ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
-            ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
-          `}
-          </div>
-          ` : ""}
-        </div>
-
-        ${this.post.canReact ? html`
-        <div class="post-option single">
-          <div class="dropdown">
-            <button class="btn btn-transparent"
-                id="post-reactions-${this.post.id}"
-                type="button"
-                @click=${this._toggleShowingMyReactions}
-                data-bs-toggle="dropdown"
-                aria-label="${this._i18n.reactions_tooltip}"
-                aria-expanded="false"
-                title="${this._i18n.reactions_tooltip}">
-              <sakai-icon type="smile" size="small"></sakai-icon>
-            </button>
-            <ul class="dropdown-menu conv-dropdown-menu"
-                aria-labelledby="post-reactions-${this.post.id}">
-              ${this.renderMyReactions(this.post.myReactions)}
-            </ul>
-          </div>
+      <div class="reactions-block post-option
+          ${this.post.myReactions.GOOD_ANSWER ? "good-answer-on" : ""}
+          ${this.post.isMine && this.post.reactionTotals.GOOD_ANSWER > 0 ? "good-answer-on" : ""}"
+      >
+        ${this.post.isMine && this.post.reactionTotals.GOOD_ANSWER > 0 ? html`
+        <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
+        <div>
+          ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
+          ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
         </div>
         ` : ""}
+        ${!this.post.isMine && this.post.canReact ? html`
+        <div>
+        ${!this.post.locked && this.post.canReact ? html`
+          <a href="javascript:;"
+              class="post-option"
+              data-reaction="GOOD_ANSWER"
+              @click=${this.toggleReaction}
+              aria-label="${this._getGoodAnswerTooltip()}"
+              title="${this._getGoodAnswerTooltip()}">
+            <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
+            <div>
+              ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
+              ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
+            </div>
+          </a>
+        ` : html`
+          ${this.post.type == QUESTION ? this._i18n.goodanswer : this._i18n.goodpost}
+          ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
+        `}
+        </div>
+        ` : ""}
+      </div>
+
+      ${this.post.canReact ? html`
+      <div class="post-option single">
+        <div class="dropdown">
+          <button class="btn btn-transparent"
+              id="post-reactions-${this.post.id}"
+              type="button"
+              @click=${this._toggleShowingMyReactions}
+              data-bs-toggle="dropdown"
+              aria-label="${this._i18n.reactions_tooltip}"
+              aria-expanded="false"
+              title="${this._i18n.reactions_tooltip}">
+            <sakai-icon type="smile" size="small"></sakai-icon>
+          </button>
+          <ul class="dropdown-menu conv-dropdown-menu"
+              aria-labelledby="post-reactions-${this.post.id}">
+            ${this.renderMyReactions(this.post.myReactions)}
+          </ul>
+        </div>
+      </div>
+      ` : ""}
     `;
   }
 
@@ -733,23 +735,25 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           ${this._renderEditor()}
         ` : html`
         <div class="post-reactions-comment-toggle-block">
-          <div class="post-upvote-block">
-            ${this.post.canUpvote ? html`
-            <a href="javascript:;"
-                @click=${this._toggleUpvotePost}
-                aria-label="${this.post.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
-                title="${this.post.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
-                ?disabled=${!this.post.canUpvote}>
-              ${this._renderUpvote()}
-            </a>
-            ` : this._renderUpvote()
-            }
-          </div>
+          ${this.post.canViewUpvotes ? html`
+            <div class="post-upvote-block">
+              ${this.post.canUpvote ? html`
+              <a href="javascript:;"
+                  @click=${this._toggleUpvotePost}
+                  aria-label="${this.post.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
+                  title="${this.post.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
+                  ?disabled=${!this.post.canUpvote}>
+                ${this._renderUpvote()}
+              </a>
+              ` : this._renderUpvote()
+              }
+            </div>
+          ` : ""}
           <div class="post-actions-block">
             ${this._renderReactionsBlock()}
             ${this.renderReactionsBar(this.post.reactionTotals)}
           </div>
-          <div>
+          <div class="ms-auto">
           ${this.post.numberOfComments > 0 ? html`
           <a href="javascript:;"
               aria-label="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"

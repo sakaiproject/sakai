@@ -1767,6 +1767,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 (securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)
                     || (postBean.isMine && securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)));
             postBean.canUpvote = !postBean.isMine && settings.getAllowUpvoting() && !postBean.hidden && securityService.unlock(Permissions.POST_UPVOTE.label, siteRef);
+            postBean.canViewUpvotes = settings.getAllowUpvoting();
             postBean.canReact = !postBean.isMine && settings.getAllowReactions() && !postBean.hidden && securityService.unlock(Permissions.POST_REACT.label, siteRef);
             postBean.canComment = !postBean.hidden && securityService.unlock(Permissions.COMMENT_CREATE.label, siteRef);
             postBean.canReply = !postBean.hidden && securityService.unlock(Permissions.POST_CREATE.label, siteRef);
