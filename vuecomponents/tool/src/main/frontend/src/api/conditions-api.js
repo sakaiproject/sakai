@@ -57,7 +57,7 @@ export async function getToolItemsWithConditionsForLesson(siteId, lessonId) {
                 const itemConditions = conditions
                         .filter(nonRootConditionFilter)
                         .filter(nonParentConditionFilter)
-                        .filter((c) => c.itemId === lessonItem.id);
+                        .filter((c) => c.itemId == lessonItem.id);
                 return {
                     id: lessonItem.id,
                     name: lessonItemName(lessonItem),
