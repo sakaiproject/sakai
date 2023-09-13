@@ -156,7 +156,7 @@
     },
     computed: {
       availableToolItems() {
-        return this.toolItems.filter((item) => this.itemId ? item.id !== this.itemId : true);
+        return this.toolItems.filter((item) => this.itemId ? item.id != this.itemId : true);
       },
       disabledToolItems() {
         return this.availableToolItems.filter((item) => item.conditions.filter((c) => this.isConditionSelectable(c)).length === 0);
@@ -166,7 +166,7 @@
           return {
             value: item.id,
             text: item.name,
-            disabled: !!this.disabledToolItems.find((i) => i.id === item.id),
+            disabled: !!this.disabledToolItems.find((i) => i.id == item.id),
           };
         });
       },
@@ -174,7 +174,7 @@
         return this.itemOptions.filter((sco) => !sco.disabled).length > 0;
       },
       selectableConditions() {
-        return this.toolItems.filter((item) => this.itemId ? item.id !== this.itemId : true);
+        return this.toolItems.filter((item) => this.itemId ? item.id != this.itemId : true);
       },
       conditionOptions() {
         return this.availableToolItems.map((toolItem) => {
@@ -212,7 +212,7 @@
         return this.rootCondition?.subConditions.find(andParentConditionFilter)?.subConditions.map((condition) => {
           return {
             condition,
-            toolItem: this.toolItems.find((item) => item.id === condition.itemId) ?? null,
+            toolItem: this.toolItems.find((item) => item.id == condition.itemId) ?? null,
           };
         });
       },
@@ -220,7 +220,7 @@
         return this.rootCondition?.subConditions.find(orParentConditionFilter)?.subConditions.map((condition) => {
           return {
             condition,
-            toolItem: this.toolItems.find((item) => item.id === condition.itemId) ?? null,
+            toolItem: this.toolItems.find((item) => item.id == condition.itemId) ?? null,
           };
         });
       },
