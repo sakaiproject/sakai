@@ -1,5 +1,4 @@
 import { html } from "../assets/lit-element/lit-element.js";
-import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 
 export const reactionsMixin = Base => class extends Base {
 
@@ -14,17 +13,19 @@ export const reactionsMixin = Base => class extends Base {
     return html`
       ${Object.entries(myReactions).map(pair => html`
         ${pair[0] !== "GOOD_QUESTION" && pair[0] !== "GOOD_ANSWER"  && pair[0] !== "GOOD_COMMENT" ? html`
-        <li class="${ifDefined(pair[1] ? "reaction-on" : undefined)}">
-          <button class="dropdown-item"
+        <li>
+          <button class="dropdown-item ${pair[1] ? "reaction-on" : undefined}"
               type="button"
               data-reaction="${pair[0]}"
               @click=${this.toggleReaction}
               title="${this._i18n[pair[0]]}"
               aria-label="${this._i18n[pair[0]]}">
-            <sakai-icon type="${reactionIcons[pair[0]]}"
-                size="small"
-                class="${reactionIcons[pair[0]]}">
-            </sakai-icon>
+            <div>
+              <sakai-icon type="${reactionIcons[pair[0]]}"
+                  size="small"
+                  class="${reactionIcons[pair[0]]}">
+              </sakai-icon>
+            </div>
           </button>
         </li>
         ` : ""}

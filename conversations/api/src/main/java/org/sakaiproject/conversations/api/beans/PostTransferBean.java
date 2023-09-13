@@ -76,6 +76,7 @@ public class PostTransferBean implements Entity {
     public boolean canReply;
     public boolean canComment;
     public boolean canUpvote;
+    public boolean canViewUpvotes;
     public boolean canReact;
     public boolean canModerate;
     public boolean isInstructor;
