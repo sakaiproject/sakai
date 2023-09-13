@@ -2568,30 +2568,17 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Entity getEntity(Reference ref)
-	{
-		// double check that it's mine
-		if (!APPLICATION_ID.equals(ref.getType())) return null;
-		
-		Entity rv = null;
-
-		try
-		{
-			rv = getSite(ref.getId());
+	@Override
+	public Entity getEntity(Reference reference) {
+		Entity entity = null;
+		if (reference != null && APPLICATION_ID.equals(reference.getType())) {
+			try {
+				entity = getSite(reference.getId());
+			} catch (Exception e) {
+				log.warn("Could not retrieve a site with id [{}], {}", reference.getId(), e.toString());
+			}
 		}
-		catch (IdUnusedException e)
-		{
-			log.warn("getEntity(): " + e);
-		}
-		catch (NullPointerException e)
-		{
-			log.warn("getEntity(): " + e);
-		}
-
-		return rv;
+		return entity;
 	}
 
 	/**
