@@ -1083,6 +1083,13 @@
                  <regexp name="anything"/>
              </regexp-list>
          </attribute>
+
+         <attribute name="sandbox" description="The sandbox attribute enables an extra set of restrictions for the content in the iframe.">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+         </attribute>
+
     </common-attributes>
 
     <!--
@@ -1162,6 +1169,11 @@
             <attribute name="mozallowfullscreen">
                 <regexp-list>
                     <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="sandbox">
+                <regexp-list>
+                    <regexp name="anything"/>
                 </regexp-list>
             </attribute>
         </tag>

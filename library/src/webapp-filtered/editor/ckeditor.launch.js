@@ -416,6 +416,11 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             "showCharCount" : true,
         },
 
+        // SAK-49264 - The sandbox attribute is added by default in 4.21.0
+        // https://ckeditor.com/cke4/release/CKEditor-4.21.0
+        // https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-iframe_attributes
+        iframe_attributes: function() { return { } },
+
         //SAK-29598 - Add more templates to CK Editor
         templates_files: [basePath+"templates/default.js"],
         templates: 'customtemplates',
