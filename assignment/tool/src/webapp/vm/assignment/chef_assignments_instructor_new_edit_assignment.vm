@@ -17,6 +17,7 @@
         $('#selectedGroups').change(function(){
             ASN_INE.validateGroupSelection();
         });
+        ASN.checkIframeTags();
     });
 </script>
 <script>
@@ -1248,6 +1249,7 @@ function showExternalIframe(title, doreload) {
 
 	<a name="extraNodesTop"></a>
 
+	<div id="tagSection">
 	#if ($!tagsEnabled && $!allowAddTags)
 		<h4>$!tlang.getString('tags_header')</h4>
 		#set($assignmentParts = $assignmentId.split("/"))
@@ -1276,6 +1278,7 @@ function showExternalIframe(title, doreload) {
 			</label>
 		</div>
 	#end
+	</div>
 
     <div id="additionalInformation" #if ($value_SubmissionType == 6) style = "display:none"#end>
 	<h4>
