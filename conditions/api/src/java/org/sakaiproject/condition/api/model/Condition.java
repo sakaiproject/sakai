@@ -50,7 +50,7 @@ import lombok.ToString;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(exclude = { "subConditions", "parentConditions" })
 public class Condition {
 
 
