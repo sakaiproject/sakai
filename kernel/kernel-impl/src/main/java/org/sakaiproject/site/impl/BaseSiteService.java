@@ -788,9 +788,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public Site getSite(String id) throws IdUnusedException
 	{
-		if (id == null)
+		if (StringUtils.isBlank(id))
 		{
 			throw new IdUnusedException("null");
+		}
+
+		if (StringUtils.startsWith(id, REFERENCE_ROOT)) {
+			id = entityManager().newReference(id).getId();
 		}
 
 		try
@@ -2346,7 +2350,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// the site's azg may have just been updated, so enforce site group subset membership
 		enforceGroupSubMembership(siteId);
 
-		Event invalidate = eventTrackingService().newEvent(EVENT_SITE_USER_INVALIDATE, siteId, true);
+		Event invalidate = eventTrackingService().newEvent(EVENT_SITE_USER_INVALIDATE, siteReference(siteId), true);
 		eventTrackingService().post(invalidate);
 	}
 

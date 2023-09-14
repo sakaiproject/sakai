@@ -63,17 +63,17 @@ public class FakeReference implements Reference {
     }
 
     @Override
-    public void addSiteContextAuthzGroup(Collection<String> rv) {
+    public void addSiteContextAuthzGroup(Collection<String> authzGroup) {
 
     }
 
     @Override
-    public void addUserAuthzGroup(Collection<String> rv, String id) {
+    public void addUserAuthzGroup(Collection<String> authzGroup, String userId) {
 
     }
 
     @Override
-    public void addUserTemplateAuthzGroup(Collection<String> rv, String id) {
+    public void addUserTemplateAuthzGroup(Collection<String> authzGroup, String userId) {
 
     }
 
@@ -185,8 +185,8 @@ public class FakeReference implements Reference {
     }
 
     @Override
-    public void updateReference(String ref) {
-        reference = ref;
+    public void updateReference(String reference) {
+        this.reference = reference;
     }
 
     @Override
