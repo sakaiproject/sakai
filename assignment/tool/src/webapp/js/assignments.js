@@ -1114,15 +1114,23 @@ ASN.grab = function (selectedItem) {
 
 ASN.getShadowTags = function () {
     const tagSelector = document.getElementById('tag_selector');
-    if (tagSelector) {
-      tagSelector.value = Array.from(document.querySelector("sakai-tag-selector").shadowRoot.querySelectorAll('input[name="tag[]"'), el => el.value);
+    const tagSelectorVue = document.querySelector("sakai-tag-selector").shadowRoot;
+    if (tagSelector && tagSelectorVue) {
+      tagSelector.value = Array.from(tagSelectorVue.shadowRoot.querySelectorAll('input[name="tag[]"'), el => el.value);
     }
 }
 
 ASN.clearShadowTags = function () {
     const tagSelector = document.getElementById('tag_selector');
-    if (tagSelector) {
+    const tagSelectorVue = document.querySelector("sakai-tag-selector").shadowRoot;
+    if (tagSelector && tagSelectorVue) {
       tagSelector.value = '';
-      document.querySelector("sakai-tag-selector").shadowRoot.querySelectorAll('input[name="tag[]"').forEach((elem) => elem.remove());
+      tagSelectorVue.querySelectorAll('input[name="tag[]"').forEach((elem) => elem.remove());
+    }
+}
+
+ASN.checkIframeTags = function () {
+    if (inIframe()) {
+        document.getElementById('tagSection').style.display = 'none';
     }
 }
