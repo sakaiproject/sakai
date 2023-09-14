@@ -635,7 +635,7 @@ public class DeliveryBean implements Serializable {
   }
 
   public Date getRetractDate() {
-    return isAcceptLateSubmission() ? retractDate : null;
+    return (publishedAssessment != null && isAcceptLateSubmission()) ? retractDate : null;
   }
 
   public String getGraderComment() {
