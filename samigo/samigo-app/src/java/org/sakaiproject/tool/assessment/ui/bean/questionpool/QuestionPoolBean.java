@@ -35,9 +35,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -66,6 +68,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -81,6 +84,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.SectionService;
@@ -88,6 +92,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -1248,6 +1253,91 @@ public String getAddOrEdit()
         getCheckedQuestion();
         return "movePool";
   }
+
+  public String checkSolution() {
+		setOutComeParams();
+		getCheckedQuestion();
+		GradingService delegate = new GradingService();
+		Map<Integer, String> answersMap = new HashMap<>();
+		LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
+		ItemDataIfc item = (ItemDataIfc) this.currentItems.get(0);
+
+		Random random = new Random();
+		long randomGradingId = Long.valueOf(Math.abs(random.nextInt()));
+		List<List<String>> texts = delegate.extractCalcQAnswersArray(answersMap, answersMapValues, item, randomGradingId, this.getAgentId());
+
+		//changing solutions ex: {{w}} with numbers
+		delegate.replaceSolutionOnFeedbackWithNumbers(answersMapValues, item, texts);
+
+		ItemContentsBean itemBean = new ItemContentsBean();
+		List<ItemGradingData> datas = new ArrayList<>();
+		String keysString = "";
+		int i = 0;
+
+		ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
+		List<FinBean> fins = new ArrayList<FinBean>();
+		List<AnswerIfc> calcQuestionEntities = text.getAnswerArraySorted();
+		Iterator<AnswerIfc> iter = calcQuestionEntities.iterator();
+		while (iter.hasNext()) {
+			AnswerIfc answer = iter.next();
+
+			// Checks if the 'answer' object is a variable or a real answer
+			if(delegate.extractVariables(answer.getText()).isEmpty()){
+				continue;
+			}
+
+			ItemGradingData data = new ItemGradingData();
+			String answerKey = (String)answersMapValues.get(answer.getLabel());
+			int decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
+			answerKey = answerKey.substring(0, answerKey.indexOf("|")); // cut off extra data e.g. "|2,3"
+			//We need the key formatted in scientificNotation
+			answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);
+			keysString = keysString.concat(answerKey + ", ");
+
+			data.setAnswerText(answerKey);
+			data.setIsCorrect(true);
+			data.setPublishedAnswerId(answer.getId());
+			datas.add(data);
+
+			FinBean fbean = new FinBean();
+			fbean.setItemContentsBean(itemBean);
+			fbean.setAnswer(answer);
+			fbean.setText((String) texts.get(0).toArray()[i++]);
+			fbean.setHasInput(Boolean.TRUE); // input box
+			fbean.setItemGradingData(data);
+			fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+			fbean.setIsCorrect(true);
+			fins.add(fbean);
+		}
+
+		if (keysString.length() > 2) {
+			  keysString = keysString.substring(0, keysString.length()-2); // truncating the comma and blank on the end
+		}
+
+		itemBean.setItemData(item);
+		itemBean.setPointsForEdit(item.getScore().toString());
+		itemBean.setMaxPoints(item.getScore());
+		itemBean.setFeedbackValue(item.getCorrectItemFeedbackValue());
+		itemBean.setIncorrectFeedbackValue(item.getInCorrectItemFeedbackValue());
+		itemBean.setKey(keysString);
+		itemBean.setItemGradingDataArray(datas);
+
+		FinBean fbean = new FinBean();
+		if (texts.toArray().length > i) {
+			fbean.setText( (String) texts.get(0).toArray()[i]);
+		}
+		else {
+			fbean.setText("");
+		}
+		fbean.setHasInput(Boolean.FALSE);
+		fins.add(fbean);
+
+		itemBean.setFinArray((ArrayList) fins);
+		this.itemsBean = new ArrayList<>();
+		this.itemsBean.add(itemBean);
+
+		return "solution";
+	}
 
 	public String startCopyQuestions() {
 		setOutComeParams("editPool");

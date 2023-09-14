@@ -533,18 +533,6 @@ a.hideDivision {
 .samigo-question-answer:hover {
 	margin-bottom: 12px;
 }
-.mcAnswerText {
-	display:inline;
-	float:unset;
-}
-.mcAnswerText label {
-	font-weight: normal;
-}
-/* Someone put a paragraph in a multiple choice answer */
-.mcAnswerText p:first-child {
-    display: inline;
-    margin: 0 0 1em 0;
-}
 
 span.author_mcLabelText {
     padding-right: 0.2em;
