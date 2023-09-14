@@ -184,12 +184,8 @@ public class ConditionServiceImpl implements ConditionService {
         Condition condition = getCondition(conditionId);
 
         if (condition != null) {
-            if (!isConditionUsed(condition)) {
-                conditionRepository.delete(conditionId);
-                return true;
-            } else {
-                log.error("Can not delete condition, it is still in use");
-            }
+            conditionRepository.delete(conditionId);
+            return true;
         }
 
         return false;
