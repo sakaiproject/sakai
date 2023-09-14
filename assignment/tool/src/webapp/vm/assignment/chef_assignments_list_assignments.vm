@@ -29,6 +29,7 @@
             filterPlaceholder: '$tlang.getString("listassig.searchgroup")',
             enableCaseInsensitiveFiltering: true
         });
+        ASN.checkIframeTags();
     });
 </script>
 
@@ -45,7 +46,7 @@
 		</h1>
 	</div>
 
-	<div class="row" >
+	<div id="tagSection" class="row" >
 	#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
 		<form id="tagFilterForm" name="tagFilterForm" class="inlineForm" method="post" onsubmit="ASN.getShadowTags();return true;" action="#toolForm("AssignmentAction")">
 			<input hidden id="tag_selector" name="tag_selector" />
