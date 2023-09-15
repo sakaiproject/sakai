@@ -27,11 +27,7 @@ if (portal?.user?.id) {
       if (differentUser) {
 
         registration.pushManager.getSubscription()
-          .then(subscription => {
-            if (subscription) {
-                return subscription.unsubscribe();
-            }
-          })
+          .then(subscription => subscription && subscription.unsubscribe())
           .then(() => portal.notifications.subscribeIfPermitted(registration));
       }    
 
