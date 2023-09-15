@@ -18,10 +18,13 @@ package org.sakaiproject.conversations.api.model;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -47,8 +50,9 @@ public class ConversationsPost implements PersistableEntity<String> {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
-    @Column(name = "TOPIC_ID", length = 36, nullable = false)
-    private String topicId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TOPIC_ID")
+    private ConversationsTopic topic;
 
     @Column(name = "PARENT_POST_ID", length = 36)
     private String parentPostId;

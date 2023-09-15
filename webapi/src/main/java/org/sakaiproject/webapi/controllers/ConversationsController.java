@@ -371,7 +371,7 @@ public class ConversationsController extends AbstractSakaiApiController {
     public CommentTransferBean createComment(@PathVariable String siteId, @PathVariable String topicId, @PathVariable String postId, @RequestBody CommentTransferBean commentBean) throws ConversationsPermissionsException  {
 
 		checkSakaiSession();
-        commentBean.post = postId;
+        commentBean.postId = postId;
         commentBean.siteId = siteId;
         return conversationsService.saveComment(commentBean);
     }
@@ -382,7 +382,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 		checkSakaiSession();
 
         commentBean.id = commentId;
-        commentBean.post = postId;
+        commentBean.postId = postId;
         commentBean.siteId = siteId;
         return conversationsService.saveComment(commentBean);
     }
