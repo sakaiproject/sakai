@@ -45,18 +45,13 @@
 		display: none;
 	}
 
-	/* Reusable class to show the edit-button */
-	.show-edit-button {
+	.editable:hover > .edit-button, .edit-button:focus {
 		@include sakai_secondary_button();
 		margin: 3px 0 0 0;
 		float: right;
 		clear: none;
 		display: block;
 		clip: unset;
-	}
-
-	.editable:hover > .edit-button, .edit-button:focus {
-		@extend .show-edit-button;
 	}
 
 	.edit-image-button {
