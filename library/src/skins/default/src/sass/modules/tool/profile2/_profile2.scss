@@ -42,10 +42,6 @@
 	}
 
 	.editable > .edit-button {
-		display: none;
-	}
-
-	.editable:hover > .edit-button, .edit-button:focus {
 		@include sakai_secondary_button();
 		margin: 3px 0 0 0;
 		float: right;
