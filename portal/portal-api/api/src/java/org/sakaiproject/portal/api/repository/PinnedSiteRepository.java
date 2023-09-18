@@ -24,7 +24,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface PinnedSiteRepository extends SpringCrudRepository<PinnedSite, Long> {
 
     List<PinnedSite> findByUserIdOrderByPosition(String userId);
-    List<PinnedSite> findByUserIdOrderByPosition(String userId, boolean hasBeenUnpinned);
+    List<PinnedSite> findByUserIdAndHasBeenUnpinnedOrderByPosition(String userId, boolean hasBeenUnpinned);
     Optional<PinnedSite> findByUserIdAndSiteId(String userId, String siteId);
     List<PinnedSite> findBySiteId(String siteId);
     Integer deleteByUserId(String userId);

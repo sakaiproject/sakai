@@ -36,20 +36,20 @@ public class PinnedSiteRepositoryImpl extends SpringCrudRepositoryImpl<PinnedSit
 
     @Transactional(readOnly = true)
     public List<PinnedSite> findByUserIdOrderByPosition(String userId) {
-        return findByUserIdOrderByPosition(userId, false);
+        return findByUserIdAndHasBeenUnpinnedOrderByPosition(userId, false);
     }
 
     @Transactional(readOnly = true)
-    public List<PinnedSite> findByUserIdOrderByPosition(String userId, boolean hasBeenUnpinned) {
+    public List<PinnedSite> findByUserIdAndHasBeenUnpinnedOrderByPosition(String userId, boolean hasBeenUnpinned) {
 
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PinnedSite> query = cb.createQuery(PinnedSite.class);
         Root<PinnedSite> pinnedSite = query.from(PinnedSite.class);
-	Predicate[] predicates = new Predicate[2];
-	predicates[0] = cb.equal(pinnedSite.get("userId"), userId);
-	predicates[1] = cb.equal(pinnedSite.get("hasBeenUnpinned"), hasBeenUnpinned);
+        Predicate[] predicates = new Predicate[2];
+        predicates[0] = cb.equal(pinnedSite.get("userId"), userId);
+        predicates[1] = cb.equal(pinnedSite.get("hasBeenUnpinned"), hasBeenUnpinned);
         query.where(predicates).orderBy(cb.asc(pinnedSite.get("position")));
 
         return session.createQuery(query).list();
@@ -63,9 +63,9 @@ public class PinnedSiteRepositoryImpl extends SpringCrudRepositoryImpl<PinnedSit
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PinnedSite> query = cb.createQuery(PinnedSite.class);
         Root<PinnedSite> pinnedSite = query.from(PinnedSite.class);
-	Predicate[] predicates = new Predicate[2];
-	predicates[0] = cb.equal(pinnedSite.get("userId"), userId);
-	predicates[1] = cb.equal(pinnedSite.get("siteId"), siteId);
+        Predicate[] predicates = new Predicate[2];
+        predicates[0] = cb.equal(pinnedSite.get("userId"), userId);
+        predicates[1] = cb.equal(pinnedSite.get("siteId"), siteId);
         query.where(predicates);
 
         return session.createQuery(query).uniqueResultOptional();
@@ -92,9 +92,9 @@ public class PinnedSiteRepositoryImpl extends SpringCrudRepositoryImpl<PinnedSit
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<PinnedSite> delete = cb.createCriteriaDelete(PinnedSite.class);
         Root<PinnedSite> pinnedSite = delete.from(PinnedSite.class);
-	Predicate[] predicates = new Predicate[2];
-	predicates[0] = cb.equal(pinnedSite.get("userId"), userId);
-	predicates[1] = cb.equal(pinnedSite.get("hasBeenUnpinned"), false);
+        Predicate[] predicates = new Predicate[2];
+        predicates[0] = cb.equal(pinnedSite.get("userId"), userId);
+        predicates[1] = cb.equal(pinnedSite.get("hasBeenUnpinned"), false);
         delete.where(predicates);
 
         return session.createQuery(delete).executeUpdate();

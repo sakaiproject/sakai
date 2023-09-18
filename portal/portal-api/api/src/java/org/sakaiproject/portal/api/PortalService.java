@@ -360,9 +360,9 @@ public interface PortalService
 	/**
 	 * Get the list of site ids explicitly unpinned by the current user
 	 *
-	 * @return the list of site ids explicitly unpinned by the supplied user
+	 * @return the list of site ids explicitly unpinned by the current user
 	 */
-	public List<String> getUnpinnedSites();
+	public List<String> getUserUnpinnedSites();
 
 	/**
 	 * Get the list of recent site ids for the current user

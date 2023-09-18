@@ -142,20 +142,17 @@ public class FavoritesHandler extends BasePortalHandler
 		}
 
 		List<String> existingSiteIds = portalService.getPinnedSites();
-		existingSiteIds.addAll(portalService.getUnpinnedSites());
+		existingSiteIds.addAll(portalService.getUserUnpinnedSites());
 
 		// Remove newly hidden sites from pinned and unpinned sites
-		for (String siteId : existingSiteIds) {
-			if (existingHiddenSiteIds.contains(siteId)) {
-				portalService.removePinnedSite(userId, siteId);
-			}
-		}
+		existingSiteIds.stream().filter(existingHiddenSiteIds::contains).forEach(siteId -> portalService.removePinnedSite(userId, siteId));
+
 		existingSiteIds.addAll(existingHiddenSiteIds);
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, SortType.CREATED_ON_DESC, null);
 
-                for (String userSite : userSites) {
+		for (String userSite : userSites) {
 			Site site = null;
 			try {
 				site = siteService.getSite(userSite);
@@ -166,12 +163,12 @@ public class FavoritesHandler extends BasePortalHandler
 
 			// Automatically pin appropriate sites that a user hasn't already explicitly hidden or unpinned.
 			if (!existingSiteIds.contains(userSite) &&
-			    ((site.isPublished() && site.getMember(userId).isActive()) ||
-			     site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE))) {
-                                log.debug("Adding {} as a pinned site for {}", userSite, userId);
+			    ((site.isPublished() && site.getMember(userId).isActive())
+					|| site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE))) {
+				log.debug("Adding {} as a pinned site for {}", userSite, userId);
 				portalService.addPinnedSite(userId, userSite);
-                        }
-                }
+			}
+		}
                 
 		result.favoriteSiteIds = portalService.getPinnedSites();
 

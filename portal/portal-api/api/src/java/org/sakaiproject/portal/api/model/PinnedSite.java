@@ -55,4 +55,15 @@ public class PinnedSite implements PersistableEntity<Long> {
 
     @Column(name = "HAS_BEEN_UNPINNED", nullable = false)
     private Boolean hasBeenUnpinned = false;
+
+    public PinnedSite() {
+    }
+
+    public PinnedSite(String userId, String siteId) {
+
+        super();
+
+        this.userId = userId;
+        this.siteId = siteId;
+    }
 }

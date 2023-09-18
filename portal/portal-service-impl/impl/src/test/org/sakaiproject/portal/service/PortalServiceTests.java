@@ -183,6 +183,9 @@ public class PortalServiceTests extends SakaiTests {
         assertEquals(0, portalService.getPinnedSites().size());
 
         when(event.getEvent()).thenReturn(SiteService.EVENT_SITE_PUBLISH);
+        String ref = "/site/" + site1Id;
+        when(event.getResource()).thenReturn(ref);
+        when(siteService.idFromSiteReference(ref)).thenReturn(site1Id);
         ((PortalServiceImpl) AopTestUtils.getTargetObject(portalService)).update(null, event);
         assertEquals(1, portalService.getPinnedSites().size());
     }
@@ -231,8 +234,8 @@ public class PortalServiceTests extends SakaiTests {
         siteIds.add(site4Id);
         portalService.savePinnedSites(siteIds);
         pinned = pinnedSiteRepository.findByUserIdOrderByPosition(user1);
-        assertEquals(4, pinned.size());
-        assertEquals(site2Id, pinned.get(3).getSiteId());
+        assertEquals(3, pinned.size());
+        assertEquals(site4Id, pinned.get(2).getSiteId());
     }
 
     @Test
