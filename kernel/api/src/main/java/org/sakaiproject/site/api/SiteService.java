@@ -694,7 +694,7 @@ public interface SiteService extends EntityProducer
 	 *
 	 * @param ref
 	 *        The site reference.
-	 * @return The the internal reference which can be used to access the site from within the system.
+	 * @return The site id
 	 */
 	String idFromSiteReference(String ref);
 
