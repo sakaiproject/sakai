@@ -4,7 +4,11 @@
 <html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html $!{userTheme}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="Sakai Mobile"/>
+        <link rel="apple-touch-icon" href="https://www.sakaiger.com/images/Sakaiger.png" />
 
         <script>
             var portal = {
@@ -69,13 +73,15 @@
             };
         </script>
 
+        <script type="module" src="/webcomponents/bundles/base.js$!{portalCDNQuery}"></script>
+
         <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
 
         #parse("/vm/morpheus/snippets/title-snippet.vm")
 
         ## TRINITY-43 Review before merging to master
         #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
-        
+
         <link href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}" rel="stylesheet" />
         <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}qtip2/3.0.3-1/jquery.qtip.min.css$!{portalCDNQuery}" rel="stylesheet">
@@ -88,7 +94,6 @@
         <script src="${pageWebjarsPath}bootstrap/5.2.0/js/bootstrap.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}dompurify/2.3.6/dist/purify.min.js$!{portalCDNQuery}"></script>
         <script type="module" src="/vuecomponents/js/sakai.min.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/webcomponents/bundles/base.js$!{portalCDNQuery}"></script>
         <script src="/library/js/trimpath-template-latest.js$!{portalCDNQuery}"></script>
         <script>
             moment.locale(window.portal.locale);

@@ -1,14 +1,40 @@
+self.addEventListener("activate", event => {
+
+  console.debug("Activated. Claiming clients ...");
+  return self.clients.claim();
+});
+
 /**
  * Message all the client windows or tabs of this worker
  */
 self.messageClients = async message => {
 
-  const clients = await self.clients.matchAll({ includeUncontrolled: true });
-  clients && clients.forEach(c => c.postMessage(message));
+  return new Promise(async resolve => {
+
+    const clients = await self.clients.matchAll({ includeUncontrolled: true });
+    clients?.forEach(c => c.postMessage(message));
+    resolve();
+  });
 };
 
+self.addEventListener("message", event => {
+
+  if (event.data === "LOGOUT") {
+    self.registration.pushManager?.getSubscription().then(sub => sub?.unsubscribe());
+  }
+});
+
 // We just pass push events straight onto the clients.
-self.addEventListener("push", event => self.messageClients(event.data.json()));
+self.addEventListener("push", event => {
+
+  const json = event.data.json();
+
+  if (json.isNotification && self.registration.showNotification) {
+    event.waitUntil(self.registration.showNotification(json.title));
+  }
+
+  event.waitUntil(self.messageClients(json));
+});
 
 self.addEventListener("pushsubscriptionchange", event => {
 

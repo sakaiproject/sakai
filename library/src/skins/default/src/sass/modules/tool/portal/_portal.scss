@@ -241,11 +241,21 @@
 .portal-notifications-button {
   position: relative;
 }
-.portal-notifications-indicator {
+.portal-notifications-indicator, .portal-notifications-no-permissions-indicator {
   position: absolute;
-  top: 10;
+  top: 10px;
   right: 20%;
 }
+
+.portal-notifications-no-permissions-indicator {
+  width: 50%;
+  height: 50%;
+  right: 10%;
+  font-size: 75%;
+  font-weight: bold;
+  color: white;
+}
+
 // make offcanvas header match Sakai's header:
 .offcanvas-header {
   flex-shrink: 0;

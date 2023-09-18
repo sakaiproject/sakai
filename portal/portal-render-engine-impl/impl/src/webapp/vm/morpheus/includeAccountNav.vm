@@ -85,8 +85,12 @@ For opening help sidebar
           aria-controls="sakai-notificationsPanel"
           aria-label="$rloader.sit_notifications"
           title="$rloader.sit_notifications">
-        <i class="bi-bell"></i>
-        <span class="portal-notifications-indicator p-1 bg-danger rounded-circle" style="display: none">
+        <i class="portal-notifications-icon bi-bell"></i>
+        <span class="portal-notifications-no-permissions-indicator p-1 bg-danger rounded-circle d-none">
+          X
+          <span class="visually-hidden">Notifications have not yet been permitted</span>
+        </span>
+        <span class="portal-notifications-indicator p-1 bg-danger rounded-circle d-none">
           <span class="visually-hidden">There are new notifications available</span>
         </span>
       </button>
