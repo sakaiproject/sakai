@@ -33,7 +33,13 @@
                         aria-controls="${type}-site-${safeSiteId}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
+
+                #if ($site.isCurrent && ${sitePages.pageNavIconUrl} != "")
+                    <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
+                #end
+
                 <a href="$site.url" class="sidebar-site-title" title="${site.title}">${site.title}</a>
+
             </div>
             #if ($loggedIn && !${site.isHome})
                 <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
