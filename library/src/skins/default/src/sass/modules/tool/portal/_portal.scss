@@ -533,6 +533,13 @@
   }
 }
 
+.site-list-item .site-link-block .img_site_toolmenu {
+  max-height: 1.2em;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
 .site-opt-pin {
   color: var(--sakai-pin-hover-color);
 }
