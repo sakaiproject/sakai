@@ -30,6 +30,7 @@ import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -631,6 +632,23 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	        }
 	    }
 	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = false)
+	public class DecoratedResourceFolder extends DecoratedLesson {
+
+
+		private String dataDirectory;
+
+
+		public DecoratedResourceFolder(SimplePageItem item) {
+			super(item);
+
+			if (item != null) {
+				dataDirectory = item.getAttribute("dataDirectory");
+			}
+		}
+	}
         
 	// For properties related to grading a DecoratedLesson
         @NoArgsConstructor
@@ -1027,6 +1045,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 					break;
 				case SimplePageItem.RESOURCE:
 					lesson = new DecoratedResource(item);
+					break;
+				case SimplePageItem.RESOURCE_FOLDER:
+					lesson = new DecoratedResourceFolder(item);
 					break;
 				case SimplePageItem.ASSIGNMENT:
 					lesson = new GradedDecoratedLesson(item);
