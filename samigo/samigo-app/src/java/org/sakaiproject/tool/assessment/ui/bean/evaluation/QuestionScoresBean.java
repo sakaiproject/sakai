@@ -202,7 +202,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 		if (ContextUtil.lookupParam("resetCache") != null && ContextUtil.lookupParam("resetCache").equals("true")){
 			allAgents = null;
 			valueChanged = true;
-			searchString = null;;
+			searchString = null;
 		}
 
         defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
