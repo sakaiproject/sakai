@@ -113,7 +113,7 @@ export default {
       this.toggleCount++;
     },
     inputChange(e) {
-      if (this.criterion.pointsVal === 0) {
+      if (this.criterion.pointsVal == 0) {
         this.criterion.pointsVal = 1.0;
         alert(this.i18n.criterion_zero);
       }

@@ -74,6 +74,7 @@ export default {
     previousGrade: { type: Number },
     siteId: { type: String },
     evaluatedItemOwnerId: { type: String },
+    origin: { type: String },
   },
   computed: {
     calculatedPoints() {
@@ -96,7 +97,7 @@ export default {
       }
       const ret = await updateAdhocRubric(adhocUrl, jsoned);
       if (ret) {
-        let url = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/questionScore';
+        let url = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + this.origin;
         var samigoIds = this.rubric.title.replace("pub.", "").split(".");
         url += '?resetCache=true&publishedId=' + samigoIds[0] + '&itemId=' + samigoIds[1];
         window.location.href = url;

@@ -376,7 +376,8 @@ function toPoint(id)
                   entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
                   site-id='<h:outputText value="#{totalScores.siteId}"/>'
                   evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}" />'
-                  previous-grade='<h:outputText value="#{question.pointsForEdit}"/>'>
+                  previous-grade='<h:outputText value="#{question.pointsForEdit}"/>'
+                  origin='gradeStudentResult'>
                 </sakai-dynamic-rubric>
               </div>
             </h:panelGroup>
