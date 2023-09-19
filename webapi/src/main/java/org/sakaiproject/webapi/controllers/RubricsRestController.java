@@ -222,7 +222,10 @@ public class RubricsRestController extends AbstractSakaiApiController {
                         eval.getCriterionOutcomes().removeIf(c -> removeIds.contains(c.getCriterionId()));
                         eval.getCriterionOutcomes().addAll(toAddOutcome);
                         log.debug("Evaluation after changes " + eval);
-            
+
+                        if (scoreDifference < 0) {
+                            scoreDifference = 0.0;
+                        }
                         log.debug("Score is " + scoreDifference + " and before it was " + igd.getAutoScore());
                         eval.setOverallComment(String.valueOf(scoreDifference));
                         rubricsService.saveEvaluation(eval, siteId);

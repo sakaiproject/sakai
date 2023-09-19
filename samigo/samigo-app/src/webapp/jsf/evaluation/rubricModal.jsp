@@ -21,7 +21,8 @@
 				entity-id='<h:outputText value="pub.#{questionScores.publishedId}.#{questionScores.itemId}"/>'
 				site-id='<h:outputText value="#{questionScores.siteId}"/>'
 				evaluated-item-owner-id='<h:outputText value="#{description.idString}" />'
-				previous-grade='<h:outputText value="#{description.roundedTotalAutoScore}"/>'>
+				previous-grade='<h:outputText value="#{description.roundedTotalAutoScore}"/>'
+				origin='questionScore'>
 			</sakai-dynamic-rubric>
 		</h:panelGroup>
 	</div>
