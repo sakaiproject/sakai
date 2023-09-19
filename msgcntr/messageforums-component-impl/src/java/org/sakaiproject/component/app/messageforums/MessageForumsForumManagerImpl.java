@@ -845,11 +845,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     /**
      * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#savePrivateForum(org.sakaiproject.api.app.messageforums.PrivateForum)
      */
-    public void savePrivateForum(PrivateForum forum) {
-    	savePrivateForum(forum, getCurrentUser());
+    public PrivateForum savePrivateForum(PrivateForum forum) {
+    	return savePrivateForum(forum, getCurrentUser());
     }
     
-    public void savePrivateForum(PrivateForum forum, String userId) {
+    public PrivateForum savePrivateForum(PrivateForum forum, String userId) {
         boolean isNew = forum.getId() == null;
 
         if (forum.getSortIndex() == null) {
@@ -861,9 +861,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setModifiedBy(userId);
         }
         forum.setOwner(userId);
-        getHibernateTemplate().saveOrUpdate(forum);
+        forum = getHibernateTemplate().merge(forum);
 
         log.debug("savePrivateForum executed with forumId: " + forum.getId());
+
+        return forum;
     }
 
     /**
@@ -1108,22 +1110,22 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a private forum topic
      */
 
-    public void savePrivateForumTopic(PrivateTopic topic){
-    	savePrivateForumTopic(topic, getCurrentUser());
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic){
+    	return savePrivateForumTopic(topic, getCurrentUser());
     }
 
-    public void savePrivateForumTopic(PrivateTopic topic, String userId) {
-    	savePrivateForumTopic(topic, userId, getContextId());
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic, String userId) {
+    	return savePrivateForumTopic(topic, userId, getContextId());
     }
 
-    public void savePrivateForumTopic(PrivateTopic topic, String userId, String siteId) {
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic, String userId, String siteId) {
     	boolean isNew = topic.getId() == null;
 
     	topic.setModified(new Date());
     	if(userId != null){
     		topic.setModifiedBy(userId);
     	}
-    	getHibernateTemplate().saveOrUpdate(topic);
+    	topic = getHibernateTemplate().merge(topic);
 
     	if (isNew) {
     		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_ADD, getEventMessage(topic, siteId), false));
@@ -1132,6 +1134,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     	}
 
     	log.debug("savePrivateForumTopic executed with forumId: " + topic.getId());
+
+    	return topic;
     }
 
     /**
@@ -1171,8 +1175,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         
         Area area = forum.getArea();
         area.removeDiscussionForum(forum);
-        getHibernateTemplate().merge(forum);
-        getHibernateTemplate().merge(area);
+        forum = getHibernateTemplate().merge(forum);
+        area = getHibernateTemplate().merge(area);
 
         log.debug("deleteDiscussionForum executed with forumId: " + id);
     }

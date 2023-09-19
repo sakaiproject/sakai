@@ -65,7 +65,7 @@ public interface PrivateMessageManager {
     
     public void saveAreaAndForumSettings(Area area, PrivateForum forum);
     
-    public void savePrivateMessageArea(Area area);
+    public Area savePrivateMessageArea(Area area);
     
     public void saveForumSettings(PrivateForum forum);
     
