@@ -231,9 +231,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   }
 
 
-  public void savePrivateMessageArea(Area area)
+  public Area savePrivateMessageArea(Area area)
   {
-    areaManager.saveArea(area);
+    return areaManager.saveArea(area);
   }
 
   
@@ -524,9 +524,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     createdTopic.setContextId(getContextId());
     createdTopic.setTypeUuid(typeManager.getUserDefinedPrivateTopicType());
     
-    forumManager.savePrivateForumTopic(createdTopic);
-    pf.addTopic(createdTopic);   
-    forumManager.savePrivateForum(pf);  
+    PrivateTopic createdTopicSaved = forumManager.savePrivateForumTopic(createdTopic);
+    pf.addTopic(createdTopicSaved);
+    forumManager.savePrivateForum(pf);
   }
 
   public void createTopicFolderInTopic(PrivateForum pf, PrivateTopic parentTopic, String folderName)
@@ -535,9 +535,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     PrivateTopic createdTopic = forumManager.createPrivateForumTopic(folderName, true,true,
         userId, pf.getId()); 
     createdTopic.setParentTopic(parentTopic);
-    forumManager.savePrivateForumTopic(createdTopic);
-    pf.addTopic(createdTopic);    
-    forumManager.savePrivateForum(pf);  
+    PrivateTopic createdTopicSaved = forumManager.savePrivateForumTopic(createdTopic);
+    pf.addTopic(createdTopicSaved);
+    forumManager.savePrivateForum(pf);
   }
 
   public void renameTopicFolder(PrivateForum pf, String topicUuid, String newName)
@@ -573,7 +573,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
         break;
       }
     }
-    forumManager.savePrivateForum(pf);  
+    forumManager.savePrivateForum(pf);
   }
 
   /**
