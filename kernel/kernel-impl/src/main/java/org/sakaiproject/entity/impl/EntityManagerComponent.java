@@ -51,9 +51,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EntityManagerComponent implements EntityManager {
 
-    private Set<String> unresolvableRoots; // unmutable, holds roots that are not claimed by any producers
-    private Map<String, EntityProducer> producers; // unmutable, map of roots -> producers
-    private Map<String, Call> producerStatistics; // unmutable, holds producers with statistics enabled
+    private Set<String> unresolvableRoots; // immutable, holds roots that are not claimed by any producers
+    private Map<String, EntityProducer> producers; // immutable, map of roots -> producers
+    private Map<String, Call> producerStatistics; // immutable, map of roots -> producers with statistics
     private int count = 0;
     private long timeSpent = 0;
 
