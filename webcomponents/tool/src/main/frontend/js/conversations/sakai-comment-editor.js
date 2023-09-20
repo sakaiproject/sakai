@@ -43,9 +43,9 @@ export class SakaiCommentEditor extends SakaiElement {
 
     const isNew = !this.comment.id;
 
-    const postId = this.postId || this.comment.post;
+    const postId = this.postId || this.comment.postId;
 
-    this.comment.post = postId;
+    this.comment.postId = postId;
     this.comment.topicId = this.topicId;
 
     const url = `/api/sites/${this.siteId}/topics/${this.topicId}/posts/${postId}/comments${  this.comment.id ? `/${this.comment.id}` : ""}`;

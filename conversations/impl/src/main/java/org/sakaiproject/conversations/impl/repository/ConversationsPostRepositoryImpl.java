@@ -42,7 +42,7 @@ public class ConversationsPostRepositoryImpl extends SpringCrudRepositoryImpl<Co
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<ConversationsPost> query = cb.createQuery(ConversationsPost.class);
-        query.where(cb.equal(query.from(ConversationsPost.class).get("topicId"), topicId));
+        query.where(cb.equal(query.from(ConversationsPost.class).get("topic").get("id"), topicId));
 
         return session.createQuery(query).list();
     }
@@ -55,7 +55,7 @@ public class ConversationsPostRepositoryImpl extends SpringCrudRepositoryImpl<Co
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<ConversationsPost> query = cb.createQuery(ConversationsPost.class);
         Root<ConversationsPost> post = query.from(ConversationsPost.class);
-        query.where(cb.and(cb.equal(post.get("topicId"), topicId),
+        query.where(cb.and(cb.equal(post.get("topic").get("id"), topicId),
                             cb.isNull(post.get("parentPostId"))))
                                 .orderBy(cb.asc(post.get("metadata").get("created")));
 
@@ -70,7 +70,7 @@ public class ConversationsPostRepositoryImpl extends SpringCrudRepositoryImpl<Co
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<ConversationsPost> query = cb.createQuery(ConversationsPost.class);
         Root<ConversationsPost> post = query.from(ConversationsPost.class);
-        query.where(cb.and(cb.equal(post.get("topicId"), topicId),
+        query.where(cb.and(cb.equal(post.get("topic").get("id"), topicId),
                             cb.equal(post.get("metadata").get("creator"), creatorId)));
 
         return session.createQuery(query).list();
@@ -132,7 +132,7 @@ public class ConversationsPostRepositoryImpl extends SpringCrudRepositoryImpl<Co
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<ConversationsPost> delete = cb.createCriteriaDelete(ConversationsPost.class);
-        delete.where(cb.equal(delete.from(ConversationsPost.class).get("topicId"), topicId));
+        delete.where(cb.equal(delete.from(ConversationsPost.class).get("topic").get("id"), topicId));
 
         return session.createQuery(delete).executeUpdate();
     }
@@ -145,7 +145,7 @@ public class ConversationsPostRepositoryImpl extends SpringCrudRepositoryImpl<Co
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaUpdate<ConversationsPost> update = cb.createCriteriaUpdate(ConversationsPost.class);
         Root<ConversationsPost> post = update.from(ConversationsPost.class);
-        update.set("locked", locked).where(cb.equal(post.get("topicId"), topicId));
+        update.set("locked", locked).where(cb.equal(post.get("topic").get("id"), topicId));
 
         return session.createQuery(update).executeUpdate();
     }

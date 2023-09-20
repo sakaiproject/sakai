@@ -356,7 +356,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     public Optional<String> getPostPortalUrl(String topicId, String postId) {
 
         if (StringUtils.isBlank(topicId)) {
-            topicId = postRepository.findById(postId).map(p -> p.getTopicId())
+            topicId = postRepository.findById(postId).map(p -> p.getTopic().getId())
                 .orElseThrow(() -> new IllegalArgumentException("No post for id: " + postId));
         }
 
@@ -383,10 +383,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
     public Optional<String> getCommentPortalUrl(String commentId) {
 
-        String postId = commentRepository.findById(commentId).map(c -> c.getPostId())
+        String postId = commentRepository.findById(commentId).map(c -> c.getPost().getId())
             .orElseThrow(() -> new IllegalArgumentException("No comment for id: " + commentId));
 
-        String topicId = postRepository.findById(postId).map(p -> p.getTopicId())
+        String topicId = postRepository.findById(postId).map(p -> p.getTopic().getId())
             .orElseThrow(() -> new IllegalArgumentException("No post for id: " + postId));
 
         return topicRepository.findById(topicId).map(t -> {
@@ -701,13 +701,12 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         String currentUserId = getCheckedCurrentUserId();
 
-        topicRepository.findById(topicId).ifPresent(topic -> {
+        ConversationsTopic topic = topicRepository.getReferenceById(topicId);
 
-            TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-                .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
-            topicStatus.setBookmarked(bookmarked);
-            topicStatusRepository.save(topicStatus);
-        });
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+            .orElseGet(() -> new TopicStatus(topic, currentUserId));
+        topicStatus.setBookmarked(bookmarked);
+        topicStatusRepository.save(topicStatus);
     }
 
     public void deleteTopic(String topicId) throws ConversationsPermissionsException {
@@ -775,7 +774,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 = topicReactionTotalRepository.findByTopicIdAndReaction(topicId, es.getKey())
                     .orElseGet(() -> {
                         TopicReactionTotal t = new TopicReactionTotal();
-                        t.setTopicId(topicId);
+                        t.setTopic(topic);
                         t.setReaction(es.getKey());
                         t.setTotal(0);
                         return t;
@@ -803,7 +802,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 topicReactionRepository.save(existingReaction);
             } else {
                 TopicReaction newReaction = new TopicReaction();
-                newReaction.setTopicId(topic.getId());
+                newReaction.setTopic(topic);
                 newReaction.setUserId(currentUserId);
                 newReaction.setReaction(es.getKey());
                 newReaction.setState(es.getValue());
@@ -888,7 +887,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             post.setDepth(1);
         }
 
-        post.setTopicId(postBean.topic);
+        post.setTopic(topic);
         post.setLocked(topic.getLocked());
         post = postRepository.save(post);
 
@@ -902,7 +901,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 updateThreadHowActiveScore(thread);
             });
         }
-        this.markPostViewed(postBean.topic, post.getId(), currentUserId);
+        this.markPostViewed(postBean.topic, post, currentUserId);
 
         if (!post.getDraft() && !post.getPrivatePost() && !post.getAnonymous()
             && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
@@ -912,7 +911,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         }
 
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
-            .orElse(new TopicStatus(postBean.siteId, postBean.topic, currentUserId));
+            .orElse(new TopicStatus(topic, currentUserId));
         topicStatus.setPosted(true);
         boolean topicWasViewed = topicStatus.getViewed();
         topicStatusRepository.save(topicStatus);
@@ -998,8 +997,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         String currentUserId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isBlank(currentUserId)) return false;
 
-        ConversationsPost post = postRepository.findById(comment.getPostId())
-            .orElseThrow(() -> new IllegalArgumentException("No post for id " + comment.getPostId()));
+        ConversationsPost post = postRepository.findById(comment.getPost().getId())
+            .orElseThrow(() -> new IllegalArgumentException("No post for id " + comment.getPost().getId()));
         return canUserViewPost(post, currentUserId);
     }
 
@@ -1117,8 +1116,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 optParentPost = postRepository.findById(parentPostId);
             }
             ConversationsPost parentPost = optParentPost.orElse(null);
-            ConversationsTopic topic = topicRepository.findById(post.getTopicId())
-                .orElseThrow(() -> new IllegalArgumentException("No topic for id " + post.getTopicId()));
+            ConversationsTopic topic = topicRepository.findById(post.getTopic().getId())
+                .orElseThrow(() -> new IllegalArgumentException("No topic for id " + post.getTopic().getId()));
             String parentCreator = parentPost != null
                 ? parentPost.getMetadata().getCreator() : topic.getMetadata().getCreator();
             if (parentCreator.equals(currentUserId)) return true;
@@ -1205,7 +1204,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
             // Grab all the stati for this user and post, in one.
             Map<String, PostStatus> postStati = postStatusRepository.findByUserId(currentUserId)
-                .stream().collect(Collectors.toMap(s -> s.getPostId(), s -> s));
+                .stream().collect(Collectors.toMap(s -> s.getPost().getId(), s -> s));
 
             Settings settings = getSettingsForSite(siteId);
 
@@ -1281,7 +1280,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         // assume that the topic has been viewed in its entirety.
         if (fullList.isEmpty()) {
             TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-                .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
+                .orElseGet(() -> new TopicStatus(topic, currentUserId));
             topicStatus.setViewed(true);
             try {
                 topicStatusRepository.save(topicStatus);
@@ -1349,7 +1348,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         postRepository.delete(post);
 
         if (setTopicResolved && securityService.unlock(post.getMetadata().getCreator(), Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
-            topicRepository.findById(post.getTopicId()).ifPresent(t -> {
+            topicRepository.findById(post.getTopic().getId()).ifPresent(t -> {
                 setTopicResolved(t);
                 topicRepository.save(t);
             });
@@ -1437,7 +1436,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 = postReactionTotalRepository.findByPostIdAndReaction(postId, es.getKey())
                     .orElseGet(() -> {
                         PostReactionTotal t = new PostReactionTotal();
-                        t.setPostId(postId);
+                        t.setPost(post);
                         t.setReaction(es.getKey());
                         t.setTotal(0);
                         return t;
@@ -1457,7 +1456,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 postReactionRepository.save(existingReaction);
             } else {
                 PostReaction newReaction = new PostReaction();
-                newReaction.setPostId(post.getId());
+                newReaction.setPost(post);
                 newReaction.setUserId(currentUserId);
                 newReaction.setReaction(es.getKey());
                 newReaction.setState(es.getValue());
@@ -1488,7 +1487,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     public void markPostsViewed(Set<String> postIds, String topicId) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
-        postIds.forEach(postId -> this.markPostViewed(topicId, postId, currentUserId));
+        postRepository.findAllById(postIds).forEach(post -> this.markPostViewed(topicId, post, currentUserId));
 
         ConversationsTopic topic = topicRepository.findById(topicId)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + topicId));
@@ -1499,7 +1498,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         long numberOfUnreadPosts = numberOfPosts - read;
 
         TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-            .orElseGet(() -> new TopicStatus(topic.getSiteId(), topicId, currentUserId));
+            .orElseGet(() -> new TopicStatus(topic, currentUserId));
         topicStatus.setViewed(numberOfUnreadPosts == 0L);
         try {
             topicStatusRepository.save(topicStatus);
@@ -1512,18 +1511,21 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         if (topicCache != null) topicCache.remove(currentUserId);
     }
 
-    private void markPostViewed(String topicId, String postId, String currentUserId) {
+    private void markPostViewed(String topicId, ConversationsPost post, String currentUserId) {
 
-        PostStatus status = postStatusRepository.findByPostIdAndUserId(postId, currentUserId)
-            .orElseGet(() -> new PostStatus(topicId, postId, currentUserId));
-        status.setViewed(true);
-        status.setViewedDate(Instant.now());
-        try {
-            postStatusRepository.save(status);
-        } catch (ConstraintViolationException e) {
-            log.debug("Caught constraint exception while marking post viewed. This can happen " +
-                "due to the way the client detects posts scrolling into view");
-        }
+        topicRepository.findById(topicId).ifPresent(topic -> {
+
+            PostStatus status = postStatusRepository.findByPostIdAndUserId(post.getId(), currentUserId)
+                .orElseGet(() -> new PostStatus(topic, post, currentUserId));
+            status.setViewed(true);
+            status.setViewedDate(Instant.now());
+            try {
+                postStatusRepository.save(status);
+            } catch (ConstraintViolationException e) {
+                log.debug("Caught constraint exception while marking post viewed. This can happen " +
+                    "due to the way the client detects posts scrolling into view");
+            }
+        });
     }
 
     public Optional<CommentTransferBean> getComment(String commentId) throws ConversationsPermissionsException {
@@ -1558,12 +1560,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         commentBean.setModified(now);
 
         ConversationsComment comment = commentBean.asComment();
+        comment.setPost(postRepository.getReferenceById(commentBean.postId));
+        comment.setTopic(topicRepository.getReferenceById(commentBean.topicId));
 
         ConversationsComment updatedComment = commentRepository.save(comment);
 
         if (isNew) {
             // Up the comment count by one
-            postRepository.findById(updatedComment.getPostId()).ifPresent(p -> {
+            postRepository.findById(updatedComment.getPost().getId()).ifPresent(p -> {
 
                 p.setNumberOfComments(p.getNumberOfComments() + 1);
                 postRepository.save(p);
@@ -1601,7 +1605,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         }
         commentRepository.deleteById(commentId);
         // Drop the comment count by one
-        postRepository.findById(comment.getPostId()).ifPresent(p -> {
+        postRepository.findById(comment.getPost().getId()).ifPresent(p -> {
 
             p.setNumberOfComments(p.getNumberOfComments() - 1);
             postRepository.save(p);
@@ -1878,7 +1882,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             status.setUpvoted(Boolean.TRUE);
             postStatusRepository.save(status);
         } else {
-            PostStatus status = new PostStatus(topicId, postId, currentUserId);
+            ConversationsTopic topic = topicRepository.getReferenceById(topicId);
+            PostStatus status = new PostStatus(topic, post, currentUserId);
             status.setUpvoted(Boolean.TRUE);
             postStatusRepository.save(status);
         }
@@ -1920,7 +1925,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         postStatusRepository.save(status);
         post.setUpvotes(post.getUpvotes() - 1);
 
-        postsCache.remove(post.getTopicId());
+        postsCache.remove(post.getTopic().getId());
 
         return PostTransferBean.of(postRepository.save(post));
     }

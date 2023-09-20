@@ -31,7 +31,7 @@ export class SakaiComment extends SakaiElement {
       return;
     }
 
-    const url = `/api/sites/${this.siteId}/topics/${this.topicId}/posts/${this.comment.post}/comments/${this.comment.id}`;
+    const url = `/api/sites/${this.siteId}/topics/${this.topicId}/posts/${this.comment.postId}/comments/${this.comment.id}`;
     fetch(url, {
       method: "DELETE",
       credentials: "include",
@@ -138,7 +138,7 @@ export class SakaiComment extends SakaiElement {
             ${this._editing ? html`
             <div class="post-edit-comment-block">
               <sakai-comment-editor
-                  post-id="${this.comment.post}"
+                  post-id="${this.comment.postId}"
                   site-id="${this.siteId}"
                   topic-id="${this.topicId}"
                   comment="${JSON.stringify(this.comment)}"

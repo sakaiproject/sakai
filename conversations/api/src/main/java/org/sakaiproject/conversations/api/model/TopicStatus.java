@@ -17,9 +17,12 @@ package org.sakaiproject.conversations.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -41,11 +44,9 @@ public class TopicStatus implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "SITE_ID", nullable = false)
-    private String siteId;
-
-    @Column(name = "TOPIC_ID", length = 36, nullable = false)
-    private String topicId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TOPIC_ID")
+    private ConversationsTopic topic;
 
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;
@@ -65,10 +66,9 @@ public class TopicStatus implements PersistableEntity<Long> {
     public TopicStatus() {
     }
 
-    public TopicStatus(String siteId, String topicId, String userId) {
+    public TopicStatus(ConversationsTopic topic, String userId) {
 
-        this.siteId = siteId;
-        this.topicId = topicId;
+        this.topic = topic;
         this.userId = userId;
     }
 }
