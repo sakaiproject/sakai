@@ -1064,7 +1064,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean = conversationsService.savePost(postBean, true);
 
             CommentTransferBean commentBean = new CommentTransferBean();
-            commentBean.post = postBean.id;
+            commentBean.postId = postBean.id;
             commentBean.topicId = topicBean.id;
             commentBean.siteId = site1Id;
             commentBean.message = "Comment";
@@ -1100,7 +1100,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             assertTrue(comments.isEmpty());
 
             postBean = conversationsService.savePost(postBean, true);
-            commentBean.post = postBean.id;
+            commentBean.postId = postBean.id;
             conversationsService.saveComment(commentBean);
             posts = conversationsService.getPostsByTopicId(site1Id, topicBean.id, 0, null, null);
             postBean = posts.iterator().next();

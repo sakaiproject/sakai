@@ -122,7 +122,7 @@ public class PostTransferBean implements Entity {
         postBean.privatePost = post.getPrivatePost();
         postBean.upvotes = post.getUpvotes();
         postBean.depth = post.getDepth();
-        postBean.topic = post.getTopicId();
+        postBean.topic = post.getTopic().getId();
         postBean.anonymous = post.getAnonymous();
         postBean.parentPost = post.getParentPostId();
         postBean.parentThread = post.getParentThreadId();

@@ -111,6 +111,15 @@ public interface SpringCrudRepository<T extends PersistableEntity<ID>, ID extend
     T getById(ID id);
 
     /**
+     * Retrieves a reference to an entity by its id.
+     *
+     * @param id must not be {@literal null}.
+     * @return the entity reference with the given id or {@literal null} if none found
+     * @throws IllegalArgumentException if {@code id} is {@literal null}
+     */
+    T getReferenceById(ID id);
+
+    /**
      * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the
      * entity instance completely.
      *

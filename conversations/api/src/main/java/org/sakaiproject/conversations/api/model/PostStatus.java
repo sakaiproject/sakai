@@ -17,9 +17,12 @@ package org.sakaiproject.conversations.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -46,11 +49,13 @@ public class PostStatus implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "TOPIC_ID", length = 36, nullable = false)
-    private String topicId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TOPIC_ID")
+    private ConversationsTopic topic;
 
-    @Column(name = "POST_ID", length = 36, nullable = false)
-    private String postId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "POST_ID")
+    private ConversationsPost post;
 
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;
@@ -67,10 +72,10 @@ public class PostStatus implements PersistableEntity<Long> {
     public PostStatus() {
     }
 
-    public PostStatus(String topicId, String postId, String userId) {
+    public PostStatus(ConversationsTopic topic, ConversationsPost post, String userId) {
 
-        this.topicId = topicId;
-        this.postId = postId;
+        this.topic = topic;
+        this.post = post;
         this.userId = userId;
     }
 }

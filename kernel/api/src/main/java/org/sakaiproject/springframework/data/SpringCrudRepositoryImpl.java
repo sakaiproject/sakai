@@ -99,6 +99,13 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     }
 
     @Override
+    public T getReferenceById(ID id) {
+
+        Assert.notNull(id, "The id cannot be null");
+        return sessionFactory.getCurrentSession().load(domainClass, id);
+    }
+
+    @Override
     public boolean existsById(ID id) {
 
         Assert.notNull(id, "The id cannot be null");
