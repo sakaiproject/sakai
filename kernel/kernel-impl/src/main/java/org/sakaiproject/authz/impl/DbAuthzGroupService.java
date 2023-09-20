@@ -2707,7 +2707,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// if of Group Realm, get the containing Site Realm
 			String containingRealmId = null;
 			AuthzGroup containingRealm = null;
-			Reference ref = entityManager.newReference(realm.getId());
+			Reference ref = entityManager.newReference(realm.getReference());
 			if (SiteService.APPLICATION_ID.equals(ref.getType())
 				&& SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 			{

@@ -20,6 +20,7 @@ package org.sakaiproject.archive.impl;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -289,7 +290,7 @@ public class SiteMerger {
 					EntityProducer service = (EntityProducer) ComponentManager.get(serviceName);
                     if (service == null) {
                         // find the service using the EntityManager
-                        List<EntityProducer> entityProducers = m_entityManager.getEntityProducers();
+                        Collection<EntityProducer> entityProducers = m_entityManager.getEntityProducers();
                         for (EntityProducer entityProducer : entityProducers) {
                             if (serviceName.equals(entityProducer.getClass().getName())
                                     || serviceName.equals(entityProducer.getLabel())
@@ -307,7 +308,7 @@ public class SiteMerger {
 						    if ((system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8))) {
 						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
 						            // checks passed so now we attempt to do the merge
-		                            if (log.isDebugEnabled()) log.debug("Merging archive data for "+serviceName+" ("+fileName+") to site "+siteId);
+		                            log.debug("Merging archive data for {} ({}) to site {}", serviceName, fileName, siteId);
 		                            msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 						        } else {
 						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");

@@ -1033,7 +1033,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		{
 			Site site = null;
 			try {
-				site = siteService().getSite(event.getResource());
+                site = siteService().getSite(event.getResource());
 			} catch (IdUnusedException e) {
 				log.warn("Security invalidation error when handling an event (" + event.getEvent() + "), for site " + event.getResource());
 			}

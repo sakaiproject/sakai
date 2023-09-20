@@ -33,30 +33,30 @@ public interface Reference
 	/**
 	 * Add the AuthzGroup(s) for context as a site.
 	 * 
-	 * @param rv
+	 * @param authzGroup
 	 *        The list of references.
 	 */
-	void addSiteContextAuthzGroup(Collection<String> rv);
+	void addSiteContextAuthzGroup(Collection<String> authzGroup);
 
 	/**
 	 * Add the AuthzGroup for this user id, or for the user's type template, or for the general template.
 	 * 
-	 * @param rv
+	 * @param authzGroup
 	 *        The list of references.
-	 * @param id
+	 * @param userId
 	 *        The user id.
 	 */
-	void addUserAuthzGroup(Collection<String> rv, String id);
+	void addUserAuthzGroup(Collection<String> authzGroup, String userId);
 
 	/**
 	 * Add the AuthzGroup for this user id, or for the user's type template, or for the general template.
 	 * 
-	 * @param rv
+	 * @param authzGroup
 	 *        The list of references.
-	 * @param id
+	 * @param userId
 	 *        The user id.
 	 */
-	void addUserTemplateAuthzGroup(Collection<String> rv, String id);
+	void addUserTemplateAuthzGroup(Collection<String> authzGroup, String userId);
 
 	/**
 	 * Access a single container id, the from most general (or only)
@@ -165,9 +165,9 @@ public interface Reference
 	/**
 	 * Update the reference string.
 	 *
-	 * @param ref The new reference string.
+	 * @param reference The new reference string.
 	 */
-	void updateReference(String ref);
+	void updateReference(String reference);
 	
 	/**
 	 * Access the entity producer responsible for the referenced entity.

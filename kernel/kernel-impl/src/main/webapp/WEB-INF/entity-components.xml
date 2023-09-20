@@ -5,8 +5,7 @@
 
 	<bean id="org.sakaiproject.entity.api.EntityManager"
 			class="org.sakaiproject.entity.impl.EntityManagerComponent"
-			init-method="init"
-			destroy-method="destroy">
+			init-method="init">
          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 

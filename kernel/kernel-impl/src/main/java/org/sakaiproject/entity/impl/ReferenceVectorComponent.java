@@ -22,7 +22,6 @@
 package org.sakaiproject.entity.impl;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Vector;
 
 import org.sakaiproject.entity.api.Entity;
@@ -33,103 +32,60 @@ import org.sakaiproject.entity.api.Reference;
  * ReferenceVectorComponent implements the ReferenceVector API.
  * </p>
  */
-public class ReferenceVectorComponent extends Vector
-{
-	/**
-	 * Constructor.
-	 */
-	public ReferenceVectorComponent(int initialCapacity, int capacityIncrement)
-	{
-		super(initialCapacity, capacityIncrement);
-	}
+public class ReferenceVectorComponent extends Vector<Reference> {
 
-	/**
-	 * Constructor.
-	 */
-	public ReferenceVectorComponent(int initialCapacity)
-	{
-		super(initialCapacity);
-	}
+    public ReferenceVectorComponent(Collection<? extends Reference> c) {
+        super(c);
+    }
 
-	/**
-	 * Constructor.
-	 */
-	public ReferenceVectorComponent(Collection c)
-	{
-		super(c);
-	}
+    public ReferenceVectorComponent() {
+        super();
+    }
 
-	/**
-	 * Constructor.
-	 */
-	public ReferenceVectorComponent()
-	{
-		super();
-	}
+    /**
+     * Is this resource referred to in any of the references in the vector? Accept any Resource, or a String assumed to be a resource reference.
+     *
+     * @param o The Resource (or resource reference string) to check for presence in the references in the vector.
+     * @return true if the resource referred to in any of the references in the Vector, false if not.
+     */
+    public boolean contains(Object o) {
+        if ((o instanceof Entity) || (o instanceof String) || (o instanceof Reference)) {
+            String ref;
+            if (o instanceof Entity) {
+                ref = ((Entity) o).getReference();
+            } else if (o instanceof String) {
+                ref = (String) o;
+            } else {
+                ref = ((Reference) o).getReference();
+            }
 
-	/**
-	 * Is this resource referred to in any of the references in the vector? Accept any Resource, or a String assumed to be a resource reference.
-	 * 
-	 * @param o
-	 *        The Resource (or resource reference string) to check for presence in the references in the vector.
-	 * @return true if the resource referred to in any of the references in the Vector, false if not.
-	 */
-	public boolean contains(Object o)
-	{
-		if ((o instanceof Entity) || (o instanceof String) || (o instanceof Reference))
-		{
-			String ref = null;
-			if (o instanceof Entity)
-			{
-				ref = ((Entity) o).getReference();
-			}
-			else if (o instanceof String)
-			{
-				ref = (String) o;
-			}
-			else
-			{
-				ref = ((Reference) o).getReference();
-			}
+            for (Reference de : this) {
+                if (de.getReference().equals(ref)) return true;
+            }
 
-			Iterator it = iterator();
-			while (it.hasNext())
-			{
-				Reference de = (Reference) it.next();
-				if (de.getReference().equals(ref)) return true;
-			}
+            return false;
+        } else
+            return super.contains(o);
+    }
 
-			return false;
-		}
+    /**
+     * Removes the first occurrence of the specified element in this Vector. If the element is a String, treat it as a resource reference, else it's a Reference object.
+     *
+     * @return true if the element was found, false if not.
+     */
+    public boolean remove(Object o) {
+        // if a string, treat as a resource reference
+        if (o instanceof String) {
+            String ref = (String) o;
+            for (Reference de : this) {
+                if (de.getReference().equals(ref)) {
+                    return super.remove(de);
+                }
+            }
 
-		else
-			return super.contains(o);
-	}
+            return false;
+        }
 
-	/**
-	 * Removes the first occurrence of the specified element in this Vector. If the element is a String, treat it as a resource reference, else it's a Reference object.
-	 * 
-	 * @return true if the element was found, false if not.
-	 */
-	public boolean remove(Object o)
-	{
-		// if a string, treat as a resource reference
-		if (o instanceof String)
-		{
-			String ref = (String) o;
-			Iterator it = iterator();
-			while (it.hasNext())
-			{
-				Reference de = (Reference) it.next();
-				if (de.getReference().equals(ref))
-				{
-					return super.remove(de);
-				}
-			}
-
-			return false;
-		}
-
-		return super.remove(o);
-	}
+        return super.remove(o);
+    }
 }

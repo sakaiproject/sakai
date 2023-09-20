@@ -87,6 +87,12 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				return false;
 			}
 
+			@Override
+			public EntityProducer getEntityProducer(String reference, Reference target)
+			{
+				return null;
+			}
+
 			public List getEntityProducers()
 			{
 				// TODO Auto-generated method stub
