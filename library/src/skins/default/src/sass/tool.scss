@@ -240,6 +240,10 @@ label {
     }
 }
 
+.reqStar, .reqStarInline {
+    font-weight: bold;
+    color: var(--sakai-highlight-color);
+}
 
 // to make sakai task accordion visible in account menu
 .global-overlays {
