@@ -98,6 +98,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 	public static final String MIME_TYPE_BLTI="ims/basiclti";
 	public static final String REFERENCE_ROOT="/basiclti";
+	public static final String REFERENCE_ROOT_FUTURE="/lti";
 	public static final String APPLICATION_ID = "sakai:basiclti";
 	public static final String TOOL_REGISTRATION = "sakai.basiclti";
 	public static final String EVENT_BASICLTI_LAUNCH = "basiclti.launch";
@@ -175,6 +176,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		{
 			// register as an entity producer
 			entityManager.registerEntityProducer(this,REFERENCE_ROOT);
+			entityManager.registerEntityProducer(this,REFERENCE_ROOT_FUTURE);
 		}
 		catch (Throwable t)
 		{
@@ -218,7 +220,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	 */
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
-		if (reference.startsWith(REFERENCE_ROOT))
+		if (reference.startsWith(REFERENCE_ROOT) || reference.startsWith(REFERENCE_ROOT_FUTURE) )
 		{
 			// we will get null, simplelti, site, <context>, <placement>
 			// we will store the context, and the ContentHosting reference in our id field.

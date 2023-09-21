@@ -124,7 +124,7 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if (!login_hint.startsWith(LTIService.LAUNCH_PREFIX)
+		if (!(login_hint.startsWith(LTIService.LAUNCH_PREFIX) || login_hint.startsWith(LTIService.LAUNCH_PREFIX_FUTURE))
 				|| login_hint.contains("\"") || login_hint.contains("'")
 				|| login_hint.contains("<") || login_hint.contains(">")
 				|| login_hint.contains(" ") || login_hint.contains(";")) {
@@ -163,7 +163,7 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if (!platform_state.startsWith(LTIService.LAUNCH_PREFIX)
+		if (!(platform_state.startsWith(LTIService.LAUNCH_PREFIX) || platform_state.startsWith(LTIService.LAUNCH_PREFIX_FUTURE))
 				|| platform_state.contains("\"") || platform_state.contains("'")
 				|| platform_state.contains("<") || platform_state.contains(">")
 				|| platform_state.contains(" ") || platform_state.contains(";")) {
