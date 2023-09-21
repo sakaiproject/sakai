@@ -204,6 +204,28 @@
                 filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>',
               },
           });
+
+          const colorTextInput = document.getElementById("assessmentSettingsAction:pickColor");
+          const colorInput = document.getElementById("color-input");
+
+          // Initialize the picker if exists a previous value
+          if (colorTextInput.value) {
+            colorInput.value = colorTextInput.value;
+          }
+
+          function updateTextInputColor(event) {
+            colorTextInput.value = colorInput.value;
+          }
+          colorInput.addEventListener("change", updateTextInputColor, false);
+
+          function updateColorInputColor(event) {
+            if (!CSS.supports('color', colorTextInput.value)) {
+              return;
+            }
+            colorInput.value = colorTextInput.value;
+          }
+          colorTextInput.addEventListener("change", updateColorInputColor, false);
+
       });
       </script>
 
@@ -782,6 +804,23 @@
          </ul>
       </div>
     </h:panelGroup>
+    
+   <!-- *** COLORS AND GRAPHICS *** -->
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.bgColor_isInstructorEditable==true and publishedSettings.backgroundColorEnabled==true}" >
+      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.background_label}" />
+         <div class="col-md-10">
+          <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{publishedSettings.bgColorSelect}">
+            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>
+         </h:selectOneRadio>
+         <h:inputText size="10" value="#{publishedSettings.bgColor}" id="pickColor" /></br>
+         <input id="color-input" type="color">
+         <h:selectOneRadio onclick="uncheckOther(this)" id="background_image" value="#{publishedSettings.bgImageSelect}"  >
+            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_image}"/>
+         </h:selectOneRadio>  
+         <h:inputText size="80" value="#{publishedSettings.bgImage}"/>
+      </div>
+    </h:panelGroup>
+    
 
 <!-- *** SUBMISSION MESSAGE *** -->
 <h:panelGroup rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true or publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
