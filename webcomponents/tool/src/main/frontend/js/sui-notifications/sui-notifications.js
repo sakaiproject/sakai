@@ -1,10 +1,8 @@
 import { SakaiElement } from "../sakai-element.js";
 import { html } from "../assets/lit-element/lit-element.js";
+import { unsafeHTML } from "../assets/lit-html/directives/unsafe-html.js";
 import "../sakai-user-photo.js";
 
-/**
- *
- */
 class SuiNotifications extends SakaiElement {
 
   constructor() {
@@ -62,7 +60,7 @@ class SuiNotifications extends SakaiElement {
 
       portal.notifications.registerPushCallback("all", message => {
 
-        this.notifications.push(message);
+        this.notifications.unshift(message);
         this.fireLoadedEvent();
         this.filterIntoToolNotifications();
       });
@@ -96,6 +94,10 @@ class SuiNotifications extends SakaiElement {
 
       this.filteredNotifications.get(toolEventPrefix).push(noti);
     });
+
+    // Make sure the motd bundle is at the top.
+    const newMap = Array.from(this.filteredNotifications).sort(a => a === "motd" ? 1 : -1);
+    this.filteredNotifications = new Map(newMap);
 
     this.requestUpdate();
   }
@@ -189,6 +191,33 @@ class SuiNotifications extends SakaiElement {
       });
   }
 
+  _viewMotd(e) {
+
+    const noti = this.filteredNotifications.get(e.target.dataset.prefix).find(n => n.ref === e.target.dataset.ref);
+
+    if (!noti?.body) {
+      const url = `/direct${e.target.dataset.ref}.json`;
+      fetch(url)
+      .then(r => {
+
+        if (r.ok) {
+          return r.json();
+        }
+
+        throw new Error(`Network error while retrieving MOTD from ${url}`);
+      })
+      .then(motd => {
+
+        noti.body = motd.body;
+        noti.bodyShowing = true;
+        this.requestUpdate();
+      })
+      .catch(error => console.error(error));
+    } else {
+      noti.bodyShowing = !noti.bodyShowing;
+      this.requestUpdate();
+    }
+  }
 
   renderAccordion(prefix, notifications) {
 
@@ -215,13 +244,28 @@ class SuiNotifications extends SakaiElement {
                   <small>${noti.formattedEventDate}</small>
                   <button type="button" class="btn-close" aria-label="Close" data-notification-id="${noti.id}" @click=${this.clearNotification}></button>
                 </div>
-                <div class="toast-body d-flex justify-content-between">
-                  <div>${noti.title}</div>
-                  <div>
-                    <a href="${noti.url}">
-                      <i class="si si-sakai-filled-right-arrow"></i>
-                    </a>
+                <div class="toast-body">
+                  <div class="d-flex justify-content-between">
+                    <div>${noti.title}</div>
+                    <div>
+                      ${prefix !== "motd" ? html`
+                      <a href="${noti.url}">
+                        <i class="si si-sakai-filled-right-arrow"></i>
+                      </a>
+                      ` : html`
+                      <button type="button"
+                          data-ref="${noti.ref}"
+                          data-prefix="${prefix}"
+                          class="btn btn-link"
+                          @click=${this._viewMotd}>
+                        ${noti.bodyShowing ? this.i18n.hide : this.i18n.show}
+                      </button>
+                      `}
+                    </div>
                   </div>
+                  ${noti.bodyShowing ? html`
+                    <div class="mt-3">${unsafeHTML(noti.body)}</div>
+                  ` : ""}
                 </div>
               </li>
               `)}

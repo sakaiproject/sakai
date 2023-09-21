@@ -26,18 +26,19 @@ export class SakaiHomeDashboard extends LitElement {
   constructor() {
 
     super();
-    loadProperties("dashboard").then((r) => this.i18n = r);
+
+    loadProperties("dashboard").then(r => this.i18n = r);
   }
 
   set userId(value) {
 
     this._userId = value;
-    this.loadData();
+    this._loadData();
   }
 
   get userId() { return this._userId; }
 
-  loadData() {
+  _loadData() {
 
     const url = `/api/users/${this.userId}/dashboard`;
     fetch(url, { credentials: "include" })
@@ -96,6 +97,9 @@ export class SakaiHomeDashboard extends LitElement {
     }).catch(error => console.error(error.message));
   }
 
+  _toggleMotd() {
+    this._showMotd = !this._showMotd;
+  }
 
   render() {
 
@@ -131,7 +135,7 @@ export class SakaiHomeDashboard extends LitElement {
         ` : ""}
         ${this.data.motd ? html`
           <div id="motd">
-            <div id="motd-title-block" @click=${() => this._showMotd = !this._showMotd}>
+            <div id="motd-title-block" @click=${this._toggleMotd}>
               <div id="motd-title">${this.i18n.motd}</div>
               <div id="motd-icon">
                 <a href="javascript:;"
@@ -190,7 +194,6 @@ export class SakaiHomeDashboard extends LitElement {
           #add-worksite {
             flex: 0;
             display: flex;
-            //align-items: center;
             justify-content: space-between;
             text-align: center;
             white-space: nowrap;
