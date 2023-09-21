@@ -29,9 +29,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class SakaiAccessToken extends  org.tsugi.lti13.objects.BaseJWT {
 
 	/**
-	 * Allows the tool to use basic outcomes (one grade per resource)
+	 * Allows the tool to send a score
 	 */
-	public static final String SCOPE_BASICOUTCOME = "sakai.ims.ags.basicoutcome";
+	public static final String SCOPE_SCORE = "sakai.ims.ags.score";
+
+	/**
+	 * Allows the tool to send a score
+	 */
+	public static final String SCOPE_RESULT_READONLY = "sakai.ims.ags.result.readonly";
 
 	/**
 	 * Allows the tool to list their own grade book columns (lineitems)
