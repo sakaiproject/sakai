@@ -94,6 +94,7 @@ import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -262,6 +263,21 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   @Autowired
   @Qualifier("org.sakaiproject.time.api.UserTimeService")
   private UserTimeService userTimeService;
+  
+  private static final String SAMIGO_SETTINGS_BACKGROUNDCOLOR_ENABLED = "samigo.settings.backgroundcolor.enabled";
+  @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private ServerConfigurationService serverConfigurationService;
+  private boolean backgroundColorEnabled = serverConfigurationService.getBoolean(SAMIGO_SETTINGS_BACKGROUNDCOLOR_ENABLED, false);
+  
+  public boolean isBackgroundColorEnabled() {
+	return backgroundColorEnabled;
+  }
+
+  public void setBackgroundColorEnabled(boolean backgroundColorEnabled) {
+	this.backgroundColorEnabled = backgroundColorEnabled;
+  }
+
 
   /*
    * Creates a new AssessmentBean object.
