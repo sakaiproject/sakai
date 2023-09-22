@@ -80,6 +80,26 @@ TODO Master merge: Remove this file
     margin-bottom: $standard-spacing * 0.5 !important;
   }
 
+  &.ms-1 {
+    margin-left: $standard-spacing * 0.25 !important;
+  }
+
+  &.ms-2 {
+    margin-left: $standard-spacing * 0.5 !important;
+  }
+
+  &.ms-3 {
+    margin-left: $standard-spacing !important;
+  }
+
+  &.ms-4 {
+    margin-left: $standard-spacing * 1.5 !important;
+  }
+
+  &.ms-5 {
+    margin-left: $standard-spacing * 3 !important;
+  }
+
   &.my-1 {
     @extend .mt-1;
     @extend .mb-1;
