@@ -18,7 +18,7 @@ export class SakaiHomeDashboard extends LitElement {
       courses: { type: Array},
       userId: { attribute: "user-id", type: String },
       showSites: { attribute: "show-sites", type: Boolean },
-      showMotd: Boolean,
+      _showMotd: { attribute: false, type: Boolean },
       editing: { type: Boolean },
     };
   }
@@ -49,7 +49,11 @@ export class SakaiHomeDashboard extends LitElement {
         throw new Error(`Failed to get dashboard data from ${url}`);
 
       })
-      .then(r => this.data = r)
+      .then(r => {
+
+        this.data = r;
+        this._showMotd = this.data.motd;
+      })
       .catch(error => console.error(error));
   }
 
@@ -127,17 +131,17 @@ export class SakaiHomeDashboard extends LitElement {
         ` : ""}
         ${this.data.motd ? html`
           <div id="motd">
-            <div id="motd-title-block" @click=${() => this.showMotd = !this.showMotd}>
+            <div id="motd-title-block" @click=${() => this._showMotd = !this._showMotd}>
               <div id="motd-title">${this.i18n.motd}</div>
               <div id="motd-icon">
                 <a href="javascript:;"
-                  title="${this.showMotd ? this.i18n.hide_motd_tooltip : this.i18n.show_motd_tooltip}"
-                  aria-label="${this.showMotd ? this.i18n.hide_motd_tooltip : this.i18n.show_motd_tooltip}">
-                  <sakai-icon type="${this.showMotd ? "up" : "down"}" size="small"></sakai-icon>
+                  title="${this._showMotd ? this.i18n.hide_motd_tooltip : this.i18n.show_motd_tooltip}"
+                  aria-label="${this._showMotd ? this.i18n.hide_motd_tooltip : this.i18n.show_motd_tooltip}">
+                  <sakai-icon type="${this._showMotd ? "up" : "down"}" size="small"></sakai-icon>
                 </a>
               </div>
             </div>
-            <div id="motd-message" style="display: ${this.showMotd ? "block" : "none"}">${unsafeHTML(this.data.motd)}</div>
+            <div id="motd-message" style="display: ${this._showMotd ? "block" : "none"}">${unsafeHTML(this.data.motd)}</div>
           </div>
         ` : ""}
         <div id="courses-and-widgets">
