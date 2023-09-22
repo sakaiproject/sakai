@@ -39,6 +39,23 @@ export async function fetchConfig(siteId) {
     }
 }
 
+// Gets all groups of users, that will display in the game
+export async function fetchGroups(siteId) {
+    if (typeof siteId !== "string") {
+        console.error(`Passed value siteId [${siteId}] is invalid.`);
+        return false;
+    }
+
+    const response = await fetch(`/api/sites/${siteId}/card-game/groups`);
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        console.error("Groups could not be fetched:", response.statusText);
+        return null;
+    }
+}
+
 // Persists that the provided user is marked as learned
 export async function fetchMarkAsLearned(siteId, userId) {
     if (typeof siteId !== "string" || typeof userId !== "string") {
@@ -71,7 +88,7 @@ export async function fetchReset(siteId) {
     return response.ok;
 }
 
-// Gers all user data of users, that will display in the game
+// Gets all user data of users, that will display in the game
 export async function fetchUsers(siteId) {
     if (typeof siteId !== "string") {
         console.error(`Passed value siteId [${siteId}] is invalid.`);
@@ -91,6 +108,7 @@ export async function fetchUsers(siteId) {
 export default {
     fetchCheckResult,
     fetchConfig,
+    fetchGroups,
     fetchMarkAsLearned,
     fetchReset,
     fetchUsers,
