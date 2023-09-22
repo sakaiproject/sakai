@@ -807,7 +807,7 @@
     
    <!-- *** COLORS AND GRAPHICS *** -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.bgColor_isInstructorEditable==true and publishedSettings.backgroundColorEnabled==true}" >
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.background_label}" />
+      <h:outputLabel for="color-input" styleClass="col-md-2" value="#{assessmentSettingsMessages.background_label}" />
          <div class="col-md-10">
           <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{publishedSettings.bgColorSelect}">
             <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>
