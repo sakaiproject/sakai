@@ -104,7 +104,7 @@ export default class CardGame extends BaseGame {
                         .forEach((radio) => radio.addEventListener("change", (event) => {
                             const selectedValue = event.target.value;
                             const enabled = selectedValue === SCOPES.GROUP;
-                            this.effectEnableGroupSelection(enabled)
+                            this.effectEnableGroupSelection(enabled);
                         }));
                 document.querySelector("[data-select-scope]").addEventListener("click",
                         (event) => this.selectScope());
@@ -215,11 +215,11 @@ export default class CardGame extends BaseGame {
 
     selectScope() {
         const selectedScope = Array.from(document.querySelectorAll("[name='scope']"))
-                .find(radio => radio.checked).value;
+                .find((radio) => radio.checked).value;
 
         const selectedGroup = selectedScope === SCOPES.GROUP
                 ? Array.from(document.getElementById(this.groupSelectId).children)
-                        .find(option => option.selected).value
+                        .find((option) => option.selected).value
                 : null;
 
         this.rollUser = true;
@@ -429,7 +429,7 @@ export default class CardGame extends BaseGame {
 
     calcLearnGroup() {
         return this.state.scope === SCOPES.GROUP
-                ? this.state.allGroups.find(group => group.id === this.state.selectedGroupId)
+                ? this.state.allGroups.find((group) => group.id === this.state.selectedGroupId)
                 : null;
     }
 
@@ -443,8 +443,8 @@ export default class CardGame extends BaseGame {
 
         } else if (this.state.scope === SCOPES.GROUP) {
             return this.state.learnGroup.users
-                        .map(userId => this.state.allUsers.find(user => user.id === userId))
-                        .filter(user => typeof user !== "undefined");
+                        .map(userId => this.state.allUsers.find((user) => user.id === userId))
+                        .filter((user) => typeof user !== "undefined");
         } else {
             return [];
         }
