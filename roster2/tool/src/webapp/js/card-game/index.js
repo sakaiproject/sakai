@@ -4,7 +4,7 @@
 /////////////////////////////////////////////////////////
 
 import CardGame from "./card-game.js";
-import { fetchConfig, fetchUsers } from "./card-game-api.js";
+import { fetchConfig, fetchGroups, fetchUsers } from "./card-game-api.js";
 import { loadProperties } from "/webcomponents/sakai-i18n.js";
 
 function showError(appId, message) {
@@ -28,7 +28,12 @@ async function fetchI18nData() {
 }
 
 export default async function loadCardGame(appId, siteId) {
-    const [i18n, users, config] = await Promise.all([fetchI18nData(), fetchUsers(siteId), fetchConfig(siteId)]);
+    const [i18n, users, groups, config] = await Promise.all([
+            fetchI18nData(),
+            fetchUsers(siteId),
+            fetchGroups(siteId),
+            fetchConfig(siteId)
+    ]);
 
     if (!i18n) {
         showError(appId, "Could not load internationalization data for the Game");
@@ -36,7 +41,7 @@ export default async function loadCardGame(appId, siteId) {
     }
 
     if (users && config) {
-        const cardGame = new CardGame(appId, i18n, config, { siteId, users });
+        const cardGame = new CardGame(appId, i18n, config, { siteId, users, groups });
         cardGame.start();
     } else {
         showError(appId, i18n["error_loading"]?.replace("{0}", i18n["game_name"]));
