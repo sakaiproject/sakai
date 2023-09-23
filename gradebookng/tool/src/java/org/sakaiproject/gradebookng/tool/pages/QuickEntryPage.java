@@ -147,7 +147,7 @@ public class QuickEntryPage extends BasePage {
                         } else {
                             row.setHasError(false);
                         }
-                        if(row.getComment() != null){   //in case a changed comment is with an unchanged/blank grade
+                        if(row.commentChanged()){   //in case a changed comment is with an unchanged/blank grade
                             boolean commentSucceeded = businessService.updateAssignmentGradeComment(itemId,row.getStudentid(),row.getComment());
                             if(!commentSucceeded){
                                 getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
@@ -223,8 +223,12 @@ public class QuickEntryPage extends BasePage {
                 String commentNow = this.businessService.getAssignmentGradeComment(this.assignmentNow.getId(),uid);
                 if(commentNow != null){
                     rowNow.setComment(commentNow);
+                    rowNow.setOriginalComment(commentNow);
                 } else {
                     rowNow.setComment("");
+                    // Wicket inputs have empty strings converted into nulls. but since there's no component that actually backs
+                    // this field, we need to set it to null
+                    rowNow.setOriginalComment(null);
                 }
                 String gradeNow = this.businessService.getGradeForStudentForItem(uid,this.assignmentNow.getId()).getGrade();
                 if(StringUtils.isNotBlank(gradeNow)){
@@ -375,9 +379,14 @@ public class QuickEntryPage extends BasePage {
         @Getter @Setter private String name;
         @Getter @Setter private String grade;
         @Getter @Setter private String comment;
+        @Getter @Setter private String originalComment;
         @Getter @Setter private boolean excused = false;
         @Getter @Setter private boolean locked;
         @Getter @Setter private double maxGrade;
         @Getter @Setter private boolean hasError;
+
+        public boolean commentChanged() {
+            return !StringUtils.equals(comment, originalComment);
+        }
     }
 }
