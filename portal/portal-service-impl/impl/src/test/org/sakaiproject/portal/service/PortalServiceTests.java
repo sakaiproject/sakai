@@ -387,6 +387,11 @@ public class PortalServiceTests extends SakaiTests {
     public void testSoftDeletedSiteRemovalFromPinsAndRecent() {
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
 
+        Member user1Member = mock(Member.class);
+        when(user1Member.isActive()).thenReturn(true);
+        when(site1.getMember(user1)).thenReturn(user1Member);
+        when(site1.isPublished()).thenReturn(true);
+
         portalService.addRecentSite(site1Id);
         portalService.addPinnedSite(user1, site1Id);
         assertEquals(1, portalService.getRecentSites().size());
