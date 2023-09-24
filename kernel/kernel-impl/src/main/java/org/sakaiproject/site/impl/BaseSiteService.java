@@ -1536,17 +1536,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return getAccessPoint(true) + Entity.SEPARATOR + id;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public String idFromSiteReference(String ref) {
-
-		String[] resourceParts = ref.split("/");
-		if (resourceParts.length == 3) {
-			return resourceParts[2];
-		}
-
-		return "";
+		return entityManager().newReference(ref).getId();
 	}
 
 	/**
