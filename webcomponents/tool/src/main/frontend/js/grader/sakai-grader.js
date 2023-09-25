@@ -677,9 +677,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _applyFilters() {
 
-    this.submissions = [...this.originalSubmissions];
-
-    let filtered = [...this.submissions];
+    let filtered = [ ...this.originalSubmissions ];
 
     if (this.submittedOnly) {
       if (this.ungradedOnly) {
@@ -705,7 +703,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       this._hydrateCluster(firstSubmissionId).then(submission => {
 
         if (submission) {
-          this.submissions = [...filtered];
+          this.submissions = [ ...filtered ];
           this.submission = submission;
         }
       });
@@ -715,6 +713,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this.totalGraded = filtered.filter(s => s.graded).length;
     this.totalSubmissions = filtered.length;
+
+    this.submissions = [ ...filtered ];
   }
 
   _submittedOnlyChanged(e) {
