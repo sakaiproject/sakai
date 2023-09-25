@@ -166,6 +166,9 @@ User.Read
 ## Sakai configuration
 Everything will be configured through the administration tool.
 
+## Meetings README
+Remember to set all Meetings related configuration according to: [meetings/README.md](../meetings/README.md)
+
 ## Future plans and Roadmap
 - Include custom Sakai permission to identify Microsoft owners.
 - Posibility to configure user property to use for ID mapping.
