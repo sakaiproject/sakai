@@ -208,23 +208,28 @@
           const colorTextInput = document.getElementById("assessmentSettingsAction:pickColor");
           const colorInput = document.getElementById("color-input");
 
-          // Initialize the picker if exists a previous value
-          if (colorTextInput.value) {
-            colorInput.value = colorTextInput.value;
-          }
+          // The color picker can be disabled.
+          if (colorTextInput && colorInput) {
 
-          function updateTextInputColor(event) {
-            colorTextInput.value = colorInput.value;
-          }
-          colorInput.addEventListener("change", updateTextInputColor, false);
-
-          function updateColorInputColor(event) {
-            if (!CSS.supports('color', colorTextInput.value)) {
-              return;
+            // Initialize the picker if exists a previous value
+            if (colorTextInput.value) {
+              colorInput.value = colorTextInput.value;
             }
-            colorInput.value = colorTextInput.value;
+
+            function updateTextInputColor(event) {
+              colorTextInput.value = colorInput.value;
+            }
+            colorInput.addEventListener("change", updateTextInputColor, false);
+
+            function updateColorInputColor(event) {
+              if (!CSS.supports('color', colorTextInput.value)) {
+                return;
+              }
+              colorInput.value = colorTextInput.value;
+            }
+            colorTextInput.addEventListener("change", updateColorInputColor, false);
+
           }
-          colorTextInput.addEventListener("change", updateColorInputColor, false);
 
       });
       </script>
