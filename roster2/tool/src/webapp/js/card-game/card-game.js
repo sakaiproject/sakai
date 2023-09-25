@@ -173,7 +173,7 @@ export default class CardGame extends BaseGame {
     }
 
     markAsLearned() {
-        const userId = this.state.previousUser?.id;
+        const userId = this.state.currentUser?.id;
 
         if (userId) {
             fetchMarkAsLearned(this.siteId, userId);
