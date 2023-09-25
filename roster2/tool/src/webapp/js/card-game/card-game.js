@@ -368,7 +368,7 @@ export default class CardGame extends BaseGame {
 
         const { hits, misses } = user;
 
-        const attempts = hits || misses ? hits + misses : null;
+        const attempts = hits || misses ? hits + misses : 0;
 
         const userNotLearned = !isUserLearned(user, this.config);
 
