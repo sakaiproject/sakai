@@ -1116,7 +1116,7 @@ ASN.getShadowTags = function () {
     const tagSelector = document.getElementById('tag_selector');
     const tagSelectorVue = document.querySelector("sakai-tag-selector").shadowRoot;
     if (tagSelector && tagSelectorVue) {
-      tagSelector.value = Array.from(tagSelectorVue.shadowRoot.querySelectorAll('input[name="tag[]"'), el => el.value);
+      tagSelector.value = Array.from(tagSelectorVue.querySelectorAll('input[name="tag[]"'), el => el.value);
     }
 }
 
