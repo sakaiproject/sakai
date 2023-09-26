@@ -194,7 +194,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
     let siteId = "";
     if (collectionId) {
-        if (collectionId.startsWith('/user/') && portal && portal.siteId) {
+        if (collectionId.startsWith('/user/') && window?.portal?.siteId) {
             siteId = portal.siteId;
         } else {
             siteId = collectionId.split('/')[2];
