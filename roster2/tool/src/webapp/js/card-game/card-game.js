@@ -83,7 +83,7 @@ export default class CardGame extends BaseGame {
         super.updateHandlers();
         switch(this.state.view) {
             case VIEWS.GAME:
-                document.querySelector("[data-check]").addEventListener("click",
+                document.querySelector("[data-check]")?.addEventListener("click",
                         (event) => this.checkName());
                 document.querySelector("[data-reroll]").addEventListener("click",
                         (event) => {
@@ -93,7 +93,6 @@ export default class CardGame extends BaseGame {
                 document.querySelector("[data-mute]").addEventListener("click",
                         (event) => {
                             this.mutateMute();
-                            this.effectRemoveFeedbackBanner();
                         });
                 document.querySelector("[data-reset]").addEventListener("click",
                         (event) => this.resetGame());
@@ -101,12 +100,13 @@ export default class CardGame extends BaseGame {
                         (event) => {
                             this.markAsLearned();
                             this.mutateRerollUser();
-                            this.effectRemoveFeedbackBanner();
                         });
-
+                document.querySelector("[data-continue]")?.addEventListener("click",
+                        (event) => {
+                            this.continue();
+                        });
                 // Unfortunately we can't listen to jQuery internal events without jQuery
                 const select = document.getElementById(this.selectId);
-                $(select).on("select2:opening", (event) => this.effectRemoveFeedbackBanner());
                 $(select).on("select2:select", (event) => this.effectEnableCheckButton());
                 break;
             case VIEWS.GAME_OVER:
@@ -143,7 +143,7 @@ export default class CardGame extends BaseGame {
     }
 
     markAsLearned() {
-        const userId = this.state.previousUser?.id;
+        const userId = this.state.currentUser?.id;
 
         if (userId) {
             fetchMarkAsLearned(this.siteId, userId);
@@ -169,10 +169,17 @@ export default class CardGame extends BaseGame {
             playSound(correct ? SOUNDS.HIT : SOUNDS.MISS);
         }
 
-        this.rollUser = true;
+
         this.mutateCheckName(correct);
+        this.effectDisableSelect();
+        this.effectFocusContinue();
     }
 
+    continue() {
+        this.rollUser = true;
+        this.mutateContinue();
+        this.effectRemoveFeedbackBanner();
+    }
 
     // RENDER METHODS - Methods that return html for a particular view
     // Should be added to the main render method
@@ -201,6 +208,10 @@ export default class CardGame extends BaseGame {
                         <option value="" disabled selected><option>
                     </select>
                     <div class="d-flex mt-2">
+                        ${this.state.feedbackState === FEEDBACK_STATES.NO
+                            ? `<button class="btn btn-primary flex-grow-1" disabled data-check>${this.tr("check")}</button>`
+                            : `<button class="btn btn-primary flex-grow-1" data-continue>${this.tr("continue")}</button>`
+                        }
                         <button class="btn btn-primary flex-grow-1" disabled data-check>${this.tr("check")}</button>
                         <button class="me-1 btn btn-secondary" data-reroll>${this.tr("reroll_user")}</button>
                         <button class="me-1 btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirm-reset-modal">${this.tr("reset_game")}</button>
@@ -264,7 +275,7 @@ export default class CardGame extends BaseGame {
 
     // Renders the feedback banner component
     renderFeedbackBanner() {
-        const user =  this.state.previousUser ?? {};
+        const user =  this.state.currentUser ?? {};
 
         const strongUserName = `<strong>${user.displayName}</strong>`;
 
@@ -383,7 +394,15 @@ export default class CardGame extends BaseGame {
             } else {
                 state.currentUser.misses++;
             }
+            state.review = true;
+        });
+    }
+
+    mutateContinue() {
+        this.mutate((state) => {
+            state.review = false;
             state.previousUserId = state.currentUserId;
+            state.feedbackState = FEEDBACK_STATES.NO;
         });
     }
 
@@ -400,6 +419,8 @@ export default class CardGame extends BaseGame {
             if (user) {
                 user.markedAsLearned = true;
             }
+
+            state.feedbackState = FEEDBACK_STATES.NO;
         });
     }
 
@@ -414,13 +435,21 @@ export default class CardGame extends BaseGame {
     }
 
     effectInitSelect() {
-        $("#" + this.selectId).select2({
+        this.select = $("#" + this.selectId).select2({
             data: this.state.userOptionsData,
             placeholder: this.tr("user_name_select_placeholder"),
             language: {
                 noResults: () => this.tr("no_name_found")
             },
         });
+    }
+
+    effectDisableSelect() {
+        this.select.prop('disabled', true);
+    }
+
+    effectFocusContinue() {
+        document.querySelector("[data-continue]").focus();
     }
 
     // GET METHODS - Methods that derive values from the state or the document
