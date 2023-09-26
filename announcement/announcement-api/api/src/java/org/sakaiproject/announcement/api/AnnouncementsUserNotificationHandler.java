@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -35,6 +36,7 @@ import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -69,15 +71,20 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
     @Resource
     private SiteService siteService;
 
+    @Resource
+    private UserDirectoryService userDirectoryService;
+
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
     private PlatformTransactionManager transactionManager;
 
     @Override
     public List<String> getHandledEvents() {
+
         return Arrays.asList(AnnouncementService.SECURE_ANNC_ADD,
                 AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY,
                 AnnouncementService.SECURE_ANNC_REMOVE_OWN, AnnouncementService.SECURE_ANNC_REMOVE_ANY,
-                AnnouncementService.EVENT_AVAILABLE_ANNC);
+                AnnouncementService.EVENT_AVAILABLE_ANNC,
+                AnnouncementService.EVENT_MOTD_NEW);
     }
 
     @Override
@@ -89,6 +96,11 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
         String[] pathParts = ref.split("/");
 
         String siteId = pathParts[3];
+
+        // We ignore this event as it will be repeated with an "motd.new" event
+        if (e.getEvent().equals(AnnouncementService.SECURE_ANNC_ADD) && ref.contains("motd")) {
+            return Optional.of(List.of());
+        }
 
         SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ, AnnouncementService.SECURE_ANNC_READ_DRAFT});
         AnnouncementMessage message = null;
@@ -149,11 +161,12 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                     List<UserNotificationData> bhEvents = new ArrayList<>();
                     Set<String> usersList = new HashSet<>();
 
-                    if (message.getHeader().getGroups().isEmpty()) {
+                    if (siteId.equals(SiteService.ADMIN_SITE_ID) && ref.contains("motd")) {
+                        usersList = userDirectoryService.getUsers().stream().map(u -> u.getId()).collect(Collectors.toSet());
+                    } else if (message.getHeader().getGroups().isEmpty()) {
                         // Get all the members of the site with read ability if the announcement is not for groups
                         usersList = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ);
-                    }
-                    else {
+                    } else {
                         // Otherwise get the members of the groups
                         for (String group : message.getHeader().getGroups()) {
                             usersList.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
