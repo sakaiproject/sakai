@@ -10,14 +10,20 @@ import { fetchCheckResult, fetchReset, fetchMarkAsLearned } from "./card-game-ap
 const VIEWS = {
     GAME: "VIEW_GAME",
     GAME_OVER: "VIEW_GAME_OVER",
-    NO_STUDENTS: "VIEW_NO_STUDENTS"
+    SCOPE_SELECTION: "VIEW_SCOPE_SELECTION",
+    NO_STUDENTS: "VIEW_NO_STUDENTS",
 };
 
 const FEEDBACK_STATES = {
     NO: "HIDDEN",
     OK: "CORRECT",
-    KO: "WRONG"
+    KO: "WRONG",
 };
+
+const SCOPES = {
+    SITE: "SITE",
+    GROUP: "GROUP",
+}
 
 const SOUNDS = {
     HIT: "/sakai-roster2-tool/js/card-game/sounds/hit-sound.mp3",
@@ -26,7 +32,7 @@ const SOUNDS = {
 
 export default class CardGame extends BaseGame {
 
-    constructor(appId, i18n, config, { siteId, users }) {
+    constructor(appId, i18n, config, { siteId, users, groups }) {
         super(appId, i18n, config);
 
         this.checkConfig("minAttempts");
@@ -36,8 +42,15 @@ export default class CardGame extends BaseGame {
         this.siteId = siteId;
 
         this.selectId = "user-name";
+        this.groupSelectId = "groups";
+        this.defaultScope = SCOPES.SITE;
 
-        this.initState({ allUsers: users , soundEnabled: true});
+        this.initState({
+            allUsers: users,
+            allGroups: groups,
+            scope: this.defaultScope,
+            soundEnabled: true,
+        });
     }
 
     initState(data) {
@@ -57,8 +70,10 @@ export default class CardGame extends BaseGame {
                 return this.renderGameOver();
             case VIEWS.NO_STUDENTS:
                 return this.renderNoStudentsInfo();
+            case VIEWS.SCOPE_SELECTION:
+                return this.renderScopeSelection();
             default:
-                console.log("Unknown view", this.state.view);
+                console.error("Unknown view", this.state.view);
                 return "";
         }
     }
@@ -66,6 +81,8 @@ export default class CardGame extends BaseGame {
     //Override
     updateCalcState(init) {
         super.updateCalcState();
+        this.state.learnGroup = this.calcLearnGroup();
+        this.state.learnableUsers = this.calcLearnableUsers();
         this.state.learnUsers = this.calcLearnUsers();
         this.state.view = this.calcView();
         if (init || this.rollUser) {
@@ -82,6 +99,16 @@ export default class CardGame extends BaseGame {
     updateHandlers() {
         super.updateHandlers();
         switch(this.state.view) {
+            case VIEWS.SCOPE_SELECTION:
+                document.querySelectorAll("[name='scope']")
+                        .forEach((radio) => radio.addEventListener("change", (event) => {
+                            const selectedValue = event.target.value;
+                            const enabled = selectedValue === SCOPES.GROUP;
+                            this.effectEnableGroupSelection(enabled);
+                        }));
+                document.querySelector("[data-select-scope]").addEventListener("click",
+                        (event) => this.selectScope());
+                break;
             case VIEWS.GAME:
                 document.querySelector("[data-check]")?.addEventListener("click",
                         (event) => this.checkName());
@@ -137,7 +164,12 @@ export default class CardGame extends BaseGame {
             }
         });
 
-        this.initState({ allUsers: users });
+        this.initState({
+            allUsers: users,
+            allGroups: this.state.allGroups,
+            scope: this.defaultScope,
+            soundEnabled: this.state.soundEnabled,
+        });
 
         super.start();
     }
@@ -181,19 +213,66 @@ export default class CardGame extends BaseGame {
         this.effectRemoveFeedbackBanner();
     }
 
+    selectScope() {
+        const selectedScope = Array.from(document.querySelectorAll("[name='scope']"))
+                .find((radio) => radio.checked).value;
+
+        const selectedGroup = selectedScope === SCOPES.GROUP
+                ? Array.from(document.getElementById(this.groupSelectId).children)
+                        .find((option) => option.selected).value
+                : null;
+
+        this.rollUser = true;
+        this.mutateSelectScope(selectedScope, selectedGroup);
+    }
+
     // RENDER METHODS - Methods that return html for a particular view
     // Should be added to the main render method
+
+    // Renders the SCOPE_SELECTION view
+    renderScopeSelection() {
+        return `
+            <div class="row">
+                <div class="col-sm-12 col-lg-9 col-xl-7 col-xxl-6">
+                    <label class="b5 mb-1">${this.tr("scope_radio_label")}</label>
+                    <div>
+                        <input type="radio" id="site-scope" name="scope" value="${SCOPES.SITE}" checked />
+                        <label for="site-scope">${this.tr("site_scope_radio")}</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="group-scope" name="scope" value="${SCOPES.GROUP}" />
+                        <label for="group-scope">${this.tr("group_scope_radio")}</label>
+                    </div>
+                    <div class="b5 ms-4">
+                        <label for="${this.groupSelectId}">${this.tr("groups_label")}</label>
+                        <select id="${this.groupSelectId}" class="form-select" disabled>
+                            ${this.state.allGroups.map((group, index) => `
+                                <option value="${group.id}" ${index === 0 ? "selected" : ""}>${group.title}</option>
+                            `).join("")}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="act">
+                <button class="active" data-select-scope>${this.tr("select_scope")}</button>
+            </div>
+        `;
+    }
 
     // Renders the GAME view
     renderGame() {
         const { currentUser, progress } = this.state;
 
-        const allUsersCount = this.state.allUsers.length;
+        const allUsersCount = this.state.learnableUsers.length;
         const learnedUsersCount = allUsersCount - this.state.learnUsers.length;
 
         const imageSrc = this.config.showOfficialPhoto
                 ? `/direct/profile/${currentUser.id}/image/official?siteId=${this.siteId}`
                 : `/direct/profile/${currentUser.id}/image?siteId=${this.siteId}`;
+
+        const scopeDisplay = this.state.scope === SCOPES.SITE
+                ? this.tr("site_scope_display")
+                : this.tr("group_scope_display", this.state.learnGroup.title);
 
         return `
             <div class="row">
@@ -222,7 +301,7 @@ export default class CardGame extends BaseGame {
             </div>
             <div class="row">
                 <div class="col-md-12 col-xl-9">
-                    <div class="text-center">${this.tr("progress", learnedUsersCount, allUsersCount)}</div>
+                    <div class="text-center">${this.tr("progress", learnedUsersCount, allUsersCount)} (${scopeDisplay})</div>
                     <div class="progress">
                         <div class="progress-bar" role="progressbar" style="width: ${progress}%"
                                 aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
@@ -334,7 +413,9 @@ export default class CardGame extends BaseGame {
     // Should be added to updateCalcState in the correct order (dependency respecting)
 
     calcView() {
-        if (this.state.allUsers.length === 0) {
+        if (this.state.allGroups.length !== 0 && typeof this.state.selectedGroupId === "undefined") {
+            return VIEWS.SCOPE_SELECTION;
+        } else if (this.state.allUsers.length === 0) {
             return VIEWS.NO_STUDENTS;
         } else if (this.state.learnUsers.length === 0) {
             return VIEWS.GAME_OVER;
@@ -343,8 +424,31 @@ export default class CardGame extends BaseGame {
         }
     }
 
+    calcLearnGroup() {
+        return this.state.scope === SCOPES.GROUP
+                ? this.state.allGroups.find((group) => group.id === this.state.selectedGroupId)
+                : null;
+    }
+
+    calcGroupName() {
+        return this.state.learnGroup?.title ?? null;
+    }
+
+    calcLearnableUsers() {
+        if (this.state.scope === SCOPES.SITE) {
+            return this.state.allUsers;
+
+        } else if (this.state.scope === SCOPES.GROUP) {
+            return this.state.learnGroup.users
+                        .map(userId => this.state.allUsers.find((user) => user.id === userId))
+                        .filter((user) => typeof user !== "undefined");
+        } else {
+            return [];
+        }
+    }
+
     calcLearnUsers() {
-        return this.state.allUsers.filter((user) => !isUserLearned(user, this.config));
+        return this.state.learnableUsers.filter((user) => !isUserLearned(user, this.config));
     }
 
     calcCurrentUser() {
@@ -362,9 +466,9 @@ export default class CardGame extends BaseGame {
     }
 
     calcProgress() {
-        const learnedUserCount = this.state.allUsers.length - this.state.learnUsers.length;
+        const learnedUserCount = this.state.learnableUsers.length - this.state.learnUsers.length;
 
-        return 100 * learnedUserCount / this.state.allUsers.length;
+        return 100 * learnedUserCount / this.state.learnableUsers.length;
     }
 
 
@@ -424,6 +528,13 @@ export default class CardGame extends BaseGame {
         });
     }
 
+    mutateSelectScope(scope, group) {
+        this.mutate((state) => {
+            state.scope = scope;
+            state.selectedGroupId = group;
+        });
+    }
+
     // EFFECT METHODS - Methods directly altering the dom, without mutating the state
 
     effectEnableCheckButton() {
@@ -450,6 +561,15 @@ export default class CardGame extends BaseGame {
 
     effectFocusContinue() {
         document.querySelector("[data-continue]").focus();
+    }
+
+    effectEnableGroupSelection(toEnable) {
+        const groupSelect = document.getElementById(this.groupSelectId);
+        if (toEnable) {
+            groupSelect.removeAttribute("disabled");
+        } else {
+            groupSelect.setAttribute("disabled", true);
+        }
     }
 
     // GET METHODS - Methods that derive values from the state or the document
