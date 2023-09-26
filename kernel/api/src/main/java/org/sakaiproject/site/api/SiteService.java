@@ -220,6 +220,9 @@ public interface SiteService extends EntityProducer
 	
 	/** An event for unpublishing a site. */
 	static final String EVENT_SITE_UNPUBLISH = "site.unpublish";
+
+	/** The site id for the admin workspace */
+	public static final String ADMIN_SITE_ID = "!admin";
 	
 	/**
 	 * <p>
