@@ -18,6 +18,7 @@ const FEEDBACK_STATES = {
     NO: "HIDDEN",
     OK: "CORRECT",
     KO: "WRONG",
+    HI: "HINT",
 };
 
 const SCOPES = {
@@ -132,9 +133,6 @@ export default class CardGame extends BaseGame {
                         (event) => {
                             this.continue();
                         });
-                // Unfortunately we can't listen to jQuery internal events without jQuery
-                const select = document.getElementById(this.selectId);
-                $(select).on("select2:select", (event) => this.effectEnableCheckButton());
                 break;
             case VIEWS.GAME_OVER:
                 document.querySelector("[data-reset]").addEventListener("click",
@@ -190,6 +188,7 @@ export default class CardGame extends BaseGame {
     checkName() {
         const selectedUserId = this.getSelectedId();
         if (selectedUserId === "") {
+            this.showHint();
             return;
         }
 
@@ -203,6 +202,12 @@ export default class CardGame extends BaseGame {
 
 
         this.mutateCheckName(correct);
+        this.effectDisableSelect();
+        this.effectFocusContinue();
+    }
+
+    showHint() {
+        this.mutateShowHint();
         this.effectDisableSelect();
         this.effectFocusContinue();
     }
@@ -288,7 +293,7 @@ export default class CardGame extends BaseGame {
                     </select>
                     <div class="d-flex mt-2">
                         ${this.state.feedbackState === FEEDBACK_STATES.NO
-                            ? `<button class="btn btn-primary flex-grow-1" disabled data-check>${this.tr("check")}</button>`
+                            ? `<button class="btn btn-primary flex-grow-1" data-check>${this.tr("check")}</button>`
                             : `<button class="btn btn-primary flex-grow-1" data-continue>${this.tr("continue")}</button>`
                         }
                         <button class="btn btn-primary flex-grow-1" disabled data-check>${this.tr("check")}</button>
@@ -360,7 +365,7 @@ export default class CardGame extends BaseGame {
 
         const { hits, misses } = user;
 
-        const attempts = hits || misses ? hits + misses : null;
+        const attempts = hits || misses ? hits + misses : 0;
 
         const userNotLearned = !isUserLearned(user, this.config);
 
@@ -382,6 +387,15 @@ export default class CardGame extends BaseGame {
                     <div id="feedback-banner" class="sak-banner-error">
                         <div class="feedback-content">
                             <span>${this.tr("check_miss_info", strongUserName)}</span>
+                            <span>${this.tr("user_progress", hits, attempts)}</span>
+                        </div>
+                    </div>
+                `;
+            case FEEDBACK_STATES.HI:
+                return `
+                    <div id="feedback-banner" class="sak-banner-info">
+                        <div class="feedback-content">
+                            <span>${this.tr("hint_info", strongUserName)}</span>
                             <span>${this.tr("user_progress", hits, attempts)}</span>
                         </div>
                     </div>
@@ -502,6 +516,13 @@ export default class CardGame extends BaseGame {
         });
     }
 
+    mutateShowHint() {
+        this.mutate((state) => {
+            state.feedbackState = FEEDBACK_STATES.HI;
+            state.review = true;
+        });
+    }
+
     mutateContinue() {
         this.mutate((state) => {
             state.review = false;
@@ -536,10 +557,6 @@ export default class CardGame extends BaseGame {
     }
 
     // EFFECT METHODS - Methods directly altering the dom, without mutating the state
-
-    effectEnableCheckButton() {
-        document.querySelector("[data-check]")?.removeAttribute("disabled");
-    }
 
     effectRemoveFeedbackBanner() {
         document.getElementById("feedback-banner")?.remove();
