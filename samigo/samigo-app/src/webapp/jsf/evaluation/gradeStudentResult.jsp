@@ -150,7 +150,12 @@ function toPoint(id)
   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <h2>
-  <h:outputText value="#{totalScores.assessmentName}" escape="false"/>
+  <div styleClass="container">
+    <h:outputText value="#{totalScores.assessmentName}" escape="false"/>
+    <h:commandButton styleClass="pull-right print_button" id="print" value="#{evaluationMessages.print_report}" immediate="true">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportAction" />
+    </h:commandButton>
+  </div>
 </h2>
 
 <div class="form-group row">
