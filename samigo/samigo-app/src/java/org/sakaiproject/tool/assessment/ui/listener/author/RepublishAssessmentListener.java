@@ -31,12 +31,12 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -70,6 +70,12 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
+import org.sakaiproject.time.api.Time;
+import java.util.ListIterator;
+import java.time.Instant;
+import org.sakaiproject.component.cover.ComponentManager;
+
 @Slf4j
 public class RepublishAssessmentListener implements ActionListener {
 
@@ -82,7 +88,10 @@ public class RepublishAssessmentListener implements ActionListener {
 	private TaskService taskService = ComponentManager.get(TaskService.class);;
 	private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
-
+	private EventTrackingService eventTrackingService;
+	public RepublishAssessmentListener(){
+		eventTrackingService = ComponentManager.get(EventTrackingService.class);
+	}
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
@@ -94,7 +103,7 @@ public class RepublishAssessmentListener implements ActionListener {
 		
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
-		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
+		eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
 
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
@@ -105,15 +114,16 @@ public class RepublishAssessmentListener implements ActionListener {
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
 			regradeRepublishedAssessment(publishedAssessmentService, assessment);
 		}
-		
-		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
+		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+		postUserNotification(assessment, publishedAssessmentSettings);
+		eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
 		updateGB(assessment);
 		
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
 		
-		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+
 		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
 		String subject = publishRepublishNotification.getNotificationSubject();
 		String notificationMessage = publishAssessmentListener.getNotificationMessage(publishRepublishNotification, publishedAssessmentSettings.getTitle(), publishedAssessmentSettings.getReleaseTo(), 
@@ -172,6 +182,39 @@ public class RepublishAssessmentListener implements ActionListener {
 		// Update scheduled assessment available notification
 		samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId);
 		author.setOutcome("author");
+	}
+
+	private void postUserNotification(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings){
+
+		List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
+		Instant instant = assessment.getStartDate().toInstant();
+		if (instant.isBefore(Instant.now())) {
+			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
+			if(publishedAssessmentSettings.getExtendedTimesSize() != 0){
+				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
+				while (it.hasNext()){
+					ExtendedTime exTime = (ExtendedTime) it.next();
+					Instant startInstant = exTime.getStartDate().toInstant();
+					if(startInstant.isAfter(Instant.now())) {
+						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
+					}
+				}
+			}
+		} else {
+			eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), instant);
+			if(publishedAssessmentSettings.getExtendedTimesSize() != 0){
+				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
+				while (it.hasNext()){
+					ExtendedTime exTime = (ExtendedTime) it.next();
+					Instant startInstant = exTime.getStartDate().toInstant();
+					if(startInstant.isBefore(Instant.now())) {
+						eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
+					}else if(startInstant.isAfter(Instant.now()) && !instant.equals(startInstant)){
+						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
+					}
+				}
+			}
+		}
 	}
 	
 	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentFacade publishedAssessment) {

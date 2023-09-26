@@ -51,7 +51,7 @@ import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.InvalidCategoryException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -98,6 +98,13 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.client.HttpClientErrorException;
 
+
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
+import org.sakaiproject.time.api.Time;
+import java.util.ListIterator;
+import java.time.Instant;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
+
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -121,11 +128,13 @@ public class PublishAssessmentListener
   private RubricsService rubricsService;
   private TaskService taskService;
   private SamigoAvailableNotificationService samigoAvailableNotificationService;
+  private EventTrackingService eventTrackingService;
 
   public PublishAssessmentListener() {
     rubricsService = ComponentManager.get(RubricsService.class);
     taskService = ComponentManager.get(TaskService.class);
 	samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
+	eventTrackingService = ComponentManager.get(EventTrackingService.class);
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -271,13 +280,41 @@ public class PublishAssessmentListener
       ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
       extendedTimeFacade.copyEntriesToPub(pub.getData(), assessmentSettings.getExtendedTimes());
 
-      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_PUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+      eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_PUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+
+		/*
+		 *   UserNotification: check if event should be fired immediately or/and must be delayed --> subsequent events are handled by TestsAndQuizzesUserNotificationHandler
+		 */
+		List<ExtendedTime> extendedTimes = assessmentSettings.getExtendedTimes();
+		Instant instant = pub.getStartDate().toInstant();
+		if (instant.isBefore(Instant.now())) {
+			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+		} else {
+			Instant earliestDelayInstant = instant;
+			if(assessmentSettings.getExtendedTimesSize() != 0){
+				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
+				boolean postEvent = false;
+				while (it.hasNext()){
+					ExtendedTime exTime = (ExtendedTime) it.next();
+					Instant startInstant = exTime.getStartDate().toInstant();
+					if(startInstant.isBefore(Instant.now()) && !postEvent) {
+						postEvent = true;
+					} else if (startInstant.isBefore(instant)) {
+						earliestDelayInstant = startInstant;
+					}
+				}
+				if(postEvent) {
+					eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+				}
+			}
+			eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true), earliestDelayInstant);
+		}
 
       for (Object sectionObj : pub.getSectionSet()){
         PublishedSectionData sectionData = (PublishedSectionData) sectionObj;
         for (Object itemObj : sectionData.getItemSet()){
           PublishedItemData itemData = (PublishedItemData) itemObj;
-          EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemData.getItemIdString(), true));
+			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemData.getItemIdString(), true));
 
           try {
             Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
