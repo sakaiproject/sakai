@@ -20,9 +20,13 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cardgame.api.CardGameService;
 import org.sakaiproject.cardgame.api.model.CardGameStatItem;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.model.ProfileImage;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.webapi.beans.CardGameUserRestBean;
@@ -41,9 +45,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,10 +62,10 @@ public class CardGameController extends AbstractSakaiApiController {
     private static final int MIN_ATTEMPTS_DEFAULT = 5;
     private static final double MIN_HIT_RATIO_DEFAULT = 0.5;
     private static final boolean SHOW_OFFICIAL_PHOTO_DEFAULT = true;
+    private static final boolean SKIP_NO_IMAGE_USERS_DEFAULT = true;
     private static final String[] ALLOWED_ROLE_IDS_DEFAULT = new String[] { "access", "Student" };
     private static final String ROSTER_PERM_VIEW_HIDDEN = "roster.viewhidden";
     private static final String ROSTER_PERM_VIEW_ALL_MEMBERS = "roster.viewallmembers";
-
 
     @Autowired
     private SecurityService securityService;
@@ -75,16 +82,32 @@ public class CardGameController extends AbstractSakaiApiController {
     @Autowired
     private PrivacyManager privacyManager;
 
+    @Autowired
+    private ProfileImageLogic profileImageLogic;
+
+    private int minAttempts;
+    private double minHitRatio;
+    private boolean showOfficialPhoto;
+    private boolean skipNoImageUsers;
+
+
+    @PostConstruct
+    public void init() {
+        minAttempts = serverConfigurationService.getInt("cardgame.minAttempts", MIN_ATTEMPTS_DEFAULT);
+        minHitRatio = serverConfigurationService.getDouble("cardgame.minHitRatio", MIN_HIT_RATIO_DEFAULT);
+        showOfficialPhoto = serverConfigurationService.getBoolean("cardgame.showOfficialPhoto", SHOW_OFFICIAL_PHOTO_DEFAULT);
+        skipNoImageUsers = serverConfigurationService.getBoolean("cardgame.skipNoImageUsers", SKIP_NO_IMAGE_USERS_DEFAULT);
+    }
+
     @GetMapping(value = "/sites/{siteId}/card-game/config", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getConfig(@PathVariable String siteId) {
         checkSakaiSession();
         checkSite(siteId);
 
         HashMap<String, Object> config = new HashMap<>();
-        config.put("minAttempts", serverConfigurationService.getInt("cardgame.minAttempts", MIN_ATTEMPTS_DEFAULT));
-        config.put("minHitRatio", serverConfigurationService.getDouble("cardgame.minHitRatio", MIN_HIT_RATIO_DEFAULT));
-        config.put("showOfficialPhoto", serverConfigurationService.getBoolean("cardgame.showOfficialPhoto",
-                SHOW_OFFICIAL_PHOTO_DEFAULT));
+        config.put("minAttempts", minAttempts);
+        config.put("minHitRatio", minHitRatio);
+        config.put("showOfficialPhoto", showOfficialPhoto);
 
         return config;
     }
@@ -98,8 +121,24 @@ public class CardGameController extends AbstractSakaiApiController {
         HashMap<String, CardGameStatItem> statItems = cardGameService.findStatItemByPlayerId(currentUserId).stream()
                 .collect(Collectors.toMap(statItem -> statItem.getUserId(), statItem -> statItem, (prev, next) -> next, HashMap::new));
 
-        return userDirectoryService.getUsers(getVisibleUsersIds(currentUserId, site)).stream()
+        if(!skipNoImageUsers) {
+            log.debug("Not skipping any users for having default images");
+        }
+
+        Set<User> visibleUsers = userDirectoryService.getUsers(getVisibleUsersIds(currentUserId, site)).stream()
+                .filter(Objects::nonNull)
+                .filter(user -> {
+                    boolean skipUser = skipNoImageUsers && hasDefaultImage(user.getId(), siteId, showOfficialPhoto);
+                    if (skipUser) {
+                        log.debug("Skipping user[{}] with default image", user.getId());
+                    }
+
+                    return !skipUser;
+                })
                 .sorted(new UserSortNameComparator(true, true))
+                .collect(Collectors.toSet());
+
+        return visibleUsers.stream()
                 .map(user -> CardGameUserRestBean.of(user, statItems.get(user.getId())))
                 .collect(Collectors.toList());
     }
@@ -173,7 +212,7 @@ public class CardGameController extends AbstractSakaiApiController {
                     .map(Member::getUserId)
                     .collect(Collectors.toSet());
 
-            log.info("view all; users: {}", userIds.toArray());
+            log.debug("view all; users: {}", userIds.toArray());
             if (!securityService.unlock(userId, ROSTER_PERM_VIEW_HIDDEN, siteRef)) {
                 Set<String> hiddenUsersIds = privacyManager.findHidden(siteRef, userIds);
                 userIds.removeAll(hiddenUsersIds);
@@ -211,4 +250,19 @@ public class CardGameController extends AbstractSakaiApiController {
         return configuredAllowedRoles != null ? configuredAllowedRoles : ALLOWED_ROLE_IDS_DEFAULT;
     }
 
+    private Boolean hasDefaultImage(String userId, String siteId, boolean official) {
+        if (StringUtils.isAnyBlank(userId, siteId)) {
+            log.debug("blank userId or siteId");
+            return null;
+        }
+
+        ProfileImage profileImage;
+        if (official) {
+            profileImage = profileImageLogic.getOfficialProfileImage(userId, siteId);
+        } else {
+            profileImage = profileImageLogic.getProfileImage(userId, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+        }
+
+        return profileImage.isDefault();
+    }
 }
