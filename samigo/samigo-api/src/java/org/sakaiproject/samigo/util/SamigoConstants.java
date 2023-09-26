@@ -91,9 +91,7 @@ public final class SamigoConstants {
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT             = "sam.pubsetting.edit";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM              = "sam.pubassessment.unindexitem";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_RETRACTED                = "sam.pubassessment.retracted";
-    public static final     String      EVENT_PUBLISHED_ASSESSMENT_REPUBLISH_AVAILABLE      = "sam.pubassessment.republish.available";
-    public static final     String      EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT_BULLHORN    = "sam.pubsetting.edit.bullhorn";
-    public static final     String      EVENT_UPDATE_PUBLISHED_ASSESSMENT_OPENDATE          = "sam.pubassessment.update.opendate";
+
 
     //Question pool events
     public static final     String      EVENT_QUESTIONPOOL_QUESTIONMOVED                    = "sam.questionpool.questionmoved";
