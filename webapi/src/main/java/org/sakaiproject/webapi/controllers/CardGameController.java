@@ -65,7 +65,7 @@ public class CardGameController extends AbstractSakaiApiController {
     private static final int MIN_ATTEMPTS_DEFAULT = 5;
     private static final double MIN_HIT_RATIO_DEFAULT = 0.5;
     private static final boolean SHOW_OFFICIAL_PHOTO_DEFAULT = true;
-    private static final boolean SKIP_NO_IMAGE_USERS_DEFAULT = false;
+    private static final boolean SKIP_NO_IMAGE_USERS_DEFAULT = true;
     private static final String[] ALLOWED_ROLE_IDS_DEFAULT = new String[] { "access", "Student" };
     private static final String ROSTER_PERM_VIEW_HIDDEN = "roster.viewhidden";
     private static final String ROSTER_PERM_VIEW_ALL_MEMBERS = "roster.viewallmembers";
