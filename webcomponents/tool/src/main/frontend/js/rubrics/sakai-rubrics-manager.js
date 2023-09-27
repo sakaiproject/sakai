@@ -45,7 +45,10 @@ class SakaiRubricsManager extends RubricsElement {
       <div class="row">
         <div class="col-md-4 form-group">
           <label class="label-rubrics" for="rubrics-search-bar"><sr-lang key="search_rubrics">Search Rubrics by title or author</sr-lang></label>
-          <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup="${this.filterRubrics}">
+          <div class="position-relative">
+            <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup="${this.filterRubrics}">
+            <button id="rubrics-search-clear-button" class="position-absolute fa fa-times-circle" title="Clear Rubrics Search" aria-label="Clear Rubrics Search" @click="${this.clearRubricsSearch}"</button>
+          </div>
         </div>
       </div>
 
@@ -175,6 +178,13 @@ class SakaiRubricsManager extends RubricsElement {
     } else {
       this.siteRubricsExpanded = "false";
       icon.removeClass("fa-chevron-down").addClass("fa-chevron-right");
+    }
+  }
+
+  clearRubricsSearch() {
+    if ($("#rubrics-search-bar").val().length > 0) {
+      $("#rubrics-search-bar").val("");
+      this.filterRubrics();
     }
   }
 

@@ -97,6 +97,19 @@
         }
     }
 
+    #rubrics-search-bar {
+        padding: 6px 32px 6px 12px;
+    }
+
+    #rubrics-search-clear-button {
+
+        top: 16%;
+        margin-top: 5px;
+        right: 2px;
+        border: none;
+        background: none;
+    }
+    
     .btn.add-rubric {
         color: $rubrics-link-color;
     }
