@@ -101,7 +101,7 @@ public class EditAssessmentListener
 				  EventTrackingService.cancelDelays("siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), EVENT_ASSESSMENT_AVAILABLE);
 				  EventTrackingService.post(EventTrackingService.newEvent(EVENT_PUBLISHED_ASSESSMENT_RETRACTED,"siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId() ,true));
 			  }
-		  }catch (Exception e){
+		  } catch (Exception e) {
 			  log.warn("Could not get published Assessment for id {}", assessmentId);
 		  }
 	  }
