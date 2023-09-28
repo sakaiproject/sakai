@@ -286,7 +286,7 @@ implements ActionListener
 						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), newExTime.getStartDate().toInstant());
 					}
 				}
-			}else {
+			} else {
 				ListIterator<ExtendedTime> oldtimes = oldExtendedTimes.listIterator();
 				ListIterator<ExtendedTime> newtimes = assessmentSettings.getExtendedTimes().listIterator();
 				while (oldtimes.hasNext()) {
