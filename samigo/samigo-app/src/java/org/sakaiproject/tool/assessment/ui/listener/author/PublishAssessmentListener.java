@@ -294,7 +294,7 @@ public class PublishAssessmentListener
 			if (assessmentSettings.getExtendedTimesSize() != 0) {
 				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
 				boolean postEvent = false;
-				while (it.hasNext()){
+				while (it.hasNext()) {
 					ExtendedTime exTime = (ExtendedTime) it.next();
 					Instant startInstant = exTime.getStartDate().toInstant();
 					if (startInstant.isBefore(Instant.now()) && !postEvent) {
