@@ -89,7 +89,7 @@ import org.sakaiproject.time.api.Time;
 import java.util.ListIterator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ComponentManager;
+
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -109,7 +109,9 @@ implements ActionListener
 	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
 	private EventTrackingService eventTrackingService;
 
-	public SavePublishedSettingsListener() {}
+	public SavePublishedSettingsListener() {
+		eventTrackingService = ComponentManager.get(EventTrackingService.class);	
+	}
 
 	public void processAction(ActionEvent ae) throws AbortProcessingException
 	{
