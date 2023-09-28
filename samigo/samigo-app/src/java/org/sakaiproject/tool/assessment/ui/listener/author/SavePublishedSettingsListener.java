@@ -254,7 +254,7 @@ implements ActionListener
 	}
 
 
-	private void postUserNotification(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, List<ExtendedTime> oldExtendedTimes, Date oldStartDate){
+	private void postUserNotification(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, List<ExtendedTime> oldExtendedTimes, Date oldStartDate) {
 
 		if(assessment.getStatus() != AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS){
 			Date newStartDate = assessmentSettings.getStartDate();
