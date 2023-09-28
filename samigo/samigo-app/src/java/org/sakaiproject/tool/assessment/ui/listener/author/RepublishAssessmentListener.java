@@ -184,7 +184,7 @@ public class RepublishAssessmentListener implements ActionListener {
 		author.setOutcome("author");
 	}
 
-	private void postUserNotification(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings){
+	private void postUserNotification(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings) {
 
 		List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
 		Instant instant = assessment.getStartDate().toInstant();
