@@ -291,7 +291,7 @@ public class PublishAssessmentListener
 			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
 		} else {
 			Instant earliestDelayInstant = instant;
-			if(assessmentSettings.getExtendedTimesSize() != 0){
+			if (assessmentSettings.getExtendedTimesSize() != 0) {
 				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
 				boolean postEvent = false;
 				while (it.hasNext()){
