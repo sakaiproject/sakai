@@ -209,7 +209,7 @@ public class RepublishAssessmentListener implements ActionListener {
 					Instant startInstant = exTime.getStartDate().toInstant();
 					if(startInstant.isBefore(Instant.now())) {
 						eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
-					}else if(startInstant.isAfter(Instant.now()) && !instant.equals(startInstant)){
+					} else if(startInstant.isAfter(Instant.now()) && !instant.equals(startInstant)) {
 						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
 					}
 				}
