@@ -297,7 +297,7 @@ public class PublishAssessmentListener
 				while (it.hasNext()){
 					ExtendedTime exTime = (ExtendedTime) it.next();
 					Instant startInstant = exTime.getStartDate().toInstant();
-					if(startInstant.isBefore(Instant.now()) && !postEvent) {
+					if (startInstant.isBefore(Instant.now()) && !postEvent) {
 						postEvent = true;
 					} else if (startInstant.isBefore(instant)) {
 						earliestDelayInstant = startInstant;
