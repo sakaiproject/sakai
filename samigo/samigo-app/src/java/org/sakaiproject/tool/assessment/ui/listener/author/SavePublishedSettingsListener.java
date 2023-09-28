@@ -289,7 +289,7 @@ implements ActionListener
 			}else {
 				ListIterator<ExtendedTime> oldtimes = oldExtendedTimes.listIterator();
 				ListIterator<ExtendedTime> newtimes = assessmentSettings.getExtendedTimes().listIterator();
-				while(oldtimes.hasNext()){
+				while (oldtimes.hasNext()) {
 					ExtendedTime oldExTime = (ExtendedTime) oldtimes.next();
 					while (newtimes.hasNext()){
 						ExtendedTime newExTime = (ExtendedTime) newtimes.next();
