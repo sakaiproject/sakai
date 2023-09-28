@@ -53,6 +53,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
@@ -111,6 +112,11 @@ private boolean hideOneByOne= false;
 
 private String outcome;
 
+//S2U-16
+private boolean timedSection = false;
+//"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
+private Integer timedHours = 0;
+private Integer timedMinutes = 0;
 
 private List attachmentList;
 
@@ -957,5 +963,41 @@ private List attachmentList;
   public void setDiscountValueHasOverrided(boolean discountValueHasOverrided)
   {
       this.discountValueHasOverrided = discountValueHasOverrided;
+  }
+  
+  //S2U-16
+  public boolean isTimedSection() {
+      return this.timedSection;
+  }
+  
+  public void setTimedSection(boolean timed) {
+      this.timedSection = timed;
+  }
+
+  public void setTimedHours(Integer timedHours) {
+      this.timedHours = (timedHours != null) ? timedHours : 0;
+  }
+
+  public Integer getTimedHours() {
+      return timedHours;
+  }
+
+  public void setTimedMinutes(Integer timedMinutes) {
+      this.timedMinutes = (timedMinutes != null) ? timedMinutes : 0;
+  }
+
+  public Integer getTimedMinutes() {
+      return timedMinutes;
+  }
+  
+  //calculated
+  public Integer getTimeLimit() {
+      return timedHours*3600 + timedMinutes*60;
+  }
+
+  //calculated
+  public void setTimeLimit(Integer timeLimit) {
+      this.timedHours = timeLimit/60/60;
+      this.timedMinutes = (timeLimit/60)%60;
   }
 }

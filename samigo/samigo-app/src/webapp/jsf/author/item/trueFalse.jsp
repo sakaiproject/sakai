@@ -183,6 +183,9 @@
         </div>
     </div>
 
+    <!-- 4a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 5 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment'}">
         <h:panelGroup rendered="#{!author.isEditPoolFlow}">

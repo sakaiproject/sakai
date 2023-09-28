@@ -183,6 +183,12 @@ public class ItemBean
   private boolean hasFavoriteList=false;
   private ArrayList currentFavoriteList;
   
+  //S2U-16
+  private boolean timedQuestion = false;
+  //"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
+  private Integer timedHours = 0;
+  private Integer timedMinutes = 0;
+  
   private static final ResourceLoader RB_AUTHOR_MESSAGES = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");  
   
   /**
@@ -2002,4 +2008,40 @@ public class ItemBean
             return siteId;
         }
     }
+    
+	//S2U-16
+	public boolean isTimedQuestion() {
+		return this.timedQuestion;
+	}
+	
+	public void setTimedQuestion(boolean timed) {
+		this.timedQuestion = timed;
+	}
+
+	public void setTimedHours(Integer timedHours) {
+		this.timedHours = (timedHours != null) ? timedHours : 0;
+	}
+
+	public Integer getTimedHours() {
+		return timedHours;
+	}
+
+	public void setTimedMinutes(Integer timedMinutes) {
+		this.timedMinutes = (timedMinutes != null) ? timedMinutes : 0;
+	}
+
+	public Integer getTimedMinutes() {
+		return timedMinutes;
+	}
+	
+	//calculated
+	public Integer getTimeLimit() {
+		return timedHours*3600 + timedMinutes*60;
+	}
+
+	//calculated
+	public void setTimeLimit(Integer timeLimit) {
+		this.timedHours = timeLimit/60/60;
+		this.timedMinutes = (timeLimit/60)%60;
+	}
 }

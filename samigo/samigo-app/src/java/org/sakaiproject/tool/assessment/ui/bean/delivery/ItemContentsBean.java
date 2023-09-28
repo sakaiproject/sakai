@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -190,6 +192,8 @@ public class ItemContentsBean implements Serializable {
 	private String rubricStateDetails;
 	private boolean hasAssociatedRubric;
 	private String associatedRubricType;
+	
+	private Date attemptDate;
 
 	public ItemContentsBean() {
 	}
@@ -1735,6 +1739,126 @@ public class ItemContentsBean implements Serializable {
 
 	public boolean isCancellable() {
 		return ItemCancellationUtil.isCancellable(this.itemData);
+	}
+	
+	public boolean isTimedQuestion() {
+		String value = itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
+		return (StringUtils.isNotBlank(value) && !value.equalsIgnoreCase("false"));
+	}
+	
+	public String getTimeLimit() {
+		return itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
+	}
+	
+	public String getTimeLimitString() {
+		int seconds = Integer.parseInt(getTimeLimit());
+		int hour = 0;
+		int minute = 0;
+		if (seconds >= 3600) {
+			hour = Math.abs(seconds/3600);
+			minute = Math.abs((seconds-hour*3600)/60);
+		}
+		else {
+			minute = Math.abs(seconds/60);
+		}
+		StringBuilder sb = new StringBuilder();
+		if (hour > 1) {
+			sb.append(hour).append(" ").append(rb.getString("time_limit_hours"));
+		} else if (hour == 1) {
+			sb.append(hour).append(" ").append(rb.getString("time_limit_hour"));
+		}
+		if(sb.length() > 0) {
+			sb.append(" ");
+		}
+		if (minute > 1) {
+			sb.append(minute).append(" ").append(rb.getString("time_limit_minutes"));
+		} else if (minute == 1) {
+			sb.append(minute).append(" ").append(rb.getString("time_limit_minute"));
+		}
+		return sb.toString();
+	}
+	
+	public String getRealTimeLimit() {
+		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		return delivery.getTimeBeforeDueRetract(getTimeLimit(), getAttemptDate());
+	}
+	
+	public Date getAttemptDate() {
+		//if null get from first itemgrading
+		if(attemptDate == null) {
+			attemptDate = getItemGradingDataArray().stream().findFirst().orElse(new ItemGradingData()).getAttemptDate();
+		}
+		return attemptDate;
+	}
+	
+	public void setAttemptDate(Date attemptDate) {
+		this.attemptDate = attemptDate;
+	}
+	
+	/**
+	 * Check if current item is Enabled
+	 * -1: TimedQuestion, NOT started
+	 * 0: TimedQuestion, Time expired
+	 * 1: OK -> TimedQuestion, started and NOT expired, or NOT TimedQuestion
+	 * @return 
+	 */
+	public int getEnabled() {
+		if(!isTimedQuestion()) {
+			return 1;
+		}
+		
+		Date attemptDate = getAttemptDate();
+		if(attemptDate == null) {
+			return -1;
+		}
+		
+		String timeBeforeDueRetract = getRealTimeLimit();
+		long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + (Long.parseLong(timeBeforeDueRetract) * 1000);
+		Date endDate = new Date(adjustedTimedAssesmentDueDateLong);
+
+		Date now = new Date();
+		return now.before(endDate) ? 1 : 0;
+	}
+	
+	
+	public String getTimeElapsed() {
+		try {
+			Date start = getAttemptDate();
+			Date now = new Date();
+			long ret = now.getTime() - start.getTime();
+			return String.valueOf(ret/1000);
+		}catch(Exception e) {
+			return "0";
+		}
+	}
+	
+	public String startTimedQuestion() {
+		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		
+		Iterator<ItemGradingData> iter = getItemGradingDataArray().iterator();
+		ItemGradingData itemGradingData = null;
+		if (iter.hasNext()) {
+			//this should never happen!!
+			itemGradingData = iter.next();
+		} else {
+			itemGradingData = new ItemGradingData();
+			itemGradingData.setAssessmentGradingId(delivery.getAssessmentGradingId());
+			itemGradingData.setPublishedItemId(itemData.getItemId());
+			itemGradingData.setAgentId(AgentFacade.getAgentString());
+			ItemTextIfc itemText = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
+			itemGradingData.setPublishedItemTextId(itemText.getId());
+			List<ItemGradingData> items = getItemGradingDataArray();
+			items.add(itemGradingData);
+			setItemGradingDataArray(items);
+		}
+		
+		attemptDate = itemGradingData.getAttemptDate();
+		if(attemptDate == null) {
+			attemptDate = new Date();
+			itemGradingData.setAttemptDate(attemptDate);
+		}
+		
+		return delivery.samePage();
 	}
 }
 

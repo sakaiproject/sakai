@@ -70,6 +70,8 @@ public interface ItemMetaDataIfc
   public static final String SURVEY_YESNO= "YESNO";
   public static final String SURVEY_SCALEFIVE= "SCALEFIVE";
   public static final String SURVEY_SCALETEN= "SCALETEN";
+  
+  public static final String TIMED = "QUESTION_TIMED";
 
 
   Long getId();

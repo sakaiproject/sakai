@@ -35,6 +35,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -291,4 +292,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getUnSubmittedAssessmentGradingDataList(Long publishedAssessmentId, String agentIdString);
 
+  //S2U-16
+  public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId);
+  public void saveSectionGrading(SectionGradingData item);
 }

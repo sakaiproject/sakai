@@ -491,6 +491,10 @@ confirmation dialog
 
 	<br/>
 	<br/>
+
+    <!-- 5a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 6 PART -->
 	<h:panelGroup styleClass="form-group row" layout="block"
 					rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">		

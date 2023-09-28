@@ -598,14 +598,15 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * is best to study jsf/delivery/item/deliver*.jsp
 	 */
 	private void prepareItemGradingPerItem(ActionEvent ae, DeliveryBean delivery,
-			ItemContentsBean item, HashSet<ItemGradingData> adds, HashSet<ItemGradingData> removes) {
+			ItemContentsBean item, HashSet<ItemGradingData> alladds, HashSet<ItemGradingData> removes) {
 		List<ItemGradingData> grading = item.getItemGradingDataArray();
 		int typeId = item.getItemData().getTypeId().intValue();
+		HashSet<ItemGradingData> adds = new HashSet<>();
 		
-		//no matter what kinds of type questions, if it marks as review, add it in.
+		//no matter what kinds of type questions, if it marks as review or has attempt date, add it in.
 		for (int m = 0; m < grading.size(); m++) {
 			ItemGradingData itemgrading = grading.get(m);
-			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview())) {
+			if (itemgrading.getItemGradingId() == null && ((itemgrading.getReview() != null && itemgrading.getReview()) || itemgrading.getAttemptDate() != null)) {
 				adds.add(itemgrading);
 			} 
 		}
@@ -649,7 +650,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 						if (itemgrading.getPublishedAnswerId() != null
 							|| itemgrading.getAnswerText() != null
 							|| (itemgrading.getRationale() != null 
-								&& !itemgrading.getRationale().trim().equals(""))) { 
+								&& !itemgrading.getRationale().trim().equals(""))
+							|| itemgrading.getAttemptDate() != null) { 
 							// null=> skipping this question
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
@@ -658,6 +660,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 							}
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
+							adds.add(itemgrading);
+						}
+						else { 
 							adds.add(itemgrading);
 						}
 					}
@@ -677,7 +682,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				ItemGradingData itemgrading = grading.get(m);
 				if ((itemgrading.getItemGradingId() != null	&& itemgrading.getItemGradingId().intValue() > 0) ||
 					(itemgrading.getPublishedAnswerId() != null || itemgrading.getAnswerText() != null) ||
-					(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) {
+					(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) { //TODO: check attemptdate???
 					adds.addAll(grading);
 					break;
 				} 
@@ -695,7 +700,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						&& itemgrading.getItemGradingId().intValue() > 0) {
 					adds.addAll(grading);
 					break;
-				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
+				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {//TODO: check attemptdate???
 					// Change to allow student submissions in rich-text [SAK-17021]
 					itemgrading.setAnswerText(itemgrading.getAnswerText());
 					adds.addAll(grading);
@@ -728,7 +733,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						adds.add(itemgrading);
 				    }	
 				}
-				else if (s != null) {
+				else if (s != null) {//TODO: check attemptdate???
 					log.debug("New Itemgrading with AnswerText = {}", s);
 					// Change to allow student submissions in rich-text [SAK-17021]
 					itemgrading.setAnswerText(s);
@@ -744,7 +749,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 			break;
-		case 2: // MCMR
+		case 2: // MCMR //TODO: check attemptdate (where)???
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
 				if (itemgrading.getItemGradingId() != null
@@ -770,7 +775,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 			break;
-		case 14: // Extended Matching Item
+		case 14: // Extended Matching Item //TODO: check attemptdate (where)???
 			Long assessmentGradingId = delivery.getAssessmentGrading().getAssessmentGradingId();
                        	Long publishedItemId = item.getItemData().getItemId();
 			log.debug("Updating answer set for EMI question: publishedItemId={} grading.size()={} item id={} assessmentGradingId={}", publishedItemId, grading.size(), item.getItemData().getItemId(), assessmentGradingId);
@@ -806,7 +811,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			
 			break;
 		case 6: // File Upload
-		case 7: // Audio
+		case 7: // Audio //TODO: check attemptdate (where)???
 			GradingService gradingService = new GradingService();
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
@@ -819,7 +824,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			}
 			handleMarkForReview(grading, adds);
 			break;
-		case 13: //Matrix Choices question
+		case 13: //Matrix Choices question //TODO: check attemptdate (where)???
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
@@ -902,6 +907,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 		}
+		
+		if(item.isTimedQuestion()) {
+			adds.stream().forEach(itemGrading -> itemGrading.setAttemptDate(item.getAttemptDate()));
+		}
+		alladds.addAll(adds);
 	}
 
 	/**

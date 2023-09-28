@@ -261,6 +261,9 @@
 
     <hr class="itemSeparator" />
 
+    <!-- 5a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 6 PART -->
     <h:panelGroup rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}" layout="block" styleClass="form-group row">
         <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-control-label"/>
