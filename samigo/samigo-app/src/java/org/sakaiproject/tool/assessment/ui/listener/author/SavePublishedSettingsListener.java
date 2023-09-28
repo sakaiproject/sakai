@@ -280,7 +280,7 @@ implements ActionListener
 					flag = true;
 				}
 				ListIterator<ExtendedTime> newtimes = assessmentSettings.getExtendedTimes().listIterator();
-				while (newtimes.hasNext()){
+				while (newtimes.hasNext()) {
 					ExtendedTime newExTime = (ExtendedTime) newtimes.next();
 					if(newExTime.getStartDate().toInstant().isAfter(Instant.now())){
 						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), newExTime.getStartDate().toInstant());
