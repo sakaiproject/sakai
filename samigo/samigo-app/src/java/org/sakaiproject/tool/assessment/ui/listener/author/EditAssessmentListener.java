@@ -92,8 +92,10 @@ public class EditAssessmentListener
 
 
 	  //check if draft
-	  if((assessmentId != null && assessmentBean.getAssessment() == null) || (assessmentId != null && assessmentBean.getAssessment() != null && assessmentBean.getAssessment().getAssessmentBaseId() != null
-			  && !Long.toString(assessmentBean.getAssessment().getAssessmentBaseId()).equals(assessmentId))){
+	  if ((assessmentId != null && assessmentBean.getAssessment() == null)
+	      || (assessmentId != null && assessmentBean.getAssessment() != null
+	          && assessmentBean.getAssessment().getAssessmentBaseId() != null
+	          && !Long.toString(assessmentBean.getAssessment().getAssessmentBaseId()).equals(assessmentId))) {
 		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		  try {
 			  PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(assessmentId);
