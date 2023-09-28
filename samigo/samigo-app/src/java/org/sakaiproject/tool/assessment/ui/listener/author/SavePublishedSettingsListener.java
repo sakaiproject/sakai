@@ -293,7 +293,7 @@ implements ActionListener
 					ExtendedTime oldExTime = (ExtendedTime) oldtimes.next();
 					while (newtimes.hasNext()) {
 						ExtendedTime newExTime = (ExtendedTime) newtimes.next();
-						if(!newExTime.equals(oldExTime)){
+						if (!newExTime.equals(oldExTime)) {
 							if(!flag){
 								eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
 								flag = true;
