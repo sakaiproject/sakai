@@ -97,7 +97,7 @@ public class EditAssessmentListener
 		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		  try {
 			  PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(assessmentId);
-			  if(!Objects.equals(assessment.getStatus(), AssessmentIfc.RETRACT_FOR_EDIT_STATUS)){
+			  if (!Objects.equals(assessment.getStatus(), AssessmentIfc.RETRACT_FOR_EDIT_STATUS)) {
 				  EventTrackingService.cancelDelays("siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), EVENT_ASSESSMENT_AVAILABLE);
 				  EventTrackingService.post(EventTrackingService.newEvent(EVENT_PUBLISHED_ASSESSMENT_RETRACTED,"siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId() ,true));
 			  }
