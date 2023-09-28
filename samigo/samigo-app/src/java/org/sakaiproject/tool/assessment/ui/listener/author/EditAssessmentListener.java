@@ -95,7 +95,7 @@ public class EditAssessmentListener
 	  if((assessmentId != null && assessmentBean.getAssessment() == null) || (assessmentId != null && assessmentBean.getAssessment() != null && assessmentBean.getAssessment().getAssessmentBaseId() != null
 			  && !Long.toString(assessmentBean.getAssessment().getAssessmentBaseId()).equals(assessmentId))){
 		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		  try{
+		  try {
 			  PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(assessmentId);
 			  if(!Objects.equals(assessment.getStatus(), AssessmentIfc.RETRACT_FOR_EDIT_STATUS)){
 				  EventTrackingService.cancelDelays("siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), EVENT_ASSESSMENT_AVAILABLE);
