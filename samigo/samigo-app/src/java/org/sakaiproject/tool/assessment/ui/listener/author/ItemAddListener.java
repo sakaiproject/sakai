@@ -355,7 +355,7 @@ public class ItemAddListener implements ActionListener {
     }
     
     if(item.isTimedQuestion() && ((item.getTimeLimit().intValue()) == 0)){
-        err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "timeSelect_error");
+        err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "question_timeSelect_error");
         context.addMessage(null, new FacesMessage(err));
         return;
     }

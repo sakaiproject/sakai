@@ -28,7 +28,7 @@
                     </h:panelGroup>
                 </li>
             </ul>
-            <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info}" />
+            <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.question_timed_info}" />
         </div>
     </div>
 </f:subview>

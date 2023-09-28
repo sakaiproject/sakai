@@ -183,7 +183,7 @@ public class SavePartListener
 	  section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());
     
     if(sectionBean.isTimedSection() && ((sectionBean.getTimeLimit().intValue()) == 0)){
-        String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "timeSelect_error");
+        String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "part_timeSelect_error");
         context.addMessage(null, new FacesMessage(err));
         sectionBean.setOutcome("editPart");
         return;
