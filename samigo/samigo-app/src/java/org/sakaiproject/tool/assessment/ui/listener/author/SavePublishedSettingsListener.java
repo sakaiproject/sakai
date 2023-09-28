@@ -275,7 +275,7 @@ implements ActionListener
 			}
 			eventTrackingService.cancelDelays("siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),SamigoConstants.EVENT_ASSESSMENT_AVAILABLE);
 			if (assessmentSettings.getExtendedTimesSize() != oldExtendedTimes.size()) {
-				if(!flag){
+				if (!flag) {
 					eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
 					flag = true;
 				}
