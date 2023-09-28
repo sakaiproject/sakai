@@ -262,7 +262,7 @@ implements ActionListener
 			Boolean flag = false;
 
 
-			if(!newStartDate.equals(oldStartDate)){
+			if (!newStartDate.equals(oldStartDate)) {
 				eventTrackingService.cancelDelays("siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), SamigoConstants.EVENT_ASSESSMENT_AVAILABLE);
 				if (newStartDate.toInstant().isAfter(Instant.now())) {
 					eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), newStartDate.toInstant());
