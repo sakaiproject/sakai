@@ -1966,15 +1966,14 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
 
                 this.submittedAttachments = as.getAttachments().stream().map(ref -> {
-
-                        String id = entityManager.newReference(ref).getId();
-                        try {
-                            return new DecoratedAttachment(contentHostingService.getResource(id));
-                        } catch (Exception e) {
-                            log.info("There was an attachment on submission {} that was invalid", as.getId());
-                            return null;
-                        }
-                    }).collect(Collectors.toList());
+                    String id = entityManager.newReference(ref).getId();
+                    try {
+                        return new DecoratedAttachment(contentHostingService.getResource(id));
+                    } catch (Exception e) {
+                        log.warn("Failed to load attachment [{}] for submission [{}], {}", id, as.getId(), e.toString());
+                        return null;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
 
                 SecurityAdvisor securityAdvisor = (String userId, String function, String reference) -> {
 
