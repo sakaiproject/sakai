@@ -47,6 +47,7 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.tsugi.lti13.LTI13Util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.tsugi.util.Base62;
 import org.tsugi.http.HttpUtil;
 
 import org.sakaiproject.util.RequestFilter;
@@ -252,7 +253,7 @@ public class OIDCServlet extends HttpServlet {
 	 * @param response
 	 */
 	private void handleResignContentItemResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String forward = (String) request.getParameter("forward");
+		String forward = Base62.decode((String) request.getParameter("forward"));
 		forward = StringUtils.trimToNull(forward);
 
 		Long toolKey = SakaiBLTIUtil.getLongKey((String) request.getParameter("tool_id"));
