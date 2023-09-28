@@ -89,7 +89,7 @@ public class RepublishAssessmentListener implements ActionListener {
 	private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
 	private EventTrackingService eventTrackingService;
-	public RepublishAssessmentListener(){
+	public RepublishAssessmentListener() {
 		eventTrackingService = ComponentManager.get(EventTrackingService.class);
 	}
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
