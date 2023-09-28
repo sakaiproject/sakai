@@ -303,7 +303,7 @@ public class PublishAssessmentListener
 						earliestDelayInstant = startInstant;
 					}
 				}
-				if(postEvent) {
+				if (postEvent) {
 					eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
 				}
 			}
