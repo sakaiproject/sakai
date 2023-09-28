@@ -192,7 +192,7 @@ public class RepublishAssessmentListener implements ActionListener {
 			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
 			if(publishedAssessmentSettings.getExtendedTimesSize() != 0){
 				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
-				while (it.hasNext()){
+				while (it.hasNext()) {
 					ExtendedTime exTime = (ExtendedTime) it.next();
 					Instant startInstant = exTime.getStartDate().toInstant();
 					if(startInstant.isAfter(Instant.now())) {
