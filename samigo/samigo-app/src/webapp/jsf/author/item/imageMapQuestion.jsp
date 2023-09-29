@@ -40,13 +40,8 @@
       <script src="/samigo-app/js/selection.author.js"></script>
       <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
-<%--
-<script>
-<!--
-<%@ include file="/js/authoring.js" %>
-//-->
-</script>
---%>
+      <!-- AUTHORING -->
+      <script src="/samigo-app/js/authoring.js"></script>
 
 <script>
 

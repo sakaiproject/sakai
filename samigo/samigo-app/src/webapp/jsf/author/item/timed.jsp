@@ -1,3 +1,4 @@
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <f:subview id="timed">
     <%-- TIMED --%>
     <div class="form-group row">
