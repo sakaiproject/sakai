@@ -345,6 +345,6 @@ public class CardGameController extends AbstractSakaiApiController {
             profileImage = profileImageLogic.getProfileImage(userId, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
         }
 
-        return profileImage.isDefault();
+        return profileImage.isDefault() || profileImage.isInitials();
     }
 }
