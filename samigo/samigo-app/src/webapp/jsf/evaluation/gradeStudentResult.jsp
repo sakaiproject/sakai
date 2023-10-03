@@ -171,12 +171,12 @@ function toPoint(id)
 </h2>
 
 <h:panelGroup rendered="#{totalScores.isOneSelectionType}">
-  <fieldset>
-    <legend><h:outputText value="#{evaluationMessages.summary_title}" rendered="true" /></legend>
+  <fieldset class="short-summary-box">
+    <legend class="summary-title"><h:outputText value="#{evaluationMessages.summary_title}" rendered="true" /></legend>
     <ul>
-      <li><h4 style="display: inline;"><h:outputText value="#{evaluationMessages.correct_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][0]}" /></h4></li>
-      <li><h4 style="display: inline;"><h:outputText value="#{evaluationMessages.incorrect_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][1]}" /></h4></li>
-      <li><h4 style="display: inline;"><h:outputText value="#{evaluationMessages.empty_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][2]}" /></h4></li>
+      <li><h5 style="display: inline;"><h:outputText value="#{evaluationMessages.correct_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][0]}" /></h5></li>
+      <li><h5 style="display: inline;"><h:outputText value="#{evaluationMessages.incorrect_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][1]}" /></h5></li>
+      <li><h5 style="display: inline;"><h:outputText value="#{evaluationMessages.empty_title}" />: <h:outputText value="#{totalScores.results[studentScores.studentId][2]}" /></h5></li>
     <ul>
   </fieldset>
 </h:panelGroup>
