@@ -2606,7 +2606,6 @@ public class DeliveryBean implements Serializable {
                 if (itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
                   itemGradingData.add(itemgrading);
                   itemgrading.setPublishedAnswerId(null);
-                  itemgrading.setAttemptDate(item.getAttemptDate());
                 }
               }
               item.setItemGradingDataArray(itemGradingData);
@@ -2618,6 +2617,10 @@ public class DeliveryBean implements Serializable {
             }
             item.setReview(false);
             item.setRationale("");
+            
+            for (ItemGradingData itemgrading : item.getItemGradingDataArray()) {
+            	itemgrading.setAttemptDate(item.getAttemptDate());
+            }
           }
         }
 

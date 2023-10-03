@@ -76,6 +76,8 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+
 /**
  * <p>
  * Title: Samigo
@@ -682,7 +684,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				ItemGradingData itemgrading = grading.get(m);
 				if ((itemgrading.getItemGradingId() != null	&& itemgrading.getItemGradingId().intValue() > 0) ||
 					(itemgrading.getPublishedAnswerId() != null || itemgrading.getAnswerText() != null) ||
-					(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) { //TODO: check attemptdate???
+					(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) {
 					adds.addAll(grading);
 					break;
 				} 
@@ -700,7 +702,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						&& itemgrading.getItemGradingId().intValue() > 0) {
 					adds.addAll(grading);
 					break;
-				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {//TODO: check attemptdate???
+				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
 					// Change to allow student submissions in rich-text [SAK-17021]
 					itemgrading.setAnswerText(itemgrading.getAnswerText());
 					adds.addAll(grading);
@@ -723,7 +725,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				String s = itemgrading.getAnswerText();
 				if (itemgrading.getItemGradingId() != null
 						&& itemgrading.getItemGradingId().intValue() > 0) {
-					if ("1".equals(delivery.getNavigation()) && itemgrading.getPublishedAnswerId()==null && StringUtils.isBlank(s)) {
+					if (("1".equals(delivery.getNavigation()) || item.isTimedQuestion()) && itemgrading.getPublishedAnswerId()==null && StringUtils.isBlank(s)) {
 						//Mark this as the fake itemgrading record
 						fakeitemgrading=m;	 
 				    } else {
@@ -733,7 +735,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						adds.add(itemgrading);
 				    }	
 				}
-				else if (s != null) {//TODO: check attemptdate???
+				else if (s != null) {
 					log.debug("New Itemgrading with AnswerText = {}", s);
 					// Change to allow student submissions in rich-text [SAK-17021]
 					itemgrading.setAnswerText(s);
@@ -749,7 +751,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 			break;
-		case 2: // MCMR //TODO: check attemptdate (where)???
+		case 2: // MCMR
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
 				if (itemgrading.getItemGradingId() != null
@@ -775,7 +777,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 			break;
-		case 14: // Extended Matching Item //TODO: check attemptdate (where)???
+		case 14: // Extended Matching Item
 			Long assessmentGradingId = delivery.getAssessmentGrading().getAssessmentGradingId();
                        	Long publishedItemId = item.getItemData().getItemId();
 			log.debug("Updating answer set for EMI question: publishedItemId={} grading.size()={} item id={} assessmentGradingId={}", publishedItemId, grading.size(), item.getItemData().getItemId(), assessmentGradingId);
@@ -790,7 +792,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						itemgrading.setSubmittedDate(new Date());
 						adds.add(itemgrading);
 						log.debug("adding answer: " + itemgrading.getItemGradingId());
-					} else {
+					} else if(!item.isTimedQuestion() || grading.size() > 1){
 						removes.add(itemgrading);
 						log.debug("remove answer: " + itemgrading.getItemGradingId());
 					}
@@ -808,10 +810,22 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 			// We need to remove any answer (response) items in the storage that are not in the above lists
 			removes.addAll(identifyOrphanedEMIAnswers(grading, publishedItemId, assessmentGradingId));
+
+			if(item.isTimedQuestion() && grading.size() == 0) {
+				log.debug("Create a new (fake) ItemGradingData");
+				ItemGradingData itemGrading = new ItemGradingData();
+				itemGrading.setAssessmentGradingId(assessmentGradingId);
+				itemGrading.setAgentId(AgentFacade.getAgentString());
+				itemGrading.setPublishedItemId(publishedItemId);
+				ItemTextIfc itemText = (ItemTextIfc) item.getItemData().getItemTextSet().toArray()[0];
+				itemGrading.setPublishedItemTextId(itemText.getId());
+	
+				adds.add(itemGrading);
+			}
 			
 			break;
 		case 6: // File Upload
-		case 7: // Audio //TODO: check attemptdate (where)???
+		case 7: // Audio
 			GradingService gradingService = new GradingService();
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
@@ -824,7 +838,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			}
 			handleMarkForReview(grading, adds);
 			break;
-		case 13: //Matrix Choices question //TODO: check attemptdate (where)???
+		case 13: //Matrix Choices question
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
@@ -927,7 +941,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 		ItemGradingData data = grading.get(i);
 		itemsInGrading.add(data.getItemGradingId());
 	}
-		
     	GradingService gradingService = new GradingService();
     	List<ItemGradingData> data = gradingService.getAllItemGradingDataForItemInGrading(assessmentGradingId, publishedItemId);
     	log.debug("got " + data.size() + " answers from storage");
