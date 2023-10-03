@@ -500,6 +500,13 @@
 	.time-bar-button-container{
 		margin-bottom: 1em;
 	}
+
+	.tableofcontents {
+		label {
+			padding-left: 5px;
+			cursor:pointer;
+		}
+	}
 }
 
 .#{$namespace}sakai-samigo, .#{$namespace}toolBody--sakai-samigo {
