@@ -121,9 +121,8 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
-				if (GradeSummaryTablePanel.this.isGroupedByCategory) {
-					add(new AttributeAppender("class", " on"));
-				}
+				String iconCssClass = GradeSummaryTablePanel.this.isGroupedByCategory ? " si-check-square" : " si-empty-square";
+				add(new AttributeAppender("class", iconCssClass));
 				add(new AttributeModifier("aria-pressed", GradeSummaryTablePanel.this.isGroupedByCategory));
 			}
 
