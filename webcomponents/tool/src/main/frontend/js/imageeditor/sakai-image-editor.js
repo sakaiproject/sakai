@@ -9,17 +9,19 @@ export class SakaiImageEditor extends SakaiDialogContent {
 
     return {
       imageUrl: { attribute: "image-url", type: String },
+      _i18n: { attribute: false, type: Object },
     };
   }
 
   constructor() {
 
     super();
-    this.loadProperties("image-editor").then(r => this.i18n = r);
+
+    this.loadProperties("image-editor").then(r => this._i18n = r);
   }
 
   title() {
-    return this.i18n.title;
+    return this._i18n.title;
   }
 
   updated() {
@@ -92,25 +94,25 @@ export class SakaiImageEditor extends SakaiDialogContent {
       <input type="file" accept="image/*" value="Choose an image" @change=${this.filePicked} />
       <img id="image" src="${this.imageUrl}" width="200" />
       <div id="controls">
-        <sakai-button @click=${this.zoomIn} type="small" title="${this.i18n.zoom_in}" arial-label="${this.i18n.zoom_in}">
+        <sakai-button @click=${this.zoomIn} type="small" title="${this._i18n.zoom_in}" arial-label="${this._i18n.zoom_in}">
           <sakai-icon type="add"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.zoomOut} type="small" title="${this.i18n.zoom_out}" arial-label="${this.i18n.zoom_out}">
+        <sakai-button @click=${this.zoomOut} type="small" title="${this._i18n.zoom_out}" arial-label="${this._i18n.zoom_out}">
           <sakai-icon type="minus"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.up} type="small" title="${this.i18n.pan_up}" arial-label="${this.i18n.pan_up}">
+        <sakai-button @click=${this.up} type="small" title="${this._i18n.pan_up}" arial-label="${this._i18n.pan_up}">
           <sakai-icon type="up"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.down} type="small" title="${this.i18n.pan_down}" arial-label="${this.i18n.pan_down}">
+        <sakai-button @click=${this.down} type="small" title="${this._i18n.pan_down}" arial-label="${this._i18n.pan_down}">
           <sakai-icon type="down"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.left} type="small" title="${this.i18n.pan_left}" arial-label="${this.i18n.pan_left}">
+        <sakai-button @click=${this.left} type="small" title="${this._i18n.pan_left}" arial-label="${this._i18n.pan_left}">
           <sakai-icon type="left"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.right} type="small" title="${this.i18n.pan_right}" arial-label="${this.i18n.pan_right}">
+        <sakai-button @click=${this.right} type="small" title="${this._i18n.pan_right}" arial-label="${this._i18n.pan_right}">
           <sakai-icon type="right"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.rotate} type="small" title="${this.i18n.rotate}" arial-label="${this.i18n.rotate}">
+        <sakai-button @click=${this.rotate} type="small" title="${this._i18n.rotate}" arial-label="${this._i18n.rotate}">
           <sakai-icon type="refresh"></sakai-icon>
         </sakai-button>
       </div>
@@ -125,7 +127,7 @@ export class SakaiImageEditor extends SakaiDialogContent {
   }
 
   shouldUpdate(changed) {
-    return this.i18n && this.imageUrl && super.shouldUpdate(changed);
+    return this._i18n && this.imageUrl && super.shouldUpdate(changed);
   }
 
   static get styles() {
