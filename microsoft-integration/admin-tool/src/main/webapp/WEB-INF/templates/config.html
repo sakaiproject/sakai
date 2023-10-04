@@ -21,18 +21,15 @@
 						<input class="form-control" type='checkbox' th:id="|cb_${item.key}|" name="synch_config_items" th:checked="${item.value}" th:value="${item.key}" />
 						<label th:for="|cb_${item.key}|" th:text="#{|config.${item.key}|}"></label>
 						
-						<div id="newsite-container" th:if="${item.key} == 'SYNCH:CREATE_TEAM'">
-							<div th:classappend="${item.value} ? '' : 'hidden'"
-								th:insert="fragments/siteFilter :: siteFilter (prefix='siteFilter',columnClassName='col-md-2')">
-							</div>
-							<div>
-								<div class="row form-group">
-									<div class="col-md-2 text-right text-bold property-filter">
-										<label th:text="#{config.sync_duration}" for="syncDuration"></label>
-									</div>
-									<div class="col-md-4">
-										<input name="syncDuration" id="syncDuration" type="number" min="1" th:value="${syncDuration}" />
-									</div>
+						<div id="newsite-container" th:if="${item.key} == 'SYNCH:CREATE_TEAM'" th:classappend="${item.value} ? '' : 'hidden'">
+							<th:block th:replace="fragments/siteFilter :: siteFilter (prefix='siteFilter',columnClassName='col-xs-2')">
+							</th:block>
+							<div class="row form-group">
+								<div class="col-xs-2 text-right text-bold property-filter">
+									<label th:text="#{config.sync_duration}" for="syncDuration"></label>
+								</div>
+								<div class="col-xs-4">
+									<input name="syncDuration" id="syncDuration" type="number" min="1" th:value="${syncDuration}" />
 								</div>
 							</div>
 						</div>
