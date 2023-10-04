@@ -52,6 +52,7 @@ import javax.sql.DataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -419,7 +420,7 @@ public abstract class BasicSqlService implements SqlService
 	}
 
 	/** Used to work with dates in GMT in the db. */
-	protected final GregorianCalendar m_cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+	protected final GregorianCalendar m_cal = new GregorianCalendar(TimeZone.getTimeZone(ServerConfigurationService.getString("database.timezone", "GMT")));
 
 	/**
 	 * {@inheritDoc}
