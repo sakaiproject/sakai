@@ -144,14 +144,14 @@ export default {
 	mixins: [i18nMixin],
 	created () {
 		this.origin = window.location.origin;
-		this.startTimer()
+		this.startTimer();
 	},
 	data() {
 		return {
 			origin: "http://localhost:8080",
 			value: Math.max(this.timeLimit - this.timeElapsed, 0),
-			intervalId_1: null,
-			intervalId_2: null,
+			intervalId1: null,
+			intervalId2: null,
 			saveSended: false,
 			showProgress: true,
 			closedWarning: false
@@ -173,8 +173,8 @@ export default {
 			}
 
 			if(this.value <= 0){
-				clearInterval(this.intervalId_1);
-				clearInterval(this.intervalId_2);
+				clearInterval(this.intervalId1);
+				clearInterval(this.intervalId2);
 				this.sendEndMessage();
 			}
 		}
@@ -186,16 +186,16 @@ export default {
 		timeValue() {
 			const hours = String(Math.floor(this.value / 3600)).padStart(2, '0');
 			const minutes = String(Math.floor((this.value % 3600) / 60)).padStart(2, '0');
-			const seconds = String(this.value % 60).padStart(2, '0')
+			const seconds = String(this.value % 60).padStart(2, '0');
 			return `${hours}:${minutes}:${seconds}`;
 		},
 		computedColor() {
 			if (this.progressValue >= 50) {
-              return "success"
+              return "success";
           } else if (this.progressValue <= 25) {
-              return "danger"
+              return "danger";
           } else {
-              return "warning"
+              return "warning";
           }
 		},
 		showWarning() {
@@ -204,12 +204,14 @@ export default {
 	},
 	methods: {
 		startTimer() {
-			this.intervalId_1 = setInterval(() => {
+			//every second, update the timer
+			this.intervalId1 = setInterval(() => {
 				this.value -= 1;
 			}, 1000);
 
 			if(this.syncCall){
-				this.intervalId_2 = setInterval(this.synchronizeTimer, 60000);
+				//every minute, resync timer with backend
+				this.intervalId2 = setInterval(this.synchronizeTimer, 60000);
 			}
 		},
 		closeWarning() {
