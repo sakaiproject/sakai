@@ -1,6 +1,6 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {tr} from "./sakai-rubrics-language.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { tr } from "./sakai-rubrics-language.js";
 
 export class SakaiItemDelete extends RubricsElement {
 
@@ -10,8 +10,7 @@ export class SakaiItemDelete extends RubricsElement {
 
     this._rubric;
     this._criterion;
-
-    this.popoverOpen = "false";
+    this.loadTranslations("rubrics").then(r => this._i18n = r);
   }
 
   static get properties() {
@@ -20,8 +19,9 @@ export class SakaiItemDelete extends RubricsElement {
       rubricId: {attribute: "rubric-id", type: String},
       siteId: { attribute: "site-id", type: String },
       rubric: { type: Object },
-      criterionId: {attribute: "criterion-id", type: String},
-      criterion: { type: Object }
+      criterionId: { attribute: "criterion-id", type: String },
+      criterion: { type: Object },
+      _i18n: { attribute: false, type: Object },
     };
   }
 
@@ -47,91 +47,68 @@ export class SakaiItemDelete extends RubricsElement {
 
     return html`
       <button
-        class="btn-transparent link-color delete"
-        @focus="${this.onFocus}"
-        @focusout="${this.focusOut}"
-        aria-haspopup="true"
-        aria-expanded="${this.popoverOpen}"
-        aria-controls="delete_${this.type}_${this.item.id}"
-        title="${tr("remove", [this.item.title])}"
-        aria-label="${tr("remove", [this.item.title])}"
-        @keyup="${this.openEditWithKeyboard}"
-        @click="${this.deleteItem}"
-      >
-        <span class="fa fa-times"/>
+          class="btn btn-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#delete-${this.item.id}"
+          aria-controls="delete-${this.item.id}"
+          aria-expanded="false"
+          title="${tr("remove", [this.item.title])}"
+          aria-label="${tr("remove", [this.item.title])}"
+          @click=${this._stopPropagation}>
+        <span class="fa fa-times pe-none" style="pointer-events: none;"></span>
       </button>
 
-      <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left rubrics-popover">
-        <div class="arrow-0"></div>
-        <div class="popover-title" tabindex="0">${tr("confirm_remove")} ${this.item.title}</div>
-        <div class="popover-content">
-          <div class="buttons text-right act">
-            <button title="${tr("confirm_remove")}" class="active save" @click="${this.saveDelete}">
-              <sr-lang key="remove_label" />
-            </button>
-            <button class="btn btn-link btn-xs cancel" @click="${this.cancelDelete}">
-              <sr-lang key="cancel">Cancel</sr-lang>
-            </button>
+      <div id="delete-${this.item.id}"
+          tabindex="-1"
+          class="modal"
+          data-bs-backdrop="static"
+          aria-labelledby="delete-modal-label-${this.item.id}"
+          aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="delete-modal-label-${this.item.id}">
+                ${tr("delete_item_title", [ this.type === "criterion" ? this._i18n.criterion : this._i18n.rubric ])}
+              </h5>
+              <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="${tr("close_dialog")}">
+              </button>
+            </div>
+            <div class="modal-body">
+              <div>${tr("confirm_remove", [ this.item.title ])}</div>
+            </div>
+            <div class="modal-footer">
+              <div class="text-end">
+                <button type="button"
+                    class="btn btn-primary"
+                    title="${tr("confirm_remove")}"
+                    @click=${this.saveDelete}>
+                  <sr-lang key="remove_label" />
+                </button>
+                <button type="button"
+                    class="btn btn-secondary btn-xs"
+                    data-bs-dismiss="modal"
+                    @click=${this.cancelDelete}>
+                  <sr-lang key="cancel">Cancel</sr-lang>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     `;
   }
 
-  onFocus(e) {
-
-    const criterionRow = e.target.closest('.criterion-row');
-    if (criterionRow != undefined) criterionRow.classList.add("focused");
-  }
-
-  focusOut(e) {
-
-    const criterionRow = e.target.closest('.criterion-row');
-    if (criterionRow != undefined) criterionRow.classList.remove("focused");
-  }
-
-  closeOpen() {
-
-    $('.show-tooltip .cancel').click();
-  }
-
-  deleteItem(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!this.classList.contains("show-tooltip")) {
-      this.closeOpen();
-      this.popoverOpen = "true";
-
-      this.classList.add("show-tooltip");
-
-      const popover = $(`#delete_${this.type}_${this.item.id}`);
-
-      const target = this.querySelector(".fa-times");
-
-      popover[0].style.left = `${target.offsetLeft - 280  }px`;
-      popover[0].style.top = `${target.offsetTop - this.offsetHeight * 2 - 10  }px`;
-
-      $('.btn-danger').focus();
-
-      popover.show();
-
-    } else {
-      this.popoverOpen = "false";
-      this.hideToolTip();
-      $(`#delete_${this.type}_${this.item.id}`).hide();
-    }
-  }
-
   hideToolTip() {
-    this.classList.remove("show-tooltip");
+    bootstrap.Modal.getOrCreateInstance(this.querySelector(".modal")).hide();
   }
 
   cancelDelete(e) {
 
     e.stopPropagation();
     this.hideToolTip();
-    $(`#delete_${this.type}_${this.item.id}`).hide();
   }
 
   saveDelete(e) {
@@ -152,24 +129,14 @@ export class SakaiItemDelete extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        this.updateUi();
+
+        this.hideToolTip();
+        this.dispatchEvent(new CustomEvent('delete-item', { detail: this.item, bubbles: true, composed: true }));
       } else {
         throw new Error("Network error while deleting rubric/criterion");
       }
     })
     .catch (error => console.error(error));
-  }
-
-  updateUi() {
-
-    this.dispatchEvent(new CustomEvent('delete-item', {detail: this.item, bubbles: true, composed: true}));
-    this.hideToolTip();
-  }
-
-  openEditWithKeyboard(e) {
-    if (e.keyCode == 32) {
-      this.deleteItem(e);
-    }
   }
 }
 
