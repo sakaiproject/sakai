@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Vector;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -632,6 +633,8 @@ public class DbAnnouncementService extends BaseAnnouncementService
 
 	public List<AnnouncementMessage> getViewableAnnouncementsForSite(String channelRef, Integer maxAgeInDays) {
 
+		List<AnnouncementMessage> viewableAnnouncements = new Vector();
+
 		try {
 			ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
 			if (maxAgeInDays != null) {
@@ -643,6 +646,6 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		} catch (Exception e) {
 			log.warn("Failed to add announcements from site {}", channelRef, e);
 		}
-		return null;
+		return viewableAnnouncements;
 	}
 }
