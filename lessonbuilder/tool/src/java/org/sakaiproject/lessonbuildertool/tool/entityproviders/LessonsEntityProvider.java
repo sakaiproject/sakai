@@ -649,6 +649,23 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 			}
 		}
 	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = false)
+	public class DecoratedBreak extends DecoratedLesson {
+
+
+		private String format;
+
+
+		public DecoratedBreak(SimplePageItem item) {
+			super(item);
+
+			if (item != null) {
+				format = item.getFormat();
+			}
+		}
+	}
         
 	// For properties related to grading a DecoratedLesson
         @NoArgsConstructor
@@ -1007,6 +1024,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 			LessonBase lesson = null;
 			//check type
 			switch (item.getType()) {
+				case SimplePageItem.BREAK:
+					lesson = new DecoratedBreak(item);
+					break;
 				case SimplePageItem.QUESTION:
 					if ("multipleChoice".equals(item.getAttribute("questionType"))) {
 						lesson = new DecoratedMultipleChoiceQuestion(item,
