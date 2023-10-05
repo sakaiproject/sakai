@@ -418,8 +418,8 @@ public abstract class BasicSqlService implements SqlService
 		return false;
 	}
 
-	/** Used to work with dates in GMT in the db. */
-	protected final GregorianCalendar m_cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+	/** Used to work with dates in server's timezone or default GMT in the db. */
+	protected final GregorianCalendar m_cal = new GregorianCalendar(TimeZone.getTimeZone(System.getProperty("user.timezone", "GMT")));
 
 	/**
 	 * {@inheritDoc}
