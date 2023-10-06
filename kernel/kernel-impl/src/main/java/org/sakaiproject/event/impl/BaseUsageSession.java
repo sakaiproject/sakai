@@ -94,16 +94,13 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 		m_ip = result.getString(4);
 		m_hostname = result.getString(5);
 		m_userAgent = result.getString(6);
-		if(result.getString(7) != null && this.usageSessionServiceAdaptor != null && this.usageSessionServiceAdaptor.timeService() != null && this.usageSessionServiceAdaptor.sqlService() != null){
-			//m_start = this.usageSessionServiceAdaptor.timeService().newTime(result.getTimestamp(7, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
-			m_start = Instant.ofEpochMilli(result.getTimestamp(7, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime()); 
+		if (result.getString(7) != null) {
+			m_start = Instant.ofEpochMilli(result.getTimestamp(7).getTime());
 		}
-		if(result.getString(8) != null && this.usageSessionServiceAdaptor != null && this.usageSessionServiceAdaptor.timeService() != null && this.usageSessionServiceAdaptor.sqlService() != null){
-			//m_end = this.usageSessionServiceAdaptor.timeService().newTime(result.getTimestamp(8, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
-			m_end = Instant.ofEpochMilli(result.getTimestamp(8, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
+		if(result.getString(8) != null){
+			m_end = Instant.ofEpochMilli(result.getTimestamp(8).getTime());
 		}
-		Boolean isActive = result.getBoolean(9);
-		m_active = ((isActive != null) && isActive.booleanValue());
+		m_active = result.getBoolean(9);
 		setBrowserId(m_userAgent);
 	}
 

@@ -564,8 +564,8 @@ public abstract class DbAliasService extends BaseAliasService
 				String target = result.getString(2);
 				String createdBy = result.getString(3);
 				String modifiedBy = result.getString(4);
-				Time createdOn = timeService().newTime(result.getTimestamp(5, sqlService().getCal()).getTime());
-				Time modifiedOn = timeService().newTime(result.getTimestamp(6, sqlService().getCal()).getTime());
+				Time createdOn = timeService().newTime(result.getTimestamp(5).getTime());
+				Time modifiedOn = timeService().newTime(result.getTimestamp(6).getTime());
 
 				// create the Resource from these fields
 				return new BaseAliasEdit(id, target, createdBy, createdOn, modifiedBy, modifiedOn);

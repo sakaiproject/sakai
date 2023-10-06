@@ -42,10 +42,8 @@ import java.sql.Types;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.sql.DataSource;
@@ -416,18 +414,6 @@ public abstract class BasicSqlService implements SqlService
 		}
 
 		return false;
-	}
-
-	/** Used to work with dates in GMT in the db. */
-	protected final GregorianCalendar m_cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public GregorianCalendar getCal()
-	{
-		//KNL-637 Calendar is not thread safe so we can't use the shared object
-		return (GregorianCalendar)m_cal.clone();
 	}
 
 	/**
@@ -2174,15 +2160,15 @@ public abstract class BasicSqlService implements SqlService
 				}
 				else if (field instanceof Time) {
 					Time t = (Time) field;
-					sqlServiceSql.setTimestamp(pstmt, new Timestamp(t.getTime()), m_cal, pos);
+					sqlServiceSql.setTimestamp(pstmt, new Timestamp(t.getTime()), pos);
 				}
 				else if (field instanceof Date) {
 					Date d = (Date) field;
-					sqlServiceSql.setTimestamp(pstmt, new Timestamp(d.getTime()), m_cal, pos);
+					sqlServiceSql.setTimestamp(pstmt, new Timestamp(d.getTime()), pos);
 				}
 				else if (field instanceof Instant) {
 					Instant instant = (Instant) field;
-					sqlServiceSql.setTimestamp(pstmt, new Timestamp(instant.toEpochMilli()), m_cal, pos);
+					sqlServiceSql.setTimestamp(pstmt, new Timestamp(instant.toEpochMilli()), pos);
 				}
 				else if (field instanceof Long) {
 					long l = (Long) field;
