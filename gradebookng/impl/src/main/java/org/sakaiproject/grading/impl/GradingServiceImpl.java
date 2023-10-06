@@ -3327,7 +3327,7 @@ public class GradingServiceImpl implements GradingService {
                     cg.setMappedGrade(mappedGrade);
 
                     // points
-                    cg.setPointsEarned(gr.getPointsEarned()); // synonymous with gradeRecord.getCalculatedPointsEarned()
+                    cg.setPointsEarned(gr.getCalculatedPointsEarned());
                     cg.setTotalPointsPossible(gr.getTotalPointsPossible());
                 }
                 rval.put(gr.getStudentId(), cg);
