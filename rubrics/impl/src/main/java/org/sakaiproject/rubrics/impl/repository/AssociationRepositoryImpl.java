@@ -34,10 +34,16 @@ import javax.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItemRubricAssociation, Long> implements AssociationRepository {
+
+    @Autowired
+    private RubricRepository rubricRepository;
 
     public Optional<ToolItemRubricAssociation> findByToolIdAndItemId(String toolId, String itemId) {
 
@@ -91,31 +97,30 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         return session.createQuery(query).list();
     }
 
-    public int deleteBySiteId(String siteId) {
+    public ToolItemRubricAssociation save(ToolItemRubricAssociation assoc) {
 
-        Session session = sessionFactory.getCurrentSession();
+        Rubric rubric = assoc.getRubric();
+        List<ToolItemRubricAssociation> associations = rubric.getAssociations();
+        int index = associations.indexOf(assoc);
 
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<ToolItemRubricAssociation> query = cb.createQuery(ToolItemRubricAssociation.class);
-        Root<ToolItemRubricAssociation> root = query.from(ToolItemRubricAssociation.class);
-        Join<ToolItemRubricAssociation, Rubric> join = root.join("rubric");
-        query.where(cb.equal(join.get("ownerId"), siteId));
-        List<ToolItemRubricAssociation> associations = session.createQuery(query).list();
+        if (index != -1) {
+            associations.set(index, assoc);
+        } else {
+            associations.add(assoc);
+        }
 
-        associations.forEach(session::delete);
-
-        return associations.size();
+        rubric = rubricRepository.save(rubric);
+        if (index != -1) {
+            return rubric.getAssociations().get(index);
+        } else {
+            return rubric.getAssociations().get(rubric.getAssociations().size() - 1);
+        }
     }
 
-    public int deleteByRubricId(Long rubricId) {
+    public void delete(ToolItemRubricAssociation assoc) {
 
-        Session session = sessionFactory.getCurrentSession();
-
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaDelete<ToolItemRubricAssociation> delete = cb.createCriteriaDelete(ToolItemRubricAssociation.class);
-        Root<ToolItemRubricAssociation> ass = delete.from(ToolItemRubricAssociation.class);
-        delete.where(cb.equal(ass.get("rubric"), rubricId));
-        
-        return session.createQuery(delete).executeUpdate();
+        Rubric rubric = assoc.getRubric();
+        rubric.getAssociations().remove(assoc);
+        rubricRepository.save(rubric);
     }
 }

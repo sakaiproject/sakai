@@ -296,8 +296,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         // SAK-42944 removing the soft-deleted associations
         associationRepository.findByRubricId(rubricId).forEach(ass -> evaluationRepository.deleteByToolItemRubricAssociation_Id(ass.getId()));
 
-        associationRepository.deleteByRubricId(rubricId);
-
         rubricRepository.deleteById(rubricId);
     }
 
@@ -1047,6 +1045,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             if (securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteService.siteReference(assoc.getRubric().getOwnerId()))) {
                 try {
                     evaluationRepository.deleteByToolItemRubricAssociation_Id(assoc.getId());
+                    associationRepository.delete(assoc);
                 } catch (Exception e) {
                     log.warn("Error deleting rubric association for id {} : {}", itemId, e.toString());
                 }
@@ -1114,6 +1113,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         try {
             getRubricAssociationCheckPermission(tool, id).ifPresent(assoc -> {
+
                 evaluationRepository.deleteByToolItemRubricAssociation_Id(assoc.getId());
                 associationRepository.delete(assoc);
             });
@@ -1122,26 +1122,26 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
-    public String createContextualFilename(RubricTransferBean rubric, String toolId, String itemId, String evaluatedItemId, String siteId){
+    public String createContextualFilename(RubricTransferBean rubric, String toolId, String itemId, String evaluatedItemId, String siteId) {
+
         String filename = StringUtils.trimToEmpty(rubric.getTitle()).replace(".", "_");
         Optional<Evaluation> optEvaluation = Optional.empty();
+
         if (toolId != null && itemId != null && evaluatedItemId != null) {
             ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
                     .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
             optEvaluation = evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
         }
-        if(optEvaluation.isPresent()){
-        boolean showEvaluated = canViewEvaluation(optEvaluation.get(), siteId, false);
-            if (showEvaluated) {
-                Evaluation eval = optEvaluation.get();
-                String studentName = "";
-                try {
-                    studentName = userDirectoryService.getUser(eval.getEvaluatedItemOwnerId()).getSortName();
-                } catch (UserNotDefinedException ex) {
-                    log.error("No user for id {} : {}", eval.getEvaluatedItemOwnerId(), ex.toString());
-                }
-                filename = filename + '_' + studentName;
+
+        if (optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId, false)) {
+            Evaluation eval = optEvaluation.get();
+            String studentName = "";
+            try {
+                studentName = userDirectoryService.getUser(eval.getEvaluatedItemOwnerId()).getSortName();
+            } catch (UserNotDefinedException ex) {
+                log.error("No user for id {} : {}", eval.getEvaluatedItemOwnerId(), ex.toString());
             }
+            filename = filename + '_' + studentName;
         }
         return filename;
     }
@@ -1506,9 +1506,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     public boolean parseEntityReference(String reference, Reference ref) {
         return reference.startsWith(REFERENCE_ROOT);
     }
-    protected List<ToolItemRubricAssociation> getRubricAssociationByRubric(Long rubricId) {
-        return associationRepository.findByRubricId(rubricId);
-    }
 
     public void deleteSiteRubrics(String siteId) {
 
@@ -1516,7 +1513,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             throw new SecurityException("You must be a rubrics editor to delete a site's rubrics");
         }
 
-        associationRepository.deleteBySiteId(siteId);
         evaluationRepository.deleteByOwnerId(siteId);
         rubricRepository.deleteByOwnerId(siteId);
     }
