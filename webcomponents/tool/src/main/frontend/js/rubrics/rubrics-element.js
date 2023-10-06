@@ -93,4 +93,6 @@ export class RubricsElement extends SakaiElement {
     div && div.appendChild(summary);
     this.openRubricsTab(`rubric-${type}-summary-${this.instanceSalt}`);
   }
+
+  _stopPropagation(e) { e.stopPropagation(); }
 }

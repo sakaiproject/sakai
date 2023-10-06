@@ -1,5 +1,6 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
 import "./sakai-rubric.js";
 import { SharingChangeEvent } from "./sharing-change-event.js";
 
@@ -21,8 +22,8 @@ export class SakaiRubricsList extends RubricsElement {
 
     return {
       siteId: { attribute: "site-id", type: String },
-      rubrics: { attribute: false, type: Array },
       enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+      rubrics: { attribute: false, type: Array },
     };
   }
 
@@ -52,7 +53,7 @@ export class SakaiRubricsList extends RubricsElement {
     return html`
       <div role="presentation">
         <div role="tablist">
-        ${this.rubrics.map(r => html`
+        ${repeat(this.rubrics, r => r.id, r => html`
           <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric>
         `)}
         </div>

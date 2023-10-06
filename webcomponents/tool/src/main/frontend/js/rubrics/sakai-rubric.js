@@ -132,49 +132,45 @@ export class SakaiRubric extends RubricsElement {
         <div class="actions">
           ${!this.rubric.locked ? html`
             <div class="action-container">
-              <button
-                class="btn-transparent ${(this.rubric.draft && this.rubric.weighted && !this.validWeight) ? "disabled" : "link-color"} draft"
+              <button type="button"
+                class="btn btn-sm ${(this.rubric.draft && this.rubric.weighted && !this.validWeight) ? "disabled" : ""} draft"
                 title="${this.draftLabel}"
                 aria-label="${this.draftLabel}"
-                @keyup="${this.openEditWithKeyboard}"
-                @click="${this.draftChange}"
-              >
-                <span class="fa ${this.draftIcon}"/>
+                @keyup=${this.openEditWithKeyboard}
+                @click=${this.draftChange}>
+                <span class="fa ${this.draftIcon}"></span>
               </button>
             </div>
             <div class="action-container">
-              <button
-                class="btn-transparent link-color weighted"
-                title="${this.weightLabel}"
-                aria-label="${this.weightLabel}"
-                @keyup="${this.openEditWithKeyboard}"
-                @click="${this.weightedChange}"
-              >
-                <span class="fa ${this.weightedIcon}"/>
+              <button type="button"
+                  class="btn btn-sm weighted"
+                  title="${this.weightLabel}"
+                  aria-label="${this.weightLabel}"
+                  @keyup=${this.openEditWithKeyboard}
+                  @click=${this.weightedChange}>
+                <span class="fa ${this.weightedIcon}"></span>
               </button>
             </div>`
             : ""
           }
           <div class="action-container">
-            <button
-              class="btn-transparent link-color share"
-              title="${tr(this.shareTitleKey, [this.rubric.title])}"
-              aria-label="${tr(this.shareTitleKey, [this.rubric.title])}"
-              @keyup="${this.openEditWithKeyboard}"
-              @click="${this.sharingChange}"
-            >
-              <span class="fa ${this.shareIcon}"/>
+            <button type="button"
+                class="btn btn-sm share"
+                title="${tr(this.shareTitleKey, [this.rubric.title])}"
+                aria-label="${tr(this.shareTitleKey, [this.rubric.title])}"
+                @keyup=${this.openEditWithKeyboard}
+                @click=${this.sharingChange}>
+              <span class="fa ${this.shareIcon}"></span>
             </button>
           </div>
           <div class="action-container">
-            <button
-              class="btn-transparent link-color clone"
-              title="${tr("copy")} ${this.rubric.title}"
-              aria-label="${tr("copy")} ${this.rubric.title}"
-              @keyup="${this.openEditWithKeyboard}"
-              @click="${this.cloneRubric}"
-            >
-              <span class="fa fa-copy"/>
+            <button type="button"
+                class="btn btn-sm clone"
+                title="${tr("copy")} ${this.rubric.title}"
+                aria-label="${tr("copy")} ${this.rubric.title}"
+                @keyup=${this.openEditWithKeyboard}
+                @click=${this.cloneRubric}>
+              <span class="fa fa-copy"></span>
             </button>
           </div>
           ${!this.rubric.locked ? html`
@@ -192,8 +188,8 @@ export class SakaiRubric extends RubricsElement {
               <sakai-rubric-pdf
                 site-id="${this.siteId}"
                 rubric-title="${this.rubric.title}"
-                rubric-id="${this.rubric.id}"
-              />
+                rubric-id="${this.rubric.id}">
+              </sakai-rubric-pdf>
             </div>`
             : ""
           }
@@ -207,16 +203,16 @@ export class SakaiRubric extends RubricsElement {
             site-id="${this.rubric.ownerId}"
             .criteria="${this.rubric.criteria}"
             @save-weights="${this.handleSaveWeights}"
-            @weight-changed="${this.handleCriterionWeightChange}"
-            @refresh-total-weight="${this.handleRefreshTotalWeight}"
+            @weight-changed=${this.handleCriterionWeightChange}
+            @refresh-total-weight=${this.handleRefreshTotalWeight}
             .weighted=${this.rubric.weighted}
             total-weight="${this.totalWeight}"
             ?valid-weight="${this.validWeight}"
             max-points="${this.maxPoints}"
             min-points="${this.minPoints}"
             ?is-locked="${this.rubric.locked}"
-            ?is-draft="${this.rubric.draft}"
-          />
+            ?is-draft="${this.rubric.draft}">
+          </sakai-rubric-criteria
         </div>
       </div>
     `;
