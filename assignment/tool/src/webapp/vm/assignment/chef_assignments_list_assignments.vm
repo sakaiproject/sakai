@@ -696,13 +696,15 @@
 									#end
 								</td>
 								<!-- open col -->
-								<td>
+								<td headers="openDate" class="d-none d-sm-table-cell">
 									$!service.getUsersLocalDateTimeString($!assignment.CloseDate)
 								</td>
 								<!-- due col -->
 								<td>
 									<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.PeerAssessmentPeriodDate)</span>
 								</td>
+								<td headers="lastModifiedUser" class="d-none d-sm-table-cell"></td>
+								<td headers="lastModifiedDate" class="d-none d-sm-table-cell"></td>
 								<!-- the following are empty columns as place holders -->
 								#if ($!allowGradeSubmission)
 									#if ($!view.equals('lisofass1'))
@@ -757,11 +759,13 @@
 											#end
 										</td>
 										<!-- open col -->
-										<td>
+										<td headers="openDate" class="d-none d-sm-table-cell">
 										</td>
 										<!-- due col -->
 										<td>
 										</td>
+										<td headers="lastModifiedUser" class="d-none d-sm-table-cell"></td>
+										<td headers="lastModifiedDate" class="d-none d-sm-table-cell"></td>
 										<!-- the following are empty columns as place holders -->
 										#if ($!allowGradeSubmission)
 											#if ($!view.equals('lisofass1'))
