@@ -35,6 +35,18 @@ export class SakaiRubricReadonly extends SakaiRubric {
             <span class="fa fa-chevron-right"></span>
             ${this.rubric.title}
           </span>
+          ${this.rubric.draft ? html`
+            <span
+              tabindex="0"
+              role="tooltip"
+              title="${tr("draft_info")}"
+              aria-label="${tr("draft_info")}"
+              class="highlight bold icon-spacer"
+            >
+              ${tr("draft_label")}
+            </span>`
+            : ""
+          }
         </div>
 
         <div class="d-none d-sm-block rubric-site-title">${this.rubric.siteTitle}</div>
