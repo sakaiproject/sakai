@@ -13,7 +13,7 @@
 						<h4 class="modal-title" id="autoconfig-label" th:text="#{autoconfig_title}"></h4>
 					</div>
 
-					<div id="body-container" class="modal-body">
+					<div id="autoconfig-body-container" class="modal-body">
 						<div id="autoconfig-container">
 							<div th:replace="fragments/siteFilter :: siteFilter"></div>
 
@@ -44,16 +44,18 @@
 						</div>
 					</div>
 
-					<div id="autoconfig-footer-step-0" class="modal-footer act hidden">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{back}"></button>
-					</div>
-					<div id="autoconfig-footer-step-1" class="modal-footer act hidden">
-						<button type="button" class="active" onclick="sendAutoConfig()" th:text="#{start}"></button>
-						<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{cancel}"></button>
-					</div>
-					<div id="autoconfig-footer-step-2" class="modal-footer act hidden">
-						<button type="button" class="active" onclick="confirmAutoConfig()" th:text="#{confirm}"></button>
-						<button type="button" class="btn btn-secondary" onclick="openAutoConfig()" th:text="#{back}"></button>
+					<div id="autoconfig-footer">
+						<div id="autoconfig-footer-step-0" class="modal-footer act hidden">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{back}"></button>
+						</div>
+						<div id="autoconfig-footer-step-1" class="modal-footer act hidden">
+							<button type="button" class="active" onclick="sendAutoConfig()" th:text="#{start}"></button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{cancel}"></button>
+						</div>
+						<div id="autoconfig-footer-step-2" class="modal-footer act hidden">
+							<button type="button" class="active" onclick="confirmAutoConfig()" th:text="#{confirm}"></button>
+							<button type="button" class="btn btn-secondary" onclick="openAutoConfig()" th:text="#{back}"></button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -221,13 +223,14 @@
 				//disable "start" button
 				document.getElementById('autoconfig-footer-step-1').querySelector("button.active").disabled = true;
 				//add loading
-				var bodyContainer = document.getElementById("body-container");
+				var bodyContainer = document.getElementById("autoconfig-body-container");
 				var loading = setLoading(bodyContainer);
 
 				const response = await fetch(url, {
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/json'
+						'Content-Type': 'application/json',
+						'Accept': 'application/json'
 					},
 					body: JSON.stringify(
 						{
@@ -241,6 +244,19 @@
 							teamPattern: teamPattern
 						})
 				});
+
+				if(!response.ok){
+					let data = await response.json();
+					if (data.status == false) {
+						let errorDiv = createError(container);
+						errorDiv.innerHTML = data.error;
+						container.classList.remove("hidden");
+						document.getElementById('autoconfig-footer').classList.add("hidden");
+						loading.remove();
+					}
+					return;
+				}
+
 				let content = await response.text();
 
 				let confirm = document.getElementById('autoconfig-confirm');
