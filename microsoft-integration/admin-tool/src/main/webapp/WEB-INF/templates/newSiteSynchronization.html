@@ -156,20 +156,42 @@
 
 			async function doRefresh(id, forced) {
 				var teamsContainer = document.getElementById(id);
+				
 				var teamsList = document.getElementById('teams-list');
+				if(teamsList){
+					teamsList.innerHTML = '';
+					teamsList.classList.add('hidden');
+				}
 
-				teamsList.innerHTML = '';
-				teamsList.classList.add('hidden');
 				var spinner = setLoading(teamsContainer);
 
 				let baseURL = "[(@{/refreshTeams})]";
 				let url = baseURL + ((forced) ? '?forced=true' : '');
-				let response = await fetch(url);
+				let response = await fetch(url, {
+						method: 'GET',
+						headers: {
+								'Accept': 'application/json',
+						},
+				});
+				
+				if(!response.ok){
+					let data = await response.json();
+					if (data.status == false) {
+						let errorMicrosoftDiv = createError(teamsContainer);
+						errorMicrosoftDiv.innerHTML = data.error;
+						spinner.remove();
+					}
+					return;
+				}
+				
 				let data = await response.text();
 
 				spinner.remove();
-				teamsList.innerHTML = data;
-				teamsList.classList.remove('hidden');
+
+				if(teamsList){
+					teamsList.innerHTML = data;
+					teamsList.classList.remove('hidden');
+				}
 			};
 
 			async function filterSites(clear) {
