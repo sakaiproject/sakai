@@ -3838,6 +3838,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (StringUtils.isNotBlank(assignmentAssociateGradebook)) {
                 String gradebookUid = toolManager.getCurrentPlacement().getContext();
                 // If the assignment reference is not equal to the associated gradebook item, then a custom gb item is being used
+                // S2U-34 In the 22x version this check was looking if the retrieved object from the gradingservice is null, now we check if an exception is thrown
                 if (!assignmentRef.equals(assignmentAssociateGradebook)) {
                     try {
                         org.sakaiproject.grading.api.Assignment gbAssignment = gradingService.getAssignment(gradebookUid,
