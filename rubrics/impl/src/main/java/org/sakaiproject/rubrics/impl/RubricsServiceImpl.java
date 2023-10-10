@@ -23,6 +23,7 @@
 package org.sakaiproject.rubrics.impl;
 
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_CONFIG;
+import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_MULTIPLE_OPTIONS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
 
 import java.awt.Color;
@@ -85,6 +86,8 @@ import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RatingRepository;
 import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -679,21 +682,26 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     @Transactional(readOnly = true)
-    public Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId) {
+    public Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId(String toolId, String itemId, String evaluatedItemId, String evaluatedItemOwnerId, String siteId, boolean isPeer) {
 
         ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
             .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
+        Optional<Evaluation> optEval = null;
+        if (evaluatedItemOwnerId == null) {
+            optEval = evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
+        } else {
+            optEval = evaluationRepository.findByAssociationIdAndEvaluatedItemIdAndOwner(association.getId(), evaluatedItemId, evaluatedItemOwnerId);
+        }
 
-        return evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId)
-            .map(eval -> {
+        return optEval.map(eval -> {
+            if (canViewEvaluation(eval, siteId, isPeer)) {
+                return new EvaluationTransferBean(eval);
+            } else {
+                return null;
+            }
+        });
 
-                if (canViewEvaluation(eval, siteId)) {
-                    return new EvaluationTransferBean(eval);
-                } else {
-                    return null;
-                }
-            });
-    }
+	}
 
     public boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId) {
 
@@ -716,7 +724,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         Map<String, User> userMap = userDirectoryService.getUsers(userIds).stream().collect(Collectors.toMap(Entity::getId, u -> u));
         return evaluationRepository.findByAssociationId(association.getId())
             .stream()
-            .filter(eval -> canViewEvaluation(eval, siteId))
+            .filter(eval -> canViewEvaluation(eval, siteId, false))
             .map(e -> {
 
                 EvaluationTransferBean bean = new EvaluationTransferBean(e);
@@ -729,7 +737,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId) {
 
-        if (!isEvaluator(siteId)) {
+        if (!canGrade(evaluationBean, siteId)) {
             throw new SecurityException("You must be an evaluator to evaluate rubrics");
         }
 
@@ -862,14 +870,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     public boolean hasAssociatedRubric(String tool, String id) {
-        return hasAssociatedRubric(tool, id, toolManager.getCurrentPlacement().getContext());
-    }
-
-    public boolean hasAssociatedRubric(String tool, String id, String siteId) {
 
         if (StringUtils.isBlank(id)) return false;
 
-        return associationRepository.findByToolIdAndItemId(tool, id).filter(canEvaluate.or(canEdit).or(isCreator)).isPresent();
+        // S2U-34 This is bypassing the permission check as it's needed for peer review
+        return getRubricAssociation(tool, id).isPresent();
     }
 
     public Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, final Map<String, String> params) {
@@ -878,7 +883,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             final String optionRubricId = Optional.ofNullable(params.get(RubricsConstants.RBCS_LIST)).orElse(StringUtils.EMPTY);
             final String optionRubricAssociate = Optional.ofNullable(params.get(RubricsConstants.RBCS_ASSOCIATE)).orElse(StringUtils.EMPTY);
-            final Optional<ToolItemRubricAssociation> existingAssociation = getRubricAssociation(toolId, toolItemId);
+            final Optional<ToolItemRubricAssociation> existingAssociation = getRubricAssociationCheckPermission(toolId, toolItemId);
 
             Long requestedRubricId = NumberUtils.toLong(optionRubricId);
 
@@ -977,20 +982,24 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      * @return
      */
 
-    private Map<String, Boolean> setConfigurationParameters(Map<String, String> params, Map<String,Boolean> oldParams) {
+    private Map<String, Integer> setConfigurationParameters(Map<String, String> params, Map<String, Integer> oldParams) {
 
-        Map<String, Boolean> merged = new HashMap<>();
+        Map<String, Integer> merged = new HashMap<>();
 
         //Get the parameters
         params.forEach((k, v) -> {
             if (k.startsWith(RBCS_CONFIG)) {
-                merged.put(StringUtils.remove(k, RBCS_CONFIG), BooleanUtils.toBooleanObject(v));
+                merged.put(StringUtils.remove(k, RBCS_CONFIG), Integer.valueOf(v));
+            } else if (k.startsWith(RBCS_MULTIPLE_OPTIONS_CONFIG)) {
+                merged.put(StringUtils.remove(k, RBCS_MULTIPLE_OPTIONS_CONFIG), Integer.valueOf(v));
+            } else if (!k.startsWith(RubricsConstants.RBCS_LIST) && !k.startsWith(RubricsConstants.RBCS_ASSOCIATE)) {//duplicate or migrate
+                merged.put(k, Integer.valueOf(v));
             }
         });
 
         oldParams.keySet().stream()
-                .filter(name -> !(params.containsKey(RBCS_CONFIG + name)))
-                .forEach(name -> merged.put(name, Boolean.FALSE));
+                .filter(name -> !(params.containsKey(RBCS_CONFIG + name)) && !(params.containsKey(RBCS_MULTIPLE_OPTIONS_CONFIG + name)))
+                .forEach(name -> merged.put(name, 0));
         return merged;
     }
 
@@ -1002,7 +1011,12 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      */
     @Transactional(readOnly = true)
     public Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId, String associatedToolItemId) {
-        return associationRepository.findByToolIdAndItemId(toolId, associatedToolItemId).filter(canEdit.or(isCreator));
+        return associationRepository.findByToolIdAndItemId(toolId, associatedToolItemId);
+    }
+
+    @Transactional(readOnly = true)
+    private Optional<ToolItemRubricAssociation> getRubricAssociationCheckPermission(String toolId, String associatedToolItemId) {
+        return getRubricAssociation(toolId, associatedToolItemId).filter(canEdit.or(isCreator).or(canEvaluate));
     }
 
     @Transactional(readOnly = true)
@@ -1015,7 +1029,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         Optional<Evaluation> optEvaluation = evaluationRepository.findByAssociationIdAndUserId(optAssociation.get().getId(), userId);
 
-        if (optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId)) {
+        if (optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId, false)) {
             return optEvaluation.get().getEvaluatedItemId();
         } else {
             return null;
@@ -1045,7 +1059,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         associationRepository.findByItemIdPrefix(toolId, itemId).forEach(assoc -> {
 
             try {
-                assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, true);
+                assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, 0);
                 associationRepository.save(assoc);
             } catch (Exception e) {
                 log.warn("Error soft deleting rubric association for item id prefix {} : {}", itemId, e.toString());
@@ -1058,7 +1072,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         associationRepository.findByToolIdAndItemId(toolId, itemId).ifPresent(assoc -> {
 
             try {
-                assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, false);
+                assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, 0);
                 associationRepository.save(assoc);
             } catch (Exception e) {
                 log.warn("Error restoring rubric association for item id {} : {}", itemId, e.toString());
@@ -1071,7 +1085,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         associationRepository.findByItemIdPrefix(toolId, itemId).forEach(assoc -> {
 
             try {
-                assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, false);
+                assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, 0);
                 associationRepository.save(assoc);
             } catch (Exception e) {
                 log.warn("Error soft deleting rubric association for item id prefix {} : {}", itemId, e.toString());
@@ -1085,10 +1099,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public void softDeleteRubricAssociation(String toolId, String id) {
 
-        getRubricAssociation(toolId, id).ifPresent(assoc -> {
+        getRubricAssociationCheckPermission(toolId, id).ifPresent(assoc -> {
 
             try {
-                assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, true);
+                assoc.getParameters().put(RubricsConstants.RBCS_SOFT_DELETED, 1);
                 associationRepository.save(assoc);
             } catch (Exception e) {
                 log.warn("Error soft deleting rubric association for tool {} and id {} : {}", toolId, id, e.toString());
@@ -1099,7 +1113,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     public void deleteRubricAssociation(String tool, String id) {
 
         try {
-            getRubricAssociation(tool, id).ifPresent(assoc -> {
+            getRubricAssociationCheckPermission(tool, id).ifPresent(assoc -> {
                 evaluationRepository.deleteByToolItemRubricAssociation_Id(assoc.getId());
                 associationRepository.delete(assoc);
             });
@@ -1117,7 +1131,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             optEvaluation = evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
         }
         if(optEvaluation.isPresent()){
-            boolean showEvaluated = canViewEvaluation(optEvaluation.get(), siteId);
+        boolean showEvaluated = canViewEvaluation(optEvaluation.get(), siteId, false);
             if (showEvaluated) {
                 Evaluation eval = optEvaluation.get();
                 String studentName = "";
@@ -1154,7 +1168,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         double points = 0;
         String studentName = "";
         String itemName = "";
-        boolean showEvaluated = optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId);
+        boolean showEvaluated = optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId, false);
 
         if (showEvaluated) {
             Evaluation eval = optEvaluation.get();
@@ -1542,7 +1556,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUEE, siteRef);
     }
 
-    private boolean canViewEvaluation(Evaluation eval, String siteId) {
+    private boolean canViewEvaluation(Evaluation eval, String siteId, boolean isPeer) {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();
 
@@ -1551,11 +1565,41 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
 
         if (isEvaluee(siteId)) {
-            if (eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.USER && currentUserId.equals(eval.getEvaluatedItemOwnerId())) {
-                return true;
+            if (eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.USER) {
+                if (currentUserId.equals(eval.getEvaluatedItemOwnerId())) {//evals made to my submission
+                    return true;
+                }
+                if (isPeer && currentUserId.equals(eval.getEvaluatedItemId())) {//self or peer evals assigned to me
+                    return true;
+                }
             }
             if (eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.GROUP) {
-                return authzGroupService.getUserRole(currentUserId, eval.getEvaluatedItemOwnerId()) != null;
+                if (authzGroupService.getUserRole(currentUserId, "/site/" + siteId + "/group/" + eval.getEvaluatedItemOwnerId()) != null) {//evals made to my group submission
+                    return true;
+                }
+                if (isPeer && authzGroupService.getUserRole(currentUserId, "/site/" + siteId + "/group/" + eval.getEvaluatedItemId()) != null) {//peer evals assigned to my group
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean canGrade(EvaluationTransferBean eval, String siteId) {
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+
+        if (isEvaluator(siteId)) {
+            return true;
+        }
+
+        if (eval.isPeerOrSelf()) {
+            if (eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.USER && currentUserId.equals(eval.getEvaluatedItemId())) {//self or peer evals assigned to me
+                return true;
+            }
+            if (eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.GROUP) {//peer evals assigned to my group
+                return authzGroupService.getUserRole(currentUserId, "/site/" + siteId + "/group/" + eval.getEvaluatedItemId()) != null;
             }
         }
 

@@ -31,6 +31,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       entityId: { attribute: "entity-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
       evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
+      isPeerOrSelf: { attribute: "is-peer-or-self", type: Boolean },
+      isPeerGroupGraded: { attribute: "is-peer-group-graded", type: Boolean },
       group: { type: Boolean},
       enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
 
@@ -114,7 +116,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
         </select>
 
         <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-2">
-          ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
+          ${this.evaluation && this.evaluation.status === "DRAFT" && !this.isPeerOrSelf ? html`
           <div class="sak-banner-warn">
             ${tr('draft_evaluation', [tr(`draft_evaluation_${this.toolId}`)])}
           </div>
@@ -315,7 +317,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       this.totalPoints = this.totalPoints + criterion.pointoverride;
     }
 
-    this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
     const detail = {
       evaluatedItemId: this.evaluatedItemId,
       entityId: this.entityId,
@@ -344,7 +345,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     });
 
     const evaluation = {
-      evaluatorId: getUserId(),
+      evaluatorId: this.isPeerGroupGraded ? this.evaluatedItemId : getUserId(),
       id: this.evaluation.id,
       evaluatedItemId: this.evaluatedItemId,
       evaluatedItemOwnerId: this.evaluatedItemOwnerId,
@@ -352,6 +353,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       overallComment: "",
       criterionOutcomes: crit,
       associationId: this.association.id,
+      peerOrSelf: this.isPeerOrSelf,
       status,
     };
 
@@ -377,6 +379,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     })
     .then(data => {
 
+      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
       this.evaluation = data;
       return Promise.resolve(this.evaluation);
     })
@@ -439,7 +442,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     // remove the strike out from the clicked points value
     this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
 
-    this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
     this.requestUpdate();
     this.updateTotalPoints();
 
@@ -548,8 +550,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
               this.criteria = this.rubric.criteria;
               this.criteria.forEach(c => {
 
-                c.pointoverride = "";
-
                 if (!c.selectedvalue) {
                   c.selectedvalue = 0;
                 }
@@ -557,6 +557,11 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
               });
 
               this.decorateCriteria();
+
+              if (this.isPeerOrSelf) { // For self-review buttons locking
+                this.dispatchEvent(new CustomEvent('rubrics-grading-loaded', {bubbles: true, composed: true}));
+                this.updateComplete.then(() => this.dispatchEvent(new CustomEvent('rubric-ratings-changed', {bubbles: true, composed: true})));
+              }
             })
             .catch(error => console.error(error));
         } else {

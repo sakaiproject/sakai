@@ -7,6 +7,7 @@
         class="org.sakaiproject.assignment.tool.AssignmentToolUtils">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
