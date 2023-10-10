@@ -873,6 +873,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         if (StringUtils.isBlank(id)) return false;
 
+        // S2U-34 This is bypassing the permission check as it's needed for peer review
         return getRubricAssociation(tool, id).isPresent();
     }
 
