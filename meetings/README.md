@@ -94,7 +94,11 @@ https://docs.microsoft.com/en-us/graph/cloud-communication-online-meeting-applic
     Grant-CsApplicationAccessPolicy -PolicyName Test-policy -Global
 
 ### Access to Protected APIs
-To get Microsoft chat messages using application permissions, we need to request access to this protected API: https://learn.microsoft.com/en-us/graph/teams-protected-apis
+~~To get Microsoft chat messages using application permissions, we need to request access to this protected API: https://learn.microsoft.com/en-us/graph/teams-protected-apis~~
+Request to protected APIs is no longer needed. Everything should work as long as these requirements are accomplished: https://learn.microsoft.com/en-us/graph/auth-v2-service?tabs=http
+
+## Global Microsoft README
+Remember to set all Microsoft related configuration according to: [microsoft-integration/README.md](../microsoft-integration/README.md)
 
 ## Future plans and Roadmap
 
