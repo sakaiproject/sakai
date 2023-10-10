@@ -30,6 +30,7 @@ import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -631,6 +632,40 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	        }
 	    }
 	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = false)
+	public class DecoratedResourceFolder extends DecoratedLesson {
+
+
+		private String dataDirectory;
+
+
+		public DecoratedResourceFolder(SimplePageItem item) {
+			super(item);
+
+			if (item != null) {
+				dataDirectory = item.getAttribute("dataDirectory");
+			}
+		}
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = false)
+	public class DecoratedBreak extends DecoratedLesson {
+
+
+		private String format;
+
+
+		public DecoratedBreak(SimplePageItem item) {
+			super(item);
+
+			if (item != null) {
+				format = item.getFormat();
+			}
+		}
+	}
         
 	// For properties related to grading a DecoratedLesson
         @NoArgsConstructor
@@ -989,6 +1024,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 			LessonBase lesson = null;
 			//check type
 			switch (item.getType()) {
+				case SimplePageItem.BREAK:
+					lesson = new DecoratedBreak(item);
+					break;
 				case SimplePageItem.QUESTION:
 					if ("multipleChoice".equals(item.getAttribute("questionType"))) {
 						lesson = new DecoratedMultipleChoiceQuestion(item,
@@ -1027,6 +1065,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 					break;
 				case SimplePageItem.RESOURCE:
 					lesson = new DecoratedResource(item);
+					break;
+				case SimplePageItem.RESOURCE_FOLDER:
+					lesson = new DecoratedResourceFolder(item);
 					break;
 				case SimplePageItem.ASSIGNMENT:
 					lesson = new GradedDecoratedLesson(item);
