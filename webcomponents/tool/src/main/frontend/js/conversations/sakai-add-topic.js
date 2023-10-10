@@ -398,7 +398,6 @@ export class SakaiAddTopic extends SakaiElement {
         <div class="add-topic-block">
           <div id="details-label" class="add-topic-label">${this.i18n.details}</div>
           <sakai-editor
-              toolbar="basic"
               content="${this.topic.message}"
               @changed=${this.updateMessage}
               id="topic-details-editor">

@@ -78,13 +78,14 @@ class SakaiEditor extends SakaiElement {
     }
 
     if (sakai?.editor?.launch) {
-      this.editor = sakai.editor.launch(this.elementId, {
+      const options = {
         autosave: {
           delay: 10000000,
           messageType: "no"
-        },
-        toolbar: this.toolbar
-      });
+        }
+      };
+      this.toolbar && (options.toolbar = this.toolbar);
+      this.editor = sakai.editor.launch(this.elementId, options);
     } else {
       this.editor = CKEDITOR.replace(this.elementId, {toolbar: SakaiEditor.toolbars.get("basic")});
     }
