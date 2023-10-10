@@ -447,6 +447,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 case FORUM:
                     DiscussionForum forum = (DiscussionForum) toolEntities.get(entityKey(patchEntity));
 
+                    // TODO: Dates do update here, but at least the two availability boolean need to be set. It' might also be necessary to create a new forum, as previously observed when setting it the dates through the UI.
+
                     Optional.ofNullable(patchEntity.getOpenDate())
                             .ifPresent(openDate -> forum.setOpenDate(Date.from(openDate)));
 
