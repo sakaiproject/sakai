@@ -40,7 +40,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     super();
 
     this.deliverTasks = false;
-    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: Date.now(), assignationType: "", selectedGroups: [], siteId: "", owner: "", taskAssignedTo: "", complete: null };
+    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: Date.now(), assignationType: "", selectedGroups: [], siteId: "", owner: "", taskAssignedTo: "", complete: false };
     this.task = { ...this.defaultTask };
     this.assignationType = USER;
     this.mode = "create";
@@ -129,6 +129,8 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     const old = this._task;
     this._task = value;
 
+    this._backupTask = value;
+
     this.error = false;
     if (!this.siteId && value.siteId) {
       this.siteId = value.siteId;
@@ -191,10 +193,16 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     const descriptionEl = this.shadowRoot.getElementById("description");
     const datePicker = this.shadowRoot.getElementById("due");
     const completeEl = this.shadowRoot.getElementById("complete");
+    completeEl && (completeEl.checked = false);
     datePicker.disabled = false;
     descriptionEl.disabled = false;
-    if (completeEl) { completeEl.checked = false; }
-    this.task = { ...this.defaultTask };
+
+    if (this._backupTask) {
+      this.task = { ...this._backupTask };
+    } else {
+      this.task = { ...this.defaultTask };
+    }
+
     this.assignationType = USER;
     this.mode = "create";
     this.siteId = this.siteIdBackup;
