@@ -633,8 +633,6 @@ public class DbAnnouncementService extends BaseAnnouncementService
 
 	public List<AnnouncementMessage> getViewableAnnouncementsForSite(String channelRef, Integer maxAgeInDays) {
 
-		List<AnnouncementMessage> viewableAnnouncements = new Vector();
-
 		try {
 			ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
 			if (maxAgeInDays != null) {
@@ -646,6 +644,6 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		} catch (Exception e) {
 			log.warn("Failed to add announcements from site {}", channelRef, e);
 		}
-		return viewableAnnouncements;
+		return (List<AnnouncementMessage>) new Vector();
 	}
 }
