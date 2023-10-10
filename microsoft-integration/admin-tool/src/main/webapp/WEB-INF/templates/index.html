@@ -49,7 +49,21 @@
 				bodyContainer.innerHTML = '';
 				let spinner = setLoading(bodyContainer);
 				
-				let response = await fetch(url);
+				let response = await fetch(url, {
+						method: 'GET',
+						headers: {
+								'Accept': 'application/json',
+						},
+				});
+				
+				if(!response.ok){
+					let data = await response.json();
+					if (data.status == false) {
+						showAjaxError(data.error, false);
+						spinner.remove();
+					}
+					return;
+				}
 				
 				let body = await response.text();
 				spinner.remove();
@@ -130,11 +144,13 @@
 				}
 			}
 
-			function showAjaxError(error) {
+			function showAjaxError(error, timeout=true) {
 				let elem = document.getElementById('ajax_error');
 				elem.classList.remove('hidden');
 				elem.innerHTML = error;
-				setTimeout(() => { elem.classList.add('hidden') }, 10000);
+				if(timeout){
+					setTimeout(() => { elem.classList.add('hidden') }, 10000);
+				}
 			}
 
 			async function toggleGroupRow(id) {
