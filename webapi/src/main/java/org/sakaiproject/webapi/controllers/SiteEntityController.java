@@ -399,6 +399,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     boolean updateAvailability = ObjectUtils.allNotNull(resourceOpenDate, resourceCloseDate);
 
                     if (updateAvailability) {
+                        // TODO: This seems to not work right for some resource types, as the UI does not show the availability correctly
                         resourceEdit.setAvailabilityInstant(false, resourceOpenDate, resourceCloseDate);
                     }
 
