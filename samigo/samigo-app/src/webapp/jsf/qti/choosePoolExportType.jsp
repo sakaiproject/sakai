@@ -25,6 +25,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorImportExport.export_pool} #{authorImportExport.dash} #{questionpool.name}" /></title>
+<script src="/library/js/spinner.js"></script>
 <script>
 function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
   if ( $("#exportQuestionPoolForm\\:exportType\\:1").prop("checked") ) {
