@@ -15,6 +15,8 @@ package org.sakaiproject.webapi.controllers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -102,6 +104,30 @@ public class ConditionController extends AbstractSakaiApiController {
         }
 
         return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping(value = "/sites/{siteId}/conditions/bulk", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Set<Condition>> createConditions(@PathVariable String siteId, @RequestBody Set<Condition> conditions) {
+        Session session = checkSakaiSession();
+        Site site = checkSite(siteId);
+
+        if (!canUpdateCondition(session.getUserId(), site.getReference())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        for (Condition condition : conditions) {
+            if (!(StringUtils.isBlank(condition.getId()) && StringUtils.equals(siteId, condition.getSiteId()))) {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+        log.info("conds {}", conditions);
+
+        Set<Condition> savedConditions = conditions.stream()
+                .map(conditionService::saveCondition)
+                .collect(Collectors.toSet());
+
+        log.info("savedConds {}", savedConditions);
+        return ResponseEntity.ok(savedConditions);
     }
 
     @PutMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
