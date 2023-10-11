@@ -644,6 +644,6 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		} catch (Exception e) {
 			log.warn("Failed to add announcements from site {}", channelRef, e);
 		}
-		return (List<AnnouncementMessage>) new Vector();
+		return Collections.emptyList();
 	}
 }
