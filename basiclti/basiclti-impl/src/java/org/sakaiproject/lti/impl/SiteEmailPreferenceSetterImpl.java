@@ -20,6 +20,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -46,19 +47,23 @@ public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter 
 
         // Set up user's email preference.
         String emailDeliveryPreference = (String) payload.get("ext_email_delivery_preference");
-        if (emailDeliveryPreference != null && emailDeliveryPreference.length() > 0) {
+        if (user != null && site != null && emailDeliveryPreference != null && !emailDeliveryPreference.isEmpty()) {
+            String userId = user.getId();
+            String siteId = site.getId();
 
+            PreferencesEdit preference = null;
             try {
-
-                PreferencesEdit pe = null;
                 try {
-                    pe = preferencesService.edit(user.getId());
-                } catch(IdUnusedException idue) {
-                    pe = preferencesService.add(user.getId());
+                    preference = preferencesService.edit(userId);
+                } catch (IdUnusedException iue) {
+                    preference = preferencesService.add(userId);
                 }
-                
-                if (emailDeliveryPreference != null && emailDeliveryPreference.length() > 0) {
+            } catch (Exception e) {
+                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+            }
 
+            if (preference != null) {
+                try {
                     int notificationPref = NotificationService.PREF_IMMEDIATE;
 
                     if (emailDeliveryPreference.equals("none")) {
@@ -67,16 +72,18 @@ public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter 
                         notificationPref = NotificationService.PREF_DIGEST;
                     }
 
-                    String toolId = ((String) payload.get("tool_id")).replaceFirst("\\.",":");
+                    String toolId = ((String) payload.get("tool_id")).replaceFirst("\\.", ":");
 
-                    ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit(NotificationService.PREFS_TYPE + toolId + "_override");
-                    propsEdit.removeProperty(site.getId());
-                    propsEdit.addProperty(site.getId(), Integer.toString(notificationPref));
+                    ResourcePropertiesEdit propsEdit = preference.getPropertiesEdit(NotificationService.PREFS_TYPE + toolId + "_override");
+                    propsEdit.removeProperty(siteId);
+                    propsEdit.addProperty(siteId, Integer.toString(notificationPref));
+                } catch (Exception e) {
+                    log.warn("Could not set the users [{}] email preference for site [{}], {}", userId, siteId, e.toString());
+                    preferencesService.cancel(preference);
+                    preference = null; // set to null since we called cancel, prevents commit in finally
+                } finally {
+                    if (preference != null) preferencesService.commit(preference);
                 }
-
-                preferencesService.commit(pe);
-            } catch (Exception e) {
-                log.error("Failed to setup launcher's locale and/or email preference.",e);
             }
         }
     }
