@@ -43,12 +43,14 @@ import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
+import org.sakaiproject.rubrics.api.model.Criterion;
 import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
 import org.sakaiproject.rubrics.api.model.Evaluation;
 import org.sakaiproject.rubrics.api.model.EvaluationStatus;
 import org.sakaiproject.rubrics.api.model.ReturnedEvaluation;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
+import org.sakaiproject.rubrics.api.repository.CriterionRepository;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.impl.RubricsServiceImpl;
@@ -75,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private AssociationRepository associationRepository;
+    @Autowired private CriterionRepository criterionRepository;
     @Autowired private EvaluationRepository evaluationRepository;
     @Autowired private ReturnedEvaluationRepository returnedEvaluationRepository;
     @Autowired private RubricsService rubricsService;
@@ -282,13 +285,19 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         rubricsService.deleteRubric(rubricBean.getId());
 
+        assertFalse(rubricsService.getRubric(rubricBean.getId()).isPresent());
+
+        evaluations = evaluationRepository.findAll();
+        assertEquals(0, evaluations.size());
+
+        List<Criterion> criteria = criterionRepository.findAll();
+        assertEquals(0, criteria.size());
+
         associations = associationRepository.findAll();
         assertEquals(0, associations.size());
 
         evaluations = evaluationRepository.findAll();
         assertEquals(0, evaluations.size());
-
-        assertFalse(rubricsService.getRubric(rubricBean.getId()).isPresent());
     }
 
     @Test
@@ -435,12 +444,11 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         String toolId = "sakai.assignment";
         String toolItemId = "item1";
 
-        Map<String, String> rbcsParams = new HashMap<>();
-        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
-
         RubricTransferBean rubricBean = rubricsService.createDefaultRubric(siteId);
 
-        rbcsParams.put(RubricsConstants.RBCS_LIST, rubricBean.getId().toString());
+        Map<String, String> rbcsParams = Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
+                                                RubricsConstants.RBCS_LIST, rubricBean.getId().toString());
+
         Optional<ToolItemRubricAssociation> association = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams);
         assertTrue(association.isPresent());
         assertEquals(rubricBean.getId(), association.get().getRubric().getId());
@@ -467,6 +475,29 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         rbcsParams4.put(RubricsConstants.RBCS_LIST, "one");
         Optional<ToolItemRubricAssociation> association4 = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams3);
         assertFalse(association4.isPresent());
+    }
+
+    @Test
+    public void deleteRubricAssociation() {
+
+        switchToInstructor();
+
+        String toolId = "sakai.assignment";
+        String toolItemId = "item1";
+
+        RubricTransferBean rubricBean = rubricsService.createDefaultRubric(siteId);
+
+        Map<String, String> rbcsParams = Map.of(RubricsConstants.RBCS_ASSOCIATE, "1",
+                                                    RubricsConstants.RBCS_LIST, rubricBean.getId().toString());
+
+        Optional<ToolItemRubricAssociation> optAssociation = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams);
+        assertTrue(optAssociation.isPresent());
+
+        assertTrue(rubricsService.getRubricAssociation(toolId, toolItemId).isPresent());
+
+        rubricsService.deleteRubricAssociation(toolId, toolItemId);
+
+        assertFalse(rubricsService.getRubricAssociation(toolId, toolItemId).isPresent());
     }
 
     @Test
