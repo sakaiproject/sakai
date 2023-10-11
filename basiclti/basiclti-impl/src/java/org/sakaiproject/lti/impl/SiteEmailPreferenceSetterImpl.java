@@ -47,7 +47,7 @@ public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter 
 
         // Set up user's email preference.
         String emailDeliveryPreference = (String) payload.get("ext_email_delivery_preference");
-        if (user != null && site != null && emailDeliveryPreference != null && !emailDeliveryPreference.isEmpty()) {
+        if (user != null && site != null && StringUtils.isNotEmpty(emailDeliveryPreference)) {
             String userId = user.getId();
             String siteId = site.getId();
 
