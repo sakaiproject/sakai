@@ -173,7 +173,6 @@ public class GradingServiceImpl implements GradingService {
 
     private boolean isUserAbleToViewAssignments(String gradebookUid) {
 
-        return gradingAuthz.isUserAbleToViewItemForStudent()
         return (gradingAuthz.isUserAbleToEditAssessments(gradebookUid) || gradingAuthz.isUserAbleToGrade(gradebookUid));
     }
 
