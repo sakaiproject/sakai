@@ -103,38 +103,44 @@ public class DashboardController extends AbstractSakaiApiController {
     @PostConstruct
     public void init() {
 
+        boolean tasksEnabled = serverConfigurationService.getBoolean("dashboard.tasks.enabled", false);
+
         // Load up all the available widgets, from properties
-        String[] courseWidgetsArray = serverConfigurationService.getStrings("dashboard.course.widgets");
-        if (courseWidgetsArray == null) {
-            courseWidgetsArray = new String[] {"tasks", "announcements", "calendar","forums", "grades" };
+        courseWidgets = serverConfigurationService.getStringList("dashboard.course.widgets", null);
+        if (courseWidgets.isEmpty()) {
+            courseWidgets = new ArrayList<>(List.of("tasks", "announcements", "calendar","forums", "grades"));
         }
-        courseWidgets = Arrays.asList(courseWidgetsArray);
+        if (!tasksEnabled) courseWidgets.remove("tasks");
 
-        String[] homeWidgetsArray = serverConfigurationService.getStrings("dashboard.home.widgets");
-        if (homeWidgetsArray == null) {
-            homeWidgetsArray = new String[] { "tasks", "announcements", "calendar","forums", "grades" };
+        homeWidgets = serverConfigurationService.getStringList("dashboard.home.widgets", null);
+        if (homeWidgets.isEmpty()) {
+            homeWidgets = new ArrayList<>(List.of("tasks", "announcements", "calendar","forums", "grades"));
         }
-        homeWidgets = Arrays.asList(homeWidgetsArray);
+        if (!tasksEnabled) homeWidgets.remove("tasks");
 
-        defaultHomeLayout = Arrays.asList(new String[] { "tasks","announcements", "calendar", "grades", "forums" });
+        defaultHomeLayout = new ArrayList<>(List.of("tasks","announcements", "calendar", "grades", "forums"));
+        if (!tasksEnabled) defaultHomeLayout.remove("tasks");
 
-        String[] courseWidgetLayout1 = serverConfigurationService.getStrings("dashboard.course.widget.layout1");
+        List<String> courseWidgetLayout1 = serverConfigurationService.getStringList("dashboard.course.widget.layout1", null);
         if (courseWidgetLayout1 == null) {
-            courseWidgetLayout1 = new String[] {"tasks", "calendar", "announcements", "grades" };
+            courseWidgetLayout1 = new ArrayList<>(List.of("tasks", "calendar", "announcements", "grades"));
         }
-        defaultWidgetLayouts.put("1", Arrays.asList(courseWidgetLayout1));
+        if (!tasksEnabled) courseWidgetLayout1.remove("tasks");
+        defaultWidgetLayouts.put("1", courseWidgetLayout1);
 
-        String[] courseWidgetLayout2 = serverConfigurationService.getStrings("dashboard.course.widget.layout2");
+        List<String> courseWidgetLayout2 = serverConfigurationService.getStringList("dashboard.course.widget.layout2", null);
         if (courseWidgetLayout2 == null) {
-            courseWidgetLayout2 = new String[] {"tasks", "calendar", "forums", "grades", "announcements" };
+            courseWidgetLayout2 = new ArrayList<>(List.of("tasks", "calendar", "forums", "grades", "announcements"));
         }
-        defaultWidgetLayouts.put("2", Arrays.asList(courseWidgetLayout2));
+        if (!tasksEnabled) courseWidgetLayout2.remove("tasks");
+        defaultWidgetLayouts.put("2", courseWidgetLayout2);
 
-        String[] courseWidgetLayout3 = serverConfigurationService.getStrings("dashboard.course.widget.layout3");
+        List<String> courseWidgetLayout3 = serverConfigurationService.getStringList("dashboard.course.widget.layout3", null);
         if (courseWidgetLayout3 == null) {
-            courseWidgetLayout3 = new String[] {"tasks", "calendar", "announcements", "grades", "forums" };
+            courseWidgetLayout3 = new ArrayList<>(List.of("tasks", "calendar", "announcements", "grades", "forums"));
         }
-        defaultWidgetLayouts.put("3", Arrays.asList(courseWidgetLayout3));
+        if (!tasksEnabled) courseWidgetLayout3.remove("tasks");
+        defaultWidgetLayouts.put("3", courseWidgetLayout3);
 
         maxNumberMotd = serverConfigurationService.getInt("dashboard.home.motd.display", 1);
     }
@@ -197,7 +203,11 @@ public class DashboardController extends AbstractSakaiApiController {
             bean.setLayout(defaultHomeLayout);
         } else {
             try {
-                bean.setLayout((new ObjectMapper()).readValue(layoutJson, ArrayList.class));
+                List<String> layout = (new ObjectMapper()).readValue(layoutJson, ArrayList.class);
+                if (!serverConfigurationService.getBoolean("dashboard.tasks.enabled", false))  {
+                    layout.remove("tasks");
+                }
+                bean.setLayout(layout);
             } catch (Exception e) {
                 log.warn("Failed to deserialise widget layout from {}", layoutJson);
             }
@@ -261,7 +271,11 @@ public class DashboardController extends AbstractSakaiApiController {
                 bean.setTemplate(defaultCourseLayout);
             } else {
                 Map<String, Object> dashboardConfig = (new ObjectMapper()).readValue(dashboardConfigJson, HashMap.class);
-                bean.setLayout((List<String>) dashboardConfig.get("layout"));
+                List<String> layout = (List<String>) dashboardConfig.get("layout");
+                if (!serverConfigurationService.getBoolean("dashboard.tasks.enabled", false))  {
+                    layout.remove("tasks");
+                }
+                bean.setLayout(layout);
                 bean.setTemplate((Integer) dashboardConfig.get("template"));
             }
             bean.setEditable(securityService.isSuperUser() || securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()));

@@ -233,7 +233,8 @@ public interface ServerConfigurationService
 	 * @param dflt
 	 *        The value to return if not found.
 	 * @return The configuration value with this name, as
-	 * 		   a <code>List<String></code>, or the default value if not found.
+	 * 		   a <code>List<String></code>, or the default value if not found. If the default
+	 *		   is null, an empty list is returned.
 	 */
 	List<String> getStringList(String name, List<String> dflt);
 
