@@ -20,6 +20,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -88,43 +89,46 @@ public class AssignmentReferenceResolver
 				AssignmentData asnData = new AssignmentData(asn.getTitle(), anon, asn.getDeleted());
 				Set<AssignmentSubmissionSubmitter> submitters = sub.getSubmitters();
 				boolean byInstructor = false;
+
 				if (submitters.isEmpty())
 				{
 					log.warn("No submitters found for submission id " + sub.getId());
 					return ResolvedEventData.ERROR;
 				}
-				String submitter = submitters.stream().filter(s -> s.getSubmittee())
-						.findFirst().map(s -> s.getSubmitter()).orElse("");
-				if (submitter.isEmpty())
+
+				String submitter = submitters.stream()
+						.filter(AssignmentSubmissionSubmitter::getSubmittee)
+						.findAny().map(AssignmentSubmissionSubmitter::getSubmitter)
+						.orElse("");
+
+				if (StringUtils.isBlank(submitter))
 				{
-					byInstructor = true;
-					if (submitters.size() == 1)
+					if (StringUtils.isNotBlank(sub.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID)))
 					{
-						submitter = submitters.stream().findFirst().map(s -> s.getSubmitter()).orElse("");
+						byInstructor = true;
 					}
-				}
-				String group = "";
-				String groupId = StringUtils.trimToEmpty(sub.getGroupId());
-				if (!groupId.isEmpty())
-				{
-					// get the group title
-					Optional<Site> site = RefResolverUtils.getSiteByID(asnRef.getContext(), siteServ, log);
-					group = site.map(s -> s.getGroup(groupId)).map(g -> g.getTitle()).orElse("");
+					submitter = submitters.stream()
+							.findAny()
+							.map(AssignmentSubmissionSubmitter::getSubmitter)
+							.orElse("");
 				}
 
-				if (group.isEmpty())
+				if (asn.getIsGroup())
 				{
-					if (submitter.isEmpty())
-					{
-						log.warn("No submitter found for submission id " + sub.getId());
-						return ResolvedEventData.ERROR;
-					}
+					String group = "";
+					String groupId = StringUtils.trimToEmpty(sub.getGroupId());
 
-					return new SubmissionData(asnData, submitter, byInstructor);
+					if (!groupId.isEmpty())
+					{
+						// get the group title
+						Optional<Site> site = RefResolverUtils.getSiteByID(asnRef.getContext(), siteServ, log);
+						group = site.map(s -> s.getGroup(groupId)).map(g -> g.getTitle()).orElse("");
+						return new GroupSubmissionData(asnData, group, submitter, byInstructor);
+					}
 				}
 				else
 				{
-					return new GroupSubmissionData(asnData, group, submitter, byInstructor);
+					if (!submitter.isEmpty()) return new SubmissionData(asnData, submitter, byInstructor);
 				}
 			}
 		}
