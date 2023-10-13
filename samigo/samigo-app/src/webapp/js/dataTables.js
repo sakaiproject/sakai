@@ -19,11 +19,10 @@ function onPageLengthChange(event, settings, pageLength) {
 }
 
 function setupDataTable(tableId, dataTableConfig) {
+
     const table = document.getElementById(tableId);
-    if (!table) {
-        console.error(`Table with id ${tableId} not found`);
-        return null;
-    }
+
+    if (!table) return;
 
     const pageLength = getPageLength();
 
