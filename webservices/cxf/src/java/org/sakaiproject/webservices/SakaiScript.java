@@ -475,30 +475,52 @@ public class SakaiScript extends AbstractWebService {
             Locale localeParam = LocaleUtils.toLocale(locale);
             if(!LocaleUtils.isAvailableLocale(localeParam)){
                 log.warn("WS changeUserLocale(): Locale not available");
-                return "";
+                return "error : Locale not available";
             }
         } catch(Exception e){
-            log.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
-            return e.getClass().getName() + " : " + e.getMessage();
+            log.warn("WS changeUserLocale(): {}", e.toString());
+            return "error : " + e.getMessage();
         }
 
-        UserEdit userEdit = null;
-        PreferencesEdit prefs = null;
+        String userId = null;
         try {
             User user = userDirectoryService.getUserByEid(eid);
-            
-            try {
-                prefs = (PreferencesEdit) preferencesService.edit(user.getId());
-            } catch (IdUnusedException e1) {
-                prefs = (PreferencesEdit) preferencesService.add(user.getId());
-            }
-            ResourcePropertiesEdit props = prefs.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
-            props.addProperty(ResourceLoader.LOCALE_KEY, locale);
-            preferencesService.commit(prefs);
+            userId = user.getId();
         } catch (Exception e) {
-            preferencesService.cancel(prefs);
-            log.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
-            return e.getClass().getName() + " : " + e.getMessage();
+            log.warn("WS changeUserLocale(): {}", e.toString());
+            return "error : " + e.getMessage();
+        }
+
+        PreferencesEdit preference = null;
+        if (userId != null) {
+            try {
+                try {
+                    preference = preferencesService.edit(userId);
+                } catch (IdUnusedException iue) {
+                    preference = preferencesService.add(userId);
+                }
+            } catch (Exception e) {
+                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+                return "error : " + e.getMessage();
+            }
+        } else {
+            return "error : User not found with eid [" + eid + "]";
+        }
+
+        if (preference != null) {
+            try {
+                ResourcePropertiesEdit props = preference.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
+                props.addProperty(ResourceLoader.LOCALE_KEY, locale);
+            } catch (Exception e) {
+                log.warn("WS changeUserLocale(): {}", e.toString());
+                preferencesService.cancel(preference);
+                preference = null;
+                return "error : " + e.getMessage();
+            } finally {
+                if (preference != null) preferencesService.commit(preference);
+            }
+        } else {
+            return "error : could not set locale for user [" + eid + "]";
         }
         return "success";
     }
@@ -4956,22 +4978,46 @@ public class SakaiScript extends AbstractWebService {
             throw new RuntimeException("WS setUserTimeZone(): Permission denied. Restricted to super users.");
         }
 
+        String userId = null;
         try {
             User user = userDirectoryService.getUserByEid(eid);
-            PreferencesEdit prefs = null;
-            try {
-                prefs = preferencesService.edit(user.getId());
-            } catch (Exception e1) {
-                prefs = preferencesService.add(user.getId());
-            }
-
-            ResourcePropertiesEdit props = prefs.getPropertiesEdit(timeService.APPLICATION_ID);
-            props.addProperty(timeService.TIMEZONE_KEY, timeZoneId);
-            preferencesService.commit(prefs);
-
+            userId = user.getId();
         } catch (Exception e) {
-            log.error("WS setUserTimeZone(): " + e.getClass().getName() + " : " + e.getMessage(), e);
-            return e.getClass().getName() + " : " + e.getMessage();
+            log.warn("WS setUserTimeZone() could not fetch user with eid [{}]: {}", eid, e.toString());
+            return "error : " + e.getMessage();
+        }
+
+        PreferencesEdit preference = null;
+        if (userId != null) {
+            try {
+                try {
+                    preference = preferencesService.edit(userId);
+                } catch (IdUnusedException iue) {
+                    preference = preferencesService.add(userId);
+                }
+            } catch (Exception e) {
+                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+                return "error : " + e.getMessage();
+            }
+        } else {
+            return "error : User not found with eid [" + eid + "]";
+        }
+
+        if (preference != null) {
+            try {
+                ResourcePropertiesEdit props = preference.getPropertiesEdit(timeService.APPLICATION_ID);
+                props.addProperty(timeService.TIMEZONE_KEY, timeZoneId);
+            } catch (Exception e) {
+                log.warn("WS setUserTimeZone(): could not set timezone for user [{}], {}", eid, e.toString());
+                preferencesService.cancel(preference);
+                preference = null;
+                return "error : " + e.getMessage();
+            } finally {
+                if (preference != null) preferencesService.commit(preference);
+            }
+        } else {
+            log.warn("WS setUserTimeZone() could not fetch preferences for user [{}]", eid);
+            return "error : could not set timezone for user [" + eid + "]";
         }
         return "success";
     }

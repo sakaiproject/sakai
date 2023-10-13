@@ -3009,28 +3009,39 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public void setUserGbPreference(final String prefName, final String prefValue) {
-		final String siteId = getCurrentSiteId();
-		final String currentUserId = getCurrentUser().getId();
-		PreferencesEdit prefsEdit = null;
+		if (StringUtils.isBlank(prefName)) return;
+
+		String siteId = getCurrentSiteId();
+		String userId = getCurrentUser().getId();
+
+		PreferencesEdit preference = null;
 		try {
-			prefsEdit = preferencesService.edit(currentUserId);
-		}
-		catch (IdUnusedException e) {
 			try {
-				prefsEdit = preferencesService.add(currentUserId);
-			} catch (PermissionException e1) {
-				log.warn("setUserGbPreference PermissionException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
-			} catch (IdUsedException e1) {
-				log.warn("setUserGbPreference IdUsedException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
+				preference = preferencesService.edit(userId);
+			} catch (IdUnusedException iue) {
+				preference = preferencesService.add(userId);
 			}
-		} catch (PermissionException e) {
-			log.warn("setUserGbPreference PermissionException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
-		} catch (InUseException e) {
-			log.warn("setUserGbPreference InUseException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
+		} catch (Exception e) {
+			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
 		}
-		ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(GB_PREF_KEY + siteId);
-		props.addProperty(prefName, prefValue);
-		preferencesService.commit(prefsEdit);
+
+		if (preference != null) {
+			String key = GB_PREF_KEY + siteId;
+			try {
+				ResourcePropertiesEdit props = preference.getPropertiesEdit(key);
+                if (prefValue != null) {
+                    props.addProperty(prefName, prefValue);
+                } else {
+                    props.removeProperty(prefName);
+                }
+            } catch (Exception e) {
+				log.warn("Could not set the property [{}] for user [{}] in key [{}], {}", prefName, userId, siteId, e.toString());
+				preferencesService.cancel(preference);
+				preference = null;
+			} finally {
+				if (preference != null) preferencesService.commit(preference);
+			}
+		}
 	}
 
 	/**

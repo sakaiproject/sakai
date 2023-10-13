@@ -44,26 +44,35 @@ public class UserLocaleSetterImpl implements UserLocaleSetter {
       snd user Locale must already be set and simply return*/
     public void setupUserLocale(Map payload, User user, boolean isTrustedConsumer, boolean isEmailTrustedConsumer) {
 
-    	if(isTrustedConsumer) return;
-    	if(isEmailTrustedConsumer)return;
+        if (isTrustedConsumer) return;
+        if (isEmailTrustedConsumer) return;
 
-        // BLTI-153. Set up user's language.
         String locale = (String) payload.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
-        if(locale != null && locale.length() > 0) {
+        if (user != null && locale != null && !locale.isEmpty()) {
+            String userId = user.getId();
+            PreferencesEdit preference = null;
             try {
-                PreferencesEdit pe = null;
                 try {
-                    pe = preferencesService.edit(user.getId());
-                } catch(IdUnusedException idue) {
-                    pe = preferencesService.add(user.getId());
+                    preference = preferencesService.edit(userId);
+                } catch (IdUnusedException iue) {
+                    preference = preferencesService.add(userId);
                 }
-                
-                ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit("sakai:resourceloader");
-                propsEdit.removeProperty(Preferences.FIELD_LOCALE);
-                propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
-                preferencesService.commit(pe);
-            } catch(Exception e) {
-                log.error("Failed to setup launcher's locale",e);
+            } catch (Exception e) {
+                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+            }
+
+            if (preference != null) {
+                try {
+                    ResourcePropertiesEdit propsEdit = preference.getPropertiesEdit("sakai:resourceloader");
+                    propsEdit.removeProperty(Preferences.FIELD_LOCALE);
+                    propsEdit.addProperty(Preferences.FIELD_LOCALE, locale);
+                } catch (Exception e) {
+                    log.warn("Could not set the user [{}] locale, {}", userId, e.toString());
+                    preferencesService.cancel(preference);
+                    preference = null; // set to null since it was cancelled, prevents commit in finally
+                } finally {
+                    if (preference != null) preferencesService.commit(preference);
+                }
             }
         }
     }

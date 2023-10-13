@@ -1711,9 +1711,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 						preferences = preferencesService.edit(thisUser);
 						ResourcePropertiesEdit props = preferences.getPropertiesEdit();
 						props.addProperty("sakaiTutorialFlag", "1");
-						preferencesService.commit(preferences);   
-					} catch (SakaiException e1) {
-						log.error(e1.getMessage(), e1);
+					} catch (Exception e) {
+						log.warn("Could not update user [{}] tutorial preference, {}", thisUser, e.toString());
+						preferencesService.cancel(preferences);
+						preferences = null;
+					} finally {
+						if (preferences != null) preferencesService.commit(preferences);
 					}
 				}
 			}
