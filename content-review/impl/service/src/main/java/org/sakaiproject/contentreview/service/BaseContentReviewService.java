@@ -44,6 +44,7 @@ import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
@@ -109,33 +110,46 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 		}
 		return version;
 	}
-	
-	@Override
-	public void updateUserEULATimestamp(String userId) {
-		try {
-			PreferencesEdit pref = preferencesService.edit(userId);
-			try {
-				if(pref != null) {
-					ResourcePropertiesEdit resourcePropEdit = pref.getPropertiesEdit(PROP_KEY_EULA + getProviderId());
-					if(resourcePropEdit != null) {
-						resourcePropEdit.addProperty(PROP_KEY_EULA_TIMESTAMP, "" + Instant.now().toEpochMilli());
-						String EULAVersion = getEndUserLicenseAgreementVersion();
-						if(StringUtils.isNotEmpty(EULAVersion)) {
-							resourcePropEdit.addProperty(PROP_KEY_EULA_VERSION, EULAVersion);
-						}
-						preferencesService.commit(pref);
-					}else {
-						preferencesService.cancel(pref);
-					}
-				}
-			}catch(Exception e) {
-				log.error(e.getMessage(), e);
-				preferencesService.cancel(pref);
-			}
-		}catch(Exception e) {
-			log.error(e.getMessage(), e);
-		}	
-	}
+
+    @Override
+    public void updateUserEULATimestamp(String userId) {
+        if (StringUtils.isBlank(userId)) return;
+
+        PreferencesEdit preference = null;
+        try {
+            try {
+                preference = preferencesService.edit(userId);
+            } catch (IdUnusedException iue) {
+                preference = preferencesService.add(userId);
+            }
+        } catch (Exception e) {
+            log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+        }
+
+        if (preference != null) {
+            try {
+                String key = PROP_KEY_EULA + getProviderId();
+                ResourcePropertiesEdit resourcePropEdit = preference.getPropertiesEdit(key);
+                if (resourcePropEdit != null) {
+                    resourcePropEdit.addProperty(PROP_KEY_EULA_TIMESTAMP, "" + Instant.now().toEpochMilli());
+                    String EULAVersion = getEndUserLicenseAgreementVersion();
+                    if (StringUtils.isNotEmpty(EULAVersion)) {
+                        resourcePropEdit.addProperty(PROP_KEY_EULA_VERSION, EULAVersion);
+                    }
+                } else {
+                    log.debug("Could not update the EULA timestamp for user [{}], missing property [{}]", userId, key);
+                    preferencesService.cancel(preference);
+                    preference = null;
+                }
+            } catch (Exception e) {
+                log.warn("Could not update the EULA timestamp for user [{}], {}", userId, e.toString());
+                preferencesService.cancel(preference);
+                preference = null;
+            } finally {
+                if (preference != null) preferencesService.commit(preference);
+            }
+        }
+    }
 
 	@Override
 	public void createAssignment(final String contextId, final String taskId, final Map opts)

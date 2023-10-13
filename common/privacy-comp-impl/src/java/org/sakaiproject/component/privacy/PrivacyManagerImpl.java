@@ -32,6 +32,7 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.Query;
 
 import org.springframework.orm.hibernate5.HibernateCallback;
@@ -520,40 +521,37 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 
 	@Override
 	public void setDefaultPrivacyState(String userId, String visibility) {
-		if (userId == null) {
-			log.warn("Cannot set priavacy status for a null userId");
-			return;
-		}
-		
+		if (StringUtils.isBlank(userId)) return;
+
 		if (visibility == null) {
 			visibility = PrivacyManager.VISIBLE;
 		}
 		
-		PreferencesEdit editPref;
+		PreferencesEdit preference = null;
 		try {
-			editPref = preferencesService.edit(userId);
-			
-			ResourcePropertiesEdit props = editPref.getPropertiesEdit(PRIVACY_PREFS);
-			props.addProperty(PrivacyManager.DEFAULT_PRIVACY_KEY, visibility);
-
-			preferencesService.commit(editPref);
-		} catch (PermissionException e) {
-			log.warn("You do not have the appropriate permissions to edit preferences for user: " + userId + ". " + e.getMessage());
-		} catch (InUseException e) {
-			log.warn("Preferences for user: " + userId + " are currently being edited. " + e.getMessage());
-		} catch (IdUnusedException e) {
 			try {
-				editPref = preferencesService.add(userId);
-				
-				ResourcePropertiesEdit props = editPref.getPropertiesEdit(PRIVACY_PREFS);
-				props.addProperty(PrivacyManager.DEFAULT_PRIVACY_KEY, visibility);
+				preference = preferencesService.edit(userId);
+			} catch (IdUnusedException iue) {
+				try {
+					preference = preferencesService.add(userId);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+		}
 
-				preferencesService.commit(editPref);
-			} catch (PermissionException e1) {
-				// TODO Auto-generated catch block
-				log.warn("You do not have the appropriate permissions to edit preferences for user: " + userId + ". " + e1.getMessage());
-			} catch (IdUsedException e1) {
-				log.warn("No preferences for user: " + userId + " found intially, attempted to add new preferences. " + e1.getMessage());
+		if (preference != null) {
+			try {
+				ResourcePropertiesEdit props = preference.getPropertiesEdit(PRIVACY_PREFS);
+				props.addProperty(PrivacyManager.DEFAULT_PRIVACY_KEY, visibility);
+			} catch (Exception e) {
+				log.warn("Could not update default privacy for user [{}], {}", userId, e.toString());
+				preferencesService.cancel(preference);
+				preference = null;
+			} finally {
+				if (preference != null) preferencesService.commit(preference);
 			}
 		}
 	}

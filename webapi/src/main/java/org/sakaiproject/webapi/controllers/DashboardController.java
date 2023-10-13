@@ -225,13 +225,28 @@ public class DashboardController extends AbstractSakaiApiController {
             return;
         }
 
+        PreferencesEdit preference = null;
         try {
-            PreferencesEdit prefs = preferencesService.edit(userId);
-            ResourcePropertiesEdit props = prefs.getPropertiesEdit("dashboard-config");
-            props.addProperty("layout", (new ObjectMapper()).writeValueAsString(bean.getLayout()));
-            preferencesService.commit(prefs);
+            try {
+                preference = preferencesService.edit(userId);
+            } catch (IdUnusedException iue) {
+                preference = preferencesService.add(userId);
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+        }
+
+        if (preference != null) {
+            try {
+                ResourcePropertiesEdit props = preference.getPropertiesEdit("dashboard-config");
+                props.addProperty("layout", (new ObjectMapper()).writeValueAsString(bean.getLayout()));
+            } catch (Exception e) {
+                log.warn("Could not save dashboard config for user [{}], {}", userId, e.toString());
+                preferencesService.cancel(preference);
+                preference = null;
+            } finally {
+                if (preference != null) preferencesService.commit(preference);
+            }
         }
 	}
 

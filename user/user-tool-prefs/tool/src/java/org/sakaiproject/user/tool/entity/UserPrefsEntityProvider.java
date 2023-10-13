@@ -27,9 +27,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -106,22 +103,18 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	 */
 	private PreferencesEdit getPreferencesEdit(String userId) {
 
-		PreferencesEdit edit;
+		PreferencesEdit preference = null;
 		try {
-			edit = preferencesService.edit(userId);
-		} catch (IdUnusedException e) {
 			try {
-				edit = preferencesService.add(userId);
-			} catch (Exception ee) {
-				log.error(ee.getMessage());
-				return null;
+				preference = preferencesService.edit(userId);
+			} catch (IdUnusedException iue) {
+				preference = preferencesService.add(userId);
 			}
-		} catch (InUseException | PermissionException e) {
-			log.error(e.getMessage());
-			return null;
-        }
-		
-		return edit;
+		} catch (Exception e) {
+			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+		}
+
+		return preference;
 	}
 	
 	public Object getEntity(EntityReference ref) {
@@ -221,15 +214,24 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
     	
     	String key = requestStorage.getStoredValueAsType(String.class, "key");
     	String state = requestStorage.getStoredValueAsType(String.class, "state");
-    	log.debug("key: {}", key);
-    	log.debug("state: {}", state);
-    	
-    	PreferencesEdit prefs = getPrefsEdit();
-    	ResourcePropertiesEdit expandProps = prefs.getPropertiesEdit(UserPrefsTool.PREFS_EXPAND);
-		if (expandProps != null) {
-			expandProps.addProperty(key, state);
-		}
-		preferencesService.commit(prefs);
+        log.debug("key: {}, state: {}", key, state);
+
+        String userId = getUserId();
+        PreferencesEdit preferences = getPreferencesEdit(userId);
+        if (preferences != null) {
+            try {
+                ResourcePropertiesEdit expandProps = preferences.getPropertiesEdit(UserPrefsTool.PREFS_EXPAND);
+                if (expandProps != null) {
+                    expandProps.addProperty(key, state);
+                }
+            } catch (Exception e) {
+                log.warn("Could not set the preference prefs.expand for user [{}], {}", userId, e.toString());
+                preferencesService.cancel(preferences);
+                preferences = null;
+            } finally {
+                if (preferences != null) preferencesService.commit(preferences);
+            }
+        }
     }
     
     /**
@@ -239,37 +241,7 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	{
 		return sessionManager.getCurrentSessionUserId();
 	}
-	
-	/**
-	 * Set editing mode on for user and add user if not existing
-	 */
-	protected PreferencesEdit getPrefsEdit()
-	{
-		PreferencesEdit edit = null;
-		log.debug("getPrefsEdit()");
 
-		try
-		{
-			edit = preferencesService.edit(getUserId());
-		}
-		catch (IdUnusedException e)
-		{
-			try
-			{
-				edit = preferencesService.add(getUserId());
-			}
-			catch (Exception ee)
-			{
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(ee.toString()));
-			}
-		}
-		catch (Exception e)
-		{
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.toString()));
-		}
-		return edit;
-	}
-	
 	/**
 	 * 
 	 * Get a list of resources in a site
@@ -388,14 +360,20 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 					PreferencesEdit editPrefs = getPreferencesEdit(requestedUserID);
 
 					if (editPrefs != null) {
-						ResourcePropertiesEdit editProps = editPrefs.getPropertiesEdit(key);
-						propsToSet.forEach((k ,v) -> editProps.addProperty(k, v));
-						log.debug("Props set! Committing preferences edit ...");
-						preferencesService.commit(editPrefs);
+						try {
+							ResourcePropertiesEdit editProps = editPrefs.getPropertiesEdit(key);
+							propsToSet.forEach(editProps::addProperty);
+							log.debug("Props set! Committing preferences edit ...");
+						} catch (Exception e) {
+							log.warn("Could not update keys for user [{}], {}", requestedUserID, e.toString());
+							preferencesService.cancel(editPrefs);
+							editPrefs = null;
+						} finally {
+							if (editPrefs != null) preferencesService.commit(editPrefs);
+						}
 					} else {
 						log.warn("Could not get a lock on prefs to update for user: {}", requestedUserID);
 					}
-
 				} else {
 					log.debug("No new props to set");
 				}
