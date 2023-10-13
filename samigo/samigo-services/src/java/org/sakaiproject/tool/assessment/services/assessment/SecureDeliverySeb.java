@@ -76,6 +76,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
     private static final String SAMIGO_PATH = "/samigo-app";
     private static final String LOGIN_SERVLET_PATH = SAMIGO_PATH + "/servlet/Login";
     private static final String SEB_ALWAYS_ENABLED = "always";
+    private static final String SEB_SITE_ENABLED = "site";
     private static final String SEB_ALWAYS_ENABLED_PROPERTY = "seb.enabled";
     private static final String SEB_SCRIPT_PATH = "/samigo-app/js/deliverySafeExamBrowser.js";
     // The property added to a site
@@ -112,26 +113,16 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
     }
 
     public boolean isEnabled() {
-        if (!StringUtils.equals(sebEnabled, SEB_ALWAYS_ENABLED)) {
-            // This will come back null if from an assessment URL
-            String siteId = AgentFacade.getCurrentSiteId();
-            return isSiteSebEnabled(siteId);
-        }
-
-        return true;
+        String siteId = AgentFacade.getCurrentSiteId();
+        return isEnabled(siteId);
     }
 
     public boolean isEnabled(Long assessmentId) {
-        if (!StringUtils.equals(sebEnabled, SEB_ALWAYS_ENABLED)) {
-
-            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-            publishedAssessmentService.getPublishedAssessmentStatus(assessmentId);
-            PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(assessmentId.toString());
-            String siteId = publishedAssessment.getOwnerSiteId();
-            return isSiteSebEnabled(siteId);
-        }
-
-        return true;
+        PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+        publishedAssessmentService.getPublishedAssessmentStatus(assessmentId);
+        PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(assessmentId.toString());
+        String siteId = publishedAssessment.getOwnerSiteId();
+        return isEnabled(siteId);
     }
 
     public String getModuleName(Locale locale) {
@@ -412,6 +403,16 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
 
     private String hashString(String string) {
         return HashingUtil.hashString(string);
+    }
+
+    private boolean isEnabled(String siteId) {
+        switch(sebEnabled) {
+            case SEB_ALWAYS_ENABLED:
+                return true;
+            default:
+            case SEB_SITE_ENABLED:
+                return isSiteSebEnabled(siteId);
+        }
     }
 
     private boolean isSiteSebEnabled(final String siteId) {
