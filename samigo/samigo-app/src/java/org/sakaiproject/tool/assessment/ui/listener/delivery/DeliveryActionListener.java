@@ -291,7 +291,7 @@ public class DeliveryActionListener
               delivery.setOutcome("takeAssessment");
               delivery.setSecureDeliveryHTMLFragment( "" );
               delivery.setBlockDelivery( false );
-              if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+              if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(id))) {
 
             	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
             	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
@@ -357,7 +357,7 @@ public class DeliveryActionListener
             	  }
 
                   // #3. secure delivery START phase
-                  if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+                  if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(id))) {
                       String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
                       if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
                           HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
