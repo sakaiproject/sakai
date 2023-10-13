@@ -85,7 +85,7 @@ public interface SqlServiceSql
 	 * @param pos
 	 *        number of column of bytes field.
 	 */
-	public PreparedStatement setTimestamp(PreparedStatement pstmt, Timestamp timestamp, GregorianCalendar calendar, int pos) throws SQLException;
+	public PreparedStatement setTimestamp(PreparedStatement pstmt, Timestamp timestamp, int pos) throws SQLException;
 
    /**
     *  set a null in the given statement at the given postion

@@ -2695,13 +2695,13 @@ public abstract class DbSiteService extends BaseSiteService
 				boolean isUser = "1".equals(result.getString(14)) ? true : false;
 				String createdBy = result.getString(15);
 				String modifiedBy = result.getString(16);
-				java.sql.Timestamp ts = result.getTimestamp(17, sqlService().getCal());
+				java.sql.Timestamp ts = result.getTimestamp(17);
 				Instant createdOn = null;
 				if (ts != null)
 				{
 					createdOn = ts.toInstant();
 				}
-				ts = result.getTimestamp(18, sqlService().getCal());
+				ts = result.getTimestamp(18);
 				Instant modifiedOn = null;
 				if (ts != null)
 				{
