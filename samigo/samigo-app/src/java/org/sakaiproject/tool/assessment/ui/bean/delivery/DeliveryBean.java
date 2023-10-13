@@ -807,7 +807,7 @@ public class DeliveryBean implements Serializable {
 	  setSecureDeliveryHTMLFragment( "" );
 	  setBlockDelivery( false );
 	  SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-	  if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+	  if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))) {
 		  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
 		  if (moduleExists(moduleId)) {
 			  
@@ -1555,8 +1555,9 @@ public class DeliveryBean implements Serializable {
   }
 
   public boolean isSebActive() {
+    log.info("assessmentId {}", assessmentId);
     SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-    return secureDelivery.isSecureDeliveryAvaliable()
+    return secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))
         && StringUtils.equals(SecureDeliverySeb.MODULE_NAME, publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY));
   }
 
