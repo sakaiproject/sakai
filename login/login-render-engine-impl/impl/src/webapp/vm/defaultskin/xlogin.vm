@@ -20,7 +20,7 @@
                         <button type="button" class="d-none btn-close" data-bs-dismiss="modal" aria-label="___i18n___Close"></button>
                     </div>
                     <aside id="xlogin-logo" class="bg-primary mb-3 py-2 px-2 text-center">
-                        <img src="/library/skin/default-skin/images/sakaiLogo.png" alt="${uiService}" class="portal-header-logo">
+                        <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="${uiService}" class="portal-header-logo">
                     </aside>
                     <div class="modal-body">
 
