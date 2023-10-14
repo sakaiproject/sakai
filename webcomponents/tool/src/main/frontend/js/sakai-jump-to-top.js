@@ -15,7 +15,7 @@ let jumptotopLabel;
 // load i18n properties and initialize the component when ready
 async function init() {
   const i18n = await loadProperties('jumptotop');
-  jumptotopLabel = i18n['jumptotop_title'];
+  jumptotopLabel = i18n.jumptotop_title;
   jumpToTopButton.title = jumptotopLabel;
   jumpToTopButton.ariaLabel = jumptotopLabel;
 }

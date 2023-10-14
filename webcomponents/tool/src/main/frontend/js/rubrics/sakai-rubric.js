@@ -289,7 +289,7 @@ export class SakaiRubric extends RubricsElement {
             saveSuccessLbl.classList.remove('d-none');
             setTimeout(() => {
               saveSuccessLbl.classList.add('d-none');
-            },5000);
+            }, 5000);
           }
 
           setTimeout(() => {
