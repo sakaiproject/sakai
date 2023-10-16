@@ -377,22 +377,17 @@ roster.renderMembership = function (options) {
     url += '&enrollmentStatus=' + roster.enrollmentStatus;
   }
 
-  // Calculate dynamic page sizes if not already set
-  if (roster.cardsPageSize === undefined || roster.gridPageSize === undefined) {
-    roster.calculatePageSizes();
-  }
-
   if (roster.currentLayout === "cards") {
-    roster.pageSize = roster.cardsPageSize;
+    roster.pageSize = 10;
   } else if ($('#roster_content').hasClass('view_mode_photogrid')) {
-    roster.pageSize = roster.gridPageSize;
+    roster.pageSize = 10;
   } else {
     roster.pageSize = 50;
   }
 
   url += '&pageSize=' + roster.pageSize;
 
-  var loadImage = $('#roster-loading-image')
+  const loadImage = $('#roster-loading-image')
   loadImage.show();
 
   $.ajax({
@@ -406,7 +401,7 @@ roster.renderMembership = function (options) {
         loadImage.hide();
 
         if (roster.nextPage === 0) {
-          var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
+          const membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
           $('#roster-members-total').html(membersTotalString);
           $('#roster-role-totals').html('');
         }
@@ -414,10 +409,10 @@ roster.renderMembership = function (options) {
         return;
       }
 
-      var members = data.members;
+      const members = data.members;
 
       if (roster.nextPage === 0) {
-        var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, data.membersTotal);
+        const membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, data.membersTotal);
         $('#roster-members-total').html(membersTotalString);
         var roleFragments = roster.getRoleFragments(data.roleCounts);
         $('#roster-role-totals').html(roleFragments);
@@ -428,7 +423,7 @@ roster.renderMembership = function (options) {
         m.siteId = roster.siteId;
         m.official = roster.officialPictureMode;
 
-        var groupIds = Object.keys(m.groups);
+        const groupIds = Object.keys(m.groups);
         m.hasGroups = groupIds.length > 0;
         m.groups = groupIds.reduce((acc, id) => { acc.push({id: id, title: m.groups[id]}); return acc; }, []);
         m.groups.sort(function (a, b) {
@@ -467,7 +462,7 @@ roster.renderMembership = function (options) {
 
         $('.roster-group-link').click(function (e) {
 
-          var value = $(this).attr('data-groupid');
+          const value = $(this).attr('data-groupid');
 
           if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
             roster.switchState(roster.STATE_OVERVIEW, {group: value});
@@ -478,7 +473,7 @@ roster.renderMembership = function (options) {
         });
 
         $('.roster-groups-selector').off('change').on('change', function(e) {
-          var value = this.value;
+          const value = this.value;
 
           if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
             roster.switchState(roster.STATE_OVERVIEW, {group: value});
@@ -508,7 +503,7 @@ roster.renderMembership = function (options) {
       if(jqXHR.status === 404){
         loadImage.hide();
         if (roster.nextPage === 0) {
-          var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
+          const membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
           $('#roster-members-total').html(membersTotalString);
           $('#roster-role-totals').html('');
         }
@@ -538,7 +533,7 @@ roster.renderNoParticipants = function () {
 roster.search = function (query) {
 
   if (query !== roster.i18n.roster_search_text && query !== "") {
-    var userIds = [];
+    let userIds = [];
     var i = 0;
     roster.searchIndexValues.forEach(function (displayName) {
 
@@ -575,7 +570,7 @@ roster.readySearchButton = function () {
 
     button.prop("disabled", false).off('click').on('click', function (e) {
 
-      var searchFieldValue = $('#roster-search-field').val();
+      const searchFieldValue = $('#roster-search-field').val();
       roster.search(searchFieldValue);
     });
   });
@@ -583,7 +578,7 @@ roster.readySearchButton = function () {
 
 roster.readySearchField = function () {
 
-  var field = $('#roster-search-field');
+  const field = $('#roster-search-field');
   field.prop("disabled", true);
 
   this.searchIndexPromise.then(() => {
@@ -768,38 +763,6 @@ roster.clickViewPhotogridRadio = function() {
   roster.renderMembership({ replace: true });
 };
 
-roster.calculatePageSizes = function () {
-
-  // width of card = width + left and right margin
-  // height of card = height + top and bottom margin
-  var bigCardWidth = 345; // 340px width + 5px margin-right
-  var bigCardHeight = 133; // 128px width + 5px margin-bottom
-  var smallCardWidth = 160; // 155px width + 5px margin-right
-  var smallCardHeight = 177; // 172px width + 5px margin-bottom
-
-  // width of container = width + left and right padding
-  var containerWidth = parseInt($('#roster-members-content').width());
-
-  if (containerWidth < bigCardWidth) {
-    containerWidth = bigCardWidth;
-  }
-
-  // number of cards per row = containerWidth / cardWith, rounded down to nearest whole number
-  var numBigCardsPerRow = Math.floor(containerWidth / bigCardWidth);
-  var numSmallCardsPerRow = Math.floor(containerWidth / smallCardWidth);
-
-  // height of container = height + top and bottom padding;
-  // #roster-members-content has no height at load, so we approximate using the morpheus page container
-  const containerHeight = parseInt($('div.portal-main-container').height());
-
-  // number of rows per page = containerHeight / cardHeight, rounded down up nearest whole number
-  var numBigRowsPerPage = Math.ceil(containerHeight / bigCardHeight);
-  var numSmallRowsPerPage = Math.ceil(containerHeight / smallCardHeight);
-
-  roster.cardsPageSize = numBigRowsPerPage * numBigCardsPerRow;
-  roster.gridPageSize = numSmallRowsPerPage * numSmallCardsPerRow;
-};
-
 // Functions and attributes added. All the code from hereon is executed
 // after load.
 
@@ -910,7 +873,7 @@ roster.loadSiteDataAndInit = function () {
       // Setup the current user's permissions
       if (roster.userId === roster.ADMIN) {
         // Admin user. Give the full set.
-        var data = ['roster.export',
+        const data = ['roster.export',
               'roster.viewallmembers',
               'roster.viewenrollmentstatus',
               'roster.viewgroup',
@@ -946,7 +909,7 @@ roster.loadSiteDataAndInit = function () {
 
 roster.RosterPermissions = function (permissions) {
 
-  var self = this;
+  const self = this;
 
   permissions.forEach(function (p) {
 
