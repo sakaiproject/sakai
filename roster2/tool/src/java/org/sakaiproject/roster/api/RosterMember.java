@@ -76,6 +76,7 @@ public class RosterMember {
 	private int connectionStatus; // connection status to the current user
 	private int totalSiteVisits;
 	private long lastVisitTime;
+	private boolean instructor;
 
 	public void addGroup(String groupId, String groupTitle) {
 
