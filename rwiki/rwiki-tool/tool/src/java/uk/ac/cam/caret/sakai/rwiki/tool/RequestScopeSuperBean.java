@@ -779,8 +779,9 @@ public class RequestScopeSuperBean
 		}catch (IdUnusedException ex) {
 			log.warn(ex.getMessage());
 		}
-		Collection<Group> groupCollection = site.getGroups();
-		return groupCollection;
+		/*Only the groups for the current user*/
+		String user = sessionManager.getCurrentSessionUserId();
+		return site.getGroupsWithMember(user);
 	}
 
 	public AuthZGroupEditBean getRealmEditBean()
