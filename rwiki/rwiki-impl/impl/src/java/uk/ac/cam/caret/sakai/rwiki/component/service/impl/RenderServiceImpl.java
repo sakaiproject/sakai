@@ -137,11 +137,13 @@ public class RenderServiceImpl implements RenderService
 				}
 				if (!showPage) {
 					content = content.substring(0,startRwikiName) + content.substring(finishRwikiName+1);
+					startRwikiName = content.indexOf("[", startRwikiName);
+					finishRwikiName = content.indexOf("]", startRwikiName);
 				} else {
 					content = content.substring(0,finishRwikiName+1) + stPageGroups + content.substring(finishRwikiName+1);
+					startRwikiName = content.indexOf("[", finishRwikiName);
+					finishRwikiName = content.indexOf("]", startRwikiName);
 				}
-				startRwikiName = content.indexOf("[", startRwikiName + 2);
-				finishRwikiName = content.indexOf("]", startRwikiName);
 			}
 			renderedPage = renderEngine.render(content, renderContext);
 			if ( renderedPage.indexOf("<p ") < 0 && renderedPage.indexOf("</p>") < 0   ) 
