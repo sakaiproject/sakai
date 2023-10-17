@@ -88,6 +88,9 @@ public class ExportAction implements ActionListener {
 	private Color green = new Color(9, 215, 71);
 	private Font boldFont = new Font(Font.TIMES_ROMAN, 13, Font.BOLD);
 	private boolean isTable = false;
+	private String LATEX_SEPARATOR_DOLLAR = "$$";
+	private String LATEX_SEPARATOR_START_PARENTHESIS = "\\(\\";
+	private String LATEX_SEPARATOR_FINAL_PARENTHESIS = "\\)";
 
 	/**
 	 * Standard process action method.
@@ -116,7 +119,8 @@ public class ExportAction implements ActionListener {
 			double currentScore = deliveryBean.getTableOfContents().getCurrentScore();
 			double maxScore = deliveryBean.getTableOfContents().getMaxScore();
 			DecimalFormat twoDecimalsFormat = new DecimalFormat("0.00");
-			this.addCellToTable(shortSummaryTable, rb.getFormattedMessage("score_format", new String[]{twoDecimalsFormat.format(currentScore), twoDecimalsFormat.format(maxScore), twoDecimalsFormat.format((currentScore / maxScore) * 100)}), 0, 0);
+			String scorePercentageString = (maxScore == 0) ? "0" : twoDecimalsFormat.format((currentScore / maxScore) * 100);
+			this.addCellToTable(shortSummaryTable, rb.getFormattedMessage("score_format", new String[] { twoDecimalsFormat.format(currentScore), twoDecimalsFormat.format(maxScore), scorePercentageString }), 0, 0);
 			document.add(shortSummaryTable);
 			document.add(new Paragraph(Chunk.NEWLINE));
 
@@ -304,7 +308,7 @@ public class ExportAction implements ActionListener {
 							if (questionType == TypeIfc.MULTIPLE_CHOICE_SURVEY) {
 								multipleCell.setPhrase(new Paragraph("  " + rb.getString(this.cleanText(selectionBean.getAnswer().getText()))));
 							} else {
-								multipleCell.setPhrase(new Paragraph("  " + selectionBean.getAnswer().getLabel() + ". " + this.cleanText(selectionBean.getAnswer().getText())));
+								multipleCell.setPhrase(createLatexParagraph("  " + selectionBean.getAnswer().getLabel() + ". " + this.cleanText(selectionBean.getAnswer().getText())));
 							}
 							multipleCell.setBorderWidth(0);
 							if (questionType == TypeIfc.MULTIPLE_CORRECT) {
@@ -362,7 +366,6 @@ public class ExportAction implements ActionListener {
 					
 					if (questionType == TypeIfc.TRUE_FALSE || questionType == TypeIfc.MATCHING || questionType == TypeIfc.MULTIPLE_CHOICE 
 							|| questionType == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION || questionType == TypeIfc.MULTIPLE_CORRECT) {
-						// document.add(new Paragraph(Chunk.NEWLINE));
 						Paragraph paragraph = new Paragraph();
 						Font redFont = new Font();
 						redFont.setColor(Color.RED);
@@ -438,7 +441,7 @@ public class ExportAction implements ActionListener {
 	 * @param configuration - int
 	 * @param color - int
 	 */
-	public void addCellToTable(PdfPTable table, String content, int configuration, int color) {
+	private void addCellToTable(PdfPTable table, String content, int configuration, int color) {
 		PdfPCell cell = new PdfPCell();
 		cell.setBorderWidth(0);
 		switch (configuration) {
@@ -492,7 +495,7 @@ public class ExportAction implements ActionListener {
 	 * @param showAllInformation - boolean
 	 * @return - PdfPTable
 	 */
-	public PdfPTable getQuestionTitle(String questionText, boolean showAllInformation) {
+	private PdfPTable getQuestionTitle(String questionText, boolean showAllInformation) {
 		PdfPTable auxTable = new PdfPTable(1);
 		String[] textSeparatedByLineBreak = questionText.split("<br />");
 		String finalText = "";
@@ -512,7 +515,7 @@ public class ExportAction implements ActionListener {
 				}
 			}
 		}
-		if (finalText.indexOf("$$") != -1) {
+		if (finalText.indexOf(LATEX_SEPARATOR_DOLLAR) != -1 || finalText.indexOf(LATEX_SEPARATOR_START_PARENTHESIS) != -1) {
 			addLatexFunctionsToTable(finalText, auxTable);
 		} else {
 			this.addCellToTable(auxTable, finalText, 0, 1);
@@ -541,38 +544,74 @@ public class ExportAction implements ActionListener {
 	 * @param text - string that contain the latex functions
 	 * @param table - PdfPTable where save the resolved text
 	 */
-	public void addLatexFunctionsToTable(String text, PdfPTable table) {
-		Paragraph latexParagraph = new Paragraph();
-
-		int latexInitIndex = text.indexOf("$$");
-		int latexFinalIndex = text.indexOf("$$", latexInitIndex + 2);
-		String textBeforeLatex = text.substring(0, latexInitIndex);
-		while (latexInitIndex != -1 && latexFinalIndex != -1) {
-			String latex = text.substring(latexInitIndex + 2, latexFinalIndex).replace("$$", "");
-			TeXFormula formula = new TeXFormula(latex);
-			Image pdfLatexImage = null;
-			try {
-				pdfLatexImage = Image.getInstance(formula.createBufferedImage(TeXFormula.BOLD, 300, null, null), null);
-			} catch (Exception ex) {
-				log.error(ex.getMessage());
-			}
-			float finalWidth = formula.createBufferedImage(TeXFormula.BOLD, 10, null, null).getWidth(null);
-			float finalHeight = formula.createBufferedImage(TeXFormula.BOLD, 10, null, null).getHeight(null);
-			pdfLatexImage.scaleAbsolute(finalWidth, finalHeight);
-
-			latexParagraph.add(new Chunk(textBeforeLatex));
-			latexParagraph.add(new Chunk(pdfLatexImage, -1, -2, true));
-
-			latexInitIndex = text.indexOf("$$", latexFinalIndex + 2);
-			if (latexInitIndex != -1) {
-				textBeforeLatex = text.substring(latexFinalIndex, latexInitIndex).replace("$$", "");
-				latexFinalIndex = text.indexOf("$$", latexInitIndex + 2);
-			}
-		}
-		latexParagraph.add(new Chunk(text.substring(latexFinalIndex).replace("$$", "")));
+	private void addLatexFunctionsToTable(String text, PdfPTable table) {
+		Paragraph latexParagraph = createLatexParagraph(text);
 		PdfPCell latexCell = new PdfPCell(latexParagraph);
 		latexCell.setBorderWidth(0);
 		table.addCell(latexCell);
+	}
+
+	/**
+	 * Method to create a Paragraph with Latex functions.
+	 * 
+	 * @param text
+	 * @return Paragraph latexParagraph
+	 */
+	private Paragraph createLatexParagraph(String text) {
+		Paragraph latexParagraph = new Paragraph();
+
+		String[] searchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_START_PARENTHESIS};
+		if (text.indexOf(searchIndex[0]) != -1 || text.indexOf(searchIndex[1]) != -1) {
+			String[] finalSearchIndex = {LATEX_SEPARATOR_DOLLAR, LATEX_SEPARATOR_FINAL_PARENTHESIS};
+			int currentSearch = 1;
+			if (text.indexOf(searchIndex[0]) != -1) {
+				currentSearch = 0;
+				if (text.indexOf(searchIndex[1]) != -1){
+					currentSearch = text.indexOf(searchIndex[0]) < text.indexOf(searchIndex[1])? 0 : 1;
+				}
+			}
+			
+			int latexInitIndex = text.indexOf(searchIndex[currentSearch]);
+			int latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 2);
+			String textBeforeLatex = text.substring(0, latexInitIndex);
+			while (latexInitIndex != -1 && latexFinalIndex != -1) {
+				String latex = text.substring(latexInitIndex + 2, latexFinalIndex).replace(searchIndex[currentSearch], "").replace(finalSearchIndex[currentSearch], "");
+				TeXFormula formula = new TeXFormula(latex);
+				Image pdfLatexImage = null;
+				try {
+					pdfLatexImage = Image.getInstance(formula.createBufferedImage(TeXFormula.BOLD, 300, null, null), null);
+				} catch (Exception ex) {
+					log.error(ex.getMessage());
+				}
+				float finalWidth = formula.createBufferedImage(TeXFormula.BOLD, 10, null, null).getWidth(null);
+				float finalHeight = formula.createBufferedImage(TeXFormula.BOLD, 10, null, null).getHeight(null);
+				pdfLatexImage.scaleAbsolute(finalWidth, finalHeight);
+
+				latexParagraph.add(new Chunk(textBeforeLatex));
+				latexParagraph.add(new Chunk(pdfLatexImage, -1, -2, true));
+
+				currentSearch = 1;
+				if (text.indexOf(searchIndex[0], latexFinalIndex + 2) != -1) {
+					currentSearch = 0;
+					if (text.indexOf(searchIndex[1], latexFinalIndex + 2) != -1) {
+						currentSearch = text.indexOf(searchIndex[0], latexFinalIndex + 2) < text.indexOf(searchIndex[1], latexFinalIndex + 2) ? 0 : 1;
+					}
+				}
+
+				latexInitIndex = text.indexOf(searchIndex[currentSearch], latexFinalIndex + 2);
+				
+				if (latexInitIndex != -1) {
+					textBeforeLatex = text.substring(latexFinalIndex, latexInitIndex).replace(LATEX_SEPARATOR_DOLLAR, "")
+							.replace(LATEX_SEPARATOR_START_PARENTHESIS, "").replace(LATEX_SEPARATOR_FINAL_PARENTHESIS, "");
+					latexFinalIndex = text.indexOf(finalSearchIndex[currentSearch], latexInitIndex + 2);
+				}
+			}
+			latexParagraph.add(new Chunk(text.substring(latexFinalIndex).replace(LATEX_SEPARATOR_DOLLAR, "").replace(LATEX_SEPARATOR_START_PARENTHESIS, "")
+					.replace(LATEX_SEPARATOR_FINAL_PARENTHESIS, "")));
+		} else {
+			latexParagraph.add(new Chunk(text));
+		}
+		return latexParagraph;
 	}
 
 	/**
@@ -581,7 +620,7 @@ public class ExportAction implements ActionListener {
 	 * @param text - string that contain the Table Elements functions
 	 * @param table - PdfPTable where save the resolved text
 	 */
-	public void addTableElementsToTable(String text, PdfPTable table){
+	private void addTableElementsToTable(String text, PdfPTable table){
 		try {
 			Elements tables = Jsoup.parse(text).select("table");
 			for (org.jsoup.nodes.Element tableElement : tables) {
@@ -614,7 +653,7 @@ public class ExportAction implements ActionListener {
 	 * @param text - string that contain the Image Elements functions
 	 * @param table - PdfPTable where save the resolved text
 	 */
-	public void addImageElementsToTable(String text, PdfPTable table){
+	private void addImageElementsToTable(String text, PdfPTable table){
 		try {
 			Elements imageElements = Jsoup.parse(text).select("img");
 			for (org.jsoup.nodes.Element imageElement : imageElements) {
@@ -645,7 +684,7 @@ public class ExportAction implements ActionListener {
 	 * @param text - String
 	 * @return - String
 	 */
-	public String cleanText(String text) {
+	private String cleanText(String text) {
 		String textAux = text;
 		int tableIndex = textAux.indexOf("<table");
 		int tableIndexFinal = textAux.indexOf("</table>", tableIndex);
@@ -679,7 +718,7 @@ public class ExportAction implements ActionListener {
 	 * @param List - fillInArray
 	 * @param boolean - numeric
 	 */
-	public void processFillInQuestion(Document document, List fillInArray, boolean numeric) throws Exception {
+	private void processFillInQuestion(Document document, List fillInArray, boolean numeric) throws Exception {
 		PdfPTable fillInTable = new PdfPTable(1);
 		fillInTable.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
 		int i = 0;
