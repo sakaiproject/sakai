@@ -1,5 +1,5 @@
 function htmlToElement(html) {
-    var template = document.createElement('template');
+    const template = document.createElement('template');
     html = html.trim();
     template.innerHTML = html;
     return template.content.firstChild;
@@ -13,13 +13,13 @@ jQuery.extend(jQuery.fn.dataTableExt.oSort, {
         return naturalSort(htmlToElement(a).querySelector('.spanValue').innerText.toLowerCase(), htmlToElement(b).querySelector('.spanValue').innerText.toLowerCase(), false) * -1;
     },
     "numeric-asc": function (a, b) {
-        var numA = parseInt(htmlToElement(a).querySelector('.spanValue').innerText) || 0;
-        var numB = parseInt(htmlToElement(b).querySelector('.spanValue').innerText) || 0;
+        const numA = parseInt(htmlToElement(a).querySelector('.spanValue').innerText) || 0;
+        const numB = parseInt(htmlToElement(b).querySelector('.spanValue').innerText) || 0;
         return ((numB < numA) ? 1 : ((numB > numA) ? -1 : 0));
     },
     "numeric-desc": function (a, b) {
-        var numA = parseInt(htmlToElement(a).querySelector('.spanValue').innerText) || 0;
-        var numB = parseInt(htmlToElement(b).querySelector('.spanValue').innerText) || 0;
+        const numA = parseInt(htmlToElement(a).querySelector('.spanValue').innerText) || 0;
+        const numB = parseInt(htmlToElement(b).querySelector('.spanValue').innerText) || 0;
         return ((numA < numB) ? 1 : ((numA > numB) ? -1 : 0));
     }
 });
