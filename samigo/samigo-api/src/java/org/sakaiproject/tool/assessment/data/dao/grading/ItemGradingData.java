@@ -63,6 +63,7 @@ public class ItemGradingData implements java.io.Serializable {
   private String rationale;
   private Boolean review;
   private Date submittedDate;
+  private Date attemptDate;
 
   public ItemGradingData() {}
 

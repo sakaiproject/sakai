@@ -1104,6 +1104,18 @@ public class ItemModifyListener implements ActionListener
        }
 
 
+       if (meta.getLabel().equals(ItemMetaDataIfc.TIMED)){
+           if(StringUtils.isNotBlank(meta.getEntry()) && !meta.getEntry().equalsIgnoreCase("false")){
+               bean.setTimedQuestion(true);
+               try {
+                   bean.setTimeLimit(Integer.valueOf(meta.getEntry()));
+               }catch(NumberFormatException ex) {
+                   bean.setTimeLimit(0); 
+               }
+           } else {
+               bean.setTimedQuestion(false);
+           }
+        }
      }
     
     if (!hasSetPartId && itemfacade != null && itemfacade instanceof PublishedItemFacade &&  

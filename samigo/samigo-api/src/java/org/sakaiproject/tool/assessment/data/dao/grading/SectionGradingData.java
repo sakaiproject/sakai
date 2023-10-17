@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2023 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,33 +19,26 @@
  *
  **********************************************************************************/
 
+package org.sakaiproject.tool.assessment.data.dao.grading;
 
+import java.util.Date;
 
-package org.sakaiproject.tool.assessment.data.ifc.assessment;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-public interface SectionMetaDataIfc
-    extends java.io.Serializable
-{
-  public static final String KEYWORDS = "SECTION_KEYWORDS";
-  public static final String OBJECTIVES = "SECTION_OBJECTIVES";
-  public static final String RUBRICS = "SECTION_RUBRICS";
-  public static final String ATTACHMENTS = "ATTACHMENTS";
-  public static final String TIMED = "SECTION_TIMED";
-  
-  Long getId();
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode
+public class SectionGradingData implements java.io.Serializable {
 
-  void setId(Long id);
-
-  SectionDataIfc getSection();
-
-  void setSection(SectionDataIfc section);
-
-  String getLabel();
-
-  void setLabel(String label);
-
-  String getEntry();
-
-  void setEntry(String entry);
-
+	private static final long serialVersionUID = 1L;
+	
+	private Long sectionGradingId;
+	private Long assessmentGradingId;
+	private Long publishedSectionId;
+	private String agentId;
+	private Date attemptDate;
 }

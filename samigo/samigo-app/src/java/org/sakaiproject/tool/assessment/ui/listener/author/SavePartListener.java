@@ -181,6 +181,14 @@ public class SavePartListener
     section.setDescription(description);
 	if (!("".equals(sectionBean.getQuestionOrdering())))
 	  section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());
+    
+    if(sectionBean.isTimedSection() && ((sectionBean.getTimeLimit().intValue()) == 0)){
+    	String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "part_timeSelect_error");
+    	context.addMessage(null, new FacesMessage(err));
+    	sectionBean.setOutcome("editPart");
+    	return;
+    }
+    section.addSectionMetaData(SectionMetaDataIfc.TIMED, sectionBean.isTimedSection() ? Integer.toString(sectionBean.getTimeLimit()) : "false");
 
     if (isEditPendingAssessmentFlow) {
     	if (!("".equals(sectionBean.getKeyword())))
