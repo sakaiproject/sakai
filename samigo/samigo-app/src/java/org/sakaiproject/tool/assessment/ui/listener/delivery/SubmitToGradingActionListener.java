@@ -79,6 +79,8 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+
 /**
  * <p>
  * Title: Samigo
@@ -558,6 +560,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			        oldItem.setSubmittedDate(new Date());
 			        oldItem.setAutoScore(newItem.getAutoScore());
 			        oldItem.setOverrideScore(newItem.getOverrideScore());
+			        oldItem.setAttemptDate(newItem.getAttemptDate());
 			        updateItemGradingSet.add(oldItem);
 			    }
 			} else { // itemGrading from new set doesn't exist, add to set in this case a new item should always have the grading ID set to null
@@ -607,14 +610,15 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * is best to study jsf/delivery/item/deliver*.jsp
 	 */
 	private void prepareItemGradingPerItem(ActionEvent ae, DeliveryBean delivery,
-			ItemContentsBean item, HashSet<ItemGradingData> adds, HashSet<ItemGradingData> removes) {
+			ItemContentsBean item, HashSet<ItemGradingData> alladds, HashSet<ItemGradingData> removes) {
 		List<ItemGradingData> grading = item.getItemGradingDataArray();
 		int typeId = item.getItemData().getTypeId().intValue();
+		HashSet<ItemGradingData> adds = new HashSet<>();
 		
-		//no matter what kinds of type questions, if it marks as review, add it in.
+		//no matter what kinds of type questions, if it marks as review or has attempt date, add it in.
 		for (int m = 0; m < grading.size(); m++) {
 			ItemGradingData itemgrading = grading.get(m);
-			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview())) {
+			if (itemgrading.getItemGradingId() == null && ((itemgrading.getReview() != null && itemgrading.getReview()) || itemgrading.getAttemptDate() != null)) {
 				adds.add(itemgrading);
 			} 
 		}
@@ -658,7 +662,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 						if (itemgrading.getPublishedAnswerId() != null
 							|| itemgrading.getAnswerText() != null
 							|| (itemgrading.getRationale() != null 
-								&& !itemgrading.getRationale().trim().equals(""))) { 
+								&& !itemgrading.getRationale().trim().equals(""))
+							|| itemgrading.getAttemptDate() != null) { 
 							// null=> skipping this question
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
@@ -667,6 +672,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 							}
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
+							adds.add(itemgrading);
+						} else {
 							adds.add(itemgrading);
 						}
 					}
@@ -727,7 +734,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				String s = itemgrading.getAnswerText();
 				if (itemgrading.getItemGradingId() != null
 						&& itemgrading.getItemGradingId().intValue() > 0) {
-					if ("1".equals(delivery.getNavigation()) && itemgrading.getPublishedAnswerId()==null && StringUtils.isBlank(s)) {
+					if (("1".equals(delivery.getNavigation()) || item.isTimedQuestion()) && itemgrading.getPublishedAnswerId()==null && StringUtils.isBlank(s)) {
 						//Mark this as the fake itemgrading record
 						fakeitemgrading=m;	 
 				    } else {
@@ -794,7 +801,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						itemgrading.setSubmittedDate(new Date());
 						adds.add(itemgrading);
 						log.debug("adding answer: " + itemgrading.getItemGradingId());
-					} else {
+					} else if(!item.isTimedQuestion() || grading.size() > 1){
 						removes.add(itemgrading);
 						log.debug("remove answer: " + itemgrading.getItemGradingId());
 					}
@@ -812,6 +819,18 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 			// We need to remove any answer (response) items in the storage that are not in the above lists
 			removes.addAll(identifyOrphanedEMIAnswers(grading, publishedItemId, assessmentGradingId));
+
+			if(item.isTimedQuestion() && grading.size() == 0) {
+				log.debug("Create a new (fake) ItemGradingData");
+				ItemGradingData itemGrading = new ItemGradingData();
+				itemGrading.setAssessmentGradingId(assessmentGradingId);
+				itemGrading.setAgentId(AgentFacade.getAgentString());
+				itemGrading.setPublishedItemId(publishedItemId);
+				ItemTextIfc itemText = (ItemTextIfc) item.getItemData().getItemTextSet().toArray()[0];
+				itemGrading.setPublishedItemTextId(itemText.getId());
+	
+				adds.add(itemGrading);
+			}
 			
 			break;
 		case 6: // File Upload
@@ -911,6 +930,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 		}
+		
+		if(item.isTimedQuestion()) {
+			adds.stream().forEach(itemGrading -> itemGrading.setAttemptDate(item.getAttemptDate()));
+		}
+		alladds.addAll(adds);
 	}
 
 	/**
@@ -926,7 +950,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 		ItemGradingData data = grading.get(i);
 		itemsInGrading.add(data.getItemGradingId());
 	}
-		
     	GradingService gradingService = new GradingService();
     	List<ItemGradingData> data = gradingService.getAllItemGradingDataForItemInGrading(assessmentGradingId, publishedItemId);
     	log.debug("got " + data.size() + " answers from storage");

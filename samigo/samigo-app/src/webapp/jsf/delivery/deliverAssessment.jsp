@@ -298,7 +298,42 @@ document.links[newindex].onclick();
             </h:outputText>
         </small>
     </h4>
+    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && part.enabled == -1}" styleClass="time-bar-button-container" layout="block">
+        <div class="sak-banner-info">
+            <h:outputFormat value="#{deliveryMessages.partTimer_info_start_deadline}" escape="false" rendered="#{delivery.deadline != null && delivery.deadline != ''}">
+                <f:param value="#{part.timeLimitString}"/>
+                <f:param value="#{delivery.deadlineString}"/>
+            </h:outputFormat>
+        
+            <h:outputFormat value="#{deliveryMessages.partTimer_info_start}" escape="false" rendered="#{delivery.deadline == null}">
+                <f:param value="#{part.timeLimitString}"/>
+            </h:outputFormat>
+        </div>
 
+        <h:commandButton
+            type="submit"
+            value="#{deliveryMessages.timer_start}"
+            styleClass="active"
+            action="#{part.startTimedSection}"
+        />
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && part.timedSection && part.enabled == 1}" styleClass="time-bar-container" layout="block">
+        <sakai-timer-bar
+            id="<h:outputText value="#{part.sectionId}" />"
+            time-limit="<h:outputText value="#{part.realTimeLimit}" />"
+            time-elapsed="<h:outputText value="#{part.timeElapsed}" />"
+            text="<h:outputText value="#{deliveryMessages.partTimer_title}" />"
+            sync-call="/api/assessmentgrading/<h:outputText value="#{delivery.assessmentGradingId}" />/timerinfo/part/<h:outputText value="#{part.sectionId}" />"
+        ></sakai-timer-bar>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && part.enabled == 0 && !delivery.settings.formatByQuestion}">
+        <div class="sak-banner-warn"><h:outputText value="#{deliveryMessages.partTimer_info_end}" /></div>
+    </h:panelGroup>
+
+    <!-- PART can be hidden if is timed and not enabled (this does not apply to assessments by question) -->
+    <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' || delivery.actionString=='reviewAssessment' || part.enabled == 1 || delivery.settings.formatByQuestion}">
   <!-- PART ATTACHMENTS -->
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
    <f:verbatim><div class="tier2"></f:verbatim>
@@ -331,6 +366,8 @@ document.links[newindex].onclick();
           </h:panelGroup>
         </h:panelGroup>
 
+       <!-- PART can be hidden if is timed and not enabled (apply to assessments by question) -->
+       <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' || delivery.actionString=='reviewAssessment' || part.enabled == 1}">
        <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
          <sakai-rubric-student
            site-id='<h:outputText value="#{delivery.siteId}" />'
@@ -341,14 +378,48 @@ document.links[newindex].onclick();
          </sakai-rubric-student>
        </h:panelGroup>
 
-       <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment' || delivery.actionString == 'takeAssessmentViaUrl' || delivery.actionString == 'previewAssessment'}">
+       <h:panelGroup rendered="#{(delivery.actionString == 'takeAssessment' || delivery.actionString == 'takeAssessmentViaUrl') && question.enabled == 1 || delivery.actionString == 'previewAssessment'}">
            <sakai-rubric-student-preview-button
                 site-id='<h:outputText value="#{delivery.siteId}" />'
                 tool-id="sakai.samigo"
                 entity-id="<h:outputText value="#{delivery.rubricAssociation}.#{question.effectiveItemId}" />"></sakai-rubric-student-preview-button>
        </h:panelGroup>
 
-       <h:panelGroup styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
+       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && question.enabled == -1}" styleClass="time-bar-button-container" layout="block">
+           <div class="sak-banner-info">
+               <h:outputFormat value="#{deliveryMessages.questionTimer_info_start_deadline}" escape="false" rendered="#{delivery.deadline != null && delivery.deadline != ''}">
+                    <f:param value="#{question.timeLimitString}"/>
+                    <f:param value="#{delivery.deadlineString}"/>
+               </h:outputFormat>
+            
+               <h:outputFormat value="#{deliveryMessages.questionTimer_info_start}" escape="false" rendered="#{delivery.deadline == null}">
+                    <f:param value="#{question.timeLimitString}"/>
+               </h:outputFormat>
+           </div>
+
+           <h:commandButton
+               type="submit"
+               value="#{deliveryMessages.timer_start}"
+               styleClass="active"
+               action="#{question.startTimedQuestion}"
+            />
+       </h:panelGroup>
+
+       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && question.enabled == 0}">
+           <div class="sak-banner-warn"><h:outputText value="#{deliveryMessages.questionTimer_info_end}" /></div>
+       </h:panelGroup>
+       
+       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && question.timedQuestion && question.enabled == 1}" styleClass="time-bar-container" layout="block">
+           <sakai-timer-bar
+               id="<h:outputText value="#{question.itemData.itemId}" />"
+               time-limit="<h:outputText value="#{question.realTimeLimit}" />"
+               time-elapsed="<h:outputText value="#{question.timeElapsed}" />"
+               text="<h:outputText value="#{deliveryMessages.questionTimer_title}" />"
+               sync-call="/api/assessmentgrading/<h:outputText value="#{delivery.assessmentGradingId}" />/timerinfo/question/<h:outputText value="#{question.itemData.itemId}" />"
+           ></sakai-timer-bar>
+       </h:panelGroup>
+
+       <h:panelGroup id="questionContent" rendered="#{delivery.actionString=='previewAssessment' || delivery.actionString=='reviewAssessment' || question.enabled == 1}" styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
            <f:subview id="deliverAudioRecording">
            <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>
@@ -457,8 +528,14 @@ document.links[newindex].onclick();
              <h:outputText value="#{commonMessages.cancel_question_info_skip_question}" />
            </h:panelGroup>
          </h:panelGroup>
+       </h:panelGroup>
+
+       <h:panelGroup rendered="#{part.enabled == 0 && delivery.settings.formatByQuestion}">
+         <div class="sak-banner-warn"><h:outputText value="#{deliveryMessages.partTimer_info_end_byquestion}" /></div>
+       </h:panelGroup>
         </h:column>
       </h:dataTable>
+      </h:panelGroup>
      </div>
      <!-- /f:subview -->
 
@@ -514,7 +591,7 @@ document.links[newindex].onclick();
               && (delivery.previous && !delivery.doContinue)}" />
 
     <h:commandButton id="next" type="submit" value="#{commonMessages.action_next}"
-    action="#{delivery.nextPage}" styleClass="active"
+    action="#{delivery.nextPage}" styleClass="active" disabled="#{!delivery.nextEnabled}"
 	rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
@@ -629,6 +706,37 @@ document.links[newindex].onclick();
 	questionProgress.transposeTOCTables();
 	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
     questionProgress.setUp();
+
+	//Save button can be disabled due to auto-save. If so, just wait a bit and try again.
+	var tryClickSave = function(){
+		let btn = document.getElementById("takeAssessmentForm:save");
+		if(!btn.disabled){
+			btn.click();
+		} else {
+			setTimeout(tryClickSave, 500);
+		}
+	}
+	
+	//Messages received from Timer (vuecomponent).
+	window.addEventListener(
+		"message",
+		(event) => {
+			if(event.origin == window.location.origin){
+				switch(event.data.msg) {
+					case 'SAVE':
+						SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2', 0, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>); 
+						break;
+
+					case 'END':
+						tryClickSave();
+						break;
+
+					default:
+						console.log("Unrecognized msg");
+				}
+			}
+		}
+	);
 </script>
 </h:panelGroup>
     </body>

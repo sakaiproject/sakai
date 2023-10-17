@@ -137,6 +137,9 @@
     <!-- 2a ATTACHMENTS -->
     <%@ include file="/jsf/author/item/attachment.jsp" %>
 
+    <!-- 2b TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 3 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" 
                   rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
