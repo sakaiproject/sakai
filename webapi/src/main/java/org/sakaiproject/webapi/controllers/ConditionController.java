@@ -120,13 +120,11 @@ public class ConditionController extends AbstractSakaiApiController {
                 return ResponseEntity.badRequest().build();
             }
         }
-        log.info("conds {}", conditions);
 
         Set<Condition> savedConditions = conditions.stream()
                 .map(conditionService::saveCondition)
                 .collect(Collectors.toSet());
 
-        log.info("savedConds {}", savedConditions);
         return ResponseEntity.ok(savedConditions);
     }
 
