@@ -81,6 +81,45 @@
         
         <%-- PART ATTACHMENTS --%>
         <%@ include file="/jsf/author/editPart_attachment.jsp" %>
+
+        <%-- TIMED --%>
+        <fieldset>
+            <legend>
+                <h:outputText value="#{authorMessages.timed}" />
+                <div id="typeSpinner" class="allocatedSpinPlaceholder"></div>
+            </legend>
+            <div class="row">
+                <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.assessment_timed}" />
+                <div class="col-md-10">
+                    <t:selectOneRadio id="selTimed" value="#{sectionBean.timedSection}" layout="spread" onclick="toggleSection('modifyPartForm:timeSection', this.value)">
+                        <f:selectItem itemValue="false" itemLabel="#{assessmentSettingsMessages.assessment_not_timed}"/>
+                        <f:selectItem itemValue="true" itemLabel="#{assessmentSettingsMessages.assessment_is_timed}"/>
+                    </t:selectOneRadio>
+                    <ul class="ulTimed">
+                        <li>
+                            <t:radio renderLogicalId="true" for="selTimed" index="0" />
+                        </li>
+                        <li>
+                            <t:radio renderLogicalId="true" for="selTimed" index="1" />
+
+                            <h:panelGroup id="timeSection" styleClass="#{!sectionBean.timedSection ? 'hidden' : ''}">
+                                <span>.&#160;</span>
+                                <h:outputLabel id="isTimedTimeLimitLabel" value="#{assessmentSettingsMessages.assessment_is_timed_limit} " />
+                                
+                                <input type="number" min="0" max="11" onchange="this.reportValidity()? document.getElementById('modifyPartForm:hiddenTimedHours').value=this.value : false" value="<h:outputText value="#{sectionBean.timedHours}" />"/>
+                                <h:inputHidden id="hiddenTimedHours" value="#{sectionBean.timedHours}" />
+                                <h:outputLabel id="timedHoursLabel"  value="#{assessmentSettingsMessages.timed_hours} " />
+                                
+                                <input type="number" min="0" max="59" onchange="this.reportValidity()? document.getElementById('modifyPartForm:hiddenTimedMinutes').value=this.value : false" value="<h:outputText value="#{sectionBean.timedMinutes}" />"/>
+                                <h:inputHidden id="hiddenTimedMinutes" value="#{sectionBean.timedMinutes}" />
+                                <h:outputLabel id="timedMinutesLabel" value="#{assessmentSettingsMessages.timed_minutes} " />
+                            </h:panelGroup>
+                        </li>
+                    </ul>
+                    <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.part_timed_info}" />
+                </div>
+            </div>
+        </fieldset>
         
         <%-- Type --%>
         <fieldset>

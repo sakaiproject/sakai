@@ -384,6 +384,9 @@
     </div>
   </div>
 
+  <!-- 5a TIMED -->
+  <%@ include file="/jsf/author/item/timed.jsp" %>
+
   <!-- 6 PART -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
     <h:outputLabel for="assignToPart" styleClass="col-md-2" value="#{authorMessages.assign_to_p} " />
