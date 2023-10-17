@@ -2571,7 +2571,6 @@ public class ItemAddListener implements ActionListener {
 		 * ItemMetaDataIfc.NUMATTEMPTS, bean.getNumAttempts())); }
 		 */
 		
-		//S2U-16
 		set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.TIMED, bean.isTimedQuestion() ? Integer.toString(bean.getTimeLimit()) : "false"));
 		return set;
   }
@@ -2648,7 +2647,6 @@ public class ItemAddListener implements ActionListener {
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD)){
 			  itemMetaData.setEntry(bean.getCommentField());
 		  }
-		  //S2U-16
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.TIMED)){
 			  itemMetaData.setEntry(bean.isTimedQuestion() ? Integer.toString(bean.getTimeLimit()) : "false");
 		  }

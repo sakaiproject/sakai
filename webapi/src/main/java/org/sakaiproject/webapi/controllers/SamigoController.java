@@ -43,6 +43,8 @@ public class SamigoController extends AbstractSakaiApiController {
 	public TimerBean getTimerInfo(@PathVariable String assessmentGradingId, @PathVariable String type, @PathVariable String itemId) {
 		Session session = checkSakaiSession();
 		String currentUserId = session.getUserId();
+		
+		log.debug("Get Timer info: currentUserId={}, type={}, itemId={}, assessmentGradingId={}", currentUserId, type, itemId, assessmentGradingId);
 
 		TimerBeanBuilder ret = TimerBean.builder();
 		GradingService gradingService = new GradingService();
@@ -68,6 +70,7 @@ public class SamigoController extends AbstractSakaiApiController {
 			}
 		}catch(Exception e) {
 			ret.timeElapsed(-1l);
+			log.error("Error getting Timer info: currentUserId={}, type={}, itemId={}, assessmentGradingId={}", currentUserId, type, itemId, assessmentGradingId);
 		}
 		return ret.build();
 	}

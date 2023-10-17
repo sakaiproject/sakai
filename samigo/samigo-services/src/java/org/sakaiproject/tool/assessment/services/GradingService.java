@@ -4020,7 +4020,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  getUnSubmittedAssessmentGradingDataList(publishedAssessmentId, agentIdString);
   }
 
-	//S2U-16
 	public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId)
 	{
 		try {

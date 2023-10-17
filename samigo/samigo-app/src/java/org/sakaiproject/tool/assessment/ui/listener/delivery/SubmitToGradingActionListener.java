@@ -663,8 +663,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
 							adds.add(itemgrading);
-						}
-						else { 
+						} else {
 							adds.add(itemgrading);
 						}
 					}

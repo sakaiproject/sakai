@@ -148,7 +148,7 @@ export default {
 	},
 	data() {
 		return {
-			origin: "http://localhost:8080",
+			origin: "",
 			value: Math.max(this.timeLimit - this.timeElapsed, 0),
 			intervalId1: null,
 			intervalId2: null,
@@ -191,12 +191,12 @@ export default {
 		},
 		computedColor() {
 			if (this.progressValue >= 50) {
-              return "success";
-          } else if (this.progressValue <= 25) {
-              return "danger";
-          } else {
-              return "warning";
-          }
+				return "success";
+			} else if (this.progressValue <= 25) {
+				return "danger";
+			} else {
+				return "warning";
+			}
 		},
 		showWarning() {
 			return !this.closedWarning && !this.showProgress && this.progressValue < 10;

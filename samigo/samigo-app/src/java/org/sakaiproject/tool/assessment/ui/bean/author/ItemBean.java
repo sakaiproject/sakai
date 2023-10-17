@@ -183,10 +183,8 @@ public class ItemBean
   private boolean hasFavoriteList=false;
   private ArrayList currentFavoriteList;
   
-  //S2U-16
   @Getter @Setter
   private boolean timedQuestion = false;
-  //"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
   @Getter
   private Integer timedHours = 0;
   @Getter
@@ -2012,23 +2010,22 @@ public class ItemBean
         }
     }
     
-	//S2U-16
-	public void setTimedHours(Integer timedHours) {
-		this.timedHours = (timedHours != null) ? timedHours : 0;
-	}
+    public void setTimedHours(Integer timedHours) {
+        this.timedHours = (timedHours != null) ? timedHours : 0;
+    }
 
-	public void setTimedMinutes(Integer timedMinutes) {
-		this.timedMinutes = (timedMinutes != null) ? timedMinutes : 0;
-	}
-	
-	//calculated
-	public Integer getTimeLimit() {
-		return timedHours*3600 + timedMinutes*60;
-	}
+    public void setTimedMinutes(Integer timedMinutes) {
+        this.timedMinutes = (timedMinutes != null) ? timedMinutes : 0;
+    }
+    
+    //"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
+    public Integer getTimeLimit() {
+        return timedHours*3600 + timedMinutes*60;
+    }
 
-	//calculated
-	public void setTimeLimit(Integer timeLimit) {
-		this.timedHours = timeLimit/60/60;
-		this.timedMinutes = (timeLimit/60)%60;
-	}
+    //"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
+    public void setTimeLimit(Integer timeLimit) {
+        this.timedHours = timeLimit/60/60;
+        this.timedMinutes = (timeLimit/60)%60;
+    }
 }

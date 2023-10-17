@@ -1743,7 +1743,7 @@ public class ItemContentsBean implements Serializable {
 	
 	public boolean isTimedQuestion() {
 		String value = itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
-		return (StringUtils.isNotBlank(value) && !value.equalsIgnoreCase("false"));
+		return (StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value));
 	}
 	
 	public String getTimeLimit() {
@@ -1757,8 +1757,7 @@ public class ItemContentsBean implements Serializable {
 		if (seconds >= 3600) {
 			hour = Math.abs(seconds/3600);
 			minute = Math.abs((seconds-hour*3600)/60);
-		}
-		else {
+		} else {
 			minute = Math.abs(seconds/60);
 		}
 		StringBuilder sb = new StringBuilder();

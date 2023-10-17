@@ -292,7 +292,6 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getUnSubmittedAssessmentGradingDataList(Long publishedAssessmentId, String agentIdString);
 
-  //S2U-16
   public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId);
   public void saveSectionGrading(SectionGradingData item);
 }

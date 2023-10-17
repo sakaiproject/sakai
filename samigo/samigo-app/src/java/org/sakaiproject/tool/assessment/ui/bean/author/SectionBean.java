@@ -112,9 +112,7 @@ private boolean hideOneByOne= false;
 
 private String outcome;
 
-//S2U-16
 private boolean timedSection = false;
-//"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
 private Integer timedHours = 0;
 private Integer timedMinutes = 0;
 
@@ -965,7 +963,6 @@ private List attachmentList;
       this.discountValueHasOverrided = discountValueHasOverrided;
   }
   
-  //S2U-16
   public boolean isTimedSection() {
       return this.timedSection;
   }
@@ -990,12 +987,12 @@ private List attachmentList;
       return timedMinutes;
   }
   
-  //calculated
+  //"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
   public Integer getTimeLimit() {
       return timedHours*3600 + timedMinutes*60;
   }
 
-  //calculated
+  //"timeLimit" is a virtual variable in seconds, calculated from timedHours & timedMinutes
   public void setTimeLimit(Integer timeLimit) {
       this.timedHours = timeLimit/60/60;
       this.timedMinutes = (timeLimit/60)%60;

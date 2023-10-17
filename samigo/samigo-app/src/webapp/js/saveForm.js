@@ -137,10 +137,10 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 
         // wait and then call save form again
 	if (saveok) {
-		if(repeatMilliseconds > 0){
-			var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
-			setTimeout(onTimeout, repeatMilliseconds);
-		}
+	    if(repeatMilliseconds > 0){
+	        var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
+	        setTimeout(onTimeout, repeatMilliseconds);
+	    }
 	} else {
 	    //alert("Attempt to save your work automatically failed. One common cause is that you have a second window open on Tests and Quizes. We strongly suggest that you not continue working in this window. If you go to the top level of Tests and Quizes, you can restart this test or quiz.");
 	}

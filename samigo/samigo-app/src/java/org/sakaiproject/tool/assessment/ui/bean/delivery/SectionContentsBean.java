@@ -505,9 +505,8 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
       setQuestionOrdering(SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE);
     }
     
-    //S2U-16
     String value = section.getSectionMetaDataByLabel(SectionMetaDataIfc.TIMED);
-    this.timedSection = (StringUtils.isNotBlank(value) && !value.equalsIgnoreCase("false"));
+    this.timedSection = (StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value));
     this.timeLimit = value;
   }
 

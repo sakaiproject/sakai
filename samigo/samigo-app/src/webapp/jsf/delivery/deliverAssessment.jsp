@@ -331,7 +331,7 @@ document.links[newindex].onclick();
             time-limit="<h:outputText value="#{part.realTimeLimit}" />"
             time-elapsed="<h:outputText value="#{part.timeElapsed}" />"
             text="<h:outputText value="#{deliveryMessages.partTimer_title}" />"
-			sync-call="/api/assessmentgrading/<h:outputText value="#{delivery.assessmentGradingId}" />/timerinfo/part/<h:outputText value="#{part.sectionId}" />"
+            sync-call="/api/assessmentgrading/<h:outputText value="#{delivery.assessmentGradingId}" />/timerinfo/part/<h:outputText value="#{part.sectionId}" />"
         ></sakai-timer-bar>
     </h:panelGroup>
 
@@ -339,6 +339,7 @@ document.links[newindex].onclick();
         <div class="sak-banner-warn"><h:outputText value="#{deliveryMessages.partTimer_info_end}" /></div>
     </h:panelGroup>
 
+    <!-- PART can be hidden if is timed and not enabled -->
     <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' || part.enabled == 1}">
   <!-- PART ATTACHMENTS -->
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
@@ -417,7 +418,7 @@ document.links[newindex].onclick();
                time-limit="<h:outputText value="#{question.realTimeLimit}" />"
                time-elapsed="<h:outputText value="#{question.timeElapsed}" />"
                text="<h:outputText value="#{deliveryMessages.questionTimer_title}" />"
-			   sync-call="/api/assessmentgrading/<h:outputText value="#{delivery.assessmentGradingId}" />/timerinfo/question/<h:outputText value="#{question.itemData.itemId}" />"
+               sync-call="/api/assessmentgrading/<h:outputText value="#{delivery.assessmentGradingId}" />/timerinfo/question/<h:outputText value="#{question.itemData.itemId}" />"
            ></sakai-timer-bar>
        </h:panelGroup>
 
@@ -704,6 +705,7 @@ document.links[newindex].onclick();
 	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
     questionProgress.setUp();
 
+	//Save button can be disabled due to auto-save. If so, just wait a bit and try again.
 	var tryClickSave = function(){
 		let btn = document.getElementById("takeAssessmentForm:save");
 		if(!btn.disabled){
@@ -713,6 +715,7 @@ document.links[newindex].onclick();
 		}
 	}
 	
+	//Messages received from Timer (vuecomponent).
 	window.addEventListener(
 		"message",
 		(event) => {
