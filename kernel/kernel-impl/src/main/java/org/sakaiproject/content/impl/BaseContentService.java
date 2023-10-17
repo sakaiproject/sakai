@@ -11171,7 +11171,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		@Override
 		public void setAvailabilityInstant(boolean hidden, Instant releaseDate, Instant retractDate) {
-			setAvailability(hidden, timeService.newTime(releaseDate.toEpochMilli()), timeService.newTime(retractDate.toEpochMilli()));	
+			// setAvailability accepts null for releaseDate and retractDate, we need to accept it here as well and pass it safely
+			setAvailability(hidden,
+					Optional.ofNullable(releaseDate).map(Instant::toEpochMilli).map(timeService::newTime).orElse(null),
+					Optional.ofNullable(retractDate).map(Instant::toEpochMilli).map(timeService::newTime).orElse(null));
 		}
 		
 		public void setHidden() 

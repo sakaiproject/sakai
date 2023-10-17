@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
@@ -52,6 +52,7 @@ public class SiteEntityRestBean {
     private Instant openDate;
     private Instant dueDate;
     private Instant closeDate;
+    private Boolean dateRestricted;
     private Set<String> groupRefs;
     private Set<TimeExceptionRestBean> timeExceptions;
 
@@ -77,6 +78,7 @@ public class SiteEntityRestBean {
                 .openDate(Optional.ofNullable(assessment.getStartDate()).map(Date::toInstant).orElse(null))
                 .dueDate(Optional.ofNullable(assessment.getDueDate()).map(Date::toInstant).orElse(null))
                 .closeDate(Optional.ofNullable(assessment.getRetractDate()).map(Date::toInstant).orElse(null))
+                .dateRestricted(true)
                 .groupRefs(groupRefs)
                 .timeExceptions(timeExceptions)
                 .build();
@@ -94,6 +96,7 @@ public class SiteEntityRestBean {
                 .openDate(assignment.getOpenDate())
                 .dueDate(assignment.getDueDate())
                 .closeDate(assignment.getCloseDate())
+                .dateRestricted(true)
                 .groupRefs(groupRefs)
                 .build();
     }
@@ -105,18 +108,23 @@ public class SiteEntityRestBean {
                 .title(forum.getTitle())
                 .openDate(Optional.ofNullable(forum.getOpenDate()).map(Date::toInstant).orElse(null))
                 .closeDate(Optional.ofNullable(forum.getCloseDate()).map(Date::toInstant).orElse(null))
+                .dateRestricted(forum.getAvailabilityRestricted())
                 .build();
     }
 
     @SuppressWarnings("unchecked")
-    public static SiteEntityRestBean of(ContentResource resource) {
+    public static SiteEntityRestBean of(ContentEntity resource) {
+        boolean dateRestricted = resource.getReleaseInstant() != null || resource.getRetractInstant() != null;
+        SiteEntityType type = resource.isResource() ? SiteEntityType.RESOURCE : SiteEntityType.RESOURCE_FOLDER;
+
         return SiteEntityRestBean.builder()
                 .id(resource.getId())
-                .type(SiteEntityType.RESOURCE)
+                .type(type)
                 .title(resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME))
                 .openDate(resource.getReleaseInstant())
                 .closeDate(resource.getRetractInstant())
                 .groupRefs(Set.copyOf(resource.getGroups()))
+                .dateRestricted(dateRestricted)
                 .build();
     }
 
@@ -131,5 +139,6 @@ public class SiteEntityRestBean {
         ASSIGNMENT,
         FORUM,
         RESOURCE,
+        RESOURCE_FOLDER,
     }
 }
