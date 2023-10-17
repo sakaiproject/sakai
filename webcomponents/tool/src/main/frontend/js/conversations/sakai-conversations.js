@@ -91,7 +91,7 @@ export class SakaiConversations extends SakaiElement {
         wipTopicJson && (this.wipTopic = JSON.parse(wipTopicJson));
       })
       .catch (error => console.error(error))
-      .finally (() => this._loadingData = false)
+      .finally (() => this._loadingData = false);
   }
 
   get siteId() { return this._siteId; }

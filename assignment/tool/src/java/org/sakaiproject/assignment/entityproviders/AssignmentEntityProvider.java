@@ -687,8 +687,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             Instant due = simpleAssignment.getDueTime();
             Instant close = simpleAssignment.getCloseTime();
-            boolean visible = Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
-                && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now()));
+            boolean visible = as.getSubmitted() || (Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
+                && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now())));
 
             submission.put("visible", visible);
 
