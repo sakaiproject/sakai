@@ -430,10 +430,25 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           </div>
           ${this.submission.groupId && this.submission.submittedTime ? html`<div class="grader-group-members">${this.submission.groupMembers}</div>` : ""}
           <div class="attachments">
+            ${this.submission.submittedText && this.submission.visible ? html`
+            <div>
+              <button type="button"
+                  class="btn btn-transparent text-decoration-underline"
+                  @click=${() => this.submittedTextMode = true}>
+                ${this.i18n.submission_inline}
+              </button>
+            </div>
+            ` : ""}
             ${this.submission.submittedAttachments.length > 0 ? html`
-              <div class="attachments-header">${this.assignmentsI18n["gen.stuatt"]}:</div>
-              ${this.submission.submittedAttachments.map(r => html`
-                <div class="attachment-link"><a href="javascript;" data-ref="${r.ref}" @click=${this.previewAttachment}>${r.name}</a></div>
+              ${this.submission.submittedAttachments.filter(r => r.type !== "text/html").map(r => html`
+                <div>
+                  <button type="button"
+                      class="btn btn-transparent text-decoration-underline"
+                      data-ref="${r.ref}"
+                      @click=${this._previewAttachment}>
+                    ${r.name}
+                  </button>
+                </div>
               `)}` : ""}
           </div>
           <div class="timeSpent-block">
