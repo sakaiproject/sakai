@@ -566,7 +566,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      */
 	private Map<String, RosterMember> getMembershipMapped(Site site, String groupId) {
 
-		Map<String, RosterMember> rosterMembers = new HashMap<String, RosterMember>();
+		Map<String, RosterMember> rosterMembers = new HashMap<>();
 
         String userId = getCurrentUserId();
 
@@ -622,8 +622,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 						filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
 					}
 				}
+
+				// Now add any instructors
+				filtered.addAll(unfiltered.stream().filter(m -> m.isInstructor()).collect(Collectors.toList()));
+
 				// The group loop is shuffling members, sort the list again
-				Collections.sort(filtered,memberComparator);
+				Collections.sort(filtered, memberComparator);
 			} else if (null != site.getGroup(groupId)) {
 				// get all members of requested groupId if current user is
 				// member
@@ -756,6 +760,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setEmail(user.getEmail());
 		rosterMember.setDisplayName(user.getDisplayName());
 		rosterMember.setSortName(user.getSortName());
+		rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
 
 		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		if (sakaiPerson != null) {

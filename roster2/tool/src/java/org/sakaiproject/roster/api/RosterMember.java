@@ -71,6 +71,7 @@ public class RosterMember {
 	private int totalSiteVisits;
 	private String lastVisitTime;
 	private User user;
+	private boolean instructor;
 
 	public void addGroup(String groupId, String groupTitle) {
 
