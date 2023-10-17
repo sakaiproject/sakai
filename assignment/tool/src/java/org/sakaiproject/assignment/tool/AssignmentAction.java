@@ -6892,6 +6892,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * Takes the inline submission, prepares it as an attachment to the submission and queues the attachment with the content review service
      */
     private void prepareInlineForContentReview(String text, AssignmentSubmission submission, SessionState state, User student) {
+
         // Why does it need to remove the users submission?
         // If it needs to remove the submission it should first add a new one and only remove the old one if the new one was added successfully.
 
