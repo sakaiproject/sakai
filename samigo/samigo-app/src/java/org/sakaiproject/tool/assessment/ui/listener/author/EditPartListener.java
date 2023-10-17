@@ -31,6 +31,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -182,6 +183,18 @@ public class EditPartListener
     		   isDiscountValueHasOverrided = true;
     	   }
     	   bean.setRandomPartDiscount(meta.getEntry());
+       }
+       if (meta.getLabel().equals(SectionMetaDataIfc.TIMED)){
+           if(StringUtils.isNotBlank(meta.getEntry()) && !meta.getEntry().equalsIgnoreCase("false")){
+               bean.setTimedSection(true);
+               try {
+                   bean.setTimeLimit(Integer.valueOf(meta.getEntry()));
+               }catch(NumberFormatException ex) {
+                   bean.setTimeLimit(0); 
+               }
+           } else {
+               bean.setTimedSection(false);
+           }
        }
     }
     if (!isRandomizationTypeSet) {

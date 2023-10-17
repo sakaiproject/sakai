@@ -146,6 +146,10 @@
 			padding: 0 0 0 0;
 		}
 	}
+	ul.ulTimed{
+		list-style: none;
+		padding: 0 0 0 0;
+	}
 	.mcscFixUp > ul,.question-wrapper{
 		list-style: none;
 		padding: 0 0 0 0;
@@ -207,7 +211,8 @@
 	}
 	
 	#assessmentSettingsAction input[type="radio"],
-	#assessmentSettingsAction input[type="checkbox"]{
+	#assessmentSettingsAction input[type="checkbox"],
+	.ulTimed input[type="radio"]{
 		margin-right: $standard-space; 
 		
 		@media #{$tablet}{
@@ -474,6 +479,21 @@
 
 	input[type="text"].hasDatepicker {
 		margin: 0 4px 4px 0;
+	}
+
+	.time-bar-container {
+		margin-top: 1em;
+	}
+	
+	.time-bar-button-container{
+		margin-bottom: 1em;
+	}
+
+	.tableofcontents {
+		label {
+			padding-left: 5px;
+			cursor:pointer;
+		}
 	}
 }
 
