@@ -138,7 +138,7 @@ export const graderRenderingMixin = Base => class extends Base {
             launch-url="${this.ltiGradableLaunch}">
           </sakai-lti-iframe>
         ` : ""}
-        ${this.submission.submittedTime || this.submission.draft && this.submission.visible ? html`
+        ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
         <h3 class="d-inline-block">${this.assignmentsI18n["gen.subm"]}</h3>
         ` : html`
         <h3 class="d-inline-block">${this.i18n.no_submission}</h3>
@@ -709,12 +709,28 @@ export const graderRenderingMixin = Base => class extends Base {
             <div class="ms-2"><span class="grader-returned fa fa-eye" title="${this.i18n.returned_tooltip}" /></div>
           ` : ""}
         </div>
-        ${this.submission.groupId && this.submission.submittedTime ? html`<div class="grader-group-members">${this.submission.groupMembers}</div>` : ""}
+        ${this.submission.groupId && this.submission.submittedTime ? html`
+          <div class="grader-group-members">${this.submission.groupMembers}</div>
+        ` : ""}
         <div class="attachments">
+          ${this.submission.submittedText && this.submission.visible ? html`
+          <div>
+            <button type="button"
+                class="btn btn-transparent text-decoration-underline"
+                @click=${() => this.submittedTextMode = true}>
+              ${this.i18n.submission_inline}
+            </button>
+          </div>
+          ` : ""}
           ${this.submission.submittedAttachments?.length > 0 ? html`
-            ${this.submission.submittedAttachments.map(r => html`
+            ${this.submission.submittedAttachments.filter(r => r.type !== "text/html").map(r => html`
               <div>
-                <button type="button" class="btn btn-transparent text-decoration-underline" data-ref="${r.ref}" @click=${this._previewAttachment}>${r.name}</button>
+                <button type="button"
+                    class="btn btn-transparent text-decoration-underline"
+                    data-ref="${r.ref}"
+                    @click=${this._previewAttachment}>
+                  ${r.name}
+                </button>
               </div>
             `)}` : ""}
         </div>
