@@ -71,6 +71,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -4018,6 +4019,27 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
 			  getUnSubmittedAssessmentGradingDataList(publishedAssessmentId, agentIdString);
   }
+
+	public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId)
+	{
+		try {
+			return PersistenceService.getInstance()
+				.getAssessmentGradingFacadeQueries()
+				.getSectionGradingData(assessmentGradingId, sectionId, agentId);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new Error(e);
+		}
+	}
+
+	public void saveSectionGrading(SectionGradingData sgd)
+	{
+		try {
+			PersistenceService.getInstance().getAssessmentGradingFacadeQueries().saveSectionGrading(sgd);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
 }
 
 /**

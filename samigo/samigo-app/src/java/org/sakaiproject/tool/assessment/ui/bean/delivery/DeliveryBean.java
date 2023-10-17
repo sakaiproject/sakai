@@ -2510,24 +2510,27 @@ public class DeliveryBean implements Serializable {
 	  }
 	  
 	  public String getTimeBeforeDueRetract(String timeLimit) {
+		  return getTimeBeforeDueRetract(timeLimit, beginTime);
+	  }
+	  public String getTimeBeforeDueRetract(String timeLimit, Date givenBeginTime) {
 		  boolean acceptLateSubmission = isAcceptLateSubmission();
 		  
 		  String finalTimeLimit = timeLimit;
 		  if (dueDate != null) {
 			  if (!acceptLateSubmission) {
-				  finalTimeLimit = getTimeBeforeDue(timeLimit);
+				  finalTimeLimit = getTimeBeforeDue(timeLimit, givenBeginTime);
 			  } else {
 				  if (totalSubmissions > 0) {
-					  finalTimeLimit = getTimeBeforeDue(timeLimit);
+					  finalTimeLimit = getTimeBeforeDue(timeLimit, givenBeginTime);
 				  } else {
 					  if (retractDate != null) {
-						  finalTimeLimit = getTimeBeforeRetract(timeLimit);
+						  finalTimeLimit = getTimeBeforeRetract(timeLimit, givenBeginTime);
 					  }
 				  }
 			  }
 		  } else {
 			  if (retractDate != null) {
-				  finalTimeLimit = getTimeBeforeRetract(timeLimit);
+				  finalTimeLimit = getTimeBeforeRetract(timeLimit, givenBeginTime);
 			  }
 		  }
 		 
@@ -2535,8 +2538,11 @@ public class DeliveryBean implements Serializable {
 	  }
 	  
 	  private String getTimeBeforeDue(String timeLimit) {
-		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && beginTime != null) {
-			  int timeBeforeDue  = Math.round((dueDate.getTime() - beginTime.getTime())/1000.0f);
+		  return getTimeBeforeDue(timeLimit, beginTime);
+	  }
+	  private String getTimeBeforeDue(String timeLimit, Date givenBeginTime) {
+		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && givenBeginTime != null) {
+			  int timeBeforeDue  = Math.round((dueDate.getTime() - givenBeginTime.getTime())/1000.0f);
 			  if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				  timeLimit = String.valueOf(timeBeforeDue);
 			  }
@@ -2549,9 +2555,12 @@ public class DeliveryBean implements Serializable {
 	  }
 	  
 	  private String getTimeBeforeRetract(String timeLimit) {
+		  return getTimeBeforeRetract(timeLimit, beginTime);
+	  }
+	  private String getTimeBeforeRetract(String timeLimit, Date givenBeginTime) {
 		  String returnedTime = timeLimit;
-		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && beginTime != null) {
-			  int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
+		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && givenBeginTime != null) {
+			  int timeBeforeRetract  = Math.round((retractDate.getTime() - givenBeginTime.getTime())/1000.0f);
 			  if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
 				  returnedTime = String.valueOf(timeBeforeRetract);
 			  }
@@ -2624,6 +2633,10 @@ public class DeliveryBean implements Serializable {
             }
             item.setReview(false);
             item.setRationale("");
+            
+            for (ItemGradingData itemgrading : item.getItemGradingDataArray()) {
+            	itemgrading.setAttemptDate(item.getAttemptDate());
+            }
           }
         }
 
