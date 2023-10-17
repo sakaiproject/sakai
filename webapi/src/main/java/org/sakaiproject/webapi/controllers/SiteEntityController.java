@@ -35,9 +35,11 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -141,6 +143,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
         return ResponseEntity.ok(assessmentSiteEntities);
     }
 
+    @SuppressWarnings("unchecked")
     @GetMapping(value = "/sites/{siteId}/entities/resources", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Set<SiteEntityRestBean>> getSiteResources(@PathVariable String siteId) {
         checkSakaiSession();
@@ -148,9 +151,9 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
         String collectionRef = GROUP_SEGMENT + siteId + "/";
 
-        List<ContentResource> resources;
+        List<ContentEntity> resources;
         try {
-            resources = contentHostingService.getAllResources(collectionRef);
+            resources = contentHostingService.getAllEntities(collectionRef);
         } catch (IllegalArgumentException e) {
             log.debug("Could not get resources due to {} {}", e.toString(), ExceptionUtils.getStackTrace(e));
             return ResponseEntity.badRequest().build();
@@ -174,9 +177,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
         // First iteration - Check if request is valid and keep the retrieved entities
         for (SiteEntityRestBean patchEntity : patchEntities) {
             SiteEntityType entityType = patchEntity.getType();
-            Instant entityOpenDate = patchEntity.getOpenDate();
             Instant entityDueDate = patchEntity.getDueDate();
-            Instant entityCloseDate = patchEntity.getCloseDate();
 
             if (StringUtils.isBlank(patchEntity.getId()) || entityType == null) {
                 log.debug("Id or type not set");
@@ -237,21 +238,23 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     toolEntities.put(entityKey(patchEntity), assignment);
                     break;
                 case RESOURCE:
+                case RESOURCE_FOLDER:
                     if (ObjectUtils.anyNotNull(patchEntity.getDueDate(), patchEntity.getTimeExceptions())) {
                         log.debug("Due date and timeExceptions can not be set for resources", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
-                    // Require to have open and close or none of them
-                    if (!(ObjectUtils.allNotNull(entityOpenDate, entityCloseDate)
-                            || ObjectUtils.allNull(entityOpenDate, entityCloseDate))) {
-                        log.debug("Specify dueDate AND closeDate or nothing", patchEntity.getId());
+                    if (!isDateRestrictionPatchValid(patchEntity)) {
+                        log.debug("Date restriction invalid", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
-                    ContentResourceEdit resourceEdit;
+                    // ContentResourceEdit or ContentCollectionEdit
+                    GroupAwareEdit resourceEdit;
                     try {
-                        resourceEdit = contentHostingService.editResource(patchEntity.getId());
+                        resourceEdit = SiteEntityType.RESOURCE.equals(patchEntity.getType())
+                            ? contentHostingService.editResource(patchEntity.getId())
+                            : contentHostingService.editCollection(patchEntity.getId());
                     } catch (IdUnusedException | InUseException e) {
                         return ResponseEntity.badRequest().build();
                     } catch (PermissionException e) {
@@ -273,10 +276,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.badRequest().build();
                     }
 
-                    // Require to have open and close or none of them
-                    if (!(ObjectUtils.allNotNull(entityOpenDate, entityCloseDate)
-                            || ObjectUtils.allNull(entityOpenDate, entityCloseDate))) {
-                        log.debug("Specify dueDate AND closeDate or nothing", patchEntity.getId());
+                    if (!isDateRestrictionPatchValid(patchEntity)) {
+                        log.debug("Date restriction invalid", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
@@ -301,6 +302,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
         // Second iteration - Persist updated entities and map to bean
         for (SiteEntityRestBean patchEntity : patchEntities) {
+            Boolean dateRestricted = patchEntity.getDateRestricted();
             switch(patchEntity.getType()) {
                 case ASSESSMENT:
                     PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) toolEntities.get(entityKey(patchEntity));
@@ -392,15 +394,17 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     updatedEntities.add(SiteEntityRestBean.of(updatedAssignment));
                     break;
                 case RESOURCE:
-                    ContentResourceEdit resourceEdit = (ContentResourceEdit) toolEntities.get(entityKey(patchEntity));
+                case RESOURCE_FOLDER:
+                    GroupAwareEdit resourceEdit = (GroupAwareEdit) toolEntities.get(entityKey(patchEntity));
                     Optional<Set<String>> optGroupRefs = Optional.ofNullable(patchEntity.getGroupRefs());
                     Instant resourceOpenDate = patchEntity.getOpenDate();
                     Instant resourceCloseDate = patchEntity.getCloseDate();
-                    boolean updateAvailability = ObjectUtils.allNotNull(resourceOpenDate, resourceCloseDate);
+                    boolean updateAvailability = dateRestricted != null;
 
-                    if (updateAvailability) {
-                        // TODO: This seems to not work right for some resource types, as the UI does not show the availability correctly
+                    if (dateRestricted !=null && dateRestricted) {
                         resourceEdit.setAvailabilityInstant(false, resourceOpenDate, resourceCloseDate);
+                    } else {
+                        resourceEdit.setAvailabilityInstant(false, null, null);
                     }
 
                     if (optGroupRefs.isPresent()) {
@@ -425,7 +429,11 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
                     if (updateAvailability || optGroupRefs.isPresent()) {
                         try {
-                            contentHostingService.commitResource(resourceEdit);
+                            if (SiteEntityType.RESOURCE.equals(patchEntity.getType())) {
+                                contentHostingService.commitResource((ContentResourceEdit) resourceEdit);
+                            } else {
+                                contentHostingService.commitCollection((ContentCollectionEdit) resourceEdit);
+                            }
                         } catch (ServerOverloadException | OverQuotaException e) {
                             log.error("Could not commit resource edit due to {}: {}", e.toString(),
                                     ExceptionUtils.getStackTrace(e));
@@ -433,9 +441,13 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         }
                     }
 
-                    ContentResource updatedResource;
+                    ContentEntity updatedResource;
                     try {
-                        updatedResource = contentHostingService.getResource(patchEntity.getId());
+                        if (SiteEntityType.RESOURCE.equals(patchEntity.getType())) {
+                            updatedResource = contentHostingService.getResource(patchEntity.getId());
+                        } else {
+                            updatedResource = contentHostingService.getCollection(patchEntity.getId());
+                        }
                     } catch (PermissionException | IdUnusedException | TypeException e) {
                         // This should be safe at this point
                         log.error("Pervious check was not sufficient: {} {}", e.toString(),
@@ -447,13 +459,18 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 case FORUM:
                     DiscussionForum forum = (DiscussionForum) toolEntities.get(entityKey(patchEntity));
 
-                    // TODO: Dates do update here, but at least the two availability boolean need to be set. It' might also be necessary to create a new forum, as previously observed when setting it the dates through the UI.
-
-                    Optional.ofNullable(patchEntity.getOpenDate())
-                            .ifPresent(openDate -> forum.setOpenDate(Date.from(openDate)));
-
-                    Optional.ofNullable(patchEntity.getCloseDate())
-                            .ifPresent(closeDate -> forum.setCloseDate(Date.from(closeDate)));
+                    if (dateRestricted != null && dateRestricted) {
+                        forum.setOpenDate(Date.from(patchEntity.getOpenDate()));
+                        forum.setCloseDate(Date.from(patchEntity.getCloseDate()));
+                        forum.setAvailabilityRestricted(true);
+                        forum.setAvailability(patchEntity.getOpenDate().isBefore(Instant.now())
+                                && patchEntity.getCloseDate().isAfter(Instant.now()));
+                    } else {
+                        forum.setOpenDate(null);
+                        forum.setCloseDate(null);
+                        forum.setAvailabilityRestricted(false);
+                        forum.setAvailability(false);
+                    }
 
                     DiscussionForum updatedForum = discussionForumManager.saveForum(site.getId(), forum);
                     updatedEntities.add(SiteEntityRestBean.of(updatedForum));
@@ -512,5 +529,33 @@ public class SiteEntityController extends AbstractSakaiApiController {
         return forums.stream()
                 .filter(forum -> Long.valueOf(forumId).equals(forum.getId()))
                 .findAny();
+    }
+
+    private boolean isDateRestrictionPatchValid(SiteEntityRestBean patchEntity) {
+        Boolean dateRestricted = patchEntity.getDateRestricted();
+        Instant openDate = patchEntity.getOpenDate();
+        Instant closeDate = patchEntity.getCloseDate();
+
+        if (dateRestricted != null && dateRestricted) {
+            if (openDate != null && closeDate != null) {
+                log.debug("Open and close date present for dateRestriction=true -> valid");
+                return true;
+            } else {
+                log.debug("Open and close date need to be set for dateRestriction=true -> invalid");
+                return false;
+            }
+        } else {
+            if (openDate == null && closeDate == null) {
+                if (dateRestricted == null) {
+                    log.debug("No date restriction change to handle -> valid");
+                } else {
+                    log.debug("Date restriction can be cleared -> valid");
+                }
+                return true;
+            } else {
+                log.debug("Can not set open or close date without dateRestriction=true -> invalid");
+                return false;
+            }
+        }
     }
 }
