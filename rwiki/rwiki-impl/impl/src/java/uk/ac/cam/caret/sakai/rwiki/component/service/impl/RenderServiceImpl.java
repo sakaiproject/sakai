@@ -107,6 +107,7 @@ public class RenderServiceImpl implements RenderService
 					.getRenderContext(rwo, renderEngine);
 			
 			String content = rwo.getContent();
+			// All the pages inside the content will be detected by the '[' and ']', so with that 2 variables we can detect the name of the rwiki page 
 			int startRwikiName = content.indexOf("[");
 			int finishRwikiName = content.indexOf("]");
 			while(startRwikiName != -1) {
@@ -137,6 +138,7 @@ public class RenderServiceImpl implements RenderService
 				}
 				if (!showPage) {
 					content = content.substring(0,startRwikiName) + content.substring(finishRwikiName+1);
+					// Searching the index of the pages of rwiki, starting from the last index
 					startRwikiName = content.indexOf("[", startRwikiName);
 					finishRwikiName = content.indexOf("]", startRwikiName);
 				} else {
