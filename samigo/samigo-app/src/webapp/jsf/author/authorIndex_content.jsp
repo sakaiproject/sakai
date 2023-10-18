@@ -53,8 +53,8 @@
                 localStorage.setItem(`samigo-pageLength-\${portal.user.id}`, pageLength);
             }
 
-            var notEmptyTableTd = $("#authorIndexForm\\:coreAssessments td:not(:empty)").length;
-            var assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
+            const notEmptyTableTd = $("#authorIndexForm\\:coreAssessments td:not(:empty)").length;
+            const assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
 
             if (notEmptyTableTd > 0) {
                 var table = $("#authorIndexForm\\:coreAssessments").DataTable({
@@ -98,20 +98,20 @@
                     }
                 });
 
-                var spanClassName = "";
-                var filterGroups = [];
+                let spanClassName = "";
+                let filterGroups = [];
                 function filterBy() {
                     $.fn.dataTableExt.afnFiltering.push(
                         function (oSettings, aData, iDataIndex) {
-                            var showBySpan = true;
-                            var showByGroups = !<h:outputText value="#{author.groupFilterEnabled}" />;
+                            let showBySpan = true;
+                            let showByGroups = !<h:outputText value="#{author.groupFilterEnabled}" />;
 
                             if (spanClassName != "") {
                                 showBySpan = (($(oSettings.aoData[iDataIndex].anCells).children("span." + spanClassName).length > 0) ? true : false);
                             }
                             if (filterGroups != null) {
                                 for (var i=0; i<filterGroups.length; i++) {
-                                    var filter = filterGroups[i];
+                                    const filter = filterGroups[i];
                                     if (filter.startsWith("releaseto")) {
                                         showByGroups = (($(oSettings.aoData[iDataIndex].anCells).children("." + filterGroups[i]).length > 0) ? true : false);
                                     } else {
@@ -137,7 +137,7 @@
                     $.fn.dataTableExt.afnFiltering.push(
                         function (oSettings, aData, iDataIndex) {
                             if (spanClassName != "") {
-                                var spanLength = $(oSettings.aoData[iDataIndex].anCells).children("." + spanClassName).length;
+                                const spanLength = $(oSettings.aoData[iDataIndex].anCells).children("." + spanClassName).length;
                                 if (spanLength > 0) {
                                     return true;
                                 }
@@ -164,20 +164,20 @@
                 });
                 filterGroups = $("#authorIndexForm\\:group-select").val();
 
-                var divElem = document.createElement('div');
-                var filterPlaceholder = <h:outputText value="'#{authorFrontDoorMessages.multiselect_filterPlaceholder}'" />;
+                const divElem = document.createElement('div');
+                let filterPlaceholder = <h:outputText value="'#{authorFrontDoorMessages.multiselect_filterPlaceholder}'" />;
                 divElem.innerHTML = filterPlaceholder;
                 filterPlaceholder = divElem.textContent;
-                var selectAllText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_selectAllText}'" />;
+                let selectAllText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_selectAllText}'" />;
                 divElem.innerHTML = selectAllText;
                 selectAllText = divElem.textContent;
-                var nonSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nonSelectedText}'" />;
+                let nonSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nonSelectedText}'" />;
                 divElem.innerHTML = nonSelectedText;
                 nonSelectedText = divElem.textContent;
-                var allSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_allSelectedText}'" />;
+                let allSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_allSelectedText}'" />;
                 divElem.innerHTML = allSelectedText;
                 allSelectedText = divElem.textContent;
-                var nSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nSelectedText}'" />;
+                let nSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nSelectedText}'" />;
                 divElem.innerHTML = nSelectedText;
                 nSelectedText = divElem.textContent;
                 $("#authorIndexForm\\:group-select").multiselect({
@@ -452,14 +452,17 @@
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}">
                         <f:verbatim><span class="status_draft"></f:verbatim>
-                            <h:outputText value="#{authorFrontDoorMessages.assessment_draft}" />
+                            <h:outputText styleClass="d-none spanValue" value="-1" />
+                            <h:outputText value="#{authorFrontDoorMessages.assessment_status_draft}" />
                         <f:verbatim></span></f:verbatim>
                     </h:panelGroup>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
-                        <f:verbatim><span class="status_published status_</f:verbatim><h:outputText value="#{assessment.activeStatus}" /><f:verbatim>"></f:verbatim>
-                        <h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" rendered="#{assessment.activeStatus==true}"/>
-                        <h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" rendered="#{assessment.activeStatus==false}"/>
+                        <f:verbatim><span class="status_published_</f:verbatim><h:outputText value="#{assessment.activeStatus}" /><f:verbatim>"></f:verbatim>
+                        <h:outputText styleClass="d-none spanValue" value="#{assessment.activeStatus}" />
+                        <h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" rendered="#{assessment.activeStatus==2}"/>
+                        <h:outputText value="#{authorFrontDoorMessages.assessment_status_pending}" rendered="#{assessment.activeStatus==1}"/>
+                        <h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" rendered="#{assessment.activeStatus==0}"/>
                         <f:verbatim></span></f:verbatim>
                     </h:panelGroup>
                 </t:column>
