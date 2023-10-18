@@ -85,6 +85,8 @@ class SuiNotifications extends SakaiElement {
           this._decorateAnnouncementNotification(noti);
         } else if (toolEventPrefix === "commons") {
           this._decorateCommonsNotification(noti);
+        } else if (toolEventPrefix === "sam") {
+          this._decorateSamigoNotification(noti);
         }
       }
 
@@ -137,6 +139,13 @@ class SuiNotifications extends SakaiElement {
 
   _decorateCommonsNotification(noti) {
     noti.title = this.i18n.academic_comment_graded.replace('{0}', noti.siteTitle);
+  }
+
+  _decorateSamigoNotification(noti)  {
+
+    if (noti.event === "sam.assessment.available" || noti.event === "sam.assessment.update.available") {
+      noti.title = this.i18n.samigoCreated.replace('{0}', noti.title).replace('{1}', noti.siteTitle);
+    }
   }
 
   fireLoadedEvent() {
