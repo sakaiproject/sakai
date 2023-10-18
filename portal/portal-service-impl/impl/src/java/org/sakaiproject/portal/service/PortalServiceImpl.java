@@ -49,6 +49,7 @@ import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.exolab.castor.util.Configuration.Property;
 import org.exolab.castor.util.LocalConfiguration;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -130,6 +131,9 @@ public class PortalServiceImpl implements PortalService, Observer
 
 	@Autowired
 	private SessionManager sessionManager;
+	
+	@Autowired
+	private SecurityService securityService;
 	
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
 
@@ -839,7 +843,7 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		try {
 			Site site = siteService.getSite(siteId);
-			return site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+			return securityService.isSuperUser() || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
 		} catch (IdUnusedException idue) {
 			log.error("No site for id {}", siteId);
 			return false;
