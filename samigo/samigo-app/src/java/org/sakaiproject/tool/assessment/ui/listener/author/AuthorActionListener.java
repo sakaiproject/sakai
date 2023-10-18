@@ -302,7 +302,7 @@ public class AuthorActionListener
 				  (Map<String, Integer>) numberRetakeHash.get(publishedAssessmentId),
 				  (Map<String, Long>) actualNumberRetake.get(publishedAssessmentId),
 				  needResubmitList)) {
-			  f.setActiveStatus(true);
+			  f.setActiveStatus(2);
 			  activeList.add(f);
 
 			  // check pastDue (alters display for instructor)
@@ -310,8 +310,12 @@ public class AuthorActionListener
 				  f.setPastDue(true);
 			  }
 		  }
+		  else if (f.getStartDate() != null && (new Date()).before(f.getStartDate())) {
+			  f.setActiveStatus(1);
+			  inActiveList.add(f);
+		  }
 		  else {
-			  f.setActiveStatus(false);
+			  f.setActiveStatus(0);
 			  inActiveList.add(f);
 		  }
 
