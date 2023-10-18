@@ -988,7 +988,7 @@ public class FormattedTextTest {
         serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("content.cleaner.filter.utf8", "true", "FormattedTextTest"));
         formattedText.init();
         
-        Assert.assertEquals("smiley face",formattedText.processFormattedText(etext, errorMessages));
+        Assert.assertEquals("&#128512;smiley face&#128512;",formattedText.processFormattedText(etext, errorMessages));
 
         //Test the replacement of ?
         serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("content.cleaner.filter.utf8.replacement", "?", "FormattedTextTest"));
@@ -1259,10 +1259,14 @@ public class FormattedTextTest {
     }
 
     @Test
-    public void testEmojiEscaping() {
+    public void testFourByteEmojiEscaping() {
         String html = "An 😀 awesome 😃 string with a few 😉 emojis!";
         String ret = formattedText.removeSurrogates(html);
         Assert.assertEquals(ret, "An &#128512; awesome &#128515; string with a few &#128521; emojis!");
+
+        html = "This is a bike \uD83D\uDEB4 and a bathtub 🛁 ";
+        ret = formattedText.removeSurrogates(html);
+        Assert.assertEquals(ret, "This is a bike &#128692; and a bathtub &#128705; ");
     }
 
 }

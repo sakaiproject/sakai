@@ -265,7 +265,7 @@ public class FormattedTextImpl implements FormattedText
     public String removeSurrogates(String str) {
         StringBuilder sb = new StringBuilder();
 
-        if (EmojiManager.containsEmoji(str)) {
+        if (restrictReplacement == null && EmojiManager.containsEmoji(str)) {
             str = EmojiParser.parseToHtmlDecimal(str);
         }
 
@@ -446,9 +446,6 @@ public class FormattedTextImpl implements FormattedText
         }
 
         try {
-            if (cleanUTF8) {
-                val = removeSurrogates(val);
-            }
             if (replaceWhitespaceTags) {
                 // normalize all variants of the "<br>" HTML tag to be "<br />\n"
                 val = M_patternTagBr.matcher(val).replaceAll("<br />");
@@ -509,6 +506,11 @@ public class FormattedTextImpl implements FormattedText
             // deal with hardcoded empty space character from Firefox 1.5
             if (val.equalsIgnoreCase("&nbsp;")) {
                 val = "";
+            }
+
+            // Replace 4-byte emojis to deal with legacy MySQL databases using utf8mb3
+            if (cleanUTF8) {
+                val = removeSurrogates(val);
             }
 
         } catch (Exception e) {
