@@ -321,7 +321,9 @@ public interface PortalService
 	public void addPinnedSite(String userId, String siteId);
 
 	/**
-	 * Mark a single pinned site as unpinned, for the specified user, so that other events do not automatically "re-pin" it.
+	 * Mark a single pinned site as unpinned, for the specified user, so that other events do
+	 * not automatically "re-pin" it. This also adds the unpinned site to the user's recent sites
+	 * list.
 	 *
 	 * @param userId The user to unpin the site for
 	 * @param siteId The site id to unpin

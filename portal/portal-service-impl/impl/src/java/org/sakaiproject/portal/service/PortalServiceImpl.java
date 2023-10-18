@@ -938,24 +938,30 @@ public class PortalServiceImpl implements PortalService, Observer
 			return;
 		}
 
+		// We never want the user's home site to be pinned. This is just a backup for that as the 
+		// UI should not be presenting a pin icon for the home site.
 		siteIds.remove(siteService.getUserSiteId(userId));
 
 		List<String> currentPinned = getPinnedSites();
 		currentPinned.forEach(cp -> {
 
+			// Check if the user has unpinned a previously pinned site
 			if (!siteIds.contains(cp)) {
 				unpinPinnedSite(userId, cp);
 			}
 		});
 
+		// We've unpinned, now removed the currently pinned from the requested siteIds. This
+		// will leave only the newly requested sites.
 		siteIds.removeAll(currentPinned);
 
-        for (int i = getPinnedSites().size(); i < siteIds.size(); i++) {
-
-            String siteId = siteIds.get(i);
-
+		// Now, siteIds will contain only the newly pinned sites, so we can add them on the top
+		// of the remaining pinned sites.
+		int start = getPinnedSites().size();
+		for (int i = 0; i < siteIds.size(); i++) {
+			String siteId = siteIds.get(i);
 			PinnedSite pin = pinnedSiteRepository.findByUserIdAndSiteId(userId, siteId).orElseGet(() -> new PinnedSite(userId, siteId));
-			pin.setPosition(i);
+			pin.setPosition(i + start);
 			pin.setHasBeenUnpinned(false);
 			pinnedSiteRepository.save(pin);
 		}
