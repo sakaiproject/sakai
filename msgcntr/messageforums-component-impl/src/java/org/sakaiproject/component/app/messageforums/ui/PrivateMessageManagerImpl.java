@@ -618,10 +618,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     for (Iterator iter = recipients.iterator(); iter.hasNext();)
     {
       PrivateMessageRecipient element = (PrivateMessageRecipient) iter.next();
-      log.debug("element.getTypeUuid(): "+element.getTypeUuid()+", oldTopicTypeUuid: "+oldTopicTypeUuid+", element.getUserId(): "+element.getUserId()+ ", getCurrentUser(): "+getCurrentUser());
-      if (element.getTypeUuid().equals(oldTopicTypeUuid) && (element.getUserId().equals(getCurrentUser())))
-      {
-        element.setTypeUuid(newTopicTypeUuid);
+      if (element != null) {
+        log.debug("element.getTypeUuid(): "+element.getTypeUuid()+", oldTopicTypeUuid: "+oldTopicTypeUuid+", element.getUserId(): "+element.getUserId()+ ", getCurrentUser(): "+getCurrentUser());
+        if (element.getTypeUuid().equals(oldTopicTypeUuid) && (element.getUserId().equals(getCurrentUser())))
+        {
+          element.setTypeUuid(newTopicTypeUuid);
+        }
       }
     }
     savePrivateMessage(message, false);
