@@ -103,7 +103,7 @@ public class PublishedAssessmentFacade
   private int inProgressCount;
   private int submittedCount;
   private Date lastNeedResubmitDate;
-  private boolean activeStatus;
+  private int activeStatus = 0;
   private Map releaseToGroups;
   private int enrolledStudentCount;
   private Integer timeLimit;
@@ -866,11 +866,11 @@ public class PublishedAssessmentFacade
 	  this.timeLimit = timeLimit;
   }
   
-  public boolean getActiveStatus() {
+  public int getActiveStatus() {
 	  return activeStatus;
   }
 
-  public void setActiveStatus(boolean activeStatus) {
+  public void setActiveStatus(int activeStatus) {
 	  this.activeStatus = activeStatus;
   } 
   
