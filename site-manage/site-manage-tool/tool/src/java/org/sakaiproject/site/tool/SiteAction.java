@@ -2349,7 +2349,13 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				// new site
 				context.put("existingSite", Boolean.FALSE);
-				context.put("continue", "4");
+
+				// Are we creating from a template?
+				if (state.getAttribute(STATE_TEMPLATE_SITE) != null) {
+					context.put("continue", "18");
+				} else {
+					context.put("continue", "4");
+				}
 				
 				// get the system default as locale string
 				context.put("locale_string", "");
