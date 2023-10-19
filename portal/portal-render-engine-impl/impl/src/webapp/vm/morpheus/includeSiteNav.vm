@@ -1,7 +1,7 @@
 #macro(siteListItem $type $site $isExpanded)
 
     ## Remove those special site chars. They don't play well with html attributes.
-    #set ($safeSiteId = $site.id.replace("!", "").replace("~", ""))
+    #set ($safeSiteId = $site.id.replace("!", "").replace("~", "").replace(".",""))
 
     #if ($site.isPinned)
         #set ($pinTitle = $rloader.sitenav_btn_unpin)
