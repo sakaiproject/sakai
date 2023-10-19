@@ -1982,7 +1982,7 @@ $(document).ready(function() {
 					      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
 					$("#require-label").text(msg("simplepage.require_submit_blti"));
 					if (format === '')
-					    format = 'page';
+					    format = 'window';
 					$(".format").prop("checked", false);
 					$("#format-" + format).prop("checked", true);
 					$("#formatstuff").show();
