@@ -122,6 +122,27 @@
                 <module>webjars</module>
                 <module>webservices</module>
                 <module>wicket</module>
+
+                <!-- UCT -->
+                <module>uct-quartz</module>
+                <module>uct-site-manage</module>
+                <module>profilesearch</module>
+                <module>spml</module>
+                <module>profilewow</module>
+
+                <!-- contrib -->
+                <module>useralias</module>
+                <module>sms</module>
+                <module>qna</module>
+                <module>gradebook1</module>
+                <module>groupmanager</module>
+                <module>blogwow</module>
+                <module>evaluation</module>
+
+                <!-- Older, removed from 11.x but still in use at UCT -->
+                <module>linktool</module>
+                <module>profile</module>
+                <module>roster</module>
             </modules>
         </profile>
         <profile>

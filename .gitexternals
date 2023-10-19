@@ -1,0 +1,65 @@
+# Contrib tools
+[external "evaluation"]
+	path = evaluation
+	url = https://github.com/cilt-uct/evaluation.git
+	branch = 21.x
+[external "qna"]
+	path = qna
+	url = https://github.com/cilt-uct/QnA.git
+	branch = 21.x
+[external "blogwow"]
+	path = blogwow
+	url = https://github.com/cilt-uct/blogwow.git
+	branch = 21.x
+[external "useralias"]
+	path = useralias
+	url = https://github.com/cilt-uct/Roleplay.git
+	branch = 21.x
+[external "sms"]
+	path = sms
+	url = https://github.com/cilt-uct/sms.git
+	branch = 21.x
+
+# No longer in 11.x but still in use at UCT
+[external "linktool"]
+	path = linktool
+	url = https://github.com/cilt-uct/linktool.git
+	branch = 21.x
+[external "roster"]
+	path = roster
+	url = https://github.com/cilt-uct/roster.git
+	branch = 21.x
+[external "profile"]
+	path = profile
+	url = https://github.com/cilt-uct/profile.git
+	branch = 21.x
+
+# Local UCT tools and services
+[external "uct-quartz"]
+	path = uct-quartz
+	url = https://github.com/cilt-uct/uct-quartz.git
+	branch = 21.x
+[external "uct-site-manage"]
+	path = uct-site-manage
+	url = https://github.com/cilt-uct/uct-site-manage.git
+	branch = 21.x
+[external "profilesearch"]
+	path = profilesearch
+	url = https://github.com/cilt-uct/profilesearch.git
+	branch = 21.x
+[external "spml"]
+	path = spml
+	url = https://github.com/cilt-uct/spml.git
+	branch = 21.x
+[external "profilewow"]
+	path = profilewow
+	url = https://github.com/cilt-uct/profileWOW.git
+	branch = 21.x
+[external "groupmanager"]
+	path = groupmanager
+	url = https://github.com/cilt-uct/group-manager.git
+	branch = 21.x
+[external "gradebook1"]
+	path = gradebook1
+	url = https://github.com/cilt-uct/gradebook1.git
+	branch = 21.x
