@@ -3866,7 +3866,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                 iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
                 // normally we get the name from the link text, but there's no link text here
                 UIOutput.make(container, "item-name", i.getName());
-            } else if (!"window".equals(i.getFormat())) {
+            } else if (!"window".equals(i.getFormat()) && (i.getFormat() != null)) {
                 // this is the default if format isn't valid or is missing
                 if (usable && lessonEntity != null) {
                     // I'm fairly sure checkitempermissions doesn't do anything useful for LTI,
