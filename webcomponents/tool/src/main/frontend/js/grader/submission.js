@@ -104,6 +104,7 @@ class Submission {
       this.assignmentCloseTime = init.assignmentCloseTime.epochSecond * 1000;
       this.hydrated = init.hydrated;
       this.submitted = init.submitted;
+      this.hasNonInlineAttachments = this.submittedAttachments.filter(r => r.type !== "text/html").length > 0;
     } else {
       this.id = "dummy";
     }
