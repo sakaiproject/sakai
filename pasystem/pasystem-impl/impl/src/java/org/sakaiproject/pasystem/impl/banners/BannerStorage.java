@@ -265,7 +265,7 @@ public class BannerStorage implements Banners, Acknowledger {
     }
 
     @Override
-    public void clearTemporaryDismissedForUser(String userId) {
-        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).clearTemporaryDismissedForUser(userId);
+    public void clearAcknowledgementForUser(String userId) {
+        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).clearAcknowledgementForUser(userId);
     }
 }

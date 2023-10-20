@@ -48,7 +48,7 @@ public interface Banners extends Acknowledger {
     /**
      * Forget all acknowledgements for the current user.
      */
-    public void clearTemporaryDismissedForUser(String userId);
+    public void clearAcknowledgementForUser(String userId);
 
     public Optional<Banner> getForId(String uuid);
 }
