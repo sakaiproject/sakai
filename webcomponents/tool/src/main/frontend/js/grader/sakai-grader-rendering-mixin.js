@@ -716,7 +716,10 @@ export const graderRenderingMixin = Base => class extends Base {
           <div class="grader-group-members">${this.submission.groupMembers}</div>
         ` : ""}
         <div class="attachments">
-          ${this.submission.submittedText && this.submission.visible ? html`
+          ${this.submission.submittedText
+              && this.submission.visible
+              && this.gradable.submissionType === "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION"
+              && this.submission.hasNonInlineAttachments ? html`
           <div>
             <button type="button"
                 class="btn btn-transparent text-decoration-underline"
@@ -725,17 +728,16 @@ export const graderRenderingMixin = Base => class extends Base {
             </button>
           </div>
           ` : ""}
-          ${this.submission.submittedAttachments?.length > 0 ? html`
-            ${this.submission.submittedAttachments.filter(r => r.type !== "text/html").map(r => html`
-              <div>
-                <button type="button"
-                    class="btn btn-transparent text-decoration-underline"
-                    data-ref="${r.ref}"
-                    @click=${this._previewAttachment}>
-                  ${r.name}
-                </button>
-              </div>
-            `)}` : ""}
+          ${this.submission.submittedAttachments.filter(r => r.type !== "text/html").map(r => html`
+            <div>
+              <button type="button"
+                  class="btn btn-transparent text-decoration-underline"
+                  data-ref="${r.ref}"
+                  @click=${this._previewAttachment}>
+                ${r.name}
+              </button>
+            </div>
+          `)}
         </div>
         <div class="timeSpent-block">
           ${this.submission.submitters?.length > 0 && this.submission.submitters[0].timeSpent ? html`
