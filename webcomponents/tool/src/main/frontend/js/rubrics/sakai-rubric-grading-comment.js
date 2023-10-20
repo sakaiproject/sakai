@@ -32,123 +32,107 @@ export class SakaiRubricGradingComment extends RubricsElement {
     return this._criterion;
   }
 
-  render() {
+  _toggleModal() {
 
-    return html`
-      <!-- edit icon -->
-      <div tabindex="0" style="cursor: pointer;" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active" : ""}" @click=${this.toggleEditor} @keypress=${this.toggleEditor} title="${tr("criterion_comment")}"></div>
-
-      <!-- popover -->
-
-      <div id="criterion-editor-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left rubrics-comment-popover">
-        <div class="arrow-comment"></div>
-        <div class="popover-title" style="display: flex;">
-          <div style="flex: auto;">
-            <span class="criterion-title">
-              <sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}" />
-            </span>
-          </div>
-          <div class="buttons act mt-0" style="flex: 0">
-            <button class="active btn-xs done" @click="${this.hideTooltip}"><sr-lang key="done" /></button>
-          </div>
-        </div>
-        <div class="popover-content form">
-          <div class="form-group">
-            <textarea
-              aria-label="${tr("criterion_comment")}"
-              class="form-control"
-              name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-comment-${this.criterion.id}"
-              id="criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}">
-              ${this.criterion.comments}
-            </textarea>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  hide() {
-    this.hideTooltip();
-  }
-
-  toggleEditor(e) {
-
-    e.stopPropagation();
-    e.preventDefault();
-
-    if (!this.classList.contains("show-tooltip")) {
-
-      this.dispatchEvent(new CustomEvent('comment-shown'));
-
-      this.classList.add('show-tooltip');
-
-      const popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
-
-      popover[0].style.left = `${e.target.offsetLeft - 280  }px`;
-      popover[0].style.top = `${e.target.offsetTop + e.target.offsetHeight / 2 + 20 - popover.height() / 2 - 46  }px`;
-
-      Object.keys(CKEDITOR.instances)
-        .filter(n => n.includes("criterion-")).forEach(n => CKEDITOR.instances[n].destroy(true));
-
-      this.setupEditor();
-
-      popover.show();
-    } else {
-      this.hideTooltip();
-    }
-  }
-
-  hideTooltip(e) {
-
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-
-    // hide the edit popover
-    this.classList.remove("show-tooltip");
-    $(`#criterion-editor-${this.criterion.id}-${this.randombit}`).hide();
-    if (!this.criterion.comments) {
-      this.criterion.comments = "";
-    }
-
-    this.requestUpdate();
+    const el = document.getElementById(`criterion-comment-${this.criterion.id}`);
+    bootstrap.Modal.getOrCreateInstance(el).toggle();
   }
 
   setupEditor() {
 
     const editorKey = `criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}`;
 
-    try {
-      const commentEditor = CKEDITOR.replace(editorKey, {
-        startupFocus: true,
-        toolbar: [['Bold', 'Italic', 'Underline'], ['NumberedList', 'BulletedList', 'Blockquote']],
-        height: 40
-      });
+    this.editor = sakai.editor.launch(editorKey, {
+      autosave: {
+        delay: 10000000,
+        messageType: "no"
+      },
+      startupFocus: true,
+      toolbarSet: "Basic",
+    });
 
-      commentEditor.on('blur', () => {
+    this.editor.on('blur', () => {
 
-        // When we click away from the comment editor we need to save the comment, but only if the comment has been updated
-        const updatedComments = commentEditor.getData();
+      // When we click away from the comment editor we need to save the comment, but only if the comment has been updated
+      const updatedComments = this.editor.getData();
 
-        if (this.criterion.comments !== updatedComments) {
-          this.criterion.comments = updatedComments;
-          const updateEvent = new CustomEvent('update-comment', {
-            detail: {
-              evaluatedItemId: this.evaluatedItemId,
-              entityId: this.entityId,
-              criterionId: this.criterion.id,
-              value: this.criterion.comments
-            },
-            bubbles: true, composed: true });
-          this.dispatchEvent(updateEvent);
-        }
+      if (this.criterion.comments !== updatedComments) {
+        this.criterion.comments = updatedComments;
+        const updateEvent = new CustomEvent('update-comment', {
+          detail: {
+            evaluatedItemId: this.evaluatedItemId,
+            entityId: this.entityId,
+            criterionId: this.criterion.id,
+            value: this.criterion.comments
+          },
+          bubbles: true, composed: true });
+        this.dispatchEvent(updateEvent);
+      }
+    });
+  }
 
-        this.hideTooltip();
-      });
-    } catch (error) {
-      console.error(error);
-    }
+  firstUpdated() {
+
+    // We need to move the comment modal onto the body, or it ends up displaying under the mask and
+    // can't be interacted with. Bit of a hack ...
+    const el = document.getElementById(`criterion-comment-${this.criterion.id}`);
+    el.remove();
+    document.body.append(el);
+
+    this.setupEditor();
+    el.addEventListener("shown.bs.modal", () => this.editor.focus());
+  }
+
+  render() {
+
+    return html`
+      <button type="button"
+          class="btn btn-link"
+          aria-label="${tr("criterion_comment")}"
+          title="${tr("criterion_comment")}"
+          @click=${this._toggleModal}>
+        <i class="comment-icon bi bi-chat-text${this.criterion.comments ? "-fill" : ""} ${this.criterion.comments ? "active" : ""}"></i>
+      </button>
+
+      <div id="criterion-comment-${this.criterion.id}"
+          class="modal fade"
+          tabindex="-1"
+          aria-hidden="true"
+          aria-labelledby="criterion-comment-${this.criterion.id}-label">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 id="criterion-comment-${this.criterion.id}-label" class="modal-title">${tr("comment_for_criterion", [ this.criterion.title ])}</h5>
+              <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  title="${tr("close_comment_modal_tooltip")}"
+                  aria-label="${tr("close_comment_modal_tooltip")}">
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <textarea
+                  aria-label="${tr("criterion_comment")}"
+                  class="form-control"
+                  name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-comment-${this.criterion.id}"
+                  id="criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}">
+                  ${this.criterion.comments}
+                </textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-primary"
+                  data-bs-dismiss="modal"
+                  aria-label="${tr("close_comment_modal_tooltip")}"
+                  title="${tr("close_comment_modal_tooltip")}">
+                ${tr("done")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   }
 }
 
