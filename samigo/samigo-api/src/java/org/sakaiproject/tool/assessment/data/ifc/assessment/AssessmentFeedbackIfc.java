@@ -98,4 +98,8 @@ public interface AssessmentFeedbackIfc
 
   void setFeedbackComponentOption(Integer feedbackComponentOption);
 
+  Boolean getShowCorrection();
+
+  void setShowCorrection(Boolean showCorrection);
+
 }
