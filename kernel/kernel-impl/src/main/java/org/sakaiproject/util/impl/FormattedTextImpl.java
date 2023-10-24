@@ -29,8 +29,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +60,7 @@ import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.PolicyException;
 import org.owasp.validator.html.ScanException;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.Resource;
@@ -81,6 +85,7 @@ public class FormattedTextImpl implements FormattedText
 {
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SessionManager sessionManager;
+    @Setter private SqlService sqlService;
 
     /**
      * This is the high level html cleaner object
@@ -103,7 +108,7 @@ public class FormattedTextImpl implements FormattedText
     private boolean showDetailedErrorToUser = false;
     private boolean returnErrorToTool = false;
     private boolean logErrors = false;
-    private boolean cleanUTF8 = true;
+    @Setter boolean cleanUTF8 = false;
     private String restrictReplacement = null;
 
     private String referrerPolicy = null;
@@ -116,12 +121,12 @@ public class FormattedTextImpl implements FormattedText
     protected final String RESOURCEBUNDLE = "resource.bundle.content";
 
     public void init() {
-        boolean useLegacy = false;
         if (serverConfigurationService != null) { // this keeps the tests from dying
-            useLegacy = serverConfigurationService.getBoolean("content.cleaner.use.legacy.html", useLegacy);
+
+            // Determine if the MySQL DB is utf8mb3 or utf8mb4
+            validateUTF8Db();
 
             //Filter content output to limited unicode characters KNL-1431
-            cleanUTF8 = serverConfigurationService.getBoolean("content.cleaner.filter.utf8",cleanUTF8);
             restrictReplacement = serverConfigurationService.getString("content.cleaner.filter.utf8.replacement",restrictReplacement);
 
             /* KNL-1075 - content.cleaner.errors.handling = none|logged|return|notify|display
@@ -156,17 +161,6 @@ public class FormattedTextImpl implements FormattedText
                     "; details to user=" + showDetailedErrorToUser);
 
             referrerPolicy = serverConfigurationService.getString(SAK_PROP_REFERRER_POLICY, SAKAI_REFERRER_POLICY_DEFAULT);
-        }
-        if (useLegacy) {
-            log.error(
-                     "**************************************************\n"
-                    +"* -----------<<<   WARNING   >>>---------------- *\n"
-                    +"* The LEGACY Sakai content scanner is no longer  *\n"
-                    +"* available. It has been deprecated and removed. *\n"
-                    +"* Content scanning uses AntiSamy scanner now.    *\n"
-                    +"* https://jira.sakaiproject.org/browse/KNL-1127  *\n"
-                    +"**************************************************\n"
-            );
         }
 
         /* INIT Antisamy
@@ -206,6 +200,36 @@ public class FormattedTextImpl implements FormattedText
             throw new IllegalStateException("Unable to startup the antisamy html code cleanup handler (cannot complete startup): " + e, e);
         }
 
+    }
+
+    private void validateUTF8Db() {
+        // Only MySQL has this issue with 3-byte and 4-byte utf8 flavors
+        if (!"mysql".equalsIgnoreCase(sqlService.getVendor())) {
+            return;
+        }
+
+        Connection connection = null;
+        try {
+            connection = sqlService.borrowConnection();
+            String sql = "SELECT @@character_set_database";
+            List list = sqlService.dbRead(connection, sql, null, null);
+            if (list != null && !list.isEmpty()) {
+                String result = (String) list.get(0);
+
+                if (StringUtils.contains(result, "utf8mb4")) {
+                    log.info("Database character set is configured correctly as utf8mb4");
+                } else if (StringUtils.contains(result, "utf8")) {
+                    log.warn("Database character set appears to be utf8mb3. Enabling the cleanUTF8 property.");
+                    setCleanUTF8(true);
+                } else {
+                    log.error("Database character set is not configured for UTF-8: {}", result);
+                }
+            }
+        } catch (SQLException e) {
+            log.error("Unable to determine database character set", e);
+        } finally {
+            if (connection != null) sqlService.returnConnection(connection);
+        }
     }
 
     private Policy readPolicyFile(URL url) throws PolicyException {
