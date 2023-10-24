@@ -31,6 +31,7 @@ import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.impl.BasicConfigurationService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.id.impl.UuidV4IdComponent;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -41,6 +42,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.impl.SessionComponent;
 import org.sakaiproject.util.BasicConfigItem;
 import org.sakaiproject.util.api.FormattedText.Level;
+
+import static org.mockito.Mockito.mock;
 
 public class FormattedTextTest {
 
@@ -104,6 +107,7 @@ public class FormattedTextTest {
         formattedText = new FormattedTextImpl();
         formattedText.setServerConfigurationService(serverConfigurationService);
         formattedText.setSessionManager(sessionManager);
+        formattedText.setSqlService(mock(SqlService.class));
         formattedText.setDefaultAddBlankTargetToLinks(BLANK_DEFAULT);
 
         formattedText.init();
@@ -985,8 +989,8 @@ public class FormattedTextTest {
         StringBuilder errorMessages = new StringBuilder();
         String etext = new StringBuilder().appendCodePoint(0x1F600).append("smiley face").appendCodePoint(0x1F600).toString();
         //Retrict to utf8 only
-        serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("content.cleaner.filter.utf8", "true", "FormattedTextTest"));
         formattedText.init();
+        formattedText.setCleanUTF8(true);
         
         Assert.assertEquals("&#128512;smiley face&#128512;",formattedText.processFormattedText(etext, errorMessages));
 
@@ -996,8 +1000,8 @@ public class FormattedTextTest {
         Assert.assertEquals("??smiley face??",formattedText.processFormattedText(etext, errorMessages));
 
         //Don't restrict to UTF8
-        serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("content.cleaner.filter.utf8", "false", "FormattedTextTest"));
         formattedText.init();
+        formattedText.setCleanUTF8(false);
         Assert.assertEquals(etext,formattedText.processFormattedText(etext, errorMessages));
     }
 
