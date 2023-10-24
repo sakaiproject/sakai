@@ -47,6 +47,7 @@ private Long id;
   private Boolean showSelectionLevelFeedback; // must be MC
   private Boolean showGraderComments;
   private Boolean showStatistics;
+  private Boolean showCorrection;
   private Long assessmentId;
 
   /**
@@ -60,6 +61,7 @@ private Long id;
     setShowQuestionText(Boolean.TRUE);
     setShowSelectionLevelFeedback(Boolean.FALSE);
     setShowStatistics(Boolean.FALSE);
+    setShowCorrection(Boolean.FALSE);
     setShowStudentScore(Boolean.FALSE);
     setShowStudentQuestionScore(Boolean.FALSE);
     setFeedbackDelivery(AssessmentFeedbackIfc.NO_FEEDBACK);
@@ -89,6 +91,7 @@ private Long id;
     this.showSelectionLevelFeedback = showSelectionLevelFeedback; // must be MC
     this.showGraderComments = showGraderComments;
     this.showStatistics = showStatistics;
+    this.showCorrection = false;
   }
 
   public PublishedFeedback(
@@ -111,6 +114,30 @@ private Long id;
     this.showSelectionLevelFeedback = showSelectionLevelFeedback; // must be MC
     this.showGraderComments = showGraderComments;
     this.showStatistics = showStatistics;
+    this.showCorrection = false;
+  }
+
+  public PublishedFeedback(
+      Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
+      Boolean showStudentResponse, Boolean showCorrectResponse,
+      Boolean showStudentScore,  Boolean showStudentQuestionScore, 
+      Boolean showQuestionLevelFeedback, Boolean showSelectionLevelFeedback,
+      Boolean showGraderComments, Boolean showStatistics, Boolean showCorrection)
+  {
+    this.feedbackDelivery = feedbackDelivery;
+    this.feedbackComponentOption = feedbackComponentOption;
+    this.feedbackAuthoring = feedbackAuthoring;
+    this.editComponents = editComponents;
+    this.showQuestionText = showQuestionText;
+    this.showStudentResponse = showStudentResponse;
+    this.showCorrectResponse = showCorrectResponse;
+    this.showStudentScore = showStudentScore;
+    this.showStudentQuestionScore = showStudentQuestionScore;
+    this.showQuestionLevelFeedback = showQuestionLevelFeedback;
+    this.showSelectionLevelFeedback = showSelectionLevelFeedback; // must be MC
+    this.showGraderComments = showGraderComments;
+    this.showStatistics = showStatistics;
+    this.showCorrection = showCorrection;
   }
 
   public Object clone() throws CloneNotSupportedException{
@@ -121,7 +148,7 @@ private Long id;
         this.getShowStudentScore(),   this.getShowStudentQuestionScore(), 
         this.getShowQuestionLevelFeedback(),
         this.getShowSelectionLevelFeedback(), this.getShowGraderComments(),
-        this.getShowStatistics());
+        this.getShowStatistics(), this.getShowCorrection());
     return cloned;
   }
 
@@ -271,6 +298,16 @@ private Long id;
   public void setShowStatistics(Boolean showStatistics)
   {
     this.showStatistics = showStatistics;
+  }
+
+  public Boolean getShowCorrection()
+  {
+    return showCorrection;
+  }
+
+  public void setShowCorrection(Boolean showCorrection)
+  {
+    this.showCorrection = showCorrection;
   }
 
   public Long getAssessmentId() {
