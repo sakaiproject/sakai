@@ -225,7 +225,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				.getShowStudentScore(), a.getShowStudentQuestionScore(), a
 				.getShowQuestionLevelFeedback(), a
 				.getShowSelectionLevelFeedback(), a.getShowGraderComments(), a
-				.getShowStatistics());
+				.getShowStatistics(), a.getShowCorrection());
 		publishedFeedback.setAssessmentBase(p);
 		return publishedFeedback;
 	}
