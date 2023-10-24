@@ -50,6 +50,7 @@ import org.sakaiproject.login.api.LoginCredentials;
 import org.sakaiproject.login.api.LoginRenderContext;
 import org.sakaiproject.login.api.LoginRenderEngine;
 import org.sakaiproject.login.api.LoginService;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -333,7 +334,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			// Trim off the force.login parameter from return URL if present
 			if ( returnUrl != null )
 			{
-				int where = returnUrl.indexOf("?force.login");
+				int where = returnUrl.indexOf("?" + Portal.PARAM_FORCE_LOGIN);
 				if ( where > 0 ) returnUrl = returnUrl.substring(0,where);
 			}
 
