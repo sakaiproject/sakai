@@ -868,3 +868,8 @@ function toggleSection(sectionId, visible){
 		document.getElementById(sectionId).classList.add('hidden');
 	}
 }
+function changeStatusCorrectResponseCheckbox() {
+  const hideCorrectResponse = document.getElementById('assessmentSettingsAction:hideCorrectResponse');
+
+  hideCorrectResponse.style.display = (hideCorrectResponse.style.display == "none") ? "block" : "none";
+}
