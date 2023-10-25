@@ -2282,7 +2282,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			} catch (IdUnusedException e) {
 				log.error("Unable to fetch site with id {}", siteId);
 			} catch (UserNotDefinedException e) {
-				log.error("Unable to fetch user in {}", siteId);
+				log.error("Unable to fetch current user on site with id {}", siteId);
 			}
 
 			if (inst == null) {
