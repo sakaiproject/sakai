@@ -2286,7 +2286,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			}
 
 			if (inst == null) {
-				log.error("Instructor is null in {}", siteId);
+				log.error("Instructor is null. siteId: {}", siteId);
 			} else {
 				togo.put("uem", StringUtils.trimToEmpty(getEmail(inst)));
 				togo.put("ufn", StringUtils.trimToEmpty(inst.getFirstName()));
