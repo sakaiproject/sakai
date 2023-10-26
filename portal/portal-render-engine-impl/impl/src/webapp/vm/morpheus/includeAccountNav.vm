@@ -12,6 +12,14 @@ For opening help sidebar
     </a>
   </li>
 *#
+  #if (${currentRole} && $roleSwitchState == false)
+    <li class="d-none d-md-inline">
+      <div class="current-role">
+        <i class="fa fa-user" aria-hidden="true"></i>
+        <span>${rloader.sit_role} ${currentRole}</span>
+      </div>
+    </li>
+  #end
 
   #if ($pageColumn0Tools && !$pageColumn0Tools.isEmpty())
       #set ($helpLink = $pageColumn0Tools.get(0).toolHelpActionUrl)

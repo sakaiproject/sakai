@@ -53,6 +53,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -177,6 +178,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * Parameter value to indicate to look up a tool ID within a site
 	 */
 	protected static final String PARAM_SAKAI_SITE = "sakai.site";
+
+	private static String PORTAL_DISPLAY_CURRENT_ROLE = "portal.display.current.role";
 
 	private BasicAuth basicAuth = null;
 
