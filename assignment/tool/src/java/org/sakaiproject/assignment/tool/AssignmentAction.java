@@ -6919,11 +6919,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
 
                     // following involves content, not grading, so always do on resubmit, not just if graded
-
-                    // clean the ContentReview attributes
-                    properties.put(AssignmentConstants.REVIEW_SCORE, "-2"); // the default is -2 (e.g., for a new submission)
-                    properties.put(AssignmentConstants.REVIEW_STATUS, null);
-
                     if (StringUtils.isNotBlank(submission.getFeedbackText())) {
                         // keep the history of assignment feed back text
                         String feedbackTextHistory = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
