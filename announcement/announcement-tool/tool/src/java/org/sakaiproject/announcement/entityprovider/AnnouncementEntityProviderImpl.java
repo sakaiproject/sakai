@@ -354,6 +354,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		da.setCreatedOn(new Date(a.getHeader().getDate().getTime()));
 		da.setSiteId(siteId);
 		da.setSiteTitle(siteTitle);
+		da.setHighlight(a.getProperties().getProperty("highlight"));
 		List selectedRolesList = a.getProperties().getPropertyList("selectedRoles");
 		ArrayList<String> selectedRolesArray = null;
 		if (selectedRolesList != null) {
@@ -764,6 +765,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		@Getter @Setter private String siteId;
 		@Getter @Setter private String announcementId;
 		@Getter @Setter private String[] selectedRoles;
+		@Getter @Setter private String highlight;
 		@Getter @Setter private String siteTitle;
 		@Getter @Setter private String channel;
 
