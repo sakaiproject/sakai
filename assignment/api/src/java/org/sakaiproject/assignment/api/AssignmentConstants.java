@@ -228,14 +228,7 @@ public final class AssignmentConstants {
     public static final String PROP_INLINE_SUBMISSION = "assignment_submission_attachment_is_inline";
     public static final String ZIP_COMMENT_FILE_TYPE = ".txt";
     public static final String ZIP_SUBMITTED_TEXT_FILE_TYPE = ".html";
-    public static final String REVIEW_SCORE = "review_score";
-    public static final String REVIEW_REPORT = "review_report";
-    public static final String REVIEW_STATUS = "review_status";
-    public static final String REVIEW_ICON = "review_icon";
-    public static final String REVIEW_ERROR = "review_error";
-    /**
-     * Is the review service available?
-     */
+
     public static final String NEW_ASSIGNMENT_USE_REVIEW_SERVICE = "new_assignment_use_review_service";
     public static final String NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW = "new_assignment_allow_student_view";
     public static final String NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO = "submit_papers_to";
@@ -264,7 +257,6 @@ public final class AssignmentConstants {
     public static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE = "exclude_value";
     public static final String SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT = "review_service_eula_agreement";
     public static final String SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT = "review_check_service_eula_agreement";
-    private static final String SUBMISSION_REVIEW_EULA_AGREEMENT_LINK = "review_service_eula_agreement_link";
 
     private AssignmentConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");

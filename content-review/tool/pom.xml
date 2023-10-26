@@ -71,7 +71,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
-          <ouputDirectory>${project.build.directory}</ouputDirectory>
+          <outputDirectory>${project.build.directory}</outputDirectory>
         </configuration>
       </plugin>
     </plugins>
