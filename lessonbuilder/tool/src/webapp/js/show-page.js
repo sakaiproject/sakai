@@ -1523,18 +1523,18 @@ $(document).ready(function () {
       $("#customCssClass").val(row.find(".custom-css-class").text());
 
       var colorArray = ["none",
-                "ngray",
-                "nblack",
-                "nblue",
-                "nblue2",
-                "nred",
-                "nnavy",
-                "nnavy2",
-                "ngreen",
-        "norange",
-        "ngold",
-        "nteal",
-        "npurple"];
+                        "ngray",
+                        "nblack",
+                        "nblue",
+                        "nblue2",
+                        "nred",
+                        "nnavy",
+                        "nnavy2",
+                        "ngreen",
+                        "norange",
+                        "ngold",
+                        "nteal",
+                        "npurple"];
       var classList = row.find(".usebutton").attr('class').split(' ');
 
       var color = null;
