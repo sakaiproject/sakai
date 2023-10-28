@@ -40,6 +40,9 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.assessment.data.dao.assessment.*;
+import org.sakaiproject.tool.assessment.facade.*;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -138,6 +141,15 @@ public class AuthoringHelper
       ax.getTemplateInputStream(ax.ASSESSMENT);
 
     return getAssessment(assessmentId, is);
+  }
+
+  public Document getPublishedAssessment(String publishedAssessmentId)
+  {
+
+    InputStream is =
+      ax.getTemplateInputStream(ax.ASSESSMENT);
+
+    return getPublishedAssessment(publishedAssessmentId, is);
   }
 
   /**
@@ -290,6 +302,146 @@ public class AuthoringHelper
         SectionDataIfc section = (SectionDataIfc) sectionList.get(i);
         InputStream sis =
           ax.getTemplateInputStream(ax.SECTION);
+        Section sectionXml = sectionHelper.readXMLDocument(sis);
+        sectionXml.update(section);
+        addSection(assessmentXml, sectionXml);
+      }
+
+      return assessmentXml.getDocument();
+    }
+    catch (Exception e)
+    {
+      log.error(e.getMessage(), e);
+    }
+    return null;
+  }
+
+  public Document getPublishedAssessment(String publishedAssessmentId, InputStream is)
+  {
+    try
+    {
+      String authors;
+      String objectives;
+      String keywords;
+      String rubrics;
+      String bgColor;
+      String bgImage;
+
+      PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+      QTIHelperFactory factory = new QTIHelperFactory();
+
+      PublishedAssessmentFacade publishedAssessment =
+              publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
+
+      // convert assessment to document
+      AssessmentHelperIfc assessmentHelper =
+              factory.getAssessmentHelperInstance(this.qtiVersion);
+      Assessment assessmentXml = assessmentHelper.readXMLDocument(is);
+      assessmentXml.setIdent(String.format("pub%s", publishedAssessmentId));
+      assessmentXml.setTitle(String.format("Published: %s", ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle())));
+      assessmentHelper.setDescriptiveText(publishedAssessment.getDescription(),
+              assessmentXml);
+
+      authors =
+              publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS);
+      objectives = publishedAssessment.getAssessmentMetaDataByLabel(
+              AssessmentMetaDataIfc.OBJECTIVES);
+      keywords = publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
+              KEYWORDS);
+      rubrics = publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
+              RUBRICS);
+      bgColor = publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
+              BGCOLOR);
+      bgImage = publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
+              BGIMAGE);
+
+      if (authors != null)
+      {
+        assessmentXml.setFieldentry("AUTHORS", authors);
+      }
+      else
+      {
+        AgentHelperImpl helper = new AgentHelperImpl();
+        String createdBy = publishedAssessment.getCreatedBy();
+        String eid = helper.getEidById(createdBy);
+        if (eid != null)
+        {
+          assessmentXml.setFieldentry("AUTHORS", eid);
+        }
+        else
+        {
+          log.debug("\n\nNO AUTHORS");
+        }
+      }
+
+      if (objectives != null)
+      {
+        assessmentXml.setFieldentry("ASSESSMENT_OBJECTIVES", objectives);
+      }
+      if (keywords != null)
+      {
+        assessmentXml.setFieldentry("ASSESSMENT_KEYWORDS", keywords);
+      }
+      if (rubrics != null)
+      {
+        assessmentXml.setFieldentry("ASSESSMENT_RUBRICS", rubrics);
+      }
+      if (bgColor != null)
+      {
+        assessmentXml.setFieldentry("BGCOLOR", bgColor);
+      }
+      if (bgImage != null)
+      {
+        assessmentXml.setFieldentry("BGIMG", bgImage);
+      }
+
+      // fieldentry properties
+      EvaluationModelIfc evaluationModel = publishedAssessment.getEvaluationModel();
+      if (evaluationModel != null)
+      {
+        assessmentHelper.updateEvaluationModel(assessmentXml,
+                evaluationModel);
+      }
+      AssessmentFeedbackIfc assessmentFeedback = publishedAssessment.
+              getAssessmentFeedback();
+      if (assessmentFeedback != null)
+      {
+        assessmentHelper.updateFeedbackModel(assessmentXml, assessmentFeedback);
+      }
+      AssessmentAccessControlIfc assessmentAccessControl = publishedAssessment.
+              getAssessmentAccessControl();
+      if (assessmentAccessControl != null)
+      {
+        assessmentHelper.updateAccessControl(assessmentXml,
+                assessmentAccessControl);
+      }
+
+      Set securedIPAddressSet = (Set) publishedAssessment.getSecuredIPAddressSet();
+      if (securedIPAddressSet != null)
+      {
+        assessmentHelper.updateIPAddressSet(assessmentXml,
+                securedIPAddressSet);
+      }
+
+      Set attachmentSet = (Set) publishedAssessment.getAssessmentAttachmentSet();
+
+      if (attachmentSet != null && attachmentSet.size() != 0)
+      {
+        assessmentHelper.updateAttachmentSet(assessmentXml, attachmentSet);
+      }
+
+      assessmentHelper.updateMetaData(assessmentXml, publishedAssessment);
+
+      // sections
+      factory = new QTIHelperFactory();
+      SectionHelperIfc sectionHelper =
+              factory.getSectionHelperInstance(this.qtiVersion);
+      List sectionList = publishedAssessment.getSectionArraySorted();
+      for (int i = 0; i < sectionList.size(); i++)
+      {
+        SectionDataIfc section = (SectionDataIfc) sectionList.get(i);
+        InputStream sis =
+                ax.getTemplateInputStream(ax.SECTION);
         Section sectionXml = sectionHelper.readXMLDocument(sis);
         sectionXml.update(section);
         addSection(assessmentXml, sectionXml);

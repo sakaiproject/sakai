@@ -66,6 +66,7 @@ public interface QTIServiceAPI
    * @return the Document with the assessment data
    */
   public Document getExportedAssessment(String assessmentId, int qtiVersion);
+  public Document getExportedPublishedAssessment(String assessmentId, int qtiVersion);
 
   /**
    * Get an assessment in String form.
@@ -77,6 +78,7 @@ public interface QTIServiceAPI
    * @return the Document with the assessment data
    */
   public String getExportedAssessmentAsString(String assessmentId, int qtiVersion);
+  public String getExportedPublishedAssessmentAsString(String assessmentId, int qtiVersion);
 
   /**
    * Get an item in Document form.
