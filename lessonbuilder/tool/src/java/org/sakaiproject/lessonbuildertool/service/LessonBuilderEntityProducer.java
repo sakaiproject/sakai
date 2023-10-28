@@ -43,10 +43,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -465,17 +467,34 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		String html = item.getHtml();
 
-		// check for embedded fckeditor attachments in html content (type 5)
-		if ((attachments != null) && (item.getType() == SimplePageItem.TEXT) && (html != null) && html.contains("/access/content/attachment/")) {
+		// References to assets in html text content (type 5) that aren't in this site's Resources
+		if ((attachments != null) && (item.getType() == SimplePageItem.TEXT) && (html != null) && html.contains("/access/content/")) {
 		    org.jsoup.nodes.Document htmlDoc = Jsoup.parse(html);
-		    Elements media = htmlDoc.select("source[src]");
+
+		    // Typically audio or video <source> or <img>
+		    Elements media = htmlDoc.select("[src]");
 		    for (org.jsoup.nodes.Element src : media) {
 			String link = src.attr("abs:src");
+
+			// embedded fckeditor attachments
 			if (link.contains("/access/content/attachment/")) {
 				String linkRef = link.replace(link.substring(0, link.indexOf("/attachment/")), "");
-				log.debug("Found audio embed: {} replacing with {}", link, linkRef);
 				Reference ref = EntityManager.newReference(contentHostingService.getReference(linkRef));
 				attachments.add(ref);
+				log.info("Found attachment asset: {} adding to attachment list as: {}", link, linkRef);
+			}
+
+			// cross-site references
+			if (link.contains("/access/content/group/") && !link.contains(site.getId())) {
+				// URLDecode this to turn it back into a Sakai content ID
+				try {
+					String linkRef = URLDecoder.decode(link.replace(link.substring(0, link.indexOf("/group/")), ""), "UTF-8");
+					Reference ref = EntityManager.newReference(contentHostingService.getReference(linkRef));
+					attachments.add(ref);
+					log.info("Found cross-site asset: {} adding to attachment list as: {}", link, linkRef);
+				} catch (UnsupportedEncodingException e) {
+					log.error("Unable to add link {} to attachment list", link);
+				}
 			}
 		    }
 		}
@@ -489,6 +508,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					// Append to the attachment reference list for archive
 					Reference ref = EntityManager.newReference(contentHostingService.getReference(item.getSakaiId()));
 					attachments.add(ref);
+					log.info("Found cross-site type 7 video, adding to attachment list: {}", item.getSakaiId());
 				}
 			}
 		}
