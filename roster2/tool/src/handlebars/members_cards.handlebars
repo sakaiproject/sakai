@@ -43,7 +43,11 @@
             {{#if ../viewProfile}}
                 <div class="roster-card-label">{{tr 'facet_profile_link'}}</div>
                 <div class="roster-card-value">
-                    <a href="{{{profileLink}}}">{{tr 'profile_link_text'}}</a>
+                    <a href="{{{profileLink}}}"
+                            title="{{tr 'profile_link_tooltip'}}"
+                            aria-label="{{tr 'profile_link_tooltip'}}">
+                        {{tr 'profile_link_text'}}
+                    </a>
                 </div>
             {{/if}}
 
