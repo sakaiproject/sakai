@@ -34,9 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   takeAssessmentForm.addEventListener('submit', function(event) {
     fillInNumericInputs.forEach(input => {
-      if (!validateFinInput(input)) {
-        event.preventDefault();
-      }
+      !validateFinInput(input) && event.preventDefault();
     });
   });
 
