@@ -62,10 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
       ) {
         return;
       }
-      if (validateFinInput(input)) {
-        const popover = new bootstrap.Popover(input);
-        popover.dispose();
-      }
+      validateFinInput(input) && bootstrap.Popover.getOrCreateInstance(input).dispose();
     });
   });
 });
