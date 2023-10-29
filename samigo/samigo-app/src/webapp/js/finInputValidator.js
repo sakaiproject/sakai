@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     input.addEventListener('input', function() {
-      if (input.value !== '' &&
+      if (input.value &&
         (input.value.includes('+') ||
         input.value.includes('-') ||
         input.value.includes('{') ||
