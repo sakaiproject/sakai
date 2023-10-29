@@ -57,12 +57,12 @@ public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements Auto
 				return true;
 			}
 
-			// If it's an "empty" submission don't autosubmit; change status and save (status = 5, hasAutoSubmitRun = true)
+			// If it's an "empty" submission don't autosubmit; change status and save (status = -1, hasAutoSubmitRun = true)
 			// We determine "empty" if it has an attempt date but submitted date is null
 			// Attempt date is populated as soon as student clicks "Begin"; submit date is populated as soon as student makes any progress (next, save, submit)
 			// So if there is an attempt date but no submit date, we can safely assume this is a student who began a quiz and did nothing (either walked away, or logged out immediately)
 			if (adata.getAttemptDate() != null && adata.getSubmittedDate() == null) {
-				adata.setStatus(AssessmentGradingData.NO_SUBMISSION);
+				adata.setStatus(AssessmentGradingData.REMOVED);
 			}
 			else {
 				adata.setForGrade(Boolean.TRUE);
