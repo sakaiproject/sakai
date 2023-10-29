@@ -11,67 +11,56 @@ $.ajaxSetup({
  calling template has dom placeholder for dialog,
  args:class of trigger, id of dialog, message strings
  */
-sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
-	$("." + trigger).click(function(e){
-		e.preventDefault();
-		$("#" + dialogTarget).modal('show');
-	});
-	const siteId = $("." + trigger).attr('id');
-	if (!siteId) {
-		return;
-	}
-	const siteURL = `/direct/site/${siteId}/info.json`;
-	jQuery.getJSON(siteURL, function(data){
-		var desc = '', shortdesc = '', title = '', owner = '', email = '';
-		if (data.description) {
-			desc = unescape(data.description);
-		}
-		else {
-			desc = nold;
-		}
-		if (data.shortDescription) {
-			shortdesc = data.shortDescription;
-		}
-		else {
-			shortdesc = nosd;
-		}
+ sakai.getSiteInfo = function(trigger, dialogTarget, fallbackShortDescription, fallbackDescription) {
+  
+  const siteElements = document.querySelectorAll("." + trigger);
 
-		if (data.contactName) {
-			owner = data.contactName;
-		}
+  siteElements.forEach(function(element) {
+    element.addEventListener("click", function(e) {
+      e.preventDefault();
+      const siteId = element.id;
 
-		if (data.contactEmail) {
-			email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
-		}
+      if (!siteId) {
+        console.error("Site ID is missing");
+        return;
+      }
 
-		if (data.props) {
-			if (data.props['contact-name']) {
-				owner = data.props['contact-name'];
-			}
+      const siteURL = `/direct/site/${siteId}/info.json`;
+      fetch(siteURL)
+        .then(r => r.json())
+        .then(data => {
+        
+          const desc = data.description || fallbackDescription;
+          const shortdesc = data.shortDescription || fallbackShortDescription;
+          const title = data.title;
 
-			if (data.props['contact-email']) {
-				email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
-			}
-		}
+          const modalContent = `
+            <div class="modal fade" id="${dialogTarget}" tabindex="-1" role="dialog">
+              <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>
+                    <h4 class="modal-title">${title}</h4>
+                  </div>
+                  <div class="modal-body">
+                    <p>${shortdesc}</p>
+                    <div>${desc}</div>
+                  </div>
+                </div>
+              </div>
+            </div>`;
 
-		sitetitle = data.title.escapeHTML();
-		content = (
-			'<div class="modal-dialog modal-md">' +
-				'<div class="modal-content">' +
-					'<div class="modal-header">' +
-						'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>' +
-						'<h4 class="modal-title">' + sitetitle + '</h4>' +
-					'</div>' +
-					'<div class="modal-body">' +
-						'<p>' + shortdesc + '</p>' +
-						'<div>' + desc + '</div>' +
-					'</div>' +
-				'</div>' +
-			'</div>'
-		);
-		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
-		return false;
-	});
+          document.getElementById(dialogTarget)?.remove();
+
+          document.body.insertAdjacentHTML("beforeend", modalContent);
+          $(`#${dialogTarget}`).modal('show');
+
+        })
+        .catch(error => console.error("An error occurred: ", error));
+    });
+  });
 };
 
 sakai.setupGroupModalLinks = function (dialogTarget, memberstr, printstr, tablestr1,tablestr2,tablestr3){
