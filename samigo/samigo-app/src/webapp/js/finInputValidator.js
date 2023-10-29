@@ -47,10 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     input.addEventListener('change', function() {
-      if (validateFinInput(input)) {
-        const popover = new bootstrap.Popover(input);
-        popover.dispose();
-      }
+      validateFinInput(input) && bootstrap.Popover.getOrCreateInstance(input).dispose();
     });
 
     input.addEventListener('input', function() {
