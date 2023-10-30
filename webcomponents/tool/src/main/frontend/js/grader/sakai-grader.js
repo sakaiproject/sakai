@@ -1291,7 +1291,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     if (e.key === "Backspace" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
       return true;
-    } else if (!e.key.match(rgxp)) {
+    } else if (e.key && !e.key.match(rgxp)) {
       e.preventDefault();
       return false;
     }
