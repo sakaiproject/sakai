@@ -1,101 +1,70 @@
-//Setup qtips
-window.onload = function() {
-	$('.hasTooltip').each(function() { // Notice the .each() loop, discussed below
-	    $(this).qtip({
-	        content: {
-	            text: $(this).next('div') // Use the "div" element after this for the content
-	        },
-	        position: {
-	          target: 'mouse', 
-	          adjust: {
-	            mouse: false
-	          }
-	       },
-	       style: {
-	         classes: 'qtip-tipped qtip-shadow qtipBodyContent',
-	       },
-	       show: 'click',
-	       hide: 'unfocus click'
-	      });
-	});
-};
+window.addEventListener('load', () => {
+  document.querySelectorAll('.hasTooltip').forEach(tooltip => {
+    const content = tooltip.nextElementSibling;
+    new bootstrap.Tooltip(tooltip, {
+      title: content,
+      placement: 'top',
+      trigger: 'click',
+    });
+  });
+});
 
 includeWebjarLibrary('mathjs');
 
-$( document ).ready(function() {
+document.addEventListener('DOMContentLoaded', () => {
+  const fillInNumericInputs = document.querySelectorAll('.fillInNumericInput');
+  
+  fillInNumericInputs.forEach(input => {
+    input.setAttribute('data-bs-toggle', 'popover');
+    input.setAttribute('data-bs-content', finFormatError);
+    input.setAttribute('data-bs-trigger', 'focus');
+    
+    const popover = new bootstrap.Popover(input, {
+      trigger: 'focus',
+    });
 
-  $('.fillInNumericInput').each( function() {
-    $(this).attr('data-bs-toggle', 'popover'); 
-    $(this).attr('data-content', finFormatError);
-    $(this).attr('data-trigger', 'focus');
+    input.addEventListener('change', () => {
+      if (validateFinInput(input)) {
+        popover.hide();
+      }
+    });
+
+    input.addEventListener('keyup', throttle(() => {
+      if (input.value && !['+', '-', '{', '}', 'e', 'E'].some(v => input.value.includes(v))) {
+        if (validateFinInput(input)) {
+          popover.hide();
+        }
+      }
+    }));
   });
 
-  $('#takeAssessmentForm').submit(function() {
-    $('.fillInNumericInput').each(function() {
-      //If a part or an exam is submitted, validate all the FIN inputs and alert about the invalid ones to prevent a response loss.
-      validateFinInput(this);
+  document.querySelector('#takeAssessmentForm').addEventListener('submit', event => {
+    event.preventDefault();
+    fillInNumericInputs.forEach(input => {
+      validateFinInput(input);
     });
   });
-
-  $('.fillInNumericInput').on('shown.bs.popover', function () {
-    $(this).delay(3000).popover('hide');
-  });
-
-  $('.fillInNumericInput').change( function() {
-    if (validateFinInput(this)) {
-      $(this).popover('destroy');
-    }
-  });
-
-  $('.fillInNumericInput').keyup( throttle(function(){
-    // Do not validate on key up when the user is inserting a complex number or scientific notation or a real with sign.
-    if (this.value !== '' && 
-        (this.value.includes('+') ||
-        this.value.includes('-') ||
-        this.value.includes('{') ||
-        this.value.includes('}') ||
-        this.value.includes('e') ||
-        this.value.includes('E'))
-    ) {
-        return;
-    }
-    if (validateFinInput(this)) {
-      $(this).popover('destroy');
-    }
-  }));
-
 });
 
-var validateFinInput = function(input) {
-  if (!input.value) {
-    //Empty inputs are accepted.
-    return true;
-  }
-  //Replace the comma decimal separator as point, the JSF validator does the same and all the JS libraries work with point as decimal separator.
-  var rawInput = input.value.replace(/,/g, '.');
-  //Replace all the whitespaces.
-  rawInput = rawInput.replace(/\s/g,'');
+const validateFinInput = input => {
+  if (!input.value) return true;
+
+  let rawInput = input.value.replace(/,/g, '.').replace(/\s/g, '');
   input.value = rawInput;
-  var isValidFinInput = true;
-  var numericInputValue = rawInput;
-  var complexInputValue = [];
-  rawInput.replace(/\{(.+?)\}/g, function(_, m) {complexInputValue.push(m)} );
-  // Check if the number is complex first
-  if (complexInputValue != '') {
-    try{
-      //Parsing relies on MathJS https://mathjs.org
-      const complexNumber = math.complex(complexInputValue);
-    } catch(error) {
-      console.debug('The inserted complex number is not valid, please review the syntax. eg: {8.5 + 9.4i}');
+  let isValidFinInput = true;
+  
+  if (rawInput.includes('{')) {
+    try {
+      math.complex(rawInput.match(/\{(.+?)\}/g));
+    } catch {
+      console.debug('Invalid complex number syntax.');
       isValidFinInput = false;
     }
   } else {
-    // If not complex, lets check if is numeric.
     try {
-      //Simple as that, try to add 0.0 to a numeric value.
-      const numericNumber = math.add(numericInputValue, 0.0); 
-    } catch(error) {
-      console.debug('The inserted value is not numeric, please review the syntax. eg: 1.5 , 9, -4, -3.1415');
+      math.add(rawInput, 0.0);
+    } catch {
+      console.debug('Invalid numeric value syntax.');
       isValidFinInput = false;
     }
   }
@@ -107,16 +76,14 @@ var validateFinInput = function(input) {
   }
 
   return true;
+};
 
-}
-
-function throttle(f, delay) {
-  var timer = null;
-  return function() {
-   var context = this, args = arguments;
-   clearTimeout(timer);
-   timer = window.setTimeout(function() {
-     f.apply(context, args);
-   }, delay || 200);
+const throttle = (func, delay = 200) => {
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
   };
-}
+};
