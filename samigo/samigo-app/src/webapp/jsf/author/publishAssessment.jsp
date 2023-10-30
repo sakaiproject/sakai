@@ -360,6 +360,13 @@
 <h:panelGrid />
 </h:panelGrid>
 
+<h:panelGroup rendered="#{assessmentSettings != null && assessmentSettings.assessment != null && assessmentSettings.assessment.hasMultipleTimers() > 1}" layout="block" styleClass="sak-banner-warn">
+	<h:outputText value="#{assessmentSettingsMessages.multiple_timers_detected}" />
+</h:panelGroup>
+<h:panelGroup rendered="#{publishedSettings != null && publishedSettings.assessment != null && publishedSettings.assessment.hasMultipleTimers() > 1}" layout="block" styleClass="sak-banner-warn">
+	<h:outputText value="#{assessmentSettingsMessages.multiple_timers_detected}" />
+</h:panelGroup>
+
 <f:verbatim><p></p></f:verbatim>
 
 <script>
