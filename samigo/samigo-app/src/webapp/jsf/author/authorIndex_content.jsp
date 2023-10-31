@@ -250,9 +250,9 @@
                         <h:selectOneMenu value="select" id="filter-type">
                             <f:selectItem itemValue="" itemLabel="#{authorFrontDoorMessages.assessment_view_all}" />
                             <f:selectItem itemValue="status_draft" itemLabel="#{authorFrontDoorMessages.assessment_pending}" />
-                            <f:selectItem itemValue="status_published" itemLabel="#{authorFrontDoorMessages.assessment_pub}" />
-                            <f:selectItem itemValue="status_true" itemLabel="#{authorFrontDoorMessages.assessment_status_active}" />
-                            <f:selectItem itemValue="status_false" itemLabel="#{authorFrontDoorMessages.assessment_status_inactive}" />
+                            <f:selectItem itemValue="status_published_2" itemLabel="#{authorFrontDoorMessages.assessment_status_active}" />
+                            <f:selectItem itemValue="status_published_1" itemLabel="#{authorFrontDoorMessages.assessment_status_pending}" />
+                            <f:selectItem itemValue="status_published_0" itemLabel="#{authorFrontDoorMessages.assessment_status_inactive}" />
                         </h:selectOneMenu>
                     <f:verbatim></label></f:verbatim>
                 </div>
