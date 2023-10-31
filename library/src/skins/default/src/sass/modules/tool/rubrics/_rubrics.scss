@@ -545,9 +545,9 @@ sakai-rubric-grading {
 sakai-rubric-grading-comment,
 sakai-rubric-student-comment {
 
-    button > i.comment-icon {
+    div.comment-icon, button > i {
         margin: 5px auto;
-        font-size: 20px;
+        font-size: 16px;
         text-align: center;
         width: 100%;
         &.active {

@@ -58,7 +58,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
           data-bs-title="${this.criterion.title}"
           aria-label="${this.i18n.criterion_comment_student}"
           class="btn btn-transparent">
-        <i class="comment-icon bi bi-chat${this.criterion.comments ? "-fill" : ""} ${this.criterion.comments ? "active" : ""}"></i>
+        <i class="bi bi-chat${this.criterion.comments ? "-fill" : ""} ${this.criterion.comments ? "active" : ""}"></i>
       </button>
     `;
   }
