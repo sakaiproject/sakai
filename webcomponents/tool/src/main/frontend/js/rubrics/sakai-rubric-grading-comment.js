@@ -84,8 +84,8 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
       const popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
 
-      popover[0].style.left = `${e.target.offsetLeft - 280  }px`;
-      popover[0].style.top = `${e.target.offsetTop + e.target.offsetHeight / 2 + 20 - popover.height() / 2 - 46  }px`;
+      popover[0].style.left = `${e.target.offsetLeft - 300 }px`;
+      popover[0].style.top = `${e.target.offsetTop + e.target.offsetHeight / 2 - popover.height() / 2 - 46  }px`;
 
       Object.keys(CKEDITOR.instances)
         .filter(n => n.includes("criterion-")).forEach(n => CKEDITOR.instances[n].destroy(true));
@@ -123,7 +123,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
       const commentEditor = CKEDITOR.replace(editorKey, {
         startupFocus: true,
         toolbar: [['Bold', 'Italic', 'Underline'], ['NumberedList', 'BulletedList', 'Blockquote']],
-        height: 40
+        height: 60
       });
 
       commentEditor.on('blur', () => {
