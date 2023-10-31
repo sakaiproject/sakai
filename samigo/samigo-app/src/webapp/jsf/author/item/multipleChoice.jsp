@@ -300,7 +300,7 @@
 
         <!-- WYSIWYG -->
   <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
-         <samigo:wysiwyg identity="questionAnswerFeedback" rows="140" value="#{answer.feedback}" hasToggle="plain" mode="author">
+         <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="plain" mode="author">
            <f:validateLength maximum="60000"/>
          </samigo:wysiwyg>
   </h:panelGrid>
