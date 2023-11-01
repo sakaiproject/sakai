@@ -152,7 +152,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.requestUpdate();
 
     if (this.gradable.allowPeerAssessment) {
-      this.updateComplete.then(() => $("#peer-info").popover());
+      this.updateComplete.then(() => (new bootstrap.Popover(this.querySelector("#peer-info"))));
     }
 
     // If any grade overrides have been set, check the overrides box

@@ -183,6 +183,35 @@ export const graderRenderingMixin = Base => class extends Base {
               </div>
             ` : ""}
           `}
+          ${this.gradable.allowPeerAssessment && this.submission.peerReviews?.length > 0 ? html`
+          <div class="mt-4">
+            <h3 class="mb-3">${this.i18n.peer_reviews}</h3>
+            ${this.submission.peerReviews.map(pr => html`
+
+              <div class="card mb-2">
+                <div class="card-header fw-bold">${pr.assessorDisplayName}</div>
+                <div class="card-body">
+                  <div class="card-text">
+                    <div>
+                      <span class="fw-bold me-2">${this.i18n.grade}</span>
+                      <span>${pr.scoreDisplay}</span>
+                    </div>
+                    <div class="mt-2 mb-2 fw-bold">${this.i18n.reviewer_comments}</div>
+                    <div>${unsafeHTML(pr.comment)}</div>
+                    ${pr.attachmentRefList && pr.attachmentRefList.length > 0 ? html`
+                      <div class="fw-bold mb-2">${this.i18n.reviewer_attachments}</div>
+                      ${pr.attachmentRefList.map((ref, i) => html`
+                        <div class="feedback-attachment">
+                          <a href="/access${ref.reference}" title="${this.i18n.feedback_attachment_tooltip}">${this.i18n.attachment} ${i + 1}</a>
+                        </div>
+                      `)}
+                    ` : ""}
+                  </div>
+                </div>
+              </div>
+            `)}
+          </div>
+          ` : "" }
         ` : ""}
       </div>
     `;
@@ -235,7 +264,16 @@ export const graderRenderingMixin = Base => class extends Base {
         ${this._renderFailed()}
         <span>(${this.assignmentsI18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
         ${this.gradable.allowPeerAssessment ? html`
-          <a id="peer-info" class="fa fa-info-circle" data-bs-toggle="popover" data-container="body" data-placement="auto" data-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}"></a>
+          <button id="peer-info"
+              class="btn transparent-button"
+              type="button"
+              aria-label="${this.i18n.peer_info_label}"
+              data-bs-toggle="popover"
+              data-bs-container="body"
+              data-bs-placement="auto"
+              data-bs-content="${this.assignmentsI18n["peerassessment.peerGradeInfo"]}">
+            <span class="fa fa-info-circle"></span>
+          </button>
         ` : ""}
       ` : ""}
       ${this.gradeScale === PASS_FAIL_GRADE_TYPE ? html`

@@ -19,6 +19,8 @@ class Submission {
         this.hasHistory = this.history.grades || this.history.comments;
       }
 
+      this.peerReviews = init.peerReviews;
+
       this.hasRubricEvaluation = init.hasRubricEvaluation;
       this.showExtension = true;
 

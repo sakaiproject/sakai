@@ -17,6 +17,7 @@
 	<bean
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider">
+		<property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService" />
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 		<property name="assignmentToolUtils" ref="org.sakaiproject.assignment.tool.AssignmentToolUtils" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
