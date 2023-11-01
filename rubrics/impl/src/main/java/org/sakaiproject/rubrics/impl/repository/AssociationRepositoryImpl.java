@@ -107,6 +107,7 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
                 Long rubricId = association.getRubric().getId();
                 Rubric rubric = rubricRepository.getById(rubricId);
                 if (rubric != null) {
+                    association.setRubric(rubric);
                     rubric.getAssociations().add(association);
                     rubricRepository.save(rubric);
                     // query for the new association
