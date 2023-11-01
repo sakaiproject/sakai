@@ -10,7 +10,6 @@
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-  	<link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 		<h:form id="hidden_sites_form">
 
