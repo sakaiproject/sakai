@@ -459,7 +459,7 @@
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
                         <f:verbatim><span class="status_published_</f:verbatim><h:outputText value="#{assessment.activeStatus}" /><f:verbatim>"></f:verbatim>
-                        <h:outputText styleClass="d-none spanValue" value="#{assessment.activeStatus}" />
+                        <h:outputText styleClass="d-none spanValue" style="display:none" value="#{assessment.activeStatus}" />
                         <h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" rendered="#{assessment.activeStatus==2}"/>
                         <h:outputText value="#{authorFrontDoorMessages.assessment_status_pending}" rendered="#{assessment.activeStatus==1}"/>
                         <h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" rendered="#{assessment.activeStatus==0}"/>
