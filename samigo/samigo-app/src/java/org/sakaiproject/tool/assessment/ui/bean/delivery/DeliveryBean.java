@@ -125,6 +125,8 @@ public class DeliveryBean implements Serializable {
   
   private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
   private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
+  
+  public static final String LINEAR_ACCESS = "1";
 
   @Getter @Setter
   private String assessmentId;
@@ -317,6 +319,8 @@ public class DeliveryBean implements Serializable {
   private boolean next_page;
   @Getter @Setter
   private boolean reload = true;
+  @Getter @Setter
+  private boolean nextEnabled;
 
   // daisy added these for SelectActionListener
   @Getter @Setter
