@@ -1253,12 +1253,11 @@ p.progressItem img {
 
 }
 
-button.partLink {
+.partLink {
 	margin: 0;
 	border: none;
-	padding: 0;
-	cursor: pointer;
-	display: inline;
+	padding: 1px;
+	display: inline-block;
 	outline: none;
 	outline-offset: 0;
 
@@ -1267,9 +1266,8 @@ button.partLink {
 	overflow: hidden;
 	text-align: left;
 	width: 160px;
+	text-overflow: ellipsis;
 }
-
-
 
 button.partLink::-moz-focus-inner {
 	border: none;
