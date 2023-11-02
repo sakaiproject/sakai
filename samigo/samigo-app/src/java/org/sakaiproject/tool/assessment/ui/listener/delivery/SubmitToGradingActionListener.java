@@ -551,6 +551,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			        oldItem.setSubmittedDate(new Date());
 			        oldItem.setAutoScore(newItem.getAutoScore());
 			        oldItem.setOverrideScore(newItem.getOverrideScore());
+			        oldItem.setAttemptDate(newItem.getAttemptDate());
 			        updateItemGradingSet.add(oldItem);
 			    }
 			} else { // itemGrading from new set doesn't exist, add to set in this case a new item should always have the grading ID set to null
