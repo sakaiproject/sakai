@@ -26,18 +26,15 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
-import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
+import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItemRubricAssociation, Long> implements AssociationRepository {
@@ -97,24 +94,28 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         return session.createQuery(query).list();
     }
 
-    public ToolItemRubricAssociation save(ToolItemRubricAssociation assoc) {
+    public ToolItemRubricAssociation save(ToolItemRubricAssociation association) {
+        ToolItemRubricAssociation mergedAssociation = null;
 
-        Rubric rubric = assoc.getRubric();
-        List<ToolItemRubricAssociation> associations = rubric.getAssociations();
-        int index = associations.indexOf(assoc);
-
-        if (index != -1) {
-            associations.set(index, assoc);
+        Long associationId = association.getId();
+        if (associationId != null) {
+            // updating an existing association we can merge it and return it as nothing changes on the rubric
+            mergedAssociation = (ToolItemRubricAssociation) sessionFactory.getCurrentSession().merge(association);
         } else {
-            associations.add(assoc);
+            // adding a new association
+            if (association.getRubric() != null) {
+                Long rubricId = association.getRubric().getId();
+                Rubric rubric = rubricRepository.getById(rubricId);
+                if (rubric != null) {
+                    association.setRubric(rubric);
+                    rubric.getAssociations().add(association);
+                    rubricRepository.save(rubric);
+                    // query for the new association
+                    mergedAssociation = findByItemIdAndRubricId(association.getItemId(), rubricId).orElse(null);
+                }
+            }
         }
-
-        rubric = rubricRepository.save(rubric);
-        if (index != -1) {
-            return rubric.getAssociations().get(index);
-        } else {
-            return rubric.getAssociations().get(rubric.getAssociations().size() - 1);
-        }
+        return mergedAssociation;
     }
 
     public void delete(ToolItemRubricAssociation assoc) {
