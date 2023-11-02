@@ -158,6 +158,16 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>lit-analyzer</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run analyze</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>npm empathise</id>
                         <goals>
                             <goal>npm</goal>
