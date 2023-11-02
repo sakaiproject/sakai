@@ -87,6 +87,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
+import org.sakaiproject.authz.api.GroupFullException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
@@ -8932,6 +8933,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
 				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+				boolean isGroupFull = false;
 				if (StringUtils.isNotBlank(joinableSet)) {
 					//check that the max limit hasn't been reached:
 					int max = NumberUtils.toInt(siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX), 0);
@@ -8943,15 +8945,23 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						if(member != null) {
 							try{
 								authzGroupService.joinGroup(groupRef, member.getRole().getId(), max);
-							} catch (Exception e) {
+							} catch (GroupNotDefinedException | AuthzPermissionException | AuthzRealmLockException e) {
 								log.error("User [{}] cannot be inserted into group [{}], {}", userId, siteGroup.getId(), e.toString());
+							} catch (GroupFullException e) {
+								log.warn("User [{}] cannot be inserted into group [{}] because it is full.", userId, siteGroup.getId() );
+								isGroupFull = true;
 							}
 						}
 					} else {
-						SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-						addAlert(state, rb.getString("sinfo.list.joinable.full"));
+						isGroupFull = true;
 					}
 				}
+
+				if (isGroupFull) {
+					SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+					addAlert(state, rb.getString("sinfo.list.joinable.full"));
+				}
+
 			}
 		} catch (IdUnusedException e) {
 			log.error("IdUnusedException while adding user to group: {}", groupRef, e);
