@@ -163,8 +163,21 @@ function saveTime()
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part" styleClass="tableofcontents">
       <h:column>
       <h:panelGroup>
-        <samigo:hideDivision id="part" title = "#{deliveryMessages.p} #{part.number} - #{part.nonDefaultText}  -
-       #{part.questions-part.unansweredQuestions}/#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString}#{deliveryMessages.splash}#{part.roundedMaxPoints} #{deliveryMessages.pt} #{part.timedSection ? '<i class=\"fa fa-clock-o\"></i>' : ''}" > 
+        <h2>
+            <h:commandLink immediate="true" action="takeAssessment" >
+                <label <h:outputText value="class='inactive'" rendered="#{part.enabled == 0}" />>
+                    <h:outputText value="#{deliveryMessages.p} #{part.number} - " />
+                    <h:outputText value="#{part.nonDefaultText} - " />
+                    <h:outputText value="#{part.questions-part.unansweredQuestions}/#{part.questions} #{deliveryMessages.ans_q}, " />
+                    <h:outputText value="#{part.pointsDisplayString}#{deliveryMessages.splash}#{part.roundedMaxPoints} #{deliveryMessages.pt}" />
+                    <h:outputText escape="false" rendered="#{part.timedSection}" value=" <i title='#{authorMessages.timed}' class='fa fa-clock-o'></i>" />
+                </label>
+                <f:param name="partnumber" value="#{part.number}" />
+                <f:param name="questionnumber" value="1" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerFromTOCListener" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+            </h:commandLink>
+        </h2>
         <h:panelGroup rendered="#{part.enabled >= 0}">
           <h:dataTable value="#{part.itemContents}" var="question">
             <h:column>
@@ -177,7 +190,7 @@ function saveTime()
                 <h:graphicImage alt="#{deliveryMessages.alt_q_marked}"
                   url="/images/questionMarkBubble15.png"  rendered="#{question.review}"/>
                 <h:commandLink immediate="true" action="takeAssessment"
-                  ><label <h:outputText value="class='inactive'" rendered="#{question.enabled == 0}" />
+                  ><label <h:outputText value="class='inactive'" rendered="#{question.enabled == 0 || part.enabled == 0}" />
                   ><h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot}">
                     <f:convertNumber maxFractionDigits="2"/>
                   </h:outputText>
@@ -188,7 +201,7 @@ function saveTime()
                   <h:outputText escape="false" value=" (#{question.pointsDisplayString}#{deliveryMessages.splash}#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt})" rendered="#{(delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag) || question.pointsDisplayString!=''}">
                     <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
                   </h:outputText>
-                  <h:outputText escape="false" rendered="#{question.timedQuestion}" value=" <i class='fa fa-clock-o'></i>" />
+                  <h:outputText escape="false" rendered="#{question.timedQuestion}" value=" <i title='#{authorMessages.timed}' class='fa fa-clock-o'></i>" />
                   </label>
                   <f:param name="partnumber" value="#{part.number}" />
                   <f:param name="questionnumber" value="#{question.number}" />
@@ -200,7 +213,6 @@ function saveTime()
             </h:column>
           </h:dataTable>
         </h:panelGroup>
-       </samigo:hideDivision>
       </h:panelGroup>
       </h:column>
     </h:dataTable>

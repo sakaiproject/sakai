@@ -616,6 +616,9 @@
             </li>
           </ul>
           <h:outputLabel id="selTimeAssessHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info}" />
+          <h:panelGroup rendered="#{assessmentSettings.assessment.hasMultipleTimers() > 1}" layout="block" id="multipleTimersInfo" styleClass="sak-banner-warn">
+            <h:outputText value="#{assessmentSettingsMessages.multiple_timers_detected}" />
+          </h:panelGroup>
           </div>
      </div>
     </h:panelGroup>
