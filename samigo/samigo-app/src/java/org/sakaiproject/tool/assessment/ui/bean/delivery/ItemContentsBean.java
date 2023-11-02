@@ -1837,7 +1837,6 @@ public class ItemContentsBean implements Serializable {
 		Iterator<ItemGradingData> iter = getItemGradingDataArray().iterator();
 		ItemGradingData itemGradingData = null;
 		if (iter.hasNext()) {
-			//this should never happen!!
 			itemGradingData = iter.next();
 		} else {
 			itemGradingData = new ItemGradingData();

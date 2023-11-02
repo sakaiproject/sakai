@@ -929,6 +929,7 @@ public class DeliveryActionListener
       }
     }
 
+    delivery.setNextEnabled(true);
     contents.setCurrentScore(currentScore);
     contents.setMaxScore(maxScore);
     contents.setPartsContents(partsContents);
@@ -1017,6 +1018,12 @@ public class DeliveryActionListener
           delivery.setPrevious(true);
         } else {
           delivery.setPrevious(false);
+        }
+        //linear access
+        if (DeliveryBean.LINEAR_ACCESS.equals(delivery.getNavigation())) {
+          delivery.setNextEnabled(partBeanWithQuestion.getEnabled() >= 0);
+        } else { //non-linear access
+          delivery.setNextEnabled(true);
         }
       }
     }

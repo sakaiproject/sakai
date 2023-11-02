@@ -43,7 +43,33 @@
 <div class="tier1">
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part" >
       <h:column>
-      <h:panelGroup>
+      <h:panelGroup rendered="#{part.enabled == -1}">
+        <div class="partTitle">
+          <h:panelGroup rendered="#{delivery.navigation eq '1'}">
+            <div class="partLink">
+              <h:outputText value=" #{deliveryMessages.p} #{part.number}: #{part.nonDefaultText}" />
+            </div>
+          </h:panelGroup>
+          <h:panelGroup rendered="#{delivery.navigation ne '1'}">
+            <h:graphicImage alt="Loading question..." url="/images/loading.gif" style="display:none;padding-left:1em;"/>
+            <h:commandLink 
+              title="#{deliveryMessages.p} #{part.number}: #{part.nonDefaultText}"
+              action="#{delivery.gotoQuestion}"
+              onclick="questionProgress.disableLink(this); serializeImagePoints();">
+                <button class="partLink">
+                  <h:outputText escape="false" value=" #{deliveryMessages.p} #{part.number}: #{part.nonDefaultText}" />
+                </button>
+                <f:param name="partnumber" value="#{part.number}" />
+                <f:param name="questionnumber" value="1" />
+            </h:commandLink>
+          </h:panelGroup>
+          <span class="numberOfQuestionsInPart">
+            <h:outputText value="#{part.questions} #{deliveryMessages.qprogress_questions}" />
+          </span>
+        </div>
+        <div id="partTable-<h:outputText value="#{part.number}"/>"></div>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{part.enabled >= 0}">
         <h:outputText value="<div class=\"partTitle\">" escape="false" />
         <h:outputText value="<button type=\"button\" id=\"partLink-#{part.number}\" class=\"partLink\">" escape="false"/>
         <h:graphicImage alt="a right arrow" id="rightArrow" value="/images/right_arrow.gif" styleClass="arrow #{(part.number eq delivery.partIndex+1) ? 'hiddenArrow' : ''}" />
@@ -56,9 +82,9 @@
             <h:panelGroup>
 
 		<f:verbatim><p class="progressItem"></f:verbatim>
-              <h:panelGroup styleClass="#{((question.number eq delivery.questionIndex+1) and (part.number eq delivery.partIndex+1)) ? 'currentQuestion' : ''} #{((delivery.navigation eq '1') and ((part.number le delivery.partIndex+1 and question.number lt delivery.questionIndex+1) or (part.number lt delivery.partIndex+1))) ? 'linearPastQuestion' : ''}">
+              <h:panelGroup styleClass="#{((question.number eq delivery.questionIndex+1) and (part.number eq delivery.partIndex+1)) ? 'currentQuestion' : ''} #{((delivery.navigation eq '1') and ((part.number le delivery.partIndex+1 and question.number lt delivery.questionIndex+1) or (part.number lt delivery.partIndex+1)) or part.enabled eq '0' or question.enabled eq '0') ? 'linearPastQuestion' : ''}">
 		<h:graphicImage alt="Loading question..." url="/images/loading.gif" style="display:none;padding-left:1em;"/>
-		<h:commandLink title="#{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" action="#{delivery.gotoQuestion}" rendered="#{delivery.navigation eq '2'}" onclick="questionProgress.disableLink(this); serializeImagePoints();">
+		<h:commandLink title="#{question.enabled >= 0 ? question.strippedText : deliveryMessages.title_not_available} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" action="#{delivery.gotoQuestion}" rendered="#{delivery.navigation eq '2'}" onclick="questionProgress.disableLink(this); serializeImagePoints();">
                 <h:outputText escape="false" value="#{question.sequence} " >
 			<f:convertNumber maxFractionDigits="2"/>
         	</h:outputText>
