@@ -174,6 +174,7 @@ public final class SamigoConstants {
      * Servlet Mappings
      */
     public static final     String      SERVLET_MAPPING_EXPORT_EVENT_LOG                    = "/samigo-app/servlet/ExportEventLog";
+    public static final     String      SERVLET_MAPPING_EXPORT_REPORT                       = "/samigo-app/servlet/ExportReport";
 
     private SamigoConstants() {
     	throw new AssertionError();

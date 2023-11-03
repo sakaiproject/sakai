@@ -38,6 +38,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.servlet.evaluation.ExportReportServlet;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /* For evaluation: Histogram Scores backing bean. */
 @ManagedBean(name="histogramScores")
@@ -64,6 +68,8 @@ public class HistogramScoresBean implements Serializable {
   private String median;
   private String mode;
   private String standDev;
+  @Getter @Setter
+  private String skewnessCoefficient;
   private String lowerQuartile; //medidan of lowest-median
   private String upperQuartile; //median of median-highest
   private int interval; // number interval breaks down
@@ -1199,5 +1205,25 @@ public String getHistogramChartOptions() {
                 }
             }
         }
+    }
+
+    public String getExportItemAnalysisXlsx() {
+      return exportReportUrl(ExportReportServlet.EXPORT_TYPE_ITEM_ANALYSIS, ExportReportServlet.EXPORT_FORMAT_XLSX);
+    }
+
+    public String getExportItemAnalysisPdf() {
+      return exportReportUrl(ExportReportServlet.EXPORT_TYPE_ITEM_ANALYSIS, ExportReportServlet.EXPORT_FORMAT_PDF);
+    }
+
+    public String getExportStatisticsXlsx() {
+      return exportReportUrl(ExportReportServlet.EXPORT_TYPE_STATISTICS, ExportReportServlet.EXPORT_FORMAT_XLSX);
+    }
+
+    public String getExportStatisticsPdf() {
+      return exportReportUrl(ExportReportServlet.EXPORT_TYPE_STATISTICS, ExportReportServlet.EXPORT_FORMAT_PDF);
+    }
+
+    private String exportReportUrl(String type, String format) {
+        return ExportReportServlet.exportReportUrl(assessmentId, type, format);
     }
 }
