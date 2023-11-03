@@ -47,6 +47,9 @@ $Id$
     currentLink.addClass('current');
     // Remove the link of the current option
     currentLink.html(currentLink.find('a').text());
+
+    // Init dropdown's
+    $('.dropdown-toggle').dropdown();
   });
 </script>
     <!-- content... -->
@@ -74,10 +77,9 @@ $Id$
 
         <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table" />
 
-        <div class="tier1">
-
+        <h:panelGroup styleClass="b5 d-flex justify-content-between my-2" layout="block">
           <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
-          <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+          <h:panelGroup styleClass="" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
             <h:outputText value="#{evaluationMessages.view} " />
 
             <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL" required="true"
@@ -99,8 +101,25 @@ $Id$
               <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
             </h:selectOneMenu>
           </h:panelGroup>
-
-          <br /><br />
+          <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+              <h:outputText value="#{evaluationMessages.export}" />
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li>
+                <h:outputLink value="#{histogramScores.exportStatisticsPdf}" title="#{evaluationMessages.export_as_pdf}" target="_blank">
+                  <h:outputText value="#{evaluationMessages.export_pdf}" />
+                </h:outputLink>
+              </li>
+              <li>
+                <h:outputLink value="#{histogramScores.exportStatisticsXlsx}" title="#{evaluationMessages.export_as_xlsx}" target="_blank">
+                  <h:outputText value="#{evaluationMessages.export_xlsx}" />
+                </h:outputLink>
+              </li>
+            </ul>
+          </div>
+          </h:panelGroup>
 
           <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 
@@ -244,6 +263,14 @@ $Id$
             <h:outputText value="#{histogramScores.standDev}" />
           </td>
         </tr>
+        <tr>
+          <th>
+            <h:outputText value="#{evaluationMessages.skew_coef}" />
+          </th>
+          <td>
+            <h:outputText value="#{histogramScores.skewnessCoefficient}" />
+          </td>
+        </tr>
         </table>
         </h:panelGroup>
         <h:panelGroup layout="block" styleClass="panel panel-default">
@@ -319,7 +346,7 @@ $Id$
           </h:outputLabel>
         </h:panelGroup>
 
-        <h:dataTable styleClass="table table-striped presentation" value="#{histogramScores.partInfo}" var="item">
+        <h:dataTable styleClass="table table-bordered table-striped presentation" value="#{histogramScores.partInfo}" var="item">
           <h:column>
             <h:panelGroup>
               <h3 class="part-title">
