@@ -359,6 +359,10 @@ export class SakaiRubricCriteria extends RubricsElement {
       if (!r.ok) {
         throw new Error("Network error while saving criteria sort");
       }
+
+      // Dirty, dirty hack. We should be able to move stuff, in some way, without confusing lit. For
+      // now we just reload the page to get a fully fresh render.
+      location.reload();
     })
     .catch (error => console.error(error));
   }
