@@ -691,15 +691,24 @@ public class PublishedAssessmentData
       PublishedSectionData s = (PublishedSectionData) iter.next();
       ArrayList list = s.getItemArray();
       Iterator iter2 = null;
-      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
+      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) &&
+            ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+                || (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))))
 {
         ArrayList randomsample = new ArrayList();
         Integer numberToBeDrawn= Integer.valueOf(0);
+        Integer numberToBeFixed= Integer.valueOf(0);
+        //OJOOO
+        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null ) {
+            numberToBeFixed= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+        }
+
         if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
           numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
         }
 
         int samplesize = numberToBeDrawn.intValue();
+        samplesize += numberToBeFixed;
         for (int i=0; i<samplesize; i++){
           randomsample.add(list.get(i));
         }

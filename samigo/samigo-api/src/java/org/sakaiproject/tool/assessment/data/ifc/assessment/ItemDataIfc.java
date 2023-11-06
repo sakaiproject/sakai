@@ -134,6 +134,10 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
 
   void setIsExtraCredit(Boolean isExtraCredit);
 
+  Boolean getIsFixed();
+
+  void setIsFixed(Boolean isFixed);
+
   Set<ItemTextIfc> getItemTextSet();
 
   void setItemTextSet(Set<ItemTextIfc> itemTextSet) ;
@@ -239,4 +243,5 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
   public Long getOriginalItemId();
   public void setOriginalItemId(Long originalItemId);
   public void updateFeedbackByType(String typeId, String text, String value);
+
 }

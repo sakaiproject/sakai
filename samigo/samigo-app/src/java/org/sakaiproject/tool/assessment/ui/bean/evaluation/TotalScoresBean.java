@@ -279,17 +279,19 @@ public class TotalScoresBean implements Serializable, PhaseAware {
         AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString());
         List<Integer> resultsAux = new ArrayList<>(Collections.nCopies(3, 0));
         for (ItemGradingData item : assessmentGradingAux.getItemGradingSet()) {
-          if (item.getPublishedAnswerId() == null) { // If it does not have publishedAnswerId that means it is empty
+          if (item.getPublishedAnswerId() == null && item.getSubmittedDate() != null) { // If it does not have publishedAnswerId and submittedDate that means it is empty
             resultsAux.set(2, resultsAux.get(2) + 1);
           } else { // If it has publishedAnswerId that means has response
             // If it has response we will get the answer from publishedAnswerHash and if it is correct or incorrect
             AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
-            if (!answer.getIsCorrect()) {
-              // For incorrect answers cases
-              resultsAux.set(1, ((int) resultsAux.get(1)) + 1);
-            } else {
-              // For correct answers cases
-              resultsAux.set(0, ((int) resultsAux.get(0)) + 1);
+            if(answer != null) {
+              if (!answer.getIsCorrect()) {
+                // For incorrect answers cases
+                resultsAux.set(1, ((int) resultsAux.get(1)) + 1);
+              } else {
+                // For correct answers cases
+                resultsAux.set(0, ((int) resultsAux.get(0)) + 1);
+              }
             }
           }
         }

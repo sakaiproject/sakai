@@ -59,6 +59,7 @@ public class PublishedSectionData
   private String lastModifiedBy;
   private Date lastModifiedDate;
   private Set itemSet;
+  private Set itemSetFixed;
   private Set sectionMetaDataSet;
   private HashMap sectionMetaDataMap;
   private Set sectionAttachmentSet;
@@ -203,6 +204,14 @@ public class PublishedSectionData
     this.itemSet = itemSet;
   }
 
+  public Set getItemSetFixed() {
+    return itemSetFixed;
+  }
+
+  public void setItemSetFixed(Set itemSetFixed) {
+    this.itemSetFixed = itemSetFixed;
+  }
+
   public Set getSectionMetaDataSet() {
     return sectionMetaDataSet;
   }
@@ -238,6 +247,16 @@ public class PublishedSectionData
     ArrayList list = new ArrayList();
     if(itemSet == null) itemSet = new HashSet();
     Iterator iter = itemSet.iterator();
+    while (iter.hasNext()){
+      list.add(iter.next());
+    }
+    return list;
+  }
+
+  public ArrayList getItemArrayFixed() {
+    ArrayList list = new ArrayList();
+    if(itemSetFixed == null) itemSetFixed = new HashSet();
+    Iterator iter = itemSetFixed.iterator();
     while (iter.hasNext()){
       list.add(iter.next());
     }

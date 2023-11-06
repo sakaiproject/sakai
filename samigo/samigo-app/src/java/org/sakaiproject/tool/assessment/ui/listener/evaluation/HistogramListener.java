@@ -35,6 +35,7 @@ import java.util.Set;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
@@ -49,6 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -420,6 +422,31 @@ public class HistogramListener
 				  String title = rb.getString("part") + " "
 				  + section.getSequence().toString();
 				  title += ", " + rb.getString("question") + " ";
+				  
+				  GradingService gradingService = new GradingService();
+				  Set<PublishedItemData> itemSet = gradingService.getItemSet(Long.parseLong(publishedId), section.getSectionId());
+				  
+				  // adding fixed questions (could be empty if not fixed and draw part)
+				  Set<ItemDataIfc> sortedSet = itemSet.stream()
+						  .filter(item -> ((PublishedItemData) item).getIsFixed())
+						  .collect(Collectors.toSet());
+
+				  if (!sortedSet.isEmpty()) {
+					// getting all hashes from the sortedSet
+					List<String> distinctHashValues = sortedSet.stream()
+						.filter(item -> item instanceof PublishedItemData)
+						.map(item -> ((PublishedItemData) item).getHash())
+						.distinct()
+						.collect(Collectors.toList());
+
+					// removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
+					itemSet.removeIf(item -> item instanceof PublishedItemData &&
+											!item.getIsFixed() &&
+											distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+					section.setItemSet(itemSet);
+				  }
+				  
 				  List<ItemDataIfc> itemset = section.getItemArraySortedForGrading();
 				  int seq = 1;
 				  Iterator<ItemDataIfc> itemsIter = itemset.iterator();

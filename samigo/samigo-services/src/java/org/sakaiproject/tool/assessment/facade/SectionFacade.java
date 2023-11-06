@@ -74,6 +74,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
   protected String lastModifiedBy;
   protected Date lastModifiedDate;
   protected Set itemSet;
+  protected Set itemSetFixed;
   protected Set metaDataSet= new HashSet();
   protected HashMap metaDataMap= new HashMap();
   protected Set itemFacadeSet;
@@ -133,6 +134,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     this.lastModifiedBy = getLastModifiedBy();
     this.lastModifiedDate = getLastModifiedDate();
     this.itemSet = getItemSet();
+    //this.itemSet = getItemSetFixed();
     this.metaDataSet = getSectionMetaDataSet();
     this.metaDataMap = getSectionMetaDataMap(this.metaDataSet);
     this.sectionAttachmentSet = getSectionAttachmentSet(); 
@@ -558,6 +560,21 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     this.itemSet = this.data.getItemSet();
   }
 
+  //OJOOOOOOO
+  /*public void addItemFixed(ItemFacade itemFacade) {
+    addItemFixed(itemFacade.getData());
+  }
+
+  public void addItemFixed(ItemDataIfc itemDataIfc) {
+    if (this.itemSetFixed == null) {
+      //setItemSet(new HashSet());
+      this.itemSetFixed = new HashSet<>();
+    }
+    this.data.getItemSet().add(itemDataIfc);
+    this.itemSetFixed = this.data.getItemSet();
+    this.itemSetFixed.add(itemDataIfc);
+  }*/
+
   public String getSectionMetaDataByLabel(String label) {
     return (String)this.metaDataMap.get(label);
   }
@@ -613,10 +630,18 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     return list;
   }
 
-
+  public ArrayList getItemArrayFixed() {
+    ArrayList list = new ArrayList();
+    Iterator iter = itemSetFixed.iterator();
+    while (iter.hasNext()){
+      list.add(iter.next());
+    }
+    return list;
+  }
 
   public ArrayList getItemArraySortedForGrading() {
   // placeholder for now, need to have it 'cuz they are in ifc.
+	//OJO
     ArrayList list = getItemArray();
     Collections.sort(list);
     return list;

@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.tool.assessment.ui.bean.print;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
@@ -41,6 +42,7 @@ public class SectionContentsBean extends
 		this.setNumber(section.getNumber());
 		this.setNumbering(section.getNumbering());
 		this.setNumberToBeDrawn(section.getNumberToBeDrawn());
+		this.setNumberToBeFixed(section.getNumberToBeFixed());
 		this.setNumParts(section.getNumParts());
 		this.setPoints(section.getPoints());
 		this.setPoolIdToBeDrawn(section.getPoolIdToBeDrawn());
@@ -61,17 +63,17 @@ public class SectionContentsBean extends
 	public List<ItemContentsBean> getItemContents()
 	{
 		if (itemContents == null) {
-			List<ItemContentsBean> items;
-			
-		    if (getPoolIdToBeDrawn() != null) {
-		    	items = super.getItemContentsForRandomDraw();
-		    }
-		    else {
-		    	items = super.getItemContents();
-		    }
-		    itemContents = items;
+			List<ItemContentsBean> items = new ArrayList();
+
+			items = super.getItemContents();
+
+			if (items == null) {
+				if (getPoolIdToBeDrawn() != null) {
+					items.addAll(super.getItemContentsForRandomDraw());
+				}
+			}
+			itemContents = items;
 		}
-		
 		return itemContents;
 	}
 

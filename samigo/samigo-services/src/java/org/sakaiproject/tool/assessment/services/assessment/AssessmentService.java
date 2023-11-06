@@ -25,6 +25,7 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -432,17 +433,130 @@ public class AssessmentService {
 	
 	public int updateRandomPoolQuestions(SectionFacade section, boolean publishing){
 		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
-				&& StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-
+				&& (StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
+						StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) ) {
+			
 			QuestionPoolService qpService = new QuestionPoolService();
+			ItemService itemService = new ItemService();
+			boolean isFixed = StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+			int i = 0;
+
+			//
+			boolean hasRandomPartScore = false;
+			Double score = null;
+			String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
+					                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION)	: "";
+					                 
+			if (StringUtils.isNotBlank(requestedScore)) {
+				hasRandomPartScore = true;
+				score = new Double(requestedScore);
+			}
+			boolean hasRandomPartDiscount = false;
+			Double discount = null;
+			String requestedDiscount = (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) ? 
+										section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) : "";
+
+			if (StringUtils.isNotBlank(requestedDiscount)) {
+				hasRandomPartDiscount = true;
+				discount = new Double(requestedDiscount);
+			}
+
+			//OJOOO
+			removeAllItems(section.getSectionId().toString());
+
+			String agentId = AgentFacade.getAgentString();
+	
+			Iterator itemIter = section.getItemSet().iterator();
+			while (itemIter.hasNext()) {
+				ItemDataIfc item = (ItemDataIfc) itemIter.next();
+				List poolIds = qpService.getPoolIdsByItem(item.getItemId());
+				if (poolIds.isEmpty()) {
+					Long deleteId = item.getItemId();
+					itemService.deleteItem(deleteId, agentId);
+					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
+					itemIter.remove();
+				}
+			}
+			// need to reload
+			section = getSection(section.getSectionId().toString());
+
+			if (isFixed) {
+				String fixedQuestionIds = section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS);
+				List<String> fixedQuestionIdsList = Arrays.asList(fixedQuestionIds.split(","));
+				//iService.getItem();//sacar los items de fixedquestionids -- están separados por coma
+				//public ItemFacade getItem(String itemId) {
+				
+				for (String itemId : fixedQuestionIdsList) {
+					ItemFacade item = itemService.getItem(itemId);
+					item = qpService.copyItemFacade2(item);
+					item.setSection(section);
+					item.setSequence(Integer.valueOf(i + 1));
+//					if (hasRandomPartScore || hasRandomPartDiscount) {
+						if (hasRandomPartScore)
+							item.setScore(score);
+						long itemTypeId = item.getTypeId().longValue();
+						String mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
+						if (hasRandomPartDiscount &&
+								(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
+								itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
+								itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+								(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
+							item.setDiscount(discount);
+						ItemDataIfc data = item.getData();
+						Set itemTextSet = data.getItemTextSet();
+						if (itemTextSet != null) {
+							Iterator iterITS = itemTextSet.iterator();
+							while (iterITS.hasNext()) {
+								ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
+								if(publishing){
+									itemText.setText(copyContentHostingAttachments(itemText.getText(), AgentFacade.getCurrentSiteId()));
+								}
+								Set answerSet = itemText.getAnswerSet();
+								if (answerSet != null) {
+									Iterator iterAS = answerSet.iterator();
+									while (iterAS.hasNext()) {
+										AnswerIfc answer = (AnswerIfc) iterAS
+										.next();
+										if(publishing){
+											answer.setText(copyContentHostingAttachments(answer.getText(), AgentFacade.getCurrentSiteId()));
+										}
+										if (hasRandomPartScore)
+											answer.setScore(score);
+										if (hasRandomPartDiscount && 
+											(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
+											itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
+											itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+											(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
+											answer.setDiscount(discount);
+									}
+								}
+							}
+						}
+//					}
+					//OJOOOOOOOOOOOOOO
+					//section.addItemFixed(item);
+					data.setIsFixed(true);
+					section.addItem(item);
+					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
+					i = i + 1;
+				}
+
+				//update meta data for date:
+				//We need this in a standard format so it can be parsed later. This is ISO8601 format -DH
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+				section.addSectionMetaData(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE, df.format(new Date()));
+			}
+			
 			List itemlist = qpService.getAllItems(Long.valueOf(section
 					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
 
 			if(verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))){
-				// random section:
-				removeAllItems(section.getSectionId().toString());
+				// random section: OJOOOOOO
+				/*if (!isFixed) {
+					removeAllItems(section.getSectionId().toString());
+				}
 
-				ItemService itemService = new ItemService();
+				
 				String agentId = AgentFacade.getAgentString();
 
 				Iterator itemIter = section.getItemSet().iterator();
@@ -457,29 +571,10 @@ public class AssessmentService {
 					}
 				}
 				// need to reload
-				section = getSection(section.getSectionId().toString());
+				section = getSection(section.getSectionId().toString());*/
 
-				// ItemService itemservice = new ItemService();
-				boolean hasRandomPartScore = false;
-				Double score = null;
-				String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
-						                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION)	: "";
-						                 
-				if (StringUtils.isNotBlank(requestedScore)) {
-					hasRandomPartScore = true;
-					score = new Double(requestedScore);
-				}
-				boolean hasRandomPartDiscount = false;
-				Double discount = null;
-				String requestedDiscount = (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) ? 
-											section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) : "";
+				
 
-				if (StringUtils.isNotBlank(requestedDiscount)) {
-					hasRandomPartDiscount = true;
-					discount = new Double(requestedDiscount);
-				}
-
-				int i = 0;
 				Iterator iter = itemlist.iterator();
 				while (iter.hasNext()) {
 					ItemFacade item = (ItemFacade) iter.next();

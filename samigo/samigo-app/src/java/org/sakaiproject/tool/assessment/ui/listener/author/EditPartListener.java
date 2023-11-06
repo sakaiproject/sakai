@@ -72,7 +72,8 @@ public class EditPartListener
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
     String sectionId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("sectionId");
-
+    List<String> destItems = ContextUtil.paramArrayValueLike("randomizationTypesFixed");
+    
     if (sectionId != null){
 	  sectionBean.setSectionId(sectionId);
     }
@@ -159,6 +160,18 @@ public class EditPartListener
 
        if (meta.getLabel().equals(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)){
          bean.setSelectedPool(meta.getEntry());
+       }
+
+       if (meta.getLabel().equals(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW)){
+           bean.setSelectedPoolFixed(meta.getEntry());
+       }
+
+       if (meta.getLabel().equals(SectionDataIfc.FIXED_QUESTION_IDS)){
+           bean.setFixedQuestionIds(meta.getEntry());
+       }
+
+       if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_FIXED)){
+           bean.setNumberSelectedFixed(meta.getEntry());
        }
 
        if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_DRAWN)){

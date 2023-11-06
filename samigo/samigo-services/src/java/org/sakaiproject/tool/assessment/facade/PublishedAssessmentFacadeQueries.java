@@ -389,6 +389,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			publishedItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
 			publishedItem.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
 			publishedItem.setIsExtraCredit(item.getIsExtraCredit());
+			publishedItem.setIsFixed(item.getIsFixed());
 
 			h.add(publishedItem);
 		}

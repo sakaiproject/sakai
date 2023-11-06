@@ -26,12 +26,14 @@ import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -41,6 +43,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -50,22 +53,30 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.SavePartAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /* For author: Section backing bean. */
@@ -117,6 +128,14 @@ private Integer timedHours = 0;
 private Integer timedMinutes = 0;
 
 private List attachmentList;
+
+//S2U-19
+@Getter @Setter private List allItems;
+//@Getter @Setter private List currentItems;
+//@Getter @Setter private List currentItemIds;
+@Getter @Setter private String fixedQuestionIds; //fixedQuestionIds separated by comma
+private String numberSelectedFixed;
+private String selectedPoolFixed;  // pool fixed id for the item to be added to
 
   public void setSection(SectionFacade section) {
     try {
@@ -309,6 +328,27 @@ private List attachmentList;
     selection1.setLabel(label);
     selection1.setValue("2");
     list.add(selection1);
+
+    // Adding fixed and randow draw
+    SelectItem selection2 = new SelectItem();
+    disabled = false;
+    String label2 = rb.getString("fixed_and_random_draw_type");
+
+    if (hideRandom)
+    {
+        label2 += " " + rb.getString("random_draw_from_que_edit_disabled");
+        disabled = true;
+    }
+    else if (getPoolsAvailable().isEmpty())
+    {
+        label2 += " " + rb.getString("randow_draw_from_que_no_pools_available");
+        disabled = true;
+    }
+
+    selection2.setDisabled(disabled);
+    selection2.setLabel(label2);
+    selection2.setValue("3");
+    list.add(selection2);
 
     return list;
   }
@@ -570,6 +610,22 @@ private List attachmentList;
   /**
    * @param string the number selected
    */
+  public void setNumberSelectedFixed(String string)
+  {
+    numberSelectedFixed = string;
+  }
+
+  /**
+   * @return the number selected
+   */
+  public String getNumberSelectedFixed()
+  {
+    return numberSelectedFixed;
+  }
+
+  /**
+   * @param string the number selected
+   */
   public void setNumberSelected(String string)
   {
     numberSelected = string;
@@ -693,6 +749,22 @@ private List attachmentList;
     this.selectedPool = selectedPool;
   }
 
+  /**
+   * String value of fixed selected pool id
+   * @return String value of fixed selected pool id
+   */
+  public String getSelectedPoolFixed() {
+    return selectedPoolFixed;
+  }
+
+  /**
+   * set the String value of fixed selected pool id
+   * @param selectedPool String value of fixed selected pool id
+   */
+  public void setSelectedPoolFixed(String selectedPoolFixed) {
+    this.selectedPoolFixed = selectedPoolFixed;
+  }
+
    /**
    * get keyword metadata
    */
@@ -793,6 +865,21 @@ private List attachmentList;
         }
         else if (type.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
           setType(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+        }
+        else if (type.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+            setType(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+            QuestionPoolService qpservice = new QuestionPoolService();
+            String agentId = AgentFacade.getAgentString();
+            String selectedPoolFixed = this.getSelectedPoolFixed();
+            //if not select, get the first pool of the pools available
+            if (StringUtils.isBlank(selectedPoolFixed)) {
+                List questions = getPoolsAvailable();
+                SelectItem question = (SelectItem) questions.get(0);
+                selectedPoolFixed = (String) question.getValue();
+            }
+            Long selectedPoolId = Long.parseLong(selectedPoolFixed);
+            QuestionPoolFacade qp = qpservice.getPool(selectedPoolId, agentId);
+            this.setAllItems(new ArrayList(qp.getQuestions()));
         }
         else {
 	  // shouldn't go here.
@@ -935,6 +1022,72 @@ private List attachmentList;
 	    
 	    return list;
 	  }
+  
+  public List fixedRandomizationTypeList(ValueChangeEvent event) {
+
+	    QuestionPoolService qpservice = new QuestionPoolService();
+	    String agentId = AgentFacade.getAgentString();
+	    /*String selectedPoolFixed = this.getSelectedPoolFixed();
+	    //if not select, get the first pool of the pools available
+	    if (StringUtils.isBlank(selectedPoolFixed)) {
+	        List questions = getPoolsAvailable();
+	        SelectItem question = (SelectItem) questions.get(0);
+	        selectedPoolFixed = (String) question.getValue();
+	    }*/
+	    
+	    selectedPoolFixed = (String) event.getNewValue();
+	    Long selectedPoolId = Long.parseLong(selectedPoolFixed);
+	    QuestionPoolFacade qp = qpservice.getPool(selectedPoolId, agentId);
+
+	    this.setAllItems(new ArrayList(qp.getQuestions()));
+	    List<ItemData> questions = this.allItems;
+	   // List<ItemData> questions = (List) qp.getQuestions();
+	    //List<SelectItem> checkboxItems = new ArrayList();
+	    //String text="";
+	    
+	    //getCheckedQuestions();
+
+	    /*for (ItemData item : questions) {
+	        SelectItem selection = new SelectItem();
+
+	        //get instructions
+	        if (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) {
+	            if (!(StringUtils.isEmpty(item.getThemeText()))){
+	                text = strip(item.getThemeText());
+	            } else {
+	                if (!(StringUtils.isEmpty(item.getLeadInText()))) {
+	                    text = strip(item.getLeadInText());
+	                }
+	            }
+	        } else if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+	            text = strip(item.getInstruction());
+	        } else {
+	            text = strip(item.getText());
+	        }
+	        selection.setLabel(text);
+	        selection.setValue(item.getItemId());
+	        checkboxItems.add(selection);
+	    }
+
+	    return checkboxItems;*/
+
+        List<ItemFacade> listAllItems = new ArrayList<>(qp.getQuestions());
+
+		// Creating the itemContentsBean
+		/*List<ItemContentsBean> list = new ArrayList<>();
+		int number=0;
+		for (ItemDataIfc item : listAllItems) {
+			ItemContentsBean itemBean = new ItemContentsBean(item);
+			itemBean.setNumber(++number);
+			list.add(itemBean);
+		}
+		this.setQuestions(list);
+		return list;*/
+        
+        return questions;
+
+	    
+	  }
 
   public String getRandomizationType() {
       return randomizationType;
@@ -997,4 +1150,73 @@ private List attachmentList;
       this.timedHours = timeLimit/60/60;
       this.timedMinutes = (timeLimit/60)%60;
   }
+
+  /*public List getQuestions() {
+    return questions;
+  }
+
+  public void setQuestions(List questions) {
+    this.questions = questions;
+  }*/
+  
+  /*Map htmlStripped = new Map<String,String>() {
+	@Override
+	public int size() { return 0; }
+	@Override
+	public boolean isEmpty() { return false; }
+	@Override
+	public boolean containsKey(Object key) { return true; }
+	@Override
+	public boolean containsValue(Object value) { return false; }
+	@Override
+	public String get(Object key) { return strip((String)key); }
+	@Override
+	public String put(String key, String value) { return null; }
+	@Override
+	public String remove(Object key) { return null;	}
+	@Override
+	public void putAll(Map<? extends String, ? extends String> m) {}
+	@Override
+	public void clear() {}
+	@Override
+	public Set<String> keySet() { return null; }
+	@Override
+	public Collection<String> values() { return null; }
+	@Override
+	public Set<java.util.Map.Entry<String, String>> entrySet() { return null; }
+  };
+  
+  public Map<String,String> getHtmlStripped() {
+	return htmlStripped;  
+  }*/
+  
+	public String strip(String text) {
+		if (text != null) {
+			text = ComponentManager.get(FormattedText.class).stripHtmlFromText( text, false, false ).trim(); // We do not want escaped HTML to be un-escaped
+		}
+		return text;
+	}
+
+	/*public void getCheckedQuestions() {
+
+		List<String> destItems = ContextUtil.paramArrayValueLike("randomizationTypesFixed");
+		List<Long> itemIds = new ArrayList<>();
+		List itemFacades = new ArrayList();
+
+		ItemService delegate = new ItemService();
+		Iterator<String> iter = destItems.iterator();
+
+		while (iter.hasNext()) {
+			Long itemId = NumberUtils.toLong(iter.next(), -1L);
+			ItemFacade itemfacade = delegate.getItem(itemId,
+					AgentFacade.getAgentString());
+			itemFacades.add(itemfacade);
+			itemIds.add(itemId);
+		}
+
+		setCurrentItemIds(itemIds);
+		setCurrentItems(itemFacades);
+
+		setCurrentItemIdsString(String.join(",", itemIds.stream().map(Object::toString).toArray(String[]::new)));
+	}*/
 }
