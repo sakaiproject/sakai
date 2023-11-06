@@ -1774,12 +1774,14 @@ $(document).ready(function() {
 
 			// If data-original-name attr is present, use that instead
             const copyText = (linkTextTag) => {
-                const linkText = linkTextTag.attr("data-original-name");
+                let linkText = linkTextTag.attr("data-original-name");
                 linkText = linkText || linkTextTag.text();
             };
 
             copyText(row.find(".link-text"));
             copyText(row.find(".link-additional-text"));
+
+            let linkText = row.find(".link-text").text();
 
 			$("#name").val(linkText);
 			$("#description").val(row.find(".rowdescription").text());
