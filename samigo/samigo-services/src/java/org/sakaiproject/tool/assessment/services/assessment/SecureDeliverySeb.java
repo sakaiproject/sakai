@@ -36,12 +36,17 @@ import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.io.FileHandler;
 import org.apache.commons.configuration2.plist.XMLPropertyListConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -73,6 +78,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
 
+    private static final String COLLECTION_SEB_NAME = "seb";
     private static final String SAMIGO_PATH = "/samigo-app";
     private static final String LOGIN_SERVLET_PATH = SAMIGO_PATH + "/servlet/Login";
     private static final String SEB_ALWAYS_ENABLED = "always";
@@ -97,6 +103,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
     public static final String MODULE_NAME = "Safe Exam Browser";
     public static final String SEB_DOWNLOAD_LINK_DEFAULT = "https://safeexambrowser.org/download_en.html";
     public static final String SEB_DOWNLOAD_LINK_PROPERTY = "seb.download.link";
+    public static final String COLLECTION_SEB = ContentHostingService.COLLECTION_PUBLIC + COLLECTION_SEB_NAME + "/";
 
     public boolean initialize() {
         Objects.requireNonNull(persistenceService);
@@ -349,23 +356,32 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
                 fileHandler.save(outputStream);
                 outputStream.flush();
 
-                // Push advisor, beacuse instructors can't add public resources normally
+                // Generate filename
+                String fileName = UUID.randomUUID().toString() + ".seb";
+
+                // Base properties on draft upload
+                ResourceProperties publishedConfigProperties = baseConfigResource.getProperties();
+                // Set additional properties
+                publishedConfigProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
+
+                // Push advisor, because instructors can't add public resources normally
                 securityService.pushAdvisor(alwaysAllowSecurityAdvisor);
 
                 // Create new resource that will be used for delivery and published settings
                 // Resource needs to be public, because SEB will request it before login, when launched directly from Samigo
                 ContentResource publishedConfigResource  = contentHostingService.addResource(
-                        UUID.randomUUID().toString() + ".seb",
-                        ContentHostingService.COLLECTION_PUBLIC,
+                        fileName,
+                        getOrCreateSebCollection().getId(),
                         1,
                         baseConfigResource.getContentType(),
                         new ByteArrayInputStream(outputStream.toByteArray()),
-                        baseConfigResource.getProperties(),
+                        publishedConfigProperties,
                         Collections.emptyList(),
                         false,
                         null,
                         null,
-                        NotificationService.NOTI_NONE);
+                        NotificationService.NOTI_NONE
+                );
 
                 securityService.popAdvisor(alwaysAllowSecurityAdvisor);
 
@@ -389,11 +405,36 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
 
                 return true;
             } catch (Exception e) {
-                log.error("Could not create modified SEB configuration {}", e.toString());
+                log.error("Could not create modified SEB configuration due to {}: {}", e.toString(), ExceptionUtils.getStackTrace(e));
             }
         }
 
         return false;
+    }
+
+    private ContentCollection getOrCreateSebCollection() {
+        // Try to get the seb collection
+        try {
+            return contentHostingService.getCollection(COLLECTION_SEB);
+        } catch (IdUnusedException e) {
+            // Collection not found, let's create it
+        } catch (Exception e) {
+            log.error("Could not get seb collection due to {}: {}", e.toString(), ExceptionUtils.getStackTrace(e));
+            return null;
+        }
+
+        // Create seb collection
+        try {
+            ContentCollectionEdit sebCollectionEdit = contentHostingService.addCollection(ContentHostingService.COLLECTION_PUBLIC, COLLECTION_SEB_NAME);
+            ResourcePropertiesEdit sebCollectionProperties = sebCollectionEdit.getPropertiesEdit();
+            sebCollectionProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, COLLECTION_SEB_NAME);
+            contentHostingService.commitCollection(sebCollectionEdit);
+            log.info("Created seb resource collection at {}", sebCollectionEdit.getId());
+            return sebCollectionEdit;
+        } catch (Exception e) {
+            log.error("Could not create seb collection due to {}: {}", e.toString(), ExceptionUtils.getStackTrace(e));
+            return null;
+        }
     }
 
     private void expireValidationData(Long assessmentId, String userId) {
