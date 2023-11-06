@@ -104,7 +104,7 @@
                 </ul>
             </div>
             <div class="sites-section pinned-site-section">
-                <h3 class="sites-section-heading" #if (! ${showSiteLabels} ) style="display: none;" #end>${rloader.sitenav_title_pinned}</h3>
+                <h3 class="sites-section-heading #if (! $showSiteLabels) d-none #end">${rloader.sitenav_title_pinned}</h3>
                 <ul id="pinned-site-list" class="mb-0 #if ($sidebarSites.pinnedSites.empty)d-none#end">
                     #foreach ($site in $sidebarSites.pinnedSites)
                         #siteListItem("pinned", $site, false)
