@@ -2002,7 +2002,25 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             Map sectionScores = new TreeMap();
             while (sectionsIter.hasNext()) {
                 PublishedSectionData publishedSection = (PublishedSectionData) sectionsIter.next();
-                List itemsArray = publishedSection.getItemArraySortedForGrading();
+                List<ItemDataIfc> itemsArray = publishedSection.getItemArraySortedForGrading();
+
+                // adding fixed questions (could be empty if not fixed and draw part)
+                List<ItemDataIfc> sortedList = itemsArray.stream()
+                    .filter(item -> ((PublishedItemData) item).getIsFixed())
+                    .collect(Collectors.toList());
+
+                // getting all hashes from the sortedListt
+                List<String> distinctHashValues = sortedList.stream()
+                    .filter(item -> item instanceof PublishedItemData)
+                    .map(item -> ((PublishedItemData) item).getHash())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+                // removing from itemSet if there are hashes repeated and getFixed false -> itemArray with only fixed and not repeated fixed on the randow draw
+                itemsArray.removeIf(item -> item instanceof PublishedItemData &&
+                                            !item.getIsFixed() &&
+                                            distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
                 Iterator itemsIter = itemsArray.iterator();
                 // Iterate through the assessment questions (items)
                 Map itemsForSection = new HashMap();
@@ -3306,11 +3324,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         PublishedItemData publishedItemData;
         for (PublishedSectionData publishedSectionData : sectionSet) {
             log.debug("sectionId = " + publishedSectionData.getSectionId());
-
+            itemArrayList = publishedSectionData.getItemArray();
             String authorType = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-            if (authorType != null && authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-                log.debug("Random draw from questonpool");
-                itemArrayList = publishedSectionData.getItemArray();
+            if (authorType != null && (authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
+                                       authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+                log.debug("Fixed or Random draw from questionpool");
                 long seed = (long) AgentFacade.getAgentString().hashCode();
 
                 // If the section has a previous seed we must use it to use the same order.
@@ -3324,6 +3342,27 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         .equals(SectionDataIfc.PER_SUBMISSION)) {
                     seed = (long) (assessmentGradingData.getAssessmentGradingId()
                             .toString() + "_" + publishedSectionData.getSectionId().toString()).hashCode();
+                }
+
+                if (authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+                    // adding fixed questions
+                    List<ItemDataIfc> sortedlist = itemArrayList.stream()
+                        .filter(item -> ((PublishedItemData) item).getIsFixed())
+                        .collect(Collectors.toList());
+
+                    // removing isFixed questions from itemlist
+                    itemArrayList.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+                    // getting all hashes from the sortedlist
+                    List<String> distinctHashValues = sortedlist.stream()
+                        .filter(item -> item instanceof PublishedItemData)
+                        .map(item -> ((PublishedItemData) item).getHash())
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+                    itemArrayList.removeIf(item -> item instanceof PublishedItemData &&
+                                                   distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
                 }
 
                 Collections.shuffle(itemArrayList, new Random(seed));
@@ -3343,8 +3382,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     }
                 }
             } else {
-                log.debug("Not random draw from questonpool");
-                itemArrayList = publishedSectionData.getItemArray();
+                log.debug("Not random draw from questionpool");
                 for (PublishedItemData pid : itemArrayList) {
                     publishedItemId = pid.getItemId();
                     log.debug("publishedItemId = " + publishedItemId);

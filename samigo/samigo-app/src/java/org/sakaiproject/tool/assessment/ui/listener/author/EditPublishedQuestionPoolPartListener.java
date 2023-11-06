@@ -35,17 +35,20 @@ public class EditPublishedQuestionPoolPartListener    implements ActionListener
         
         String sectionId;
         String poolName;
+        String poolNameFixed;
         String sectionTitle;
 
         if (sectionBean != null) {
             sectionId = sectionBean.getSectionId();
             sectionTitle = sectionBean.getTitle();
             poolName = sectionBean.getPoolNameToBeDrawn();
+            poolNameFixed = sectionBean.getPoolNameToBeFixed();
         }
         else {
             sectionId = null;
             sectionTitle = null;
             poolName = null;
+            poolNameFixed = null;
         }
         
 
@@ -59,6 +62,7 @@ public class EditPublishedQuestionPoolPartListener    implements ActionListener
         
             author.setEditPoolSectionId(sectionId);
             author.setEditPoolName(poolName);
+            author.setEditPoolNameFixed(poolNameFixed);
             author.setEditPoolSectionName(sectionTitle);
         }
     }

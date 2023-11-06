@@ -98,7 +98,7 @@ $Id$
       <h:outputText value="#{evaluationMessages.part} #{partinit.partNumber}#{evaluationMessages.column}" />
     </h:column>
     <h:column>
-      <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{!partinit.isRandomDrawPart}" >
+      <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{!partinit.isRandomDrawPart && !partinit.isFixedRandomDrawPart}" >
         <h:column>
           <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
             <h:outputText value="#{evaluationMessages.q}#{iteminit.partNumber} " escape="false"/>
@@ -116,10 +116,16 @@ $Id$
 		<f:param value="#{partinit.numberQuestionsTotal}" />
 	  </h:outputFormat>
 
-	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{partinit.isRandomDrawPart}" >
+	  <h:outputFormat value="#{evaluationMessages.fixed_random_draw_info}" rendered="#{partinit.isFixedRandomDrawPart}">
+	  	<f:param value="#{partinit.numberQuestionsFixed}" />
+	  	<f:param value="#{partinit.numberQuestionsDraw}" />
+		<f:param value="#{partinit.numberQuestionsTotal}" />
+	  </h:outputFormat>
+
+	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.questionNumberListSize}" rendered="#{partinit.isRandomDrawPart || partinit.isFixedRandomDrawPart}" >
         <h:column>
           <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
-            <h:outputText value="#{evaluationMessages.q} #{iteminit.partNumber} "/>
+            <h:outputText value="#{evaluationMessages.q}#{iteminit.partNumber} "/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
             <f:actionListener

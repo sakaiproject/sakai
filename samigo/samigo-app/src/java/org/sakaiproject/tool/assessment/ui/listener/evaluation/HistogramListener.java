@@ -35,6 +35,7 @@ import java.util.Set;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
@@ -49,6 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -359,7 +361,8 @@ public class HistogramListener
 			  double totalpossible = 0;
 			  boolean hasRandompart = false;
 			  boolean isRandompart = false;
-                          String poolName = null;
+			  String poolName = null;
+			  String poolNameFixed = null;
 			  
 			  Map itemScoresMap = delegate.getItemScores(Long.valueOf(publishedId), Long.valueOf(0), which);
 			  Map itemScores = new HashMap();
@@ -406,6 +409,14 @@ public class HistogramListener
 						  isRandompart = true;
 						  poolName = section
 						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+					  } else if (SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL
+							  .equals(Integer.valueOf(authortype))) {
+						  hasRandompart = true;
+						  isRandompart = true;
+						  poolName = section
+						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+						  poolNameFixed = section
+						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW);
 					  } else {
 						  isRandompart = false;
 						  poolName = null;
@@ -419,9 +430,31 @@ public class HistogramListener
 				  String title = rb.getString("part") + " "
 				  + section.getSequence().toString();
 				  title += ", " + rb.getString("question") + " ";
-				  List<ItemDataIfc> itemset = section.getItemArraySortedForGrading();
+
+				  List<ItemDataIfc> itemlist = section.getItemArraySortedForGrading();
+
+				  Set<ItemDataIfc> sortedSet = itemlist.stream()
+						  .filter(item -> ((PublishedItemData) item).getIsFixed())
+						  .collect(Collectors.toSet());
+
+				  if (!sortedSet.isEmpty()) {
+					// getting all hashes from the sortedSet
+					List<String> distinctHashValues = sortedSet.stream()
+						.filter(item -> item instanceof PublishedItemData)
+						.map(item -> ((PublishedItemData) item).getHash())
+						.distinct()
+						.collect(Collectors.toList());
+
+					// removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
+					itemlist.removeIf(item -> item instanceof PublishedItemData &&
+											!item.getIsFixed() &&
+											distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+					section.setItemSet(new HashSet<>(itemlist));
+				  }
+
 				  int seq = 1;
-				  Iterator<ItemDataIfc> itemsIter = itemset.iterator();
+				  Iterator<ItemDataIfc> itemsIter = itemlist.iterator();
 
 				  // Iterate through the assessment questions (items)
 				  while (itemsIter.hasNext()) {
@@ -429,9 +462,9 @@ public class HistogramListener
 					  questionScores.setNumberOfParts(parts.size());
 					  //if this part is a randompart , then set randompart = true
 					  questionScores.setRandomType(isRandompart);
-                      questionScores.setPoolName(poolName);
 					  ItemDataIfc item = itemsIter.next();
-					  
+					  questionScores.setPoolName(item.getIsFixed() ? poolNameFixed : poolName);
+
 					  if (showObjectivesColumn) {
 						  String obj = item.getItemMetaDataByLabel(ItemMetaDataIfc.OBJECTIVE);
 						  questionScores.setObjectives(obj);

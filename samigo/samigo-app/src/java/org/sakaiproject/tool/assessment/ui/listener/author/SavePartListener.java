@@ -34,6 +34,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -42,9 +44,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -85,6 +89,10 @@ public class SavePartListener
 
     SectionBean sectionBean= (SectionBean) ContextUtil.lookupBean(
                          "sectionBean");
+
+    List<String> destItems = ContextUtil.paramArrayValueLike("randomizationTypesFixed");
+    sectionBean.setNumberSelectedFixed(Integer.toString(destItems.size()));
+
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form editpart.jsp
@@ -151,19 +159,32 @@ public class SavePartListener
 
     }
 
-    if (isEditPendingAssessmentFlow && !("".equals(sectionBean.getType()))  && ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))) {
-      addItemsFromPool = true;
-
-      if (validateItemsDrawn(sectionBean)) {
-          section = getOrAddSection(assessmentService, assessmentId, sectionId);
-      }
-      else {
-        sectionBean.setOutcome("editPart");
-        return;
-      }
+    if ((sectionBean.getType().equals("3")) && (sectionBean.getSelectedPoolFixed().equals(""))) {
+    	String selectedPool_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","selectedPool_error");
+    	context.addMessage(null,new FacesMessage(selectedPool_err));
+    	sectionBean.setOutcome("editPart");
+    	return ;
     }
-    else {
-    	section = getOrAddSection(assessmentService, assessmentId, sectionId);
+
+    if (isEditPendingAssessmentFlow && !sectionBean.getType().isEmpty()) {
+        String sectionType = sectionBean.getType();
+
+        if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionType) ||
+            SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString().equals(sectionType)) {
+
+            addItemsFromPool = true;
+
+            if (validateItemsDrawn(sectionBean)) {
+                section = getOrAddSection(assessmentService, assessmentId, sectionId);
+            } else {
+                sectionBean.setOutcome("editPart");
+                return;
+            }
+        } else {
+            section = getOrAddSection(assessmentService, assessmentId, sectionId);
+        }
+    } else {
+        section = getOrAddSection(assessmentService, assessmentId, sectionId);
     }
 
     if (section == null) {
@@ -213,6 +234,48 @@ public class SavePartListener
     			}
 
     			section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
+    		} else if ((SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))  {
+    			if ((sectionBean.getNumberSelectedFixed()!=null) && !("".equals(sectionBean.getNumberSelectedFixed())))
+    			{
+    				section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_FIXED, sectionBean.getNumberSelectedFixed());
+    			}
+
+    			if ((sectionBean.getNumberSelected()!=null) && !("".equals(sectionBean.getNumberSelected())))
+    			{
+    				section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, sectionBean.getNumberSelected());
+    			}
+
+    			if (!("".equals(sectionBean.getSelectedPool())))
+    			{
+    				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, sectionBean.getSelectedPool());
+    				String poolname = "";
+    				QuestionPoolService qpservice = new QuestionPoolService();
+    				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
+    				if (poolfacade!=null) {
+    					poolname = poolfacade.getTitle();
+    				}
+    				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
+    			}
+    			section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
+
+    			if (!("".equals(sectionBean.getSelectedPoolFixed()))) {
+    				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW, sectionBean.getSelectedPoolFixed());
+    				String poolname = "";
+    				QuestionPoolService qpservice = new QuestionPoolService();
+    				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPoolFixed()), AgentFacade.getAgentString());
+    				if (poolfacade!=null) {
+    					poolname = poolfacade.getTitle();
+    				}
+    				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW, poolname);
+
+    				if (!destItems.isEmpty()) {
+    					section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_FIXED, String.valueOf(destItems.size()));
+    					// creating a metadata for each fixed question
+    					for (int j=0; j<destItems.size(); j++) {
+    						section.addSectionMetaData(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + (j+1), destItems.get(j));
+    					}
+    				}
+    			}
     		}
     	}
     	
@@ -297,11 +360,14 @@ public class SavePartListener
   public boolean validateItemsDrawn(SectionBean sectionBean){
      FacesContext context = FacesContext.getCurrentInstance();
      String numberDrawn = sectionBean.getNumberSelected();
+     String numberSelectedFixed = sectionBean.getNumberSelectedFixed();
      String err;
     
      QuestionPoolService qpservice = new QuestionPoolService();
 
-     List itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
+     String selectedPool = sectionBean.getSelectedPool();
+     String selectedPoolFixed = sectionBean.getSelectedPoolFixed();
+     List itemlist = qpservice.getAllItems(Long.valueOf(selectedPool));
      int itemcount = itemlist.size();
      String itemcountString=" "+Integer.toString(itemcount);
 
@@ -313,7 +379,29 @@ public class SavePartListener
 	     return false;
 
 	 }
-	
+
+     if (sectionBean.getType().equals(Integer.toString(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL))) {
+		if ((StringUtils.isNotEmpty(numberSelectedFixed)) && (StringUtils.isNotEmpty(selectedPoolFixed))) {
+			int numberSelectedInt = Integer.parseInt(numberSelectedFixed);
+
+			// checking at least one fixed
+			if (numberSelectedInt == 0) {
+				err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notfixedquestionselected_error");
+				context.addMessage(null,new FacesMessage(err));
+				return false;
+			}
+
+			int totalFixedPlusDrawInt = numberSelectedInt + numberDrawnInt;
+
+			// checking if selected same pool for fixed and drawn and there is not enough questions
+			if ((selectedPool.equals(selectedPoolFixed)) && (totalFixedPlusDrawInt > itemcount)) {
+				err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notenough_error");
+				context.addMessage(null,new FacesMessage(err));
+				return false;
+			}
+		}
+     }
+
      } catch(NumberFormatException e){
 	 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_error");
 	 context.addMessage(null,new FacesMessage(err+itemcountString ));
