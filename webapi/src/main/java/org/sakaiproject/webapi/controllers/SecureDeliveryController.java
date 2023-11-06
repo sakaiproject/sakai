@@ -18,6 +18,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
@@ -46,6 +49,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.webapi.beans.SebValidationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -160,17 +164,12 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
         return new ResponseEntity<>(sebConfig.toPList(), getSebConfigHeaders(fileName, launch), HttpStatus.OK);
     }
 
+
     private String getSebConfigFileName(PublishedAssessmentFacade publishedAssessment) {
         String fileName = publishedAssessment.getTitle() + ".seb";
         fileName = StringUtils.remove(fileName, " " + publishedAssessment.getAssessmentMetaDataByLabel(
                 SecureDeliveryServiceAPI.TITLE_DECORATION));
-        fileName = StringUtils.replace(fileName, " ", "-");
-
-        for (char illegalChar : ILLEGAL_FILENAME_CHARS) {
-            fileName = StringUtils.remove(fileName, illegalChar);
-        }
-
-        return fileName;
+        return cleanFileName(fileName);
     }
 
     private HttpHeaders getSebConfigHeaders(String fileName, boolean launch) {
@@ -216,9 +215,18 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
             fileHandler.setEncoding(SebConfig.CONFIG_ENCODING);
             fileHandler.load(file.getInputStream());
 
+            // Get filename from upload and clean it or generate one
+            String fileName = Optional.ofNullable(StringUtils.trimToNull(file.getName()))
+                    .map(this::cleanFileName)
+                    .orElseGet(() -> UUID.randomUUID().toString() + ".seb");
+
+            // Create properties to add display name
+            ResourceProperties resourceProperties = new BaseResourceProperties();
+            resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
+
             // Check for update assessment permission
-            ContentResource contentResource = contentHostingService.addAttachmentResource(file.getName(), siteId, ASSESSMENTS_TOOL_NAME,
-                    file.getContentType(), file.getInputStream(), null);
+            ContentResource contentResource = contentHostingService.addAttachmentResource(fileName, siteId, ASSESSMENTS_TOOL_NAME,
+                    file.getContentType(), file.getInputStream(), resourceProperties);
 
             return new ResponseEntity<>(contentResource.getId(), HttpStatus.OK);
         } catch(ConfigurationException | IOException e) {
@@ -231,5 +239,15 @@ public class SecureDeliveryController extends AbstractSakaiApiController {
             log.error("User {} does not have permission to upload attachment on site {}", session.getUserId(), siteId);
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+    }
+
+    private String cleanFileName(String fileName) {
+        String cleanFileName = fileName = StringUtils.replace(fileName, " ", "-");
+
+        for (char illegalChar : ILLEGAL_FILENAME_CHARS) {
+            cleanFileName = StringUtils.remove(cleanFileName, illegalChar);
+        }
+
+        return cleanFileName;
     }
 }
