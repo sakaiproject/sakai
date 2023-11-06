@@ -104,20 +104,20 @@
                 </ul>
             </div>
             <div class="sites-section pinned-site-section">
-                <h3 class="sites-section-heading" #if (! ${showVerboseLabels} ) style="display: none;" #end>${rloader.sitenav_title_pinned}</h3>
+                <h3 class="sites-section-heading" #if (! ${showSiteLabels} ) style="display: none;" #end>${rloader.sitenav_title_pinned}</h3>
                 <ul id="pinned-site-list" class="mb-0 #if ($sidebarSites.pinnedSites.empty)d-none#end">
                     #foreach ($site in $sidebarSites.pinnedSites)
                         #siteListItem("pinned", $site, false)
                     #end
                 </ul>
-                #if (${showVerboseLabels})
+                #if (${showSiteLabels})
                 <div id="sites-no-pinned-label" class="ms-3 #if ($sidebarSites.pinnedSites.empty) d-block #else d-none #end">${rloader.sitenav_no_pinned}</div>
                 #else
                 <span id="sites-no-pinned-label"></span>
                 #end
             </div>
             <div class="sites-section #if ($sidebarSites.recentSites.empty)d-none#end">
-                <h3 class="sites-section-heading" #if (! ${showVerboseLabels} ) style="display: none;" #end>${rloader.sitenav_title_recent}</h3>
+                <h3 class="sites-section-heading" #if (! ${showSiteLabels} ) style="display: none;" #end>${rloader.sitenav_title_recent}</h3>
                 <ul id="recent-site-list" class="mb-0">
                     #foreach ($site in $sidebarSites.recentSites)
                         #siteListItem("recent", $site, false)
