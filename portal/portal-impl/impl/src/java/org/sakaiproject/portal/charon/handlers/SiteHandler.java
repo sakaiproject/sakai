@@ -145,6 +145,9 @@ public class SiteHandler extends WorksiteHandler
 	private static final String SAK_PROP_SHOW_FAV_STARS_ON_ALL = "portal.favoriteSitesBar.showFavStarsOnAllSites";
 	private static final boolean SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT = true;
 
+	private static final String SAK_PROP_SHOW_SITE_LABELS = "portal.siteList.siteLabels";
+	private static final boolean SAK_PROP_SHOW_SITE_LABELS_DFLT = true;
+
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
 	private static final String SELECTED_PAGE_PROP = "selectedPage";
 
@@ -574,6 +577,8 @@ public class SiteHandler extends WorksiteHandler
 		
 		rcontext.put("showFavStarsInSitesBar",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_FAV_STARS, SAK_PROP_SHOW_FAV_STARS_DFLT));
 		rcontext.put("showFavStarsOnAllFavSites",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_FAV_STARS_ON_ALL, SAK_PROP_SHOW_FAV_STARS_ON_ALL_DFLT));
+
+		rcontext.put("showSiteLabels",ServerConfigurationService.getBoolean(SAK_PROP_SHOW_SITE_LABELS, SAK_PROP_SHOW_SITE_LABELS_DFLT));
 		
 		addLocale(rcontext, site, session.getUserId());
 
