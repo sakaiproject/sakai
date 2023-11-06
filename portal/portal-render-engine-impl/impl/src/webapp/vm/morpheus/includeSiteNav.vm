@@ -117,7 +117,7 @@
                 #end
             </div>
             <div class="sites-section #if ($sidebarSites.recentSites.empty)d-none#end">
-                <h3 class="sites-section-heading" #if (! ${showSiteLabels} ) style="display: none;" #end>${rloader.sitenav_title_recent}</h3>
+                <h3 class="sites-section-heading #if (! $showSiteLabels) d-none #end">${rloader.sitenav_title_recent}</h3>
                 <ul id="recent-site-list" class="mb-0">
                     #foreach ($site in $sidebarSites.recentSites)
                         #siteListItem("recent", $site, false)
