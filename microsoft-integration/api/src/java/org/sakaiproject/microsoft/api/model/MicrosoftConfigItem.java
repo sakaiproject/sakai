@@ -31,7 +31,7 @@ public class MicrosoftConfigItem {
 	@Column(name = "item_key", nullable = false)
 	private String key;
 
-	@Column(name = "value", nullable = false)
+	@Column(name = "value", nullable = true)
 	private String value;
 	
 	@Transient
