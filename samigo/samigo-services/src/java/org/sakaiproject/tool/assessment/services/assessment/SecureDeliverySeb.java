@@ -121,6 +121,9 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
 
     public boolean isEnabled() {
         String siteId = AgentFacade.getCurrentSiteId();
+        if (siteId == null) {
+            log.debug("Provided siteId is null");
+        }
         return isEnabled(siteId);
     }
 
@@ -463,7 +466,7 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
             return Boolean.parseBoolean(sebSiteEnabled);
         } catch(IdUnusedException e) {
             // Ignore missing site
-            log.warn("Site with Id [{}] not found [{}]", siteId);
+            log.warn("Site with Id [{}] not found.", siteId);
         }
 
         return false;
