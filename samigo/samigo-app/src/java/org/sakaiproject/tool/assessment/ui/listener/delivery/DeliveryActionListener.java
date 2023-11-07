@@ -34,11 +34,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -157,7 +159,7 @@ public class DeliveryActionListener
       // set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
-      String actionString = ae != null ? actionString = ae.getComponent().getId() : null;
+      String actionString = Optional.ofNullable(ae).map(ActionEvent::getComponent).map(UIComponent::getId).orElse(null);
 
       // 2. get assessment from deliveryBean if id matches. otherwise, this is the 1st time
       // that DeliveryActionListener is called, so pull it from DB
@@ -348,7 +350,7 @@ public class DeliveryActionListener
       case 5: // Take assessment via url
               log.debug("**** DeliveryActionListener #0");
 
-              if (StringUtils.startsWith(actionString, "beginAssessment") || StringUtils.startsWith(actionString, "continueAssessment")) {
+              if (StringUtils.startsWithAny(actionString, "beginAssessment", "continueAssessment")) {
             	  // #1. check password
             	  if (!delivery.getSettings().getPassword().equals("") && "passwordAccessError".equals(delivery.validatePassword())) {
             		return;
