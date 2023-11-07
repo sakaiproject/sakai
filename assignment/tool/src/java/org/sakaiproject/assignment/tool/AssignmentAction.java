@@ -3063,6 +3063,20 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 context.put("groupsWithUserSubmission", groupsWithUserSubmission);
             }
+        } else {
+            boolean instructorGroupsProp = serverConfigurationService.getBoolean("assignments.assign.to.instructor.groups", false);
+            Collection<Group> instructorGroups = new ArrayList<Group>();
+            if (instructorGroupsProp) {
+                try {
+                    Site site = siteService.getSite(siteId);
+                    User user = (User) state.getAttribute(STATE_USER);
+                    instructorGroups = site.getGroupsWithMember(user.getId());
+                    
+                } catch (IdUnusedException ex){
+                    log.warn("Site not found for site id:{}", siteId);
+                }
+            }
+            context.put("instructorGroups", instructorGroups);
         }
 
         // set up context variables
@@ -6919,11 +6933,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
 
                     // following involves content, not grading, so always do on resubmit, not just if graded
-
-                    // clean the ContentReview attributes
-                    properties.put(AssignmentConstants.REVIEW_SCORE, "-2"); // the default is -2 (e.g., for a new submission)
-                    properties.put(AssignmentConstants.REVIEW_STATUS, null);
-
                     if (StringUtils.isNotBlank(submission.getFeedbackText())) {
                         // keep the history of assignment feed back text
                         String feedbackTextHistory = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));

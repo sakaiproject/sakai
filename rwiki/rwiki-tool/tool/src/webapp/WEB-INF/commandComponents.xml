@@ -44,6 +44,8 @@
     </property>
     <property name="contentChangedPath"><value>/WEB-INF/command-pages/edit.jsp</value>
     </property>
+    <property name="groupsErrorPath"><value>/WEB-INF/command-pages/edit.jsp</value>
+    </property>
     <property name="successfulPath"><value>/WEB-INF/command-pages/view.jsp</value>
     </property>
     <property name="previewPath">

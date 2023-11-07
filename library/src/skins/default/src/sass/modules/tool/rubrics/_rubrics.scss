@@ -545,9 +545,9 @@ sakai-rubric-grading {
 sakai-rubric-grading-comment,
 sakai-rubric-student-comment {
 
-    button > i.comment-icon {
+    div.comment-icon, button > i {
         margin: 5px auto;
-        font-size: 20px;
+        font-size: 16px;
         text-align: center;
         width: 100%;
         &.active {
@@ -558,7 +558,7 @@ sakai-rubric-student-comment {
 }
 
 [class*="edit-popover"] {
-    width: 400px;
+    width: 280px;
     --bs-popover-max-width: 800px;
 
     .popover-content {
@@ -718,8 +718,9 @@ sakai-rubric-summary{
 }
 
 .arrow-comment {
-    bottom: 50px;
     right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .label-rubrics {

@@ -490,7 +490,9 @@
       color: var(--sakai-text-color-2);
   }
 
-  .lastmodified { font-size: smaller; text-align: right; color: #555;padding:.5em 0}
+  .lastmodified, .groupsforthispage { font-size: smaller; text-align: right; color: #555;padding:.5em 0}
+  
+  .bold-text { font-weight: bold; color:#000 }
 
   /*view:index-list
   added to blocks that are higher than 300px - creates a scroll if so and sizes them to 300px

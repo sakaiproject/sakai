@@ -152,7 +152,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.requestUpdate();
 
     if (this.gradable.allowPeerAssessment) {
-      this.updateComplete.then(() => $("#peer-info").popover());
+      this.updateComplete.then(() => (new bootstrap.Popover(this.querySelector("#peer-info"))));
     }
 
     // If any grade overrides have been set, check the overrides box
@@ -605,7 +605,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     if (e.key === "Backspace" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
       return true;
-    } else if (!e.key.match(rgxp)) {
+    } else if (e.key && !e.key.match(rgxp)) {
       e.preventDefault();
       return false;
     }

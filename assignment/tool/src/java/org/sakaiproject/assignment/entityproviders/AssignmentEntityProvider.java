@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.fileupload.FileItem;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.ContentReviewResult;
@@ -74,6 +75,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.lti.api.LTIService;
@@ -91,6 +93,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
+    private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     private AssignmentService assignmentService;
     private AssignmentToolUtils assignmentToolUtils;
     private ContentHostingService contentHostingService;
@@ -99,6 +102,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private SecurityService securityService;
     private SessionManager sessionManager;
     private SiteService siteService;
+    private ToolManager toolManager;
     private AssignmentSupplementItemService assignmentSupplementItemService;
     private GradingService gradingService;
     private ServerConfigurationService serverConfigurationService;
@@ -763,6 +767,61 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     submission.put("previewableAttachments", previewableAttachments);
                 }
             }
+
+            //peer review
+            if (assignment.getAllowPeerAssessment()
+                    && assignment.getPeerAssessmentStudentReview()
+                    && assignmentService.isPeerAssessmentClosed(assignment)) {
+                List<PeerAssessmentItem> reviews = assignmentPeerAssessmentService.getPeerAssessmentItems(as.getId(), assignment.getScaleFactor());
+                if (reviews != null) {
+                    List<PeerAssessmentItem> completedReviews = new ArrayList<>();
+                    for (PeerAssessmentItem review : reviews) {
+                        if (!review.getRemoved() && (review.getScore() != null || (StringUtils.isNotBlank(review.getComment())))) {
+                            //only show peer reviews that have either a score or a comment saved
+                            if (assignment.getPeerAssessmentAnonEval()) {
+                                //annonymous eval
+                                review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer.countReview", completedReviews.size() + 1));
+                            } else {
+                                //need to set the assessor's display name
+                                try {
+                                    if (assignment.getIsGroup()) {
+                                        String siteId = toolManager.getCurrentPlacement().getContext();
+                                        Site site = siteService.getSite(siteId);
+                                        review.setAssessorDisplayName(site.getGroup(review.getId().getAssessorUserId()).getTitle());
+                                    } else {
+                                        review.setAssessorDisplayName(userDirectoryService.getUser(review.getId().getAssessorUserId()).getDisplayName());
+                                    }
+                                } catch (IdUnusedException | UserNotDefinedException e) {
+                                    //reviewer doesn't exist or one of userId/groupId/siteId is wrong
+                                    log.warn("Either no site, or user: {}", e.toString());
+                                    //set a default one:
+                                    review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer.countReview", completedReviews.size() + 1));
+                                }
+                            }
+                            // get attachments for peer review item
+                            List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(review.getId().getSubmissionId(), review.getId().getAssessorUserId());
+                            if (attachments != null && !attachments.isEmpty()) {
+                                List<Reference> attachmentRefList = new ArrayList<>();
+                                for (PeerAssessmentAttachment attachment : attachments) {
+                                    try {
+                                        Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getResourceId()));
+                                        attachmentRefList.add(ref);
+                                    } catch (Exception e) {
+                                        log.warn("Exception while creating reference: {}", e.toString());
+                                    }
+                                }
+                                if (!attachmentRefList.isEmpty())
+                                    review.setAttachmentRefList(attachmentRefList);
+                            }
+                            completedReviews.add(review);
+                        }
+                    }
+                    if (completedReviews.size() > 0) {
+                        submission.put("peerReviews", completedReviews);
+                    }
+                }
+            }
+
         }
 
         List<Map<String, Object>> submitters
