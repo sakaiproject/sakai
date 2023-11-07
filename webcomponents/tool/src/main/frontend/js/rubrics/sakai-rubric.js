@@ -1,12 +1,13 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { ifDefined } from "/webcomponents/assets/lit-html/directives/if-defined.js";
 import "./sakai-rubric-criteria.js";
 import "./sakai-rubric-criteria-readonly.js";
 import "./sakai-rubric-edit.js";
 import "./sakai-item-delete.js";
 import "./sakai-rubric-pdf.js";
-import {tr} from "./sakai-rubrics-language.js";
-import {SharingChangeEvent} from "./sharing-change-event.js";
+import { tr } from "./sakai-rubrics-language.js";
+import { SharingChangeEvent } from "./sharing-change-event.js";
 
 export class SakaiRubric extends RubricsElement {
 
@@ -77,7 +78,7 @@ export class SakaiRubric extends RubricsElement {
           <a href="#"
             class="rubric-name"
             id="rubric_toggle_${this.rubric.id}"
-            aria-expanded="${this.rubricExpanded}"
+            aria-expanded="${ifDefined(this.rubricExpanded)}"
             role="tab"
             title="${tr("toggle_details")} ${this.rubric.title}"
           >
@@ -208,11 +209,11 @@ export class SakaiRubric extends RubricsElement {
             .weighted=${this.rubric.weighted}
             total-weight="${this.totalWeight}"
             ?valid-weight="${this.validWeight}"
-            max-points="${this.maxPoints}"
-            min-points="${this.minPoints}"
+            max-points="${ifDefined(this.maxPoints)}"
+            min-points="${ifDefined(this.minPoints)}"
             ?is-locked="${this.rubric.locked}"
             ?is-draft="${this.rubric.draft}">
-          </sakai-rubric-criteria
+          </sakai-rubric-criteria>
         </div>
       </div>
     `;

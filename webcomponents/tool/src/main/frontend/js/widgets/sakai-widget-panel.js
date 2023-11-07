@@ -17,7 +17,7 @@ export class SakaiWidgetPanel extends LitElement {
     return {
       siteId: { attribute: "site-id", type: String },
       userId: { attribute: "user-id", type: String },
-      widgetIds: { attribute: "widget-ids", type: Array },
+      widgetIds: { type: Array },
       layout: { type: Array },
       i18n: Object,
       state: String,

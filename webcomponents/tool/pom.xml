@@ -166,7 +166,6 @@
                             <arguments>run analyze</arguments>
                         </configuration>
                     </execution>
-
                     <execution>
                         <id>npm empathise</id>
                         <goals>

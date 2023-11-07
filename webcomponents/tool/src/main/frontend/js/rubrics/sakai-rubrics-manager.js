@@ -1,7 +1,7 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
-import {SakaiRubricsLanguage, tr} from "./sakai-rubrics-language.js";
+import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
 import "./sakai-rubrics-list.js";
 import "./sakai-rubrics-shared-list.js";
 

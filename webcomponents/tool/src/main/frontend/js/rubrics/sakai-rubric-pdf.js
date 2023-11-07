@@ -1,6 +1,7 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { tr } from "./sakai-rubrics-language.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { ifDefined } from "/webcomponents/assets/lit-html/directives/if-defined.js";
 
 export class SakaiRubricPdf extends RubricsElement {
 
@@ -37,7 +38,7 @@ export class SakaiRubricPdf extends RubricsElement {
       <a role="button"
         title="${tr("export_title", [this.rubricTitle])}"
         aria-label="${tr("export_title", [this.rubricTitle])}"
-        href="${this.url}"
+        href="${ifDefined(this.url)}"
         @click=${e => e.stopPropagation()}
         class="linkStyle pdf fa fa-file-pdf-o">
       </a>
