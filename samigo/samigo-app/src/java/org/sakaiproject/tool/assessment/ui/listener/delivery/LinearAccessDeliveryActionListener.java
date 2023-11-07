@@ -24,8 +24,10 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -79,6 +81,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       // set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
+      String actionString = Optional.ofNullable(ae).map(ActionEvent::getComponent).map(UIComponent::getId).orElse(null);
 
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
@@ -97,7 +100,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
         return;
       }
 
-      if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+      if (StringUtils.startsWithAny(actionString, "beginAssessment", "continueAssessment")) {
     	  // #1. check password
     	  if (!delivery.getSettings().getPassword().equals(""))
     	  {
@@ -121,12 +124,16 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
               if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
                   HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
                   PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+                  delivery.setSecureDeliveryStatus(status);
                   if ( PhaseStatus.FAILURE == status && !StringUtils.equals(moduleId, SecureDeliverySeb.MODULE_NAME) ) {
                       return;
                   }
               }    	  
           }
       }
+
+      // (Re)set sebSetup
+      delivery.setSebSetup(false);
 
       super.populateSubmissionsRemaining(pubService, publishedAssessment, delivery);
 
