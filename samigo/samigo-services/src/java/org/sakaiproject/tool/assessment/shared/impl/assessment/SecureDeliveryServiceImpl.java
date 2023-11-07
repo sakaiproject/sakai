@@ -507,17 +507,28 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	@Override
 	public Optional<String> getSecureDeliveryServiceNameForModule(String moduleId, final Locale locale)
 	{
-		Optional<SecureDeliveryModuleIfc> module = getModuleIfEnabled(moduleId);
+		Optional<SecureDeliveryModuleIfc> module = getModule(moduleId);
 		return module.map(m -> m.getModuleName(locale));
 	}
 
 	private Optional<SecureDeliveryModuleIfc> getModuleIfEnabled(String moduleId)
 	{
+		Optional<SecureDeliveryModuleIfc> optModule = getModule(moduleId);
+
+		if (optModule.map(SecureDeliveryModuleIfc::isEnabled).orElse(false)) {
+			return optModule;
+		}
+
+		return Optional.empty();
+	}
+
+	private Optional<SecureDeliveryModuleIfc> getModule(String moduleId) {
 		SecureDeliveryModuleIfc module = secureDeliveryModules.get(moduleId);
-		if (moduleId == null || NONE_ID.equals( moduleId ) || module == null || !module.isEnabled())
-		{
+
+		if (moduleId == null || NONE_ID.equals(moduleId) || module == null) {
 			return Optional.empty();
 		}
+
 		return Optional.of(module);
 	}
 
