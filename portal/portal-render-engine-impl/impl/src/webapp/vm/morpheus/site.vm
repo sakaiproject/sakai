@@ -84,12 +84,6 @@
         #parse("/vm/morpheus/includeGoogleTM-NoScript.vm")
 
         ${includeExtraHead}
-    #*
-        #if ($loggedIn)
-            #parse("/vm/morpheus/connection-manager.vm")
-        #end
-
-    *#
 
     </body>
 </html>
