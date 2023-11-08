@@ -21,6 +21,7 @@
 package org.sakaiproject.portal.charon;
 
 import static org.sakaiproject.portal.api.PortalConstants.*;
+import static org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -1464,7 +1465,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             String thisUser = sessionManager.getCurrentSessionUserId();
 
             //Get user preferences
-            Preferences prefs = preferencesService.getPreferences(thisUser);
+            PreferencesEdit preferences = null;
+            try {
+                try {
+                    preferences = preferencesService.edit(thisUser);
+                } catch (IdUnusedException iue) {
+                    preferences = preferencesService.add(thisUser);
+                }
+            } catch (Exception e) {
+                log.warn("Could not get the preferences for user [{}], {}", thisUser, e.toString());
+            }
 
             rcontext.put("showServerTime", showServerTime);
 
@@ -1479,11 +1489,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
                 rcontext.put("serverTzGMTOffset", String.valueOf(now.getTimeInMillis() + now.get(Calendar.ZONE_OFFSET) + now.get(Calendar.DST_OFFSET)));
 
                 // get the Properties object that holds user's TimeZone preferences
-                ResourceProperties tzprops = prefs.getProperties(TimeService.APPLICATION_ID);
-                String preferredTzId = (String) tzprops.get(TimeService.TIMEZONE_KEY);
+                String preferredTzId = preferences != null ? preferences.getProperties(TimeService.APPLICATION_ID).getProperty(TimeService.TIMEZONE_KEY) : serverTz.getID();
 
                 // provide the user's preferred timezone information if it is different
-                if (preferredTzId != null && !preferredTzId.equals(serverTz.getID())) {
+                if (StringUtils.isNotBlank(preferredTzId) && !preferredTzId.equals(serverTz.getID())) {
+                    log.debug("Fetched timezone [{}] from user [{}] preferences", preferredTzId, thisUser);
                     TimeZone preferredTz = TimeZone.getTimeZone(preferredTzId);
                     now.setTimeZone(preferredTz);
                     rcontext.put("showPreferredTzTime", true);
@@ -1523,22 +1533,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("portalVideoChatTimeout", portalChatVideoTimeout);
 
             if (sakaiTutorialEnabled && thisUser != null) {
-                if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
+                String userTutorialPref = preferences != null ? preferences.getProperties().getProperty("sakaiTutorialFlag") : "";
+                log.debug("Fetched tutorial config [{}] from user [{}] preferences", userTutorialPref, thisUser);
+                if (!StringUtils.equals("1", userTutorialPref)) {
                     rcontext.put("tutorial", true);
                     //now save this in the user's preferences, so we don't show it again
-                    PreferencesEdit preferences = null;
-                    try {
-                        preferences = preferencesService.edit(thisUser);
-                    } catch (IdUnusedException iue) {
-                        try {
-                            preferences = preferencesService.add(thisUser);
-                        } catch (PermissionException | IdUsedException e) {
-                            log.warn("");
-                        }
-                    } catch (InUseException | PermissionException e) {
-                        log.warn("");
-                    }
-
                     if (preferences != null) {
                         try {
                             ResourcePropertiesEdit props = preferences.getPropertiesEdit();
@@ -1564,8 +1563,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
                 if (sakaiThemesAutoDetectDarkEnabled) {
                     rcontext.put("themesAutoDetectDark", true);
                 }
-                String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
-                rcontext.put("userTheme", userTheme);
+                String userTheme = preferences != null ? preferences.getProperties(USER_SELECTED_UI_THEME_PREFS).getProperty("theme") : "";
+                log.debug("Fetched theme config [{}] from user [{}] preferences", userTheme, thisUser);
+                rcontext.put("userTheme", StringUtils.defaultIfEmpty(userTheme, "sakaiUserTheme-notSet"));
             }
 
             List<HashMap<String, String>> footerLinks = Arrays.stream(footerUrls)
