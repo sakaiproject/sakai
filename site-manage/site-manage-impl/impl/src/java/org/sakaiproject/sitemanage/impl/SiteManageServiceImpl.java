@@ -152,7 +152,9 @@ public class SiteManageServiceImpl implements SiteManageService {
 			eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
 			try {
+                log.info("Started Site Import for the site {}", id);
                 importToolsIntoSite(site, existingTools, importTools, toolOptions, cleanup);
+                log.info("Finished Site Import for the site {}", id);
             } catch (Exception e) {
                 log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
             } finally {

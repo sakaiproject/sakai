@@ -1620,4 +1620,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         rubric.setMaxPoints(maxPoints);
         return rubric;
     }
+
+    public List<ToolItemRubricAssociation> getRubricAssociationByRubricAndTool(Long rubricId, String toolId) {
+        return associationRepository.findByRubricIdAndToolId(rubricId, toolId);
+    }
+
 }
