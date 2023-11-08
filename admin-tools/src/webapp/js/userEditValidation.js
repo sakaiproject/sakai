@@ -82,7 +82,7 @@ USER.verifyPasswordsMatch = function () {
   const pass = USER.get("user_pw")?.value;
   USER.passwordsMatch = false;
 
-  if (pass) {
+  if (pass !== null) {
     const verPass = USER.get("user_pw0")?.value;
     USER.passwordsMatch = pass === verPass;
 
@@ -128,7 +128,7 @@ USER.validateCurrentPassword = function () {
 
   const pwcur = USER.get("user_pwcur")?.value;
   USER.currentPassValid = true;
-  if (pwcur) {
+  if (pwcur !== null) {
     USER.currentPassValid = pwcur.length > 0;
   }
 
