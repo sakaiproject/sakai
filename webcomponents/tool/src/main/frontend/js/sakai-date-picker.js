@@ -135,7 +135,7 @@ class SakaiDatePicker extends SakaiElement {
           title="${this.label}">
       ${this.addHiddenFields && this.isoDate ? html`
         ${SakaiDatePicker.hiddenFieldNames.map(h => html`
-          <input type="hidden" name="${this.hiddenPrefix}${h}" value="${this._getHiddenFieldValue( h)}">
+          <input type="hidden" name="${this.hiddenPrefix}${h}" value="${this._getHiddenFieldValue(h)}">
         `)}
       ` : ""}
     `;

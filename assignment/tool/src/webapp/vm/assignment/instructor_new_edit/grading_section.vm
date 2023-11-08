@@ -156,7 +156,7 @@ This section contains the options for grading this assignment, including rubrics
 						<sakai-date-picker
 							id="new_assignment_peerperiod"
 							label="$tlang.getString("peerassessment.periodfinishes")"
-							hidden-prefix="new_assignment_peerperiod"
+							hidden-prefix="new_assignment_peerperiod_"
 							iso-date="$value_PeerPeriodYear$H$value_PeerPeriodMonth$H$value_PeerPeriodDay$T$value_PeerPeriodHour:$value_PeerPeriodMin"
 							add-hidden-fields>
 						</sakai-date-picker>
