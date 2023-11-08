@@ -96,17 +96,17 @@ export class SakaiComment extends SakaiElement {
           ` : ""}
           ${this.comment.canDelete ? html`
           <li>
-            <button class="dropdown-item
+            <button class="dropdown-item"
                 type="button"
                 @click=${this._deleteComment}
                 title="${this._i18n.delete_this_comment}"
                 aria-label="${this._i18n.delete_this_comment}">
               ${this._i18n.delete}
-            </a>
-          </div>
+            </button>
+          </li>
           ` : ""}
-        </div>
-      </options-menu>
+        </ul>
+      </div>
     `;
   }
 

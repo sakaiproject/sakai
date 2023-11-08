@@ -34,6 +34,7 @@ class SakaiRubricsManager extends RubricsElement {
   render() {
 
     return html`
+
       <h1>${tr("manage_rubrics")}</h1>
 
       <div class="sak-banner-info">
