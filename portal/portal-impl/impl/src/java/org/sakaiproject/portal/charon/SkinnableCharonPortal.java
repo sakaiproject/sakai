@@ -1464,17 +1464,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         if (rcontext.uses(INCLUDE_BOTTOM)) {
             String thisUser = sessionManager.getCurrentSessionUserId();
 
-            //Get user preferences
-            PreferencesEdit preferences = null;
-            try {
-                try {
-                    preferences = preferencesService.edit(thisUser);
-                } catch (IdUnusedException iue) {
-                    preferences = preferencesService.add(thisUser);
-                }
-            } catch (Exception e) {
-                log.warn("Could not get the preferences for user [{}], {}", thisUser, e.toString());
-            }
+            // get user preferences
+            Preferences preferences = preferencesService.getPreferences(thisUser);
 
             rcontext.put("showServerTime", showServerTime);
 
@@ -1489,7 +1480,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
                 rcontext.put("serverTzGMTOffset", String.valueOf(now.getTimeInMillis() + now.get(Calendar.ZONE_OFFSET) + now.get(Calendar.DST_OFFSET)));
 
                 // get the Properties object that holds user's TimeZone preferences
-                String preferredTzId = preferences != null ? preferences.getProperties(TimeService.APPLICATION_ID).getProperty(TimeService.TIMEZONE_KEY) : serverTz.getID();
+                String preferredTzId = preferences.getProperties(TimeService.APPLICATION_ID) != null ? preferences.getProperties(TimeService.APPLICATION_ID).getProperty(TimeService.TIMEZONE_KEY) : serverTz.getID();
 
                 // provide the user's preferred timezone information if it is different
                 if (StringUtils.isNotBlank(preferredTzId) && !preferredTzId.equals(serverTz.getID())) {
@@ -1533,21 +1524,32 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("portalVideoChatTimeout", portalChatVideoTimeout);
 
             if (sakaiTutorialEnabled && thisUser != null) {
-                String userTutorialPref = preferences != null ? preferences.getProperties().getProperty("sakaiTutorialFlag") : "";
+                String userTutorialPref = preferences.getProperties() != null ? preferences.getProperties().getProperty("sakaiTutorialFlag") : "";
                 log.debug("Fetched tutorial config [{}] from user [{}] preferences", userTutorialPref, thisUser);
                 if (!StringUtils.equals("1", userTutorialPref)) {
                     rcontext.put("tutorial", true);
                     //now save this in the user's preferences, so we don't show it again
-                    if (preferences != null) {
+                    PreferencesEdit preferencesEdit = null;
+                    try {
                         try {
-                            ResourcePropertiesEdit props = preferences.getPropertiesEdit();
+                            preferencesEdit = preferencesService.edit(thisUser);
+                        } catch (IdUnusedException iue) {
+                            preferencesEdit = preferencesService.add(thisUser);
+                        }
+                    } catch (Exception e) {
+                        log.warn("Could not get the preferences for user [{}], {}", thisUser, e.toString());
+                    }
+
+                    if (preferencesEdit != null) {
+                        try {
+                            ResourcePropertiesEdit props = preferencesEdit.getPropertiesEdit();
                             props.addProperty("sakaiTutorialFlag", "1");
                         } catch (Exception e) {
                             log.warn("Could not update user [{}] tutorial preference, {}", thisUser, e.toString());
-                            preferencesService.cancel(preferences);
-                            preferences = null;
+                            preferencesService.cancel(preferencesEdit);
+                            preferencesEdit = null;
                         } finally {
-                            if (preferences != null) preferencesService.commit(preferences);
+                            if (preferencesEdit != null) preferencesService.commit(preferencesEdit);
                         }
                     }
                 }
@@ -1563,7 +1565,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
                 if (sakaiThemesAutoDetectDarkEnabled) {
                     rcontext.put("themesAutoDetectDark", true);
                 }
-                String userTheme = preferences != null ? preferences.getProperties(USER_SELECTED_UI_THEME_PREFS).getProperty("theme") : "";
+                String userTheme = preferences.getProperties(USER_SELECTED_UI_THEME_PREFS) != null ? preferences.getProperties(USER_SELECTED_UI_THEME_PREFS).getProperty("theme") : "";
                 log.debug("Fetched theme config [{}] from user [{}] preferences", userTheme, thisUser);
                 rcontext.put("userTheme", StringUtils.defaultIfEmpty(userTheme, "sakaiUserTheme-notSet"));
             }
