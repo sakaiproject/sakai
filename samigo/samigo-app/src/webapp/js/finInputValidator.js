@@ -1,75 +1,66 @@
-window.addEventListener('load', () => {
-  document.querySelectorAll('.hasTooltip').forEach(tooltip => {
-    const content = tooltip.nextElementSibling;
-    new bootstrap.Tooltip(tooltip, {
-      title: content,
-      placement: 'top',
-      trigger: 'click',
-    });
-  });
-});
-
-includeWebjarLibrary('mathjs');
-
 document.addEventListener('DOMContentLoaded', () => {
-  const fillInNumericInputs = document.querySelectorAll('.fillInNumericInput');
+
+  if (typeof finFormatError === 'undefined') {
+    throw new Error('finFormatError is not defined');
+  }
   
-  fillInNumericInputs.forEach(input => {
-    input.setAttribute('data-bs-toggle', 'popover');
-    input.setAttribute('data-bs-content', finFormatError);
-    input.setAttribute('data-bs-trigger', 'focus');
-    
-    const popover = new bootstrap.Popover(input, {
-      trigger: 'focus',
-    });
-
-    input.addEventListener('change', () => {
-      if (validateFinInput(input)) {
-        popover.hide();
-      }
-    });
-
-    input.addEventListener('keyup', throttle(() => {
-      if (input.value && !['+', '-', '{', '}', 'e', 'E'].some(v => input.value.includes(v))) {
-        if (validateFinInput(input)) {
-          popover.hide();
-        }
-      }
-    }));
-  });
-
-  document.querySelector('#takeAssessmentForm').addEventListener('submit', event => {
-    event.preventDefault();
-    fillInNumericInputs.forEach(input => {
-      validateFinInput(input);
-    });
-  });
+  setupTooltips();
+  setupFinInputs();
+  setupFormSubmission();
 });
 
-const validateFinInput = input => {
-  if (!input.value) return true;
+function setupTooltips() {
+  document.querySelectorAll('.hasTooltip').forEach(tooltipTriggerEl => {
+    new bootstrap.Tooltip(tooltipTriggerEl, {
+      trigger: 'click',
+      placement: 'auto'
+    });
+  });
+}
 
-  let rawInput = input.value.replace(/,/g, '.').replace(/\s/g, '');
-  input.value = rawInput;
-  let isValidFinInput = true;
-  
-  if (rawInput.includes('{')) {
-    try {
-      math.complex(rawInput.match(/\{(.+?)\}/g));
-    } catch {
-      console.debug('Invalid complex number syntax.');
-      isValidFinInput = false;
+function setupFinInputs() {
+  const finInputs = document.querySelectorAll('.fillInNumericInput');
+
+  const handleInput = input => {
+    if (validateFinInput(input, finFormatError)) {
+      const popoverInstance = bootstrap.Popover.getInstance(input);
+      popoverInstance?.dispose();
     }
-  } else {
-    try {
-      math.add(rawInput, 0.0);
-    } catch {
-      console.debug('Invalid numeric value syntax.');
-      isValidFinInput = false;
+  };
+
+  finInputs.forEach(input => {
+    new bootstrap.Popover(input, {
+      trigger: 'focus',
+      content: finFormatError
+    });
+
+    input.addEventListener('change', () => handleInput(input));
+    input.addEventListener('keyup', throttle(() => handleInput(input), 200));
+  });
+}
+
+function setupFormSubmission() {
+  const form = document.getElementById('takeAssessmentForm');
+  form?.addEventListener('submit', event => {
+    const finInputs = document.querySelectorAll('.fillInNumericInput');
+    let isFormValid = Array.from(finInputs).every(validateFinInput);
+
+    if (!isFormValid) {
+      event.preventDefault();
     }
+  });
+}
+
+const validateFinInput = (input, finFormatError) => {
+  if (!input.value) {
+    return true;
   }
 
-  if (!isValidFinInput) {
+  let rawInput = input.value.replace(/[,\s]+/g, '.');
+  input.value = rawInput;
+
+  if (!isFinite(rawInput)) {
+    console.debug('Invalid numeric input detected.');
     input.value = '';
     alert(finFormatError);
     return false;
@@ -78,12 +69,14 @@ const validateFinInput = input => {
   return true;
 };
 
-const throttle = (func, delay = 200) => {
-  let timer = null;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func.apply(this, args);
-    }, delay);
+const throttle = (func, limit) => {
+  let inThrottle;
+  return function() {
+    const context = this, args = arguments;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
   };
 };
