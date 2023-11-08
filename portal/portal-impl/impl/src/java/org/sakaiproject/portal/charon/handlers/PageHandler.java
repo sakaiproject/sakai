@@ -21,7 +21,7 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
-import static org.sakaiproject.portal.api.PortalConstants.SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD;
+import static org.sakaiproject.portal.api.PortalConstants.*;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -43,7 +43,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.PortalConstants;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.StoredState;
@@ -242,7 +241,7 @@ public class PageHandler extends BasePortalHandler
 				rcontext.put("pageColumn0Tools", toolList);
 			}
 
-			boolean displayRole = ServerConfigurationService.getBoolean(PortalConstants.PROP_PORTAL_DISPLAY_CURRENT_ROLE, false);
+			boolean displayRole = ServerConfigurationService.getBoolean(PROP_PORTAL_DISPLAY_CURRENT_ROLE, false);
 			rcontext.put("currentRole", null);
 
 			if (!StringUtils.startsWith(page.getSiteId(), "~") && displayRole && site != null) {
