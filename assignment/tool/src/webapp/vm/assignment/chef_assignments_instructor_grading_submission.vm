@@ -755,7 +755,7 @@
                         id="allow-extension-date"
                         label="$tlang.getString("gen.acesubunt")"
                         iso-date="$value_ExtensionYear$H$value_ExtensionMonth$H$value_ExtensionDay$T$value_ExtensionHour:$value_ExtensionMin"
-                        hidden-prefix="allow_extension_close"
+                        hidden-prefix="allow_extension_close_"
                         add-hidden-fields>
                     </sakai-date-picker>
                 </div>
@@ -789,7 +789,7 @@
                         id="allow-resubmit-date"
                         label="$tlang.getString("gen.acesubunt")"
                         iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
-                        hidden-prefix="allow_resubmit_close"
+                        hidden-prefix="allow_resubmit_close_"
                         add-hidden-fields>
                     </sakai-date-picker>
                 </span>
