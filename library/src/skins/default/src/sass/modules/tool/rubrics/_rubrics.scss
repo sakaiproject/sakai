@@ -249,16 +249,6 @@
                 table-layout: fixed;
             }
 
-            &.sortable-ghost, .sortable-ghost {
-                opacity: 0.25;
-            }
-
-            &.sortable-drag, .sortable-drag {
-                cursor: grabbing;
-                cursor: -webkit-grabbing;
-                cursor: -moz-grabbing;
-            }
-
             &.criterion-group {
                 margin-top: 10px;
                 position: relative;
@@ -304,13 +294,9 @@
 
             .reorder-icon {
                 cursor: grab;
-                cursor: -webkit-grab;
-                cursor: -moz-grab;
 
                 &:active {
                     cursor: grabbing;
-                    cursor: -webkit-grabbing;
-                    cursor: -moz-grabbing;
                 }
             }
 

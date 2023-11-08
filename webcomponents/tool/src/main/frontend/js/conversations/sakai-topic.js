@@ -650,6 +650,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 </li>
                 ` : ""}
               </ul>
+            </div>
             ` : ""}
           </div>
         </div>

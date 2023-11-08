@@ -1,14 +1,14 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
-import {unsafeHTML} from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
+import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import "./sakai-rubric-edit.js";
 import "./sakai-item-delete.js";
 import "./sakai-rubric-criterion-edit.js";
 import "./sakai-rubric-criterion-rating-edit.js";
 import { SharingChangeEvent } from "./sharing-change-event.js";
-import { Sortable } from "/webcomponents/assets/sortablejs/modular/sortable.esm.js";
 import { tr } from "./sakai-rubrics-language.js";
+import "../sakai-reorderer.js";
 
 export class SakaiRubricCriteria extends RubricsElement {
 
@@ -28,74 +28,9 @@ export class SakaiRubricCriteria extends RubricsElement {
     };
   }
 
-  _setupSortable(li, sortable, isRating) {
-
-    li.addEventListener("keyup", e => {
-
-      if (e.target && e.target.tagName && ["input", "textarea"].includes(e.target.tagName.toLowerCase())) {
-        return; // Don't process the keyup event for input and textarea elements
-      }
-
-      e.stopPropagation();
-
-      if (["e", "d"].includes(e.key.toLowerCase())) {
-        const order = sortable.toArray();
-        const sortableId = li.dataset.sortableId;
-        const index = order.indexOf(sortableId);
-
-        let changed = false;
-
-        if (e.key.toLowerCase() === "e") {
-          if (li.previousElementSibling) {
-            order.splice(index, 1);
-            order.splice(index - 1, 0, sortableId);
-            changed = true;
-          }
-        } else if (e.key.toLowerCase() === "d") {
-          if (li.nextElementSibling) {
-            order.splice(index, 1);
-            order.splice(index + 1, 0, sortableId);
-            changed = true;
-          }
-        }
-
-        if (changed) {
-          sortable.sort(order, true);
-          if (isRating) {
-            this._handleSortedRatings(e);
-            this.querySelector(`.rating-item[data-rating-id='${sortableId}'] .reorder-icon`).focus();
-          } else {
-            this._handleSortedCriteria(e);
-            this.querySelector(`.criterion-row[data-criterion-id='${sortableId}'] .reorder-icon`).focus();
-          }
-        }
-      }
-    });
-  }
-
   updated(changedProperties) {
 
     super.updated(changedProperties);
-
-    const sortableOptions = {
-      dataIdAttr: "data-sortable-id",
-      handle: ".reorder-icon",
-      onUpdate: (e) => this._handleSortedRatings(e),
-      draggable: ".rating-item",
-      animation: "200",
-    };
-
-    this.querySelectorAll(".cr-table").forEach(cr => {
-
-      const sortable = new Sortable(cr, sortableOptions);
-      cr.querySelectorAll(".rating-item").forEach(li => this._setupSortable(li, sortable, true));
-    });
-
-    sortableOptions.onUpdate = (e) => this._handleSortedCriteria(e);
-    sortableOptions.draggable = ".criterion-row";
-
-    const sortable = new Sortable(this.querySelector(".criterion"), sortableOptions);
-    this.querySelectorAll(".criterion-row").forEach(li => this._setupSortable(li, sortable));
 
     if (changedProperties.has("criteria")) {
       this.criteriaMap = new Map(this.criteria.map(c => [c.id, c]));
@@ -115,173 +50,229 @@ export class SakaiRubricCriteria extends RubricsElement {
     `;
   }
 
+  _criteriaReordered(e) {
+
+    this.criteria = e.detail.reorderedIds.map(id => this.criteriaMap.get(parseInt(id)));
+
+    // Focus the moved criterion's drag handle
+    this.updateComplete.then(() => {
+      this.querySelector(`[data-criterion-id="${e.detail.data.criterionId}"] .drag-handle`).focus();
+    });
+
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/sort`;
+    fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(e.detail.reorderedIds),
+    })
+    .then(r => {
+
+      if (!r.ok) {
+        throw new Error("Network error while saving criteria sort");
+      }
+    })
+    .catch (error => console.error(error));
+  }
+
+  _ratingsReordered(e) {
+
+    e.stopPropagation();
+
+    const criterionId = e.detail.data.criterionId;
+    const criterion = this.criteria.find(c => c.id == criterionId);
+
+    // Reorder the ratings based on the sort result
+    criterion.ratings = e.detail.reorderedIds.map(id => criterion.ratings.find(r => r.id == id));
+    this.requestUpdate();
+
+    // Focus the moved rating's drag handle
+    this.updateComplete.then(() => {
+      this.querySelector(`[data-rating-id="${e.detail.data.ratingId}"] .drag-handle`).focus();
+    });
+
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/sort`;
+    fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(e.detail.reorderedIds),
+    })
+    .then(r => {
+
+      if (!r.ok) {
+        throw new Error(`Network error while saving ratings sort at ${url}`);
+      }
+
+    })
+    .catch (error => console.error(error));
+  }
+
   render() {
 
     return html`
-      <div data-rubric-id="${this.rubricId}" class="criterion style-scope sakai-rubric-criterion">
-      ${repeat(this.criteria, c => c.id, c => html`
-        ${this.isCriterionGroup(c) ? html`
-          <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" data-sortable-id="${c.id}" class="criterion-row criterion-group">
-            <div class="criterion-detail criterion-title">
-              <h4 class="criterion-title">
-                <span tabindex="0"
-                    data-criterion-id="${c.id}"
-                    data-sortable-id="${c.id}"
-                    title="${tr("drag_order")}"
-                    aria-label="${tr("drag_to_reorder_label")}"
-                    aria-describedby="rubrics-reorder-info"
-                    class="reorder-icon si si-drag-handle fs-2">
-                </span>
-                ${c.title}
-                <sakai-rubric-criterion-edit
-                    id="criterion-edit-${c.id}"
-                    @criterion-edited="${this.criterionEdited}"
-                    site-id="${this.siteId}"
-                    rubric-id="${this.rubricId}"
-                    criterion="${JSON.stringify(c)}"
-                    ?is-criterion-group="${true}">
-                </sakai-rubric-criterion-edit>
-              </h4>
-              <p>${unsafeHTML(c.description)}</p>
-            </div>
-            <div class="criterion-actions">
-              ${!this.isLocked ? html`
-                <a tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" aria-label="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @click="${this.cloneCriterion}" href="#"></a>
-                <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>`
-                : ""
-              }
-            </div>
-          </div>
-        ` : html`
-          <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" data-sortable-id="${c.id}" class="criterion-row">
-            <div class="criterion-detail">
-              <h4 class="criterion-title d-flex align-items-center">
-                <div>
-                  <span tabindex="0"
-                      title="${tr("drag_order")}"
-                      data-criterion-id="${c.id}"
-                      data-sortable-id="${c.id}"
-                      aria-label="${tr("drag_to_reorder_label")}"
-                      class="reorder-icon si si-drag-handle fs-3">
-                  </span>
-                </div>
-                <div class="ms-1">${c.title}</div>
-                <div>
+      <sakai-reorderer drop-class="criterion-row" @reordered=${this._criteriaReordered}>
+        <div data-rubric-id="${this.rubricId}" class="criterion style-scope sakai-rubric-criterion">
+        ${repeat(this.criteria, c => c.id, c => html`
+          ${this.isCriterionGroup(c) ? html`
+            <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" data-reorderable-id="${c.id}" class="criterion-row criterion-group">
+              <div class="criterion-detail criterion-title">
+                <h4 class="criterion-title">
+                  ${c.title}
                   <sakai-rubric-criterion-edit
                       id="criterion-edit-${c.id}"
                       @criterion-edited="${this.criterionEdited}"
                       site-id="${this.siteId}"
                       rubric-id="${this.rubricId}"
-                      criterion="${JSON.stringify(c)}">
+                      criterion="${JSON.stringify(c)}"
+                      ?is-criterion-group="${true}">
                   </sakai-rubric-criterion-edit>
+                </h4>
+                <p>${unsafeHTML(c.description)}</p>
+              </div>
+              <div class="criterion-actions">
+                ${!this.isLocked ? html`
+                  <a tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" aria-label="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @click="${this.cloneCriterion}" href="#"></a>
+                  <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>`
+                  : ""
+                }
+              </div>
+            </div>
+          ` : html`
+            <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" data-reorderable-id="${c.id}" class="criterion-row">
+              <div class="criterion-detail">
+                <h4 class="criterion-title d-flex align-items-center">
+                  <div>
+                    <span tabindex="0"
+                        title="${tr("drag_order")}"
+                        data-criterion-id="${c.id}"
+                        aria-label="${tr("drag_to_reorder_label")}"
+                        class="drag-handle reorder-icon si si-drag-handle fs-3">
+                    </span>
                 </div>
-              </h4>
-              <p>
-                ${unsafeHTML(c.description)}
-              </p>
-              ${this.weighted ? html`
-                  <div class="weight-field">
-                    ${!this.isLocked ? html`
-                      <div class="field-item form-group input-group-sm ${this.validWeight ? "" : "weight-error"}">
-                        <label
-                          for="weight_input_${c.id}"
-                          class="form-control-label"
-                          title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
-                        >
-                          <sr-lang key="weight">Weight</sr-lang>
-                        </label>
-                        <input
-                          id="weight_input_${c.id}"
-                          data-criterion-id="${c.id}"
-                          type="text"
-                          class="form-control"
-                          placeholder="0.0"
-                          @input="${this.debounce(this.emitWeightChanged, 500)}"
-                          value="${c.weight.toLocaleString(this.locale)}"
-                          title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
-                        >
-                        <span class="form-control-label"
-                          title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
-                        >
-                          <sr-lang key="percent_sign">%</sr-lang>
-                        </span>
-                      </div>`
-                      : ""
-                    }
-                    <div class="field-item">
-                      <span>${tr('min_max_points', [this.getCriterionMinPoints(c.id), this.getCriterionMaxPoints(c.id)])}</span>
-                    </div>
+                  <div class="ms-1">${c.title}</div>
+                  <div>
+                    <sakai-rubric-criterion-edit
+                        id="criterion-edit-${c.id}"
+                        @criterion-edited="${this.criterionEdited}"
+                        site-id="${this.siteId}"
+                        rubric-id="${this.rubricId}"
+                        criterion="${JSON.stringify(c)}">
+                    </sakai-rubric-criterion-edit>
+                  </div>
+                </h4>
+                <p>
+                  ${unsafeHTML(c.description)}
+                </p>
+                ${this.weighted ? html`
+                    <div class="weight-field">
+                      ${!this.isLocked ? html`
+                        <div class="field-item form-group input-group-sm ${this.validWeight ? "" : "weight-error"}">
+                          <label
+                            for="weight_input_${c.id}"
+                            class="form-control-label"
+                            title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
+                          >
+                            <sr-lang key="weight">Weight</sr-lang>
+                          </label>
+                          <input
+                            id="weight_input_${c.id}"
+                            data-criterion-id="${c.id}"
+                            type="text"
+                            class="form-control"
+                            placeholder="0.0"
+                            @input="${this.debounce(this.emitWeightChanged, 500)}"
+                            value="${c.weight.toLocaleString(this.locale)}"
+                            title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
+                          >
+                          <span class="form-control-label"
+                            title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
+                          >
+                            <sr-lang key="percent_sign">%</sr-lang>
+                          </span>
+                        </div>`
+                        : ""
+                      }
+                      <div class="field-item">
+                        <span>${tr('min_max_points', [this.getCriterionMinPoints(c.id), this.getCriterionMaxPoints(c.id)])}</span>
+                      </div>
+                    </div>`
+                    : ""
+                  }
+                ${!this.isLocked ? html`
+                  <div class="add-criterion-item">
+                    ${this.renderAddRatingButton(c)}
                   </div>`
                   : ""
                 }
+              </div>
+              <div class="criterion-ratings">
+                <sakai-reorderer @reordered=${this._ratingsReordered} horizontal>
+                  <div id="cr-table-${c.id}" class="cr-table" data-criterion-id="${c.id}">
+                  ${repeat(c.ratings, (r) => r.id, (r, i) => html`
+                    <div class="rating-item"
+                        data-criterion-id="${c.id}"
+                        data-rating-id="${r.id}"
+                        data-reorderable-id="${r.id}"
+                        id="rating_item_${r.id}">
+                      <h5 class="criterion-item-title">
+                        ${r.title}
+                        <sakai-rubric-criterion-rating-edit
+                          criterion-id="${c.id}"
+                          @save-rating="${this.saveRating}"
+                          @delete-rating="${this.deleteRating}"
+                          minpoints="${c.pointrange ? c.pointrange.low : 0}"
+                          maxpoints="${c.pointrange ? c.pointrange.high : 0}"
+                          rating="${JSON.stringify(r)}"
+                          ?removable="${ this.isRatingRemovable(c) }"
+                          ?is-locked="${this.isLocked}">
+                        </sakai-rubric-criterion-rating-edit>
+                      </h5>
+                      <div class="div-description">
+                        <p>
+                        ${r.description}
+                        </p>
+                      </div>
+                      <span class="points">
+                        ${this.weighted && r.points > 0 ? html`
+                          <b>
+                            (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
+                          </b>`
+                          : ""
+                        }
+                        ${parseFloat(r.points).toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
+                      </span>
+                      ${!this.isLocked ? html`
+                        <div class="add-criterion-item">
+                          ${this.renderAddRatingButton(c, i + 1)}
+                        </div>
+                        <span tabindex="0"
+                            data-criterion-id="${c.id}"
+                            data-rating-id="${r.id}"
+                            title="${tr("drag_order")}"
+                            aria-label="${tr("drag_to_reorder_label")}"
+                            aria-describedby="rubrics-reorder-info"
+                            class="drag-handle reorder-icon sideways si si-drag-handle">
+                        </span>`
+                        : ""
+                      }
+                    </div>
+                  `)}
+                  </div>
+                </sakai-reorderer>
+              </div>
               ${!this.isLocked ? html`
-                <div class="add-criterion-item">
-                  ${this.renderAddRatingButton(c)}
+                <div class="criterion-actions">
+                  <a tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" aria-label="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneCriterion}" href="#"></a>
+                  <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}"></sakai-item-delete>
                 </div>`
                 : ""
               }
             </div>
-            <div class="criterion-ratings">
-              <div id="cr-table-${c.id}" class="cr-table" data-criterion-id="${c.id}">
-              ${repeat(c.ratings, (r) => r.id, (r, i) => html`
-                <div class="rating-item" data-rating-id="${r.id}" data-sortable-id="${r.id}" id="rating_item_${r.id}">
-                  <h5 class="criterion-item-title">
-                    ${r.title}
-                    <sakai-rubric-criterion-rating-edit
-                      criterion-id="${c.id}"
-                      @save-rating="${this.saveRating}"
-                      @delete-rating="${this.deleteRating}"
-                      minpoints="${c.pointrange ? c.pointrange.low : 0}"
-                      maxpoints="${c.pointrange ? c.pointrange.high : 0}"
-                      rating="${JSON.stringify(r)}"
-                      ?removable="${ this.isRatingRemovable(c) }"
-                      ?is-locked="${this.isLocked}">
-                    </sakai-rubric-criterion-rating-edit>
-                  </h5>
-                  <div class="div-description">
-                    <p>
-                    ${r.description}
-                    </p>
-                  </div>
-                  <span class="points">
-                    ${this.weighted && r.points > 0 ? html`
-                      <b>
-                        (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
-                      </b>`
-                      : ""
-                    }
-                    ${parseFloat(r.points).toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
-                  </span>
-                  ${!this.isLocked ? html`
-                    <div class="add-criterion-item">
-                      ${this.renderAddRatingButton(c, i + 1)}
-                    </div>
-                    <span tabindex="0"
-                        data-criterion-id="${c.id}"
-                        data-rating-id="${r.id}"
-                        data-sortable-id="${r.id}"
-                        title="${tr("drag_order")}"
-                        aria-label="${tr("drag_to_reorder_label")}"
-                        aria-describedby="rubrics-reorder-info"
-                        class="reorder-icon sideways si si-drag-handle">
-                    </span>`
-                    : ""
-                  }
-                </div>
-              `)}
-              </div>
-            </div>
-            ${!this.isLocked ? html`
-              <div class="criterion-actions">
-                <a tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" aria-label="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneCriterion}" href="#"></a>
-                <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}"></sakai-item-delete>
-              </div>`
-              : ""
-            }
-          </div>
-        `}
-      `)}
-      </div>
+          `}
+        `)}
+        </div>
+      </sakai-reorderer>
       ${this.weighted ? html`
         <div class="weighted-grade-info">
           <div class="total-data">
@@ -343,43 +334,8 @@ export class SakaiRubricCriteria extends RubricsElement {
     `;
   }
 
-  _handleSortedCriteria() {
-
-    const sortedIds = Array.from(this.querySelectorAll(".criterion-row")).map(c => c.dataset.criterionId);
-
-    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/sort`;
-    fetch(url, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(sortedIds),
-    })
-    .then(r => {
-
-      if (!r.ok) {
-        throw new Error("Network error while saving criteria sort");
-      }
-
-      // Dirty, dirty hack. We should be able to move stuff, in some way, without confusing lit. For
-      // now we just reload the page to get a fully fresh render.
-      location.reload();
-    })
-    .catch (error => console.error(error));
-  }
-
   letShareKnow() {
     this.dispatchEvent(new SharingChangeEvent());
-  }
-
-  debounce(fn, delay) {
-
-    let timer = null;
-    return function (...args) {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        fn.apply(this, args);
-      }, delay);
-    };
   }
 
   _handleSortedRatings(e) {
@@ -592,6 +548,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     // Add the criterion to the rubric
     this.requestUpdate();
+    this.updateComplete.then(() => this.querySelector("sakai-reorderer").requestUpdate());
   }
 
   criterionEdited(e) {
@@ -638,6 +595,17 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   isRatingRemovable(criterion) {
     return criterion.ratings.length > 1;
+  }
+
+  debounce(fn, delay) {
+
+    let timer = null;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        fn.apply(this, args);
+      }, delay);
+    };
   }
 }
 
