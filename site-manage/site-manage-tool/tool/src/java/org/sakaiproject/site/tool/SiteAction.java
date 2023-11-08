@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.site.tool;
 
-import static org.sakaiproject.site.util.SiteConstants.SITE_PUBLISH_DATE;
 import static org.sakaiproject.site.util.SiteConstants.STATE_TEMPLATE_INDEX;
 
 import java.io.File;
@@ -76,7 +75,6 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.archive.api.ImportMetadata;
@@ -1105,7 +1103,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		// store current userId in state
 		User user = userDirectoryService.getCurrentUser();
-		String userId = user.getId();
+		String userId = user.getEid();
 		state.setAttribute(STATE_CM_CURRENT_USERID, userId);
 		PortletConfig config = portlet.getPortletConfig();
 
@@ -3353,49 +3351,32 @@ public class SiteAction extends PagedResourceActionII {
 				// Add the menus to vm
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_CLASS_ROSTERS);
 
-				List providerCourseList = (List) state
-						.getAttribute(SITE_PROVIDER_COURSE_LIST);
+				List<String> providerCourseList = (List<String>) state.getAttribute(SITE_PROVIDER_COURSE_LIST);
 				coursesIntoContext(state, context, site);
 
 				// SAK-23256
 				List<AcademicSession> terms = setTermListForContext( context, state, true, true ); // true -> upcoming only
 				
-				AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
-				
-				if (terms != null && terms.size() > 0)
-				{
-					boolean foundTerm = false;
-					for(AcademicSession testTerm : terms)
-					{
-						if (t != null && testTerm.getEid().equals(t.getEid()))
-						{
-							foundTerm = true;
-							break;
-						}
-					}
-					if (!foundTerm)
-					{
-						// if the term is no longer listed in the term list, choose the first term in the list instead
-						t = terms.get(0);
-					}
-				}
-				context.put("term", t);
-				if (t != null) {
-					String userId = userDirectoryService.getCurrentUser().getEid();
-					List courses = prepareCourseAndSectionListing(userId, t
-							.getEid(), state);
-					if (courses != null && courses.size() > 0) {
-						Vector notIncludedCourse = new Vector();
+				AcademicSession selectedTerm = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
+				final String selectedTermEid = selectedTerm.getEid();
 
+				if (!terms.isEmpty() && terms.stream().noneMatch(t -> t.getEid().equals(selectedTermEid))) {
+					selectedTerm = terms.get(0);
+				}
+				context.put("term", selectedTerm);
+
+				if (selectedTerm != null) {
+					String userId = userDirectoryService.getCurrentUser().getEid();
+					List<CourseObject> courses = prepareCourseAndSectionListing(userId, selectedTerm.getEid(), state);
+					if (!courses.isEmpty()) {
+						List<CourseObject> notIncludedCourse = new ArrayList<>();
 						// remove included sites
-						for (Iterator i = courses.iterator(); i.hasNext();) {
-							CourseObject c = (CourseObject) i.next();
-							if (providerCourseList == null || !providerCourseList.contains(c.getEid())) {
-								notIncludedCourse.add(c);
-							}
-						}
-						state.setAttribute(STATE_TERM_COURSE_LIST,
-								notIncludedCourse);
+                        for (CourseObject c : courses) {
+                            if (providerCourseList == null || !providerCourseList.contains(c.getEid())) {
+                                notIncludedCourse.add(c);
+                            }
+                        }
+						state.setAttribute(STATE_TERM_COURSE_LIST, notIncludedCourse);
 					} else {
 						state.removeAttribute(STATE_TERM_COURSE_LIST);
 					}
@@ -3410,45 +3391,23 @@ public class SiteAction extends PagedResourceActionII {
 					
 					putSelectedProviderCourseIntoContext(context, state);
 
-					List<SectionObject> authorizerSectionList = (List<SectionObject>) state
-							.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+					List<SectionObject> authorizerSectionList = (List<SectionObject>) state.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
 					if (authorizerSectionList != null) {
-						List authorizerList = (List) state
-								.getAttribute(STATE_CM_AUTHORIZER_LIST);
-						//authorizerList is a list of SectionObject
-						/*
-						String userId = null;
-						if (authorizerList != null) {
-							userId = (String) authorizerList.get(0);
-						}
-						List list2 = prepareSectionObject(
-								authorizerSectionList, userId);
-								*/
-						ArrayList list2 = new ArrayList();
-						for (int i=0; i<authorizerSectionList.size();i++){
-							SectionObject so = (SectionObject)authorizerSectionList.get(i);
-							list2.add(so.getEid());
-						}
-						context.put("selectedAuthorizerCourse", list2);
+						context.put("selectedAuthorizerCourse", authorizerSectionList.stream().map(SectionObject::getEid).collect(Collectors.toList()));
 					}
 				}
 
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 					context.put("selectedManualCourse", Boolean.TRUE);
 				}
-				context.put("term", (AcademicSession) state
-						.getAttribute(STATE_TERM_SELECTED));
-				context.put("currentUserId", (String) state
-						.getAttribute(STATE_CM_CURRENT_USERID));
-				context.put("form_additional", (String) state
-						.getAttribute(FORM_ADDITIONAL));
+				context.put("term", (AcademicSession) state.getAttribute(STATE_TERM_SELECTED));
+				context.put("currentUserId", (String) state.getAttribute(STATE_CM_CURRENT_USERID));
+				context.put("form_additional", (String) state.getAttribute(FORM_ADDITIONAL));
 				context.put("authorizers", getAuthorizers(state, STATE_CM_AUTHORIZER_LIST));
 			}
-			if (((String) state.getAttribute(STATE_SITE_MODE))
-					.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
+			if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITESETUP)) {
 				context.put("backIndex", "1");
-			} else if (((String) state.getAttribute(STATE_SITE_MODE))
-					.equalsIgnoreCase(SITE_MODE_SITEINFO)) {
+			} else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO)) {
 				context.put("backIndex", "");
 			}
 
@@ -8374,7 +8333,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			
 			try
 			{
-			List sections = prepareCourseAndSectionListing(userDirectoryService.getCurrentUser().getEid(), courseManagementService.getAcademicSession(termEid).getEid(), state);
+			List<CourseObject> sections = prepareCourseAndSectionListing(userDirectoryService.getCurrentUser().getEid(), courseManagementService.getAcademicSession(termEid).getEid(), state);
 			isFutureTermSelected(state);
 			if (sections != null && sections.size() > 0) 
 				state.setAttribute(STATE_TERM_COURSE_LIST, sections);
@@ -9140,7 +9099,15 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								realmEdit.addMember(id, roleId, activeGrant,
 									fromProvider);
 							String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
-							String[] userAuditString = {s.getId(),id,roleId,userAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+							String internalUserId = userDirectoryService.getUserId(currentUserId);
+							String[] userAuditString = {
+									s.getId(),
+									id,
+									roleId,
+									userAuditService.USER_AUDIT_ACTION_UPDATE,
+									userAuditRegistration.getDatabaseSourceKey(),
+									internalUserId
+							};
 							userAuditList.add(userAuditString);
 							
 								// construct the event string
@@ -9191,7 +9158,15 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									realmEdit.removeMember(userId);
 									usersDeleted.add("uid=" + userId);
 									String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
-									String[] userAuditString = {s.getId(),userId,role.getId(),userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+									String internalUserId = userDirectoryService.getUserId(currentUserId);
+									String[] userAuditString = {
+											s.getId(),
+											userId,
+											role.getId(),
+											userAuditService.USER_AUDIT_ACTION_REMOVE,
+											userAuditRegistration.getDatabaseSourceKey(),
+											internalUserId
+									};
 									userAuditList.add(userAuditString);
 								}
 							}
@@ -9256,14 +9231,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE, userDeleted, true));
 					}
 				}
-			} catch (GroupNotDefinedException e) {
+			} catch (GroupNotDefinedException | UserNotDefinedException e) {
 				addAlert(state, rb.getString("java.problem2"));
-				log.error(this + ".doUpdate_participant: IdUnusedException " + s.getTitle() + "(" + realmId + "). ", e);
+				log.warn("Could not update participants in site {} ({}), {}", s.getId(), realmId, e.toString());
 			} catch (AuthzPermissionException e) {
 				addAlert(state, rb.getString("java.changeroles"));
-				log.error(this + ".doUpdate_participant: PermissionException " + s.getTitle() + "(" + realmId + "). ", e);
-			}
-		}
+				log.warn("Could not update participants in site {} ({}), {}", s.getId(), realmId, e.toString());
+            }
+        }
 
 	} // doUpdate_participant
 
@@ -13914,18 +13889,15 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	} // getToolsAvailableForImport
 
 	// SAK-23256 - added userFilteringIfEnabled parameter
-	private List<AcademicSession> setTermListForContext(Context context, SessionState state,
-			boolean upcomingOnly, boolean useFilteringIfEnabled) {
-		List<AcademicSession> terms;
+	private List<AcademicSession> setTermListForContext(Context context, SessionState state, boolean upcomingOnly, boolean useFilteringIfEnabled) {
+		List<AcademicSession> terms = new ArrayList<>();
 		if (upcomingOnly) {
-			terms = courseManagementService != null? courseManagementService.getCurrentAcademicSessions():null;
-		} else { // get all
-			terms = courseManagementService != null? courseManagementService.getAcademicSessions():null;
+			terms.addAll(courseManagementService.getCurrentAcademicSessions());
+		} else {
+			terms.addAll(courseManagementService.getAcademicSessions());
 		}
-		if (terms != null && terms.size() > 0) {
-			
-			// SAK-23256
-			if( useFilteringIfEnabled )
+		if (!terms.isEmpty()) {
+			if (useFilteringIfEnabled)
 			{
 				if( !securityService.isSuperUser() )
 				{
@@ -14006,8 +13978,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param sectionHash
 	 */
 	private void prepareCourseAndSectionMap(String userId,
-			String academicSessionEid, HashMap courseOfferingHash,
-			HashMap sectionHash) {
+											String academicSessionEid,
+											Map<String, CourseOffering> courseOfferingHash,
+											Map<String, List<SectionObject>> sectionHash) {
 
 		// looking for list of courseOffering and sections that should be
 		// included in
@@ -14022,62 +13995,51 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			return;
 		}
 		
-		Map<String, String> map = groupProvider.getGroupRolesForUser(userId, academicSessionEid);
-		if (map == null)
-			return;
+		Map<String, String> groupRoles = groupProvider.getGroupRolesForUser(userId, academicSessionEid);
+		if (groupRoles == null) return;
 
-		Set keys = map.keySet();
-		Set roleSet = getRolesAllowedToAttachSection();
-		for (Iterator i = keys.iterator(); i.hasNext();) {
-			String sectionEid = (String) i.next();
-			String role = (String) map.get(sectionEid);
-			if (includeRole(role, roleSet)) {
-				Section section = null;
-				getCourseOfferingAndSectionMap(academicSessionEid, courseOfferingHash, sectionHash, sectionEid, section);
-			}
-		}
+		Set<String> roleSet = getRolesAllowedToAttachSection();
+        for (String sectionEid : groupRoles.keySet()) {
+            String role = groupRoles.get(sectionEid);
+            if (includeRole(role, roleSet)) {
+                getCourseOfferingAndSectionMap(academicSessionEid, courseOfferingHash, sectionHash, sectionEid);
+            }
+        }
 		
 		// now consider those user with affiliated sections
 		List<String> affiliatedSectionEids = affiliatedSectionProvider.getAffiliatedSectionEids(userId, academicSessionEid);
-		if (affiliatedSectionEids != null)
-		{
-			for (int k = 0; k < affiliatedSectionEids.size(); k++) {
-				String sectionEid = (String) affiliatedSectionEids.get(k);
-				Section section = null;
-				getCourseOfferingAndSectionMap(academicSessionEid, courseOfferingHash, sectionHash, sectionEid, section);
-			}
+		if (affiliatedSectionEids != null) {
+            for (String affiliatedSectionEid : affiliatedSectionEids) {
+                String sectionEid = affiliatedSectionEid;
+                getCourseOfferingAndSectionMap(academicSessionEid, courseOfferingHash, sectionHash, sectionEid);
+            }
 		}
-		
-		
 	} // prepareCourseAndSectionMap
 
-	private void getCourseOfferingAndSectionMap(String academicSessionEid, HashMap courseOfferingHash, HashMap sectionHash, String sectionEid, Section section) {
+	private void getCourseOfferingAndSectionMap(String academicSessionEid,
+												Map<String, CourseOffering> courseOfferingHash,
+												Map<String, List<SectionObject>> sectionHash,
+												String sectionEid) {
 		try {
-			section = courseManagementService.getSection(sectionEid);
-		} catch (IdNotFoundException e) {
-			log.warn("getCourseOfferingAndSectionMap: cannot find section " + sectionEid);
-		}
-		if (section != null) {
+			Section section = courseManagementService.getSection(sectionEid);
 			String courseOfferingEid = section.getCourseOfferingEid();
-			CourseOffering courseOffering = courseManagementService
-					.getCourseOffering(courseOfferingEid);
-			String sessionEid = courseOffering.getAcademicSession()
-					.getEid();
+			CourseOffering courseOffering = courseManagementService.getCourseOffering(courseOfferingEid);
+			String sessionEid = courseOffering.getAcademicSession().getEid();
 			if (academicSessionEid.equals(sessionEid)) {
 				// a long way to the conclusion that yes, this course
 				// offering
 				// should be included in the selected list. Sigh...
 				// -daisyf
-				ArrayList sectionList = (ArrayList) sectionHash
-						.get(courseOffering.getEid());
+				List<SectionObject> sectionList = sectionHash.get(courseOffering.getEid());
 				if (sectionList == null) {
-					sectionList = new ArrayList();
+					sectionList = new ArrayList<>();
 				}
 				sectionList.add(new SectionObject(section));
 				sectionHash.put(courseOffering.getEid(), sectionList);
-				courseOfferingHash.put(courseOffering.getEid(),
-						courseOffering);
+				courseOfferingHash.put(courseOffering.getEid(), courseOffering);
 			}
+		} catch (IdNotFoundException e) {
+			log.warn("Cannot find section {}, {}", sectionEid, e.toString());
 		}
 	}
 
@@ -14129,77 +14091,58 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param academicSessionEid
 	 * @return
 	 */
-	private List prepareCourseAndSectionListing(String userId,
-			String academicSessionEid, SessionState state) {
-		// courseOfferingHash = (courseOfferingEid, vourseOffering)
+	private List<CourseObject> prepareCourseAndSectionListing(String userId, String academicSessionEid, SessionState state) {
+		// courseOfferingHash = (courseOfferingEid, courseOffering)
 		// sectionHash = (courseOfferingEid, list of sections)
-		HashMap courseOfferingHash = new HashMap();
-		HashMap sectionHash = new HashMap();
-		prepareCourseAndSectionMap(userId, academicSessionEid,
-				courseOfferingHash, sectionHash);
+		Map<String, CourseOffering> courseOfferingHash = new HashMap<>();
+		Map<String, List<SectionObject>> sectionHash = new HashMap<>();
+		prepareCourseAndSectionMap(userId, academicSessionEid, courseOfferingHash, sectionHash);
 		// courseOfferingHash & sectionHash should now be filled with stuffs
 		// put section list in state for later use
 
-		state.setAttribute(STATE_PROVIDER_SECTION_LIST,
-				getSectionList(sectionHash));
-
-		ArrayList offeringList = new ArrayList();
-		Set keys = courseOfferingHash.keySet();
-		for (Iterator i = keys.iterator(); i.hasNext();) {
-			CourseOffering o = (CourseOffering) courseOfferingHash
-					.get((String) i.next());
-			offeringList.add(o);
-		}
-
-		Collection offeringListSorted = sortCourseOfferings(offeringList);
-		ArrayList resultedList = new ArrayList();
+		state.setAttribute(STATE_PROVIDER_SECTION_LIST, getSectionList(sectionHash));
 
 		// use this to keep track of courseOffering that we have dealt with
 		// already
 		// this is important 'cos cross-listed offering is dealt with together
 		// with its
 		// equivalents
-		ArrayList dealtWith = new ArrayList();
-
-		for (Iterator j = offeringListSorted.iterator(); j.hasNext();) {
-			CourseOffering o = (CourseOffering) j.next();
+		List<String> dealtWith = new ArrayList<>();
+		List<CourseObject> courseObjects = new ArrayList<>();
+		for (CourseOffering o : sortCourseOfferings(courseOfferingHash.values())) {
 			if (!dealtWith.contains(o.getEid())) {
 				// 1. construct list of CourseOfferingObject for CourseObject
-				ArrayList<CourseOfferingObject> l = new ArrayList<>();
-				CourseOfferingObject coo = new CourseOfferingObject(o,
-						(ArrayList) sectionHash.get(o.getEid()));
-				l.add(coo);
+				List<CourseOfferingObject> lcoo = new ArrayList<>();
+				CourseOfferingObject coo = new CourseOfferingObject(o, sectionHash.get(o.getEid()));
+				lcoo.add(coo);
 
 				// 2. check if course offering is cross-listed
-				Set set = courseManagementService.getEquivalentCourseOfferings(o.getEid());
-				if (set != null)
-				{
-					for (Iterator k = set.iterator(); k.hasNext();) {
-						CourseOffering eo = (CourseOffering) k.next();
-						if (courseOfferingHash.containsKey(eo.getEid())) {
-							// => cross-listed, then list them together
-							CourseOfferingObject coo_equivalent = new CourseOfferingObject(
-									eo, (ArrayList) sectionHash.get(eo.getEid()));
-							l.add(coo_equivalent);
-							dealtWith.add(eo.getEid());
-						}
-					}
+				Set<CourseOffering> set = courseManagementService.getEquivalentCourseOfferings(o.getEid());
+				if (set != null && !set.isEmpty()) {
+                    for (CourseOffering eo : set) {
+                        if (courseOfferingHash.containsKey(eo.getEid())) {
+                            // => cross-listed, then list them together
+                            CourseOfferingObject ecoo = new CourseOfferingObject(eo, sectionHash.get(eo.getEid()));
+                            lcoo.add(ecoo);
+                            dealtWith.add(eo.getEid());
+                        }
+                    }
 				}
-				CourseObject co = new CourseObject(o, l);
+				CourseObject co = new CourseObject(o, lcoo);
 				dealtWith.add(o.getEid());
-				resultedList.add(co);
+				courseObjects.add(co);
 			}
 		}
-		return resultedList;
+		return courseObjects;
 	} // prepareCourseAndSectionListing
 
 	/* SAK-25400 template site types duplicated in list
 	 * Sort template sites by type   
 	 **/
-	private Collection sortTemplateSitesByType(Collection<Site> templates) {
+	private Collection<Site> sortTemplateSitesByType(Collection<Site> templates) {
 		String[] sortKey = {"type"};
 		String[] sortOrder = {"asc"};
-		return sortCmObject(templates, sortKey, sortOrder);
+		return (Collection<Site>) sortCmObject(templates, sortKey, sortOrder);
 	}
 
 	/**
@@ -14211,12 +14154,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param offerings
 	 * @return
 	 */
-	private Collection sortCourseOfferings(Collection<CourseOffering> offerings) {
+	private Collection<CourseOffering> sortCourseOfferings(Collection<CourseOffering> offerings) {
 		// Get the keys from sakai.properties
 		String[] keys = serverConfigurationService.getStrings(SORT_KEY_COURSE_OFFERING);
 		String[] orders = serverConfigurationService.getStrings(SORT_ORDER_COURSE_OFFERING);
 
-		return sortCmObject(offerings, keys, orders);
+		return (Collection<CourseOffering>) sortCmObject(offerings, keys, orders);
 	} // sortCourseOffering
 
 	/**
@@ -14228,12 +14171,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param courses
 	 * @return
 	 */
-	private Collection sortCourseSets(Collection<CourseSet> courses) {
+	private Collection<CourseSet> sortCourseSets(Collection<CourseSet> courses) {
 		// Get the keys from sakai.properties
 		String[] keys = serverConfigurationService.getStrings(SORT_KEY_COURSE_SET);
 		String[] orders = serverConfigurationService.getStrings(SORT_ORDER_COURSE_SET);
 
-		return sortCmObject(courses, keys, orders);
+		return (Collection<CourseSet>) sortCmObject(courses, keys, orders);
 	} // sortCourseOffering
 
 	/**
@@ -14245,12 +14188,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param sections
 	 * @return
 	 */
-	private Collection sortSections(Collection<Section> sections) {
+	private Collection<Section> sortSections(Collection<Section> sections) {
 		// Get the keys from sakai.properties
 		String[] keys = serverConfigurationService.getStrings(SORT_KEY_SECTION);
 		String[] orders = serverConfigurationService.getStrings(SORT_ORDER_SECTION);
 
-		return sortCmObject(sections, keys, orders);
+		return (Collection<Section>) sortCmObject(sections, keys, orders);
 	} // sortCourseOffering
 
 	/**
@@ -14262,12 +14205,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param sessions
 	 * @return
 	 */
-	private Collection sortAcademicSessions(Collection<AcademicSession> sessions) {
+	private Collection<AcademicSession> sortAcademicSessions(Collection<AcademicSession> sessions) {
 		// Get the keys from sakai.properties
 		String[] keys = serverConfigurationService.getStrings(SORT_KEY_SESSION);
 		String[] orders = serverConfigurationService.getStrings(SORT_ORDER_SESSION);
 
-		return sortCmObject(sessions, keys, orders);
+		return (Collection<AcademicSession>) sortCmObject(sessions, keys, orders);
 	} // sortCourseOffering
 	
 	/**
@@ -14280,11 +14223,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param orders properties on how to sort (asc, dsc)
 	 * @return Collection the sorted collection
 	 */
-	private Collection sortCmObject(Collection collection, String[] keys, String[] orders) {
+	private Collection<?> sortCmObject(Collection<?> collection, String[] keys, String[] orders) {
 		if (collection != null && !collection.isEmpty()) {
 			// Add them to a list for the SortTool (they must have the form
 			// "<key:order>" in this implementation)
-			List propsList = new ArrayList();
+			List<String> propsList = new ArrayList<>();
 			
 			if (keys == null || orders == null || keys.length == 0 || orders.length == 0) {
 				// No keys are specified, so use the default sort order
@@ -14299,12 +14242,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				}
 			}
 			// Sort the collection and return
-			SortTool sort = new SortTool();
-			return sort.sort(collection, propsList);
+			SortTool sortTool = new SortTool();
+			return sortTool.sort(collection, propsList);
 		}
 			
 		return Collections.emptyList();
-
 	} // sortCmObject
 
 	/**
@@ -14314,7 +14256,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param collection a collection to be sorted
 	 * @return Collection the sorted collection
 	 */
-	private Collection sortCmObject(Collection collection) {
+	private Collection<?> sortCmObject(Collection<?> collection) {
 		return sortCmObject(collection, null, null);
 	}
 	
@@ -15111,22 +15053,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		return title;
 	} // prepareTitle
 
-	/**
-	 * return an ArrayList of SectionObject
-	 * 
-	 * @param sectionHash
-	 *            contains an ArrayList collection of SectionObject
-	 * @return
-	 */
-	private ArrayList getSectionList(HashMap sectionHash) {
-		ArrayList list = new ArrayList();
-		// values is an ArrayList of section
-		Collection c = sectionHash.values();
-		for (Iterator i = c.iterator(); i.hasNext();) {
-			ArrayList l = (ArrayList) i.next();
-			list.addAll(l);
-		}
-		return list;
+	private List<SectionObject> getSectionList(Map<String, List<SectionObject>> sectionHash) {
+        return sectionHash.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
 	}
 
 	private String getAuthorizers(SessionState state, String attributeName) {
@@ -15458,8 +15386,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			AcademicSession t = courseManagementService.getAcademicSession(academicSessionEid);
 			state.setAttribute(STATE_TERM_SELECTED, t);
 			if (t != null) {
-				List sections = prepareCourseAndSectionListing(userId, t
-						.getEid(), state);
+				List<CourseObject> sections = prepareCourseAndSectionListing(userId, t.getEid(), state);
 
 				isFutureTermSelected(state);
 
