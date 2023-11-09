@@ -153,6 +153,6 @@ public interface RubricsService {
      * @param toolId the tool id, something like "sakai.assignment"
      * @return a List of ToolItemRubricAssociation containing the associations of a Rubric to a tool. Example: All the rubric associations to assessments.
      */
-    List<ToolItemRubricAssociation> getRubricAssociationByRubricAndTool(Long rubricId, String toolId);
+    List<ToolItemRubricAssociation> getRubricAssociationsByRubricAndTool(Long rubricId, String toolId);
 
 }
