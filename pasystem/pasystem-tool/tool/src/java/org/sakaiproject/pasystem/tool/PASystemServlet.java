@@ -95,7 +95,7 @@ public class PASystemServlet extends HttpServlet {
         if (path.contains("/popups/")) {
             return new PopupsHandler(paSystem);
         } else if (path.contains("/banners/")) {
-            return new BannersHandler(paSystem, clusterService, sessionManager);
+            return new BannersHandler(paSystem, clusterService);
         } else {
             return new IndexHandler(paSystem);
         }
