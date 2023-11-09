@@ -45,7 +45,7 @@ export class SakaiRubricCriteria extends RubricsElement {
           title="${tr("add_rating")} ${c.title}"
           @click=${this.addRating}
           data-rating-pos="${pos}">
-        <span class="fa fa-plus" />
+        <span class="fa fa-plus"></span>
       </button>
     `;
   }

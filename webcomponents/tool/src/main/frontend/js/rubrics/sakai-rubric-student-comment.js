@@ -1,5 +1,6 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { ifDefined } from "/webcomponents/assets/lit-html/directives/if-defined.js";
 import { SakaiRubricsLanguage } from "./sakai-rubrics-language.js";
 
 export class SakaiRubricStudentComment extends RubricsElement {
@@ -50,7 +51,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
   render() {
 
     return html`
-      <button id="${this.triggerId}"
+      <button id="${ifDefined(this.triggerId)}"
           type="button"
           tabindex="0"
           data-bs-toggle="popover"

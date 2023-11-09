@@ -108,8 +108,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                 rubric-id="${this.rubric.id}"
                 tool-id="${this.toolId}"
                 entity-id="${this.entityId}"
-                evaluated-item-id="${this.evaluatedItemId}"
-            />
+                evaluated-item-id="${this.evaluatedItemId}">
+            </sakai-rubric-pdf>
           ` : ""}
         </h3>
 
@@ -207,7 +207,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                   <input type="hidden" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterionrating-${c.id}" .value="${c.selectedRatingId}">
                 </div>
               </div>
-            `}
+              `}
+            </div>
           `)}
           </div>
           <div class="rubric-totals">

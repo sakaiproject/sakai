@@ -85,7 +85,7 @@ export class SakaiItemDelete extends RubricsElement {
                     class="btn btn-primary"
                     title="${tr("confirm_remove")}"
                     @click=${this.saveDelete}>
-                  <sr-lang key="remove_label" />
+                  <sr-lang key="remove_label"></sr-lang>
                 </button>
                 <button type="button"
                     class="btn btn-secondary btn-xs"
