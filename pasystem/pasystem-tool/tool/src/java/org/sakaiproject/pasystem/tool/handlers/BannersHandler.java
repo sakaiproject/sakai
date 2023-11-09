@@ -37,7 +37,6 @@ import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.pasystem.api.Banner;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.pasystem.tool.forms.BannerForm;
-import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * A handler for creating and updating banners in the PA System administration tool.
@@ -47,12 +46,10 @@ public class BannersHandler extends CrudHandler {
 
     private final PASystem paSystem;
     private final ClusterService clusterService;
-    private final SessionManager sessionManager;
 
-    public BannersHandler(PASystem pasystem, ClusterService clusterService, SessionManager sessionManager) {
+    public BannersHandler(PASystem pasystem, ClusterService clusterService) {
         this.paSystem = pasystem;
         this.clusterService = clusterService;
-        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -92,12 +89,6 @@ public class BannersHandler extends CrudHandler {
         String uuid = extractId(request);
         BannerForm bannerForm = BannerForm.fromRequest(uuid, request);
 
-        String userId = sessionManager.getCurrentSessionUserId();
-        if (userId == null) {
-            log.warn("No user ID found for current session");
-            return;
-        }
-
         this.addErrors(bannerForm.validate());
 
         if (hasErrors()) {
@@ -110,7 +101,6 @@ public class BannersHandler extends CrudHandler {
             flash("info", "banner_created");
         } else {
             paSystem.getBanners().updateBanner(bannerForm.toBanner());
-            paSystem.getBanners().clearAcknowledgementForUser(userId);
             flash("info", "banner_updated");
         }
 

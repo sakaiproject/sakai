@@ -211,6 +211,10 @@ public class BannerStorage implements Banners, Acknowledger {
                                     .param(uuid)
                                     .executeUpdate();
 
+                            db.run("DELETE FROM pasystem_banner_dismissed WHERE uuid = ?")
+                                    .param(uuid)
+                                    .executeUpdate();
+
                             db.commit();
 
                             return null;
