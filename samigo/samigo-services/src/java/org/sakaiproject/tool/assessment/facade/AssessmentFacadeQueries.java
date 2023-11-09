@@ -1606,7 +1606,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		List<String> rubricsInUseAssociationList = new ArrayList<>();
 		for (RubricTransferBean rubric : siteRubricList) {
 			Long rubricId = rubric.getId();
-			List<ToolItemRubricAssociation> rubricAssociationList = rubricsService.getRubricAssociationByRubricAndTool(rubricId, RubricsConstants.RBCS_TOOL_SAMIGO);
+			List<ToolItemRubricAssociation> rubricAssociationList = rubricsService.getRubricAssociationsByRubricAndTool(rubricId, RubricsConstants.RBCS_TOOL_SAMIGO);
 			for (ToolItemRubricAssociation itemRubricAssociation : rubricAssociationList) {
 				log.debug("Rubric association found {} for the rubric {}.", itemRubricAssociation.getItemId(), rubricId);
 				rubricsInUseAssociationList.add(itemRubricAssociation.getItemId());
