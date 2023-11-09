@@ -63,8 +63,8 @@ export class SakaiRubricReadonly extends SakaiRubric {
               <sakai-rubric-pdf
                   site-id="${this.rubric.ownerId}"
                   rubric-title="${this.rubric.title}"
-                  rubric-id="${this.rubric.id}"
-              />
+                  rubric-id="${this.rubric.id}">
+              </sakai-rubric-pdf>
             </div>
           ` : ""}
         </div>
@@ -72,7 +72,7 @@ export class SakaiRubricReadonly extends SakaiRubric {
 
       <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_shared_${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
-          <sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criteria)}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
+          <sakai-rubric-criteria-readonly .criteria="${this.rubric.criteria}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
         </div>
       </div>
     `;

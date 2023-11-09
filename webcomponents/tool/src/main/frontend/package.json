@@ -8,7 +8,7 @@
     "storybook": "npm install --force && empathise install --assets-directory=js/assets && start-storybook -p 6006 -s ./storybook-resources",
     "build-storybook": "build-storybook",
     "eslint": "eslint js",
-    "analyze": "lit-analyzer --strict --quiet js/conversations/*.js js/sakai-reorderer.js",
+    "analyze": "lit-analyzer --strict --quiet --rules.no-incompatible-type-binding=off js/**/*.js",
     "jsdoc": "jsdoc js"
   },
   "keywords": [],

@@ -63,7 +63,7 @@ export class SakaiCalendar extends LionCalendar {
       userId: { attribute: "user-id", type: String },
       siteId: { attribute: "site-id", type: String },
       _i18n: { attribute: false, type: Object },
-      _selectedDate: { attribute: false, type: Date },
+      _selectedDate: { attribute: false },
       _events: { attribute: false, type: Array },
       _days: { attribute: false, type: Number },
     };

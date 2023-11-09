@@ -45,7 +45,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
               <button class="btn-link delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
             ` : ""}
             <button class="btn btn-link btn-xs cancel" title="${tr("cancel")}" @click="${this.cancelEdit}">
-              <sr-lang key="cancel" />
+              <sr-lang key="cancel"></sr-lang>
             </button>
           </div>
         </div>

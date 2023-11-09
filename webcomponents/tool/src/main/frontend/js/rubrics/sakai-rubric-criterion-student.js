@@ -12,7 +12,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
       criteria: { type: Array},
       totalPoints: Number,
       rubricAssociation: { attribute: "rubric-association", type: Object },
-      evaluationDetails: { attribute: "evaluation-details", type: Array },
+      evaluationDetails: { type: Array },
       preview: Boolean,
       entityId: { attribute: "entity-id", type: String },
       weighted: Boolean,

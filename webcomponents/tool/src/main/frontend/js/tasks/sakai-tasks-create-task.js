@@ -1,5 +1,4 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
-import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 import { loadProperties } from "../sakai-i18n.js";
 import { SakaiDialogContent } from "../sakai-dialog-content.js";
 import "../sakai-date-picker.js";
@@ -321,7 +320,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           ` : "" }
           ${this.existGroups() ? html`
           <div style="margin-left:20px; margin-top:5px;">
-            <sakai-group-picker site-id="${this.siteId}" .groups=${ifDefined(this.groups)} .selected-groups=${ifDefined(this.selectedGroups)} @groups-selected=${this._handleGroupsSelected}></sakai-group-picker>
+            <sakai-group-picker site-id="${this.siteId}" .groups=${this.groups} .selected-groups=${this.selectedGroups} @groups-selected=${this._handleGroupsSelected}></sakai-group-picker>
           </div>
           ` : "" }
         </div>

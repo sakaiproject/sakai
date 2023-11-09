@@ -1,4 +1,5 @@
 import { html } from "../assets/lit-element/lit-element.js";
+import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 import { SakaiElement } from "../sakai-element.js";
 import Cropper from "../assets/cropperjs/dist/cropper.esm.js";
 import { loadProperties } from "../sakai-i18n.js";
@@ -9,8 +10,8 @@ export class SuiPictureChanger extends SakaiElement {
   static get properties() {
 
     return {
-      imageUrl: { attribute: false, type: String },
       dialogTitle: { attribute: "dialog-title", type: String },
+      imageUrl: { attribute: false, type: String },
       uploadError: { attribute: false, type: Boolean },
       removeError: { attribute: false, type: Boolean },
       needsSave: { attribute: false, type: Boolean },
@@ -222,7 +223,7 @@ export class SuiPictureChanger extends SakaiElement {
             <div id="image-editor-crop-wrapper">
               <div id="cropme">
                 <input type="file" accept="image/*" value="Choose an image" @change=${this._filePicked} />
-                <img id="image" src="${this.imageUrl}"/>
+                <img id="image" src="${ifDefined(this.imageUrl)}"/>
 
                 <div id="image-editor-controls-wrapper">
                   <div id="controls">

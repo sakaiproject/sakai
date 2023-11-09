@@ -220,13 +220,13 @@ export class SakaiCourseDashboard extends LitElement {
       <sakai-widget-panel
         id="course-dashboard-widget-grid"
         @changed=${this.widgetLayoutChanged}
-        widget-ids=${JSON.stringify(this.data.widgets)}
-        layout=${JSON.stringify(this.data.layout)}
+        .widgetIds=${this.data.widgets}
+        .layout=${this.data.layout}
         site-id="${this.siteId}"
         user-id="${this.userId}"
         columns=${columns}
-        ?editing=${this.editing}
-      >
+        ?editing=${this.editing}>
+      </sakai-widget-panel>
     `;
   }
 
@@ -281,7 +281,7 @@ export class SakaiCourseDashboard extends LitElement {
 
   renderOverview() {
     return html`
-      <sakai-course-overview @changed=${this.overviewChanged} overview="${this.data.overview || ''}" ?editing=${this.editing}>
+      <sakai-course-overview @changed=${this.overviewChanged} overview="${this.data.overview || ''}" ?editing=${this.editing}></sakai-course-overview>
     `;
   }
 
@@ -289,7 +289,7 @@ export class SakaiCourseDashboard extends LitElement {
 
     return html`
       <lion-dialog id="templates">
-        <sakai-course-dashboard-template-picker template=${this.data.template} slot="content" @template-selected=${this.templateSelected}>
+        <sakai-course-dashboard-template-picker template=${this.data.template} slot="content" @template-selected=${this.templateSelected}></sakai-course-dashboard-template-picker>
         <div slot="invoker" style="display: none;"></div>
       </lion-dialog>
       <div class="course-dashboard-container">
