@@ -452,7 +452,7 @@
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}">
                         <f:verbatim><span class="status_draft"></f:verbatim>
-                            <h:outputText styleClass="d-none spanValue" value="-1" />
+                            <h:outputText styleClass="d-none spanValue" style="display:none" value="-1" />
                             <h:outputText value="#{authorFrontDoorMessages.assessment_status_draft}" />
                         <f:verbatim></span></f:verbatim>
                     </h:panelGroup>
