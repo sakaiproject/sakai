@@ -102,8 +102,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     })
     .then(savedTask => {
 
-      this.task = savedTask;
-      this.dispatchEvent(new CustomEvent("task-created", { detail: { task: this.task }, bubbles: true }));
+      this.dispatchEvent(new CustomEvent("task-created", { detail: { task: savedTask }, bubbles: true }));
       this.reset();
       this.close();
     })
@@ -116,19 +115,12 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.close();
   }
 
-  resetDate() {
-
-    this.task.due = Date.now();
-    const el = this.shadowRoot.getElementById("due");
-    el && (el.epochMillis = this.task.due);
-  }
-
   set task(value) {
 
     const old = this._task;
     this._task = value;
 
-    this._backupTask = value;
+    this._backupTask = { ...value };
 
     this.error = false;
     if (!this.siteId && value.siteId) {
@@ -190,11 +182,15 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
     this.getEditor().clear();
     const descriptionEl = this.shadowRoot.getElementById("description");
+    descriptionEl.value = "";
+    descriptionEl.disabled = false;
     const datePicker = this.shadowRoot.getElementById("due");
+    datePicker.reset();
+    datePicker.disabled = false;
     const completeEl = this.shadowRoot.getElementById("complete");
     completeEl && (completeEl.checked = false);
-    datePicker.disabled = false;
-    descriptionEl.disabled = false;
+    const priorityEl = this.shadowRoot.getElementById("priority");
+    priorityEl.value = "3";
 
     if (this._backupTask) {
       this.task = { ...this._backupTask };
