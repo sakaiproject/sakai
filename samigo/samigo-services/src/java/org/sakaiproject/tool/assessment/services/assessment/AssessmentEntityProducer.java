@@ -311,8 +311,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 										//need to save since a ref has been updated:
 										needToUpdate = true;
 										itemText.setText(text);
-									}else{
-										log.info("Migration - now update");
 									}
 								}
 								
