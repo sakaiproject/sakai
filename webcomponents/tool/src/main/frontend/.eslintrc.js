@@ -2,7 +2,6 @@ module.exports = {
   "env": { "browser": true, "es2021": true },
   "globals": {
     "$": "readonly",
-    "bootstrap": "readonly",
     "sakai": "readonly",
     "sakaiSessionId": "readonly",
     "portal": "readonly",
