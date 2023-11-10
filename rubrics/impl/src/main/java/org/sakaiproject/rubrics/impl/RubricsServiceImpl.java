@@ -1381,4 +1381,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         return false;
     }
+
+    public List<ToolItemRubricAssociation> getRubricAssociationsByRubricAndTool(Long rubricId, String toolId) {
+        return associationRepository.findByRubricIdAndToolId(rubricId, toolId);
+    }
+
 }

@@ -141,4 +141,13 @@ public interface RubricsService {
 
     void deleteSiteRubrics(String siteId);
 
+    /**
+     * Find the associations of a rubric to a tool
+     *
+     * @param rubricId the rubric id
+     * @param toolId the tool id, something like "sakai.assignment"
+     * @return a List of ToolItemRubricAssociation containing the associations of a Rubric to a tool. Example: All the rubric associations to assessments.
+     */
+    List<ToolItemRubricAssociation> getRubricAssociationsByRubricAndTool(Long rubricId, String toolId);
+
 }
