@@ -78,14 +78,12 @@ class SakaiDatePicker extends SakaiElement {
 
   get isoDate() { return this._isoDate; }
 
-  disable() {
+  disable() { this.disabled = true; }
 
-    this.disabled = true;
-  }
+  enable() { this.disabled = false; }
 
-  enable() {
-
-    this.disabled = false;
+  reset() {
+    this.querySelector("input").value = (new Date()).toISOString().substring(0, 16);
   }
 
   dateSelected(e) {

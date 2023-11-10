@@ -142,10 +142,6 @@ export class SakaiTasks extends SakaiPageableElement {
     this.filter(e.target.value);
   }
 
-  add() {
-    this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.reset();
-  }
-
   editTask(e) {
 
     const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
