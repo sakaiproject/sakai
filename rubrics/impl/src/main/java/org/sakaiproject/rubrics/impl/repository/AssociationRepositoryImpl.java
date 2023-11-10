@@ -124,4 +124,18 @@ public class AssociationRepositoryImpl extends SpringCrudRepositoryImpl<ToolItem
         rubric.getAssociations().remove(assoc);
         rubricRepository.save(rubric);
     }
+
+    public List<ToolItemRubricAssociation> findByRubricIdAndToolId(Long rubricId, String toolId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ToolItemRubricAssociation> query = cb.createQuery(ToolItemRubricAssociation.class);
+        Root<ToolItemRubricAssociation> ass = query.from(ToolItemRubricAssociation.class);
+        query.where(cb.and(cb.equal(ass.get("toolId"), toolId),
+                            cb.equal(ass.get("rubric"), rubricId)));
+
+        return session.createQuery(query).list();
+    }
+
 }
