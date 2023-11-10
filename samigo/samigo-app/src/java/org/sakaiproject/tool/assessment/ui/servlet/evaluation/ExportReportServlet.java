@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -52,7 +53,7 @@ public class ExportReportServlet extends SamigoBaseServlet {
     public static final String EXPORT_TYPE_ITEM_ANALYSIS = "item_analysis";
     public static final String EXPORT_TYPE_STATISTICS = "statistics";
 
-    private static final ResourceLoader EVENT_LOG_BUNDLE = new ResourceLoader(SamigoConstants.EVAL_BUNDLE);
+    private static final ResourceLoader EVALUATION_BUNDLE = new ResourceLoader(SamigoConstants.EVAL_BUNDLE);
 
 
     @Override
@@ -115,18 +116,20 @@ public class ExportReportServlet extends SamigoBaseServlet {
             return;
         }
 
-        String reportTitle = EVENT_LOG_BUNDLE.getFormattedMessage("item_analysis") + ": " + highestSubmissionHsBean.getAssessmentName();
+        String reportTitle = EVALUATION_BUNDLE.getFormattedMessage("item_analysis") + ": " + highestSubmissionHsBean.getAssessmentName();
+        Optional<String> optSiteTitle = getSite(assessment.getOwnerSiteId()).map(Site::getTitle);
+        String reportSubject = optSiteTitle.map(siteTitle -> EVALUATION_BUNDLE.getFormattedMessage("export_site") + ": " + siteTitle).orElse(null);
 
         String typeLabel;
         AssessmentReport report;
         switch(type) {
             case EXPORT_TYPE_ITEM_ANALYSIS:
-                typeLabel = EVENT_LOG_BUNDLE.getFormattedMessage("item_analysis");
-                report = itemAnalysisReport(reportTitle, highestSubmissionHsBean, allSubmissionsHsBean);
+                typeLabel = EVALUATION_BUNDLE.getFormattedMessage("item_analysis");
+                report = itemAnalysisReport(reportTitle, reportSubject, highestSubmissionHsBean, allSubmissionsHsBean);
                 break;
             case EXPORT_TYPE_STATISTICS:
-                typeLabel = EVENT_LOG_BUNDLE.getFormattedMessage("stat_view");
-                report = statisticsReport(reportTitle, highestSubmissionHsBean, allSubmissionsHsBean);
+                typeLabel = EVALUATION_BUNDLE.getFormattedMessage("stat_view");
+                report = statisticsReport(reportTitle, reportSubject, highestSubmissionHsBean, allSubmissionsHsBean);
                 break;
             default:
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -217,18 +220,19 @@ public class ExportReportServlet extends SamigoBaseServlet {
         return Optional.of(histogramScoresBean);
     }
 
-    private AssessmentReport itemAnalysisReport(String title, HistogramScoresBean highestSubmissionHsBean, HistogramScoresBean allSubmissionsHsBean) {
+    private AssessmentReport itemAnalysisReport(String title, String subject, HistogramScoresBean highestSubmissionHsBean, HistogramScoresBean allSubmissionsHsBean) {
         return AssessmentReport.type(AssessmentReportType.ITEM_ANALYSIS)
                 .title(title)
+                .subject(subject)
                 .orientation(AssessmentReportOrientation.LANDSCAPE)
                 .section(AssessmentReportSection.builder()
-                        .title(EVENT_LOG_BUNDLE.getFormattedMessage("highest_sub"))
+                        .title(EVALUATION_BUNDLE.getFormattedMessage("highest_sub"))
                         .tableLayout(TableLayout.HORIZONTAL)
                         .tableHeader(itemAnalysisHeader(highestSubmissionHsBean))
                         .tableData(itemAnalysisData(highestSubmissionHsBean))
                         .build())
                 .section(AssessmentReportSection.builder()
-                        .title(EVENT_LOG_BUNDLE.getFormattedMessage("all_sub"))
+                        .title(EVALUATION_BUNDLE.getFormattedMessage("all_sub"))
                         .tableLayout(TableLayout.HORIZONTAL)
                         .tableHeader(itemAnalysisHeader(allSubmissionsHsBean))
                         .tableData(itemAnalysisData(allSubmissionsHsBean))
@@ -254,14 +258,13 @@ public class ExportReportServlet extends SamigoBaseServlet {
 
                     if (histogramScoresBean.getMaxNumberOfAnswers() > 0) {
                         dataRow.add(itemStatistics.getDifficulty().toString());
-                        dataRow.add(itemStatistics.getNumberOfStudentsWithAttempts().toString());
                         dataRow.add(itemStatistics.getNumberOfStudentsWithCorrectAnswers().toString());
                         dataRow.add(itemStatistics.getNumberOfStudentsWithIncorrectAnswers().toString());
                         dataRow.add(String.valueOf(itemStatistics.getNumberOfStudentsWithZeroAnswers()));
                     }
 
-                    for (int i = 0; i < histogramScoresBean.getMaxNumberOfAnswers(); i++) {
-                        HistogramBarBean[] histogramBars = itemStatistics.getHistogramBars();
+                    HistogramBarBean[] histogramBars = itemStatistics.getHistogramBars();
+                    for (int i = 0; i < histogramBars.length; i++) {
                         dataRow.add(String.valueOf(histogramBars[i].getNumStudents()));
                     }
 
@@ -273,20 +276,19 @@ public class ExportReportServlet extends SamigoBaseServlet {
         int itemCount = histogramScoresBean.getDetailedStatistics().size();
         List<String> header = new ArrayList<>();
 
-        header.add(EVENT_LOG_BUNDLE.getFormattedMessage("question"));
+        header.add(EVALUATION_BUNDLE.getFormattedMessage("question"));
         header.add(histogramScoresBean.getRandomType() ? "N(" + itemCount + ")" : "N");
-        header.add(EVENT_LOG_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVENT_LOG_BUNDLE.getFormattedMessage("whole_group"));
+        header.add(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("whole_group"));
         if (histogramScoresBean.getShowDiscriminationColumn()) {
-            header.add(EVENT_LOG_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVENT_LOG_BUNDLE.getFormattedMessage("upper_pct"));
-            header.add(EVENT_LOG_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVENT_LOG_BUNDLE.getFormattedMessage("lower_pct"));
-            header.add(EVENT_LOG_BUNDLE.getFormattedMessage("discrim_abbrev"));
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("upper_pct"));
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("pct_correct_of") + " " + EVALUATION_BUNDLE.getFormattedMessage("lower_pct"));
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("discrim_abbrev"));
         }
         if (histogramScoresBean.getMaxNumberOfAnswers() > 0) {
-            header.add(EVENT_LOG_BUNDLE.getFormattedMessage("difficulty"));
-            header.add(EVENT_LOG_BUNDLE.getFormattedMessage("total_attempts"));
-            header.add(EVENT_LOG_BUNDLE.getFormattedMessage("total_correct"));
-            header.add(EVENT_LOG_BUNDLE.getFormattedMessage("total_incorrect"));
-            header.add(EVENT_LOG_BUNDLE.getFormattedMessage("no_answer"));
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("difficulty"));
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("total_correct"));
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("total_incorrect"));
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("no_answer"));
         }
 
         for (int i = 0; i < histogramScoresBean.getMaxNumberOfAnswers(); i++) {
@@ -296,17 +298,18 @@ public class ExportReportServlet extends SamigoBaseServlet {
         return header;
     }
 
-    private AssessmentReport statisticsReport(String title, HistogramScoresBean highestSubmissionHsBean, HistogramScoresBean allSubmissionsHsBean) {
+    private AssessmentReport statisticsReport(String title, String subject, HistogramScoresBean highestSubmissionHsBean, HistogramScoresBean allSubmissionsHsBean) {
         return AssessmentReport.type(AssessmentReportType.ASSESSMENT_STATISTICS)
                 .title(title)
+                .subject(subject)
                 .section(AssessmentReportSection.builder()
-                        .title(EVENT_LOG_BUNDLE.getFormattedMessage("highest_sub"))
+                        .title(EVALUATION_BUNDLE.getFormattedMessage("highest_sub"))
                         .tableLayout(TableLayout.VERTICAL)
                         .tableHeader(statisticsHeader(highestSubmissionHsBean))
                         .tableData(statisticsData(highestSubmissionHsBean))
                         .build())
                 .section(AssessmentReportSection.builder()
-                        .title(EVENT_LOG_BUNDLE.getFormattedMessage("all_sub"))
+                        .title(EVALUATION_BUNDLE.getFormattedMessage("all_sub"))
                         .tableLayout(TableLayout.VERTICAL)
                         .tableHeader(statisticsHeader(allSubmissionsHsBean))
                         .tableData(statisticsData(allSubmissionsHsBean))
@@ -326,7 +329,7 @@ public class ExportReportServlet extends SamigoBaseServlet {
                 "qtile_3_eq",
                 "std_dev",
                 "skew_coef"
-        ).map(EVENT_LOG_BUNDLE::getFormattedMessage).collect(Collectors.toList());
+        ).map(EVALUATION_BUNDLE::getFormattedMessage).collect(Collectors.toList());
     }
 
     private List<List<String>> statisticsData(HistogramScoresBean histogramScoresBean) {

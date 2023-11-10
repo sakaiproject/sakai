@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServlet;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.user.api.User;
@@ -19,6 +22,7 @@ public abstract class SamigoBaseServlet extends HttpServlet {
             new char[] { '#', '%', '&', '{', '}', '\\', '<', '>', '*', '?', '/', '$', '!', '\"', '\'', ':', '@', '+', '`', '|', '=' };
 
     private SecurityService securityService = ComponentManager.get(SecurityService.class);
+    private SiteService siteService = ComponentManager.get(SiteService.class);
     private UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 
     protected static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -39,6 +43,14 @@ public abstract class SamigoBaseServlet extends HttpServlet {
         User user = userDirectoryService.getCurrentUser();
 
         return user != null && StringUtils.isNotEmpty(user.getId()) ? Optional.of(user.getId()) : Optional.empty();
+    }
+
+    protected Optional<Site> getSite(String siteId) {
+        try {
+            return Optional.of(siteService.getSite(siteId));
+        } catch (IdUnusedException e) {
+            return Optional.empty();
+        }
     }
 
     protected String cleanAssessmentTitle(PublishedAssessmentIfc assessment) {
