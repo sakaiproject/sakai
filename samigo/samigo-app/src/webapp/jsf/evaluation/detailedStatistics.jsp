@@ -179,13 +179,6 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
 
     <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
         <f:facet name="header">
-            <h:outputText escape="false" value="#{evaluationMessages.total_attempts}" />
-        </f:facet>
-        <h:outputText value="#{item.numberOfStudentsWithAttempts}" escape="false" />
-    </h:column>
-
-    <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
-        <f:facet name="header">
             <h:outputText escape="false" value="#{evaluationMessages.total_correct}" />
         </f:facet>
         <h:outputText value="#{item.numberOfStudentsWithCorrectAnswers}" escape="false" />
