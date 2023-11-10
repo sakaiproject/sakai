@@ -156,8 +156,8 @@ export class SakaiHomeDashboard extends LitElement {
             <sakai-widget-panel
               id="widget-grid"
               @changed=${this.widgetLayoutChange}
-              widget-ids=${JSON.stringify(this.data.widgets)}
-              layout="${JSON.stringify(this.data.layout)}"
+              .widgetIds=${this.data.widgets}
+              .layout=${this.data.layout}
               site-id=""
               user-id="${ifDefined(this.userId ? this.userId : "")}"
               columns="2"
