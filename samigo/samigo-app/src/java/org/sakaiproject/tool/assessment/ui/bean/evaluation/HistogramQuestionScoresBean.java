@@ -96,13 +96,9 @@ public class HistogramQuestionScoresBean implements Serializable {
   @Getter @Setter
   private Integer difficulty;
   @Getter @Setter
-  private Long numberOfStudentsWithAttempts;
-  @Getter @Setter
   private Long numberOfStudentsWithCorrectAnswers;
   @Getter @Setter
   private Long numberOfStudentsWithIncorrectAnswers;
-  @Getter @Setter
-  private Long numberOfStudentsWithBlankAnswers;
 
   /**
    * Creates a new HistogramQuestionScoresBean object.
