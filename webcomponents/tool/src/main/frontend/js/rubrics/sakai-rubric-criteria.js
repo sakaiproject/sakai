@@ -117,16 +117,26 @@ export class SakaiRubricCriteria extends RubricsElement {
           ${this.isCriterionGroup(c) ? html`
             <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" data-reorderable-id="${c.id}" class="criterion-row criterion-group">
               <div class="criterion-detail criterion-title">
-                <h4 class="criterion-title">
-                  ${c.title}
-                  <sakai-rubric-criterion-edit
-                      id="criterion-edit-${c.id}"
-                      @criterion-edited="${this.criterionEdited}"
-                      site-id="${this.siteId}"
-                      rubric-id="${this.rubricId}"
-                      criterion="${JSON.stringify(c)}"
-                      ?is-criterion-group="${true}">
-                  </sakai-rubric-criterion-edit>
+                <h4 class="criterion-title d-flex align-items-center">
+                  <div>
+                    <span tabindex="0"
+                        title="${tr("drag_order")}"
+                        data-criterion-id="${c.id}"
+                        aria-label="${tr("drag_to_reorder_label")}"
+                        class="drag-handle reorder-icon si si-drag-handle fs-3">
+                    </span>
+                  </div>
+                  <div class="ms-1">${c.title}</div>
+                  <div>
+                    <sakai-rubric-criterion-edit
+                        id="criterion-edit-${c.id}"
+                        @criterion-edited="${this.criterionEdited}"
+                        site-id="${this.siteId}"
+                        rubric-id="${this.rubricId}"
+                        criterion="${JSON.stringify(c)}"
+                        ?is-criterion-group="${true}">
+                    </sakai-rubric-criterion-edit>
+                  </div>
                 </h4>
                 <p>${unsafeHTML(c.description)}</p>
               </div>
@@ -149,7 +159,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                         aria-label="${tr("drag_to_reorder_label")}"
                         class="drag-handle reorder-icon si si-drag-handle fs-3">
                     </span>
-                </div>
+                  </div>
                   <div class="ms-1">${c.title}</div>
                   <div>
                     <sakai-rubric-criterion-edit
