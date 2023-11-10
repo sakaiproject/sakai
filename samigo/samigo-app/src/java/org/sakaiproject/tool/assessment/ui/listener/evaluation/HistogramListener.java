@@ -476,11 +476,13 @@ public class HistogramListener
 					  //totalpossible = totalpossible + item.getScore().doubleValue();
 					  //ArrayList responses = null;
 
+					  // Should be set before determineResults
+					  questionScores.setN(String.valueOf(numSubmissions));
+
 					  //for each question (item) in the published assessment's current part/section
 					  determineResults(pub, questionScores, (List) itemScores.get(item.getItemId()));
 					  questionScores.setTotalScore(item.getScore().toString());
 
-					  questionScores.setN(""+numSubmissions);
 					  questionScores.setItemId(item.getItemId());
 					  Set studentsWithAllCorrect = questionScores.getStudentsWithAllCorrect();
 					  Set studentsResponded = questionScores.getStudentsResponded();
@@ -914,18 +916,23 @@ public class HistogramListener
       getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
     }
 
-    long attemptCount = Optional.ofNullable(qbean.getStudentsResponded()).map(Set::size).orElse(0);
+    long attemptCount = Optional.ofNullable(qbean.getN()).map(Long::valueOf).orElse(0L);
     long correctCount = Optional.ofNullable(qbean.getStudentsWithAllCorrect()).map(Set::size).orElse(0);
     long blankCount = Optional.ofNullable(qbean.getNumberOfStudentsWithZeroAnswers()).orElse(0);
     long totalCount = attemptCount + blankCount;
     long incorrectCount = attemptCount - correctCount;
 
-    int difficulty = calcDifficulty(totalCount, incorrectCount, blankCount);
+    // Ideally totalCount should not be 0, if it happens we should handle it to avoid division by 0
+    if (totalCount > 0) {
+        int difficulty = calcDifficulty(totalCount, incorrectCount, blankCount);
+        qbean.setDifficulty(difficulty);
+    } else {
+        log.warn("attemptCount is 0 for item with id=[{}], title=[{}], type=[{}]",
+                qbean.getItemId(), qbean.getTitle(), qbean.getQuestionType());
+    }
 
-    qbean.setDifficulty(difficulty);
     qbean.setNumberOfStudentsWithCorrectAnswers(correctCount);
     qbean.setNumberOfStudentsWithIncorrectAnswers(incorrectCount);
-    qbean.setNumberOfStudentsWithAttempts(attemptCount);
   }
 
   /**
@@ -2451,6 +2458,11 @@ public class HistogramListener
   // difficulty = ------------------- * 100
   //                       total
   private int calcDifficulty(long totalCount, long incorrectCount, long blankCount) {
+    // Can not calculate difficulty with totalCount smaller than 1
+    if (totalCount <= 0) {
+        return -1;
+    }
+
     return BigDecimal.valueOf(incorrectCount + blankCount)
       .multiply(BigDecimal.valueOf(100L))
       .divide(BigDecimal.valueOf(totalCount), 0, RoundingMode.HALF_UP)
