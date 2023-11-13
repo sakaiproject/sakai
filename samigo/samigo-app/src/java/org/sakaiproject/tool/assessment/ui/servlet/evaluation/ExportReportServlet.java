@@ -171,7 +171,7 @@ public class ExportReportServlet extends SamigoBaseServlet {
     }
 
     public static String exportReportUrl(String assessmentId, String type, String format) {
-        log.debug("assessmentId [{}}, type [{}] format [{}]", assessmentId, type, format);
+        log.debug("assessmentId [{}], type [{}] format [{}]", assessmentId, type, format);
         PublishedAssessmentService assessmentService = new PublishedAssessmentService();
         PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId);
 
