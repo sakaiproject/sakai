@@ -128,7 +128,7 @@ USER.validateCurrentPassword = function () {
 
   const pwcur = USER.get("user_pwcur")?.value;
   USER.currentPassValid = true;
-  if (pwcur !== null) {
+  if (pwcur != null) {
     USER.currentPassValid = pwcur.length > 0;
   }
 
