@@ -9,6 +9,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
 
     return {
       criterion: { type: Object },
+      _i18n: { attribute: false, type: Object },
     };
   }
 
@@ -16,7 +17,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
 
     super();
 
-    SakaiRubricsLanguage.loadTranslations().then(i18n => { console.log(i18n); this.i18n = i18n; this.requestUpdate(); });
+    SakaiRubricsLanguage.loadTranslations().then(r => this._i18n = r);
   }
 
   set criterion(value) {
@@ -45,7 +46,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
   }
 
   shouldUpdate() {
-    return this.i18n;
+    return this._i18n;
   }
 
   render() {
@@ -58,7 +59,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
           data-bs-html="true"
           data-bs-content="${this.criterion.comments}"
           data-bs-title="${this.criterion.title}"
-          aria-label="${this.i18n.criterion_comment_student}"
+          aria-label="${this._i18n.criterion_comment_student}"
           class="btn btn-transparent">
         <i class="bi bi-chat${this.criterion.comments ? "-fill" : ""} ${this.criterion.comments ? "active" : ""}"></i>
       </button>

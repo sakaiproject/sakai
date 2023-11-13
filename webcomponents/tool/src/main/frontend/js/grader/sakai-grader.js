@@ -57,6 +57,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       nonEditedSubmission: { attribute: false, type: Object },
       graderOnLeft: { attribute: false, type: Boolean },
       selectedAttachment: { attribute: false, type: Object },
+      saving: { attribute: false, type: Boolean },
       saveSucceeded: { attribute: false, type: Boolean },
       saveFailed: { attribute: false, type: Boolean },
       savedPvtNotes: { attribute: false, type: Boolean },
@@ -491,6 +492,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _submitGradingData(formData, closeSidebarTimeout) {
 
+    this.saving = true;
+
     fetch("/direct/assignment/setGrade.json", {
       method: "POST",
       cache: "no-cache",
@@ -509,6 +512,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       this.privateNotesRemoved = false;
       this.submission = submission;
       this.totalGraded = this.submissions.filter(s => s.graded).length;
+      this.saving = false;
       this.saveSucceeded = true;
       setTimeout(() => {
 

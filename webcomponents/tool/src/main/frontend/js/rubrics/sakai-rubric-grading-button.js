@@ -39,7 +39,7 @@ class SakaiRubricGradingButton extends RubricsElement {
 
     return html`
       <button class="btn btn-transparent">
-        <span class="si si-sakai-rubrics"></span>
+        <span class="si si-sakai-rubrics ${this.hasEvaluation ? "has-evaluation" : ""}"></span>
       </button>
     `;
   }
