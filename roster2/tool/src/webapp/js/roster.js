@@ -437,12 +437,8 @@ roster.renderMembership = function (options) {
           return a.title.localeCompare(b.title);
         });
 
-        if (roster.showVisits) {
-          if (m.totalSiteVisits > 0) {
-            m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
-          } else {
-            m.formattedLastVisitTime = roster.i18n.no_visits_yet;
-          }
+        if (m.totalSiteVisits <= 0) {
+          m.lastVisitTime = roster.i18n.no_visits_yet;
         }
 
         m.hasProperties = m.userProperties && Object.keys(m.userProperties).length > 0;
@@ -666,16 +662,6 @@ roster.getRoleFragments = function (roleCounts) {
     var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
     return frag.replace(/\{1\}/, '<span class="role">' + key + '</span>');
   }).join(", ");
-};
-
-roster.formatDate = function (time) {
-
-  var d = new Date(time);
-  var hours = d.getHours();
-  if (hours < 10)  hours = '0' + hours;
-  var minutes = d.getMinutes();
-  if (minutes < 10) minutes = '0' + minutes;
-  return d.getDate() + " " + roster.i18n.months[d.getMonth()] + " " + d.getFullYear() + " @ " + hours + ":" + minutes;
 };
 
 roster.addExportHandler = function () {
