@@ -1,6 +1,7 @@
 <script>
   //Set portal dom references
   portal.container = document.querySelector("div.portal-container");
+  if ( portal.container ) { // In plus view, there is no portal container
   portal.head = portal.container.querySelector("header.portal-header");
   portal.footer = portal.container.querySelector("footer.portal-footer");
   portal.sidebars = {
@@ -93,6 +94,7 @@
     });
   //--end-logged-out-scripts
   #end
+} /* if ( portal.container ) */
 </script>
 <script>
   var needJQuery = true;
