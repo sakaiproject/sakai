@@ -703,6 +703,7 @@ export const graderRenderingMixin = Base => class extends Base {
               </button>
               <button class="btn btn-link" accesskey="x" name="cancel" @click=${this._cancel}>${this.assignmentsI18n["gen.can"]}</button>
             </div>
+            ${this.saving ? html`<div class="sak-banner-info">${this.i18n.saving}</div>` : ""}
             ${this.saveSucceeded ? html`<div class="sak-banner-success">${this.i18n.successful_save}</div>` : ""}
             ${this.saveFailed ? html`<div class="sak-banner-error">${this.i18n.failed_save}</div>` : ""}
           </div>
