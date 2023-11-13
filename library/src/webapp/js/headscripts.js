@@ -945,3 +945,9 @@ function tsugi_window_close(message)
     setTimeout(function(){ console.log("Notifying the user."); alert(message); open("about:blank", '_self').close(); }, 2000);
 }
 
+function inPlusPortal()
+{
+    // There is no navigation and so no portal-container div to get moved around
+    return (document.querySelector("div.portal-container") == null);
+}
+
