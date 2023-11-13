@@ -75,6 +75,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       nonEditedSubmission: { attribute: false, type: Object },
       graderOnLeft: { attribute: false, type: Boolean },
       selectedAttachment: { attribute: false, type: Object },
+      saving: { attribute: false, type: Boolean },
       saveSucceeded: { attribute: false, type: Boolean },
       saveFailed: { attribute: false, type: Boolean },
       savedPvtNotes: { attribute: false, type: Boolean },
@@ -778,6 +779,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           </button>
           <button accesskey="x" name="cancel" @click=${this.cancel}>${this.assignmentsI18n["gen.can"]}</button>
         </div>
+        ${this.saving ? html`<div class="sak-banner-info">${this.i18n.saving}</div>` : ""}
         ${this.saveSucceeded ? html`<div class="sak-banner-success">${this.i18n.successful_save}</div>` : ""}
         ${this.saveFailed ? html`<div class="sak-banner-error">${this.i18n.failed_save}</div>` : ""}
       </div>` : ""}
@@ -1186,6 +1188,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   submitGradingData(formData) {
 
     return new Promise(resolve => {
+      this.saving = true;
 
       fetch("/direct/assignment/setGrade.json", {
         method: "POST",
@@ -1205,6 +1208,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         this.modified = false;
         this.totalGraded = this.submissions.filter(s => s.graded).length;
         this.submission = submission;
+        this.saving = false;
         this.saveSucceeded = true;
         setTimeout(() => { this.saveSucceeded = false; resolve(); }, 2000);
       }).catch(e => {
