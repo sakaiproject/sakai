@@ -1,4 +1,6 @@
 <script>
+  // In plus portal there is no nav to augment.
+  if ( ! inPlusPortal() ) {
   //Set portal dom references
   portal.container = document.querySelector("div.portal-container");
   portal.head = portal.container.querySelector("header.portal-header");
@@ -93,6 +95,7 @@
     });
   //--end-logged-out-scripts
   #end
+} /* if ( portal.container ) */
 </script>
 <script>
   var needJQuery = true;
