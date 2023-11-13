@@ -16,6 +16,10 @@ function startTutorial(opts){
         return;
     }
 
+    if ( inPlusPortal() ) {
+        return;
+    }
+
     localStorage.setItem('tutorialOpts', JSON.stringify(opts));
 
     if (window.location.pathname !== '/portal' || localStorage.getItem('tutorialStartPending') === 'true') {
