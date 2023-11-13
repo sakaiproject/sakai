@@ -1515,3 +1515,7 @@ ul.feedback-delivery input {
   vertical-align: top;
   margin-top: 2px;
 }
+
+label:has(pre) {
+  display: inline;
+}
