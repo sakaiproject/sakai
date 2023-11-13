@@ -69,7 +69,7 @@ public class RosterMember {
 	private Map<String, String> userProperties = new HashMap<>();
 	private int connectionStatus; // connection status to the current user
 	private int totalSiteVisits;
-	private long lastVisitTime;
+	private String lastVisitTime;
 	private User user;
 
 	public void addGroup(String groupId, String groupTitle) {

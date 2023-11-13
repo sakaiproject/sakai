@@ -86,13 +86,13 @@
     {{/if}}
 
     {{#if ../showVisits}}
-        {{#if ../../viewSiteVisits}}
+        {{#if ../viewSiteVisits}}
         <td class="roster-total-visits-cell">
             <span class="roster-total-visits">{{totalSiteVisits}}</span>
         </td>
-            {{#if formattedLastVisitTime}}
+            {{#if lastVisitTime}}
         <td class="roster-last-visit-cell">
-            <span class="roster-last-visit">{{formattedLastVisitTime}}</span>
+            <span class="roster-last-visit">{{lastVisitTime}}</span>
         </td>
             {{/if}}
         {{/if}}
