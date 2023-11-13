@@ -41,7 +41,7 @@ class SakaiRubricEvaluationRemover extends RubricsElement {
     return html`
       <button class="btn btn-transparent text-decoration-underline"
           @click=${this._removeEvaluation}>
-        ${this.i18n.remove}
+        ${this.i18n.remove_label}
       </button>
     `;
   }

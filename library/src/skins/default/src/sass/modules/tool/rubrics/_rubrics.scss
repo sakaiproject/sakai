@@ -738,6 +738,10 @@ sakai-rubric-summary{
     left: -10px; 
 }
 
+sakai-rubric-grading-button span.has-evaluation {
+    color: green;
+}
+
 @mixin phone_rubrics {
 
   /*
