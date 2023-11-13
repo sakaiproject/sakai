@@ -401,6 +401,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     return '';
   }
 
+  clear() {
+
+    this.evaluation = {};
+    this.criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
+  }
+
   emptyCriterion(criterion) {
 
     console.debug("emptyCriterion");
