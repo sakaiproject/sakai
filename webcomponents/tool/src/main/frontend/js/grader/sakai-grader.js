@@ -409,6 +409,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _onEvaluationRemoved() {
+
+    this.querySelector("sakai-rubric-grading").clear();
     this.querySelector("sakai-rubric-grading-button").setHasEvaluation();
   }
 
