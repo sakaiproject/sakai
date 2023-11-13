@@ -5574,7 +5574,8 @@ public class SimplePageBean {
 				return false;
 			    break;
 			case SimplePageItem.ASSESSMENT:
-			    if (quizEntity.notPublished(item.getSakaiId()))
+				entity = quizEntity.getEntity(item.getSakaiId(), this);
+				if (entity == null || entity.notPublished())
 				return false;
 			    break;
 			case SimplePageItem.FORUM:
