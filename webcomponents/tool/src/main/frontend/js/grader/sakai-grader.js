@@ -247,7 +247,9 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _closeRubric() {
+
     this.rubricShowing = false;
+    this.querySelector("sakai-rubric-grading").displayGradingTab();
   }
 
   _doneWithRubric() {
