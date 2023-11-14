@@ -491,7 +491,13 @@ public class ProviderServlet extends HttpServlet {
 			// Check if we are loop-backing on the same server, and already logged in as same user
 			Session sess = sessionManager.getCurrentSession();
 			String serverUrl = SakaiBLTIUtil.getOurServerUrl();
-			String ext_sakai_server = (String) payload.get("ext_sakai_server");
+			String iss = launch.tenant.getIssuer();
+			if ( StringUtils.equals(iss, serverUrl) ) {
+				log.debug("Running loopback id={} serverUrl={} iss={}", sess.getId(), serverUrl,iss);
+			} else {
+				sess.clear();
+				log.debug("Session cleared id={} serverUrl={} iss={}", sess.getId(), serverUrl,iss);
+			}
 
 			loginUser(ipAddress, user);
 
