@@ -1214,6 +1214,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (this.inlineFeedbackMode) {
       this.toggleInlineFeedback(null, cancelling);
     }
+
+    this.savedFeedbackComment = true;
+    this.savedPvtNotes = true;
   }
 
   cancel() {
