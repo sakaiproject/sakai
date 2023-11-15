@@ -28,7 +28,7 @@ public interface TaskService {
     Task createTask(Task task, Set<String> users, Integer priority);
     Task saveTask(Task task);
     Optional<Task> getTask(String reference);
-    List<UserTaskAdapterBean> getAllTasksForCurrentUser();
+    List<UserTaskAdapterBean> getCurrentTasksForCurrentUser();
     List<UserTaskAdapterBean> getAllTasksForCurrentUserOnSite(String siteId);
     List<UserTask> getCurrentUserTasks(String userId);
     void removeTask(Task task);
