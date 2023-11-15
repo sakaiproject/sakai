@@ -2988,7 +2988,6 @@ function checkEditItemForm() {
 }
 
 function checkSubpageForm() {
-  SPNR.disableControlsAndSpin( this, null );
   if ($('#subpage-title').val() === '') {
     $('#subpage-error').text(msg("simplepage.page_notblank"));
     $('#subpage-error-container').show();
@@ -2999,6 +2998,7 @@ function checkSubpageForm() {
     return false;
   } else {
     $('#subpage-error-container').hide();
+    SPNR.disableControlsAndSpin( this, null );
     return true;
   }
 }
