@@ -1568,20 +1568,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         assignment.setDateModified(Instant.now());
         assignment.setModifier(sessionManager.getCurrentSessionUserId());
-        Assignment updatedAssingment = assignmentRepository.merge(assignment);
+        Assignment updatedAssignment = assignmentRepository.merge(assignment);
 
         Task task = new Task();
-        task.setSiteId(updatedAssingment.getContext());
+        task.setSiteId(updatedAssignment.getContext());
         task.setReference(reference);
         task.setSystem(true);
-        task.setDescription(updatedAssingment.getTitle());
-        task.getGroups().addAll(updatedAssingment.getGroups());
+        task.setDescription(updatedAssignment.getTitle());
+        task.getGroups().addAll(updatedAssignment.getGroups());
+        task.setStarts(updatedAssignment.getOpenDate());
 
-        if (!updatedAssingment.getHideDueDate()) {
-            task.setDue(updatedAssingment.getDueDate());
+        if (!updatedAssignment.getHideDueDate()) {
+            task.setDue(updatedAssignment.getDueDate());
         }
 
-        if (!updatedAssingment.getDraft()) {
+        if (!updatedAssignment.getDraft()) {
             taskService.createTask(task, allowAddSubmissionUsers(reference)
                     .stream().map(User::getId).collect(Collectors.toSet()),
                     Priorities.HIGH);

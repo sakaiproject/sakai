@@ -92,7 +92,7 @@ public class TasksController extends AbstractSakaiApiController {
         Map<String, Object> data = new HashMap<>();
 
         // Flatten the UserTask objects into a more compact form and return.
-        data.put("tasks", taskService.getAllTasksForCurrentUser()
+        data.put("tasks", taskService.getCurrentTasksForCurrentUser()
             .stream().map(bean -> {
                 try {
                     updateUserTaskAdapterBean(bean);

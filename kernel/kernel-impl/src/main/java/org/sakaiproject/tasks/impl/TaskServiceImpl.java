@@ -147,6 +147,7 @@ public class TaskServiceImpl implements TaskService, Observer {
         BeanUtils.copyProperties(transfer, task);
         task.setReference("/user/" + userId);
         task.setSystem(false);
+        task.setStarts(Instant.now());
         task = taskRepository.save(task);
 
         UserTask userTask = new UserTask();
@@ -236,11 +237,11 @@ public class TaskServiceImpl implements TaskService, Observer {
         });
     }
 
-    public List<UserTaskAdapterBean> getAllTasksForCurrentUser() {
+    public List<UserTaskAdapterBean> getCurrentTasksForCurrentUser() {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
-        return userTaskRepository.findByUserId(userId)
+        return userTaskRepository.findByUserIdAndStartsAfter(userId, Instant.now())
                 .stream()
                 .map(ut -> {
                     UserTaskAdapterBean bean = new UserTaskAdapterBean();

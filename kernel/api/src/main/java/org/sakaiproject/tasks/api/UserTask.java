@@ -46,7 +46,7 @@ public class UserTask implements PersistableEntity<Long> {
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TASK_ID", nullable = false)
     private Task task;
 
