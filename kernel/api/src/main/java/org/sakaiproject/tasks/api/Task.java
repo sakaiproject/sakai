@@ -78,7 +78,7 @@ public class Task implements PersistableEntity<Long> {
 
     @Column(name = "STARTS")
     @Type(type = "org.hibernate.type.InstantType")
-    private Instant starts;
+    private Instant starts = Instant.now();
 
     @Column(name = "DUE")
     @Type(type = "org.hibernate.type.InstantType")
