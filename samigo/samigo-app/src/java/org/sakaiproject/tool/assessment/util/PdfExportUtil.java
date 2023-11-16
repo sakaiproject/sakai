@@ -81,7 +81,7 @@ public class PdfExportUtil {
                     document.add(new Paragraph());
                 }
 
-                // Column count if the longest row
+                // Column count of the longest row
                 int maxColumnCount = tableData.stream()
                         .mapToInt(List::size)
                         .max()
