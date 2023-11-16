@@ -688,9 +688,9 @@ $(document).ready(function(){
         <h:outputText value="#{evaluationMessages.answers_title}"/>
       </f:facet>
       <h:panelGroup rendered="#{description.attemptDate != null}">
-        <div><h:outputText value="#{evaluationMessages.correct_title}"/>: <h:outputText value="#{totalScores.results[description.agentId][0]}"/></div>
-        <div><h:outputText value="#{evaluationMessages.incorrect_title}"/>: <h:outputText value="#{totalScores.results[description.agentId][1]}"/></div>
-        <div><h:outputText value="#{evaluationMessages.empty_title}"/>: <h:outputText value="#{totalScores.results[description.agentId][2]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.correct_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][0]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.incorrect_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][1]}"/></div>
+        <div><h:outputText value="#{evaluationMessages.empty_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][2]}"/></div>
       </h:panelGroup>
     </h:column>
 
