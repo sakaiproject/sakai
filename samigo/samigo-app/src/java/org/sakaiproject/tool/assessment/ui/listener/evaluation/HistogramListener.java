@@ -916,7 +916,7 @@ public class HistogramListener
       getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
     }
 
-    long attemptCount = Optional.ofNullable(qbean.getN()).map(Long::valueOf).orElse(0L);
+    long attemptCount = Optional.ofNullable(qbean.getNumResponses()).map(Long::valueOf).orElse(0L);
     long correctCount = Optional.ofNullable(qbean.getStudentsWithAllCorrect()).map(Set::size).orElse(0);
     long blankCount = Optional.ofNullable(qbean.getNumberOfStudentsWithZeroAnswers()).orElse(0);
     long totalCount = attemptCount + blankCount;

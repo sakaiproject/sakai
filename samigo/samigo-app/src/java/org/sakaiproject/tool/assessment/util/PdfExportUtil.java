@@ -81,13 +81,26 @@ public class PdfExportUtil {
                     document.add(new Paragraph());
                 }
 
+                // Column count of the longest row
+                int maxColumnCount = tableData.stream()
+                        .mapToInt(List::size)
+                        .max()
+                        .orElse(0);
+
                 // Create table and add section data
-                PdfPTable table = createTable(tableData.get(0).size());
+                PdfPTable table = createTable(maxColumnCount);
                 for (int j = 0; j < tableData.size(); j++) {
                     List<String> rowData = tableData.get(j);
 
-                    for (int k = 0; k < rowData.size(); k++) {
+                    int rowColumnCount = rowData.size();
+                    for (int k = 0; k < rowColumnCount; k++) {
                         table.addCell(createCell(rowData.get(k)));
+                    }
+
+                    // Add empty cells if the current row is shorter then the longest one
+                    int emptyColumnCount = maxColumnCount - rowColumnCount;
+                    for (int k = 0; k < emptyColumnCount; k++) {
+                        table.addCell("");
                     }
                 }
 
