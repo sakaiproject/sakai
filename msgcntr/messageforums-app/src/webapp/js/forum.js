@@ -432,6 +432,12 @@ $(document).ready(function() {
         e.preventDefault();
         return false;
     });
+
+    // Account for the styling of Discussions displayed in the Lessons ShowItem iframe.
+    let body = document.querySelector('body');
+    if (! body.classList.contains('Mrphs-portalBody')) {
+        body.classList.add('Mrphs-sakai-forums');
+    }
 });
 
 function toggleDates(hideShowEl, parent, element) {
