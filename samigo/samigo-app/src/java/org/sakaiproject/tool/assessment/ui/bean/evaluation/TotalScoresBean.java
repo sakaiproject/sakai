@@ -270,7 +270,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(pubAssessmentService.getPublishedAssessment(this.getPublishedId()));
     // Instance a new GradingService to get all the student responses
     GradingService gradingService = new GradingService();
-    Map<String, List<Integer>> resultsByUser = new HashMap<>();
+    Map<Long, List<Integer>> resultsByUser = new HashMap<>();
     // For each agent (student) we will search the correct/incorrect/empty responses
     for (Object object : agents) {
       AgentResults agentResults = (AgentResults) object;
@@ -293,7 +293,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
             }
           }
         }
-        resultsByUser.put(agentResults.getAgentId(), resultsAux);
+        resultsByUser.put(agentResults.getAssessmentGradingId(), resultsAux);
       }
     }
     results = resultsByUser;
