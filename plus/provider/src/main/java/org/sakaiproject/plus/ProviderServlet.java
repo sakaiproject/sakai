@@ -565,7 +565,11 @@ public class ProviderServlet extends HttpServlet {
 
 			// Forward to a tool
 			} else {
-				String toolPlacementId = addOrCreateTool(payload, user, site);
+				String toolPlacementId = findOrCreateTool(payload, user, site);
+				if ( StringUtils.isBlank(toolPlacementId) ) {
+					doError(request, response, "plus.placement.create.fail", "tool_id="+tool_id+" context="+contextGuid, null);
+					return;
+				}
 
 				plusService.connectLinkAndPlacement(launch.getLink(), toolPlacementId);
 
@@ -577,9 +581,7 @@ public class ProviderServlet extends HttpServlet {
 				url.append("?panel=Main");
 			}
 
-			if (log.isDebugEnabled()) {
-				log.debug("url={}", url.toString());
-			}
+			log.debug("Redirecting {}", url.toString());
 
 			response.setContentType("text/html");
 			response.setStatus(HttpServletResponse.SC_FOUND);
@@ -1085,6 +1087,7 @@ public class ProviderServlet extends HttpServlet {
 				tokenKey = LTI13KeySetUtil.getKeyFromKeySetString(kid, cacheKeySet);
 			} catch(Exception e) {
 				// No big thing - just ignore it and move on
+				tokenKey = null;
 				log.debug("Exception loading kid={} tenant={} keyset={}", kid, tenant_guid, cacheKeySet);
 			}
 		}
@@ -1105,7 +1108,7 @@ public class ProviderServlet extends HttpServlet {
 			try {
 				tokenKey = LTI13KeySetUtil.getKeyFromKeySet(kid, keySet);
 			} catch(Exception e) {
-				throw new LTIException( "plus.launch.kid.load.fail", oidcKeySet, null);
+				throw new LTIException( "plus.launch.kid.load.fail", "kid="+kid+" keySet="+oidcKeySet, null);
 			}
 
 			// Store the new keyset in the Tenant
@@ -1151,28 +1154,27 @@ public class ProviderServlet extends HttpServlet {
 
 	  }
 
-	private String addOrCreateTool(Map payload, User user, Site site) throws LTIException {
+	private String findOrCreateTool(Map payload, User user, Site site) throws LTIException {
 		// Check if the site already has the tool
 		String toolPlacementId = null;
 		String tool_id = (String) payload.get("tool_id");
+		ToolConfiguration toolConfig = null;
 		try {
 			site = siteService.getSite(site.getId());
-			ToolConfiguration toolConfig = site.getToolForCommonId(tool_id);
+			toolConfig = site.getToolForCommonId(tool_id);
 			if(toolConfig != null) {
 				toolPlacementId = toolConfig.getId();
+				log.debug("Found existing tool_id={} toolPlacementId={}", tool_id, toolPlacementId);
+			} else {
+				log.debug("Did not find existing tool_id={} siteId={}", tool_id, site.getId());
 			}
 		} catch (Exception e) {
 			log.warn(e.getLocalizedMessage(), e);
 			throw new LTIException( "launch.tool.search", "tool_id="+tool_id, e);
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug("toolPlacementId={}", toolPlacementId);
-		}
-
 		// If tool not in site, and we are a trusted consumer, error
 		// Otherwise, add tool to the site
-		ToolConfiguration toolConfig = null;
 		if(StringUtils.isBlank(toolPlacementId)) {
 			try {
 				SitePage sitePageEdit = null;
@@ -1194,16 +1196,18 @@ public class ProviderServlet extends HttpServlet {
 				} finally {
 					popAdvisor();
 				}
+
+				// Reload site and tool configuration to find recently created tool placement
+				site = siteService.getSite(site.getId());
+				toolConfig =  site.getToolForCommonId(tool_id);
+				if ( toolConfig == null ) {
+					throw new LTIException( "launch.tool.add", "reloading tool_id="+tool_id + ", siteId="+site.getId(), null);
+				}
 				toolPlacementId = toolConfig.getId();
 
 			} catch (Exception e) {
 				throw new LTIException( "launch.tool.add", "tool_id="+tool_id + ", siteId="+site.getId(), e);
 			}
-		}
-
-		// Get ToolConfiguration for tool if not already setup
-		if(toolConfig == null){
-			toolConfig =  site.getToolForCommonId(tool_id);
 		}
 
 		// Check user has access to this tool in this site
@@ -1212,6 +1216,7 @@ public class ProviderServlet extends HttpServlet {
 			throw new LTIException( "launch.site.tool.denied", "user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id, null);
 
 		}
+
 		return toolPlacementId;
 	}
 
