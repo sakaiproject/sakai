@@ -100,11 +100,9 @@ public class ForumsEmailService {
 			
 
 			String fromName = ServerConfigurationService.getString("ui.service", "LocalSakaiName");
+			String fromEmailAddress = ServerConfigurationService.getString("smtpFrom@org.sakaiproject.email.api.EmailService", "no-reply@" + ServerConfigurationService.getString("serverName", "localhost") );
+			log.debug("Sending the forums messages from {}", fromEmailAddress);
 
-			String fromEmailAddress = DiscussionForumTool.getResourceBundleString("email.fromAddress", 
-					new Object[]{ServerConfigurationService.getString("serverName", "localhost")});
-			log.info(fromEmailAddress);
-			
 			String anonAwareAuthor = getAnonAwareAuthor(reply);
 			String subject = DiscussionForumTool.getResourceBundleString("email.subject", 
 					new Object[]{fromName, anonAwareAuthor});
