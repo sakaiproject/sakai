@@ -2738,17 +2738,19 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param partString
    * @param questionString
    * @param textString
+   * @param responseString
+   * @param pointsString
    * @param rationaleString
    * @param itemGradingCommentsString
    * @param useridMap
    * @param responseCommentString
    * @return a list of responses or null if there are none
    */
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
 	  List list = null;
 	    try {
 	    	list = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString);
+	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString);
 	    } catch (Exception e) {
 	      log.error(e.getMessage(), e);
 	    }
