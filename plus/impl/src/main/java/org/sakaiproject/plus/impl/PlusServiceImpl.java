@@ -28,6 +28,14 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Optional;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import java.io.InputStream;
 
@@ -141,6 +149,44 @@ public class PlusServiceImpl implements PlusService {
 	@Autowired private ServerConfigurationService serverConfigurationService;
 	@Autowired private SiteService siteService;
 	@Autowired private SecurityService securityService;
+
+	/**
+	 * Context Synchronization Scheduler - this approach was inspired by
+	 * kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java
+	 */
+	private ScheduledExecutorService refreshScheduler;
+	private Map<String, String> refreshQueue;
+
+	/**
+	 * Final initialization, once all dependencies are set.
+	 */
+	public void init()
+	{
+		try {
+			refreshQueue = Collections.synchronizedMap(new LinkedHashMap<>());
+
+			long refreshTaskInterval = 60;
+
+			refreshScheduler = Executors.newSingleThreadScheduledExecutor();
+			refreshScheduler.scheduleWithFixedDelay(
+				new refreshContextMembershipsTask(),
+				120, // minimally wait 2 mins for sakai to start
+				refreshTaskInterval, // delay before running again
+				TimeUnit.SECONDS
+			);
+		} catch (Exception t) {
+			log.warn("init(): ", t);
+		}
+	}
+
+	/**
+	 * Returns to uninitialized state.
+	 */
+	public void destroy()
+	{
+		refreshScheduler.shutdown();
+		log.info(this +".destroy()");
+	}
 
 	/*
 	 * Indicate if plus is enabled on this system
@@ -521,11 +567,93 @@ public class PlusServiceImpl implements PlusService {
 		linkRepository.save(link);
 	}
 
+	/**
+	 * Step through queue and Context Memberships queued up for a refresh
+	 *
+	 * See also: kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java
+	 */
+	protected class refreshContextMembershipsTask implements Runnable {
+		@Override
+		public void run() {
+			if ( refreshQueue.size() < 1 ) return;
+			log.debug("RefreshContextMembershipsTask size={}", refreshQueue.size());
+
+			long numberRefreshed = 0;
+			long timeRefreshed = 0;
+			long longestRefreshed = 0;
+			String longestName = null;
+
+			while(true) {
+				List<String> queueList = new ArrayList<String>(refreshQueue.values());
+				if ( queueList.size() < 1 ) break;
+				String contextGuid = queueList.get(0);
+				log.debug("Context pulled from queue {}", contextGuid);
+
+				numberRefreshed++;
+				long time = 0;
+				long start = System.currentTimeMillis();
+
+				try {
+					syncSiteMembershipsInternal(contextGuid);
+				} catch ( LTIException e ) {
+					log.error("refreshContextMembershipsTask.run() Problem refreshing context: " + contextGuid, e);
+				} finally {
+					time = (System.currentTimeMillis() - start);
+					refreshQueue.remove(contextGuid);
+					if (log.isDebugEnabled()) log.debug("refreshContextMembershipsTask.run() refresh of context: " + contextGuid + " took " + time/1e3 + " seconds");
+				}
+
+				timeRefreshed += time;
+				if (time > longestRefreshed) {
+					longestRefreshed = time;
+					longestName = contextGuid;
+				}
+
+			}
+			log.info("refreshContextMembershipsTask.run() refreshed " + numberRefreshed + " contexts in " + timeRefreshed/1e3 +
+				" seconds, longest contexts was " + longestName + " at " + longestRefreshed/1e3 + " seconds");
+		}
+	}
+
+	/*
+	 * Schedule SyncSiteMemberships if enough time has passed since the last request
+	 */
+	public void requestSyncSiteMembershipsCheck(Context context, boolean isInstructor) {
+		if ( context == null ) return;
+
+		// First run is scheduled immediately
+		Instant lastRun = context.getNrpsStart();
+		if ( lastRun == null ) {
+			requestSyncSiteMemberships(context);
+			return;
+		}
+
+		// Otherwise we compute the delay
+		long delay = getNRPSDelaySeconds(context, isInstructor);
+		long lastRunEpoch = lastRun.getEpochSecond();
+		long nowEpoch = Instant.now().getEpochSecond();
+		long delta = nowEpoch - lastRunEpoch;
+
+		if ( delta < 0 || delta > delay ) {
+			requestSyncSiteMemberships(context);
+		} else {
+			log.info("Waiting {} seconds between NRPS calls context={} delta={}", delay, context.getId(), delta);
+		}
+	}
+
+	/*
+	 * Schedule SyncSiteMemberships
+	 */
+	@Override
+	public void requestSyncSiteMemberships(Context context) {
+		if ( context == null ) return;
+		refreshQueue.put(context.getId(), context.getId());
+	}
+
 	/*
 	 * Retrieve Context Memberships from calling LMS and update the site in Sakai
 	 */
-	@Override
-	public void syncSiteMemberships(String contextGuid, Site site) throws LTIException {
+	public void syncSiteMembershipsInternal(String contextGuid) throws LTIException {
 
 		log.debug("synchSiteMemberships");
 
@@ -535,7 +663,7 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 		if (isEmpty(contextGuid) ) {
-			log.error("Context GUID is required. Memberships will NOT be synchronized.");
+			log.error("Context GUID is required. Memberships will NOT be synchronized");
 			return;
 		}
 
@@ -563,6 +691,23 @@ public class PlusServiceImpl implements PlusService {
 			return;
 		}
 
+		String siteId = context.getSakaiSiteId();
+		if (isEmpty(siteId) ) {
+			log.error("Context {} is not associated with a site. Memberships will NOT be synchronized.", contextGuid);
+			return;
+		}
+
+		Site site = null;
+		try
+		{
+			site = siteService.getSite(siteId);
+		}
+		catch (IdUnusedException e)
+		{
+			log.error("Context {} could not load siteid={}. Memberships will NOT be synchronized.", contextGuid, siteId);
+			return;
+		}
+
 		// Load the Tenant
 		Optional<Tenant> optTenant = tenantRepository.findById(tenantGuid);
 		Tenant tenant = null;
@@ -571,7 +716,7 @@ public class PlusServiceImpl implements PlusService {
 		}
 
 		if ( tenant == null ) {
-			log.info("Tenant notfound {}", tenantGuid);
+			log.info("Context {} Tenant notfound {}", contextGuid, tenantGuid);
 			return;
 		}
 
@@ -740,7 +885,7 @@ public class PlusServiceImpl implements PlusService {
 					Membership membership = new Membership();
 					membership.setSubject(subject);
 					membership.setContext(context);
-	                membership.setUpdatedAt(Instant.now());
+					membership.setUpdatedAt(Instant.now());
 					String ltiRoles = launchJWT.getLTI11Roles();
 					if ( StringUtils.isNotBlank(ltiRoles) ) membership.setLtiRoles(ltiRoles);
 					membership = membershipRepository.upsert(membership);
@@ -1593,6 +1738,11 @@ public class PlusServiceImpl implements PlusService {
 
 	/*
 	 * Get the number of seconds to use re-retrieving a roster via NRPS
+	 *
+	 * Initially this is just based on whether the user is an instructor or student
+	 * but in the future, we can consider things like time since the context
+	 * was created, time since the last syncronization was done, or the number
+	 * of members in the context.
 	 */
 	public long getNRPSDelaySeconds(Context context, boolean instructor)
 	{

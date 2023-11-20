@@ -536,21 +536,7 @@ public class ProviderServlet extends HttpServlet {
 			if ( contextGuid != null && launch.getContext() != null ) {
 				String roles = payload.get("roles");
 				boolean isInstructor = (roles != null && roles.toLowerCase().contains("Instructor".toLowerCase()));
-				long delay = plusService.getNRPSDelaySeconds(launch.getContext(), isInstructor);
-
-				Instant lastRun = launch.getContext().getNrpsStart();
-				long delta = -1;
-				if ( lastRun != null ) {
-					long lastRunEpoch = lastRun.getEpochSecond();
-					long nowEpoch = Instant.now().getEpochSecond();
-					delta = nowEpoch - lastRunEpoch;
-				}
-
-				if ( delta < 0 || delta > delay ) {
-					syncSiteMembershipsOnceThenSchedule(contextGuid, site);
-				} else {
-					log.info("Waiting {} seconds between NRPS calls context={} delta={}", delay, contextGuid, delta);
-				}
+				plusService.requestSyncSiteMembershipsCheck(launch.getContext(), isInstructor);
 			}
 
 			// Construct a URL to site or tool
@@ -842,7 +828,7 @@ public class ProviderServlet extends HttpServlet {
 			LTILaunchMessage lm = new LTILaunchMessage();
 			lm.type = LaunchJWT.MESSAGE_TYPE_LAUNCH;
 			lm.label = rb.getString("plus.deeplink.sakai.plus");
-            Tool theTool = toolManager.getTool(tool_id);
+			Tool theTool = toolManager.getTool(tool_id);
 			if ( theTool != null) lm.label = theTool.getTitle();
 			lm.target_link_uri = plusService.getPlusServletPath() + "/" + tool_id;
 			ltitc.messages.add(lm);
@@ -1680,39 +1666,6 @@ public class ProviderServlet extends HttpServlet {
 		String text = new String(stream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
 		JSONObject canvas = (JSONObject) JSONValue.parse(text);
 		return canvas;
-	}
-
-	private void syncSiteMembershipsOnceThenSchedule(String contextGuid, Site site) {
-
-		log.debug("synchSiteMembershipsOnceThenSchedule");
-
-		(new Thread(new Runnable() {
-
-				public void run() {
-
-					long then = (new Date()).getTime();
-
-					if (plusService.verbose() || log.isDebugEnabled()) {
-						log.info("Starting memberships sync. guid={}", contextGuid);
-					} else {
-						log.debug("Starting memberships sync. guid={}", contextGuid);
-					}
-
-					try {
-						plusService.syncSiteMemberships(contextGuid, site);
-					} catch (LTIException e) {
-						e.printStackTrace();
-					}
-
-					long now = (new Date()).getTime();
-					if (plusService.verbose() || log.isDebugEnabled()) {
-						log.info("Memberships sync finished guid={}. It took {} seconds.", contextGuid, ((now - then)/1000));
-					} else {
-						log.debug("Memberships sync finished guid={}. It took {} seconds.", contextGuid, ((now - then)/1000));
-					}
-				}
-			}, "org.sakaiproject.plus.ProviderServlet.MembershipsSync")).start();
-
 	}
 
 	private String htmlEscape(String text)

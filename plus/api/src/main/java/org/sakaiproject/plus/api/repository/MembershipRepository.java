@@ -31,4 +31,6 @@ public interface MembershipRepository extends SpringCrudRepository<Membership, L
 
 	Membership upsert(Membership entity);
 
+        Long countMembersInContext(Context context);
+
 }
