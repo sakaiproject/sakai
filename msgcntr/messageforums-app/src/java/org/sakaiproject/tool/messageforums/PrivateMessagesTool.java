@@ -1771,6 +1771,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
           
     log.debug("processPvtMsgSend()");
     storeDateISO();
+
+    boolean isSendEmail = isSendEmail();
+
     if(StringUtils.isEmpty(getComposeSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
@@ -1807,11 +1810,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     if(booleanSchedulerSend) {
 	    pMsg.setScheduledDate(openDate);
-	    schedulerMessage(pMsg, isSendEmail());
+	    schedulerMessage(pMsg, isSendEmail);
 	    return processPvtMsgComposeCancel();
     } else {
 	    PrivateMessageSchedulerService.removeScheduledReminder(pMsg.getId());
-	    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail());
+	    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail);
     }
     // if you are sending a reply 
     Message replying = pMsg.getInReplyTo();
@@ -1837,7 +1840,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     		log.error(e.getMessage(), e);
     	}
     }
-	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
+
+    String eventMessage = getEventMessage(pMsg) + "/sendEmail=" + String.valueOf(isSendEmail);
+    Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, eventMessage, null, true, NotificationService.NOTI_OPTIONAL, statement);
     eventTrackingService.post(event);
     
     if(StringUtils.isNotEmpty(fromMainOrHp)) {
