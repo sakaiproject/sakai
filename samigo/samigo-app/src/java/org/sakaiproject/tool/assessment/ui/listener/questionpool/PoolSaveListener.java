@@ -34,6 +34,9 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -210,6 +213,10 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 	  qpbean.setOutcomePool(0);
 		
       qpbean.setQpDataModelByLevel();
+
+      // Question pool has been added
+      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_ADD, "/sam/" +AgentFacade.getCurrentSiteId() + "/sourceId=" + questionpool.getData().getQuestionPoolId() , true));
+
       }
 	// set outcome for action
 	return true;

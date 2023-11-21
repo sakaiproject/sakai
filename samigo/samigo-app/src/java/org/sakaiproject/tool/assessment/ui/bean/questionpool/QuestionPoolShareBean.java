@@ -32,6 +32,9 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -123,6 +126,8 @@ public class QuestionPoolShareBean implements Serializable {
           
   			try {
   				delegate.removeQuestionPoolAccess(tree, agentId, getQuestionPoolId(), QuestionPoolData.READ_COPY);
+  				//Revoke question pool access
+  				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_REVOKE, "/sam/" +AgentFacade.getCurrentSiteId() + "/agentId=" + agentId + " poolId=" + getQuestionPoolId(), true));
   			}
   			catch(Exception e) {
   				log.error(e.getMessage(), e);
@@ -138,6 +143,8 @@ public class QuestionPoolShareBean implements Serializable {
           
   			try {
   				delegate.addQuestionPoolAccess(tree, agentId, this.getQuestionPoolId(), QuestionPoolData.READ_COPY);
+  				//Grant question pool access
+  				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_GRANT, "/sam/" +AgentFacade.getCurrentSiteId() + "/agentId=" + agentId + " poolId=" + getQuestionPoolId() + " type=" + QuestionPoolData.READ_COPY, true));
   			}
   			catch(Exception e) {
   				log.error(e.getMessage(), e);

@@ -100,6 +100,11 @@ public final class SamigoConstants {
     public static final     String      EVENT_QUESTIONPOOL_TRANSFER                         = "sam.questionpool.transfer";
     public static final     String      EVENT_QUESTIONPOOL_DELETE                           = "sam.questionpool.deleteitem";
     public static final     String      EVENT_QUESTIONPOOL_UNSHARE                          = "sam.questionpool.unshare";
+    public static final     String      EVENT_QUESTIONPOOL_ADD                              = "sam.questionpool.addpool";
+    public static final     String      EVENT_QUESTIONPOOL_REVOKE                           = "sam.questionpool.revoke";
+    public static final     String      EVENT_QUESTIONPOOL_GRANT                            = "sam.questionpool.grant";
+    public static final     String      EVENT_QUESTIONPOOL_COPY                             = "sam.questionpool.copypool";
+    public static final     String      EVENT_QUESTIONPOOL_MOVE                             = "sam.questionpool.movepool";
 
     //Other events
     public static final     String      EVENT_EMAIL                                         = "sam.email";
