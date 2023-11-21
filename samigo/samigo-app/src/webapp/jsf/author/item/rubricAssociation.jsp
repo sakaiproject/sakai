@@ -17,7 +17,7 @@
                 state-details='<h:outputText value="#{itemauthor.rubricStateDetails}"/>'
             </h:panelGroup>
             fine-tune-points='<h:outputText value="#{assessmentSettingsMessages.option_pointsoverride}"/>'
-            hide-student-preview='<h:outputText value="#{assessmentSettingsMessages.option_studentpreview}"/>'
+            hide-student-preview='<h:outputText value="#{assessmentSettingsMessages.option_studentpreview}"/>'>
         </sakai-rubric-association>
     </div>
 </div>

@@ -666,7 +666,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Map<String, Object> submission = new HashMap<>();
 
         submission.put("id", as.getId());
-        submission.put("assignmentCloseTime", simpleAssignment.getCloseTime());
         submission.put("hydrated", hydrate);
 
         if (as.getUserSubmission()) submission.put("submitted", as.getUserSubmission());
@@ -936,6 +935,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
 
         Map<String, Object> data  = new HashMap<>();
+
+        data.put("assignmentCloseTime", assignment.getCloseDate());
 
         data.put("groups", assignmentService.getGroupsAllowGradeAssignment(assignmentReference)
             .stream().map(SimpleGroup::new).collect(Collectors.toList()));
@@ -1229,7 +1230,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (submission != null) {
             boolean anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment);
             try {
-                return new ActionReturn(submissionToMap(activeSubmitters, assignment, new SimpleAssignment(assignment),  submission, true));
+                return new ActionReturn(Map.of("assignmentCloseTime", assignment.getCloseDate(),
+                                                "submission", submissionToMap(activeSubmitters, assignment, new SimpleAssignment(assignment),  submission, true)));
             } catch (Exception e) {
                 throw new EntityException("Failed to set grade on " + submissionId, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }

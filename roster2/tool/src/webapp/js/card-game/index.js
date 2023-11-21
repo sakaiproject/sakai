@@ -5,7 +5,6 @@
 
 import CardGame from "./card-game.js";
 import { fetchConfig, fetchGroups, fetchUsers } from "./card-game-api.js";
-import { loadProperties } from "/webcomponents/sakai-i18n.js";
 
 function showError(appId, message) {
     console.error(message);

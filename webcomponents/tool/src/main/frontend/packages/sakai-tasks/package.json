@@ -1,0 +1,53 @@
+{
+  "name": "@sakai-ui/sakai-tasks",
+  "version": "3.0.6",
+  "description": "",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai-ui",
+    "directory": "packages/sakai-tasks"
+  },
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-tasks.js": "./sakai-tasks.js"
+  },
+  "dependencies": {
+    "@sakai-ui/sakai-button": "file:../sakai-button",
+    "@sakai-ui/sakai-date-fns": "file:../sakai-date-fns",
+    "@sakai-ui/sakai-date-picker": "file:../sakai-date-picker",
+    "@sakai-ui/sakai-dialog-content": "file:../sakai-dialog-content",
+    "@sakai-ui/sakai-editor": "file:../sakai-editor",
+    "@sakai-ui/sakai-group-picker": "file:../sakai-group-picker",
+    "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
+    "@sakai-ui/sakai-icon": "file:../sakai-icon",
+    "@sakai-ui/sakai-pageable-element": "file:../sakai-pageable-element",
+    "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
+    "lit": "^3.1.0",
+    "moment": "^2.29.4"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0",
+    "fetch-mock": "^9.11.0"
+  }
+}

@@ -52,7 +52,6 @@ $Id$
 
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
-<script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
 
 <div class="portletBody container-fluid">
 <h:form id="editTotalResults">

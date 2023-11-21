@@ -38,13 +38,19 @@ var fmathPath = webJars + 'ckeditor4-fmath-editor/${ckeditor4.fmath.editor.versi
 // Update properties in one object from another: https://stackoverflow.com/a/12534361/3708872
 // I believe this is available as lodash.merge but don't see that available here yet and this looked like the simplest version of that
 function objectMerge(obj/*, ...*/) {
-    for (var i=1; i<arguments.length; i++) {
+    for (let i = 1; i < arguments.length; i++) {
         for (var prop in arguments[i]) {
             var val = arguments[i][prop];
-            if (typeof val == "object") // this also applies to arrays or null!
+            if (prop === "removePlugins") {
+                const source = obj[prop].split(",");
+                source.push(...val.split(","));
+                obj[prop] = source.join(",");
+            } else if (typeof val === "object") {
+                // this also applies to arrays or null!
                 objectMerge(obj[prop], val);
-            else
+            } else {
                 obj[prop] = val;
+            }
         }
     }
     return obj;

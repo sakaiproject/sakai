@@ -1,0 +1,39 @@
+{
+  "name": "@sakai-ui/sakai-jump-to-top",
+  "version": "3.0.6",
+  "description": "",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai-ui",
+    "directory": "packages/sakai-jump-to-top"
+  },
+  "main": "sakai-jump-to-top.js",
+  "files": [
+    "*.js"
+  ],
+  "scripts": {
+    "lint:fix": "eslint sakai-jump-to-top.js --fix",
+    "test": "web-test-runner --coverage"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-jump-to-top.js": "./sakai-jump-to-top.js"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "eslint": "^8.53.0"
+  },
+  "dependencies": {
+    "lit": "^3.1.0"
+  }
+}

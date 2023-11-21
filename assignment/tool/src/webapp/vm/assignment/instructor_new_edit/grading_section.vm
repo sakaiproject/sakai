@@ -58,13 +58,11 @@ This section contains the options for grading this assignment, including rubrics
                 dont-associate-value="0"
                 associate-label="$tlang.getString("associate.label")"
                 associate-value="1"
+                tool-id="sakai.assignment.grades"
                 #if("$!rubric_association" != "")
                     association='$rubric_association'
-                #else
-                    #if("$!assignment.Id" != "")
-                        entity-id="$assignment.Id"
-                    #end
-                    tool-id="sakai.assignment.grades"
+                #elseif("$!assignment.Id" != "")
+                    entity-id="$assignment.Id"
                 #end
                 fine-tune-points="$tlang.getString("option.pointsoverride")"
                 hide-student-preview="$tlang.getString("option.studentpreview")"
@@ -72,8 +70,7 @@ This section contains the options for grading this assignment, including rubrics
                 student-self-report-mode-0="$tlang.getString("option.selfreport.must")"
                 student-self-report-mode-1="$tlang.getString("option.selfreport.partialmust")"
                 student-self-report-mode-2="$tlang.getString("option.selfreport.notamust")"
-                show-self-report-check="true"
-            >
+                show-self-report-check="true">
             </sakai-rubric-association>
         </div>
 

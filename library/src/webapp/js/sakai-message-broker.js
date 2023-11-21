@@ -3,6 +3,14 @@ portal.notifications = portal.notifications || {};
 
 portal.notifications.pushCallbacks = new Map();
 
+portal.notifications.clearAppBadge = () => {
+  console.debug("portal.notifications.clearAppBadge");
+};
+
+portal.notifications.setAppBadge = number => {
+  console.debug(`portal.notifications.setAppBadge: ${number}`);
+};
+
 if (portal?.user?.id) {
 
   const lastSubscribedUser = localStorage.getItem("last-sakai-user");

@@ -1,0 +1,58 @@
+{
+  "name": "@sakai-ui/sakai-grader",
+  "version": "3.0.6",
+  "description": "The Sakai grader component",
+  "main": "index.js",
+  "module": "index.js",
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "web-test-runner --node-resolve --coverage",
+    "test:watch": "web-test-runner --node-resolve --watch"
+  },
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakaiproject/sakai-ui.git"
+  },
+  "keywords": [
+    "sakai",
+    "permissions"
+  ],
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "license": "ECL-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/sakaiproject/sakai-ui/issues"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-grader.js": "./sakai-grader.js",
+    "./sakai-grader-toggle.js": "./sakai-grader-toggle.js"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "@web/test-runner": "^0.18.0",
+    "bootstrap": "^5.2.3",
+    "eslint": "^8.53.0",
+    "fetch-mock": "^9.11.0"
+  },
+  "dependencies": {
+    "@sakai-ui/fa-icon": "file:../fa-icon",
+    "@sakai-ui/sakai-date-picker": "file:../sakai-date-picker",
+    "@sakai-ui/sakai-document-viewer": "file:../sakai-document-viewer",
+    "@sakai-ui/sakai-element": "file:../sakai-element",
+    "@sakai-ui/sakai-group-picker": "file:../sakai-group-picker",
+    "@sakai-ui/sakai-lti-iframe": "file:../sakai-lti-iframe",
+    "@sakai-ui/sakai-rubrics": "file:../sakai-rubrics",
+    "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo",
+    "@sakai-ui/sakai-view-preferences": "file:../sakai-view-preferences",
+    "lit": "^3.1.0",
+    "moment": "^2.29.4"
+  }
+}

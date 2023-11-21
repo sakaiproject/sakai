@@ -374,14 +374,11 @@ commons.switchState = function (state, arg) {
 
     $(document).ready(function () {
 
-      import("/webcomponents/sakai-i18n.js").then(m => {
+      loadProperties({bundle: 'commons'}).then(i18n => {
 
-        m.loadProperties({bundle: 'commons'}).then(i18n => {
-
-          commons.i18n = i18n;
-          commonsHelpers["tr"] =  (key, options) => new Handlebars.SafeString(m.tr("commons", key, options.hash));
-          languagesLoaded();
-        });
+        commons.i18n = i18n;
+        commonsHelpers["tr"] =  (key, options) => new Handlebars.SafeString(tr("commons", key, options.hash));
+        languagesLoaded();
       });
     });
 

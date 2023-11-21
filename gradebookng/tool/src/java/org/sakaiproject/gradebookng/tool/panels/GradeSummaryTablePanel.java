@@ -529,9 +529,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 		final String version = PortalUtils.getCDNQuery();
 		response.render(StringHeaderItem.forString(
-			"<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
-		response.render(StringHeaderItem.forString(
-			"<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
+			"<script type=\"module\" src=\"/webcomponents/bundles/rubric-association-requirements.js" + version + "\"></script>"));
 	}
 
 	private Component newPopoverFlag(String id, String msg, boolean visible) {

@@ -35,9 +35,8 @@ $Id$
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{evaluationMessages.title_question}" /></title>
       <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-      <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-      <script type="module" src='/webcomponents/sakai-user-photo.js<h:outputText value="#{totalScores.CDNQuery}" />'></script>
-      <script type="text/javascript" src="/samigo-app/js/authoringQuestionCancellation.js"></script>
+      <script src="/samigo-app/js/authoringQuestionCancellation.js"></script>
+      <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 

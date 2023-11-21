@@ -1,7 +1,7 @@
 <!-- start: chef_assignments_instructor_grading_submission_withgrader.vm  -->
 
 <!-- GRADER JAVASCRIPT -->
-#module("/webcomponents/grader/sakai-grader.js")
+#module("/webcomponents/bundles/grader.js")
 <script>
   ASN.currentGradingSubmission = "$formattedText.escapeUrl( $!submissionReference )";
 </script>
