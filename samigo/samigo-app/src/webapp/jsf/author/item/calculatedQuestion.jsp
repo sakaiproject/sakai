@@ -171,6 +171,7 @@ confirmation dialog
 				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3aa}" /></li>
 				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3b}" /></li>
 			</ol>
+			<li><h:outputFormat value="#{authorMessages.calc_question_simple_instructions_step_5}" escape="false"/></li>
 		</ol>
 		<div class="mathjax-warning" style="display: none;">
 			<h:outputText value="#{authorMessages.accepted_characters}" escape="false"/>
