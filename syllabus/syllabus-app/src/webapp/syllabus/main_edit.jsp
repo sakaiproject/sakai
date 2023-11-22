@@ -211,7 +211,7 @@
    	      <h:messages globalOnly="true" layout="table" styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
-		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines"
+		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="table table-striped table-bordered"
 		     				columnClasses="item,move,move,status,status" >
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
@@ -253,10 +253,8 @@
 							<f:facet name="header">
 								<h:panelGroup>
 									<h:outputText value="#{msgs.mainEditHeaderInCalendar}"/>
-									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="toggleAllCalendarOptions(this);"/>
-									</f:verbatim>
+										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderInCalendar}" onchange="toggleAllCalendarOptions(this);"/>
 								</h:panelGroup>
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" onchange="checkStartEndDates(this)"/>
@@ -265,10 +263,8 @@
 							<f:facet name="header">
 								<h:panelGroup>
 									<h:outputText value="#{msgs.mainEditHeaderStatus}"/>
-									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="toggleAllPostOptions(this);"/>
-									</f:verbatim>
+										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderStatus}" onchange="toggleAllPostOptions(this);"/>
 								</h:panelGroup>
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPublish}" onchange="toggleCalendarCheckbox(this);" />
@@ -277,10 +273,8 @@
 							<f:facet name="header">
 								<h:panelGroup>
   									<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
-  									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="$('.deleteBox').attr('checked', this.checked);"/>
-									</f:verbatim>
+										<h:selectBooleanCheckbox title="#{msgs.mainEditHeaderRemove}" onchange="$('.deleteBox').attr('checked', this.checked);"/>
 								</h:panelGroup>
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="deleteBox" value="#{eachEntry.selected}" title="#{msgs.selectThisCheckBox}"/>
