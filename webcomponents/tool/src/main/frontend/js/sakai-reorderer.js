@@ -44,34 +44,72 @@ export class SakaiReorderer extends LitElement {
     };
   }
 
-  /**
-   * @private
-   */
-  _getDragAfterElement(container, coord) {
+  constructor() {
 
-    return [...container.querySelectorAll("[draggable='true']:not(.dragging)")]
-      .reduce((closest, child) => {
+    super();
 
-        const box = child.getBoundingClientRect();
-        const offset = coord - (this.horizontal ? box.left : box.top) - (this.horizontal ? box.width : box.height) / 2;
-        if (offset < 0 && offset > closest.offset) {
-          return { offset, element: child };
-        }
-        return closest;
-      }, { offset: Number.NEGATIVE_INFINITY }).element;
-  }
-
-  /**
-   * @private
-   */
-  _setupKeyboard(reorderable) {
-
-    reorderable.addEventListener("keyup", e => {
+    this._dragStartListener = e => {
 
       e.stopPropagation();
 
+      this.draggingElement = e.target;
+      e.target.classList.add("dragging");
+    };
+
+    this._dragOverListener = e => {
+
+      e.stopPropagation();
+
+      if (this.draggingElement && this.container.contains(this.draggingElement)) {
+        e.preventDefault();
+      }
+    };
+
+    this._dragEndListener = e => {
+
+      e.preventDefault();
+      e.stopPropagation();
+      this.draggingElement = undefined;
+      e.target.classList.remove("dragging");
+    };
+
+    this._dropListener = e => {
+
+      e.stopPropagation();
+
+      const afterElement = this._getDragAfterElement(this.container, this.horizontal ? e.clientX : e.clientY);
+
+      const total = this._reorderableIds.length;
+
+      const draggingIndex = this._reorderableIds.findIndex(id => id === this.draggingElement.dataset.reorderableId);
+      const afterIndex = afterElement ? this._reorderableIds.findIndex(id => id === afterElement.dataset.reorderableId) : this._reorderableIds.length - 1;
+      this._reorderableIds.splice(draggingIndex, 1);
+
+      if (afterIndex === 0) {
+        this._reorderableIds.unshift(this.draggingElement.dataset.reorderableId);
+      } else if (afterIndex === total - 1) {
+        this._reorderableIds.push(this.draggingElement.dataset.reorderableId);
+      } else {
+        this._reorderableIds.splice(afterIndex, 0, this.draggingElement.dataset.reorderableId);
+      }
+
+      this.dispatchEvent(new CustomEvent("reordered", { detail: { reorderedIds: this._reorderableIds, data: this.draggingElement.dataset } }));
+    };
+
+    this._dragEnterListener = e => e.stopPropagation();
+
+    this._dragLeaveListener = e => e.stopPropagation();
+
+    this._dragListener = e => e.stopPropagation();
+
+    this._keyupListener = e => {
+
+      e.stopPropagation();
+
+      const reorderable = e.target.closest("[draggable='true']");
+      const reorderableId = reorderable?.dataset.reorderableId;
+
       if (["e", "d"].includes(e.key.toLowerCase())) {
-        const reorderableId = reorderable.dataset.reorderableId;
         const index = this._reorderableIds.indexOf(reorderableId);
 
         let changed = false;
@@ -94,7 +132,31 @@ export class SakaiReorderer extends LitElement {
           this.dispatchEvent(new CustomEvent("reordered", { detail: { reorderedIds: this._reorderableIds, data: reorderable.dataset } }));
         }
       }
-    });
+    };
+  }
+
+  /**
+   * @private
+   */
+  _getDragAfterElement(container, coord) {
+
+    return [ ...container.querySelectorAll("[draggable='true']:not(.dragging)") ]
+      .reduce((closest, child) => {
+
+        const box = child.getBoundingClientRect();
+        const offset = coord - (this.horizontal ? box.left : box.top) - (this.horizontal ? box.width : box.height) / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset, element: child };
+        }
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+
+  /**
+   * @private
+   */
+  _setupKeyboard(reorderable) {
+    reorderable.querySelector(".drag-handle").addEventListener("keyup", this._keyupListener);
   }
 
   /**
@@ -103,11 +165,11 @@ export class SakaiReorderer extends LitElement {
    */
   updated() {
 
-    const container = this.shadowRoot.querySelector("slot").assignedNodes().find(n => n.nodeType === Node.ELEMENT_NODE);
+    this.container = this.shadowRoot.querySelector("slot").assignedNodes().find(n => n.nodeType === Node.ELEMENT_NODE);
 
     this._reorderableIds = [];
 
-    [...container.children].filter(n => n.nodeType === Node.ELEMENT_NODE).forEach(reorderable => {
+    [ ...this.container.children ].filter(n => n.nodeType === Node.ELEMENT_NODE).forEach(reorderable => {
 
       this._setupKeyboard(reorderable);
 
@@ -119,65 +181,20 @@ export class SakaiReorderer extends LitElement {
 
       if (!dragHandle) {
         dragHandle = document.createElement("span");
-        dragHandle.classList.add("si", "si-drag-handle");
+        dragHandle.classList.add("si", "si-drag-handle", "drag-handle");
         dragHandle.style.cursor = "grab;";
         reorderable.insertBefore(dragHandle, reorderable.firstChild)
       }
 
-      reorderable.addEventListener("dragstart", e => {
-
-        e.stopPropagation();
-
-        this.draggingElement = e.target;
-        reorderable.classList.add("dragging");
-      });
-
-      reorderable.addEventListener("drag", e => e.stopPropagation());
-
-      reorderable.addEventListener("dragend", e => {
-
-        e.preventDefault();
-        e.stopPropagation();
-        this.draggingElement = undefined;
-        e.target.classList.remove("dragging");
-      });
+      reorderable.addEventListener("dragstart", this._dragStartListener);
+      reorderable.addEventListener("drag", this._dragListener);
+      reorderable.addEventListener("dragend", this._dragEndListener);
     });
 
-    container.addEventListener("dragenter", e => e.stopPropagation());
-
-    container.addEventListener("dragover", e => {
-
-      e.stopPropagation();
-
-      if (this.draggingElement && container.contains(this.draggingElement)) {
-        e.preventDefault();
-      }
-    });
-
-    container.addEventListener("dragleave", e => e.stopPropagation());
-
-    container.addEventListener("drop", e => {
-
-      e.stopPropagation();
-
-      const afterElement = this._getDragAfterElement(container, this.horizontal ? e.clientX : e.clientY);
-
-      const total = this._reorderableIds.length;
-
-      const draggingIndex = this._reorderableIds.findIndex(id => id === this.draggingElement.dataset.reorderableId);
-      const afterIndex = afterElement ? this._reorderableIds.findIndex(id => id === afterElement.dataset.reorderableId) : this._reorderableIds.length - 1;
-      this._reorderableIds.splice(draggingIndex, 1);
-
-      if (afterIndex === 0) {
-        this._reorderableIds.unshift(this.draggingElement.dataset.reorderableId);
-      } else if (afterIndex === total - 1) {
-        this._reorderableIds.push(this.draggingElement.dataset.reorderableId);
-      } else {
-        this._reorderableIds.splice(afterIndex, 0, this.draggingElement.dataset.reorderableId);
-      }
-
-      this.dispatchEvent(new CustomEvent("reordered", { detail: { reorderedIds: this._reorderableIds, data: this.draggingElement.dataset } }));
-    });
+    this.container.addEventListener("dragenter", this._dragEnterListener);
+    this.container.addEventListener("dragover", this._dragOverListener);
+    this.container.addEventListener("dragleave", this._dragLeaveListener);
+    this.container.addEventListener("drop", this._dropListener);
   }
 
   /**
