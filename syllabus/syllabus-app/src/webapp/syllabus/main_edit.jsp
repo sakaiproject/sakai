@@ -212,7 +212,7 @@
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
 		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="table table-striped table-bordered"
-		     				columnClasses="item,move,move,status,status" >
+		     				columnClasses="text-left,text-center,text-center,text-center,text-center,text-center,text-center" >
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderItem}" />
@@ -227,29 +227,29 @@
 							<f:facet name="header">
 								<h:outputText value="" />
 							</f:facet>
-							<h:commandLink action="#{eachEntry.processUpMove}" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
+							<h:commandLink action="#{eachEntry.processUpMove}" styleClass="button" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
 											<f:verbatim><span class="fa fa-long-arrow-up" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkUpTitle}" /><f:verbatim>" ></span></f:verbatim>
 								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 							<h:outputText value=" "/>
-							<h:commandLink action="#{eachEntry.processDownMove}"  style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" styleClass="imageLink" rendered="#{SyllabusTool.editAble == 'true'}">
+							<h:commandLink action="#{eachEntry.processDownMove}" styleClass="button" style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
 															<f:verbatim><span class="fa fa-long-arrow-down" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkDownTitle}" /><f:verbatim>" ></span></f:verbatim>
 								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderStartTime}"/>
 							</f:facet>
 							<h:inputText styleClass="dateInput dateInputStart" value="#{eachEntry.startDateString}" id="dataStartDate"/>
 						</h:column>	
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderEndTime}"/>
 							</f:facet>
 							<h:inputText styleClass="dateInput dateInputEnd" value="#{eachEntry.endDateString}" id="dataEndDate"/>
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg && SyllabusTool.calendarExistsForSite}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg && SyllabusTool.calendarExistsForSite}" headerClass="text-center">
 							<f:facet name="header">
 								<h:panelGroup>
 									<h:outputText value="#{msgs.mainEditHeaderInCalendar}"/>
@@ -259,7 +259,7 @@
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" onchange="checkStartEndDates(this)"/>
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
 							<f:facet name="header">
 								<h:panelGroup>
 									<h:outputText value="#{msgs.mainEditHeaderStatus}"/>
@@ -269,7 +269,7 @@
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPublish}" onchange="toggleCalendarCheckbox(this);" />
 						</h:column>
-						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
+						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}" headerClass="text-center">
 							<f:facet name="header">
 								<h:panelGroup>
   									<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
