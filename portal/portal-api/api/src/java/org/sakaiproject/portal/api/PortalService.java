@@ -380,4 +380,14 @@ public interface PortalService
 	 * @param siteId The site id to add
 	 */
 	public void addRecentSite(String siteId);
+
+        /**
+         * Update a user's site navigation, whether adding a pinned site or removing
+         * a site from the set of Pinned or Recent sites.
+         *
+         * @param pinnedUnpinnedAndHiddenSiteIds Ids for the user's current set of pinned, unpinned, and hidden sites
+         * @param userId The user for whom to update the site navigation
+         * @param siteId The site id to pin, unpin, or remove
+         */
+        public void updateUserSiteNav(List<String> pinnedUnpinnedAndHiddenSiteIds, String userId, String siteId);
 }

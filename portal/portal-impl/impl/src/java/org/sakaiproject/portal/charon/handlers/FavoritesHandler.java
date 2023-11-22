@@ -146,28 +146,23 @@ public class FavoritesHandler extends BasePortalHandler
 
 		// Remove newly hidden sites from pinned and unpinned sites
 		existingSiteIds.stream().filter(existingHiddenSiteIds::contains).forEach(siteId -> portalService.removePinnedSite(userId, siteId));
-
 		existingSiteIds.addAll(existingHiddenSiteIds);
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<String> userSites = siteService.getSiteIds(SelectionType.MEMBER, null, null, null, SortType.CREATED_ON_DESC, null);
 
-		for (String userSite : userSites) {
+		for (String siteId : userSites) {
 			Site site = null;
 			try {
-				site = siteService.getSite(userSite);
+				site = siteService.getSite(siteId);
 			} catch (IdUnusedException idue) {
-				log.error("No site for id {}", userSite);
+				log.error("No site for id {}", siteId);
 				continue;
 			}
 
-			// Automatically pin appropriate sites that a user hasn't already explicitly hidden or unpinned.
-			if (!existingSiteIds.contains(userSite) &&
-			    ((site.isPublished() && site.getMember(userId).isActive())
-					|| site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE))) {
-				log.debug("Adding {} as a pinned site for {}", userSite, userId);
-				portalService.addPinnedSite(userId, userSite);
-			}
+			// Automatically add new pinned sites where appropriate. Also for students and TAs,
+			// remove from pinned and recent any sites unpublished via scheduling.
+			portalService.updateUserSiteNav(existingSiteIds, userId, siteId);
 		}
                 
 		result.favoriteSiteIds = portalService.getPinnedSites();

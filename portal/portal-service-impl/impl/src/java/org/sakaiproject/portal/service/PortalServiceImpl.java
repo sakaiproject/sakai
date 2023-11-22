@@ -238,9 +238,8 @@ public class PortalServiceImpl implements PortalService, Observer
 				site.getMembers().forEach(m -> {
 
 					if (!canUserUpdateSite(m.getUserId(), e.getContext())) {
-						// Remove pinned site if it actually exists and was not explicitly unpinned
-						if (isSiteAvailableToUser(m.getUserId(), e.getContext()) &&
-							!isSiteUnpinnedByUser(m.getUserId(), e.getContext())) {
+						// Remove pinned site if it was not explicitly unpinned
+						if (!isSiteUnpinnedByUser(m.getUserId(), e.getContext())) {
 							removePinnedSite(m.getUserId(), e.getContext());
 						}
 
@@ -862,6 +861,36 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 	}
 
+	@Override
+	public void updateUserSiteNav(List<String> pinnedUnpinnedAndHiddenSiteIds, String userId, String siteId) {
+		if (StringUtils.isBlank(userId) || StringUtils.isBlank(siteId)) {
+			return;
+		}
+
+		List<String> pinnedSites = getPinnedSites();
+		List<String> recentSites = getRecentSites();
+
+		if (isSiteAvailableToUser(userId, siteId)) {
+			// Automatically add an available site that is not already pinned or explicitly unpinned
+			if (!pinnedUnpinnedAndHiddenSiteIds.contains(siteId)) {
+				log.debug("Adding {} as a pinned site for {}", siteId, userId);
+				addPinnedSite(userId, siteId);
+			}
+		}
+		else if (!canUserUpdateSite(userId, siteId)) {
+			// Remove from the site navigation of students and TAs an unavailable site,
+			// while preserving records in PINNED_SITES of sites the user explicitly unpinned.
+			if (pinnedSites.contains(siteId) && !isSiteUnpinnedByUser(userId, siteId)) {
+				log.debug("Removing {} as a pinned site for {}", siteId, userId);
+				removePinnedSite(userId, siteId);
+			}
+			if (recentSites.contains(userId)) {
+				log.debug("Removing {} as a recent site for {}", siteId, userId);
+				removeRecentSite(userId, siteId);
+			}
+		}
+	}
+
 	@Transactional
 	@Override
 	public void addPinnedSite(String userId, String siteId) {
@@ -930,6 +959,15 @@ public class PortalServiceImpl implements PortalService, Observer
 			PinnedSite pinnedSite = pinnedSites.get(i);
 			pinnedSite.setPosition(i);
 		}
+	}
+
+	@Transactional
+        private void removeRecentSite(String userId, String siteId) {
+
+		if (StringUtils.isBlank(userId) || StringUtils.isBlank(siteId)) {
+			return;
+		}
+		recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
 	}
 
 	@Transactional
