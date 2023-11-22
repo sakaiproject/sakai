@@ -294,19 +294,12 @@
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
 					 accesskey="s" styleClass="active" />
 				<h:commandButton 
-				     value="#{msgs.reset}" 
+				     value="#{msgs.cancel}"
 					 action="#{SyllabusTool.processMainEditCancel}"
-					 title="#{msgs.reset}"
+					 title="#{msgs.button_cancel}"
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
-					 accesskey="s" />
-				<h:commandButton
-					value="#{msgs.cancel}"
-					action="#{SyllabusTool.processStudentView}"
-					title="#{msgs.cancel}"
-					rendered="#{SyllabusTool.addOrEdit == 'true'}"
-					onclick="assignWarningClick(this);"
-					accesskey="x" />
-			<f:verbatim></p></f:verbatim>		  
+					 accesskey="x" />
+			<f:verbatim></p></f:verbatim>
 		  </syllabus:syllabus_if>
 
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">

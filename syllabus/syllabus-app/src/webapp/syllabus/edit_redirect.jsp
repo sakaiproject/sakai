@@ -41,9 +41,13 @@
 					<h:commandButton
 						styleClass="active"
 						action="#{SyllabusTool.processEditSaveRedirect}"
-						value="#{msgs.save}" 
+						value="#{msgs.save}"
 						accesskey="s" />
-						
+					<h:commandButton
+						value="#{msgs.reset}"
+						action="#{SyllabusTool.processEditResetRedirect()}"
+						title="#{msgs.reset}"
+						accesskey="r" />
 					<h:commandButton
 						action="#{SyllabusTool.processEditCancelRedirect}"
 						value="#{msgs.cancel}" 
