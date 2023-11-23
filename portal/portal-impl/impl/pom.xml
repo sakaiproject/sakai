@@ -154,10 +154,10 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>org.sakaiproject.lessonbuilder</groupId>
             <artifactId>lessonbuilder-api</artifactId>
-        </dependency-->
+        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>

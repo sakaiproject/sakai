@@ -1877,6 +1877,31 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				"   AND p.toolId IN (" + pageIds.stream().map(i -> "?").collect(Collectors.joining(",")) + ")" +
 				" ORDER BY i.sequence");
 
+		final String sqlForTopLevelPageProps = ("SELECT p.toolId AS sakaiPageId," +
+							" p.pageId AS lessonsPageId," +
+							" s.site_id AS sakaiSiteId," +
+							" s.tool_id AS sakaiToolId," +
+							" p.title AS pageTitle," +
+							" p.hidden AS pageHidden," +
+							" p.releaseDate AS pageReleaseDate," +
+							" log.complete AS completed," +
+							" i.required," +
+							" i.prerequisite" +
+							" FROM lesson_builder_pages p" +
+							" INNER JOIN SAKAI_SITE_TOOL s" +
+							"   ON p.toolId = s.page_id" +
+							" INNER JOIN SAKAI_SITE_PAGE sp" +
+							"   ON s.page_id = sp.page_id" +
+							" INNER JOIN lesson_builder_items i" +
+							"   ON (i.sakaiId = p.pageId AND type = 2)" +
+							" LEFT OUTER JOIN lesson_builder_log log" +
+							"   ON (log.itemId = i.id AND log.userId = ?)" +
+							" WHERE p.parent IS NULL" +
+							"   AND p.toolId IN (" + pageIds.stream().map(i -> "?").collect(Collectors.joining(",")) + ")" +
+							" AND p.siteId = '" + siteId + "'" +
+							" ORDER BY sp.SITE_ORDER");
+
+
 		final Object [] fields = new Object[pageIds.size() + 1];
 		fields[0] = userId;
 
@@ -1892,6 +1917,14 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			sqlService.dbRead(sql, fields, (SqlReader) result -> {
 				try {
 					return lessonsSubNavBuilder.processResult(result);
+				} catch (SQLException e) {
+					return null;
+				}
+			});
+
+			sqlService.dbRead(sqlForTopLevelPageProps, fields, (SqlReader) result -> {
+				try {
+					return lessonsSubNavBuilder.processTopLevelPageProperties(result);
 				} catch (SQLException e) {
 					return null;
 				}

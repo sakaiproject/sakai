@@ -5,6 +5,12 @@
     <script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
     <script src="/library/js/portal/portal.init.js$!{portalCDNQuery}"></script>
     <script src="/library/js/portal/portal.all.sites.js$!{portalCDNQuery}"></script>
+    #if (${sitePages.additionalLessonsPages})
+    <script>
+      sakai = window.sakai || {};
+      sakai.lessons_subnav = true;
+    </script>
+    #end
 #else
     <script src="/library/js/portal/portal.login.password.js$!{portalCDNQuery}"></script>
     <script src="/library/js/portal/portal.login.mobile.js$!{portalCDNQuery}"></script>
