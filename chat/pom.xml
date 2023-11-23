@@ -7,7 +7,7 @@
       <version>24-SNAPSHOT</version>
       <relativePath>../master/pom.xml</relativePath>
     </parent>
-  <name>Sakai Chat Project</name>
+  <name>Sakai Chat Project - now with changed name</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>chat-base</artifactId>
   <packaging>pom</packaging>
