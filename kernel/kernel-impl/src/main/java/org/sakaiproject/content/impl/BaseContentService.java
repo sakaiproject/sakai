@@ -5953,7 +5953,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
         m_ignoreExtensions = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions")));
         m_ignoreMimeTypes = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes")));
 
-        if (m_useMimeMagic && DETECTOR != null && !ResourceProperties.TYPE_URL.equals(currentContentType) && !hasContentTypeAlready) {
+        if (m_useMimeMagic && DETECTOR != null && !ResourceProperties.TYPE_URL.equals(currentContentType) && !hasContentTypeAlready && 
+                (currentContentType.equals(BasicContentTypeImageService.UNKNOWN_TYPE) || currentContentType.equals("application/binary") )) {
             try (
                     TikaInputStream buff = TikaInputStream.get(edit.streamContent());
             ) {
