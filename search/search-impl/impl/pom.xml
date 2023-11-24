@@ -144,8 +144,16 @@
        <artifactId>tika-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.tika</groupId>
-      <artifactId>tika-parsers</artifactId>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-parsers-standard-package</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-parser-scientific-package</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-parser-sqlite3-package</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
