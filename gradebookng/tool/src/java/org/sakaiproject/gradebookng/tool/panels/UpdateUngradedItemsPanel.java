@@ -77,9 +77,9 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		// unpack model
 		final Long assignmentId = (Long) getDefaultModelObject();
 
-		final Assignment assignment = this.businessService.getAssignment(assignmentId);
+		final Assignment assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 
-		final GradingType gradingType = GradingType.valueOf(this.businessService.getGradebook().getGrade_type());
+		final GradingType gradingType = GradingType.valueOf(this.getGradebook().getGrade_type());
 
 		// form model
 		final GradeOverride override = new GradeOverride();
@@ -98,7 +98,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 				final GradeOverride override = (GradeOverride) form.getModelObject();
 
-				final Assignment assignment = UpdateUngradedItemsPanel.this.businessService.getAssignment(assignmentId);
+				final Assignment assignment = UpdateUngradedItemsPanel.this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 
 				try {
 					if(!NumberUtil.isValidLocaleDouble(override.getGrade())){
@@ -111,8 +111,8 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 
-					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, override.getGrade(),
-							group);
+					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(currentGradebookUid, currentSiteId, assignmentId, override.getGrade(),
+							group);//
 
 					if (success) {
 						UpdateUngradedItemsPanel.this.window.close(target);
@@ -162,13 +162,12 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		}
 		form.add(hiddenGradePoints);
 
-		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(currentGradebookUid, currentSiteId);
 		groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
 
 		if (getUserRole() == GbRole.TA) {
-			final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
-			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
-					this.businessService.getCurrentUser().getId());
+			final boolean categoriesEnabled = this.businessService.categoriesAreEnabled(currentGradebookUid, currentSiteId);
+			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(getCurrentUserId(), currentGradebookUid, currentSiteId);
 
 			final List<String> gradableGroupIds = new ArrayList<>();
 			boolean canGradeAllGroups = false;

@@ -69,8 +69,9 @@ public class GradeImportUploadStep extends BasePanel {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-
-		add(new ExportPanel("export"));
+		ExportPanel ep = new ExportPanel("export");
+		ep.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+		add(ep);
 		add(new UploadForm("form"));
 	}
 
@@ -161,8 +162,8 @@ public class GradeImportUploadStep extends BasePanel {
 				// turn file into list
 				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
-					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), 
-																					upload.getClientFileName(), businessService, ComponentManager.get(FormattedText.class).getDecimalSeparator());
+					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(),
+																					upload.getClientFileName(), businessService, ComponentManager.get(FormattedText.class).getDecimalSeparator(), currentGradebookUid, currentSiteId);
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
 					log.debug("incorrect type", e);
 					error(getString("importExport.error.incorrecttype"));
@@ -177,7 +178,7 @@ public class GradeImportUploadStep extends BasePanel {
 
 				final ImportWizardModel importWizardModel = new ImportWizardModel();
 				importWizardModel.setSpreadsheetWrapper(spreadsheetWrapper);
-				boolean uploadSuccess = ImportGradesHelper.setupImportWizardModelForSelectionStep(page, GradeImportUploadStep.this, importWizardModel, businessService, target);
+				boolean uploadSuccess = ImportGradesHelper.setupImportWizardModelForSelectionStep(page, GradeImportUploadStep.this, importWizardModel, businessService, target, currentGradebookUid, currentSiteId);
 
 				// For whatever issues encountered, ImportGradesHelper.setupImportWizardModelForSelectionStep() will have updated the feedbackPanels; just return
 				if (!uploadSuccess) {

@@ -72,13 +72,18 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		} else {
 			this.mode = UiMode.ADD;
 		}
+    }
+
+    @Override
+    public void onInitialize() {
+		super.onInitialize();
 
 		// setup the backing object
 		Assignment assignment;
 
 		if (this.mode == UiMode.EDIT) {
 			final Long assignmentId = this.model.getObject();
-			assignment = this.businessService.getAssignment(assignmentId);
+			assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 
 			// TODO if we are in edit mode and don't have an assignment, need to error here
 
@@ -88,7 +93,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			// Default released to true
 			assignment.setReleased(true);
 			// If no categories, then default counted to true
-			final Gradebook gradebook = this.businessService.getGradebook();
+			final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
 			assignment.setCounted(GradebookService.CATEGORY_TYPE_NO_CATEGORY == gradebook.getCategory_type());
 		}
 
@@ -137,7 +142,9 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		form.add(createAnother);
 
 		// add the common components
-		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel, this.mode));
+		AddOrEditGradeItemPanelContent aegipc = new AddOrEditGradeItemPanelContent("subComponents", formModel, this.mode);
+		aegipc.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+		form.add(aegipc);
 
 		// feedback panel
 		form.add(new GbFeedbackPanel("addGradeFeedback"));
@@ -179,7 +186,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		// 1. if category selected and drop/keep highest/lowest selected for that category,
 		// ensure points match the already established maximum for the category.
 		if (assignment.getCategoryId() != null) {
-			final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories();
+			final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories(currentGradebookUid, currentSiteId);
 			final CategoryDefinition category = categories
 					.stream()
 					.filter(c -> (c.getId().equals(assignment.getCategoryId()))
@@ -224,10 +231,10 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			try {
 				if (AddOrEditGradeItemPanel.this.mode == UiMode.EDIT) {
 					assignmentId = assignment.getId();
-					AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
+					AddOrEditGradeItemPanel.this.businessService.updateAssignment(currentGradebookUid, currentSiteId, assignment);
 				} 
 				else {
-					assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(assignment);
+					assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(currentGradebookUid, currentSiteId, assignment);
 				}
 				Map<String, String> rubricParams = getRubricParameters("");
 				if (!rubricParams.isEmpty()) {
@@ -266,6 +273,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 					if (createAnother) {
 						final Component newFormPanel = new AddOrEditGradeItemPanel(this.window.getContentId(), this.window, null);
+						((AddOrEditGradeItemPanel)newFormPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 						AddOrEditGradeItemPanel.this.replaceWith(newFormPanel);
 						this.window.setAssignmentToReturnFocusTo(String.valueOf(assignmentId));
 						this.window.clearWindowClosedCallbacks();

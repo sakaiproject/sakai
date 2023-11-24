@@ -60,7 +60,7 @@ public class RubricGradePanel extends BasePanel {
         final GbUser student = businessService.getUser(studentUuid);
 
         // Set the JS rubricGradingPoints variable to the current grade, if set.
-        Map<Long, GbGradeInfo> grades = businessService.getGradesForStudent(studentUuid);
+        Map<Long, GbGradeInfo> grades = businessService.getGradesForStudent(currentGradebookUid, currentSiteId, studentUuid);
         String grade = grades.get(assignmentId).getGrade();
         if (grade == null) grade = "0";
         Label initPointsScript = new Label("initPointsScript", "<script>rubricGradingPoints = " + grade + ";</script>");

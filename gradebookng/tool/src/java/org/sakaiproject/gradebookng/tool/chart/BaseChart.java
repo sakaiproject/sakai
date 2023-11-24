@@ -49,6 +49,14 @@ public abstract class BaseChart extends WebComponent {
 
 	private transient SecurityAdvisor advisor;
 
+	protected String currentGradebookUid;
+	protected String currentSiteId;
+
+	public void setCurrentGradebookAndSite(String gUid, String siteId) {
+		currentGradebookUid = gUid;
+		currentSiteId = siteId;
+	}
+
 	public BaseChart(final String id) {
 		super(id);
 		setOutputMarkupPlaceholderTag(true);

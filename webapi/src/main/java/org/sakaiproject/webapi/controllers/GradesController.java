@@ -24,6 +24,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -79,7 +80,7 @@ public class GradesController extends AbstractSakaiApiController {
                 gbUrl = "/portal/directtool/" + tc.getId();
             }
             final String url = gbUrl;
-            return gradebookService.getAssignments(s.getId()).stream()
+            return gradebookService.getAssignments(s.getId(), s.getId(), SortType.SORT_BY_NONE).stream()
                 .map(a -> {
 
                     try {
@@ -90,7 +91,7 @@ public class GradesController extends AbstractSakaiApiController {
 
                         List<String> students = new ArrayList<>(s.getUsers());
                         List<GradeDefinition> grades
-                            = gradebookService.getGradesForStudentsForItem(s.getId(), a.getId(), students);
+                            = gradebookService.getGradesForStudentsForItem(s.getId(), s.getId(), a.getId(), students);
 
                         double total = 0;
                         for (GradeDefinition gd : grades) {

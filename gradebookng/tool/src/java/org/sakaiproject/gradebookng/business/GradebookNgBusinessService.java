@@ -55,8 +55,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
@@ -68,8 +66,6 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
@@ -78,6 +74,7 @@ import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
+import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -103,6 +100,7 @@ import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
@@ -112,9 +110,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.CandidateDetailProvider;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -164,9 +159,6 @@ public class GradebookNgBusinessService {
 	private GradebookExternalAssessmentService gradebookExternalAssessmentService;
 
 	@Setter
-	private PreferencesService preferencesService;
-
-	@Setter
 	private SectionManager sectionManager;
 
 	@Setter
@@ -189,44 +181,13 @@ public class GradebookNgBusinessService {
 	
 	@Setter
 	private TaskService taskService;
-	
 
-	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
 	public static final String ALL = "all";
 
 	private static final String SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES = "gradebookng.allowStudentsToCompareGradesWithClassmates";
 	private static final Boolean SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES_DEFAULT = false;
-
-	/**
-	 * Get a list of all users in the current site that can have grades
-	 *
-	 * @return a list of users as uuids or null if none
-	 */
-	public List<String> getGradeableUsers() {
-		return this.getGradeableUsers(getCurrentSiteId());
-	}
-
-	/**
-	 * Get a list of all users in the given site that can have grades
-	 *
-	 * @param siteId
-	 * @return a list of users as uuids or null if none
-	 */
-	public List<String> getGradeableUsers(final String siteId) {
-		return this.getGradeableUsers(siteId, null);
-	}
-
-	/**
-	 * Get the list of gradeable users
-	 * @param groupFilter
-	 * @return
-	 *
-	 */
-	public List<String> getGradeableUsers(final GbGroup groupFilter) {
-		return this.getGradeableUsers(null, groupFilter);
-	}
 
 	/**
 	 * Get a list of all users in the given site, filtered by the given group, that can have grades
@@ -236,28 +197,22 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return a list of users as uuids or null if none
 	 */
-	public List<String> getGradeableUsers(final String siteId, final GbGroup groupFilter) {
+	public List<String> getGradeableUsers(final String gradebookUid, final String siteId, final GbGroup groupFilter) {
 
 		try {
-
-			String givenSiteId = siteId;
-			if (StringUtils.isBlank(givenSiteId)) {
-				givenSiteId = getCurrentSiteId();
-			}
 
 			// note that this list MUST exclude TAs as it is checked in the
 			// GradebookService and will throw a SecurityException if invalid
 			// users are provided
-			Site site = siteService.getSite(givenSiteId);
+			Site site = siteService.getSite(siteId);
 			final Set<String> userUuids = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
 
 			// filter the allowed list based on membership
 			if (groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
-
 				final Set<String> groupMembers = new HashSet<>();
 
 				if (groupFilter.getType() == GbGroup.Type.GROUP) {
-					final Set<Member> members = this.siteService.getSite(givenSiteId).getGroup(groupFilter.getId())
+					final Set<Member> members = site.getGroup(groupFilter.getId())
 							.getMembers();
 					for (final Member m : members) {
 						if (userUuids.contains(m.getUserId())) {
@@ -270,7 +225,7 @@ public class GradebookNgBusinessService {
 				userUuids.retainAll(groupMembers);
 			}
 
-			final GbRole role = this.getUserRole(givenSiteId);
+			final GbRole role = this.getUserRole(siteId);
 
 			// if TA, pass it through the gradebook permissions (only if there
 			// are permissions)
@@ -279,27 +234,25 @@ public class GradebookNgBusinessService {
 
 				// if there are permissions, pass it through them
 				// don't need to test TA access if no permissions
-				final List<PermissionDefinition> perms = getPermissionsForUser(user.getId(),siteId);
+				final List<PermissionDefinition> perms = getPermissionsForUser(user.getId(), gradebookUid, siteId);
 				if (!perms.isEmpty()) {
 
-					final Gradebook gradebook = this.getGradebook(givenSiteId);
-
 					// get list of sections and groups this TA has access to
-					final List<CourseSection> courseSections = this.gradebookService.getViewableSections(gradebook.getUid());
+					final List<CourseSection> courseSections = this.gradebookService.getViewableSections(gradebookUid, siteId);
 
 					//for each section TA has access to, grab student Id's
 					List<String> viewableStudents = new ArrayList();
 
-					Map<String, Set<Member>> groupMembers = getGroupMembers(givenSiteId);
+					Map<String, List<String>> groupMembers = getGroupMemberships(gradebookUid, siteId);
 					
 					//iterate through sections available to the TA and build a list of the student members of each section
 					if(courseSections != null && !courseSections.isEmpty() && groupMembers!=null){
 						for(CourseSection section:courseSections){
 							if(groupMembers.containsKey(section.getUuid())) {
-								Set<Member> members = groupMembers.get(section.getUuid());
-								for(Member member:members){
-									if(givenSiteId!=null && member.getUserId()!=null && securityService.unlock(member.getUserId(), GbPortalPermission.VIEW_OWN_GRADES.getValue(), siteService.siteReference(givenSiteId))/*member.getRole().equals("S")*/){
-											viewableStudents.add(member.getUserId());
+								List<String> members = groupMembers.get(section.getUuid());
+								for(String member:members){
+									if(siteId!=null && member!=null && securityService.unlock(member, GbPortalPermission.VIEW_OWN_GRADES.getValue(), siteService.siteReference(siteId))){
+											viewableStudents.add(member);
 									}
 								}
 							}
@@ -316,7 +269,7 @@ public class GradebookNgBusinessService {
 					if (!viewableStudents.isEmpty()) {
 						userUuids.retainAll(viewableStudents); // retain only those that are visible to this TA
 					} else {
-						userUuids.removeAll(sectionManager.getSectionEnrollmentsForStudents(givenSiteId, userUuids).getStudentUuids()); // TA can view/grade students without section
+						userUuids.removeAll(sectionManager.getSectionEnrollmentsForStudents(siteId, userUuids).getStudentUuids()); // TA can view/grade students without section
 						userUuids.removeAll(nonProvidedMembers); // Filter out non-provided users
 					}
 				}
@@ -355,8 +308,7 @@ public class GradebookNgBusinessService {
 	*
 	* @return Map where the user's EID is the key and the {@link GbUser} object is the value
 	*/
-	public Map<String, GbUser> getUserEidMap() {
-		final List<GbUser> users = getGbUsers(getGradeableUsers());
+	public Map<String, GbUser> getUserEidMap(final List<GbUser> users) {
 		final Map<String, GbUser> userEidMap = new HashMap<>();
 		for (final GbUser user : users) {
 			final String eid = user.getDisplayId();
@@ -374,11 +326,11 @@ public class GradebookNgBusinessService {
 	 * @param userUuids
 	 * @return
 	 */
-	public List<GbUser> getGbUsers(final List<String> userUuids)
+	public List<GbUser> getGbUsers(final String siteId, final List<String> userUuids)
 	{
 		final List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
 		final List<User> users = getUsers(userUuids);
-		final Site site = getCurrentSite().orElse(null);
+		final Site site = getCurrentSite(siteId).orElse(null);
 
 		Map<String, List<String>> userSections
 			= (site != null) ? getUserSections(site.getId()) : Collections.emptyMap();
@@ -391,79 +343,30 @@ public class GradebookNgBusinessService {
 		return gbUsers;
 	}
 
-	/**
-	 * Helper to get a reference to the gradebook for the current site
-	 *
-	 * @return the gradebook for the site
-	 */
-	public Gradebook getGradebook() {
-		return getGradebook(getCurrentSiteId());
-	}
-
-	/**
-	 * Helper to get a reference to the gradebook for the specified site
-	 *
-	 * @param siteId the siteId
-	 * @return the gradebook for the site
-	 */
-	private Gradebook getGradebook(final String siteId) {
-		Gradebook gradebook = null;
+	public Gradebook getGradebook(final String gradebookUid, final String siteId) {
+		Gradebook gradebook = null; 
 		try {
-			gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
+			gradebook = (Gradebook) this.gradebookService.getGradebook(gradebookUid);
 		} catch (final GradebookNotFoundException e) {
-			log.debug("Request made for inaccessible, adding gradebookUid={}", siteId);
-			this.gradebookFrameworkService.addGradebook(siteId, siteId);
+			log.debug("Request made for inaccessible, adding gradebookUid={}", gradebookUid);
+			if (gradebookUid.equals(siteId)) {
+				this.gradebookFrameworkService.addGradebook(gradebookUid, gradebookUid);
+			} else {
+				try {
+					String groupGb = MessageHelper.getString("error.role") + siteService.getSite(siteId).getGroup(gradebookUid).getTitle();
+					this.gradebookFrameworkService.addGradebook(gradebookUid, groupGb);
+				} catch (final IdUnusedException ex) {
+					log.error("Error looking up site: {}", siteId, ex);
+					return null;
+				}
+			}
 			try {
-				gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
+				gradebook = (Gradebook) this.gradebookService.getGradebook(gradebookUid);
 			} catch (final GradebookNotFoundException e2) {
-				log.error("Request made and could not add inaccessible gradebookUid={}", siteId);
+				log.error("Request made and could not add inaccessible gradebookUid={}", gradebookUid);
 			}
 		}
 		return gradebook;
-	}
-
-	/**
-	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
-	 *
-	 * @return a list of assignments or empty list if none/no gradebook
-	 */
-	public List<Assignment> getGradebookAssignments() {
-		return getGradebookAssignments(getCurrentSiteId(), SortType.SORT_BY_SORTING);
-	}
-
-	/**
-	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
-	 *
-	 * @param siteId
-	 * @return a list of assignments or empty list if none/no gradebook
-	 */
-	public List<Assignment> getGradebookAssignments(final String siteId) {
-		return getGradebookAssignments(siteId, SortType.SORT_BY_SORTING);
-	}
-
-	/**
-	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access sorted by the provided
-	 * SortType
-	 *
-	 * @param sortBy
-	 * @return a list of assignments or empty list if none/no gradebook
-	 */
-	public List<Assignment> getGradebookAssignments(final SortType sortBy) {
-		return getGradebookAssignments(getCurrentSiteId(), sortBy);
-	}
-
-	/**
-	 * Special operation to get a list of assignments in the gradebook that the specified student has access to. This taked into account
-	 * externally defined assessments that may have grouping permissions applied.
-	 *
-	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
-	 * are an instructor using the student review mode)
-	 *
-	 * @param studentUuid
-	 * @return a list of assignments or empty list if none/no gradebook
-	 */
-	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid) {
-		return getGradebookAssignmentsForStudent(studentUuid, SortType.SORT_BY_SORTING);
 	}
 
 	/**
@@ -477,10 +380,9 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
-	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid, final SortType sortedBy) {
+	public List<Assignment> getGradebookAssignmentsForStudent(final String gUid, final String siteId, final String studentUuid, final SortType sortedBy) {
 
-		final Gradebook gradebook = getGradebook(getCurrentSiteId());
-		final List<Assignment> assignments = getGradebookAssignments(sortedBy);
+		final List<Assignment> assignments = getGradebookAssignments(gUid, siteId, sortedBy);
 
 		// NOTE: cannot do a role check here as it assumes the current user but this could have been called by an instructor (unless we add
 		// a new method to handle this)
@@ -491,8 +393,8 @@ public class GradebookNgBusinessService {
 		while (iter.hasNext()) {
 			final Assignment a = iter.next();
 			if (a.isExternallyMaintained()) {
-				if (this.gradebookExternalAssessmentService.isExternalAssignmentGrouped(gradebook.getUid(), a.getExternalId()) &&
-					!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook.getUid(), a.getExternalId(),
+				if (this.gradebookExternalAssessmentService.isExternalAssignmentGrouped(gUid, a.getExternalId()) &&
+					!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gUid, a.getExternalId(),
 						studentUuid)) {
 					iter.remove();
 				}
@@ -508,25 +410,16 @@ public class GradebookNgBusinessService {
 	 * @param sortBy
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
-	public List<Assignment> getGradebookAssignments(final String siteId, final SortType sortBy) {
+	public List<Assignment> getGradebookAssignments(final String gUid, final String siteId, final SortType sortBy) {
 
 		final List<Assignment> assignments = new ArrayList<>();
-		final Gradebook gradebook = getGradebook(siteId);
+		final Gradebook gradebook = getGradebook(gUid, siteId);
 		if (gradebook != null) {
 			// applies permissions (both student and TA) and default sort is
 			// SORT_BY_SORTING
-			assignments.addAll(this.gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy));
+			assignments.addAll(this.gradebookService.getViewableAssignmentsForCurrentUser(gUid, siteId, sortBy));
 		}
 		return assignments;
-	}
-
-	/**
-	 * Get a list of categories in the gradebook in the current site
-	 *
-	 * @return list of categories or null if no gradebook
-	 */
-	public List<CategoryDefinition> getGradebookCategories() {
-		return getGradebookCategories(getCurrentSiteId());
 	}
 
 	/**
@@ -535,8 +428,8 @@ public class GradebookNgBusinessService {
 	 * @param siteId the siteId
 	 * @return a list of categories or empty if no gradebook
 	 */
-	public List<CategoryDefinition> getGradebookCategories(final String siteId) {
-		final Gradebook gradebook = getGradebook(siteId);
+	public List<CategoryDefinition> getGradebookCategories(final String gUid, final String siteId) {
+		final Gradebook gradebook = getGradebook(gUid, siteId);
 
 		List<CategoryDefinition> rval = new ArrayList<>();
 
@@ -544,8 +437,8 @@ public class GradebookNgBusinessService {
 			return rval;
 		}
 
-		if (categoriesAreEnabled()) {
-			rval = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
+		if (categoriesAreEnabled(gUid, siteId)) {
+			rval = this.gradebookService.getCategoryDefinitions(gUid, siteId);
 		}
 
 		GbRole role;
@@ -578,7 +471,7 @@ public class GradebookNgBusinessService {
 			//if categories is empty (no fine grain permissions enabled), Check permissions, if they are not empty then realms perms exist 
 			//and they don't filter to category level so allow all.
 			//This should still allow the gb_permission_t perms to override if the TA is restricted to certain categories
-			if(viewableCategoryIds.isEmpty() && !this.getPermissionsForUser(user.getId()).isEmpty()){
+			if(viewableCategoryIds.isEmpty() && !this.getPermissionsForUser(user.getId(), gUid, siteId).isEmpty()){
 				viewableCategoryIds = allCategoryIds;
 			}
 
@@ -608,9 +501,9 @@ public class GradebookNgBusinessService {
 	* @param studentUuid
 	* @return list of visible categories
 	*/
-	public List<CategoryDefinition> getGradebookCategoriesForStudent(String studentUuid) {
+	public List<CategoryDefinition> getGradebookCategoriesForStudent(String gUid, String siteId, String studentUuid) {
 		// find the categories that this student's visible assignments belong to
-		List<Assignment> viewableAssignments = getGradebookAssignmentsForStudent(studentUuid);
+		List<Assignment> viewableAssignments = getGradebookAssignmentsForStudent(gUid, siteId, studentUuid, SortType.SORT_BY_SORTING);
 		final List<Long> catIds = new ArrayList<>();
 		for (Assignment a : viewableAssignments) {
 			Long catId = a.getCategoryId();
@@ -623,49 +516,12 @@ public class GradebookNgBusinessService {
 		SecurityAdvisor gbAdvisor = (String userId, String function, String reference)
 						-> "gradebook.gradeAll".equals(function) ? SecurityAdvice.ALLOWED : SecurityAdvice.PASS;
 		securityService.pushAdvisor(gbAdvisor);
-		List<CategoryDefinition> catDefs = gradebookService.getCategoryDefinitions(getGradebook().getUid());
+		List<CategoryDefinition> catDefs = gradebookService.getCategoryDefinitions(gUid, siteId);
 		securityService.popAdvisor(gbAdvisor);
 
 		// filter out the categories that don't match the categories of the viewable assignments
 		return catDefs.stream().filter(def -> catIds.contains(def.getId())).collect(Collectors.toList());
 
-	}
-
-	/**
-	 * Get a map of course grades for all students in the given site.
-	 *
-	 * @param siteId siteId to get course grades for
-	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
-	 */
-	public Map<String, CourseGrade> getCourseGrades(final String siteId) {
-		final Gradebook gradebook = this.getGradebook(siteId);
-		final List<String> studentUuids = this.getGradeableUsers(siteId);
-		return this.getCourseGrades(gradebook, studentUuids, null);
-	}
-
-	/**
-	 * Get a map of course grades for all students in the given site using the specified grading schema mapping.
-	 *
-	 * @param siteId siteId to get course grades for
-	 * @param schema grading schema mapping
-	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
-	 */
-	public Map<String, CourseGrade> getCourseGrades(final String siteId, final Map<String,Double> schema) {
-		final Gradebook gradebook = this.getGradebook(siteId);
-		final List<String> studentUuids = this.getGradeableUsers(siteId);
-		return this.getCourseGrades(gradebook, studentUuids, schema);
-	}
-
-
-	/**
-	 * Get a map of course grades for the given users.
-	 *
-	 * @param studentUuids uuids for the students
-	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
-	 */
-	public Map<String, CourseGrade> getCourseGrades(final List<String> studentUuids) {
-		final Gradebook gradebook = this.getGradebook();
-		return this.getCourseGrades(gradebook, studentUuids, null);
 	}
 
 	/**
@@ -676,13 +532,13 @@ public class GradebookNgBusinessService {
 	 * @param gradeMap the grade mapping to use. This should be left blank if you are displaying grades to students so that the currently persisted value is used.
 	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
 	 */
-	private Map<String, CourseGrade> getCourseGrades(final Gradebook gradebook, final List<String> studentUuids, final Map<String, Double> gradeMap) {
+	public Map<String, CourseGrade> getCourseGrades(final String gUid, final String siteId, final List<String> studentUuids, final Map<String, Double> gradeMap) {
 		Map<String, CourseGrade> rval = new HashMap<>();
-		if (gradebook != null) {
+		if (gUid != null) {
 			if(gradeMap != null) {
-				rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids, gradeMap);
+				rval = this.gradebookService.getCourseGradeForStudents(gUid, siteId, studentUuids, gradeMap);
 			} else {
-				rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
+				rval = this.gradebookService.getCourseGradeForStudents(gUid, siteId, studentUuids);
 			}
 		}
 		return rval;
@@ -694,10 +550,9 @@ public class GradebookNgBusinessService {
 	 * @param studentUuid
 	 * @return coursegrade. May have null fields if the coursegrade has not been released
 	 */
-	public CourseGrade getCourseGrade(final String studentUuid) {
+	public CourseGrade getCourseGrade(final String gUid, final String siteId, final String studentUuid) {
 
-		final Gradebook gradebook = this.getGradebook();
-		final CourseGrade courseGrade = this.gradebookService.getCourseGradeForStudent(gradebook.getUid(), studentUuid);
+		final CourseGrade courseGrade = this.gradebookService.getCourseGradeForStudent(gUid, siteId, studentUuid);
 
 		// handle the special case in the gradebook service where totalPointsPossible = -1
 		if (courseGrade != null && (courseGrade.getTotalPointsPossible() == null || courseGrade.getTotalPointsPossible() == -1)) {
@@ -721,10 +576,10 @@ public class GradebookNgBusinessService {
 	 *
 	 * 		TODO make the concurrency check a boolean instead of the null oldGrade
 	 */
-	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String oldGrade,
+	public GradeSaveResponse saveGrade(final String gUid, final String siteId, final Long assignmentId, final String studentUuid, final String oldGrade,
 			final String newGrade, final String comment) {
 
-		final Gradebook gradebook = this.getGradebook();
+		final Gradebook gradebook = this.getGradebook(gUid, siteId);
 		if (gradebook == null) {
 			return GradeSaveResponse.ERROR;
 		}
@@ -735,11 +590,11 @@ public class GradebookNgBusinessService {
 		}
 
 		// get current grade
-		final String storedGrade = this.gradebookService.getAssignmentScoreString(gradebook.getUid(), assignmentId,
+		final String storedGrade = this.gradebookService.getAssignmentScoreString(gUid, siteId, assignmentId,
 				studentUuid);
 
 		// get assignment config
-		final Assignment assignment = this.getAssignment(assignmentId);
+		final Assignment assignment = this.getAssignment(gUid, siteId, assignmentId);
 		final Double maxPoints = assignment.getPoints();
 
 		// check what grading mode we are in
@@ -860,7 +715,7 @@ public class GradebookNgBusinessService {
 		try {
 			// note, you must pass in the comment or it will be nulled out by the GB service
 			// also, must pass in the raw grade as the service does conversions between percentage etc
-			this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid,
+			this.gradebookService.saveGradeAndCommentForStudent(gUid, siteId, assignmentId, studentUuid,
 					newGrade, comment);
 			if (rval == null) {
 				// if we don't have some other warning, it was all OK
@@ -871,18 +726,18 @@ public class GradebookNgBusinessService {
 			rval = GradeSaveResponse.ERROR;
 		}
 
-		EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRoleOrNone());
+		EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRoleOrNone(siteId));
 
 		return rval;
 	}
 
-	public GradeSaveResponse saveGradesAndCommentsForImport(final Gradebook gradebook, final Assignment assignment, final List<GradeDefinition> gradeDefList) {
-		if (gradebook == null) {
+	public GradeSaveResponse saveGradesAndCommentsForImport(final String gUid, final String siteId, final Assignment assignment, final List<GradeDefinition> gradeDefList) {
+		if (gUid == null) {
 			return GradeSaveResponse.ERROR;
 		}
 
 		try {
-			gradebookService.saveGradesAndComments(gradebook.getUid(), assignment.getId(), gradeDefList);
+			gradebookService.saveGradesAndComments(gUid, siteId, assignment.getId(), gradeDefList);
 			return GradeSaveResponse.OK;
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
 			log.error("An error occurred saving the grade. {}: {}", e.getClass(), e.getMessage());
@@ -897,14 +752,13 @@ public class GradebookNgBusinessService {
 	 * @param excuse
 	 * @return
 	 */
-	public GradeSaveResponse saveExcuse(final Long assignmentId, final String studentUuid, final boolean excuse){
-		final Gradebook gradebook = this.getGradebook();
-		if (gradebook == null) {
+	public GradeSaveResponse saveExcuse(final String gUid, final String siteId, final Long assignmentId, final String studentUuid, final boolean excuse){
+		if (gUid == null) {
 			return GradeSaveResponse.ERROR;
 		}
 
 		// get current grade
-		final String storedGrade = this.gradebookService.getAssignmentScoreString(gradebook.getUid(), assignmentId,
+		final String storedGrade = this.gradebookService.getAssignmentScoreString(gUid, siteId, assignmentId,
 				studentUuid);
 
 		GradeSaveResponse rval = null;
@@ -912,7 +766,7 @@ public class GradebookNgBusinessService {
 		// save
 		try {
 			//must pass in the raw grade as the service does conversions between percentage etc
-			this.gradebookService.saveGradeAndExcuseForStudent(gradebook.getUid(), assignmentId, studentUuid,
+			this.gradebookService.saveGradeAndExcuseForStudent(gUid, siteId, assignmentId, studentUuid,
 					storedGrade, excuse);
 
 			if (rval == null) {
@@ -925,55 +779,6 @@ public class GradebookNgBusinessService {
 		}
 		return rval;
 	}
-	/**
-	 * Build the matrix of assignments, students and grades for all students
-	 *
-	 * @param assignments list of assignments
-	 * @return
-	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments) throws GbException {
-		return this.buildGradeMatrix(assignments, this.getGradeableUsers());
-	}
-
-	/**
-	 * Build the matrix of assignments and grades for the given users. In general this is just one, as we use it for the instructor view
-	 * student summary but could be more for paging etc
-	 *
-	 * @param assignments list of assignments
-	 * @param studentUuids of uuids
-	 * @return
-	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments, final List<String> studentUuids) throws GbException {
-		return this.buildGradeMatrix(assignments, studentUuids, null);
-	}
-
-	/**
-	 * Build the matrix of assignments, students and grades for all students, with the specified sortOrder
-	 *
-	 * @param assignments list of assignments
-	 * @param uiSettings the UI settings. Wraps sort order and group filter (sort = null for no sort, filter = null for all groups)
-	 * @return
-	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final GradebookUiSettings uiSettings) throws GbException {
-		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
-	}
-
-	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
-		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
-		for (Assignment assignment : assignments) {
-			String externalAppName = assignment.getExternalAppName();
-			if(assignment.isExternallyMaintained()) {
-				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, toolManager.getLocalizedToolProperty("sakai.assignment", "title")) ? rubricsService.hasAssociatedRubric(externalAppName, assignment.getExternalId()) : false;
-				map.put(assignment.getExternalId(), hasAssociatedRubric);
-			} else {
-				Long assignmentId = assignment.getId();
-				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
-				map.put(assignmentId.toString(), hasAssociatedRubric);
-			}
-		}
-		return map;
-	}
 
 	/**
 	 * Build the matrix of assignments and grades for the given users with the specified sort order
@@ -985,7 +790,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * 		TODO refactor this into a hierarchical method structure
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
+	public List<GbStudentGradeInfo> buildGradeMatrix(final String gUid, final String siteId, final List<Assignment> assignments,
 			final List<String> studentUuids, final GradebookUiSettings uiSettings) throws GbException {
 
 		// TODO move GradebookUISettings to business
@@ -997,7 +802,7 @@ public class GradebookNgBusinessService {
 		stopwatch.start();
 		stopwatch.timeWithContext("buildGradeMatrix", "buildGradeMatrix start", stopwatch.getTime());
 
-		final Gradebook gradebook = this.getGradebook();
+		final Gradebook gradebook = this.getGradebook(gUid, siteId);
 		if (gradebook == null) {
 			return null;
 		}
@@ -1009,12 +814,12 @@ public class GradebookNgBusinessService {
 		// get role for current user
 		GbRole role;
 		try {
-			role = this.getUserRole();
+			role = this.getUserRole(siteId);
 		} catch (final GbAccessDeniedException e) {
 			throw new GbException("Error getting role for current user", e);
 		}
 
-		final Site site = getCurrentSite().orElse(null);
+		final Site site = getCurrentSite(siteId).orElse(null);
 
 		// get users
 		final List<GbUser> gbStudents = getGbUsersForUiSettings(studentUuids, settings, site);
@@ -1024,15 +829,15 @@ public class GradebookNgBusinessService {
 		final Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
 
 		// get course grades
-		putCourseGradesInMatrix(matrix, gbStudents, studentUuids, gradebook, role, isCourseGradeVisible(currentUserUuid), settings);
+		putCourseGradesInMatrix(matrix, gbStudents, studentUuids, gradebook, siteId, role, isCourseGradeVisible(gUid, siteId, currentUserUuid), settings);
 		stopwatch.timeWithContext("buildGradeMatrix", "putCourseGradesInMatrix", stopwatch.getTime());
 
 		// get assignments and categories
-		putAssignmentsAndCategoryItemsInMatrix(matrix, gbStudents, studentUuids, assignments, gradebook, currentUserUuid, role, settings);
+		putAssignmentsAndCategoryItemsInMatrix(matrix, gbStudents, studentUuids, assignments, gradebook, siteId, currentUserUuid, role, settings);
 		stopwatch.timeWithContext("buildGradeMatrix", "putAssignmentsAndCategoryItemsInMatrix", stopwatch.getTime());
 
 		// sorting
-		List<GbStudentGradeInfo> items = sortGradeMatrix(matrix, settings);
+		List<GbStudentGradeInfo> items = sortGradeMatrix(gradebook.getUid(), siteId, matrix, settings);
 		stopwatch.timeWithContext("buildGradeMatrix", "sortGradeMatrix", stopwatch.getTime());
 
 		return items;
@@ -1045,13 +850,13 @@ public class GradebookNgBusinessService {
 	 * @param groupFilter
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrixForImportExport(final List<Assignment> assignments, GbGroup groupFilter) throws GbException {
+	public List<GbStudentGradeInfo> buildGradeMatrixForImportExport(final String gUid, final String siteId, final List<Assignment> assignments, GbGroup groupFilter) throws GbException {
 		// ------------- Initialization -------------
 		final GbStopWatch stopwatch = new GbStopWatch();
 		stopwatch.start();
 		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "buildGradeMatrix start", stopwatch.getTime());
 
-		final Gradebook gradebook = this.getGradebook();
+		final Gradebook gradebook = this.getGradebook(gUid, siteId);
 		if (gradebook == null) {
 			return Collections.EMPTY_LIST;
 		}
@@ -1063,7 +868,7 @@ public class GradebookNgBusinessService {
 		// get role for current user
 		GbRole role;
 		try {
-			role = this.getUserRole();
+			role = this.getUserRole(siteId);
 		} catch (final GbAccessDeniedException e) {
 			throw new GbException("Error getting role for current user", e);
 		}
@@ -1071,27 +876,27 @@ public class GradebookNgBusinessService {
 		final GradebookUiSettings settings = new GradebookUiSettings();
 
 		// ------------- Get Users -------------
-		final List<String> studentUUIDs = getGradeableUsers(groupFilter);
-		final List<GbUser> gbStudents = getGbUsers(studentUUIDs);
+		final List<String> studentUUIDs = getGradeableUsers(gUid, siteId, groupFilter);
+		final List<GbUser> gbStudents = getGbUsers(siteId, studentUUIDs);
 		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "getGbUsersForUiSettings", stopwatch.getTime());
 
 		// ------------- Course Grades -------------
 		final Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
-		putCourseGradesInMatrix(matrix, gbStudents, studentUUIDs, gradebook, role, isCourseGradeVisible(currentUserUuid), settings);
+		putCourseGradesInMatrix(matrix, gbStudents, studentUUIDs, gradebook, siteId, role, isCourseGradeVisible(gUid, siteId, currentUserUuid), settings);
 		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "putCourseGradesInMatrix", stopwatch.getTime());
 
 		// ------------- Assignments -------------
-		putAssignmentsAndCategoryItemsInMatrix(matrix, gbStudents, studentUUIDs, assignments, gradebook, currentUserUuid, role, settings);
+		putAssignmentsAndCategoryItemsInMatrix(matrix, gbStudents, studentUUIDs, assignments, gradebook, siteId, currentUserUuid, role, settings);
 		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "putAssignmentsAndCategoryItemsInMatrix", stopwatch.getTime());
 
 		// ------------- Sorting -------------
-		List<GbStudentGradeInfo> items = sortGradeMatrix(matrix, settings);
+		List<GbStudentGradeInfo> items = sortGradeMatrix(gradebook.getUid(), siteId,matrix, settings);
 		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "sortGradeMatrix", stopwatch.getTime());
 
 		return items;
 	}
 
-	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(Assignment assignment, GradingType gradingType, GradebookInformation settings){
+	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(String gUid, String siteId, Assignment assignment, GradingType gradingType, GradebookInformation settings){
 		// Only return the list if the feature is activated
 		boolean serverPropertyOn = serverConfigService.getConfig(
 				SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES,
@@ -1119,7 +924,8 @@ public class GradebookNgBusinessService {
 		SecurityAdvisor advisor = null;
 		try {
 			advisor = addSecurityAdvisor();
-			data = buildGradeMatrix(Collections.singletonList(assignment))
+	
+			data = buildGradeMatrix(gUid, siteId, Collections.singletonList(assignment), getGradeableUsers(gUid, siteId, null), null)
 					.stream().map(GbGradeComparisonItem::new)
 					.map(el -> {
 						if(isComparingOrDisplayingFullName){
@@ -1272,10 +1078,10 @@ public class GradebookNgBusinessService {
 	 * @param isCourseGradeVisible whether the current user can see course grades in this site
 	 * @param settings GradebookUiSettings instance
 	 */
-	public void putCourseGradesInMatrix(Map<String, GbStudentGradeInfo> matrix, List<GbUser> gbStudents, List<String> studentUuids, Gradebook gradebook, GbRole role,
+	public void putCourseGradesInMatrix(Map<String, GbStudentGradeInfo> matrix, List<GbUser> gbStudents, List<String> studentUuids, Gradebook gradebook, String siteId, GbRole role,
 											boolean isCourseGradeVisible, GradebookUiSettings settings) {
 		// Get the course grades
-		final Map<String, CourseGrade> courseGrades = getCourseGrades(studentUuids);
+		final Map<String, CourseGrade> courseGrades = getCourseGrades(gradebook.getUid(), siteId, studentUuids, null);
 
 		// Setup the course grade formatter
 		// TODO we want the override except in certain cases. Can we hard code this?
@@ -1309,7 +1115,7 @@ public class GradebookNgBusinessService {
 	 * @param settings the GradebookUiSettings instance associated with the user's session; used to determine whether the context is anonymous. If null, all grading data will be retrieved without any anonymous aware filtering
 	 */
 	public void putAssignmentsAndCategoryItemsInMatrix(Map<String, GbStudentGradeInfo> matrix, List<GbUser> gbStudents, List<String> studentUuids, List<Assignment> assignments,
-														Gradebook gradebook, String currentUserUuid, GbRole role, GradebookUiSettings settings) {
+														Gradebook gradebook, String siteId, String currentUserUuid, GbRole role, GradebookUiSettings settings) {
 
 		// Ensure the matrix is populated with GbStudentGradeInfo instances for each student
 		gbStudents.stream().forEach(gbStudent -> {
@@ -1321,7 +1127,7 @@ public class GradebookNgBusinessService {
 		});
 
 		// get categories. This call is filtered for TAs as well.
-		final List<CategoryDefinition> categories = this.getGradebookCategories();
+		final List<CategoryDefinition> categories = this.getGradebookCategories(gradebook.getUid(), siteId);
 
 		// for TA's, build a lookup map of visible categoryIds so we can filter
 		// the assignment list to not fetch grades
@@ -1384,7 +1190,7 @@ public class GradebookNgBusinessService {
 			}
 
 			// get grades
-			final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
+			final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), siteId, assignment.getId(), studentUuids);
 
 			// iterate the definitions returned and update the record for each
 			// student with the grades
@@ -1449,7 +1255,7 @@ public class GradebookNgBusinessService {
 		// so we are only concerned with the gradeable permission
 		if (role == GbRole.TA) {
 			// get permissions
-			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid);
+			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid, gradebook.getUid(), siteId);
 
 			log.debug("All permissions: {}", permissions.size());
 
@@ -1472,7 +1278,7 @@ public class GradebookNgBusinessService {
 				}
 
 				// get the group membership for the students
-				final Map<String, List<String>> groupMembershipsMap = getGroupMemberships();
+				final Map<String, List<String>> groupMembershipsMap = getGroupMemberships(gradebook.getUid(), siteId);
 
 				//Pair group <-> category
 				Map <Long, List<String>> permByCat = new HashMap<>();
@@ -1557,7 +1363,7 @@ public class GradebookNgBusinessService {
 	 * @param role the current user's role
 	 */
 	public void putAssignmentsInMatrixForExport(Map<String, GbStudentGradeInfo> matrix, List<GbUser> gbStudents, List<String> studentUuids, List<Assignment> assignments,
-													Gradebook gradebook, String currentUserUuid, GbRole role) {
+													Gradebook gradebook, String siteId, String currentUserUuid, GbRole role) {
 		// Collect list of studentUuids, and ensure the matrix is populated with GbStudentGradeInfo instances for each student
 		gbStudents.stream().forEach(gbStudent -> {
 			String userUuid = gbStudent.getUserUuid();
@@ -1575,7 +1381,7 @@ public class GradebookNgBusinessService {
 		for (final Assignment assignment : assignments) {
 
 			// get grades
-			final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
+			final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), siteId, assignment.getId(), studentUuids);
 
 			// iterate the definitions returned and update the record for each
 			// student with the grades
@@ -1598,7 +1404,7 @@ public class GradebookNgBusinessService {
 		if (role == GbRole.TA) {
 
 			// get permissions
-			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid);
+			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid, gradebook.getUid(), siteId);
 
 			log.debug("All permissions: {}", permissions.size());
 
@@ -1621,7 +1427,7 @@ public class GradebookNgBusinessService {
 				}
 
 				// get the group membership for the students
-				final Map<String, List<String>> groupMembershipsMap = getGroupMemberships();
+				final Map<String, List<String>> groupMembershipsMap = getGroupMemberships(gradebook.getUid(), siteId);
 
 				// for every student
 				for (final GbUser student : gbStudents) {
@@ -1699,7 +1505,7 @@ public class GradebookNgBusinessService {
 	 * @param settings
 	 * @return the valueSet of the matrix as an appropriately sorted List
 	 */
-	public List<GbStudentGradeInfo> sortGradeMatrix(Map<String, GbStudentGradeInfo> matrix, GradebookUiSettings settings) {
+	public List<GbStudentGradeInfo> sortGradeMatrix(String gUid, String siteId, Map<String, GbStudentGradeInfo> matrix, GradebookUiSettings settings) {
 
 		// get the matrix as a list of GbStudentGradeInfo
 		final List<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
@@ -1733,7 +1539,7 @@ public class GradebookNgBusinessService {
 		}
 
 		if (settings.getCourseGradeSortOrder() != null) {
-			Comparator<GbStudentGradeInfo> comp = new CourseGradeComparator(getGradebookSettings());
+			Comparator<GbStudentGradeInfo> comp = new CourseGradeComparator(getGradebookSettings(gUid, siteId));
 
 			// reverse if required
 			if (settings.getCourseGradeSortOrder() == SortDirection.DESCENDING) {
@@ -1752,8 +1558,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return
 	 */
-	public List<GbGroup> getSiteSectionsAndGroups() {
-		final String siteId = getCurrentSiteId();
+	public List<GbGroup> getSiteSectionsAndGroups(String gUid, String siteId) {
 
 		final List<GbGroup> rval = new ArrayList<>();
 
@@ -1761,9 +1566,10 @@ public class GradebookNgBusinessService {
 		try {
 			final Site site = this.siteService.getSite(siteId);
 			final Collection<Group> groups = site.getGroups();
-
 			for (final Group group : groups) {
-				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
+				if (gUid.equals(siteId) || gUid.equals(group.getId())) {
+					rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
+				}				
 			}
 
 		} catch (final IdUnusedException e) {
@@ -1782,7 +1588,7 @@ public class GradebookNgBusinessService {
 		// if user is a TA, get the groups they can see and filter the GbGroup
 		// list to keep just those
 		if (role == GbRole.TA) {
-			final Gradebook gradebook = this.getGradebook(siteId);
+			final Gradebook gradebook = this.getGradebook(gUid, siteId);
 			final User user = getCurrentUser();
 			boolean canGradeAll = false;
 
@@ -1800,7 +1606,7 @@ public class GradebookNgBusinessService {
 			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
 			//need to check realms to see if user has privilege to grade any groups. This is already done in 
 			if(CollectionUtils.isEmpty(viewableGroupIds)){
-				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId());
+				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId(), gUid, siteId);
 				if(CollectionUtils.isNotEmpty(realmsPerms)){
 					for(PermissionDefinition permDef : realmsPerms){
 						if(permDef.getGroupReference()!=null){
@@ -1830,99 +1636,13 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
-	private List<GbGroup> getSiteSectionsAndGroups(final String siteId) {
-
-		final List<GbGroup> rval = new ArrayList<>();
-
-		// get groups (handles both groups and sections)
-		try {
-			final Site site = this.siteService.getSite(siteId);
-			final Collection<Group> groups = site.getGroups();
-
-			for (final Group group : groups) {
-				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
-			}
-
-		} catch (final IdUnusedException e) {
-			// essentially ignore and use what we have
-			log.error("Error retrieving groups", e);
-		}
-
-		GbRole role;
-		try {
-			role = this.getUserRole(siteId);
-		} catch (final GbAccessDeniedException e) {
-			log.warn("GbAccessDeniedException trying to getGradebookCategories", e);
-			return rval;
-		}
-
-		// if user is a TA, get the groups they can see and filter the GbGroup
-		// list to keep just those
-		if (role == GbRole.TA) {
-			final Gradebook gradebook = this.getGradebook(siteId);
-			final User user = getCurrentUser();
-
-			// need list of all groups as REFERENCES (not ids)
-			final List<String> allGroupIds = new ArrayList<>();
-			for (final GbGroup group : rval) {
-				allGroupIds.add(group.getReference());
-			}
-
-			// get the ones the TA can actually view
-			// note that if a group is empty, it will not be included.
-			List<String> viewableGroupIds = this.gradebookPermissionService
-					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
-
-			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
-			//need to check realms to see if user has privilege to grade any groups. This is already done in 
-			if(CollectionUtils.isEmpty(viewableGroupIds)){
-				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId(),siteId);
-				if(CollectionUtils.isNotEmpty(realmsPerms)){
-					for(PermissionDefinition permDef : realmsPerms){
-						if(permDef.getGroupReference()!=null){
-							viewableGroupIds.add(permDef.getGroupReference());
-						}
-					}
-				}
-			}
-
-			// remove the ones that the user can't view
-			final Iterator<GbGroup> iter = rval.iterator();
-			while (iter.hasNext()) {
-				final GbGroup group = iter.next();
-				if (!viewableGroupIds.contains(group.getReference())) {
-					iter.remove();
-				}
-			}
-
-		}
-
-		Collections.sort(rval);
-
-		return rval;
-	}
-
-	/**
-	 * Helper to get siteid. This will ONLY work in a portal site context, it will return null otherwise (ie via an entityprovider).
-	 *
-	 * @return
-	 */
-	public String getCurrentSiteId() {
-		try {
-			return this.toolManager.getCurrentPlacement().getContext();
-		} catch (final Exception e) {
-			return null;
-		}
-	}
-
 	/**
 	 * Helper to get site. This will ONLY work in a portal site context, it will return empty otherwise (ie via an entityprovider).
 	 *
 	 * @return
 	 */
-	public Optional<Site> getCurrentSite()
+	public Optional<Site> getCurrentSite(final String siteId)
 	{
-		final String siteId = getCurrentSiteId();
 		if (siteId != null)
 		{
 			try
@@ -1962,43 +1682,42 @@ public class GradebookNgBusinessService {
 	 * @param assignment
 	 * @return id of the newly created assignment or null if there were any errors
 	 */
-	public Long addAssignment(final Assignment assignment) {
+	public Long addAssignment(final String gUid, final String siteId, final Assignment assignment) {
 
-		final Gradebook gradebook = getGradebook();
+		final Gradebook gradebook = getGradebook(gUid, siteId);
 
 		if (gradebook != null) {
-			final String gradebookId = gradebook.getUid();
 
-			final Long assignmentId = this.gradebookService.addAssignment(gradebookId, assignment);
+			final Long assignmentId = this.gradebookService.addAssignment(gUid, siteId, assignment);
 
 			// Force the assignment to sit at the end of the list
 			if (assignment.getSortOrder() == null) {
-				final List<Assignment> allAssignments = this.gradebookService.getAssignments(gradebookId);
+				final List<Assignment> allAssignments = this.gradebookService.getAssignments(gUid, siteId, SortType.SORT_BY_NONE);
 				int nextSortOrder = allAssignments.size();
 				for (final Assignment anotherAssignment : allAssignments) {
 					if (anotherAssignment.getSortOrder() != null && anotherAssignment.getSortOrder() >= nextSortOrder) {
 						nextSortOrder = anotherAssignment.getSortOrder() + 1;
 					}
 				}
-				updateAssignmentOrder(assignmentId, nextSortOrder);
+				updateAssignmentOrder(gUid, siteId, assignmentId, nextSortOrder);
 			}
 
 			// also update the categorized order
-			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignmentId,
+			updateAssignmentCategorizedOrder(gUid, siteId, assignment.getCategoryId(), assignmentId,
 					Integer.MAX_VALUE);
 
-			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
+			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone(siteId));
 			
 			// Create the task if it is released
                         if(assignment.isReleased()) {
-                            String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
+                            String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + siteId + Entity.SEPARATOR + assignmentId;
                             Task task = new Task();
-                            task.setSiteId(getCurrentSiteId());
+                            task.setSiteId(siteId);
                             task.setReference(reference);
                             task.setSystem(true);
                             task.setDescription(assignment.getName());
                             task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
-                            Set<String> users = new HashSet<>(this.getGradeableUsers());
+                            Set<String> users = new HashSet<>(this.getGradeableUsers(gUid, siteId, null));
                             taskService.createTask(task, users, Priorities.HIGH);
                         }
                         
@@ -2010,42 +1729,15 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Update the order of an assignment for the current site.
-	 *
-	 * @param assignmentId
-	 * @param order
-	 */
-	public void updateAssignmentOrder(final long assignmentId, final int order) {
-
-		final String siteId = getCurrentSiteId();
-		this.updateAssignmentOrder(siteId, assignmentId, order);
-	}
-
-	/**
 	 * Update the order of an assignment. If calling outside of GBNG, use this method as you can provide the site id.
 	 *
 	 * @param siteId the siteId
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
 	 */
-	public void updateAssignmentOrder(final String siteId, final long assignmentId, final int order) {
+	public void updateAssignmentOrder(final String gUid, final String siteId, final long assignmentId, final int order) {
 
-		final Gradebook gradebook = this.getGradebook(siteId);
-		this.gradebookService.updateAssignmentOrder(gradebook.getUid(), assignmentId, order);
-	}
-
-	/**
-	 * Update the categorized order of an assignment.
-	 *
-	 * @param assignmentId the assignment we are reordering
-	 * @param order the new order
-	 * @throws IdUnusedException
-	 * @throws PermissionException
-	 */
-	public void updateAssignmentCategorizedOrder(final long assignmentId, final int order)
-			throws IdUnusedException, PermissionException {
-		final String siteId = getCurrentSiteId();
-		updateAssignmentCategorizedOrder(siteId, assignmentId, order);
+		this.gradebookService.updateAssignmentOrder(gUid, siteId, assignmentId, order);
 	}
 
 	/**
@@ -2057,33 +1749,25 @@ public class GradebookNgBusinessService {
 	 * @throws IdUnusedException
 	 * @throws PermissionException
 	 */
-	public void updateAssignmentCategorizedOrder(final String siteId, final long assignmentId, final int order)
+	public void updateAssignmentCategorizedOrder(final String gUid, final String siteId, final long assignmentId, final int order)
 			throws IdUnusedException, PermissionException {
 
-		// validate site
-		try {
-			this.siteService.getSite(siteId);
-		} catch (final IdUnusedException e) {
-			log.warn("IdUnusedException trying to updateAssignmentCategorizedOrder", e);
-			return;
-		}
-
-		final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
+		final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(gUid);
 
 		if (gradebook == null) {
-			log.error(String.format("Gradebook not in site %s", siteId));
+			log.error(String.format("Gradebook %s not found", gUid));
 			return;
 		}
 
-		final Assignment assignmentToMove = this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+		final Assignment assignmentToMove = this.gradebookService.getAssignment(gUid, siteId, assignmentId);
 
 		if (assignmentToMove == null) {
 			// TODO Handle assignment not in gradebook
-			log.error(String.format("GradebookAssignment %d not in site %s", assignmentId, siteId));
+			log.error(String.format("GradebookAssignment %d not found in gradebook %s", assignmentId, gUid));
 			return;
 		}
 
-		updateAssignmentCategorizedOrder(gradebook.getUid(), assignmentToMove.getCategoryId(), assignmentToMove.getId(),
+		updateAssignmentCategorizedOrder(gUid, siteId, assignmentToMove.getCategoryId(), assignmentToMove.getId(),
 				order);
 	}
 
@@ -2091,13 +1775,14 @@ public class GradebookNgBusinessService {
 	 * Update the categorized order of an assignment via the gradebook service.
 	 *
 	 * @param gradebookId the gradebook's id
+	 * @param siteId the site id
 	 * @param categoryId the id for the cataegory in which we are reordering
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
 	 */
-	private void updateAssignmentCategorizedOrder(final String gradebookId, final Long categoryId,
+	private void updateAssignmentCategorizedOrder(final String gradebookId, final String siteId, final Long categoryId,
 			final Long assignmentId, final int order) {
-		this.gradebookService.updateAssignmentCategorizedOrder(gradebookId, categoryId, assignmentId, order);
+		this.gradebookService.updateAssignmentCategorizedOrder(gradebookId, siteId, categoryId, assignmentId, order);
 	}
 
 	/**
@@ -2107,13 +1792,13 @@ public class GradebookNgBusinessService {
 	 * @param since the time to check for changes from
 	 * @return
 	 */
-	public List<GbGradeCell> getEditingNotifications(final String gradebookUid, final Date since) {
+	public List<GbGradeCell> getEditingNotifications(final String gradebookUid, final String siteId, final Date since) {
 
 		final User currentUser = getCurrentUser();
 
 		final List<GbGradeCell> rval = new ArrayList<>();
 
-		final List<Assignment> assignments = this.gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid,
+		final List<Assignment> assignments = this.gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid, siteId,
 				SortType.SORT_BY_SORTING);
 		final List<Long> assignmentIds = assignments.stream().map(a -> a.getId()).collect(Collectors.toList());
 		final List<GradingEvent> events = this.gradebookService.getGradingEvents(assignmentIds, since);
@@ -2141,39 +1826,17 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an GradebookAssignment in the current site given the assignment id
-	 *
-	 * @param assignmentId
-	 * @return
-	 */
-	public Assignment getAssignment(final long assignmentId) {
-		return this.getAssignment(getCurrentSiteId(), assignmentId);
-	}
-
-	/**
 	 * Get an GradebookAssignment in the specified site given the assignment id
 	 *
 	 * @param siteId
 	 * @param assignmentId
 	 * @return
 	 */
-	public Assignment getAssignment(final String siteId, final long assignmentId) {
-		final Gradebook gradebook = getGradebook(siteId);
-		if (gradebook != null) {
-			return this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+	public Assignment getAssignment(final String gUid, final String siteId, final long assignmentId) {
+		if (gUid != null) {
+			return this.gradebookService.getAssignment(gUid, siteId, assignmentId);
 		}
 		return null;
-	}
-
-	/**
-	 * Get an GradebookAssignment in the current site given the assignment name This should be avoided where possible but is required for the import
-	 * process to allow modification of assignment point values
-	 *
-	 * @param assignmentName
-	 * @return
-	 */
-	public Assignment getAssignment(final String assignmentName) {
-		return this.getAssignment(getCurrentSiteId(), assignmentName);
 	}
 
 	/**
@@ -2185,10 +1848,9 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	@SuppressWarnings("deprecation")
-	public Assignment getAssignment(final String siteId, final String assignmentName) {
-		final Gradebook gradebook = getGradebook(siteId);
-		if (gradebook != null) {
-			return this.gradebookService.getAssignment(gradebook.getUid(), assignmentName);
+	public Assignment getAssignment(final String gUid, final String siteId, final String assignmentName) {
+		if (gUid != null) {
+			return this.gradebookService.getAssignment(gUid, siteId, assignmentName);
 		}
 		return null;
 	}
@@ -2203,12 +1865,10 @@ public class GradebookNgBusinessService {
 	 * @param assignmentId
 	 * @return sort order if set, or calculated, or -1 if cannot determine at all.
 	 */
-	public int getAssignmentSortOrder(final long assignmentId) {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+	public int getAssignmentSortOrder(final String gUid, final String siteId, final long assignmentId) {
 
-		if (gradebook != null) {
-			final Assignment assignment = this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+		if (gUid != null) {
+			final Assignment assignment = this.gradebookService.getAssignment(gUid, siteId, assignmentId);
 
 			// if the assignment has a sort order, return that
 			if (assignment.getSortOrder() != null) {
@@ -2217,7 +1877,7 @@ public class GradebookNgBusinessService {
 
 			// otherwise we need to determine the assignment sort order within
 			// the list of assignments
-			final List<Assignment> assignments = this.getGradebookAssignments(siteId);
+			final List<Assignment> assignments = this.getGradebookAssignments(gUid, siteId, SortType.SORT_BY_SORTING);
 
 			for (int i = 0; i < assignments.size(); i++) {
 				final Assignment a = assignments.get(i);
@@ -2236,17 +1896,16 @@ public class GradebookNgBusinessService {
 	 * @param assignment
 	 * @return
 	 */
-	public void updateAssignment(final Assignment assignment) {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+	public void updateAssignment(final String gUid, final String siteId, final Assignment assignment) {
+		final Gradebook gradebook = getGradebook(gUid, siteId);
 
 		// need the original name as the service needs that as the key...
-		final Assignment original = this.getAssignment(assignment.getId());
+		final Assignment original = this.getAssignment(gUid, siteId, assignment.getId());
 
-		this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
+		this.gradebookService.updateAssignment(gradebook.getUid(), siteId, original.getId(), assignment);
 		
 		// Update task
-		String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + original.getId();
+		String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + siteId + Entity.SEPARATOR + original.getId();
 		Optional<Task> optTask = taskService.getTask(reference);
 		if (optTask.isPresent()) {
 			Task task = optTask.get();
@@ -2256,33 +1915,22 @@ public class GradebookNgBusinessService {
 		} else if(assignment.isReleased()) {
 			// Create the task
 			Task task = new Task();
-			task.setSiteId(getCurrentSiteId());
+			task.setSiteId(siteId);
 			task.setReference(reference);
 			task.setSystem(true);
 			task.setDescription(assignment.getName());
 			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
-			Set<String> users = new HashSet<>(this.getGradeableUsers());
+			Set<String> users = new HashSet<>(this.getGradeableUsers(gUid, siteId, null));
 			taskService.createTask(task, users, Priorities.HIGH);
 		}
         
-		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
+		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone(siteId));
 
 		if (original.getCategoryId() != null && assignment.getCategoryId() != null
 				&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
-			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(),
+			updateAssignmentCategorizedOrder(gradebook.getUid(), siteId, assignment.getCategoryId(), assignment.getId(),
 					Integer.MAX_VALUE);
 		}
-	}
-
-	/**
-	 * Updates ungraded items in the given assignment with the given grade
-	 *
-	 * @param assignmentId
-	 * @param grade
-	 * @return
-	 */
-	public boolean updateUngradedItems(final long assignmentId, final String grade) {
-		return updateUngradedItems(assignmentId, grade, null);
 	}
 
 	/**
@@ -2293,16 +1941,16 @@ public class GradebookNgBusinessService {
 	 * @param group
 	 * @return
 	 */
-	public boolean updateUngradedItems(final long assignmentId, final String grade, final GbGroup group) {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
-		final Assignment assignment = getAssignment(assignmentId);
+	public boolean updateUngradedItems(final String gUid, final String siteId, final long assignmentId, final String grade, final GbGroup group) {
+
+		final Gradebook gradebook = getGradebook(gUid, siteId);
+		final Assignment assignment = getAssignment(gUid, siteId, assignmentId);
 
 		// get students
-		final List<String> studentUuids = (group == null) ? this.getGradeableUsers() : this.getGradeableUsers(group);
+		final List<String> studentUuids = this.getGradeableUsers(gUid, siteId, group);
 
 		// get grades (only returns those where there is a grade, or comment; does not return those where there is no grade AND no comment)
-		final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignmentId, studentUuids);
+		final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), siteId, assignmentId, studentUuids);
 
 		// Remove students who already have a grade
 		studentUuids.removeIf(studentUUID -> defs.stream().anyMatch(def -> studentUUID.equals(def.getStudentUid()) && StringUtils.isNotBlank(def.getGrade())));
@@ -2332,8 +1980,8 @@ public class GradebookNgBusinessService {
 
 		// Batch update the GradeDefinitions, and post an event on completion
 		try {
-			gradebookService.saveGradesAndComments(gradebook.getUid(), assignmentId, defs);
-			EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRoleOrNone());
+			gradebookService.saveGradesAndComments(gradebook.getUid(), siteId, assignmentId, defs);
+			EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRoleOrNone(siteId));
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred updating the assignment", e);
@@ -2378,27 +2026,15 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get the comment for a given student assignment grade
 	 *
-	 * @param assignmentId id of assignment
-	 * @param studentUuid uuid of student
-	 * @return the comment or null if none
-	 */
-	public String getAssignmentGradeComment(final long assignmentId, final String studentUuid) {
-		return getAssignmentGradeComment(getCurrentSiteId(), assignmentId, studentUuid);
-	}
-
-	/**
-	 * Get the comment for a given student assignment grade
-	 *
 	 * @param siteId site id
 	 * @param assignmentId id of assignment
 	 * @param studentUuid uuid of student
 	 * @return the comment or null if none
 	 */
-	public String getAssignmentGradeComment(final String siteId, final long assignmentId, final String studentUuid) {
-		final Gradebook gradebook = getGradebook(siteId);
+	public String getAssignmentGradeComment(final String gUid, final long assignmentId, final String studentUuid) {
 
 		try {
-			final CommentDefinition def = this.gradebookService.getAssignmentScoreComment(gradebook.getUid(),
+			final CommentDefinition def = this.gradebookService.getAssignmentScoreComment(gUid,
 					assignmentId, studentUuid);
 			if (def != null) {
 				return def.getCommentText();
@@ -2409,15 +2045,10 @@ public class GradebookNgBusinessService {
 		return null;
 	}
 
-	public String getAssignmentExcuse(final long assignmentId, final String studentUuid){
-		return getAssignmentExcuse(getCurrentSiteId(), assignmentId, studentUuid);
-	}
-
-	public String getAssignmentExcuse(final String siteId, final long assignmentId, final String studentUuid){
-		final Gradebook gradebook = getGradebook(siteId);
+	public String getAssignmentExcuse(final String gUid, final long assignmentId, final String studentUuid){
 
 		try{
-			final boolean excuse = this.gradebookService.getIsAssignmentExcused(gradebook.getUid(), assignmentId, studentUuid);
+			final boolean excuse = this.gradebookService.getIsAssignmentExcused(gUid, assignmentId, studentUuid);
 			if(excuse){
 				return "1";
 			}else{
@@ -2437,18 +2068,17 @@ public class GradebookNgBusinessService {
 	 * @param comment the comment
 	 * @return true/false
 	 */
-	public boolean updateAssignmentGradeComment(final long assignmentId, final String studentUuid,
+	public boolean updateAssignmentGradeComment(final String gUid, final String siteId, final long assignmentId, final String studentUuid,
 			final String comment) {
 
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+		final Gradebook gradebook = getGradebook(gUid, siteId);
 
 		try {
 			// could do a check here to ensure we aren't overwriting someone
 			// else's comment that has been updated in the interim...
-			this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
+			this.gradebookService.setAssignmentScoreComment(gUid, assignmentId, studentUuid, comment);
 
-			EventHelper.postUpdateCommentEvent(getGradebook(), assignmentId, studentUuid, comment, getUserRoleOrNone());
+			EventHelper.postUpdateCommentEvent(gradebook, assignmentId, studentUuid, comment, getUserRoleOrNone(siteId));
 
 			return true;
 		} catch (GradebookNotFoundException | AssessmentNotFoundException | IllegalArgumentException e) {
@@ -2456,17 +2086,6 @@ public class GradebookNgBusinessService {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get the role of the current user in the current site
-	 *
-	 * @return GbRole
-	 * @throws GbAccessDeniedException if something goes wrong checking the site or user permissions
-	 */
-	public GbRole getUserRole() throws GbAccessDeniedException {
-		final String siteId = getCurrentSiteId();
-		return this.getUserRole(siteId);
 	}
 
 	/**
@@ -2507,9 +2126,9 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return GbRole for the current user
 	 */
-	public GbRole getUserRoleOrNone() {
+	public GbRole getUserRoleOrNone(String siteId) {
 		try {
-			return getUserRole();
+			return getUserRole(siteId);
 		} catch (GbAccessDeniedException e) {
 			return GbRole.NONE;
 		}
@@ -2521,13 +2140,12 @@ public class GradebookNgBusinessService {
 	 * @param studentUuid
 	 * @return map of assignment to GbGradeInfo
 	 */
-	public Map<Long, GbGradeInfo> getGradesForStudent(final String studentUuid) {
+	public Map<Long, GbGradeInfo> getGradesForStudent(final String gUid, final String siteId, final String studentUuid) {
 
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+		final Gradebook gradebook = getGradebook(gUid, siteId);
 
 		// will apply permissions and only return those the student can view
-		final List<Assignment> assignments = getGradebookAssignmentsForStudent(studentUuid);
+		final List<Assignment> assignments = getGradebookAssignmentsForStudent(gUid, siteId, studentUuid, SortType.SORT_BY_SORTING);
 
 		final Map<Long, GbGradeInfo> rval = new LinkedHashMap<>();
 
@@ -2552,7 +2170,7 @@ public class GradebookNgBusinessService {
 		}
 
 		for (final Assignment assignment : assignments) {
-			final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(),
+			final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gUid, siteId,
 					assignment.getId(), studentUuid);
 			rval.put(assignment.getId(), new GbGradeInfo(def));
 		}
@@ -2560,8 +2178,8 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
-	public GradeDefinition getGradeForStudentForItem(String studentId, Long assignmentId) {
-		return this.gradebookService.getGradeDefinitionForStudentForItem(getCurrentSiteId(), assignmentId, studentId);
+	public GradeDefinition getGradeForStudentForItem(String gUid, String siteId, String studentId, Long assignmentId) {
+		return this.gradebookService.getGradeDefinitionForStudentForItem(gUid, siteId, assignmentId, studentId);//OJOOOO
 	}
 
 	/**
@@ -2572,9 +2190,9 @@ public class GradebookNgBusinessService {
 	 * @param isInstructor will calculate the category score with non-released items for instructors but not for students
 	 * @return
 	 */
-	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid, final boolean isInstructor) {
+	public Optional<CategoryScoreData> getCategoryScoreForStudent(final String gUid, final String siteId, final Long categoryId, final String studentUuid, final boolean isInstructor) {
 
-		final Gradebook gradebook = getGradebook();
+		final Gradebook gradebook = getGradebook(gUid, siteId);
 
 		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor, gradebook.getCategory_type(), null);
 		log.debug("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
@@ -2583,27 +2201,16 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the settings for this gradebook. Note that this CANNOT be called by an
-	 * entityprovider
-	 *
-	 * @return
-	 */
-	public GradebookInformation getGradebookSettings() {
-		return getGradebookSettings(getCurrentSiteId());
-	}
-
-	/**
 	 * Get the settings for this gradebook. Safe to use from an entityprovider.
 	 *
 	 * @return
 	 */
-	public GradebookInformation getGradebookSettings(final String siteId) {
-		final Gradebook gradebook = getGradebook(siteId);
+	public GradebookInformation getGradebookSettings(final String gUid, final String siteId) {
 
 		SecurityAdvisor advisor = null;
 		try {
 			advisor = addSecurityAdvisor();
-			final GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
+			final GradebookInformation settings = this.gradebookService.getGradebookInformation(gUid, siteId);
 			Collections.sort(settings.getCategories(), CategoryDefinition.orderComparator);
 			return settings;
 		} finally {
@@ -2617,12 +2224,11 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param settings GradebookInformation settings
 	 */
-	public void updateGradebookSettings(final GradebookInformation settings) {
+	public void updateGradebookSettings(final String gUid, final String siteId, final GradebookInformation settings) {
 
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+		final Gradebook gradebook = getGradebook(gUid, siteId);
 
-		this.gradebookService.updateGradebookSettings(gradebook.getUid(), settings);
+		this.gradebookService.updateGradebookSettings(gUid, siteId, settings);
 
 		EventHelper.postUpdateSettingsEvent(gradebook);
 	}
@@ -2632,16 +2238,16 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param assignmentId the id of the assignment to remove
 	 */
-	public void removeAssignment(final Long assignmentId) {
+	public void removeAssignment(final String gUid, final String siteId, final Long assignmentId) {
 
 		// Delete task
-		String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId; 
+		String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + siteId + Entity.SEPARATOR + assignmentId; 
 		taskService.removeTaskByReference(reference);
 
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assignmentId.toString(), RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
 		this.gradebookService.removeAssignment(assignmentId);
 
-		EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRoleOrNone());
+		EventHelper.postDeleteAssignmentEvent(getGradebook(gUid, siteId), assignmentId, getUserRoleOrNone(siteId));
 	}
 
 	/**
@@ -2649,13 +2255,16 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return
 	 */
-	public List<GbUser> getTeachingAssistants() {
+	public List<GbUser> getTeachingAssistants(String gUid, String siteId) {
 
-		final String siteId = getCurrentSiteId();
 		final List<GbUser> rval = new ArrayList<>();
 
 		try {
-			final Set<String> userUuids = this.siteService.getSite(siteId).getUsersIsAllowed(GbRole.TA.getValue());
+			Set<String> userUuids = this.siteService.getSite(siteId).getUsersIsAllowed(GbRole.TA.getValue());
+			if (!siteId.equals(gUid)) {
+				Group group = siteService.findGroup(gUid);
+				userUuids = group.getUsersIsAllowed(GbRole.TA.getValue());
+			}
 			for (final String userUuid : userUuids) {
 				GbUser user = getUser(userUuid);
 				if (user != null) {
@@ -2669,37 +2278,9 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
-	/**
-	 * Get a list of permissions defined for the given user. Note: These are currently only defined/used for a teaching assistant.
-	 *
-	 * @param userUuid
-	 * @return list of permissions or empty list if none
-	 */
-	public List<PermissionDefinition> getPermissionsForUser(final String userUuid) {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+	public List<PermissionDefinition> getPermissionsForUser(final String userUuid, String gUid, String siteId) {
 
-		List<PermissionDefinition> permissions = this.gradebookPermissionService
-				.getPermissionsForUser(gradebook.getUid(), userUuid);
-
-		//if db permissions are null, check realms permissions.
-		if (permissions == null || permissions.isEmpty()) {
-			//This method should return empty arraylist if they have no realms perms
-			permissions = this.gradebookPermissionService.getRealmsPermissionsForUser(userUuid, siteId, Role.TA);
-		}
-		return permissions;
-	}
-
-	private List<PermissionDefinition> getPermissionsForUser(final String userUuid, String siteId) {
-
-		if(siteId==null) {
-			siteId = getCurrentSiteId();
-		}
-		
-		final Gradebook gradebook = getGradebook(siteId);
-
-		List<PermissionDefinition> permissions = this.gradebookPermissionService
-				.getPermissionsForUser(gradebook.getUid(), userUuid);
+		List<PermissionDefinition> permissions = this.gradebookPermissionService.getPermissionsForUser(gUid, userUuid);
 
 		//if db permissions are null, check realms permissions.
 		if (permissions == null || permissions.isEmpty()) {
@@ -2715,11 +2296,8 @@ public class GradebookNgBusinessService {
 	 * @param userUuid
 	 * @param permissions
 	 */
-	public void updatePermissionsForUser(final String userUuid, final List<PermissionDefinition> permissions) {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
-
-		this.gradebookPermissionService.updatePermissionsForUser(gradebook.getUid(), userUuid, permissions);
+	public void updatePermissionsForUser(final String gUid, final String userUuid, final List<PermissionDefinition> permissions) {
+		this.gradebookPermissionService.updatePermissionsForUser(gUid, userUuid, permissions);
 	}
 
 	/**
@@ -2727,10 +2305,8 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param userUuid
 	 */
-	public void clearPermissionsForUser(final String userUuid) {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
-		this.gradebookPermissionService.clearPermissionsForUser(gradebook.getUid(), userUuid);
+	public void clearPermissionsForUser(final String gUid, final String userUuid) {
+		this.gradebookPermissionService.clearPermissionsForUser(gUid, userUuid);
 	}
 
 	/**
@@ -2744,9 +2320,7 @@ public class GradebookNgBusinessService {
 	 * @param userUuid user to check
 	 * @return boolean
 	 */
-	public boolean isCourseGradeVisible(final String userUuid) {
-
-		final String siteId = getCurrentSiteId();
+	public boolean isCourseGradeVisible(final String gUid, final String siteId, final String userUuid) {
 
 		GbRole role;
 		try {
@@ -2765,7 +2339,7 @@ public class GradebookNgBusinessService {
 		if (role == GbRole.TA) {
 
 			// if no defs, implicitly allowed
-			final List<PermissionDefinition> defs = getPermissionsForUser(userUuid);
+			final List<PermissionDefinition> defs = getPermissionsForUser(userUuid, gUid, siteId);
 			if (defs.isEmpty()) {
 				return true;
 			}
@@ -2782,7 +2356,7 @@ public class GradebookNgBusinessService {
 		// if student, check the settings
 		// this could actually get the settings but it would be more processing
 		if (role == GbRole.STUDENT) {
-			final Gradebook gradebook = this.getGradebook(siteId);
+			final Gradebook gradebook = this.getGradebook(gUid, siteId);
 
 			if (gradebook.isCourseGradeDisplayed()) {
 				return true;
@@ -2799,16 +2373,16 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return true if student numbers are visible
 	 */
-	public boolean isStudentNumberVisible()
+	public boolean isStudentNumberVisible(final String siteId)
 	{
 		if (getCandidateDetailProvider() == null) {
 			return false;
 		}
 
 		final User user = getCurrentUser();
-		final Optional<Site> site = getCurrentSite();
+		final Optional<Site> site = getCurrentSite(siteId);
 		return user != null && site.isPresent() && getCandidateDetailProvider().isInstitutionalNumericIdEnabled(site.get())
-				&& this.gradebookService.currentUserHasViewStudentNumbersPerm(getGradebook().getUid());
+				&& this.gradebookService.currentUserHasViewStudentNumbersPerm(siteId);
 	}
 
 	public String getStudentNumber(final User u, final Site site)
@@ -2824,9 +2398,9 @@ public class GradebookNgBusinessService {
 	/**
 	 * Are there any sections in the current site?
 	 */
-	public boolean isSectionsVisible() {
+	public boolean isSectionsVisible(String siteId) {
 
-		final Optional<Site> site = getCurrentSite();
+		final Optional<Site> site = getCurrentSite(siteId);
 		return site.isPresent() && !sectionManager.getSections(site.get().getId()).isEmpty();
 	}
 
@@ -2835,9 +2409,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return
 	 */
-	public Map<String, List<String>> getGroupMemberships() {
-
-		final String siteId = getCurrentSiteId();
+	public Map<String, List<String>> getGroupMemberships(final String gUid, final String siteId) {
 
 		Site site;
 		try {
@@ -2848,7 +2420,7 @@ public class GradebookNgBusinessService {
 		}
 
 		// filtered for the user
-		final List<GbGroup> viewableGroups = getSiteSectionsAndGroups();
+		final List<GbGroup> viewableGroups = getSiteSectionsAndGroups(gUid, siteId);
 
 		final Map<String, List<String>> rval = new HashMap<>();
 
@@ -2871,47 +2443,14 @@ public class GradebookNgBusinessService {
 
 		return rval;
 	}
-
-	/**
-	 * Build a list of group references to site membership (as Member) for the groups that are viewable for the current user.
-	 *
-	 * @return
-	 */
-	private Map<String, Set<Member>> getGroupMembers(final String siteId) {
-
-		Site site;
-		try {
-			site = this.siteService.getSite(siteId);
-		} catch (final IdUnusedException e) {
-			log.error("Error looking up site: {}", siteId, e);
-			return null;
-		}
-
-		// filtered for the user
-		final List<GbGroup> viewableGroups = getSiteSectionsAndGroups(siteId);
-
-		final Map<String, Set<Member>> rval = new HashMap<>();
-
-				
-		for (final GbGroup gbGroup : viewableGroups) {
-			final String groupReference = gbGroup.getReference();
-			final Group group = site.getGroup(groupReference);
-			if (group != null) {
-				rval.put(groupReference, group.getMembers());
-			}
-		}
-
-		return rval;
-	}
 	
 	/**
 	 * Have categories been enabled for the gradebook?
 	 *
 	 * @return if the gradebook is setup for either "Categories Only" or "Categories & Weighting"
 	 */
-	public boolean categoriesAreEnabled() {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+	public boolean categoriesAreEnabled(String gradebookUid, String siteId) {
+		final Gradebook gradebook = getGradebook(gradebookUid, siteId);
 
 		return GbCategoryType.ONLY_CATEGORY.getValue() == gradebook.getCategory_type()
 				|| GbCategoryType.WEIGHTED_CATEGORY.getValue() == gradebook.getCategory_type();
@@ -2922,9 +2461,8 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return GbCategoryType wrapper around the int value
 	 */
-	public GbCategoryType getGradebookCategoryType() {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+	public GbCategoryType getGradebookCategoryType(String gradebookUid, String siteId) {
+		final Gradebook gradebook = getGradebook(gradebookUid, siteId);
 
 		final int configuredType = gradebook.getCategory_type();
 
@@ -2938,13 +2476,13 @@ public class GradebookNgBusinessService {
 	 * @param grade the new grade
 	 * @return
 	 */
-	public boolean updateCourseGrade(final String studentUuid, final String grade, final String gradeScale) {
+	public boolean updateCourseGrade(final String gradebookUid, final String siteId, final String studentUuid, final String grade, final String gradeScale) {
 
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+		//final String siteId = getCurrentSiteId();
+		final Gradebook gradebook = getGradebook(gradebookUid, siteId);
 
 		try {
-			this.gradebookService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade, gradeScale);
+			this.gradebookService.updateCourseGradeForStudent(gradebookUid, siteId, studentUuid, grade, gradeScale);
 			EventHelper.postOverrideCourseGradeEvent(gradebook, studentUuid, grade, grade != null);
 			return true;
 		} catch (final Exception e) {
@@ -2962,49 +2500,6 @@ public class GradebookNgBusinessService {
 	public Locale getUserPreferredLocale() {
 		final ResourceLoader rl = new ResourceLoader();
 		return rl.getLocale();
-	}
-
-	/**
-	 * Get the user's custom GbUiSettings from PreferencesService
-	 *
-	 * @return String
-	 */
-	public String getUserGbPreference(final String prefName) {
-		final String siteId = getCurrentSiteId();
-		final String currentUserId = getCurrentUser().getId();
-		Preferences userPrefs = preferencesService.getPreferences(currentUserId);
-		ResourceProperties rp = userPrefs.getProperties(GB_PREF_KEY + siteId);
-		return rp.getProperty(prefName);
-	}
-
-	/**
-	 * Set the user's custom GbUiSettings in PreferencesService
-	 *
-	 * @return
-	 */
-	public void setUserGbPreference(final String prefName, final String prefValue) {
-		final String siteId = getCurrentSiteId();
-		final String currentUserId = getCurrentUser().getId();
-		PreferencesEdit prefsEdit = null;
-		try {
-			prefsEdit = preferencesService.edit(currentUserId);
-		}
-		catch (IdUnusedException e) {
-			try {
-				prefsEdit = preferencesService.add(currentUserId);
-			} catch (PermissionException e1) {
-				log.warn("setUserGbPreference PermissionException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
-			} catch (IdUsedException e1) {
-				log.warn("setUserGbPreference IdUsedException attempting to add prefs for user {}, prefName={}", currentUserId, prefName);
-			}
-		} catch (PermissionException e) {
-			log.warn("setUserGbPreference PermissionException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
-		} catch (InUseException e) {
-			log.warn("setUserGbPreference InUseException attempting to edit prefs for user {}, prefName={}", currentUserId, prefName);
-		}
-		ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(GB_PREF_KEY + siteId);
-		props.addProperty(prefName, prefValue);
-		preferencesService.commit(prefsEdit);
 	}
 
 	/**
@@ -3026,12 +2521,12 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return true if yes, false if no.
 	 */
-	public boolean isUserAbleToEditAssessments(){
+	public boolean isUserAbleToEditAssessments(String siteId){
 		String siteRef;
 		
 		try {
-			siteRef = this.siteService.getSite(getCurrentSiteId()).getReference();
-		} catch (final IdUnusedException e) {
+			siteRef = getCurrentSite(siteId).orElse(null).getReference();
+		} catch (Exception e) {
 			throw new GbException(e);
 		}
 		

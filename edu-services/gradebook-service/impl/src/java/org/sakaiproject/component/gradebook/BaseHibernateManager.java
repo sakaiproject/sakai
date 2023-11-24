@@ -70,7 +70,7 @@ package org.sakaiproject.component.gradebook;
  import org.sakaiproject.service.gradebook.shared.GradebookService;
  import org.sakaiproject.service.gradebook.shared.GraderPermission;
  import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
- import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+  import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
  import org.sakaiproject.tool.gradebook.GradebookAssignment;
  import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
  import org.sakaiproject.tool.gradebook.Category;
@@ -90,8 +90,7 @@ package org.sakaiproject.component.gradebook;
  import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
  import lombok.extern.slf4j.Slf4j;
-
-
+ 
  /**
  * Provides methods which are shared between service business logic and application business
  * logic, but not exposed to external callers.
@@ -169,8 +168,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return getHibernateTemplate().load(Gradebook.class, id).getUid();
     }
 
-	protected Set<String> getAllStudentUids(final String gradebookUid) {
-		final List<EnrollmentRecord> enrollments = getSectionAwareness().getSiteMembersInRole(gradebookUid, Role.STUDENT);
+	protected Set<String> getAllStudentUids(String siteId) {
+		final List<EnrollmentRecord> enrollments = getSectionAwareness().getSiteMembersInRole(siteId, Role.STUDENT);
         return enrollments.stream().map(e -> e.getUser().getUserUid()).collect(Collectors.toSet());
 	}
 
@@ -366,7 +365,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return getHibernateTemplate().execute(hc);
     }
 
-    public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
+    public void updateGradebook(final Gradebook gradebook, final String siteId) throws StaleObjectModificationException {
         final HibernateCallback hc = session -> {
             // Get the gradebook and selected mapping from persistence
             final Gradebook gradebookFromPersistence = (Gradebook)session.load(gradebook.getClass(), gradebook.getId());
@@ -375,7 +374,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             // If the mapping has changed, and there are explicitly entered
             // course grade records, disallow this update.
             if (!mappingFromPersistence.getId().equals(gradebook.getSelectedGradeMapping().getId())) {
-                if(isExplicitlyEnteredCourseGradeRecords(gradebook.getId())) {
+                if(isExplicitlyEnteredCourseGradeRecords(gradebook.getId(), siteId)) {
                     throw new IllegalStateException("Selected grade mapping can not be changed, since explicit course grades exist.");
                 }
             }
@@ -399,9 +398,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         getHibernateTemplate().execute(hc);
     }
 
-    public boolean isExplicitlyEnteredCourseGradeRecords(final Long gradebookId) {
+    public boolean isExplicitlyEnteredCourseGradeRecords(final Long gradebookId, final String siteId) {
 
-        final List<String> studentUids = new ArrayList<>(getAllStudentUids(getGradebookUid(gradebookId)));
+        final List<String> studentUids = new ArrayList<>(getAllStudentUids(siteId));
 
         if (studentUids.isEmpty()) {
             return false;
@@ -1277,8 +1276,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		return true;
 	}
 
-    protected void finalizeNullGradeRecords(final Gradebook gradebook) {
-    	final Set<String> studentUids = getAllStudentUids(gradebook.getUid());
+    protected void finalizeNullGradeRecords(final Gradebook gradebook, final String siteId) {
+    	final Set<String> studentUids = getAllStudentUids(siteId);
 		final Date now = new Date();
 		final String graderId = getAuthn().getUserUid();
 

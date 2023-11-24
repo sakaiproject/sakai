@@ -73,6 +73,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.ToolManager;
@@ -2435,7 +2436,7 @@ public class MessageForumStatisticsBean {
 			GradebookService gradebookService = getGradebookService();
 
 			if(getGradebookExist()) {
-				List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext());
+				List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE);
 				for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
 					Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
 					if(!thisAssign.isExternallyMaintained()) {
@@ -2572,7 +2573,7 @@ public class MessageForumStatisticsBean {
 			}
 			if (StringUtils.isNotBlank(defaultAssignName)) {
 				try {
-				    Assignment assignment = getGradebookService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
+				    Assignment assignment = getGradebookService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), defaultAssignName);
 					setDefaultSelectedAssign(assignment.getName());
 				} catch (Exception ex) {
 					log.warn("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
@@ -2637,13 +2638,13 @@ public class MessageForumStatisticsBean {
 			    gradeByLetter = false;
 			}        
 
-			Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, selAssignName);
+			Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, gradebookUid, selAssignName);
 			if(assignment != null){
 				gbItemPointsPossible = assignment.getPoints().toString();			
 
 				//grab all grades for the id's that the user is able to grade:
-				Map studentIdFunctionMap = gradebookService.getViewableStudentsForItemForCurrentUser(gradebookUid, assignment.getId());
-				List<GradeDefinition> grades = gradebookService.getGradesForStudentsForItem(gradebookUid, assignment.getId(), new ArrayList(studentIdFunctionMap.keySet()));
+				Map studentIdFunctionMap = gradebookService.getViewableStudentsForItemForCurrentUser(gradebookUid, gradebookUid, assignment.getId());
+				List<GradeDefinition> grades = gradebookService.getGradesForStudentsForItem(gradebookUid, gradebookUid, assignment.getId(), new ArrayList(studentIdFunctionMap.keySet()));
 				//add grade values to return map
 				String decSeparator = formattedText.getDecimalSeparator();
 				for(GradeDefinition gradeDef : grades){
@@ -2744,7 +2745,7 @@ public class MessageForumStatisticsBean {
 					}
 				}
 				
-				gradebookService.saveGradesAndComments(gradebookUuid, gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssignName).getId(), gradeInfoToSave);
+				gradebookService.saveGradesAndComments(gradebookUuid, gradebookUuid, gradebookService.getAssignmentByNameOrId(gradebookUuid, gradebookUuid, selectedAssignName).getId(), gradeInfoToSave);
 
 				setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));
 			} 

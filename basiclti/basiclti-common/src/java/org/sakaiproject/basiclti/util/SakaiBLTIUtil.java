@@ -78,6 +78,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -2433,7 +2434,7 @@ public class SakaiBLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (isRead) {
-				String actualGrade = g.getAssignmentScoreString(siteId, gradebookColumn.getId(), user_id);
+				String actualGrade = g.getAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), user_id);
 				Double dGrade = null;
 				if (actualGrade != null && actualGrade.length() > 0) {
 					dGrade = new Double(actualGrade);
@@ -2447,14 +2448,14 @@ public class SakaiBLTIUtil {
 				}
 				retval = retMap;
 			} else if (isDelete) {
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, null, "External Outcome");
+				g.setAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), user_id, null, "External Outcome");
 				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, null);
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
 				retval = Boolean.TRUE;
 			} else {
 				String gradeI18n = getRoundedGrade(scoreGiven, gradebookColumn.getPoints());
 				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
+				g.setAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
 				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
 
 				log.info("Stored Score={} title={} user_id={} score={}", siteId, title, user_id, scoreGiven);
@@ -2542,7 +2543,7 @@ public class SakaiBLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (scoreGiven == null) {
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, null, "External Outcome");
+				g.setAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), userId, null, "External Outcome");
 				// Since LTI 13 uses update semantics on grade delete, we accept the comment if it is there
 				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
 
@@ -2556,7 +2557,7 @@ public class SakaiBLTIUtil {
 				} else {
 					assignedGrade = (scoreGiven / scoreMaximum) * gradebookColumnPoints;
 				}
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, assignedGrade.toString(), "External Outcome");
+				g.setAssignmentScoreString(siteId, siteId, gradebookColumn.getId(), userId, assignedGrade.toString(), "External Outcome");
 				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
 
 				log.info("Stored Score={} title={} userId={} score={}", siteId, title, userId, scoreGiven);
@@ -2741,7 +2742,7 @@ public class SakaiBLTIUtil {
 		pushAdvisor();
 
 		try {
-			List gradeboolColumns = g.getAssignments(siteId);
+			List gradeboolColumns = g.getAssignments(siteId, siteId, SortType.SORT_BY_NONE);
 			for (Iterator i = gradeboolColumns.iterator(); i.hasNext();) {
 				org.sakaiproject.service.gradebook.shared.Assignment aColumn = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
 
@@ -2769,7 +2770,7 @@ public class SakaiBLTIUtil {
 				Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
 				returnColumn.setReleased(releaseToStudent); // default true
 				returnColumn.setUngraded(! includeInComputation); // default false
-				Long gradebookColumnId = g.addAssignment(siteId, returnColumn);
+				Long gradebookColumnId = g.addAssignment(siteId, siteId, returnColumn);
 				returnColumn.setId(gradebookColumnId);
 				log.info("Added gradebook column: {} with Id: {}", title, gradebookColumnId);
 			} catch (ConflictingAssignmentNameException e) {

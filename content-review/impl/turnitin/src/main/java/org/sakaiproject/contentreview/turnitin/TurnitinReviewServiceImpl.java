@@ -71,6 +71,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -575,7 +576,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 		SecurityAdvisor advisor = pushAdvisor();
 		try {
-			List<Assignment> allGbItems = gradebookService.getAssignments(siteId);
+			List<Assignment> allGbItems = gradebookService.getAssignments(siteId, siteId, SortType.SORT_BY_NONE);
 			for (Assignment assign : allGbItems) {
 				// Match based on External ID / Assignment title
 				if (taskId.equals(assign.getExternalId()) || assign.getName().equals(taskTitle)) {
@@ -749,7 +750,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 						gradebookExternalAssessmentService.updateExternalAssessmentScore(siteId,
 								assignment.getExternalId(), tiiExternalId, grade);
 					} else {
-						gradebookService.setAssignmentScoreString(siteId, data.get("taskTitle").toString(),
+						gradebookService.setAssignmentScoreString(siteId, siteId, data.get("taskTitle").toString(),
 								tiiExternalId, grade, "SYNC");
 					}
 					log.info("UPDATED GRADE (" + grade + ") FOR USER (" + tiiExternalId + ") IN ASSIGNMENT ("

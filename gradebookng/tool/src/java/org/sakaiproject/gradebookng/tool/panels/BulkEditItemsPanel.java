@@ -38,6 +38,7 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 import lombok.extern.slf4j.Slf4j;
@@ -62,8 +63,8 @@ public class BulkEditItemsPanel extends BasePanel {
 		this.deletableItemsList.clear();
 	}
 
-	public BulkEditItemsPanel(final String id, final IModel<String> model, final ModalWindow window) {
-		super(id, model);
+	public BulkEditItemsPanel(final String id, final ModalWindow window) {
+		super(id);
 		this.window = window;
 	}
 
@@ -71,9 +72,7 @@ public class BulkEditItemsPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final String siteId = (String) getDefaultModelObject();
-
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments(siteId);
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, SortType.SORT_BY_SORTING);
 
 		final IModel<List<Assignment>> model = new ListModel<>(assignments);
 
@@ -119,7 +118,7 @@ public class BulkEditItemsPanel extends BasePanel {
 
 			// Are there categories in this Gradebook? If so, and this item is not in a category, disabled grade
 			// calculation inclusion.
-			List<CategoryDefinition> categories = businessService.getGradebookCategories();
+			List<CategoryDefinition> categories = businessService.getGradebookCategories(currentGradebookUid, currentSiteId);
 			if (categories != null && categories.size() > 0 && StringUtils.isBlank(assignment.getCategoryName())) {
 				include.setEnabled(false);
 			}
@@ -168,12 +167,12 @@ public class BulkEditItemsPanel extends BasePanel {
 				for (final Assignment a : assignments) {
 
 					log.debug("Bulk edit assignment: {}", a);
-					BulkEditItemsPanel.this.businessService.updateAssignment(a);
+					BulkEditItemsPanel.this.businessService.updateAssignment(currentGradebookUid, currentSiteId, a);
 				}
 				List<Long> deletableItems = BulkEditItemsPanel.this.getDeletableItemsList();
 				int deleteCount = deletableItems.size();
 				for (int count=0; count < deleteCount; count++) {
-					BulkEditItemsPanel.this.businessService.removeAssignment(deletableItems.get(count));
+					BulkEditItemsPanel.this.businessService.removeAssignment(currentGradebookUid, currentSiteId, deletableItems.get(count));
 				}
 				getSession().success(getString("bulkedit.update.success"));
 				if (deleteCount > 0) {
