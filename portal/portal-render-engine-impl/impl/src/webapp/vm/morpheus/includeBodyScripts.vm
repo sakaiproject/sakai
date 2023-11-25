@@ -95,7 +95,7 @@
     });
   //--end-logged-out-scripts
   #end
-} /* if ( portal.container ) */
+} /* if ( ! inPlusPortal() ) */
 </script>
 <script>
   var needJQuery = true;
@@ -237,6 +237,21 @@
   var sakaiPortalWindow = "";
 </script>
 #end
+
+<script>
+// LTI frame management code shared with tsugi-static/js/tsugiscripts.js
+// If we are not the top frame - immediately communicate our size and jack into the JQuery resize
+// Debounce happens in lti_frameResize()
+if ( ! (self == top) ) {
+    if ( typeof LTI_PARENT_IFRAME_ID === 'undefined' ) {
+        lti_frameResize();
+        $(window).on('resize', function() { lti_frameResize(); });
+    } else {
+        lti_frameResize(false, LTI_PARENT_IFRAME_ID);
+        $(window).on('resize', function() { lti_frameResize(false, LTI_PARENT_IFRAME_ID); });
+    }
+}
+</script>
 
 <script>
   // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
