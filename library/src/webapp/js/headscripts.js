@@ -213,14 +213,6 @@ function clickOnEnter(event, element)
 	return true;
 }
 
-// SAK-30431 Adapted from Lumen Learning / Bracken Mosbacker
-function lti_frameResize(new_height) {
-    parent.postMessage(JSON.stringify({
-      subject: "lti.frameResize",
-      height: new_height
-    }), "*");
-}
-
 function lti_hideLMSNavigation() {
     parent.postMessage(JSON.stringify({
       subject: "lti.hideModuleNavigation",
