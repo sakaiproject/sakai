@@ -209,8 +209,13 @@
         <h:form id="syllabusMainEdit">
           <%@ include file="mainMenu.jsp" %>
    	      <h:messages globalOnly="true" layout="table" styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
-	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
-		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
+		  <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
+			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
+			  <h:outputText escape="false" value="#{msgs.redirect_explanation} " />
+			  <h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
+			    <h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
+			  </h:outputLink>
+			</syllabus:syllabus_ifnot>
 		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="table table-striped table-bordered"
 		     				columnClasses="text-left,text-center,text-center,text-center,text-center,text-center,text-center" >
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
@@ -294,16 +299,6 @@
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
 					 accesskey="x" />
 			<f:verbatim></p></f:verbatim>
-		  </syllabus:syllabus_if>
-
-			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-				<sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
-				<br/>
-				<h:outputText escape="false" value="#{msgs.redirect_explanation} " />
-				<h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
-					<h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
-				</h:outputLink>
-			</syllabus:syllabus_ifnot>
 
         </h:form>
 	</sakai:view_content>

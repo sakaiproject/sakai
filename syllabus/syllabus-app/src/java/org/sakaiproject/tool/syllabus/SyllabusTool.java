@@ -1962,7 +1962,8 @@ public class SyllabusTool
 
   public String processEditResetRedirect() throws PermissionException {
       currentRediredUrl = "";
-      return processEditSaveRedirect();
+      processEditSaveRedirect();
+      return "edit_redirect";
   }
 
   public String processEditSaveRedirect() throws PermissionException
@@ -2019,11 +2020,8 @@ public class SyllabusTool
     }
     catch (Exception e)
     {
-      log.info(this + ".processEditSaveRedirect in SyllabusTool: " + e);
-      FacesContext.getCurrentInstance().addMessage(
-          null,
-          MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_general", (new Object[] { e.toString() })));
+      log.warn("Could not save redirect [{}], {}", currentRediredUrl, e.toString());
+      FacesContext.getCurrentInstance().addMessage(null, MessageFactory.getMessage(FacesContext.getCurrentInstance(), "error_general", e.toString()));
     }
 
     return null;
