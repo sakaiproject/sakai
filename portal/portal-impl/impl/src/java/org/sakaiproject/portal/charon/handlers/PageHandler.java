@@ -21,6 +21,8 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
+import static org.sakaiproject.portal.api.PortalConstants.*;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,15 +66,7 @@ public class PageHandler extends BasePortalHandler
 	private static final String INCLUDE_PAGE = "include-page";
 
 	private static final String URL_FRAGMENT = "page";
-        
-	/**
-	 * Keyword to look for in sakai.properties copyright message to replace
-	 * for the server's time's year for auto-update of Copyright end date
-	 */
-	private static final String SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD = "currentYearFromServer";
 
-	private static final String PORTAL_DISPLAY_CURRENT_ROLE = "portal.display.current.role";
-	
 	private SecurityService securityService = null;
 
 	public PageHandler()
@@ -247,7 +241,7 @@ public class PageHandler extends BasePortalHandler
 				rcontext.put("pageColumn0Tools", toolList);
 			}
 
-			boolean displayRole = ServerConfigurationService.getBoolean(PORTAL_DISPLAY_CURRENT_ROLE, false);
+			boolean displayRole = ServerConfigurationService.getBoolean(PROP_PORTAL_DISPLAY_CURRENT_ROLE, false);
 			rcontext.put("currentRole", null);
 
 			if (!StringUtils.startsWith(page.getSiteId(), "~") && displayRole && site != null) {

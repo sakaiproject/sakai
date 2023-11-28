@@ -72,7 +72,6 @@ import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalSiteHelper;
@@ -1001,11 +1000,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 
 		}
-		PageFilter pageFilter = portal.getPageFilter();
-		if (pageFilter != null)
-		{
-			l = pageFilter.filterPlacements(l, site);
-		}
 
 		if ( addMoreToolsUrl != null ) {
 			theMap.put("pageNavAddMoreToolsUrl", addMoreToolsUrl);
@@ -1377,12 +1371,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			if (allowPage) newPages.add(p);
 		}
 
-		PageFilter pageFilter = portal.getPageFilter();
-
-		if (pageFilter != null)
-		{
-			newPages = pageFilter.filter(newPages, site);
-		}
 
 		// Force "Overview" to the top at all times if enabled
 		if (serverConfigurationService.getBoolean(SAK_PROP_FORCE_OVERVIEW_TO_TOP, SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT))
