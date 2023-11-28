@@ -1,7 +1,7 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
-import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
 import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
+import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
 import "./sakai-rubric-edit.js";
 import "./sakai-item-delete.js";
 import "./sakai-rubric-criterion-edit.js";
@@ -56,6 +56,8 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     // Focus the moved criterion's drag handle
     this.updateComplete.then(() => {
+
+      this.querySelectorAll("sakai-reorderer").forEach(el => el.requestUpdate());
       this.querySelector(`[data-criterion-id="${e.detail.data.criterionId}"] .drag-handle`).focus();
     });
 
@@ -217,9 +219,9 @@ export class SakaiRubricCriteria extends RubricsElement {
                 }
               </div>
               <div class="criterion-ratings">
-                <sakai-reorderer @reordered=${this._ratingsReordered} horizontal>
+                <sakai-reorderer id="criterion-ratings-reorderer-${c.id}" class="rating-reorderer" @reordered=${this._ratingsReordered} horizontal>
                   <div id="cr-table-${c.id}" class="cr-table" data-criterion-id="${c.id}">
-                  ${repeat(c.ratings, (r) => r.id, (r, i) => html`
+                  ${repeat(c.ratings, r => r.id, (r, i) => html`
                     <div class="rating-item"
                         data-criterion-id="${c.id}"
                         data-rating-id="${r.id}"
@@ -397,6 +399,7 @@ export class SakaiRubricCriteria extends RubricsElement {
         rating.points = e.detail.rating.points;
         rating.new = false;
         this.requestUpdate();
+        this.updateComplete.then(() => this.querySelector(`#criterion-ratings-reorderer-${e.detail.criterionId}`).requestUpdate());
         this.letShareKnow();
         this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
       } else {
@@ -413,6 +416,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.criteria.splice(index, 1);
     this.criteriaMap.delete(e.detail.id);
     this.requestUpdate();
+    this.updateComplete.then(() => this.querySelector("sakai-reorderer").requestUpdate());
     this.letShareKnow();
     this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
   }
@@ -502,6 +506,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
       Object.assign(criterion, c);
       this.requestUpdate();
+      this.updateComplete.then(() => this.querySelector(`#criterion-ratings-reorderer-${e.detail.criterionId}`).requestUpdate());
       this.letShareKnow();
       this.dispatchEvent(new CustomEvent('refresh-total-weight', { detail: { criteria: this.criteria } }));
     })

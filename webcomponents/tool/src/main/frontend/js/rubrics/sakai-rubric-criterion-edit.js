@@ -103,7 +103,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
             </label>
             <sakai-editor
               toolbar="BasicText"
-              content="${this.criterionClone.description ? `${this.criterionClone.description}` : ``}"
+              content="${this.criterionClone.description ? this.criterionClone.description : ""}"
               @changed="${this.updateCriterionDescription}"
               id="criterion-description-field-${this.criterion.id}">
             </sakai-editor>

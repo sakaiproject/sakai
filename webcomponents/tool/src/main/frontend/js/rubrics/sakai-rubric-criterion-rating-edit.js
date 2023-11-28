@@ -79,6 +79,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   }
 
   editRating(e) {
+
     e.preventDefault();
     e.stopPropagation();
 
