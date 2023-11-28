@@ -23,6 +23,9 @@ const sakaiCalendar = {
     this.calendar = new FullCalendar.Calendar(calendarDiv, {
       initialView: 'timeGridWeek',
       timeZone: sakaiCalendar.userTimeZone,
+      aspectRatio: 1.35,
+      scrollTime: '06:00',
+      scrollTimeReset: false,
       displayEventTime: false,
       allDaySlot: false,
       themeSystem: 'bootstrap5',
@@ -131,6 +134,14 @@ const sakaiCalendar = {
   // Go to the current date set by the backend.
   gotoDate (currentDate) {
     this.calendar.gotoDate(currentDate);
+  },
+  
+  setScrollTime (scrollTimeParam) {
+	this.calendar.scrollToTime(scrollTimeParam);
+  },
+  
+  setAspectRatio (aspectRatio) {
+	this.calendar.setOption('aspectRatio', aspectRatio);
   },
 
     // When the user changes the view, reflect the change in a param to set the default view.

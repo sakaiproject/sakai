@@ -33,5 +33,9 @@
   // Set the default subview based on the backend value.
   const defaultSubview = '$defaultSubview';
   sakaiCalendar.setDefaultSubview(defaultSubview);
+  const aspectRatio = '$aspectRatio';
+  sakaiCalendar.setAspectRatio(aspectRatio);
+  const scrollTime = '$scrollTime';
+  sakaiCalendar.setScrollTime(scrollTime);
 
 </script>
