@@ -2119,7 +2119,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             boolean isPDF = simplePageBean.isPDFType(i);
 
                             if (isPDF) {
-                                String pdfSRC = String.format("/library/webjars/pdf-js/2.9.359/web/viewer.html?file=%s", movieUrl);
+                                try {
+                                    // The PDF URL has to be encoded, some URLs can contain characters resulting in the PDF not loading properly.
+                                    // https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions#can-i-specify-a-different-pdf-in-the-default-viewer
+                                    movieUrl = URLEncoder.encode(movieUrl, "UTF-8")
+                                        .replaceAll("\\+", "%20")
+                                        .replaceAll("\\%21", "!")
+                                        .replaceAll("\\%27", "'")
+                                        .replaceAll("\\%28", "(")
+                                        .replaceAll("\\%29", ")")
+                                        .replaceAll("\\%7E", "~");
+                                } catch (Exception ex) {
+                                    log.warn("Error encoding the PDF url, the PDF might not load in the UI. {}", ex.getMessage());
+                                }
+                                String pdfSRC = String.format("/library/webjars/pdf-js/4.0.189/web/viewer.html?file=%s", movieUrl);
                                 item2 = UIOutput.make(tableRow, "pdfEmbed").decorate(new UIFreeAttributeDecorator("src", pdfSRC)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             } else if (useEmbed) {
                                 item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
