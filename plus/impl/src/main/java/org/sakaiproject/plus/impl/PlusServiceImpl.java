@@ -600,7 +600,7 @@ public class PlusServiceImpl implements PlusService {
 				} finally {
 					time = (System.currentTimeMillis() - start);
 					refreshQueue.remove(contextGuid);
-					log.debug("refreshContextMembershipsTask.run() refresh of context: {} took {} seconds", contextGuid, time/1e3);
+					log.debug("Refresh of context: {} took {} seconds", contextGuid, time/1e3);
 				}
 
 				timeRefreshed += time;
@@ -610,8 +610,8 @@ public class PlusServiceImpl implements PlusService {
 				}
 
 			}
-			log.info("refreshContextMembershipsTask.run() refreshed " + numberRefreshed + " contexts in " + timeRefreshed/1e3 +
-				" seconds, longest contexts was " + longestName + " at " + longestRefreshed/1e3 + " seconds");
+			log.info("Refreshed {} contexts in {} seconds, longest context was {} at {} seconds",
+				numberRefreshed, timeRefreshed/1e3, longestName, longestRefreshed/1e3);
 		}
 	}
 
