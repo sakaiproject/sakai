@@ -600,7 +600,7 @@ public class PlusServiceImpl implements PlusService {
 				} finally {
 					time = (System.currentTimeMillis() - start);
 					refreshQueue.remove(contextGuid);
-					if (log.isDebugEnabled()) log.debug("refreshContextMembershipsTask.run() refresh of context: " + contextGuid + " took " + time/1e3 + " seconds");
+					log.debug("refreshContextMembershipsTask.run() refresh of context: {} took {} seconds", contextGuid, time/1e3);
 				}
 
 				timeRefreshed += time;
