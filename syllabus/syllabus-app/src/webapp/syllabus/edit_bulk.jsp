@@ -65,6 +65,9 @@
 					$('.radioByItems input:radio').each(function(i){
 						this.checked = false;
 					});
+					$('.radioSingleItem input:radio').each(function(i){
+						this.checked = false;
+					});
 					$('.radioOption').each(function(i){
 						$(this).removeClass("radioOptionSelected");
 					});
@@ -81,6 +84,9 @@
 					$('.radioByDate input:radio').each(function(i){
 						this.checked = false;
 					});
+					$('.radioSingleItem input:radio').each(function(i){
+						this.checked = false;
+					});
 					$('.radioOption').each(function(i){
 						$(this).removeClass("radioOptionSelected");
 					});
@@ -92,44 +98,43 @@
 					resizeFrame('shrink');
 				}
 			);
-			if($('.radioByDate input:radio').is(':checked')){
-				//date option is selected... we need to setup the UI
-				//this can happen if a user gets a warning message when
-				//setting up the dates options
-				$('.radioByDate input:radio').each(function(){
-					$('.radioByItems input:radio').each(function(i){
+			$('.radioSingleItem input:radio').change(
+				function () {
+					$('.radioByDate input:radio').each(function () {
 						this.checked = false;
 					});
-					$('.radioOption').each(function(i){
+					$('.radioByItems input:radio').each(function () {
+						this.checked = false;
+					});
+					$('.radioOption').each(function () {
 						$(this).removeClass("radioOptionSelected");
 					});
-					$('.radioByDate').each(function(i){
+					$('.radioSingleItem').each(function () {
 						$(this).addClass("radioOptionSelected");
 					});
-					$('.bulkAddByItemsPanel').hide();
-					$('.bulkAddByDatePanel').show();
-					resizeFrame('grow');
-				});
-			}
+					$('.bulkAddByItemsPanel').slideUp();
+					$('.bulkAddByDatePanel').slideUp();
+					resizeFrame('shrink');
+				}
+			);
 		});
+
 		//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
 		function resizeFrame(updown){
-		    var clientH;
-		    if (top.location != self.location) {
-		        var frame = parent.document.getElementById(window.name);
-		    }
-		    if (frame) {
-		        if (updown == 'shrink') {
-		            clientH = document.body.clientHeight - 200;
-		        }
-		        else {
-		            clientH = document.body.clientHeight + 200;
-		        }
-		        $(frame).height(clientH);
-		    }
-		    else {
-		        throw ("resizeFrame did not get the frame (using name=" + window.name + ")");
-		    }
+			if (top.location !== self.location) {
+				const frame = parent.document.getElementById(window.name);
+				if (frame) {
+					let clientH;
+					if (updown == 'shrink') {
+						clientH = document.body.clientHeight - 200;
+					} else {
+						clientH = document.body.clientHeight + 200;
+					}
+					$(frame).height(clientH);
+				} else {
+					throw ("resizeFrame did not get the frame (using name=" + window.name + ")");
+				}
+			}
 		}
 	</script>
 			<h:form id="syllabusEdit">
@@ -148,25 +153,59 @@
 						<h:inputText value="#{SyllabusTool.bulkEntry.title}" id="title"/>
 					</h:panelGroup>
 					<h:panelGroup>
-						<h:selectOneRadio id="radioByItems" value="#{SyllabusTool.bulkEntry.addByItems}" styleClass="radioByItems radioOption radioOptionSelected">
+						<h:selectOneRadio id="radioSingleItem" value="#{SyllabusTool.bulkEntry.addSingleItem}" styleClass="radioSingleItem radioOption radioOptionSelected">
+							<f:selectItem id="singleItem" itemLabel="#{msgs.bulkAddSingleItem}" itemValue="1" />
+						</h:selectOneRadio>
+						<h:panelGroup layout="block" styleClass="instruction">
+							<h:outputText value="#{msgs.newSyllabusSingle}" />
+						</h:panelGroup>
+					</h:panelGroup>
+					<h:panelGroup>
+						<h:selectOneRadio id="radioByItems" value="#{SyllabusTool.bulkEntry.addByItems}" styleClass="radioByItems radioOption">
 							<f:selectItem id="byItems" itemLabel="#{msgs.bulkAddByItems}" itemValue="1" />
 						</h:selectOneRadio>
+						<h:panelGroup layout="block" styleClass="instruction">
+							<h:outputText value="#{msgs.newSyllabusByNumber}" />
+						</h:panelGroup>
 					</h:panelGroup>
-					
+
 					<!-- Add X Bulk Entries -->
-					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1 bulkAddByItemsPanel">
+					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1 bulkAddByItemsPanel" style="display: none">
 						<h:panelGroup styleClass="shorttext">
 							<h:outputLabel for="numOfItems">
 								<h:outputText value="*" styleClass="reqStar"/>
 								<h:outputText value="#{msgs.numberOfItems}"/>
 							</h:outputLabel>
-							<h:inputText value="#{SyllabusTool.bulkEntry.bulkItems}" id="numOfItems" size="3" maxlength="3"/>
+							<h:selectOneMenu value="#{SyllabusTool.bulkEntry.bulkItems}" id="numOfItems">
+								<f:selectItem itemValue = "2" itemLabel = "2" />
+								<f:selectItem itemValue = "3" itemLabel = "3" />
+								<f:selectItem itemValue = "4" itemLabel = "4" />
+								<f:selectItem itemValue = "5" itemLabel = "5" />
+								<f:selectItem itemValue = "6" itemLabel = "6" />
+								<f:selectItem itemValue = "7" itemLabel = "7" />
+								<f:selectItem itemValue = "8" itemLabel = "8" />
+								<f:selectItem itemValue = "9" itemLabel = "9" />
+								<f:selectItem itemValue = "10" itemLabel = "10" />
+								<f:selectItem itemValue = "11" itemLabel = "11" />
+								<f:selectItem itemValue = "12" itemLabel = "12" />
+								<f:selectItem itemValue = "13" itemLabel = "13" />
+								<f:selectItem itemValue = "14" itemLabel = "14" />
+								<f:selectItem itemValue = "15" itemLabel = "15" />
+								<f:selectItem itemValue = "16" itemLabel = "16" />
+								<f:selectItem itemValue = "17" itemLabel = "17" />
+								<f:selectItem itemValue = "18" itemLabel = "18" />
+								<f:selectItem itemValue = "19" itemLabel = "19" />
+								<f:selectItem itemValue = "20" itemLabel = "20" />
+							</h:selectOneMenu>
 						</h:panelGroup>
 					</h:panelGrid>
 					<h:panelGroup>
 						<h:selectOneRadio id="radioByDate" value="#{SyllabusTool.bulkEntry.addByDate}" styleClass="radioByDate radioOption ">
 							<f:selectItem id="byDate" itemLabel="#{msgs.bulkAddByDate}" itemValue="1" />
 						</h:selectOneRadio>
+						<h:panelGroup layout="block" styleClass="instruction">
+							<h:outputText value="#{msgs.newSyllabusByDate}" />
+						</h:panelGroup>
 					</h:panelGroup>
 					<!-- Add Bulk Entries by date -->
 					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1 bulkAddByDatePanel" style="display: none">
@@ -235,13 +274,8 @@
 				</h:panelGrid>
 				<sakai:button_bar>
 					<h:commandButton
-						action="#{SyllabusTool.processEditBulkPost}"
-						styleClass="active"
-						value="#{msgs.bar_publish}" 
-						accesskey="s"
-						title="#{msgs.button_publish}" />
-					<h:commandButton
 						action="#{SyllabusTool.processEditBulkDraft}"
+						styleClass="active"
 						value="#{msgs.bar_new}" 
 						accesskey="s"
 						title="#{msgs.button_save}" />

@@ -41,7 +41,9 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -1077,11 +1079,7 @@ public class SyllabusTool
   {
 	  bulkEntry = null;
 	  alertMessage = null;
-	  if(mainEdit){
-		  return "main_edit";
-	  }else{
-		  return "main";
-	  }
+	  return "main_edit";
   }
   	public String processEditBulkPost() throws PermissionException{
   		return processEditBulk(true);
@@ -1089,129 +1087,143 @@ public class SyllabusTool
 	public String processEditBulkDraft() throws PermissionException{
 		return processEditBulk(false);
 	}
-	
-	private String processEditBulk(boolean post) throws PermissionException{
-		try{
-			String status = post ? SyllabusData.ITEM_POSTED : SyllabusData.ITEM_DRAFT;
-			alertMessage = null;
-			boolean addByDate = "1".equals(bulkEntry.getAddByDate());
-			int bulkItems = -1;
-			if(bulkEntry != null){
-				//check title:
-				if(bulkEntry.getTitle() == null || bulkEntry.getTitle().trim().isEmpty())
-				{
-					alertMessage = rb.getString("empty_title_validate");
-				}else if(addByDate){
-					//add by date
-					
-					//check start date
-					if(bulkEntry.getStartDate() == null){
-						alertMessage = rb.getString("start_date_required");
-					}else 
-					//check end date
-					if(bulkEntry.getEndDate() == null){
-						alertMessage = rb.getString("end_date_required");
-					}else 
-					//check end date
-					if(bulkEntry.getStartTime() == null){
-						alertMessage = rb.getString("start_time_required");
-					}else
-					//check day of week
-					if(!(bulkEntry.isMonday() || bulkEntry.isTuesday() || bulkEntry.isWednesday() || bulkEntry.isThursday() 
-							|| bulkEntry.isFriday() || bulkEntry.isSaturday() || bulkEntry.isSunday())){
-						alertMessage = rb.getString("dayOfWeekRequired");
-					}else
-					//end time after start time?
-					if(bulkEntry.getStartDate().after(bulkEntry.getEndDate())){
-						alertMessage = rb.getString("invalid_dates");
-					}
-				}else{
-					//check that bulk items is a valid number and no more than 100
-					try{
-						bulkItems = Integer.parseInt(bulkEntry.getBulkItems());
-						if(bulkItems > 100 || bulkItems < 1){
-							alertMessage = rb.getString("bulk_items_invalid");
-						}
-					}catch (Exception e) {
-						alertMessage = rb.getString("bulk_items_invalid");	
-					}
-				}
-				if(alertMessage != null){
-					return "edit_bulk";
-				}else{
-					int initPosition = syllabusManager.findLargestSyllabusPosition(
-							syllabusItem) + 1;
-					if(addByDate){
-						//ok let's loop through the date span
-						//break out if past 1 year (don't want to have a DOS attack)
-						java.util.Calendar cal = java.util.Calendar.getInstance();
-						java.util.Calendar calStartTime = java.util.Calendar.getInstance();
-						java.util.Calendar calEndTime = java.util.Calendar.getInstance();
-						java.util.Calendar calYear = java.util.Calendar.getInstance();
-						cal.setTime(bulkEntry.getStartDate());
-						calStartTime.setTime(bulkEntry.getStartTime());
-						if(bulkEntry.getEndTime() != null){
-							calEndTime.setTime(bulkEntry.getEndTime());
-						}
-						cal.set(java.util.Calendar.HOUR_OF_DAY, calStartTime.get(java.util.Calendar.HOUR_OF_DAY));
-						cal.set(java.util.Calendar.MINUTE, calStartTime.get(java.util.Calendar.MINUTE));
-						cal.set(java.util.Calendar.SECOND, calStartTime.get(java.util.Calendar.SECOND));
-						calYear.setTime(bulkEntry.getStartDate());
-						calYear.add(java.util.Calendar.YEAR, 1);
-						//one extra precaution
-						int i = 1;
-						while(!cal.getTime().after(bulkEntry.getEndDate()) && !cal.getTime().after(calYear.getTime()) && i < 366){
-							if((bulkEntry.isMonday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.MONDAY)
-									|| bulkEntry.isTuesday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.TUESDAY
-									|| bulkEntry.isWednesday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.WEDNESDAY
-									|| bulkEntry.isThursday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.THURSDAY
-									|| bulkEntry.isFriday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.FRIDAY
-									|| bulkEntry.isSaturday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SATURDAY
-									|| bulkEntry.isSunday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SUNDAY){
-								Date startDate = cal.getTime();
-								Date endDate = null;
-								if(bulkEntry.getEndTime() != null){
-									//set to end time
-									cal.set(java.util.Calendar.HOUR_OF_DAY, calEndTime.get(java.util.Calendar.HOUR_OF_DAY));
-									cal.set(java.util.Calendar.MINUTE, calEndTime.get(java.util.Calendar.MINUTE));
-									cal.set(java.util.Calendar.SECOND, calEndTime.get(java.util.Calendar.SECOND));
-									endDate = cal.getTime();
-									//reset to start time
-									cal.set(java.util.Calendar.HOUR_OF_DAY, calStartTime.get(java.util.Calendar.HOUR_OF_DAY));
-									cal.set(java.util.Calendar.MINUTE, calStartTime.get(java.util.Calendar.MINUTE));
-									cal.set(java.util.Calendar.SECOND, calStartTime.get(java.util.Calendar.SECOND));
-								}
-								SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i, initPosition, null, "no", status, "none", startDate, endDate, bulkEntry.isLinkCalendar(), null, null, syllabusItem);
-								syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
-								i++;
-								initPosition++;
-							}
-							cal.add(java.util.Calendar.DAY_OF_WEEK, 1);
-						}
-					}else if(bulkItems > 0 && bulkItems <= 100){
-						//add by bulk items
-						for(int i = 1; i <= bulkItems; i++){
-							SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i, initPosition, null, "no", status, "none", null, null, false, null, null, syllabusItem);
-							syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
-							initPosition++;
-						}
-					}
-					if(mainEdit){
-						return "main_edit";
-					}else{
-						return "main";
-					}
-				}
-			  }
-		}catch (Exception e)
-		{
-			log.info(this + ".processEditBulkPost in SyllabusTool: " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-							"error_general", (new Object[] { e.toString() })));
-		}
-		return null;
+
+    private String processEditBulk(boolean post) throws PermissionException {
+        String status = post ? SyllabusData.ITEM_POSTED : SyllabusData.ITEM_DRAFT;
+        alertMessage = null;
+
+        if (bulkEntry != null) {
+            boolean addByDate = "1".equals(bulkEntry.getAddByDate());
+            boolean addByItem = "1".equals(bulkEntry.getAddByItems());
+            boolean addSingleItem = "1".equals(bulkEntry.getAddSingleItem());
+
+            // check options only one should be true
+            if (!BooleanUtils.oneHot(new Boolean[] {addSingleItem, addByItem, addByDate})) {
+                alertMessage = rb.getString("bulk_to_many_options_selected");
+                return "edit_bulk";
+            }
+
+            // check that a title was entered
+            if (StringUtils.isBlank(bulkEntry.getTitle())) {
+                alertMessage = rb.getString("empty_title_validate");
+                return "edit_bulk";
+            }
+
+            int bulkItems = 0;
+            if (addByItem) {
+                //check that bulk items is a valid number and no more than 100
+                bulkItems = NumberUtils.toInt(bulkEntry.getBulkItems());
+                if (bulkItems < 2 || bulkItems > 20) {
+                    alertMessage = rb.getString("bulk_items_invalid");
+                    return "edit_bulk";
+                }
+            }
+
+            if (addByDate) {
+                // check start date
+                if (bulkEntry.getStartDate() == null) {
+                    alertMessage = rb.getString("start_date_required");
+                    return "edit_bulk";
+                }
+                // check end date
+                if (bulkEntry.getEndDate() == null) {
+                    alertMessage = rb.getString("end_date_required");
+                    return "edit_bulk";
+                }
+                // check end date
+                if (bulkEntry.getStartTime() == null) {
+                    alertMessage = rb.getString("start_time_required");
+                    return "edit_bulk";
+                }
+                // end date after start date?
+                if (bulkEntry.getStartDate().after(bulkEntry.getEndDate())) {
+                    alertMessage = rb.getString("invalid_dates");
+                    return "edit_bulk";
+                }
+                // check day of week
+                if (!(bulkEntry.isMonday()
+                        || bulkEntry.isTuesday()
+                        || bulkEntry.isWednesday()
+                        || bulkEntry.isThursday()
+                        || bulkEntry.isFriday()
+                        || bulkEntry.isSaturday()
+                        || bulkEntry.isSunday())) {
+                    alertMessage = rb.getString("dayOfWeekRequired");
+                    return "edit_bulk";
+                }
+            }
+
+            int initPosition = syllabusManager.findLargestSyllabusPosition(syllabusItem) + 1;
+
+            if (addSingleItem) {
+                SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle(), initPosition, null, "no", status, "none", null, null, false, null, null, syllabusItem);
+                syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
+                entry = new DecoratedSyllabusEntry(syllabusDataObj);
+                entries.clear();
+                return "read";
+            }
+
+            if (addByItem) {
+                //add by bulk items
+                for (int i = 1; i <= bulkItems; i++) {
+                    SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i, initPosition, null, "no", status, "none", null, null, false, null, null, syllabusItem);
+                    syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
+                    initPosition++;
+                }
+                return "main_edit";
+            }
+
+            if (addByDate) {
+                //ok let's loop through the date span
+                //break out if past 1 year (don't want to have a DOS attack)
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                java.util.Calendar calStartTime = java.util.Calendar.getInstance();
+                java.util.Calendar calEndTime = java.util.Calendar.getInstance();
+                java.util.Calendar calYear = java.util.Calendar.getInstance();
+                cal.setTime(bulkEntry.getStartDate());
+                calStartTime.setTime(bulkEntry.getStartTime());
+                if (bulkEntry.getEndTime() != null) {
+                    calEndTime.setTime(bulkEntry.getEndTime());
+                }
+                cal.set(java.util.Calendar.HOUR_OF_DAY, calStartTime.get(java.util.Calendar.HOUR_OF_DAY));
+                cal.set(java.util.Calendar.MINUTE, calStartTime.get(java.util.Calendar.MINUTE));
+                cal.set(java.util.Calendar.SECOND, calStartTime.get(java.util.Calendar.SECOND));
+                calYear.setTime(bulkEntry.getStartDate());
+                calYear.add(java.util.Calendar.YEAR, 1);
+                //one extra precaution
+                int i = 1;
+                while (!cal.getTime().after(bulkEntry.getEndDate()) && !cal.getTime().after(calYear.getTime()) && i < 366) {
+                    if ((bulkEntry.isMonday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.MONDAY)
+                            || bulkEntry.isTuesday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.TUESDAY
+                            || bulkEntry.isWednesday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.WEDNESDAY
+                            || bulkEntry.isThursday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.THURSDAY
+                            || bulkEntry.isFriday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.FRIDAY
+                            || bulkEntry.isSaturday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SATURDAY
+                            || bulkEntry.isSunday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SUNDAY) {
+                        Date startDate = cal.getTime();
+                        Date endDate = null;
+                        if (bulkEntry.getEndTime() != null) {
+                            //set to end time
+                            cal.set(java.util.Calendar.HOUR_OF_DAY, calEndTime.get(java.util.Calendar.HOUR_OF_DAY));
+                            cal.set(java.util.Calendar.MINUTE, calEndTime.get(java.util.Calendar.MINUTE));
+                            cal.set(java.util.Calendar.SECOND, calEndTime.get(java.util.Calendar.SECOND));
+                            endDate = cal.getTime();
+                            //reset to start time
+                            cal.set(java.util.Calendar.HOUR_OF_DAY, calStartTime.get(java.util.Calendar.HOUR_OF_DAY));
+                            cal.set(java.util.Calendar.MINUTE, calStartTime.get(java.util.Calendar.MINUTE));
+                            cal.set(java.util.Calendar.SECOND, calStartTime.get(java.util.Calendar.SECOND));
+                        }
+                        SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i, initPosition, null, "no", status, "none", startDate, endDate, bulkEntry.isLinkCalendar(), null, null, syllabusItem);
+                        syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
+                        i++;
+                        initPosition++;
+                    }
+                    cal.add(java.util.Calendar.DAY_OF_WEEK, 1);
+                }
+                return "main_edit";
+            }
+        }
+        return null;
   }
   
   public String processEditPost() throws PermissionException
@@ -1407,18 +1419,6 @@ public class SyllabusTool
 
       return null;
     }
-  }
-  
-  public String processListNewBulkMainEdit() throws PermissionException
-  {
-	  mainEdit = true;
-	  return processListNewBulk();
-  }
-  
-  public String processListNewBulkMain() throws PermissionException
-  {
-	  mainEdit = false;
-	  return processListNewBulk();
   }
   
   public String processListNewBulk() throws PermissionException
@@ -1960,6 +1960,12 @@ public class SyllabusTool
     return "main";
   }
 
+  public String processEditResetRedirect() throws PermissionException {
+      currentRediredUrl = "";
+      processEditSaveRedirect();
+      return "edit_redirect";
+  }
+
   public String processEditSaveRedirect() throws PermissionException
   {
     //log.info(this + ".processEditSaveRedirect() in SyllabusTool");
@@ -2014,11 +2020,8 @@ public class SyllabusTool
     }
     catch (Exception e)
     {
-      log.info(this + ".processEditSaveRedirect in SyllabusTool: " + e);
-      FacesContext.getCurrentInstance().addMessage(
-          null,
-          MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_general", (new Object[] { e.toString() })));
+      log.warn("Could not save redirect [{}], {}", currentRediredUrl, e.toString());
+      FacesContext.getCurrentInstance().addMessage(null, MessageFactory.getMessage(FacesContext.getCurrentInstance(), "error_general", e.toString()));
     }
 
     return null;
@@ -2892,7 +2895,7 @@ public class SyllabusTool
       }
   }
   
-  public class BulkSyllabusEntry{
+  public class BulkSyllabusEntry {
 	  public final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
 	  private String title = "";
 	  private Date startDate = null;
@@ -2902,7 +2905,8 @@ public class SyllabusTool
 	  private Date startTime;
 	  private Date endTime;
 	  private String bulkItems;
-	  private String addByItems = "1";
+	  @Getter @Setter private String addSingleItem = "1";
+	  private String addByItems;
 	  private String addByDate;
 	  
 	public Date getStartDate() {

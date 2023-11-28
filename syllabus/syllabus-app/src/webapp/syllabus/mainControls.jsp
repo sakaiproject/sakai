@@ -15,10 +15,6 @@
 **********************************************************************************/
 --%>
 <h:panelGroup>
-  <h:outputLink rendered="#{SyllabusTool.addItem}" styleClass="button" value="javascript:showConfirmAddHelper();">
-    <span class="fa fa-plus" aria-hidden="true"></span>
-    <h:outputText value="#{msgs.addItemTitle}"/>
-  </h:outputLink>
   <button class="button" id="expandLink" onclick="return false;">
     <span class="fa fa-expand" aria-hidden="true"></span>
     <h:outputText value="#{msgs.expandAll}"/>

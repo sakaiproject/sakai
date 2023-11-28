@@ -25,7 +25,7 @@
     <h:panelGroup rendered="#{SyllabusTool.bulkAddItem}">
       <li>
         <span id="syllabusMenuBulkAddItemLink">
-          <h:commandLink action="#{SyllabusTool.processListNewBulkMain}" immediate="true">
+          <h:commandLink action="#{SyllabusTool.processListNewBulk}" immediate="true">
             <h:outputText value="#{msgs.bar_new_bulk}"/>
           </h:commandLink>
         </span>
