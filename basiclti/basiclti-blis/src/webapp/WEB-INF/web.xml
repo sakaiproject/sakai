@@ -20,11 +20,13 @@
   <servlet>
     <servlet-name>ServiceServlet</servlet-name>
     <servlet-class>org.sakaiproject.blti.ServiceServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet>
     <servlet-name>LTI13Service</servlet-name>
     <servlet-class>org.sakaiproject.lti13.LTI13Servlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet-mapping>

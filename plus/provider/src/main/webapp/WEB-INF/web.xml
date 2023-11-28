@@ -20,6 +20,7 @@
   <servlet>
     <servlet-name>ProviderServlet</servlet-name>
     <servlet-class>org.sakaiproject.plus.ProviderServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
   </servlet>
 
   <!-- Put at second level to allow jsp files etc to be served -->
