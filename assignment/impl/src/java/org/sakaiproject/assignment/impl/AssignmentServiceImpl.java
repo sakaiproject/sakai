@@ -2749,6 +2749,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         decomposed = decomposed.replaceAll("\\?", StringUtils.EMPTY);
         // To avoid issues, dash variations will be replaced by a regular dash.
         decomposed = decomposed.replaceAll("\\p{Pd}", "-");
+        // Remove any non-ascii characters to avoid errors like 'cannot be encoded as it is outside the permitted range of 0 to 255'
+        decomposed = decomposed.replaceAll("[^\\p{ASCII}]", StringUtils.EMPTY);
         return decomposed;
     }
 
