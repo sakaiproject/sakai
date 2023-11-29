@@ -3,7 +3,7 @@
  * $Id:  $
  * **********************************************************************************
  *
- * Copyright (c) 2010 The Sakai Foundation
+ * Copyright (c) 2023 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -260,7 +260,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             'bidi',
             'clipboard',
             // 'cloudservices',
-            // 'codesnippet',
+            'codesnippet',
             // 'codesnippetgeshi',
             'colorbutton',
             'colordialog',
@@ -366,7 +366,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //['Cut','Copy','Paste','PasteText','-','Print', 'SpellChecker', 'Scayt'],
             ['Cut','Copy','Paste','PasteText','-','Print', 'SakaiPreview'],
             ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-            ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
+            ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv', 'CodeSnippet'],
             // //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
             '/',
             ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
