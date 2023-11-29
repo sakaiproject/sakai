@@ -88,15 +88,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers-standard-package</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parser-scientific-package</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parser-sqlite3-package</artifactId>
+            <artifactId>tika-parsers</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vdurmont</groupId>
