@@ -27,11 +27,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -43,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -151,11 +148,6 @@ public class DbContentService extends BaseContentService
      * The extra field(s) to write to the database - resources - when we are doing bodys the db with the context-query conversion.
      */
     protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "RESOURCE_SHA256"};
-
-    /**
-     * The ID that is used in the content_resource table to test UTF8
-     */
-    private static final String UTF8TESTID = "UTF8TEST";
 
     private static final String[] BASE_COLLECTION_IDS = new String[]{
         "/","/attachment/","/group-user/","/group/","/private/","/public/","/user/"   
@@ -402,31 +394,6 @@ public class DbContentService extends BaseContentService
 
                 // add the delete table
                 m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_delete");
-            }
-
-            try
-            {
-                validateUTF8Db();
-            }
-            catch (Exception ex)
-            {
-                log.error(FATAL, "Check on Database Failed", ex);
-                log.error(FATAL, "===========================================================");
-                log.error(FATAL, "WARNING \n"
-                        + "  The connection from this instance of Sakai to the database\n"
-                        + "  has been tested and found to corrupt UTF-8 Data. \n"
-                        + "  In order for Sakai to operate correctly you must ensure that your \n"
-                        + "  database setup is correct for UTF-8 data. This includes both the \n"
-                        + "  JDBC connection to the database and the underlying storage in the \n"
-                        + "  database.\n"
-                        + "  The test that was performed on your database create a table\n"
-                        + "  wrote some data to that table and read it back again. On reading \n"
-                        + "  that data back it found some form of corruption, reported above.\n"
-                        + "\n"
-                        + " More information on database setup for sakai can be found at \n"
-                        + " https://confluence.sakaiproject.org/display/I18N/Common+UTF-8+Problems \n"
-                        + "\n"
-                        + " Sakai Startup will continue but you might want to address this issue ASAP.\n");
             }
 
             if ( migrateData ) {
@@ -3250,167 +3217,6 @@ public class DbContentService extends BaseContentService
         }
 
         return size;
-    }
-
-    /**
-     * @throws Exception 
-     * 
-     */
-    private void validateUTF8Db() throws Exception
-    {
-        Connection connection = m_sqlService.borrowConnection();
-        try
-        {
-            testUTF8Transport(connection);
-        }
-        finally
-        {
-            m_sqlService.returnConnection(connection);
-        }
-
-    }	
-
-    public void testUTF8Transport(Connection connection) throws Exception
-    {
-        /*
-         * byte[] b = new byte[102400]; byte[] b2 = new byte[102400]; byte[] b3 =
-         * new byte[102400]; char[] cin = new char[102400]; Random r = new
-         * Random(); r.nextBytes(b);
-         */
-        byte[] bin = new byte[1024];
-        char[] cin = new char[1024];
-        byte[] bout = new byte[1024];
-
-        {
-            int i = 0;
-            for (int bx = 0; i < bin.length; bx++)
-            {
-                bin[i++] = (byte) bx;
-            }
-        }
-        ByteStorageConversion.toChar(bin, 0, cin, 0, cin.length);
-        String sin = new String(cin);
-
-        char[] cout = sin.toCharArray();
-        ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
-
-        for (int i = 0; i < bin.length; i++)
-        {
-            if (bin[i] != bout[i])
-            {
-                throw new Exception("Internal Byte conversion failed at " + bin[i] + "=>"
-                        + (int) cin[i] + "=>" + bout[i]);
-            }
-        }
-
-        PreparedStatement statement = null;
-        PreparedStatement statement2 = null;
-        PreparedStatement statement3 = null;
-        ResultSet rs = null;
-        try
-        {
-            statement3 = connection
-            .prepareStatement("delete from CONTENT_RESOURCE where  RESOURCE_ID =  ?");
-            statement3.clearParameters();
-            statement3.setString(1, UTF8TESTID);
-            statement3.executeUpdate();
-
-            statement = connection
-            .prepareStatement("insert into CONTENT_RESOURCE ( RESOURCE_ID, XML ) values ( ?, ? )");
-            statement.clearParameters();
-            statement.setString(1, UTF8TESTID);
-            statement.setString(2, sin);
-            statement.executeUpdate();
-
-            statement2 = connection
-            .prepareStatement("select XML from CONTENT_RESOURCE where RESOURCE_ID = ? ");
-            statement2.clearParameters();
-            statement2.setString(1, UTF8TESTID);
-            rs = statement2.executeQuery();
-            String sout = null;
-            if (rs.next())
-            {
-                sout = rs.getString(1);
-            }
-            rs.close();
-
-
-            statement3.clearParameters();
-            statement3.setString(1, UTF8TESTID);
-            statement3.executeUpdate();
-
-
-            if (sout != null) {
-                cout = sout.toCharArray();
-            }
-            ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
-
-            if (sout != null) {
-                if (sin.length() != sout.length())
-                {
-                    throw new Exception(
-                            "UTF-8 Data was lost communicating with the database, please "
-                            + "check connection string and default table types (Truncation/Expansion)");
-                }
-            }
-
-            for (int i = 0; i < bin.length; i++)
-            {
-                if (bin[i] != bout[i])
-                {
-                    throw new Exception(
-                            "UTF-8 Data was corrupted communicating with the database, "
-                            + "please check connectionstring and default table types (Conversion)"
-                            + "" + bin[i] + "=>" + (int) cin[i] + "=>" + bout[i]);
-                }
-            }
-
-
-        }
-        finally
-        {
-            try
-            {
-                rs.close();
-            }
-            catch (Exception ex)
-            {
-
-            }
-            try
-            {
-                statement3.close();
-            }
-            catch (Exception ex)
-            {
-
-            }
-            try
-            {
-                statement2.close();
-            }
-            catch (Exception ex)
-            {
-
-            }
-            try
-            {
-                statement.close();
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
-
-    }
-
-    /**
-     * @return the migrateData
-     */
-    public boolean isMigrateData()
-    {
-        return migrateData;
     }
 
     /**

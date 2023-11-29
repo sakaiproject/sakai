@@ -9560,11 +9560,11 @@ public class AssignmentAction extends PagedResourceActionII {
                                   boolean checkIsEstimate,
                                   boolean checkEstimateRequired,
                                   String timeEstimate) {
-        a.setTitle(title);
+        a.setTitle(processFormattedTextFromBrowser(state, title, true));
         a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
         a.setSection(section);
         a.setIsGroup(isGroupSubmit);
-        a.setInstructions(description);
+        a.setInstructions(processFormattedTextFromBrowser(state, description, true));
         a.setHonorPledge(checkAddHonorPledge);
         a.setHideDueDate(hideDueDate);
         a.setTypeOfSubmission(submissionType);
