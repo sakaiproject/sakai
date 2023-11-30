@@ -55,7 +55,6 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	private boolean openSwitch;
 	private Calendar openDate;
 	private boolean errorflag;
-	private boolean restrictExternallyManagedSections;
 	private final String RESTRICT_EXTERNALLY_MANAGED_SECTIONS_PROP = "sections.restrict.externally.managed";
 
 	public void init() {
@@ -82,8 +81,8 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 		} else {
 			management = INTERNAL;
 			// Once manual has been chosen, prevent instructors to switch to externally managed.
-			restrictExternallyManagedSections = ServerConfigurationService.getBoolean(RESTRICT_EXTERNALLY_MANAGED_SECTIONS_PROP, false);
-			restrictExternallyManagedSections = restrictExternallyManagedSections && !isSuperUser();
+			boolean restrictExternallyManagedSections = ServerConfigurationService.getBoolean(RESTRICT_EXTERNALLY_MANAGED_SECTIONS_PROP, false);
+			managementToggleEnabled = ! (restrictExternallyManagedSections && !isSuperUser());
 		}
 		this.openDate = sm.getOpenDate(getCourse().getSiteContext());
 		if (this.openDate!=null){
@@ -221,10 +220,6 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_date_format"));
 			errorflag=true;
 		}
-	}
-
-	public boolean isRestrictExternallyManagedSections() {
-		return restrictExternallyManagedSections;
 	}
 
 }
