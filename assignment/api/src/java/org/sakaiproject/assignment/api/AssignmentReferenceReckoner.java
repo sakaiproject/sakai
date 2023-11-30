@@ -120,6 +120,9 @@ public class AssignmentReferenceReckoner {
                     if ("s".equals(subtype) && parts.length > 5) {
                         if (container == null) container = parts[4];
                         if (id == null) id = parts[5];
+                    } else if ("peer_review".equals(subtype) && parts.length > 6) {
+                        if (container == null) container = parts[4];
+                        if (id == null) id = parts[5] + Entity.SEPARATOR + parts[6];
                     } else {
                         // others don't
                         if (parts.length > 4) {
