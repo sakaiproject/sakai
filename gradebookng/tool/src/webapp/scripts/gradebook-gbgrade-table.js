@@ -369,11 +369,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   if (!wasInitialised || td.getAttribute('scope') == 'row') {
     // First time we've initialised this cell.
     // Or we're replacing the student name cell
-    GbGradeTable.templates.cell.setHTML(td, {
-      value: value,
-      isExternallyMaintained: isExternallyMaintained,
-      hasAssociatedRubric: hasAssociatedRubric
-    });
+    GbGradeTable.templates.cell.setHTML(td, { value: value });
 
     if (td.hasAttribute('scope')) {
       td.removeAttribute('scope');
@@ -384,6 +380,12 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 
     // This cell was previously holding a different value.  Just patch it.
     GbGradeTable.replaceContents(valueCell, document.createTextNode(value));
+  }
+
+  const gradeRubricClass = "gb-grade-rubric-li";
+  const gradeRubricListItem = td.getElementsByClassName(gradeRubricClass)[0];
+  if (gradeRubricListItem) {
+    gradeRubricListItem.setAttribute("class", (!hasAssociatedRubric || isExternallyMaintained) ? gradeRubricClass + " d-none" : gradeRubricClass);
   }
 
   var $gradeRubricOption = $(td).find(".gb-grade-rubric").parent();
