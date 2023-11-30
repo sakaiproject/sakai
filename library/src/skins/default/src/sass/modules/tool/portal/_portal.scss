@@ -587,3 +587,7 @@
   color: var(--sakai-text-color-1);
   background-color: var(--sakai-background-color-2);
 }
+
+.bs-popover-auto {
+    z-index: 99999;
+}
