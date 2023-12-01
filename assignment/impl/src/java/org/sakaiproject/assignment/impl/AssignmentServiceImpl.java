@@ -1403,32 +1403,58 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
 
-        Collection<String> oldGroups = assignmentRepository.findGroupsForAssignmentById(assignment.getId());
+        Collection<String> prevAssignedGroupRefs = assignmentRepository.findGroupsForAssignmentById(assignment.getId());
         switch (assignment.getTypeOfAccess()) {
             case GROUP:
-                oldGroups.removeAll(assignment.getGroups());
-                for (String groupRef : oldGroups) { // remove locks for groups that were removed
-                    try {
-                        AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
-                        group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
-                        authzGroupService.save(group);
-                    } catch (GroupNotDefinedException | AuthzPermissionException e) {
-                        log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
+                Collection<String> currentAssignedGroupRefs = assignment.getGroups();
+                // get the unassigned Group References by removing the current ones !
+                prevAssignedGroupRefs.removeAll(currentAssignedGroupRefs);
+
+                Site site = null;
+                try {
+                    site = siteService.getSite(assignment.getContext());
+                } catch (IdUnusedException e) {
+                    log.warn("Could not get the site {} for assignment {} while updating it", assignment.getContext(), assignment.getId());
+                }
+                // on Lessons, a group assignment or one with prereq. will be managed through a single (access) group
+                Group anAssignedGroup = site.getGroup(currentAssignedGroupRefs.stream().findFirst().orElse(null));
+                // we can infer it is an ACCESS group if it has the following property
+                boolean accessGroupAssigned = StringUtils.isNotBlank(anAssignedGroup.getProperties().getProperty("lessonbuilder_ref"));
+
+                // If the assigned group is not an ACCESS group...
+                if (accessGroupAssigned == false) {
+                    for (String groupRef : prevAssignedGroupRefs) { // remove locks for groups that were removed or unassigned
+                        try {
+                            AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                            group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                            authzGroupService.save(group);
+                        } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                            log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
+                        }
                     }
                 }
                 if (!assignment.getDraft()) { // don't add locks for draft assignments
                     if (assignment.getIsGroup()) { // lock mode ALL for group assignments
-                        for (String groupRef : assignment.getGroups()) {
+                        for (String groupRef : currentAssignedGroupRefs) {
                             try {
+                                Group assignedGroup = site.getGroup(groupRef);
+                                boolean isAccessGroup = StringUtils.isNotBlank(assignedGroup.getProperties().getProperty("lessonbuilder_ref"));
+
                                 AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
-                                group.setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+                                if (isAccessGroup) {
+                                    // exception: it's an ACCESS group, membership won't be locked
+                                    // as users are dynamically added to be able to see the related assignment on Lessons
+                                    group.setLockForReference(reference, AuthzGroup.RealmLockMode.DELETE);
+                                } else {
+                                    group.setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+                                }
                                 authzGroupService.save(group);
                             } catch (GroupNotDefinedException | AuthzPermissionException e) {
                                 log.warn("Exception while adding lock ALL for assignment {}, {}", assignment.getId(), e.toString());
                             }
                         }
-                    } else { // lock mode DELETE for assignments released to groups
-                        for (String groupRef : assignment.getGroups()) {
+                    } else { // lock mode DELETE for assignments released to groups through Lessons
+                        for (String groupRef : currentAssignedGroupRefs) {
                             try {
                                 AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
                                 group.setLockForReference(reference, AuthzGroup.RealmLockMode.DELETE);
@@ -1441,7 +1467,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
                 break;
             case SITE:
-                for (String groupRef : oldGroups) { // remove all locks if they exist
+                for (String groupRef : prevAssignedGroupRefs) { // remove all locks if they exist
                     try {
                         AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
                         group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
