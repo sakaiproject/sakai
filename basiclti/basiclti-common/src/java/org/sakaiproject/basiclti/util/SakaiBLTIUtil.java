@@ -1474,9 +1474,6 @@ public class SakaiBLTIUtil {
 			}
 
 			boolean dodebug = getInt(tool.get(LTIService.LTI_DEBUG)) == 1;
-			if (log.isDebugEnabled()) {
-				dodebug = true;
-			}
 
 			// Merge all the sources of custom vaues and run the substitution
 			Properties custom = new Properties();
@@ -2026,9 +2023,6 @@ public class SakaiBLTIUtil {
 
 			String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
 			boolean dodebug = BASICLTI_PORTLET_ON.equals(debugProperty) || "1".equals(debugProperty);
-			if (log.isDebugEnabled()) {
-				dodebug = true;
-			}
 
 			String state = toolProps.getProperty("state");
 			state = StringUtils.trimToNull(state);
