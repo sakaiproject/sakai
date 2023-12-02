@@ -176,6 +176,7 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
 
                             // if the event context is !admin or the event resource contains "motd"
                             if (SiteService.ADMIN_SITE_ID.equals(eventContext) && eventResource.contains("motd")) {
+                                // TODO this could be a significant amount of users to process, may need to rethink how to handle this
                                 usersToNotify = userDirectoryService.getUsers().stream().map(User::getId).collect(Collectors.toSet());
                             } else {
                                 Collection<String> groups = message.getHeader().getGroups();
