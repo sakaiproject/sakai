@@ -110,22 +110,26 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
             SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ, AnnouncementService.SECURE_ANNC_READ_DRAFT});
             try {
                 AnnouncementMessage message = (AnnouncementMessage) announcementService.getMessage(entityManager.newReference(eventResource));
-                boolean isFutureMessage = Instant.now().isBefore(message.getHeader().getInstant());
-                boolean isDraftMessage = message.getHeader().getDraft();
+                boolean isDraftMessage = false;
+                boolean isFutureMessage = false;
 
-                // process events that are being deleted or those that are updated and are draft or released in the future (i.e. hidden)
+                if (message != null) {
+                    isDraftMessage = message.getHeader().getDraft();
+                    isFutureMessage = Instant.now().isBefore(message.getHeader().getInstant());
+                }
+
+                // remove user notifications for the message that was deleted or those that have been updated and are not visible (draft or future)
                 if ((AnnouncementService.SECURE_ANNC_REMOVE_OWN.equals(eventName) || AnnouncementService.SECURE_ANNC_REMOVE_ANY.equals(eventName))
                         || (UPDATE_EVENT.equals(eventName) && (isDraftMessage || isFutureMessage))) {
 
-                    // remove any existing alerts for the event
+                    // remove user notifications
                     try {
-                        // Remove notifications related to the same announcement, whether they are 'annc.new' or 'annc.revise.availability'
                         new TransactionTemplate(transactionManager).executeWithoutResult(transactionStatus -> {
                             Session session = sessionFactory.getCurrentSession();
                             CriteriaBuilder queryBuilder = session.getCriteriaBuilder();
 
                             // first we query for all those events that will be deleted which will flush any changes in the
-                            // persistence context for this table then we detach all the notifications from the persistence context
+                            // persistence context for this table then detach all the notifications from the persistence context
                             CriteriaQuery<UserNotification> eventQuery = queryBuilder.createQuery(UserNotification.class);
                             Root<UserNotification> eventQueryTable = eventQuery.from(UserNotification.class);
                             eventQuery.where(
@@ -148,20 +152,20 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                             session.createQuery(eventDeleteQuery).executeUpdate();
                         });
                     } catch (TransactionException te) {
-                        log.warn("Could not remove bullhorn alerts for announcement [{}], {}", message.getId(), te.toString());
+                        log.warn("Could not remove bullhorn alerts for announcement [{}], {}", eventResource, te.toString());
                     }
-                } else { // process all other events
+                } else if (message != null) { // process all other events as long as the message isn't null
                     final String eventUserId = event.getUserId();
                     final String eventContext = event.getContext();
 
                     if (!isDraftMessage && announcementService.isMessageViewable(message)) {
                         Site site = siteService.getSite(eventContext);
-                        ToolConfiguration tc = site.getToolForCommonId("sakai.announcements");
+                        ToolConfiguration toolConfig = site.getToolForCommonId("sakai.announcements");
                         // Check for null. We can get events with no tool there.
-                        if (tc != null) {
+                        if (toolConfig != null) {
                             String url = serverConfigurationService.getPortalUrl()
                                     + "/directtool/"
-                                    + tc.getId()
+                                    + toolConfig.getId()
                                     + "?itemReference="
                                     + eventResource
                                     + "&sakai_action=doShowmetadata";
@@ -207,6 +211,8 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                                     .collect(Collectors.toList());
                         }
                     }
+                } else { // all other events that had a null message come here
+                    log.debug("The event [{}] was not processed by this handler because message was null and should likely be investigated", event);
                 }
             } catch (Exception e) {
                 log.warn("Could not handle event [{}], {}", event, e.toString());
