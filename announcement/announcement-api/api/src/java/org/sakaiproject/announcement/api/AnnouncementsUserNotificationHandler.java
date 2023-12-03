@@ -15,8 +15,11 @@
  */
 package org.sakaiproject.announcement.api;
 
-import java.util.ArrayList;
+import static java.util.function.Predicate.not;
+
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.time.Instant;
 import java.util.List;
@@ -25,7 +28,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
+import org.hibernate.Session;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -36,16 +44,15 @@ import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -90,118 +97,132 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
     }
 
     @Override
-    public Optional<List<UserNotificationData>> handleEvent(Event e) {
+    public Optional<List<UserNotificationData>> handleEvent(Event event) {
+        List<UserNotificationData> bhEvents = Collections.emptyList();
 
-        String from = e.getUserId();
+        final String eventName = event.getEvent();
+        final String eventResource = event.getResource();
 
-        String ref = e.getResource();
-        String[] pathParts = ref.split("/");
+        // Ignore event that is "annc.new" and it's resource contains "motd" as these are handled by a "motd.new" event
+        if (!(AnnouncementService.SECURE_ANNC_ADD.equals(eventName) && eventResource.contains("motd"))) {
 
-        String siteId = pathParts[3];
+            // Add a security advisor that allows "annc.read" and "annc.read.drafts" permissions, must be popped in finally
+            SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ, AnnouncementService.SECURE_ANNC_READ_DRAFT});
+            try {
+                AnnouncementMessage message = (AnnouncementMessage) announcementService.getMessage(entityManager.newReference(eventResource));
+                boolean isDraftMessage = false;
+                boolean isFutureMessage = false;
 
-        // We ignore this event as it will be repeated with an "motd.new" event
-        if (e.getEvent().equals(AnnouncementService.SECURE_ANNC_ADD) && ref.contains("motd")) {
-            return Optional.of(List.of());
-        }
-
-        SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ, AnnouncementService.SECURE_ANNC_READ_DRAFT});
-        AnnouncementMessage message = null;
-        try {
-            message = (AnnouncementMessage) announcementService.getMessage(entityManager.newReference(ref));
-        } catch (Exception ex) {
-            log.debug("No announcement with id {}", ref);
-        }
-
-        boolean isDraft = message.getHeader().getDraft();
-        boolean releasedInFuture = Instant.now().isBefore(message.getHeader().getInstant());
-        // TODO: the following code could be simplified. Lots of try catches.
-        try {
-            // If the announcement has just been hidden or removed, remove any existing alerts for it
-            // Also if it has been saved as draft or with release date in the future
-            if ((AnnouncementService.SECURE_ANNC_REMOVE_OWN.equals(e.getEvent()) || AnnouncementService.SECURE_ANNC_REMOVE_ANY.equals(e.getEvent()))
-                        || (UPDATE_EVENT.equals(e.getEvent()) && (isDraft || releasedInFuture))) {
-                try {
-                    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-
-                    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-
-                        protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-                            // Grab the alerts we'll be deleting. We'll need to clear the count caches
-                            // for the recipients
-                            final List<UserNotification> alerts
-                                = sessionFactory.getCurrentSession().createCriteria(UserNotification.class)
-                                    .add(Restrictions.or(Restrictions.eq("event", ADD_EVENT), Restrictions.eq("event", UPDATE_EVENT)))
-                                    .add(Restrictions.eq("ref", ref)).list();
-
-
-                            // Remove notifications related to the same announcement, whether they are 'annc.new' or 'annc.revise.availability'
-                            sessionFactory.getCurrentSession().createQuery("delete UserNotification where (event = :newEvent or event = :reviseEvent) and ref = :ref")
-                                .setString("newEvent", ADD_EVENT)
-                                .setString("reviseEvent", UPDATE_EVENT)
-                                .setString("ref", ref).executeUpdate();
-                        }
-                    });
-                } catch (Exception e1) {
-                    log.error("Failed to delete user notification add announcement event", e1);
+                if (message != null) {
+                    isDraftMessage = message.getHeader().getDraft();
+                    isFutureMessage = Instant.now().isBefore(message.getHeader().getInstant());
                 }
-                return Optional.empty();
-            }
 
-            if (!message.getHeader().getDraft() && announcementService.isMessageViewable(message)) {
-                Site site = siteService.getSite(siteId);
-                ToolConfiguration tc = site.getToolForCommonId("sakai.announcements");
-                // Check for null. We can get events with no tool there.
-                if (tc != null) {
-                    String url = serverConfigurationService.getPortalUrl() + "/directtool/" + tc.getId()
-                                        + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
+                // remove user notifications for the message that was deleted or those that have been updated and are not visible (draft or future)
+                if ((AnnouncementService.SECURE_ANNC_REMOVE_OWN.equals(eventName) || AnnouncementService.SECURE_ANNC_REMOVE_ANY.equals(eventName))
+                        || (UPDATE_EVENT.equals(eventName) && (isDraftMessage || isFutureMessage))) {
 
-                    // In this case title = announcement subject
-                    String title
-                        = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                    // remove user notifications
+                    try {
+                        new TransactionTemplate(transactionManager).executeWithoutResult(transactionStatus -> {
+                            Session session = sessionFactory.getCurrentSession();
+                            CriteriaBuilder queryBuilder = session.getCriteriaBuilder();
 
-                    List<UserNotificationData> bhEvents = new ArrayList<>();
-                    Set<String> usersList = new HashSet<>();
+                            // first we query for all those events that will be deleted which will flush any changes in the
+                            // persistence context for this table then detach all the notifications from the persistence context
+                            CriteriaQuery<UserNotification> eventQuery = queryBuilder.createQuery(UserNotification.class);
+                            Root<UserNotification> eventQueryTable = eventQuery.from(UserNotification.class);
+                            eventQuery.where(
+                                    queryBuilder.and(
+                                            queryBuilder.or(
+                                                    queryBuilder.equal(eventQueryTable.get("event"), ADD_EVENT),
+                                                    queryBuilder.equal(eventQueryTable.get("event"), UPDATE_EVENT))),
+                                    queryBuilder.equal(eventQueryTable.get("ref"), eventResource));
+                            session.createQuery(eventQuery).list().forEach(session::detach);
 
-                    if (siteId.equals(SiteService.ADMIN_SITE_ID) && ref.contains("motd")) {
-                        usersList = userDirectoryService.getUsers().stream().map(u -> u.getId()).collect(Collectors.toSet());
-                    } else if (message.getHeader().getGroups().isEmpty()) {
-                        // Get all the members of the site with read ability if the announcement is not for groups
-                        usersList = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ);
-                    } else {
-                        // Otherwise get the members of the groups
-                        for (String group : message.getHeader().getGroups()) {
-                            usersList.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
-                        }
+                            // perform the bulk delete operation. NOTE bulk delete operations don't update the persistence context
+                            CriteriaDelete<UserNotification> eventDeleteQuery = queryBuilder.createCriteriaDelete(UserNotification.class);
+                            Root<UserNotification> eventDeleteQueryTable = eventDeleteQuery.from(UserNotification.class);
+                            eventDeleteQuery.where(
+                                    queryBuilder.and(
+                                            queryBuilder.or(
+                                                    queryBuilder.equal(eventDeleteQueryTable.get("event"), ADD_EVENT),
+                                                    queryBuilder.equal(eventDeleteQueryTable.get("event"), UPDATE_EVENT))),
+                                    queryBuilder.equal(eventDeleteQueryTable.get("ref"), eventResource));
+                            session.createQuery(eventDeleteQuery).executeUpdate();
+                        });
+                    } catch (TransactionException te) {
+                        log.warn("Could not remove bullhorn alerts for announcement [{}], {}", eventResource, te.toString());
                     }
-                    
-                    if (message.getProperties().getPropertyList(SELECTED_ROLES_PROPERTY) != null) {
-                        Set<String> usersListAux = new HashSet<>();
-                        ArrayList<String> selectedRolesList = new ArrayList<String>(message.getProperties().getPropertyList(SELECTED_ROLES_PROPERTY));
-                        for (String selectedRole : selectedRolesList) {
-                            for (String userId: usersList) {
-                                if (site.getMember(userId).getRole().getId().equalsIgnoreCase(selectedRole)) {
-                                    usersListAux.add(userId);
+                } else if (message != null) { // process all other events as long as the message isn't null
+                    final String eventUserId = event.getUserId();
+                    final String eventContext = event.getContext();
+
+                    if (!isDraftMessage && announcementService.isMessageViewable(message)) {
+                        Site site = siteService.getSite(eventContext);
+                        ToolConfiguration toolConfig = site.getToolForCommonId("sakai.announcements");
+                        // Check for null. We can get events with no tool there.
+                        if (toolConfig != null) {
+                            String url = serverConfigurationService.getPortalUrl()
+                                    + "/directtool/"
+                                    + toolConfig.getId()
+                                    + "?itemReference="
+                                    + eventResource
+                                    + "&sakai_action=doShowmetadata";
+
+                            // In this case title = announcement subject
+                            String title = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                            Set<String> usersToNotify = new HashSet<>();
+
+                            // if the event context is !admin or the event resource contains "motd"
+                            if (SiteService.ADMIN_SITE_ID.equals(eventContext) && eventResource.contains("motd")) {
+                                // TODO this could be a significant amount of users to process, may need to rethink how to handle this
+                                usersToNotify = userDirectoryService.getUsers().stream().map(User::getId).collect(Collectors.toSet());
+                            } else {
+                                Collection<String> groups = message.getHeader().getGroups();
+                                if (groups.isEmpty()) {
+                                    // if the message is not for a group then
+                                    // get all the members of the site with ability to read the announcement
+                                    usersToNotify = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ);
+                                } else {
+                                    // otherwise this is a message for a group(s)
+                                    for (String group : groups) {
+                                        // get all the members of the group(s) with ability to read the announcement
+                                        usersToNotify.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
+                                    }
                                 }
                             }
-                        }
-                        usersList = new HashSet<>(usersListAux);
-                    }
 
-                    for (String  to : usersList) {
-                        if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                            bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
+                            Set<String> filteredUsersToNotify;
+                            // filter users to notify based on their role
+                            List<String> selectedRoles = message.getProperties().getPropertyList(SELECTED_ROLES_PROPERTY);
+                            if (selectedRoles != null && !selectedRoles.isEmpty()) {
+                                filteredUsersToNotify = usersToNotify.stream()
+                                        .filter(u -> selectedRoles.contains(site.getMember(u).getRole().getId()))
+                                        .collect(Collectors.toSet());
+                            } else {
+                                filteredUsersToNotify = usersToNotify;
+                            }
+
+                            // finally filter out the user who generated the event and superuser types
+                            bhEvents = filteredUsersToNotify.stream()
+                                    .filter(not(eventUserId::equals))
+                                    .filter(not(securityService::isSuperUser))
+                                    .map(u -> new UserNotificationData(eventUserId, u, eventContext, title, url))
+                                    .collect(Collectors.toList());
                         }
                     }
-                    return Optional.of(bhEvents);
+                } else { // all other events that had a null message come here
+                    log.debug("The event [{}] was not processed by this handler because message was null and should likely be investigated", event);
                 }
+            } catch (Exception e) {
+                log.warn("Could not handle event [{}], {}", event, e.toString());
+            } finally {
+                // pop the security advisor
+                lock(sa);
             }
-        } catch (Exception ex) {
-            log.error("No site with id '" + siteId + "'", ex);
-        } finally {
-            lock(sa);
         }
 
-        return Optional.empty();
+        return Optional.of(bhEvents);
     }
 }
