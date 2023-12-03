@@ -500,15 +500,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 
 		// check for cross-site video resources (type 7)
-		if ((attachments != null) && (item.getType() == SimplePageItem.MULTIMEDIA)) {
+		if ((attachments != null) && ((item.getType() == SimplePageItem.MULTIMEDIA) || (item.getType() == SimplePageItem.RESOURCE))) {
 			if (item.getSakaiId().startsWith("/group/") && (item.getSakaiId().split("/").length >=2)) {
 				String groupId = item.getSakaiId().split("/")[2];
-				log.debug("Lessons multimedia item in siteid {} with resource group id {}", site.getId(), groupId);
+				log.debug("Lessons item in siteid {} with resource group id {}", site.getId(), groupId);
 				if (!site.getId().equals(groupId)) {
 					// Append to the attachment reference list for archive
 					Reference ref = EntityManager.newReference(contentHostingService.getReference(item.getSakaiId()));
 					attachments.add(ref);
-					log.info("Found cross-site type 7 video, adding to attachment list: {}", item.getSakaiId());
+					log.info("Found cross-site item, adding to attachment list: {}", item.getSakaiId());
 				}
 			}
 		}
