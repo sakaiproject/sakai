@@ -1380,6 +1380,7 @@ public class LTI13Servlet extends HttpServlet {
 			Map<String, Member> memberMap = new HashMap<>();
 			List<String> userIds = new ArrayList<>();
 			for (Member member : members) {
+				if ( ! member.isActive() ) continue;
 				userIds.add(member.getUserId());
 				memberMap.put(member.getUserId(), member);
 			}
