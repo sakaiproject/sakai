@@ -529,6 +529,7 @@ public class AgentResults
 	      int min = (totalSec % 3600)/60;
 	      int sec = (totalSec % 3600)%60;
 	      timeElapsedInString = "";
+	      //TODO: i18n??
 	      if (hr > 0) timeElapsedInString = hr + " hr ";
 	      if (min > 0) timeElapsedInString = timeElapsedInString + min + " min ";
 	      if (sec > 0) timeElapsedInString = timeElapsedInString + sec + " sec ";

@@ -934,6 +934,11 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 						results.setFullAnswer(fullAnswerText);
 						results.setRationale(rationale);
 						results.setSubmittedDate(gdata.getSubmittedDate());
+						if(gdata.getSubmittedDate() != null && gdata.getAttemptDate() != null) {
+							results.setTimeElapsed((int)((gdata.getSubmittedDate().getTime() - gdata.getAttemptDate().getTime())/1000));
+						} else {
+							results.setTimeElapsed(0);
+						}
 
 						AgentFacade agent = new AgentFacade(gdata.getAgentId());
 						results.setLastName(agent.getLastName());
@@ -973,7 +978,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			if ((bean.getSortType()).equals("assessmentGradingId")
 					|| (bean.getSortType()).equals("totalAutoScore")
 					|| (bean.getSortType()).equals("totalOverrideScore")
-					|| (bean.getSortType()).equals("finalScore")) {
+					|| (bean.getSortType()).equals("finalScore")
+					|| (bean.getSortType()).equals("timeElapsed")) {
 				bs.toNumericSort();
 			} else {
 				bs.toStringSort();

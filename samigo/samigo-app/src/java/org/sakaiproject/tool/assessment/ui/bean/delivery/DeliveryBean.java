@@ -74,6 +74,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
@@ -2763,5 +2764,9 @@ public class DeliveryBean implements Serializable {
 
     public String getSebDownloadLink() {
       return ServerConfigurationService.getString(SecureDeliverySeb.SEB_DOWNLOAD_LINK_PROPERTY, SecureDeliverySeb.SEB_DOWNLOAD_LINK_DEFAULT);
+    }
+    
+    public Boolean isTrackingQuestions() {
+    	return Boolean.valueOf(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
     }
 }

@@ -1746,6 +1746,15 @@ public class ItemContentsBean implements Serializable {
 		return (StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value));
 	}
 	
+	public boolean isTrackingQuestion() {
+		//TODO: este es el mejor sitio?? este método a nivel de pregunta o de examen (deliverybean)??
+		DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		//TODO: dbean.isTracking o algo así
+//		return Boolean.parseBoolean(itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TRACKING));
+		System.out.println("IS tracking?:"+ dbean.isTrackingQuestions());
+		return dbean.isTrackingQuestions();
+	}
+	
 	public String getTimeLimit() {
 		return itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
 	}
@@ -1796,13 +1805,13 @@ public class ItemContentsBean implements Serializable {
 	
 	/**
 	 * Check if current item is Enabled
-	 * -1: TimedQuestion, NOT started
+	 * -1: TimedQuestion or TrackingQuestion, NOT started
 	 * 0: TimedQuestion, Time expired
-	 * 1: OK -> TimedQuestion, started and NOT expired, or NOT TimedQuestion
+	 * 1: OK -> TimedQuestion started and NOT expired, or TrackingQuestion started, or NOT (TimedQuestion or TrackingQuestion)
 	 * @return 
 	 */
 	public int getEnabled() {
-		if(!isTimedQuestion()) {
+		if(!isTimedQuestion() && !isTrackingQuestion()) {
 			return 1;
 		}
 		
@@ -1811,12 +1820,17 @@ public class ItemContentsBean implements Serializable {
 			return -1;
 		}
 		
-		String timeBeforeDueRetract = getRealTimeLimit();
-		long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + (Long.parseLong(timeBeforeDueRetract) * 1000);
-		Date endDate = new Date(adjustedTimedAssesmentDueDateLong);
-
-		Date now = new Date();
-		return now.before(endDate) ? 1 : 0;
+		if(isTimedQuestion()) {
+			String timeBeforeDueRetract = getRealTimeLimit();
+			System.out.println("timeBeforeDueRetract: "+timeBeforeDueRetract);
+			System.out.println("attemptDate.: "+attemptDate);
+			long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + (Long.parseLong(timeBeforeDueRetract) * 1000);
+			Date endDate = new Date(adjustedTimedAssesmentDueDateLong);
+			
+			Date now = new Date();
+			return now.before(endDate) ? 1 : 0;
+		}
+		return 1;
 	}
 	
 	
