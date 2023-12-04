@@ -58,9 +58,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
-    private static final String ADD_EVENT = AnnouncementService.SECURE_ANNC_ADD;
-    private static final String UPDATE_EVENT = AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY;
-
     @Resource
     private AnnouncementService announcementService;
 
@@ -107,8 +104,9 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
             }
 
             // remove user notifications for the message that was deleted or those that have been updated and are not visible (draft or future)
+            // annc.available.announcement
             if ((AnnouncementService.SECURE_ANNC_REMOVE_OWN.equals(eventName) || AnnouncementService.SECURE_ANNC_REMOVE_ANY.equals(eventName))
-                    || (UPDATE_EVENT.equals(eventName) && (isDraftMessage || isFutureMessage))) {
+                    || (AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY.equals(eventName) && (isDraftMessage || isFutureMessage))) {
 
                 // remove user notifications
                 try {
@@ -123,8 +121,9 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                         eventQuery.where(
                                 queryBuilder.and(
                                         queryBuilder.or(
-                                                queryBuilder.equal(eventQueryTable.get("event"), ADD_EVENT),
-                                                queryBuilder.equal(eventQueryTable.get("event"), UPDATE_EVENT))),
+                                                queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.SECURE_ANNC_ADD),
+                                                queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.EVENT_AVAILABLE_ANNC),
+                                                queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY))),
                                 queryBuilder.equal(eventQueryTable.get("ref"), eventResource));
                         session.createQuery(eventQuery).list().forEach(session::detach);
 
@@ -134,8 +133,9 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
                         eventDeleteQuery.where(
                                 queryBuilder.and(
                                         queryBuilder.or(
-                                                queryBuilder.equal(eventDeleteQueryTable.get("event"), ADD_EVENT),
-                                                queryBuilder.equal(eventDeleteQueryTable.get("event"), UPDATE_EVENT))),
+                                                queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.SECURE_ANNC_ADD),
+                                                queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.EVENT_AVAILABLE_ANNC),
+                                                queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY))),
                                 queryBuilder.equal(eventDeleteQueryTable.get("ref"), eventResource));
                         session.createQuery(eventDeleteQuery).executeUpdate();
                     });
