@@ -1,5 +1,6 @@
-import {SakaiElement} from "./sakai-element.js";
-import {html} from "./assets/lit-element/lit-element.js";
+import { SakaiElement } from "./sakai-element.js";
+import { html } from "./assets/lit-element/lit-element.js";
+import { ifDefined } from "./assets/lit-html/directives/if-defined.js";
 import "./sakai-group-picker.js";
 
 class SakaiSubmissionMessager extends SakaiElement {
@@ -60,9 +61,9 @@ class SakaiSubmissionMessager extends SakaiElement {
         <div class="sm-block">
           <span id="sm-action-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_action}</span>
           <select aria-labelledby="sm-action-selector-label-${this.assignmentId}" class="group-select" @change=${this.actionChanged}>
-            <option value="1" ?selected=${this.action === "1"}>${this.i18n.ungraded_students}
-            <option value="2">${this.i18n.graded_students}
-            <option value="3">${this.i18n.all_students}
+            <option value="1" ?selected=${this.action === "1"}>${this.i18n.ungraded_students}</option>
+            <option value="2">${this.i18n.graded_students}</option>
+            <option value="3">${this.i18n.all_students}</option>
           </select>
         </div>
         <div class="sm-score-block" style="display: ${this.action === "2" ? "block" : "none"}">
@@ -73,7 +74,7 @@ class SakaiSubmissionMessager extends SakaiElement {
           <span id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_group}</span>
           <sakai-group-picker
             site-id="${portal.siteId}"
-            group-id="${this.groupId}"
+            group-id="${ifDefined(this.groupId)}"
             aria-labelledby="sm-group-selector-label-${this.assignmentId}"
             class="group-select"
             @group-selected=${this.groupSelected}>

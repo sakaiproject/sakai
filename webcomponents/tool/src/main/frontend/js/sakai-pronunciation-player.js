@@ -1,4 +1,5 @@
 import { html, LitElement } from "./assets/lit-element/lit-element.js";
+import { ifDefined } from "./assets/lit-html/directives/if-defined.js";
 import { loadProperties } from "./sakai-i18n.js";
 import "./sakai-icon.js";
 
@@ -48,7 +49,7 @@ class SakaiPronunciationPlayer extends LitElement {
           </sakai-icon>
         </button>
         <audio id="player"
-            src="${this.src}"
+            src="${ifDefined(this.src)}"
             @playing=${() => this.playing = true}
             @ended=${() => this.playing = false}>
         </audio>
