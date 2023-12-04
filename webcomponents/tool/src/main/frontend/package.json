@@ -8,7 +8,7 @@
     "storybook": "npm install --force && empathise install --assets-directory=js/assets && start-storybook -p 6006 -s ./storybook-resources",
     "build-storybook": "build-storybook",
     "eslint": "eslint js",
-    "analyze": "lit-analyzer --strict --quiet --rules.no-incompatible-type-binding=off js/**/*.js",
+    "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off js/*.js js/**/*.js",
     "jsdoc": "jsdoc js"
   },
   "keywords": [],

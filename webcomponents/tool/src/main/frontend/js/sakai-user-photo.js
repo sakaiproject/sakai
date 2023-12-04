@@ -67,12 +67,12 @@ class SakaiUserPhoto extends SakaiElement {
 
     if (this.print) {
       return html`
-        <img src="${this.url}" alt="${ifDefined(this.label ? this.label : undefined)}" />
+        <img src="${ifDefined(this.url)}" alt="${ifDefined(this.label ? this.label : undefined)}" />
       `;
     }
 
     return html`
-      <div id="${this.generatedId}"
+      <div id="${ifDefined(this.generatedId)}"
           data-user-id="${this.userId}"
           class="sakai-user-photo ${this.classes}"
           aria-label="${ifDefined(this.label ? this.label : undefined)}"
