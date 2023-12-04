@@ -130,7 +130,7 @@ class SakaiLTIIframe extends SakaiElement {
                     data-allow-resize="${this.allowResize}"
                     allow="${this.allow}"
                     marginheight="0" scrolling="auto"
-                     allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+                     allowfullscreen webkitallowfullscreen="true" mozallowfullscreen="true"
                   >
                 </iframe>
           </div>

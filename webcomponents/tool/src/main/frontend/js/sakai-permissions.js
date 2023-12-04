@@ -164,7 +164,7 @@ class SakaiPermissions extends SakaiElement {
         ${this.groups && this.groups.length > 0 ? html`
           <div>
             <label for="permissons-group-picker">${this.i18n["per.lis.selectgrp"]}</label>
-            <sakai-group-picker id="permissions-group-picker" groups="${JSON.stringify(this.groups)}" @group-selected=${this.groupSelected} />
+            <sakai-group-picker id="permissions-group-picker" groups="${JSON.stringify(this.groups)}" @group-selected=${this.groupSelected}></sakai-group-picker>
           </div>
         ` : ""}
         <div class="mb-1 pt-3">
