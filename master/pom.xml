@@ -30,7 +30,6 @@
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.11.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
-    <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
     <sakai.commons.net>3.10.0</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
