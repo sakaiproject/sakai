@@ -74,6 +74,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
@@ -335,6 +336,7 @@ public class DeliveryBean implements Serializable {
   private String takenHours;
   @Getter @Setter
   private String takenMinutes;
+  @Getter
   private AssessmentGradingData adata;
   @Getter
   private PublishedAssessmentFacade publishedAssessment;
@@ -453,6 +455,8 @@ public class DeliveryBean implements Serializable {
   private boolean firstTimeTaking;
   @Setter
   private boolean timeExpired = false;
+  @Setter @Getter
+  private boolean trackingQuestions = false;
   @Getter @Setter
   private long lastTimer=0;
 
@@ -2762,5 +2766,13 @@ public class DeliveryBean implements Serializable {
 
     public String getSebDownloadLink() {
       return ServerConfigurationService.getString(SecureDeliverySeb.SEB_DOWNLOAD_LINK_PROPERTY, SecureDeliverySeb.SEB_DOWNLOAD_LINK_DEFAULT);
+    }
+    
+    public Boolean isTrackingQuestions() {
+    	return Boolean.valueOf(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
+    }
+
+    public Boolean getTrackingQuestions() {
+    	return Boolean.valueOf(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
     }
 }

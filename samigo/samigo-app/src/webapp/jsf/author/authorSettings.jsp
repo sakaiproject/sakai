@@ -358,6 +358,14 @@
         <h:outputLabel id="metadataQuestionsHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.metadata_questions_info}" />
     </h:panelGroup>
 
+    <!-- TRACKING -->
+    <div class="form-group row">
+      <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.track_questions_title}"/>
+      <div class="col-md-10">
+        <h:selectBooleanCheckbox id="trackQuestions" value="#{assessmentSettings.trackQuestions}"/>
+          <h:outputLabel for="trackQuestions" value="#{assessmentSettingsMessages.track_questions_msg}" />
+      </div>
+    </div>
 </samigo:hideDivision><!-- End the About this Assessment category -->
 
 <!-- SECURITY AND PROCTORING -->

@@ -216,7 +216,7 @@ h4.samigo-category-subhead-2 {
 	font-weight: bold;
 }
 
-.detailedStatsCorrectAnswerText {
+.boldText {
     font-weight: bold;
 }
 
@@ -1444,11 +1444,11 @@ div#eventSearchContainer {
   width: 40% !important;
 }
 
-table.stats-bar {
+table.stats-bar, table.stats-tracking {
   margin-bottom: 0px;
 }
 
-table.stats-bar th {
+table.stats-bar th, table.stats-tracking th {
   border: 0px;
   background-color: var(--sakai-background-color-2);
 }
@@ -1486,7 +1486,7 @@ td.stats-info-column td {
   color: var(--sakai-text-color-1);
 }
 
-td.stats-answers {
+td.stats-answers, td.stats-track-answers {
   width: 43%;
   padding-left: 10px;
 }

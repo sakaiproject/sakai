@@ -273,6 +273,32 @@ $Id$
             <h:outputText value="#{histogramScores.skewnessCoefficient}" />
           </td>
         </tr>
+        <h:panelGroup rendered="#{histogramScores.trackingQuestion}">
+          <tr>
+            <th>
+              <h:outputText value="#{evaluationMessages.time_min}" />
+            </th>
+            <td>
+              <h:outputText value="#{histogramScores.timeStats[0]}" />
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <h:outputText value="#{evaluationMessages.time_avg}" />
+            </th>
+            <td>
+              <h:outputText value="#{histogramScores.timeStats[1]}" />
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <h:outputText value="#{evaluationMessages.time_max}" />
+            </th>
+            <td>
+              <h:outputText value="#{histogramScores.timeStats[2]}" />
+            </td>
+          </tr>
+        </h:panelGroup>
         </table>
         </h:panelGroup>
         <h:panelGroup layout="block" styleClass="panel panel-default">
@@ -291,6 +317,34 @@ $Id$
           </div>
         </h:panelGroup>
         </h:panelGrid>
+
+        <h:panelGroup layout="block" styleClass="page-header" rendered="#{histogramScores.trackingQuestion && histogramScores.timeStatsVariationArray.get(0).get(0) > 0}">
+          <h2>
+            <h:outputText value="#{evaluationMessages.timeStatsVariation_title}" />
+          </h2>
+        </h:panelGroup>
+
+        <h:dataTable styleClass="table table-bordered table-striped presentation" value="#{histogramScores.timeStatsVariationArray}" var="statsVariations" rendered="#{histogramScores.trackingQuestion && histogramScores.timeStatsVariationArray.get(0).get(0) > 0}">
+          <h:column>
+            <h:panelGroup>
+              <h:dataTable styleClass="table panel-body stats-tracking" value="#{statsVariations[2]}" var="statVariation">
+                <h:column>
+                  <f:facet name="header">
+                    <h:outputText value="#{statsVariations[1]}" />
+                  </f:facet>
+                  <h:panelGroup>
+                    <h:panelGroup styleClass="boldText stats-track-answers">
+                      <h:outputText value="#{statVariation[0]}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="elapsed-quantity-col">
+                      <h:outputText value="#{statVariation[1]}" />
+                    </h:panelGroup>
+                  </h:panelGroup>
+                </h:column>
+              </h:dataTable>
+            </h:panelGroup>
+          </h:column>
+        </h:dataTable>
 
         <h:panelGroup rendered="#{histogramScores.showObjectivesColumn=='true'}">
           <div class="objectives">
@@ -616,6 +670,22 @@ $Id$
                 </h:column>
               </h:dataTable>
 
+              <h:dataTable styleClass="table panel-body stats-tracking" rendered="#{histogramScores.trackingQuestion}" 
+              value="#{item.timeStatsArray}" var="timeString">
+                <h:column>
+                  <f:facet name="header">
+                    <h:outputText value="#{evaluationMessages.timeStats_title}" />
+                  </f:facet>
+                  <h:panelGroup>
+                    <h:panelGroup styleClass="boldText stats-track-answers">
+                      <h:outputText value="#{timeString[0]}" />
+                    </h:panelGroup>
+                    <h:panelGroup styleClass="elapsed-quantity-col">
+                      <h:outputText value=" #{timeString[1]}" />
+                    </h:panelGroup>
+                  </h:panelGroup>
+                </h:column>
+              </h:dataTable>
               <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching 14=emi -->
 
 	      <h:panelGrid styleClass="table table-condensed table-striped" columns="5" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}">
