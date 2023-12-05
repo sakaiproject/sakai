@@ -220,6 +220,9 @@ extends VelocityPortletStateAction
 	private final static String ASSN_ENTITY_ID     = "assignment";
 	private final static String ASSN_ENTITY_ACTION = "deepLink";
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
+	
+	private final static String FULLCALENDAR_ASPECTRATIO = ServerConfigurationService.getString("calendar.fullCalendar.aspectRatio", "1.35");
+	private final static String FULLCALENDAR_SCROLLTIME = ServerConfigurationService.getString("calendar.fullCalendar.scrollTime", "06:00:00"); 
    
 	private NumberFormat monthFormat = null;
 
@@ -6855,6 +6858,9 @@ extends VelocityPortletStateAction
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
 		context.put("defaultSubview", ToolManager.getCurrentPlacement().getPlacementConfig().getProperty(PORTLET_CONFIG_DEFAULT_SUBVIEW));
 		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
+		context.put("aspectRatio", FULLCALENDAR_ASPECTRATIO);
+		context.put("scrollTime", FULLCALENDAR_SCROLLTIME);
+		
 	} // buildCalendarContext
 
 }	 // CalendarAction
