@@ -342,6 +342,9 @@ public class ItemService
 
   private Set copyAnswerFeedbackSet(Answer newAnswer, Set answerFeedbackSet) {
     Set h = new HashSet();
+    if (answerFeedbackSet == null) {
+        return h;
+    }
     Iterator m = answerFeedbackSet.iterator();
     while (m.hasNext()) {
       AnswerFeedback answerFeedback = (AnswerFeedback) m.next();
@@ -391,19 +394,25 @@ public class ItemService
   private Set copyItemAttachmentSet(ItemData cloned, Set itemAttachmentSet) {
     AssessmentService service = new AssessmentService();
     Set h = new HashSet();
+    if (itemAttachmentSet == null) {
+        return h;
+    }
     Iterator n = itemAttachmentSet.iterator();
     while (n.hasNext()) {
       ItemAttachmentIfc itemAttachment = (ItemAttachmentIfc) n.next();
-      ContentResource cr_copy = service.createCopyOfContentResource(
-                           itemAttachment.getResourceId(), itemAttachment.getFilename());
-      ItemAttachmentIfc newItemAttachment = new ItemAttachment(
-        null, cr_copy.getId(), itemAttachment.getFilename(),
-        itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
-        cr_copy.getUrl(true), itemAttachment.getIsLink(), itemAttachment.getStatus(),
-        itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
-        itemAttachment.getLastModifiedDate());
-      newItemAttachment.setItem(cloned);
-      h.add(newItemAttachment);
+      ContentResource cr_copy = service.createCopyOfContentResource(itemAttachment.getResourceId(), itemAttachment.getFilename());
+
+      if (cr_copy != null) {
+        ItemAttachmentIfc newItemAttachment = new ItemAttachment(
+          null, cr_copy.getId(), itemAttachment.getFilename(),
+          itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
+          cr_copy.getUrl(true), itemAttachment.getIsLink(), itemAttachment.getStatus(),
+          itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
+          itemAttachment.getLastModifiedDate());
+        newItemAttachment.setItem(cloned);
+        h.add(newItemAttachment);
+      }
+
     }
     return h;
   }
@@ -411,19 +420,25 @@ public class ItemService
   private Set copyItemAttachmentSetItemText(ItemText itemText, Set itemAttachmentSet) {
 	AssessmentService service = new AssessmentService();
 	Set h = new HashSet();
+	if (itemAttachmentSet == null) {
+		return h;
+	}
 	Iterator n = itemAttachmentSet.iterator();
 	while (n.hasNext()) {
-	  ItemTextAttachmentIfc ItemTextAttachment = (ItemTextAttachmentIfc) n.next();
-	  ContentResource cr_copy = service.createCopyOfContentResource(
-	    		  			ItemTextAttachment.getResourceId(), ItemTextAttachment.getFilename());
-	  ItemTextAttachmentIfc newItemTextAttachment = new ItemTextAttachment(
-	    null, cr_copy.getId(), ItemTextAttachment.getFilename(),
-	    ItemTextAttachment.getMimeType(), ItemTextAttachment.getFileSize(), ItemTextAttachment.getDescription(),
-	    cr_copy.getUrl(true), ItemTextAttachment.getIsLink(), ItemTextAttachment.getStatus(),
-	    ItemTextAttachment.getCreatedBy(), ItemTextAttachment.getCreatedDate(), ItemTextAttachment.getLastModifiedBy(),
-	    ItemTextAttachment.getLastModifiedDate());
-	   newItemTextAttachment.setItemText(itemText);
-	   h.add(newItemTextAttachment);
+		ItemTextAttachmentIfc ItemTextAttachment = (ItemTextAttachmentIfc) n.next();
+		ContentResource cr_copy = service.createCopyOfContentResource(ItemTextAttachment.getResourceId(), ItemTextAttachment.getFilename());
+
+		if (cr_copy != null) {
+			ItemTextAttachmentIfc newItemTextAttachment = new ItemTextAttachment(
+				null, cr_copy.getId(), ItemTextAttachment.getFilename(),
+				ItemTextAttachment.getMimeType(), ItemTextAttachment.getFileSize(), ItemTextAttachment.getDescription(),
+				cr_copy.getUrl(true), ItemTextAttachment.getIsLink(), ItemTextAttachment.getStatus(),
+				ItemTextAttachment.getCreatedBy(), ItemTextAttachment.getCreatedDate(), ItemTextAttachment.getLastModifiedBy(),
+				ItemTextAttachment.getLastModifiedDate());
+			newItemTextAttachment.setItemText(itemText);
+			h.add(newItemTextAttachment);
+		}
+
 	}
 	return h;
   }
