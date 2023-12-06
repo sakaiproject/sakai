@@ -1102,8 +1102,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 				} 
 				else 
 				{
-					log.debug("importResources: no data found for syllabusItem: {}",
-									fromSyllabusItem.getSurrogateKey().toString());
+					log.debug("no data found for syllabusItem: {}", fromSyllabusItem.getSurrogateKey().toString());
 				}
 			
 			log.debug("importResources: End importing syllabus data");
