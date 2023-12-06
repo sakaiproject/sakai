@@ -120,7 +120,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
    * getSyllabiForSyllabusItem returns the collection of syllabi
    * @param syllabusItem
    */
-  public Set getSyllabiForSyllabusItem(final SyllabusItem syllabusItem)
+  public Set<SyllabusData> getSyllabiForSyllabusItem(final SyllabusItem syllabusItem)
   {
     if (syllabusItem == null)
     {
@@ -140,7 +140,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
         if (syllabusItem1 != null){
           return syllabusItem1.getSyllabi();
         }
-        return new TreeSet();
+        return new TreeSet<>();
       };
       return getHibernateTemplate().execute(hcb);
     }
