@@ -1243,7 +1243,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 		}
 		catch (Exception e)
 		{
-			log.error("Syllabus transferCopyEntities failed", e);
+			log.error("syllabus import from site [{}] to site [{}] failed, {}", fromContext, toContext, e.toString());
 		}
 		transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, options));
 		
