@@ -46,6 +46,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,16 @@ public class GradesController extends AbstractSakaiApiController {
 
         try {
             String gbUrl = "";
-            ToolConfiguration tc = s.getToolForCommonId("sakai.gradebookng");
+            ToolConfiguration tc = null;
+            Collection<ToolConfiguration> gbs = s.getTools("sakai.gradebookng");
+            for (ToolConfiguration tool : gbs) {
+                Properties props = tool.getPlacementConfig();
+                // S2U-26 leaving backwards compatibility for the moment, it will always be a site=id situation until SAK-49493 is completed
+                if (props.getProperty("gb-group") == null) {
+                    tc = tool;
+                    break;
+                }
+            }
             if (tc != null) {
                 gbUrl = "/portal/directtool/" + tc.getId();
             }

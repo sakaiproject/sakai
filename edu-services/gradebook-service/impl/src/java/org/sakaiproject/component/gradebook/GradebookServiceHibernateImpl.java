@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -150,7 +151,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Optional<String> getEntityUrl(Reference ref, Entity.UrlType urlType) {
 		try {
 			Site site = siteService.getSite(ref.getContext());
-			ToolConfiguration fromTool = site.getToolForCommonId("sakai.gradebookng");
+			ToolConfiguration fromTool = null;
+			Collection<ToolConfiguration> gbs = site.getTools("sakai.gradebookng");
+			for (ToolConfiguration tc : gbs) {
+				Properties props = tc.getPlacementConfig();
+				// S2U-26 leaving backwards compatibility for the moment, it will always be a site=id situation until SAK-49493 is completed
+				if (props.getProperty("gb-group") == null) {
+					fromTool = tc;
+					break;
+				}
+			}
 			String entityUrl = null;
 			if (fromTool != null) {
 				entityUrl = String.format("%s/directtool/%s", serverConfigService.getPortalUrl(), fromTool.getId());

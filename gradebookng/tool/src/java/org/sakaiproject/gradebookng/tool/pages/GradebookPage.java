@@ -505,7 +505,7 @@ public class GradebookPage extends BasePage {
 		groupFilter.setNullValid(false);
 
 		// if only one item, hide the dropdown
-		groupFilter.setVisible(groups.size() > 1 && this.hasStudents && gradebookUid.equals(siteId));
+		groupFilter.setVisible(groups.size() > 1 && gradebookUid.equals(siteId));
 
 		final WebMarkupContainer studentFilter = new WebMarkupContainer("studentFilter");
 		studentFilter.setVisible(this.hasStudents);

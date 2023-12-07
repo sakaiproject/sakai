@@ -429,8 +429,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			}
 		} catch (final IdUnusedException e) {
 			throw new IllegalArgumentException("Invalid gradebook id");
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
