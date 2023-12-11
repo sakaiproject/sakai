@@ -101,7 +101,7 @@
 	                    column="userSurrogateKey"/>
   	  </list>         
   	  -->
-  	  <list name="recipients" lazy="true" table="MFR_PVT_MSG_USR_T">
+  	  <list name="recipients" lazy="true" table="MFR_PVT_MSG_USR_T" cascade="delete-orphan">
   	    <key column="messageSurrogateKey"/>
   	    <index column="user_index_col"/>
   	    <composite-element class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl">
