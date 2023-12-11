@@ -319,8 +319,8 @@ public class SiteManageServiceImpl implements SiteManageService {
                         ToolConfiguration toTc = toSite.getToolForCommonId(toolId);
                         String title = tc.getContainingPage().getTitle();
                         // S2U-26 leaving backwards compatibility for the moment, it will always be a site=id situation until SAK-49493 is completed
-                        if (toolId.equals("sakai.gradebookng")) {
-                            title = toolManager.getLocalizedToolProperty("sakai.gradebookng", "title");
+                        if (SiteManageConstants.GRADEBOOK_TOOL_ID.equals(toolId)) {
+                            title = toolManager.getLocalizedToolProperty(SiteManageConstants.GRADEBOOK_TOOL_ID, "title");
                         }
                         toTc.getContainingPage().setTitle(title);
                         toTc.getContainingPage().setTitleCustom(tc.getContainingPage().getTitleCustom());

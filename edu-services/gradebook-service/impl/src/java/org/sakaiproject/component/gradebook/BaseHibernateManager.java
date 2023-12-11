@@ -168,7 +168,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return getHibernateTemplate().load(Gradebook.class, id).getUid();
     }
 
-	protected Set<String> getAllStudentUids(String siteId) {
+	protected Set<String> getAllStudentUids(final String siteId) {
 		final List<EnrollmentRecord> enrollments = getSectionAwareness().getSiteMembersInRole(siteId, Role.STUDENT);
         return enrollments.stream().map(e -> e.getUser().getUserUid()).collect(Collectors.toSet());
 	}

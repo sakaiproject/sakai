@@ -1200,7 +1200,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				boolean thisTool = allowTool(site, tc);
 				boolean unHidden = siteUpdate || ! isHidden(tc);
 				boolean checkGradebookVisibility = checkGradebookVisibility(tc, site);
-				if (thisTool && unHidden && checkGradebookVisibility) allowPage = true;
+				allowPage = thisTool && unHidden && checkGradebookVisibility;
 			}
 			if (allowPage) newPages.add(p);
 		}
@@ -1245,7 +1245,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		//2 check user groups match
 		String gbGroup = tc.getPlacementConfig().getProperty(GRADEBOOK_GROUP_PROPERTY);
 		List<String> groupIds = site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId()).stream().map(Group::getId).collect(Collectors.toList());
-		return groupIds.contains(gbGroup) ? true : false;
+		return groupIds.contains(gbGroup);
 	}
 
 	/**

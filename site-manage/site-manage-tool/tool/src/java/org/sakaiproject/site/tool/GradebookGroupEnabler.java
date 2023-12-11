@@ -22,6 +22,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.util.ParameterParser;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class GradebookGroupEnabler {
 	private static final String SITE_PROPERTY = "gradebook_group";
 	public static final String STATE_KEY = "isGradebookGroupEnabledForSite";
 	public static final String FORM_INPUT_ID = "gradebookType";
+	public static final String SELECTED_GROUPS = "selectedGroups";
 
 	public static final String VALUE_GRADEBOOK_SITE = "site";
 	public static final String VALUE_GRADEBOOK_GROUPS = "groups";
@@ -51,12 +53,12 @@ public class GradebookGroupEnabler {
 			return false;
 		}
 
-		log.debug("state.getAttribute(selectedGroups) " + state.getAttribute("selectedGroups"));
-		List<String> selectedGroups = (List<String>)state.getAttribute("selectedGroups");
-		context.put("selectedGroups", selectedGroups);
+		log.debug("state.getAttribute(selectedGroups) " + state.getAttribute(SELECTED_GROUPS));
+		List<String> selectedGroups = (List<String>)state.getAttribute(SELECTED_GROUPS);
+		context.put(SELECTED_GROUPS, selectedGroups);
 		context.put(FORM_INPUT_ID, FORM_INPUT_ID);
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -74,7 +76,7 @@ public class GradebookGroupEnabler {
 		
 		log.debug("state.getAttribute(FORM_INPUT_ID) " + state.getAttribute(FORM_INPUT_ID));
 		final ResourcePropertiesEdit props = site.getPropertiesEdit();
-		Collection<ToolConfiguration> gbs = site.getTools("sakai.gradebookng");
+		Collection<ToolConfiguration> gbs = site.getTools(SiteManageConstants.GRADEBOOK_TOOL_ID);
 		if (state.getAttribute(FORM_INPUT_ID) != null) {
 			if (VALUE_GRADEBOOK_GROUPS.equals(state.getAttribute(FORM_INPUT_ID)) && gbs.size() > 0) {
 				props.addProperty(SITE_PROPERTY, Boolean.TRUE.toString());

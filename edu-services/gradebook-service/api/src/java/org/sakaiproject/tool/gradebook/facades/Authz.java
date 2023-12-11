@@ -112,6 +112,7 @@ public interface Authz {
 	/**
 	 * 
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param gbCategoryType
 	 * 			The category type setting for this gradebook
 	 * @param optionalSearchString

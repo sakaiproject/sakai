@@ -182,7 +182,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return false;
 	}
 
-	private boolean isUserAbleToViewAssignments(String siteId) {
+	private boolean isUserAbleToViewAssignments(final String siteId) {
 		final Authz authz = getAuthz();
 		return (authz.isUserAbleToEditAssessments(siteId) || authz.isUserAbleToGrade(siteId));
 	}
@@ -1247,7 +1247,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				if (studentUids.isEmpty()) {
 					// If there are no enrollments, no need to execute the query.
 					if (log.isInfoEnabled()) {
-						log.info("getAllAssignmentGradeRecordsForGbItem No enrollments were specified. Returning an empty List of grade records");
+						log.info("getAllAssignmentGradeRecordsForGbItem: No enrollments were specified. Returning an empty List of grade records");
 					}
 					return new ArrayList();
 				} else {
@@ -1272,7 +1272,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				if (studentUids.isEmpty()) {
 					// If there are no enrollments, no need to execute the query.
 					if (log.isDebugEnabled()) {
-						log.debug("getAllAssignmentGradeRecordsForGbItems No enrollments were specified. Returning an empty List of grade records");
+						log.debug("getAllAssignmentGradeRecordsForGbItems: No enrollments were specified. Returning an empty List of grade records");
 					}
 					return gradeRecords;
 				}
@@ -1917,8 +1917,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		if (gradebookUid == null || gradableObjectId == null) {
 			throw new IllegalArgumentException("Null gradebookUid or gradableObjectId passed to saveGradesAndComments");
 		}
-		
-		//String siteId = getCurrentSiteId();
 
 		if (CollectionUtils.isNotEmpty(gradeDefList)) {
 			Gradebook gradebook;

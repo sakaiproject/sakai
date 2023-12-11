@@ -796,6 +796,8 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private static final String VM_ADD_ROSTER_AUTH_REQUIRED = "authorizationRequired";
 
+	private static final String GB_GROUP_PROPERTY = "gb-group";
+
 	private Cache m_userSiteCache;
 	private ImportService importService;
 	private List prefLocales;
@@ -4388,11 +4390,11 @@ public class SiteAction extends PagedResourceActionII {
 			}
 	
 			List<String> gbGroups = new ArrayList<>();
-			Collection<ToolConfiguration> gbs = site.getTools("sakai.gradebookng");
+			Collection<ToolConfiguration> gbs = site.getTools(SiteManageConstants.GRADEBOOK_TOOL_ID);
 			for (ToolConfiguration tc : gbs) {
 				Properties props = tc.getPlacementConfig();
-				if (props.getProperty("gb-group") != null) {
-					gbGroups.add(props.getProperty("gb-group"));
+				if (props.getProperty(GB_GROUP_PROPERTY) != null) {
+					gbGroups.add(props.getProperty(GB_GROUP_PROPERTY));
 				}
 			}
 
@@ -4416,7 +4418,7 @@ public class SiteAction extends PagedResourceActionII {
 					context.put(GradebookGroupEnabler.FORM_INPUT_ID, state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID));
 					break;
 			}
-			context.put("selectedGroups", state.getAttribute("selectedGroups"));
+			context.put(GradebookGroupEnabler.SELECTED_GROUPS, state.getAttribute(GradebookGroupEnabler.SELECTED_GROUPS));
 			context.put("siteId", currentSiteId);
 			context.put("gbGroups", gbGroups);
 			context.put("value_gbSite", GradebookGroupEnabler.VALUE_GRADEBOOK_SITE);
@@ -11253,20 +11255,20 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						}
 					}
 				}
-			} else if (choice.equals("sakai.gradebookng")) {
+			} else if (SiteManageConstants.GRADEBOOK_TOOL_ID.equals(choice)) {
 				isGroupType =  state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID) != null && GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS.equals(state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID));
-				List<String> selectedGroups = isGroupType ? (List<String>)state.getAttribute("selectedGroups") : new ArrayList<>();
+				List<String> selectedGroups = isGroupType ? (List<String>)state.getAttribute(GradebookGroupEnabler.SELECTED_GROUPS) : new ArrayList<>();
 				List<String> existing = new ArrayList<>();
 
-				Collection<ToolConfiguration> gbs = site.getTools("sakai.gradebookng");
+				Collection<ToolConfiguration> gbs = site.getTools(SiteManageConstants.GRADEBOOK_TOOL_ID);
 				if (selectedGroups != null) {
 					for (ToolConfiguration tc : gbs) {
 						Properties props = tc.getPlacementConfig();
-						if (props.getProperty("gb-group") == null || !selectedGroups.contains(props.getProperty("gb-group"))) {
+						if (props.getProperty(GB_GROUP_PROPERTY) == null || !selectedGroups.contains(props.getProperty(GB_GROUP_PROPERTY))) {
 							site.removePage(tc.getContainingPage());
-							deletedGroups.add(tc.getPageId()+"sakai.gradebookng");
+							deletedGroups.add(tc.getPageId()+SiteManageConstants.GRADEBOOK_TOOL_ID);
 						} else {
-							existing.add(props.getProperty("gb-group"));
+							existing.add(props.getProperty(GB_GROUP_PROPERTY));
 						}
 					}
 					for (String g : selectedGroups) {
@@ -11525,7 +11527,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 
 					if (toolRegFound != null) {
-						if (toolId.equals("sakai.gradebookng") && isGroupType) {
+						if (SiteManageConstants.GRADEBOOK_TOOL_ID.equals(toolId) && isGroupType) {
 							for (String gId : newGroups) {
 								WorksiteSetupPage addPage = new WorksiteSetupPage();
 								SitePage page = site.addPage();
@@ -11535,7 +11537,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								page.setLayout(SitePage.LAYOUT_SINGLE_COL);
 								ToolConfiguration tool = page.addTool();
 								tool.setTool(toolRegFound.getId(), toolRegFound);
-								tool.getPlacementConfig().setProperty("gb-group", gId);
+								tool.getPlacementConfig().setProperty(GB_GROUP_PROPERTY, gId);
 								addPage.toolId = toolId;
 								wSetupPageList.add(addPage);
 								tool.setTitle((String) multipleToolIdTitleMap.get(toolId));
@@ -12882,7 +12884,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							}
 						}
 					}
-				} else if (id.endsWith("sakai.gradebookng")) {
+				} else if (id.endsWith(SiteManageConstants.GRADEBOOK_TOOL_ID)) {
 					gbValidate = true;
 				} else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null))
 				{
@@ -12933,9 +12935,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 
 			if(gbValidate) {//one validation for all gbs
-				String[] selectedGroups = params.getStrings("selectedGroups");
+				String[] selectedGroups = params.getStrings(GradebookGroupEnabler.SELECTED_GROUPS);
 				if (selectedGroups != null) {
-					state.setAttribute("selectedGroups", new ArrayList(Arrays.asList(selectedGroups)));
+					state.setAttribute(GradebookGroupEnabler.SELECTED_GROUPS, new ArrayList(Arrays.asList(selectedGroups)));
 				}
 				if (params.getString("$gradebookType") != null) {
 						state.setAttribute("gradebookType", params.getString("$gradebookType"));
@@ -12944,7 +12946,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				} else if (params.getString(GradebookGroupEnabler.VALUE_GRADEBOOK_SITE) != null) {
 						state.setAttribute("gradebookType", params.getString(GradebookGroupEnabler.VALUE_GRADEBOOK_SITE));
 				}
-				if (GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS.equals(state.getAttribute("gradebookType")) && params.getStrings("selectedGroups") == null) {
+				if (GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS.equals(state.getAttribute("gradebookType")) && params.getStrings(GradebookGroupEnabler.SELECTED_GROUPS) == null) {
 					addAlert(state, rb.getString("sinfo.gradebookgroupvnav.none"));
 				}
 			}

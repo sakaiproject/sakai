@@ -239,7 +239,7 @@ public class ExportPanel extends BasePanel {
 
 		this.group = new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL);
 
-		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(currentGradebookUid, currentSiteId);//igual quitar opcion all y filtros
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(currentGradebookUid, currentSiteId);
 		groups.add(0, this.group);
 		add(new DropDownChoice<GbGroup>("groupFilter", Model.of(this.group), groups, new ChoiceRenderer<GbGroup>() {
 			private static final long serialVersionUID = 1L;
