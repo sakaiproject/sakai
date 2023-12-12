@@ -1507,3 +1507,12 @@ ul.feedback-delivery input {
 label:has(pre) {
   display: inline;
 }
+
+fieldset.short-summary-box > legend.summary-title {
+	font-size: 18px;
+}
+
+fieldset.short-summary-box {
+	padding: 2px;
+	border: 1px #d9d7d7 solid;
+}
