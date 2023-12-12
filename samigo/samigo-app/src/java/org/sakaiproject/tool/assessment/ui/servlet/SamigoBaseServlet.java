@@ -29,6 +29,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.http.MediaType;
 
 public abstract class SamigoBaseServlet extends HttpServlet {
 
@@ -42,6 +43,7 @@ public abstract class SamigoBaseServlet extends HttpServlet {
 
     protected static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     protected static final String CONTENT_TYPE_PDF = "application/pdf";
+    protected static final String CONTENT_TYPE_JSON = MediaType.APPLICATION_JSON_VALUE;
 
     protected static final String FILE_EXT_XLSX = ".xlsx";
     protected static final String FILE_EXT_PDF = ".pdf";

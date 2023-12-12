@@ -169,6 +169,7 @@ public final class SamigoConstants {
     public static final     String      AUTHOR_BUNDLE                                       = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
     public static final     String      EVENT_LOG_BUNDLE                                    = "org.sakaiproject.tool.assessment.bundle.EventLogMessages";
     public static final     String      DATA_TABLES_BUNDLE                                  = "org.sakaiproject.tool.assessment.bundle.DataTablesMessages";
+    public static final     String      QUESTION_POOL_BUNDLE                                = "org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages";
 
     public static final     String      REFERENCE_ROOT                                      = Entity.SEPARATOR + "samigo";
 
@@ -193,6 +194,11 @@ public final class SamigoConstants {
      * Evaluation Outcomes
      */
     public static final     String      OUTCOME_EVALUATION_QUESTION_SCORES                  = "questionScores";
+
+    /*
+     * Reference Prefixes
+     */
+    public static final     String      REFERENCE_PREFIX_QUESTIONPOOL                       = "/sam_questionpool";
 
     private SamigoConstants() {
     	throw new AssertionError();
