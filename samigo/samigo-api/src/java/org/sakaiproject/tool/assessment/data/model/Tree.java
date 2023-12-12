@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.TagIfc;
+
 /**
  * originally Tree.java
  * @author esmiley@stanford.edu
@@ -198,5 +200,7 @@ public interface Tree extends Serializable
    */
   public int poolLevel(Long poolId);
 
+  public void clearFilters();
 
+  public void filterByTags(Collection<TagIfc> tags);
 }

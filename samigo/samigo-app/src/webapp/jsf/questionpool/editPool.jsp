@@ -47,6 +47,14 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
+<f:verbatim rendered="#{questionpool.showTags && questionpool.canManageTags}">
+	<script>
+		// Initialize input sync
+		window.addEventListener("load", () => {
+			window.syncTagSelectorInput("tag-selector", "editform:questionPoolTags");
+		});
+	</script>
+</f:verbatim>
 <script src="/library/js/spinner.js"></script>
           <script>
               function flagFolders() {
@@ -139,6 +147,21 @@ function textCounter(field, maxlimit) {
     <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords}" styleClass="col-sm-2 form-control-label"/>
     <div class="col-sm-6">
         <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="keyfield" size="30" maxlength="255" value="#{questionpool.currentPool.keywords}" styleClass="form-control"/>
+    </div>
+</h:panelGroup>
+<h:panelGroup rendered="#{questionpool.showTags && questionpool.canManageTags}" layout="block" styleClass="form-group row">
+    <label for="tag-selector" class="col-sm-2 form-control-label">
+        <h:outputText value="#{questionPoolMessages.t_tags}" />
+    </label>
+    <div class="col-sm-6">
+        <sakai-tag-selector
+            id="tag-selector"
+            class="b5 flex-grow-1"
+            selected-temp="<h:outputText value='#{questionpool.currentPool.tags.tagIdsCsv}'/>"
+            collection-id="<h:outputText value='#{questionpool.currentPool.ownerId}'/>"
+            add-new="true"
+        ></sakai-tag-selector>
+        <h:inputHidden id="questionPoolTags" value="#{questionpool.currentPool.tags.tagIdsCsv}" />
     </div>
 </h:panelGroup>
 

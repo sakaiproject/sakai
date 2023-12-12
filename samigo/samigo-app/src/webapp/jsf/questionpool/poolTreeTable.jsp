@@ -19,7 +19,15 @@
 **********************************************************************************/
 --%>
 -->
-<div class="table-responsive">
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+
+<%@ include file="/jsf/questionpool/tagFilter.jsp" %>
+
+<h:panelGroup rendered="#{questionpool.poolCount == 0}" styleClass="sak-banner-info" layout="block">
+  <h:outputText rendered="#{questionpool.showTagFilter}" value="#{questionPoolMessages.no_pools_for_filter}" />
+  <h:outputText rendered="#{!questionpool.showTagFilter}" value="#{questionPoolMessages.no_pools_for_you}" />
+</h:panelGroup>
+<h:panelGroup rendered="#{questionpool.poolCount > 0}" styleClass="table-responsive" layout="block">
   <h:dataTable styleClass="table table-bordered table-striped" id="TreeTable" value="#{questionpool.qpools}" var="pool">
     <h:column id="col1">
 
@@ -114,6 +122,14 @@
   <f:param name="outCome" value="poolList"/>
 </h:commandLink>
 
+<!-- Show statistics -->
+<h:panelGroup  rendered="#{pool.ownerId == questionpool.agentId && pool.data.questionPoolItemSize > 0}">
+  <h:outputText value=" #{questionPoolMessages.separator} " />
+  <a href="#" data-show-statistics data-qp-id="<h:outputText value='#{pool.questionPoolId}'/>" data-qp-title="<h:outputText value='#{pool.displayName}'/>">
+    <h:outputText value="#{questionPoolMessages.t_showStatistics}" />
+  </a>
+</h:panelGroup>
+
  </span>
 </h:panelGroup>
     </h:column>
@@ -178,6 +194,17 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
           <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
         </h:outputText>
      </h:panelGroup>
+    </h:column>
+
+    <h:column id="colTags" rendered="#{questionpool.showTags}">
+      <f:facet name="header">
+        <h:outputText value="#{questionPoolMessages.t_tags}" />
+      </f:facet>
+      <t:dataList layout="orderedList" styleClass="noListStyle" value="#{pool.tags}" var="tag">
+        <h:outputText styleClass="badge bg-info" value="#{tag.tagLabel}" title="#{tag.tagLabel} (#{tag.tagCollectionName})">
+        </h:outputText>
+      </t:dataList>
+      </br>
     </h:column>
 
     <h:column id="col4">
@@ -247,4 +274,5 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
       </h:selectManyCheckbox>
     </h:column>
   </h:dataTable>
-</div>
+</h:panelGroup>
+<%@ include file="/jsf/questionpool/statisticsModal.jsp" %>

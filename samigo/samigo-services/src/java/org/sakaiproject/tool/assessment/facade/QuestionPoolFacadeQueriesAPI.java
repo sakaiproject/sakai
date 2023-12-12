@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
@@ -236,5 +237,11 @@ public interface QuestionPoolFacadeQueriesAPI
   
   //SAM-2049
   public void transferPoolsOwnership(String ownerId, List<Long> poolIds);
+
+  public Set<String> getAllItemHashes(Long poolId);
+
+  public Long getItemCount(Long poolId);
+
+  public Long getSubPoolCount(Long poolId);
 
 }

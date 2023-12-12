@@ -153,6 +153,7 @@ public final class SamigoConstants {
     public static final     String      AUTHOR_BUNDLE                                       = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
     public static final     String      EVENT_LOG_BUNDLE                                    = "org.sakaiproject.tool.assessment.bundle.EventLogMessages";
     public static final     String      DATA_TABLES_BUNDLE                                  = "org.sakaiproject.tool.assessment.bundle.DataTablesMessages";
+    public static final     String      QUESTION_POOL_BUNDLE                                = "org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages";
 
     /*
      * Author Outcomes
@@ -175,6 +176,11 @@ public final class SamigoConstants {
      */
     public static final     String      SERVLET_MAPPING_EXPORT_EVENT_LOG                    = "/samigo-app/servlet/ExportEventLog";
     public static final     String      SERVLET_MAPPING_EXPORT_REPORT                       = "/samigo-app/servlet/ExportReport";
+
+    /*
+     * Reference Prefixes
+     */
+    public static final     String      REFERENCE_PREFIX_QUESTIONPOOL                       = "/sam_questionpool";
 
     private SamigoConstants() {
     	throw new AssertionError();
