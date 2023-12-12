@@ -4310,7 +4310,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // This assignment has been published, make sure the associated gb item is available
                                 org.sakaiproject.service.gradebook.shared.Assignment gbAssignment
                                     = gradebookService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), associatedGradebookAssignment);
+                                        nAssignment.getContext(), nAssignment.getContext(), associatedGradebookAssignment);
 
                                 if (gbAssignment == null) {
                                     // The associated gb item hasn't been created here yet.
@@ -4341,13 +4341,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             try {
                                 org.sakaiproject.service.gradebook.shared.Assignment gbAssignment
                                     = gradebookService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), associatedGradebookAssignment);
+                                        nAssignment.getContext(), nAssignment.getContext(), associatedGradebookAssignment);
 
                                 if (gbAssignment == null) {
                                     if (!nAssignment.getDraft()) {
                                         // The target gb item doesn't exist and we're in publish mode, so copy it over.
                                         gbAssignment = gradebookService.getAssignmentByNameOrId(
-                                                oAssignment.getContext(), associatedGradebookAssignment);
+                                                oAssignment.getContext(), oAssignment.getContext(), associatedGradebookAssignment);
                                         gbAssignment.setId(null);
 
                                         Optional<Long> categoryId = createCategoryForGbAssignmentIfNecessary(
@@ -4357,7 +4357,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                             gbAssignment.setCategoryId(categoryId.get());
                                         }
 
-                                        gradebookService.addAssignment(nAssignment.getContext(), gbAssignment);
+                                        gradebookService.addAssignment(nAssignment.getContext(), nAssignment.getContext(), gbAssignment);
                                         nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbAssignment.getName());
                                     } else {
                                         nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference());
@@ -4931,7 +4931,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         if (!StringUtils.isBlank(categoryName)) {
             List<CategoryDefinition> toCategoryDefinitions
-                = gradebookService.getCategoryDefinitions(toGradebookId);
+                = gradebookService.getCategoryDefinitions(toGradebookId, toGradebookId);
             if (toCategoryDefinitions == null) {
                 toCategoryDefinitions = new ArrayList<>();
             }
@@ -4939,7 +4939,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (!toCategoryDefinitions.stream().anyMatch(cd -> cd.getName().equals(categoryName))) {
                 // The category doesn't exist yet
                 CategoryDefinition fromCategoryDefinition
-                    = gradebookService.getCategoryDefinitions(fromGradebookId)
+                    = gradebookService.getCategoryDefinitions(fromGradebookId, fromGradebookId)
                         .stream()
                         .filter(cd -> cd.getName().equals(categoryName))
                             .findAny().get();
@@ -4953,18 +4953,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 toCategoryDefinition.setDropLowest(fromCategoryDefinition.getDropLowest());
                 toCategoryDefinition.setKeepHighest(fromCategoryDefinition.getKeepHighest());
 
-                GradebookInformation toGbInformation = gradebookService.getGradebookInformation(toGradebookId);
-                GradebookInformation fromGbInformation = gradebookService.getGradebookInformation(fromGradebookId);
+                GradebookInformation toGbInformation = gradebookService.getGradebookInformation(toGradebookId, toGradebookId);
+                GradebookInformation fromGbInformation = gradebookService.getGradebookInformation(fromGradebookId, fromGradebookId);
                 toGbInformation.setCategoryType(fromGbInformation.getCategoryType());
                 List<CategoryDefinition> categories = toGbInformation.getCategories();
                 categories.add(toCategoryDefinition);
-                gradebookService.updateGradebookSettings(toGradebookId, toGbInformation);
+                gradebookService.updateGradebookSettings(toGradebookId, toGradebookId, toGbInformation);
             }
 
             // A new category may have been added in the previous block. Pull them again, just to be sure. This will
             // ensure that any upstream caching is refreshed, too.
             Optional<CategoryDefinition> optional
-                = gradebookService.getCategoryDefinitions(toGradebookId)
+                = gradebookService.getCategoryDefinitions(toGradebookId, toGradebookId)
                     .stream()
                     .filter(cd -> cd.getName().equals(categoryName)).findAny();
             if (optional.isPresent()) {

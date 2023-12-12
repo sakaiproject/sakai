@@ -1892,14 +1892,14 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
         if (this.gradebookExists) {
             String gradebookUid = toolManager.getCurrentPlacement().getContext();
-            categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
+            categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid, gradebookUid);
 
             selectList.add(new SelectItem("-1", assessmentSettingMessages.getString("gradebook_uncategorized"))); // -1 for a cat id means unassigned
             for (CategoryDefinition categoryDefinition: categoryDefinitions) {
                 selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
             }
             // Also set if categories are enabled based on category type
-            GradebookInformation gbInfo = gradebookService.getGradebookInformation(gradebookUid);
+            GradebookInformation gbInfo = gradebookService.getGradebookInformation(gradebookUid, gradebookUid);
             if (gbInfo != null) {
                 this.categoriesEnabled = gbInfo.getCategoryType() != GradebookService.CATEGORY_TYPE_NO_CATEGORY;
             } else {

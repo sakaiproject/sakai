@@ -78,22 +78,28 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 	private Double existingPoints = null;
 	private boolean scaleGradesTriggered = false;
 	private WebMarkupContainer scaleGradesContainer;
+	private final Model<Assignment> assignmentModel;
 
 	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel, final UiMode mode) {
 		super(id, assignmentModel);
+		this.assignmentModel = assignmentModel;
+    }
 
-		final Gradebook gradebook = this.businessService.getGradebook();
+    @Override
+    public void onInitialize() {
+		super.onInitialize();
+		final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
 		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
-
-		final Assignment assignment = assignmentModel.getObject();
 
 		this.categoriesEnabled = true;
 		if (gradebook.getCategory_type() == GbCategoryType.NO_CATEGORY.getValue()) {
 			this.categoriesEnabled = false;
 		}
 
+		final Assignment assignment = assignmentModel.getObject();
+
 		// get existing points. Will be null for a new assignment
-		this.existingPoints = assignmentModel.getObject().getPoints();
+		this.existingPoints = assignment.getPoints();
 
 		// title
 		final TextField<String> title = new TextField<String>("title",
@@ -203,7 +209,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		final Map<Long, CategoryDefinition> categoryMap = new LinkedHashMap<>();
 
 		if (this.categoriesEnabled) {
-			categories.addAll(this.businessService.getGradebookCategories());
+			categories.addAll(this.businessService.getGradebookCategories(currentGradebookUid, currentSiteId));
 
 			for (final CategoryDefinition category : categories) {
 				categoryMap.put(category.getId(), category);
@@ -312,7 +318,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		// counted
 		this.counted = new CheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted"));
 		this.counted.setOutputMarkupId(true);
-		if (this.businessService.categoriesAreEnabled()) {
+		if (this.businessService.categoriesAreEnabled(currentGradebookUid, currentSiteId)) {
 			this.counted.setEnabled(assignment.getCategoryId() != null);
 			if (assignment.getCategoryId() == null) {
 				this.counted.setModelObject(false);
@@ -342,7 +348,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 				}
 				target.add(extraCredit);
 
-				if (AddOrEditGradeItemPanelContent.this.businessService.categoriesAreEnabled()) {
+				if (AddOrEditGradeItemPanelContent.this.businessService.categoriesAreEnabled(currentGradebookUid, currentSiteId)) {
 					if (category == null) {
 						AddOrEditGradeItemPanelContent.this.counted.setEnabled(false);
 						AddOrEditGradeItemPanelContent.this.counted.setModelObject(false);

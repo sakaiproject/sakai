@@ -1279,7 +1279,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
             org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = mock(org.sakaiproject.service.gradebook.shared.Assignment.class);
             when(gradebookAssignment.getName()).thenReturn(itemId.toString());
-            when(gradebookService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
+            when(gradebookService.getAssignmentByNameOrId(context, context, itemId.toString())).thenReturn(gradebookAssignment);
             User mockUser = mock(User.class);
             when(mockUser.getId()).thenReturn(submitterId);
             when(userDirectoryService.getUser(submitterId)).thenReturn(mockUser);

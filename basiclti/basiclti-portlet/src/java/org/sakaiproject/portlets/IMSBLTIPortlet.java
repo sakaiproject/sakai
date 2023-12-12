@@ -71,6 +71,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -891,7 +892,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			asn.setName(assignmentName);
 			asn.setReleased(true);
 			asn.setUngraded(false);
-			g.addAssignment(gradebookUid, asn);
+			g.addAssignment(gradebookUid, gradebookUid, asn);
 			return true;
 		}
 		catch (ConflictingAssignmentNameException e)
@@ -919,7 +920,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
 			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
-			List gradebookAssignments = g.getAssignments(gradebookUid);
+			List gradebookAssignments = g.getAssignments(gradebookUid, gradebookUid, SortType.SORT_BY_NONE);
 
 			// filtering out anything externally provided
 			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)

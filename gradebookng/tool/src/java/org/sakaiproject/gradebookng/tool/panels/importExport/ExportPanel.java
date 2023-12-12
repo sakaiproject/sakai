@@ -125,7 +125,7 @@ public class ExportPanel extends BasePanel {
 			}
 		});
 		
-		final boolean stuNumVisible = businessService.isStudentNumberVisible();
+		final boolean stuNumVisible = businessService.isStudentNumberVisible(currentSiteId);
 		add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
 			private static final long serialVersionUID = 1L;
 
@@ -182,7 +182,7 @@ public class ExportPanel extends BasePanel {
 			@Override
 			public boolean isVisible() {
 				// only allow option if categories are not weighted
-				final GbCategoryType categoryType = ExportPanel.this.businessService.getGradebookCategoryType();
+				final GbCategoryType categoryType = ExportPanel.this.businessService.getGradebookCategoryType(currentGradebookUid, currentSiteId);
 				return categoryType != GbCategoryType.WEIGHTED_CATEGORY;
 			}
 		});
@@ -206,7 +206,7 @@ public class ExportPanel extends BasePanel {
 
 			@Override
 			public boolean isVisible() {
-				return ExportPanel.this.businessService.categoriesAreEnabled();
+				return ExportPanel.this.businessService.categoriesAreEnabled(currentGradebookUid, currentSiteId);
 			}
 		});
 		add(new AjaxCheckBox("includeCourseGrade", Model.of(this.includeCourseGrade)) {
@@ -239,7 +239,7 @@ public class ExportPanel extends BasePanel {
 
 		this.group = new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL);
 
-		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(currentGradebookUid, currentSiteId);
 		groups.add(0, this.group);
 		add(new DropDownChoice<GbGroup>("groupFilter", Model.of(this.group), groups, new ChoiceRenderer<GbGroup>() {
 			private static final long serialVersionUID = 1L;
@@ -328,11 +328,11 @@ public class ExportPanel extends BasePanel {
 
 				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
 				SortType sortBy = SortType.SORT_BY_SORTING;
-				if (this.businessService.categoriesAreEnabled()) {
+				if (this.businessService.categoriesAreEnabled(currentGradebookUid, currentSiteId)) {
 					sortBy = SortType.SORT_BY_CATEGORY;
 				}
-				final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
-				final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+				final List<Assignment> assignments = this.businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, sortBy);
+				final List<CategoryDefinition> categories = this.businessService.getGradebookCategories(currentGradebookUid, currentSiteId);
 
 				// no assignments, give a template
 				if (assignments.isEmpty()) {
@@ -371,7 +371,7 @@ public class ExportPanel extends BasePanel {
 							// Find the correct category in the ArrayList to extract the points
 							final CategoryDefinition cd = categories.stream().filter(cat -> a1.getCategoryId().equals(cat.getId())).findAny().orElse(null);
 							String catWeightString = "";
-							if (cd != null && this.businessService.getGradebookCategoryType() == GbCategoryType.WEIGHTED_CATEGORY) {
+							if (cd != null && this.businessService.getGradebookCategoryType(currentGradebookUid, currentSiteId) == GbCategoryType.WEIGHTED_CATEGORY) {
 								if (cd.getWeight() != null) {
 									catWeightString = "(" + FormatHelper.formatDoubleAsPercentage(cd.getWeight() * 100) + ")";
 								}
@@ -410,7 +410,7 @@ public class ExportPanel extends BasePanel {
 				}
 
 				// get the grade matrix
-				final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForImportExport(assignments, group);
+				final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForImportExport(currentGradebookUid, currentSiteId, assignments, group);
 
 				// add grades
 				grades.forEach(studentGradeInfo -> {
@@ -513,7 +513,7 @@ public class ExportPanel extends BasePanel {
 	private String buildFileName(final boolean customDownload) {
 		final String prefix = getString("importExport.download.filenameprefix");
 		final String extension = this.exportFormat.toString().toLowerCase();
-		final String gradebookName = this.businessService.getGradebook().getName();
+		final String gradebookName = this.businessService.getGradebook(currentGradebookUid, currentSiteId).getName();
 
 		// File name contains the prefix
 		final List<String> fileNameComponents = new ArrayList<>();

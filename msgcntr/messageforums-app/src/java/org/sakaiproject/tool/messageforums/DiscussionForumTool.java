@@ -130,6 +130,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -696,7 +697,7 @@ public class DiscussionForumTool {
         GradebookService gradebookService = getGradebookService();
 
         if (getGradebookExist()) {
-          for (Assignment thisAssign : gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
+          for (Assignment thisAssign : gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentPlacement().getContext(), SortType.SORT_BY_NONE)) {
             if (!thisAssign.isExternallyMaintained()) {
               try {
                 assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
@@ -4492,7 +4493,7 @@ public class DiscussionForumTool {
 	  GradebookService gradebookService = getGradebookService();
 	  if (gradebookService == null) return;
 	  
-	  Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
+	  Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, gradebookUid, selAssignmentName);
 	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
 	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
@@ -4529,7 +4530,7 @@ public class DiscussionForumTool {
 			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assignment.getPoints());
 		  }
 		  
-		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
+		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
 		      String decSeparator = formattedText.getDecimalSeparator();
@@ -6147,8 +6148,8 @@ public class DiscussionForumTool {
         	studentUid = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
-        gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
+        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, gradebookUuid, selectedAssign).getId();
+        gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
 

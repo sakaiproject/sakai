@@ -66,14 +66,14 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
         }
     }
 
-	public boolean isUserAbleToGrade(String gradebookUid) {
-		return (hasPermission(gradebookUid, PERMISSION_GRADE_ALL) || hasPermission(gradebookUid, PERMISSION_GRADE_SECTION));
+	public boolean isUserAbleToGrade(String siteId) {
+		return (hasPermission(siteId, PERMISSION_GRADE_ALL) || hasPermission(siteId, PERMISSION_GRADE_SECTION));
 	}
 	
-	public boolean isUserAbleToGrade(String gradebookUid, String userUid) {
+	public boolean isUserAbleToGrade(String siteId, String userUid) {
 	    try {
 	        User user = UserDirectoryService.getUser(userUid);
-	        return (hasPermission(user, gradebookUid, PERMISSION_GRADE_ALL) || hasPermission(user, gradebookUid, PERMISSION_GRADE_SECTION));
+	        return (hasPermission(user, siteId, PERMISSION_GRADE_ALL) || hasPermission(user, siteId, PERMISSION_GRADE_SECTION));
 	    } catch (UserNotDefinedException unde) {
 	        log.warn("User not found for userUid: " + userUid);
 	        return false;
@@ -81,49 +81,39 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
 
 	}
 
-	public boolean isUserAbleToGradeAll(String gradebookUid) {
-		return hasPermission(gradebookUid, PERMISSION_GRADE_ALL);
+	public boolean isUserAbleToGradeAll(String siteId) {
+		return hasPermission(siteId, PERMISSION_GRADE_ALL);
 	}
 	
-	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid) {
+	public boolean isUserAbleToGradeAll(String siteId, String userUid) {
 	    try {
 	        User user = UserDirectoryService.getUser(userUid);
-	        return hasPermission(user, gradebookUid, PERMISSION_GRADE_ALL);
+	        return hasPermission(user, siteId, PERMISSION_GRADE_ALL);
 	    } catch (UserNotDefinedException unde) {
 	        log.warn("User not found for userUid: " + userUid);
 	        return false;
 	    }
 	}
 
-	/**
-	 * When group-scoped permissions are available, this is where
-	 * they will go. My current assumption is that the call will look like:
-	 *
-	 *   return hasPermission(sectionUid, PERMISSION_GRADE_ALL);
-	 */
-	public boolean isUserAbleToGradeSection(String sectionUid) {
-		return getSectionAwareness().isSectionMemberInRole(sectionUid, getAuthn().getUserUid(), Role.TA);
+	public boolean isUserAbleToEditAssessments(String siteId) {
+		return hasPermission(siteId, PERMISSION_EDIT_ASSIGNMENTS);
 	}
 
-	public boolean isUserAbleToEditAssessments(String gradebookUid) {
-		return hasPermission(gradebookUid, PERMISSION_EDIT_ASSIGNMENTS);
-	}
-
-	public boolean isUserAbleToViewOwnGrades(String gradebookUid) {
-		return hasPermission(gradebookUid, PERMISSION_VIEW_OWN_GRADES);
+	public boolean isUserAbleToViewOwnGrades(String siteId) {
+		return hasPermission(siteId, PERMISSION_VIEW_OWN_GRADES);
 	}
 	
-	public boolean isUserAbleToViewStudentNumbers(String gradebookUid)
+	public boolean isUserAbleToViewStudentNumbers(String siteId)
 	{
-		return hasPermission(gradebookUid, PERMISSION_VIEW_STUDENT_NUMBERS);
+		return hasPermission(siteId, PERMISSION_VIEW_STUDENT_NUMBERS);
 	}
 
-	private boolean hasPermission(String gradebookUid, String permission) {
-		return SecurityService.unlock(permission, SiteService.siteReference(gradebookUid));
+	private boolean hasPermission(String siteId, String permission) {
+		return SecurityService.unlock(permission, SiteService.siteReference(siteId));
 	}
 	
-	private boolean hasPermission(User user, String gradebookUid, String permission) {
-	    return SecurityService.unlock(user, permission, SiteService.siteReference(gradebookUid));
+	private boolean hasPermission(User user, String siteId, String permission) {
+	    return SecurityService.unlock(user, permission, SiteService.siteReference(siteId));
 	}
 
 }

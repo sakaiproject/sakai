@@ -42,47 +42,14 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
  * on the shared Section Awareness API.
  */
 @Slf4j
-public class AuthzSectionsImpl implements Authz {
+public abstract class AuthzSectionsImpl implements Authz {
 	private Authn authn;
 	private SectionAwareness sectionAwareness;
 	private GradebookPermissionService gradebookPermissionService;
-
-	public boolean isUserAbleToGrade(String gradebookUid) {
-		String userUid = authn.getUserUid();
-		return isUserAbleToGrade(gradebookUid, userUid);
-	}
-	
-	public boolean isUserAbleToGrade(String gradebookUid, String userUid) {
-		return (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.TA));
-	}
-
-	public boolean isUserAbleToGradeAll(String gradebookUid) {
-		return isUserAbleToGradeAll(gradebookUid, authn.getUserUid());
-	}
-	
-	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid) {
-		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
-	}
 	
 	public boolean isUserHasGraderPermissions(String gradebookUid) {
 		String userUid = authn.getUserUid();
 		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebookUid, userUid);
-		return permissions != null && permissions.size() > 0;
-	}
-	
-	public boolean isUserHasGraderPermissions(Long gradebookId) {
-		String userUid = authn.getUserUid();
-		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebookId, userUid);
-		return permissions != null && permissions.size() > 0;
-	}
-	
-	public boolean isUserHasGraderPermissions(String gradebookUid, String userUid) {
-		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebookUid, userUid);
-		return permissions != null && permissions.size() > 0;
-	}
-	
-	public boolean isUserHasGraderPermissions(Long gradebookId, String userUid) {
-		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebookId, userUid);
 		return permissions != null && permissions.size() > 0;
 	}
 	
@@ -100,22 +67,7 @@ public class AuthzSectionsImpl implements Authz {
 	    return getSectionAwareness().isSectionMemberInRole(sectionUid, userUid, Role.TA);
 	}
 
-	public boolean isUserAbleToEditAssessments(String gradebookUid) {
-		String userUid = authn.getUserUid();
-		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
-	}
-
-	public boolean isUserAbleToViewOwnGrades(String gradebookUid) {
-		String userUid = authn.getUserUid();
-		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.STUDENT);
-	}
-	
-	public boolean isUserAbleToViewStudentNumbers(String gradebookUid)
-	{
-		String userUid = authn.getUserUid();
-		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
-	}
-	
+	// S2U-26 this function is called from forums, so it will always be a site=id situation until SAK-49493 is completed
 	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid) {
 		if (itemId == null || studentUid == null || gradebookUid == null) {
 			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
@@ -127,7 +79,7 @@ public class AuthzSectionsImpl implements Authz {
 		
 		String userUid = authn.getUserUid();
 		
-		List viewableSections = getViewableSections(gradebookUid);
+		List viewableSections = getViewableSections(gradebookUid, gradebookUid);
 		List sectionIds = new ArrayList();
 		if (viewableSections != null && !viewableSections.isEmpty()) {
 			for (Iterator sectionIter = viewableSections.iterator(); sectionIter.hasNext();) {
@@ -136,7 +88,7 @@ public class AuthzSectionsImpl implements Authz {
 			}
 		}
 		
-		if (isUserHasGraderPermissions(gradebookUid, userUid)) {
+		if (isUserHasGraderPermissions(gradebookUid)) {
 
 			// get the map of authorized item (assignment) ids to grade/view function
 			Map itemIdFunctionMap = gradebookPermissionService.getAvailableItemsForStudent(gradebookUid, userUid, studentUid, viewableSections);
@@ -172,18 +124,18 @@ public class AuthzSectionsImpl implements Authz {
 		}
 	}
 	
-	private boolean isUserAbleToGradeOrViewItemForStudent(String gradebookUid, Long itemId, String studentUid, String function) throws IllegalArgumentException {
+	private boolean isUserAbleToGradeOrViewItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid, String function) throws IllegalArgumentException {
 		if (itemId == null || studentUid == null || function == null) {
 			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
 		}
 		
-		if (isUserAbleToGradeAll(gradebookUid)) {
+		if (isUserAbleToGradeAll(siteId)) {
 			return true;
 		}
 		
 		String userUid = authn.getUserUid();
 		
-		List viewableSections = getViewableSections(gradebookUid);
+		List viewableSections = getViewableSections(gradebookUid, siteId);
 		List sectionIds = new ArrayList();
 		if (viewableSections != null && !viewableSections.isEmpty()) {
 			for (Iterator sectionIter = viewableSections.iterator(); sectionIter.hasNext();) {
@@ -192,7 +144,7 @@ public class AuthzSectionsImpl implements Authz {
 			}
 		}
 		
-		if (isUserHasGraderPermissions(gradebookUid, userUid)) {
+		if (isUserHasGraderPermissions(gradebookUid)) {
 
 			// get the map of authorized item (assignment) ids to grade/view function
 			Map itemIdFunctionMap = gradebookPermissionService.getAvailableItemsForStudent(gradebookUid, userUid, studentUid, viewableSections);
@@ -229,23 +181,23 @@ public class AuthzSectionsImpl implements Authz {
 	}
 
 
-	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {	
-		return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradebookService.gradePermission);
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid) throws IllegalArgumentException {	
+		return isUserAbleToGradeOrViewItemForStudent(gradebookUid, siteId, itemId, studentUid, GradebookService.gradePermission);
 	}
 	
-	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {
-		return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradebookService.viewPermission);
+	public boolean isUserAbleToViewItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid) throws IllegalArgumentException {
+		return isUserAbleToGradeOrViewItemForStudent(gradebookUid, siteId, itemId, studentUid, GradebookService.viewPermission);
 	}
 	
-	public List getViewableSections(String gradebookUid) {
+	public List getViewableSections(String gradebookUid, String siteId) {
 		List viewableSections = new ArrayList();
 		
-		List allSections = getAllSections(gradebookUid);
+		List allSections = getAllSections(siteId);
 		if (allSections == null || allSections.isEmpty()) {
 			return viewableSections;
 		}
 		
-		if (isUserAbleToGradeAll(gradebookUid)) {
+		if (isUserAbleToGradeAll(siteId)) {
 			return allSections;
 		}
 
@@ -258,7 +210,7 @@ public class AuthzSectionsImpl implements Authz {
 		
 		String userUid = authn.getUserUid();
 		
-		if (isUserHasGraderPermissions(gradebookUid, userUid)) {	
+		if (isUserHasGraderPermissions(gradebookUid)) {	
 
 			List viewableSectionIds =  gradebookPermissionService.getViewableGroupsForUser(gradebookUid, userUid, new ArrayList(sectionIdCourseSectionMap.keySet()));
 			if (viewableSectionIds != null && !viewableSectionIds.isEmpty()) {
@@ -288,9 +240,9 @@ public class AuthzSectionsImpl implements Authz {
 
 	}
 	
-	public List getAllSections(String gradebookUid) {
+	public List getAllSections(String siteId) {
 		SectionAwareness sectionAwareness = getSectionAwareness();
-		List sections = sectionAwareness.getSections(gradebookUid);
+		List sections = sectionAwareness.getSections(siteId);
 
 		return sections;
 	}
@@ -299,191 +251,18 @@ public class AuthzSectionsImpl implements Authz {
 		return getSectionAwareness().getSectionMembersInRole(sectionUid, Role.STUDENT);
 	}
 	
-	public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid) {
+	public Map findMatchingEnrollmentsForItem(String gradebookUid, String siteId, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid) {
 	    String userUid = authn.getUserUid();
-		return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
+		return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, siteId, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
 	}
 	
-	public Map findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid) {
-	    return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
+	public Map findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, String siteId, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid) {
+	    return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, siteId, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
 	}
 	
-	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, int gbCategoryType, String optionalSearchString, String optionalSectionUid) {
+	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, String siteId, int gbCategoryType, String optionalSearchString, String optionalSectionUid) {
 	    String userUid = authn.getUserUid();
-		return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, null, gbCategoryType, optionalSearchString, optionalSectionUid, true);
-	}
-	
-	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid) {
-		Map enrollmentMap = new HashMap();
-		List<EnrollmentRecord> filteredEnrollments = null;
-		if (optionalSearchString != null)
-			filteredEnrollments = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, optionalSearchString);
-		else
-			filteredEnrollments = getSectionAwareness().getSiteMembersInRole(gradebookUid, Role.STUDENT);
-		
-		if (filteredEnrollments == null || filteredEnrollments.isEmpty()) 
-			return enrollmentMap;
-		
-		// get all the students in the filtered section, if appropriate
-		Map<String, EnrollmentRecord> studentsInSectionMap = new HashMap<String, EnrollmentRecord>();
-		if (optionalSectionUid !=  null) {
-			List<EnrollmentRecord> sectionMembers = getSectionEnrollmentsTrusted(optionalSectionUid);
-			if (!sectionMembers.isEmpty()) {
-				for(Iterator<EnrollmentRecord> memberIter = sectionMembers.iterator(); memberIter.hasNext();) {
-					EnrollmentRecord member = (EnrollmentRecord) memberIter.next();
-					studentsInSectionMap.put(member.getUser().getUserUid(), member);
-				}
-			}
-		}
-		
-		Map<String, EnrollmentRecord> studentIdEnrRecMap = new HashMap<String, EnrollmentRecord>();
-		for (Iterator<EnrollmentRecord> enrIter = filteredEnrollments.iterator(); enrIter.hasNext();) {
-			EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
-			String studentId = enr.getUser().getUserUid();
-			if (optionalSectionUid != null) {
-				if (studentsInSectionMap.containsKey(studentId)) {
-					studentIdEnrRecMap.put(studentId, enr);
-				}
-			} else {
-				studentIdEnrRecMap.put(studentId, enr);
-			}
-		}			
-			
-		if (isUserAbleToGradeAll(gradebookUid)) {
-			List enrollments = new ArrayList(studentIdEnrRecMap.values());
-			
-			HashMap assignFunctionMap = new HashMap();
-			if (allGbItems != null && !allGbItems.isEmpty()) {
-				for (Iterator assignIter = allGbItems.iterator(); assignIter.hasNext();) {
-					Object assign = assignIter.next();
-					Long assignId = null;
-					if (assign instanceof org.sakaiproject.service.gradebook.shared.Assignment) {
-						assignId = ((org.sakaiproject.service.gradebook.shared.Assignment)assign).getId();
-					} else if (assign instanceof GradebookAssignment) {
-						assignId = ((GradebookAssignment)assign).getId();
-					}
-
-					if (assignId != null)
-						assignFunctionMap.put(assignId, GradebookService.gradePermission);
-				}
-			}
-			
-			for (Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
-				EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
-				enrollmentMap.put(enr, assignFunctionMap);
-			}
-			
-		} else {
-			String userId = authn.getUserUid();
-			
-			Map sectionIdCourseSectionMap = new HashMap();
-			List viewableSections = getViewableSections(gradebookUid);
-			for (Iterator sectionIter = viewableSections.iterator(); sectionIter.hasNext();) {
-				CourseSection section = (CourseSection) sectionIter.next();
-				sectionIdCourseSectionMap.put(section.getUuid(), section);
-			}
-			
-			if (isUserHasGraderPermissions(gradebookUid)) {
-				// user has special grader permissions that override default perms
-				
-				List myStudentIds = new ArrayList(studentIdEnrRecMap.keySet());
-				
-				List selSections = new ArrayList();
-				if (optionalSectionUid == null) {  
-					// pass all sections
-					selSections = new ArrayList(sectionIdCourseSectionMap.values());
-				} else {
-					// only pass the selected section
-					CourseSection section = (CourseSection) sectionIdCourseSectionMap.get(optionalSectionUid);
-					if (section != null)
-						selSections.add(section);
-				}
-				
-				// we need to get the viewable students, so first create section id --> student ids map
-				myStudentIds = getGradebookPermissionService().getViewableStudentsForUser(gradebookUid, userId, myStudentIds, selSections);
-				Map viewableStudentIdItemsMap = new HashMap();
-				if (allGbItems == null || allGbItems.isEmpty()) {
-					if (myStudentIds != null) {
-						for (Iterator stIter = myStudentIds.iterator(); stIter.hasNext();) {
-							String stId = (String) stIter.next();
-							if (stId != null)
-								viewableStudentIdItemsMap.put(stId, null);
-						}
-					}
-				} else {
-					viewableStudentIdItemsMap = gradebookPermissionService.getAvailableItemsForStudents(gradebookUid, userId, myStudentIds, selSections);
-				}
-				
-				if (!viewableStudentIdItemsMap.isEmpty()) {
-					for (Iterator<Map.Entry<String, EnrollmentRecord>> enrIter = viewableStudentIdItemsMap.entrySet().iterator(); enrIter.hasNext();) {
-		                Map.Entry<String, EnrollmentRecord> entry = enrIter.next();
-						String studentId = entry.getKey();
-						EnrollmentRecord enrRec = (EnrollmentRecord)studentIdEnrRecMap.get(studentId);
-						if (enrRec != null) {	
-							Map itemIdFunctionMap = (Map)viewableStudentIdItemsMap.get(studentId);
-							//if (!itemIdFunctionMap.isEmpty()) {
-								enrollmentMap.put(enrRec, itemIdFunctionMap);
-							//}
-						}
-					}
-				}
-
-			} else { 
-				// use default section-based permissions
-				
-				// Determine the current user's section memberships
-				List availableSections = new ArrayList();
-				if (optionalSectionUid != null && isUserTAinSection(optionalSectionUid)) {
-					if (sectionIdCourseSectionMap.containsKey(optionalSectionUid))
-						availableSections.add(optionalSectionUid);
-				} else {
-					for (Iterator iter = sectionIdCourseSectionMap.keySet().iterator(); iter.hasNext(); ) {
-						String sectionUuid = (String)iter.next();
-						if (isUserTAinSection(sectionUuid)) {
-							availableSections.add(sectionUuid);
-						}
-					}
-				}
-				
-				// Determine which enrollees are in these sections
-				Map uniqueEnrollees = new HashMap();
-				for (Iterator iter = availableSections.iterator(); iter.hasNext(); ) {
-					String sectionUuid = (String)iter.next();
-					List sectionEnrollments = getSectionEnrollmentsTrusted(sectionUuid);
-					for (Iterator eIter = sectionEnrollments.iterator(); eIter.hasNext(); ) {
-						EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
-						uniqueEnrollees.put(enr.getUser().getUserUid(), enr);
-					}
-				}
-				
-				// Filter out based upon the original filtered students
-				for (Iterator iter = studentIdEnrRecMap.keySet().iterator(); iter.hasNext(); ) {
-					String enrId = (String)iter.next();
-					if (uniqueEnrollees.containsKey(enrId)) {
-						// iterate through the assignments
-						Map itemFunctionMap = new HashMap();
-						if (allGbItems != null && !allGbItems.isEmpty()) {
-							for (Iterator itemIter = allGbItems.iterator(); itemIter.hasNext();) {
-								Object assign = itemIter.next();
-								Long assignId = null;
-								if (assign instanceof org.sakaiproject.service.gradebook.shared.Assignment) {
-									assignId = ((org.sakaiproject.service.gradebook.shared.Assignment)assign).getId();
-								} else if (assign instanceof GradebookAssignment) {
-									assignId = ((GradebookAssignment)assign).getId();
-								}
-
-								if (assignId != null) {
-									itemFunctionMap.put(assignId, GradebookService.gradePermission);
-								}
-							}
-						}
-						enrollmentMap.put(studentIdEnrRecMap.get(enrId), itemFunctionMap);
-					}
-				}
-			}
-		}
-
-		return enrollmentMap;
+		return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, siteId, null, gbCategoryType, optionalSearchString, optionalSectionUid, true);
 	}
 	
 	/**
@@ -495,15 +274,16 @@ public class AuthzSectionsImpl implements Authz {
 	 * @param itemIsCourseGrade
 	 * @return Map of EnrollmentRecord --> View or Grade 
 	 */
-	private Map findMatchingEnrollmentsForItemOrCourseGrade(String userUid, String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid, boolean itemIsCourseGrade) {
+	private Map findMatchingEnrollmentsForItemOrCourseGrade(String userUid, String gradebookUid, String siteId, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid, boolean itemIsCourseGrade) {
 		Map enrollmentMap = new HashMap();
 		List filteredEnrollments = new ArrayList();
-		
-		if (optionalSearchString != null)
+		if (optionalSearchString != null) {
 			filteredEnrollments = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, optionalSearchString);
-		else
+		} else if (optionalSectionUid !=  null && gradebookUid.equals(optionalSectionUid)) {// this could be more efficient if we add optionalSearchString and skip the following getSectionMembersInRole, but it feels cleaner like this
+			filteredEnrollments = getSectionAwareness().getSectionMembersInRole(gradebookUid, Role.STUDENT);
+		} else {
 			filteredEnrollments = getSectionAwareness().getSiteMembersInRole(gradebookUid, Role.STUDENT);
-		
+		}
 		if (filteredEnrollments.isEmpty()) 
 			return enrollmentMap;
 		
@@ -532,7 +312,7 @@ public class AuthzSectionsImpl implements Authz {
 			}
 		}
 			
-		if (isUserAbleToGradeAll(gradebookUid, userUid)) {
+		if (isUserAbleToGradeAll(siteId, userUid)) {
 			List enrollments = new ArrayList(studentIdEnrRecMap.values());
 			
 			for (Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
@@ -542,13 +322,13 @@ public class AuthzSectionsImpl implements Authz {
 
 		} else {
 			Map sectionIdCourseSectionMap = new HashMap();
-			List allSections = getAllSections(gradebookUid);
+			List allSections = getAllSections(siteId);// this could be more efficient for group filtering, but leaving as it is for the moment
 			for (Iterator sectionIter = allSections.iterator(); sectionIter.hasNext();) {
 				CourseSection section = (CourseSection) sectionIter.next();
 				sectionIdCourseSectionMap.put(section.getUuid(), section);
 			}
 
-			if (isUserHasGraderPermissions(gradebookUid, userUid)) {
+			if (isUserHasGraderPermissions(gradebookUid)) {
 				// user has special grader permissions that override default perms
 				
 				List myStudentIds = new ArrayList(studentIdEnrRecMap.keySet());
@@ -635,32 +415,6 @@ public class AuthzSectionsImpl implements Authz {
 		}
 		
 		return enrollmentMap;
-	}
-	
-	
-	public List findStudentSectionMemberships(String gradebookUid, String studentUid) {
-		List sectionMemberships = new ArrayList();
-		try {
-			sectionMemberships = (List)org.sakaiproject.site.cover.SiteService.getSite(gradebookUid).getGroupsWithMember(studentUid);
-    	} catch (IdUnusedException e) {
-    		log.error("No site with id = " + gradebookUid);
-    	}
-    	
-    	return sectionMemberships;
-	}
-	
-	public List getStudentSectionMembershipNames(String gradebookUid, String studentUid) {
-		List sectionNames = new ArrayList();
-		List sections = findStudentSectionMemberships(gradebookUid, studentUid);
-		if (sections != null && !sections.isEmpty()) {
-			Iterator sectionIter = sections.iterator();
-			while (sectionIter.hasNext()) {
-				Group myGroup = (Group) sectionIter.next();
-				sectionNames.add(myGroup.getTitle());
-			}
-		}
-		
-		return sectionNames;
 	}
 
 	public Authn getAuthn() {

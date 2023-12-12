@@ -121,6 +121,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 				Component previousPanel;
 				if (assignmentsToCreate.size() > 0) {
 					previousPanel = new CreateGradeItemStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
+					((CreateGradeItemStep)previousPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				} else {
 					previousPanel = new GradeItemImportSelectionStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
 				}
@@ -147,7 +148,6 @@ public class GradeImportConfirmationStep extends BasePanel {
 				final Map<String, Long> assignmentMap = new HashMap<>();
 				final List<ProcessedGradeItem> itemsToSave = new ArrayList<>();
 				Set<ProcessedGradeItem> errorColumns = new HashSet<>();
-				final Gradebook gradebook = businessService.getGradebook();
 
 				// Create new GB items
 				Iterator<Map.Entry<ProcessedGradeItem, Assignment>> itAssignments = assignmentsToCreate.entrySet().iterator();
@@ -158,7 +158,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 					Long assignmentId = null;
 					try {
 						ProcessedGradeItem pgi = entry.getKey();
-						assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(assignment);
+						assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(currentGradebookUid, currentSiteId, assignment);
 						Map<String, String> rubricParams = pgi.getRubricParameters();
 						if (!rubricParams.isEmpty()) {
 							rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), rubricParams);
@@ -208,11 +208,11 @@ public class GradeImportConfirmationStep extends BasePanel {
 
 					final String itemPoints = FormatHelper.formatGradeFromUserLocale(item.getItemPointValue());
 					final Double points = FormatHelper.validateDouble(itemPoints);
-					final Assignment assignment = GradeImportConfirmationStep.this.businessService.getAssignment(item.getItemTitle());
+					final Assignment assignment = GradeImportConfirmationStep.this.businessService.getAssignment(currentGradebookUid, currentSiteId, item.getItemTitle());
 					assignment.setPoints(points);
 
 					try {
-						GradeImportConfirmationStep.this.businessService.updateAssignment(assignment);
+						GradeImportConfirmationStep.this.businessService.updateAssignment(currentGradebookUid, currentSiteId, assignment);
 					}
 					catch (final Exception e) {
 						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
@@ -246,7 +246,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 					//TODO if assignmentId is still null, there will be a problem
 
 					// Get the assignment and details
-					final Assignment assignment = businessService.getAssignment(assignmentId);
+					final Assignment assignment = businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 					final List<ProcessedGradeItemDetail> processedGradeItemDetails = processedGradeItem.getProcessedGradeItemDetails();
 					List<GradeDefinition> gradeDefList = new ArrayList<>();
 					for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItemDetails) {
@@ -257,7 +257,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 						gradeDefList.add(gradeDef);
 					}
 
-					final GradeSaveResponse saveResponse = businessService.saveGradesAndCommentsForImport(gradebook, assignment, gradeDefList);
+					final GradeSaveResponse saveResponse = businessService.saveGradesAndCommentsForImport(currentGradebookUid, currentSiteId, assignment, gradeDefList);
 					switch (saveResponse) {
 						case OK:
 							break;

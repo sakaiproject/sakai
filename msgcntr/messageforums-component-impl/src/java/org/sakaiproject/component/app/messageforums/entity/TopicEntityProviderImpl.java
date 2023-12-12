@@ -66,6 +66,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -386,7 +387,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				Map<String, Long> gbItemNameToId = new HashMap<String, Long>();
 				try {
 				    GradebookService gradebookService = (GradebookService)ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-				    List<Assignment> gbItems = gradebookService.getAssignments(siteId);
+				    List<Assignment> gbItems = gradebookService.getAssignments(siteId, siteId, SortType.SORT_BY_NONE);
 				    if (gbItems != null) {
 				        for (Assignment gbItem : gbItems) {
 				            gbItemNameToId.put(gbItem.getName(), gbItem.getId());

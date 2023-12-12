@@ -73,11 +73,17 @@ public class PermissionsPage extends BasePage {
 	private final String ALL_GROUPS = "-1";
 	private final Long ALL_CATEGORIES = new Long(-1);
 
+	private String gradebookUid;
+	private String siteId;
+
 	public PermissionsPage() {
 
 		defaultRoleChecksForInstructorOnlyPage();
 
 		disableLink(this.permissionsPageLink);
+
+		gradebookUid = getCurrentGradebookUid();
+		siteId = getCurrentSiteId();
 	}
 
 	@Override
@@ -89,7 +95,7 @@ public class PermissionsPage extends BasePage {
 		final String taUuid = params.get("selected").toOptionalString();
 
 		// get the list of TAs
-		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
+		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants(gradebookUid, siteId);
 		teachingAssistants.sort(Comparator.nullsLast(GbUser::compareTo));
 
 		// get the TA GbUser for selected (if provided)
@@ -103,9 +109,9 @@ public class PermissionsPage extends BasePage {
 		}
 
 		// get list of categories
-		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories(gradebookUid, siteId);
 
-		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
+		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled(gradebookUid, siteId);
 
 		// add the default 'all' category
 		categories.add(0, new CategoryDefinition(this.ALL_CATEGORIES, getString("categories.all")));
@@ -117,7 +123,7 @@ public class PermissionsPage extends BasePage {
 
 		// get list of groups
 		// note that for the permissions we need to use the group references not the ids
-		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(gradebookUid, siteId);
 
 		// add the default 'all' group
 		groups.add(0, new GbGroup(this.ALL_GROUPS, getString("groups.all"), this.ALL_GROUPS, GbGroup.Type.ALL));
@@ -198,7 +204,7 @@ public class PermissionsPage extends BasePage {
 		// If we have chosen a user, get the permissions
 		// Need to parse the permission list to process the view_course_grade permission
 		if (this.taSelected != null) {
-			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(this.taSelected.getUserUuid());
+			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(this.taSelected.getUserUuid(), gradebookUid, siteId);
 
 			final Iterator<PermissionDefinition> iter = permissions.iterator();
 			while (iter.hasNext()) {
@@ -274,8 +280,7 @@ public class PermissionsPage extends BasePage {
 				// remove any dupes - we also present a message if dupes were removed
 				final List<PermissionDefinition> distinctPermissions = permissions.stream().distinct().collect(Collectors.toList());
 
-				PermissionsPage.this.businessService.updatePermissionsForUser(PermissionsPage.this.taSelected.getUserUuid(),
-						distinctPermissions);
+				businessService.updatePermissionsForUser(gradebookUid, taSelected.getUserUuid(), distinctPermissions);
 
 				getSession().success(getString("permissionspage.update.success"));
 
@@ -317,7 +322,7 @@ public class PermissionsPage extends BasePage {
 			@Override
 			public void onSubmit() {
 				String userUUID = PermissionsPage.this.taSelected.getUserUuid();
-				businessService.clearPermissionsForUser(userUUID);
+				businessService.clearPermissionsForUser(gradebookUid, userUUID);
 
 				getSession().success(getString("permissionspage.update.success"));
 
