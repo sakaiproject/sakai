@@ -2189,7 +2189,7 @@ public class SimplePageBean {
 
 		//delete corresponding response entries for question item
 		if(item.getType() == SimplePageItem.QUESTION) {
-			simplePageToolDao.deleteQuestionResponses(item);
+			simplePageToolDao.deleteQuestionResponsesForItem(item);
 		}
 
 
