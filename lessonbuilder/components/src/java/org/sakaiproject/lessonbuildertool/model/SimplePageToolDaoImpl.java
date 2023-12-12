@@ -1957,4 +1957,17 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
         }).filter(spi -> spi != null).collect(Collectors.toList());
     }
+
+	public void deleteQuestionResponsesForItem(SimplePageItem item) {
+		try {
+			DetachedCriteria d = DetachedCriteria.forClass(SimplePageQuestionResponse.class).add(Restrictions.eq("questionId",item.getId()));
+			DetachedCriteria d2 = DetachedCriteria.forClass(SimplePageQuestionResponseTotals.class).add(Restrictions.eq("questionId",item.getId()));
+			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d));
+			getHibernateTemplate().deleteAll(getHibernateTemplate().findByCriteria(d2));
+		} catch (DataAccessException e) {
+			log.warn("Failed to delete SimplePageQuestion responses for item {}", item.getId());
+		}
+
+	}
+
 }
