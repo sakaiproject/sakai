@@ -767,6 +767,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     submission.put("previewableAttachments", previewableAttachments);
                 }
             }
+            submission.putAll(getOriginalityProperties(as));
         }
 
         List<Map<String, Object>> submitters
@@ -1037,22 +1038,23 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return new ActionReturn(data);
     }
 
-    private Map<String, String> addOriginalityProperties(AssignmentSubmission as) {
+    private Map<String, String> getOriginalityProperties(AssignmentSubmission as) {
 
-        Map<String, String> existing = as.getProperties();
-        existing.put("originalityServiceName", this.assignmentService.getContentReviewServiceName());
+        Map<String, String> props = new HashMap<>();
+
         int reviewCounting = 1;
-        for (ContentReviewResult c: this.assignmentService.getSortedContentReviewResults(as)) {   //real part; will work on a Turnitin-enabled server
-            existing.put("originalityLink" + Integer.toString(reviewCounting), c.getReviewReport());
-            existing.put("originalityIcon" + Integer.toString(reviewCounting), c.getReviewIconCssClass());
-            existing.put("originalityScore" + Integer.toString(reviewCounting), Integer.toString(c.getReviewScore()));
-            existing.put("originalityName" + Integer.toString(reviewCounting), c.getContentResource().getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
-            existing.put("originalityInline" + Integer.toString(reviewCounting), Boolean.valueOf(c.isInline()).toString());
-            existing.put("originalityStatus" + Integer.toString(reviewCounting), Boolean.valueOf(c.isPending()).toString());
-            existing.put("originalityError" + Integer.toString(reviewCounting), c.getReviewError());
+        for (ContentReviewResult c : this.assignmentService.getSortedContentReviewResults(as)) {
+            //real part; will work on a Turnitin-enabled server
+            props.put("originalityLink" + Integer.toString(reviewCounting), c.getReviewReport());
+            props.put("originalityIcon" + Integer.toString(reviewCounting), c.getReviewIconCssClass());
+            props.put("originalityScore" + Integer.toString(reviewCounting), Integer.toString(c.getReviewScore()));
+            props.put("originalityName" + Integer.toString(reviewCounting), c.getContentResource().getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
+            props.put("originalityInline" + Integer.toString(reviewCounting), Boolean.valueOf(c.isInline()).toString());
+            props.put("originalityStatus" + Integer.toString(reviewCounting), Boolean.valueOf(c.isPending()).toString());
+            props.put("originalityError" + Integer.toString(reviewCounting), c.getReviewError());
             reviewCounting++;
         }
-        return existing;
+        return props;
     }
 
     @EntityCustomAction(action = "setGrade", viewKey = EntityView.VIEW_NEW)
@@ -1073,7 +1075,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         AssignmentSubmission submission = null;
         try {
             submission = assignmentService.getSubmission(submissionId);
-            submission.setProperties(addOriginalityProperties(submission));
         } catch (IdUnusedException iue) {
             throw new EntityException("submissionId not found.", "", HttpServletResponse.SC_BAD_REQUEST);
         } catch (PermissionException pe) {
