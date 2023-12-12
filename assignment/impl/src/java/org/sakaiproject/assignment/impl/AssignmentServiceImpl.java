@@ -2400,15 +2400,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         allOrOneGroup = StringUtils.trimToNull(allOrOneGroup);
         try {
             Assignment a = getAssignment(assignmentId);
-            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
-
             if (a != null) {
                 Site st = siteService.getSite(contextString);
                 if (StringUtils.equals(allOrOneGroup, AssignmentConstants.ALL) || StringUtils.isEmpty(allOrOneGroup)) {
                     if (a.getTypeOfAccess().equals(SITE)) {
-                        rv.addAll(st.getGroups());
+                        for (Group group : st.getGroups()) {
+                            rv.add(group);
+                        }
                     } else {
-                        rv.addAll(getGroupsAllowGradeAssignment(assignmentReference));
+                        for (String groupRef : a.getGroups()) {
+                            Group group = st.getGroup(groupRef);        // NO SECTIONS (this might not be valid test for manually created sections)
+                            if (group != null) {
+                                rv.add(group);
+                            }
+                        }
                     }
                 } else {
                     Group group = st.getGroup(allOrOneGroup);
@@ -2420,7 +2425,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 for (Group g : rv) {
                     AssignmentSubmission uSubmission = getSubmission(assignmentId, g.getId());
                     if (uSubmission == null) {
-                        if (allowGradeSubmission(assignmentReference)) {
+                        if (allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference())) {
                             if (a.getIsGroup()) {
                                 // temporarily allow the user to read and write from assignments (asn.revise permission)
                                 SecurityAdvisor securityAdvisor = new MySecurityAdvisor(
@@ -2661,7 +2666,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submitter;
     }
 
-    public List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment assignment, List<User> allowAddSubmissionUsers) {
+    private List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment a, List allowAddSubmissionUsers) {
         Collection<String> authzRefs = new ArrayList<>();
 
         List<User> selectedGroupUsers = new ArrayList<>();
@@ -2678,7 +2683,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
                 } else {
                     // get all those groups that user is allowed to grade
-                    Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+                    Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
                     groups.forEach(g -> authzRefs.add(g.getReference()));
                 }
             } else {
