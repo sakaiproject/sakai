@@ -186,6 +186,7 @@ public class GradeImportUploadStep extends BasePanel {
 				}
 
 				final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId, Model.of(importWizardModel));
+				((GradeItemImportSelectionStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				newPanel.setOutputMarkupId(true);
 
 				// AJAX the new panel into place
