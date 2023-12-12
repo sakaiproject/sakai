@@ -268,13 +268,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							@Override
 							public void onClick(
 									final AjaxRequestTarget target) {
-
-								assignmentStatsWindow.setContent(
-										new StudentAssignmentStatisticsPanel(
+								StudentAssignmentStatisticsPanel sasp = new StudentAssignmentStatisticsPanel(
 												assignmentStatsWindow
 														.getContentId(),
 												Model.of(assignment),
-												assignmentStatsWindow, rawGrade));
+												assignmentStatsWindow, rawGrade);
+								sasp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+								assignmentStatsWindow.setContent(sasp);
 								assignmentStatsWindow.show(target);
 
 							}
@@ -292,13 +292,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							@Override
 							public void onClick(AjaxRequestTarget target) {
 								assignment.getId();
-								compareGradesWindow.setContent(
-										new StudentCompareGradesPanel(
+								StudentCompareGradesPanel scgp = new StudentCompareGradesPanel(
 												compareGradesWindow.getContentId(),
 												Model.of(assignment),
 												compareGradesWindow
-										)
-								);
+										);
+								scgp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+								compareGradesWindow.setContent(scgp);
 								compareGradesWindow.show(target);
 							}
 							
@@ -494,7 +494,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 					|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
 			sakaiRubricButton.add(AttributeModifier.append("instructor", true));
 		} else {
-			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(studentId, assignment.getId());
+			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(currentGradebookUid, currentSiteId, studentId, assignment.getId());
 			if (assignment.isExternallyMaintained() && gradeDefinition.getGrade() == null) {
 				sakaiRubricButton.add(AttributeModifier.replace("force-preview", true));
 			}

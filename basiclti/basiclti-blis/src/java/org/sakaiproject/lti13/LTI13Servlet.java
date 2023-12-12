@@ -2064,7 +2064,7 @@ public class LTI13Servlet extends HttpServlet {
 				String actualGrade = null;
 				result.resultScore = null;
 				try {
-					actualGrade = g.getAssignmentScoreString(context_id, a.getId(), user.getId());
+					actualGrade = g.getAssignmentScoreString(context_id, context_id, a.getId(), user.getId());
 				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
 					log.error(e.getMessage(), e);  // Unexpected
 					break;

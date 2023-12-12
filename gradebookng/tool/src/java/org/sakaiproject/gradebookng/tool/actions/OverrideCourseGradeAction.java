@@ -39,9 +39,11 @@ public class OverrideCourseGradeAction extends InjectableAction implements Seria
 		final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();
 		window.setStudentToReturnFocusTo(studentUuid);
 		window.setReturnFocusToCourseGrade();
-		window.setContent(new CourseGradeOverridePanel(window.getContentId(),
+		CourseGradeOverridePanel cgop = new CourseGradeOverridePanel(window.getContentId(),
 				Model.of(studentUuid),
-				window));
+				window);
+		cgop.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+		window.setContent(cgop);
 		window.showUnloadConfirmation(false);
 		window.show(target);
 

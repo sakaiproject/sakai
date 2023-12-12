@@ -230,6 +230,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -3427,7 +3428,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     } else {
                         // check internally maintained by gradebook
                         try {
-                            if (gradebookService.getAssignmentByNameOrId(gradebookUid, associateGradebookAssignment) != null) {
+                            if (gradebookService.getAssignmentByNameOrId(gradebookUid, gradebookUid, associateGradebookAssignment) != null) {
                                 valid = true;
                             }
                         } catch (AssessmentNotFoundException anfe) {
@@ -3629,7 +3630,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // get all assignments in Gradebook
         try {
-            List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
+            List gradebookAssignments = gradebookService.getAssignments(gradebookUid, gradebookUid, SortType.SORT_BY_NONE);
 
         // filtering out those from Samigo
         for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
@@ -3910,7 +3911,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // If the assignment reference is not equal to the associated gradebook item, then a custom gb item is being used
                 if (!assignmentRef.equals(assignmentAssociateGradebook)) {
-                    Optional<org.sakaiproject.service.gradebook.shared.Assignment> assignmentOptional = Optional.ofNullable(gradebookService.getAssignment(gradebookUid, assignmentAssociateGradebook));
+                    Optional<org.sakaiproject.service.gradebook.shared.Assignment> assignmentOptional = Optional.ofNullable(gradebookService.getAssignment(gradebookUid, gradebookUid, assignmentAssociateGradebook));
                     if (assignmentOptional.isPresent()) {
                         Long associateGradebookAssignmentId = assignmentOptional.get().getId();
                         context.put("associatedToGbItem", true);
@@ -7590,7 +7591,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } else {
                     Long thisCatRef = -1L;
                     String gradebookUid = toolManager.getCurrentPlacement().getContext();
-                    List<CategoryDefinition> categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
+                    List<CategoryDefinition> categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid, gradebookUid);
                     if (catInt != -1) {
                       thisCatRef = catInt;
                     } else if (assignmentRef.isEmpty()) {
@@ -12636,7 +12637,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Map<Long, String> catTable = new HashMap<>();
         String gradebookUid = toolManager.getCurrentPlacement().getContext();
         if (gradebookExists && gradebookExternalAssessmentService.isCategoriesEnabled(gradebookUid)) {
-            List<CategoryDefinition> categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
+            List<CategoryDefinition> categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid, gradebookUid);
 
             catTable.put((long) -1, rb.getString("grading.unassigned"));
             for (CategoryDefinition category : categoryDefinitions) {
@@ -15355,13 +15356,13 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 org.sakaiproject.service.gradebook.shared.Assignment gbItem = null;
                 try {
-                    gbItem = gradebookService.getAssignment(gradebookUid, gbItemName);
                 } catch (SecurityException se) {
+                    gbItem = gradebookService.getAssignment(gradebookUid, gradebookUid, gbItemName);
                     // the gradebook method above is overzealous about security when retrieving the gb item by name. It doesn't
                     // allow student-role users to access the assignment via this method. So we
                     // have to retrieve all viewable gb items and filter to get the one we want, unfortunately, if we hit an exception.
                     // If gb item isn't released in the gb, scoring agent info will not be available.
-                    List<org.sakaiproject.service.gradebook.shared.Assignment> viewableGbItems = gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid);
+                    List<org.sakaiproject.service.gradebook.shared.Assignment> viewableGbItems = gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid, gradebookUid);
                     if (viewableGbItems != null && !viewableGbItems.isEmpty()) {
                         for (org.sakaiproject.service.gradebook.shared.Assignment viewableGbItem : viewableGbItems) {
                             if (gbItemName.equals(viewableGbItem.getName())) {

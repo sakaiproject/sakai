@@ -33,13 +33,10 @@ public class CourseGradeChart extends BaseChart {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String siteId;
-
 	private CourseGrade studentGrade;
 
-	public CourseGradeChart(final String id, final String siteId, CourseGrade studentGrade) {
+	public CourseGradeChart(final String id, CourseGrade studentGrade) {
 		super(id);
-		this.siteId = siteId;
 		this.studentGrade = studentGrade;
 	}
 
@@ -61,7 +58,7 @@ public class CourseGradeChart extends BaseChart {
 	 */
 	@Override
 	protected GbChartData getData() {
-		final GradebookInformation info = this.businessService.getGradebookSettings(this.siteId);
+		final GradebookInformation info = this.businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
 		final Map<String, Double> gradingSchema = info.getSelectedGradingScaleBottomPercents();
 
 		final GbChartData data = getData(gradingSchema);
@@ -90,7 +87,7 @@ public class CourseGradeChart extends BaseChart {
 		final Map<String, Double> schema = GradeMappingDefinition.sortGradeMapping(gradingSchema);
 
 		// get the course grades and re-map. Also sorts the data so it is ready for the consumer to use
-		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(this.siteId, schema);
+		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(currentGradebookUid, currentSiteId, businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null), schema);
 		final GbChartData data = reMap(courseGrades, gradingSchema.keySet());
 
 		return data;

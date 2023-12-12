@@ -31,17 +31,14 @@ public interface Authz {
 		PERMISSION_VIEW_OWN_GRADES = "gradebook.viewOwnGrades",
 		PERMISSION_VIEW_STUDENT_NUMBERS = "gradebook.viewStudentNumbers";
 
-	public boolean isUserAbleToGrade(String gradebookUid);
-	public boolean isUserAbleToGrade(String gradebookUid, String userUid);
-	public boolean isUserAbleToGradeAll(String gradebookUid);
-	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid);
-	public boolean isUserAbleToEditAssessments(String gradebookUid);
-	public boolean isUserAbleToViewOwnGrades(String gradebookUid);
-	public boolean isUserAbleToViewStudentNumbers(String gradebookUid);
+	public boolean isUserAbleToGrade(String siteId);
+	public boolean isUserAbleToGrade(String siteId, String userUid);
+	public boolean isUserAbleToGradeAll(String siteId);
+	public boolean isUserAbleToGradeAll(String siteId, String userUid);
+	public boolean isUserAbleToEditAssessments(String siteId);
+	public boolean isUserAbleToViewOwnGrades(String siteId);
+	public boolean isUserAbleToViewStudentNumbers(String siteId);
 	public boolean isUserHasGraderPermissions(String gradebookUid);
-	public boolean isUserHasGraderPermissions(Long gradebookId);
-	public boolean isUserHasGraderPermissions(Long gradebookId, String userUid);
-	public boolean isUserHasGraderPermissions(String gradebookUid, String userUid);
 
 	/**
 	 * 
@@ -51,7 +48,7 @@ public interface Authz {
 	 * @return is user authorized to grade this gradebook item for this student?
 	 * 		first checks for special grader perms. if none, uses default perms
 	 */
-	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid)  throws IllegalArgumentException;
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid)  throws IllegalArgumentException;
 	
 	/**
 	 * 
@@ -61,24 +58,26 @@ public interface Authz {
 	 * @return is user authorized to view this gradebook item for this student?
 	 * 		first checks for special grader perms. if none, uses default perms
 	 */
-	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid)  throws IllegalArgumentException;
+	public boolean isUserAbleToViewItemForStudent(String gradebookUid, String siteId, Long itemId, String studentUid)  throws IllegalArgumentException;
 	
 	/**
-	 * @param gradebookUid
+	 * @param siteId
 	 * @return all of the CourseSections for this site
 	 */
-	public List getAllSections(String gradebookUid);
+	public List getAllSections(String siteId);
 	
 	/**
 	 * 
-	 * @param gradebookUid
+	 * @param gradebookUid 
+	 * @param siteId
 	 * @return all CourseSections that the current user may view or grade
 	 */
-	public List getViewableSections(String gradebookUid);
+	public List getViewableSections(String gradebookUid, String siteId);
 	
 	/**
-	 * @param gradebookUid
 	 * @param userUid
+	 * @param gradebookUid
+	 * @param siteId
 	 * @param categoryId
 	 * 			The category id that the desired item is associated with
 	 * @param gbCategoryType
@@ -91,7 +90,7 @@ public interface Authz {
 	 * @return a map of EnrollmentRecords to grade/view permission that the given user is authorized to
 	 * 			view or grade for the given gradebook item
 	 */
-	public Map findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
+	public Map findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, String siteId, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
 	
 	/**
      * 
@@ -108,11 +107,12 @@ public interface Authz {
      * @return a map of EnrollmentRecords to grade/view permission that the current user is authorized to
      *          view or grade for the given gradebook item
      */
-    public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
+    public Map findMatchingEnrollmentsForItem(String gradebookUid, String siteId, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
 	
 	/**
 	 * 
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param gbCategoryType
 	 * 			The category type setting for this gradebook
 	 * @param optionalSearchString
@@ -123,37 +123,7 @@ public interface Authz {
 	 * 			everything in the gradebook for that student. If he/she can grade only a subset of the items, the
 	 * 			student is not returned.
 	 */
-	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
-	/**
-	 * 
-	 * @param gradebookUid
-	 * @param allGbItems
-	 * 			List of all Assignments associated with this gradebook
-	 * @param optionalSearchString
-	 * 			a substring search for student name or display UID; the exact rules are
-	 *  		up to the implementation - leave null to use all students
-	 * @param optionalSectionUid
-	 * 			null if the search should be made across all sections
-	 * @return a map of EnrollmentRecords to a map of item id and function (grade/view) that the user is
-	 * 			authorized to view/grade
-	 */
-	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid);
-	
-	/**
-	 * 
-	 * @param gradebookUid
-	 * @param studentUid
-	 * @return a list of all section memberships for the given studentUid
-	 */
-	public List findStudentSectionMemberships(String gradebookUid, String studentUid);
-	
-	/**
-	 * 
-	 * @param gradebookUid
-	 * @param studentUid
-	 * @return a list of the section membership names for the give studentUid
-	 */
-	public List getStudentSectionMembershipNames(String gradebookUid, String studentUid);
+	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, String siteId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
 	
 	/**
 	 * Check to see if current user may grade or view the given student for the given item in the given gradebook.

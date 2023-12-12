@@ -75,7 +75,7 @@ public class AssignmentEventObserver implements Observer {
                                 Optional<AssignmentSubmission> submission = Optional.empty();
                                 // Assignments stores the gradebook item name and not the id :(, so we need to look it up
                                 try {
-                                    org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = gradebookService.getAssignmentByNameOrId(event.getContext(), itemId);
+                                    org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = gradebookService.getAssignmentByNameOrId(event.getContext(), event.getContext(), itemId);
                                     assignment = assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName());
                                     if (assignment.isPresent()) {
                                         final Assignment a = assignment.get();

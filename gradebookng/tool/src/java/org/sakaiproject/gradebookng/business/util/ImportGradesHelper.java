@@ -68,6 +68,7 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.opencsv.CSVParser;
@@ -111,23 +112,6 @@ public class ImportGradesHelper {
 	 * @param mimetype
 	 * @param filename
 	 * @param businessService
-	 * @return
-	 * @throws GbImportExportInvalidFileTypeException
-	 * @throws IOException
-	 * @throws InvalidFormatException
-	 */
-	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename,
-			final GradebookNgBusinessService businessService) throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
-				return parseImportedGradeFile(is, mimetype, filename, businessService, "");
-	}
-
-	/**
-	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
-	 *
-	 * @param is
-	 * @param mimetype
-	 * @param filename
-	 * @param businessService
 	 * @param userDecimalSeparator
 	 * @return
 	 * @throws GbImportExportInvalidFileTypeException
@@ -135,15 +119,17 @@ public class ImportGradesHelper {
 	 * @throws InvalidFormatException
 	 */
 	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename,
-			final GradebookNgBusinessService businessService, String userDecimalSeparator) throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
+			final GradebookNgBusinessService businessService, String userDecimalSeparator, final String gUid, final String siteId) throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
+		Map<String, GbUser> userEidMap = businessService.getUserEidMap(businessService.getGbUsers(siteId, businessService.getGradeableUsers(gUid, siteId, null)));
+
 		// It would be great if we could depend on the browser mimetype, but Windows + Excel will always send an Excel mimetype
 		if (StringUtils.endsWithAny(filename, CSV_FILE_EXTS) || ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseCsv(is, businessService, userDecimalSeparator);
+			rval = ImportGradesHelper.parseCsv(is, userEidMap, userDecimalSeparator);
 		} else if (StringUtils.endsWithAny(filename, XLS_FILE_EXTS) || ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseXls(is, businessService, userDecimalSeparator);
+			rval = ImportGradesHelper.parseXls(is, userEidMap, userDecimalSeparator);
 		} else {
 			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);
 		}
@@ -159,7 +145,7 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final GradebookNgBusinessService businessService, String userDecimalSeparator)
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, Map<String, GbUser> userEidMap, String userDecimalSeparator)
 			throws IOException {
 
 		// manually parse method so we can support arbitrary columns
@@ -180,7 +166,6 @@ public class ImportGradesHelper {
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
 		Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
-		Map<String, GbUser> userEidMap = businessService.getUserEidMap();
 		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
 
 		try {
@@ -225,13 +210,12 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @Throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final GradebookNgBusinessService businessService, String userDecimalSeparator)
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, GbUser> userEidMap, String userDecimalSeparator)
 			throws InvalidFormatException, IOException {
 
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
 		Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
-		Map<String, GbUser> userEidMap = businessService.getUserEidMap();
 		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
 
 		final Workbook wb = WorkbookFactory.create(is);
@@ -351,7 +335,7 @@ public class ImportGradesHelper {
 	 * @return true if the model was successfully set up without errors; in case of errors, the feedback panels will be updated and false will be returned
 	 */
 	public static boolean setupImportWizardModelForSelectionStep(ImportExportPage sourcePage, Panel sourcePanel, ImportWizardModel importWizardModel,
-																		GradebookNgBusinessService businessService, AjaxRequestTarget target) {
+																		GradebookNgBusinessService businessService, AjaxRequestTarget target, String gUid, String siteId) {
 		ImportedSpreadsheetWrapper spreadsheetWrapper = importWizardModel.getSpreadsheetWrapper();
 		if (spreadsheetWrapper == null) {
 			sourcePanel.error(MessageHelper.getString("importExport.error.unknown"));
@@ -438,8 +422,8 @@ public class ImportGradesHelper {
 		}
 
 		// get existing data
-		final List<Assignment> assignments = businessService.getGradebookAssignments();
-		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, null);
+		final List<Assignment> assignments = businessService.getGradebookAssignments(gUid, siteId, SortType.SORT_BY_SORTING);
+		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(gUid, siteId, assignments, null);
 
 		// process file
 		List<ProcessedGradeItem> processedGradeItems = processImportedGrades(spreadsheetWrapper, assignments, grades);

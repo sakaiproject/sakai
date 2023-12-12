@@ -58,7 +58,6 @@
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 		</property>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<!-- This would be a circular dependency, so for now, we get it from the ComponentManager. -->
@@ -91,7 +90,6 @@
         <property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService" />
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 	</bean>
 	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"
           class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"

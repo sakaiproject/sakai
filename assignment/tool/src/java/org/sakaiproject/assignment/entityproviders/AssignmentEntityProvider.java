@@ -1773,7 +1773,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (gradebookService.isGradebookDefined(a.getContext())) {
                 if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
                     // try to get internal gradebook assignment first
-                    org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getAssignment(a.getContext(), gradebookAssignmentProp);
+                    org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getAssignment(a.getContext(), a.getContext(), gradebookAssignmentProp);
                     if (gAssignment != null) {
                         // linked Gradebook item is internal
                         this.gradebookItemId = gAssignment.getId();
@@ -1785,7 +1785,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         boolean isExternalAssignmentDefined = gradebookExternalService.isExternalAssignmentDefined(a.getContext(), gradebookAssignmentProp);
                         if (isExternalAssignmentDefined) {
                             // since the gradebook item is externally defined, the item is named after the external object's title
-                            gAssignment = gradebookService.getAssignment(a.getContext(), a.getTitle());
+                            gAssignment = gradebookService.getAssignment(a.getContext(), a.getContext(), a.getTitle());
                             if (gAssignment != null) {
                                 this.gradebookItemId = gAssignment.getId();
                                 this.gradebookItemName = gAssignment.getName();

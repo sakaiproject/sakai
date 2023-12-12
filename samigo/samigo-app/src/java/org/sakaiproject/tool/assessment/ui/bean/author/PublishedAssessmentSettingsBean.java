@@ -61,6 +61,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -500,7 +501,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
 
     if (this.gradebookExists) {
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
-      gbAssignments = gradebookService.getAssignments(gradebookUid);
+      gbAssignments = gradebookService.getAssignments(gradebookUid, gradebookUid, SortType.SORT_BY_NONE);
       for (Assignment assignment : gbAssignments) {
         if (StringUtils.equals(assessmentName, assignment.getName())) {
           categoryId = assignment.getCategoryId();
@@ -530,14 +531,14 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
 
     if (this.gradebookExists) {
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
-      categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
+      categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid, gradebookUid);
 
       selectList.add(new SelectItem("-1", assessmentSettingMessages.getString("gradebook_uncategorized"))); // -1 for a cat id means unassigned
       for (CategoryDefinition categoryDefinition: categoryDefinitions) {
         selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
       }
       // Also set if categories are enabled based on category type
-      GradebookInformation gbInfo = gradebookService.getGradebookInformation(gradebookUid);
+      GradebookInformation gbInfo = gradebookService.getGradebookInformation(gradebookUid, gradebookUid);
       if (gbInfo != null) {
         this.categoriesEnabled = gbInfo.getCategoryType() != GradebookService.CATEGORY_TYPE_NO_CATEGORY;
       } else {
