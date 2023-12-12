@@ -66,6 +66,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.site.api.Site;
@@ -683,7 +684,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		if(!gradebookService.currentUserHasEditPerm(getCurrentSiteId())) {
 			return jsonAssignments;
 		}
-		Collection<org.sakaiproject.service.gradebook.shared.Assignment> gbitems = gradebookService.getAssignments(siteId);
+		Collection<org.sakaiproject.service.gradebook.shared.Assignment> gbitems = gradebookService.getAssignments(siteId, siteId, SortType.SORT_BY_NONE);
 		String url = getUrlForTool(DateManagerConstants.COMMON_ID_GRADEBOOK);
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_GRADEBOOK).getTitle();
 		for(org.sakaiproject.service.gradebook.shared.Assignment gbitem : gbitems) {
@@ -732,7 +733,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
 				}
 
-				org.sakaiproject.service.gradebook.shared.Assignment gbitem = gradebookService.getAssignment(getCurrentSiteId(), itemId);
+				org.sakaiproject.service.gradebook.shared.Assignment gbitem = gradebookService.getAssignment(getCurrentSiteId(), getCurrentSiteId(), itemId);
 				if (gbitem == null) {
 					errors.add(new DateManagerError("gbitem", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.gradebook.item.name")}), "gradebookItems", toolTitle, idx));
 					continue;
@@ -761,7 +762,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = (org.sakaiproject.service.gradebook.shared.Assignment) update.object;
 			Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
 			assignmentDefinition.setDueDate(dueDateTemp);
-			gradebookService.updateAssignment(getCurrentSiteId(), assignmentDefinition.getId(), assignmentDefinition);
+			gradebookService.updateAssignment(getCurrentSiteId(), getCurrentSiteId(), assignmentDefinition.getId(), assignmentDefinition);
 		}
 	}
 

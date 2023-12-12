@@ -49,6 +49,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
@@ -211,11 +212,11 @@ public class LineItemUtil {
 			if ( endDateTime != null ) gradebookColumn.setDueDate(endDateTime);
 
 			if ( createNew ) {
-				gradebookColumnId = g.addAssignment(context_id, gradebookColumn);
+				gradebookColumnId = g.addAssignment(context_id, context_id, gradebookColumn);
 				gradebookColumn.setId(gradebookColumnId);
 				log.info("Added assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
 			} else {
-				g.updateAssignment(context_id, gradebookColumnId, gradebookColumn);
+				g.updateAssignment(context_id, context_id, gradebookColumnId, gradebookColumn);
 				log.info("Updated assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
 			}
 		} catch (ConflictingAssignmentNameException e) {
@@ -289,7 +290,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			g.updateAssignment(context_id, column_id, gradebookColumn);
+			g.updateAssignment(context_id, context_id, column_id, gradebookColumn);
 		} finally {
 			popAdvisor();
 		}
@@ -311,7 +312,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List<Assignment> gradebookColumns = g.getAssignments(context_id);
+			List<Assignment> gradebookColumns = g.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
@@ -350,7 +351,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List<Assignment> gradebookColumns = g.getAssignments(context_id);
+			List<Assignment> gradebookColumns = g.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			return gradebookColumns;
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
@@ -394,7 +395,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List gradebookColumns = g.getAssignments(context_id);
+			List gradebookColumns = g.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
@@ -474,7 +475,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List gradebookColumns = g.getAssignments(context_id);
+			List gradebookColumns = g.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;

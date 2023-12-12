@@ -33,6 +33,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -137,9 +138,9 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(fromContext);
 
-		final GradebookInformation gradebookInformation = this.gradebookService.getGradebookInformation(gradebook.getUid());
+		final GradebookInformation gradebookInformation = this.gradebookService.getGradebookInformation(gradebook.getUid(), fromContext);
 
-		final List<Assignment> assignments = this.gradebookService.getAssignments(fromContext);
+		final List<Assignment> assignments = this.gradebookService.getAssignments(fromContext, fromContext, SortType.SORT_BY_NONE);
 
 		return this.gradebookService.transferGradebook(gradebookInformation, assignments, toContext, fromContext);
 	}
@@ -152,11 +153,11 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 			final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(toContext);
 
 			// remove assignments in 'to' site
-			final List<Assignment> assignments = this.gradebookService.getAssignments(gradebook.getUid());
+			final List<Assignment> assignments = this.gradebookService.getAssignments(gradebook.getUid(), toContext, SortType.SORT_BY_NONE);
 			assignments.forEach(a -> this.gradebookService.removeAssignment(a.getId()));
 
 			// remove categories in 'to' site
-			final List<CategoryDefinition> categories = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
+			final List<CategoryDefinition> categories = this.gradebookService.getCategoryDefinitions(gradebook.getUid(), toContext);
 			categories.forEach(c -> this.gradebookService.removeCategory(c.getId()));
 		}
 

@@ -14,6 +14,15 @@ class SakaiSubmissionMessager extends SakaiElement {
     this.group = `/site/${portal.siteId}`;
     this.reset();
     this.loadTranslations("submission-messager").then(t => this.i18n = t);
+    this.showGroups = true;
+  }
+
+  firstUpdated() {
+    // S2U-26
+    if (portal.siteId !== this.gUid) {
+      this.group = `/site/${portal.siteId}/group/${this.gUid}`;
+      this.showGroups = false;
+    }
   }
 
   static get properties() {
@@ -32,6 +41,8 @@ class SakaiSubmissionMessager extends SakaiElement {
       recipientsToCheck: Array,
       sending: Boolean,
       i18n: Object,
+      gUid: { attribute: "gradebook-id", type: String },
+      showGroups: Boolean,
     };
   }
 
@@ -70,14 +81,16 @@ class SakaiSubmissionMessager extends SakaiElement {
           <div><label>${this.i18n.max_score_label}<input type="text" size="6" @input=${this.maxScoreChanged} /></label></div>
         </div>
         <div class="sm-block">
-          <span id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_group}</span>
-          <sakai-group-picker
-            site-id="${portal.siteId}"
-            group-id="${this.groupId}"
-            aria-labelledby="sm-group-selector-label-${this.assignmentId}"
-            class="group-select"
-            @group-selected=${this.groupSelected}>
-          </sakai-group-picker>
+          ${this.showGroups ? html`
+            <span id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_group}</span>
+            <sakai-group-picker
+              site-id="${portal.siteId}"
+              group-id="${this.groupId}"
+              aria-labelledby="sm-group-selector-label-${this.assignmentId}"
+              class="group-select"
+              @group-selected=${this.groupSelected}>
+            </sakai-group-picker>
+          ` : ""}
         </div>
         <button @click=${this.listRecipients}>${this.i18n.show_recipients}</button>
         ${this.recipientsToCheck.length > 0 ? html`
@@ -132,6 +145,7 @@ class SakaiSubmissionMessager extends SakaiElement {
     this.minScore = "";
     this.maxScore = "";
     this.validationError = "";
+    this.showGroups = "";
   }
 
   getFormData() {
@@ -145,6 +159,7 @@ class SakaiSubmissionMessager extends SakaiElement {
     formData.set("subject", this.subject);
     formData.set("body", this.body);
     formData.set("assignmentId", this.assignmentId);
+    formData.set("gUid", this.gUid);
     return formData;
   }
 

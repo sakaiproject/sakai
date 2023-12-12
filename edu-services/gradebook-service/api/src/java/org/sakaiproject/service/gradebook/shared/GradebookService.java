@@ -77,29 +77,6 @@ public interface GradebookService extends EntityProducer {
 	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 
 	public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
-	
-	/**
-	 * An enum for defining valid/invalid information for a points possible/relative weight value for a gradebook item. See
-	 * {@link GradebookService#isPointsPossibleValid(String, Assignment, Double)} for usage
-	 */
-	public enum PointsPossibleValidation {
-		/**
-		 * The points possible/relative weight is valid
-		 */
-		VALID,
-		/**
-		 * The points possible/relative weight is invalid because it is null and a value is required.
-		 */
-		INVALID_NULL_VALUE,
-		/**
-		 * The points possible/relative weight is invalid because it is a value <= 0
-		 */
-		INVALID_NUMERIC_VALUE,
-		/**
-		 * The points possible/relative weight is invalid because it contains more than 2 decimal places
-		 */
-		INVALID_DECIMAL
-	}
 
 	/**
 	 * Array of chars that are not allowed at the beginning of a gb item title
@@ -159,21 +136,23 @@ public interface GradebookService extends EntityProducer {
 	 * clients a chance to avoid a security exception.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @param studentUid
 	 */
-	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long assignmentId, String studentUid);
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String siteId, Long assignmentId, String studentUid);
 
 	/**
 	 * Check to see if the current user is allowed to view the given item for the given student in the given gradebook. This will give
 	 * clients a chance to avoid a security exception.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @param studentUid
 	 * @return
 	 */
-	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long assignmentId, String studentUid);
+	public boolean isUserAbleToViewItemForStudent(String gradebookUid, String siteId, Long assignmentId, String studentUid);
 
 	/**
 	 * Check to see if current user may grade or view the given student for the given item in the given gradebook. Returns string
@@ -186,18 +165,11 @@ public interface GradebookService extends EntityProducer {
 	 */
 	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long assignmentId, String studentUid);
 
-
-	/**
-	 * @return Returns a list of Assignment objects describing the assignments that are currently defined in the given gradebook.
-	 */
-	public List<Assignment> getAssignments(String gradebookUid)
-			throws GradebookNotFoundException;
-
 	/**
 	 * @return Returns a list of Assignment objects describing the assignments that are currently defined in the given gradebook, sorted by
 	 *         the given sort type.
 	 */
-	public List<Assignment> getAssignments(String gradebookUid, SortType sortBy)
+	public List<Assignment> getAssignments(String gradebookUid, String siteId, SortType sortBy)
 			throws GradebookNotFoundException;
 
 	/**
@@ -205,10 +177,11 @@ public interface GradebookService extends EntityProducer {
 	 *
 	 * @param gradebookUid
 	 * @param assignmentId
+	 * @param siteId
 	 * @return the associated Assignment with the given assignmentId
 	 * @throws AssessmentNotFoundException
 	 */
-	public Assignment getAssignment(String gradebookUid, Long assignmentId)
+	public Assignment getAssignment(String gradebookUid, String siteId, Long assignmentId)
 			throws AssessmentNotFoundException;
 
 	/**
@@ -233,7 +206,7 @@ public interface GradebookService extends EntityProducer {
 	 * @deprecated Use {@link #getAssignment(String,Long)} instead.
 	 */
 	@Deprecated
-	public Assignment getAssignment(String gradebookUid, String assignmentName)
+	public Assignment getAssignment(String gradebookUid, String siteId, String assignmentName)
 			throws AssessmentNotFoundException;
 
 	public Assignment getExternalAssignment(final String gradebookUid, final String externalId)
@@ -247,17 +220,19 @@ public interface GradebookService extends EntityProducer {
 	 * {@link #getAssignment(String,Long)} if you always can use the Long instead.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentName
 	 * @return the associated Assignment with the given name
 	 * @throws AssessmentNotFoundException
 	 *
 	 */
-	public Assignment getAssignmentByNameOrId(String gradebookUid, String assignmentName)
+	public Assignment getAssignmentByNameOrId(String gradebookUid, String siteId, String assignmentName)
 			throws AssessmentNotFoundException;
 
 	/**
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @param studentUid
 	 * @return Returns a GradeDefinition for the student, respecting the grade entry type for the gradebook (ie in %, letter grade, or
@@ -265,7 +240,7 @@ public interface GradebookService extends EntityProducer {
 	 * @throws GradebookNotFoundException
 	 * @throws AssessmentNotFoundException
 	 */
-	public GradeDefinition getGradeDefinitionForStudentForItem(String gradebookUid,
+	public GradeDefinition getGradeDefinitionForStudentForItem(String gradebookUid, String siteId,
 			Long assignmentId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
@@ -315,7 +290,7 @@ public interface GradebookService extends EntityProducer {
 	 * This is not deprecated as we currently need the ability to check for duplciate assignment names in the given gradebook
 	 *
 	 */
-	public boolean isAssignmentDefined(String gradebookUid, String assignmentTitle)
+	public boolean isAssignmentDefined(String gradebookUid, String siteId, String assignmentTitle)
 			throws GradebookNotFoundException;
 
 	/**
@@ -331,11 +306,12 @@ public interface GradebookService extends EntityProducer {
 	/**
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @return a {@link GradebookInformation} object that contains information about this Gradebook that may be useful to consumers outside
 	 *         the Gradebook tool
 	 *
 	 */
-	public GradebookInformation getGradebookInformation(String gradebookUid);
+	public GradebookInformation getGradebookInformation(String gradebookUid, String siteId);
 
 	/**
 	 * Removes an assignment from a gradebook. The assignment should not be deleted, but the assignment and all grade records associated
@@ -365,11 +341,12 @@ public interface GradebookService extends EntityProducer {
 	 * Get the categories for the given gradebook
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @return {@link CategoryDefinition}s for the categories defined for the given gradebook. Returns an empty list if the gradebook does
 	 *         not have categories.
 	 * @throws GradebookNotFoundException
 	 */
-	public List<CategoryDefinition> getCategoryDefinitions(String gradebookUid);
+	public List<CategoryDefinition> getCategoryDefinitions(String gradebookUid, String siteId);
 
 	/**
 	 * remove category from gradebook
@@ -386,7 +363,7 @@ public interface GradebookService extends EntityProducer {
 	 * @param assignmentDefinition
 	 * @return the id of the newly created assignment
 	 */
-	public Long addAssignment(String gradebookUid, Assignment assignmentDefinition);
+	public Long addAssignment(String gradebookUid, String siteId, Assignment assignmentDefinition);
 
 	/**
 	 * Modify the definition of an existing Gradebook item.
@@ -400,7 +377,7 @@ public interface GradebookService extends EntityProducer {
 	 * @param assignmentId the id of the assignment that needs to be changed
 	 * @param assignmentDefinition the new properties of the assignment
 	 */
-	public void updateAssignment(String gradebookUid, Long assignmentId, Assignment assignmentDefinition);
+	public void updateAssignment(String gradebookUid, String siteId, Long assignmentId, Assignment assignmentDefinition);
 
 	/**
 	 *
@@ -410,7 +387,7 @@ public interface GradebookService extends EntityProducer {
 	 *         only the items that the current user is authorized to view or grade. If user does not have grading privileges but does have
 	 *         viewOwnGrades perm, will return all released gb items.
 	 */
-	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
+	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, String siteId);
 
 	/**
 	 *
@@ -420,7 +397,7 @@ public interface GradebookService extends EntityProducer {
 	 *         gradeSection with grader perms, returns only the items that the current user is authorized to view or grade. If user does not
 	 *         have grading privileges but does have viewOwnGrades perm, will return all released gb items.
 	 */
-	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy);
+	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, String siteId, SortType sortBy);
 
 	/**
 	 *
@@ -429,7 +406,7 @@ public interface GradebookService extends EntityProducer {
 	 * @return a map of studentId to view/grade function for the given gradebook and gradebook item. students who are not viewable or
 	 *         gradable will not be returned. if the current user does not have grading privileges, an empty map is returned
 	 */
-	public Map<String, String> getViewableStudentsForItemForCurrentUser(String gradebookUid, Long assignmentId);
+	public Map<String, String> getViewableStudentsForItemForCurrentUser(String gradebookUid, String siteId, Long assignmentId);
 
 	/**
 	 * @param userUid
@@ -439,7 +416,7 @@ public interface GradebookService extends EntityProducer {
 	 *         view or grade. students who are not viewable or gradable will not be returned. if the given user does not have grading
 	 *         privileges, an empty map is returned
 	 */
-	public Map<String, String> getViewableStudentsForItemForUser(String userUid, String gradebookUid, Long assignmentId);
+	public Map<String, String> getViewableStudentsForItemForUser(String userUid, String gradebookUid, String siteId, Long assignmentId);
 
 	/**
 	 * Get the Gradebook. Note that this returns Object to avoid circular dependency with sakai-gradebook-tool Consumers will need to cast
@@ -452,9 +429,10 @@ public interface GradebookService extends EntityProducer {
 	 * Check if there are students that have not submitted
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @return
 	 */
-	public boolean checkStudentsNotSubmitted(String gradebookUid);
+	public boolean checkStudentsNotSubmitted(String gradebookUid, String siteId);
 
 	/**
 	 * Check if a gradeable object with the given id exists
@@ -469,9 +447,10 @@ public interface GradebookService extends EntityProducer {
 	 * grade
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @return
 	 */
-	public Map<String, String> getViewableSectionUuidToNameMap(String gradebookUid);
+	public Map<String, String> getViewableSectionUuidToNameMap(String gradebookUid, String siteId);
 
 	/**
 	 * Check if the current user has the gradebook.gradeAll permission
@@ -529,28 +508,13 @@ public interface GradebookService extends EntityProducer {
 	 * See {@link #getGradeDefinitionForStudentForItem} for the method call that can be made as a student.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @param studentIds
 	 * @return a list of GradeDefinition with the grade information for the given students for the given gradableObjectId
 	 * @throws SecurityException if the current user is not authorized to view or grade a student in the passed list
 	 */
-	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long assignmentId, List<String> studentIds);
-
-	/**
-	 * This method gets grades for multiple gradebook items with emphasis on performance. This is particularly useful for reporting tools
-	 *
-	 * @param gradebookUid
-	 * @param gradableObjectIds
-	 * @param studentIds
-	 * @return a Map of GradableObjectIds to a List of GradeDefinitions containing the grade information for the given students for the
-	 *         given gradableObjectIds. Comments are excluded which can be useful for performance. If a student does not have a grade on a
-	 *         gradableObject, the GradeDefinition will be omitted
-	 * @throws SecurityException if the current user is not authorized with gradeAll in this gradebook
-	 * @throws IllegalArgumentException if gradableObjectIds is null/empty, or if gradableObjectIds contains items that are not members of
-	 *             the gradebook with uid = gradebookUid
-	 */
-	public Map<Long, List<GradeDefinition>> getGradesWithoutCommentsForStudentsForItems(String gradebookUid, List<Long> gradableOjbectIds,
-			List<String> studentIds);
+	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, String siteId, Long assignmentId, List<String> studentIds);
 
 	/**
 	 *
@@ -587,6 +551,7 @@ public interface GradebookService extends EntityProducer {
 	 * type.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @param studentId
 	 * @param grade - must be in format according to gradebook's grade entry type
@@ -596,7 +561,7 @@ public interface GradebookService extends EntityProducer {
 	 * @throws AssessmentNotFoundException
 	 * @throws SecurityException if current user is not authorized to grade student
 	 */
-	public void saveGradeAndCommentForStudent(String gradebookUid, Long assignmentId, String studentId, String grade, String comment)
+	public void saveGradeAndCommentForStudent(String gradebookUid, String siteId, Long assignmentId, String studentId, String grade, String comment)
 			throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
@@ -604,6 +569,7 @@ public interface GradebookService extends EntityProducer {
 	 * comments. Scores must be in a format according to the gradebook's grade entry type (ie points, %, letter).
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @param gradeDefList
 	 * @throws InvalidGradeException if any of the grades are not valid - none will be saved
@@ -612,10 +578,10 @@ public interface GradebookService extends EntityProducer {
 	 * @throws GradebookNotFoundException
 	 * @throws AssessmentNotFoundException
 	 */
-	public void saveGradesAndComments(String gradebookUid, Long assignmentId, List<GradeDefinition> gradeDefList)
+	public void saveGradesAndComments(String gradebookUid, String siteId, Long assignmentId, List<GradeDefinition> gradeDefList)
 			throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
 
-	public void saveGradeAndExcuseForStudent(String gradebookUid, Long assignmentId, String studentId, String grade, boolean excuse)
+	public void saveGradeAndExcuseForStudent(String gradebookUid, String siteId, Long assignmentId, String studentId, String grade, boolean excuse)
 		throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
@@ -627,28 +593,21 @@ public interface GradebookService extends EntityProducer {
 	public int getGradeEntryType(String gradebookUid) throws GradebookNotFoundException;
 
 	/**
-	 * Get a Map of overridden CourseGrade for students.
-	 *
-	 * @param gradebookUid
-	 * @return Map of enrollment displayId as key, point as value string
-	 *
-	 */
-	public Map<String, String> getEnteredCourseGrade(String gradebookUid);
-
-	/**
 	 * Get student's assignment's score as string.
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @param studentUid
 	 * @return String of score
 	 */
-	public String getAssignmentScoreString(String gradebookUid, Long assignmentId, String studentUid)
+	public String getAssignmentScoreString(String gradebookUid, String siteId, Long assignmentId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 * Get student's assignment's score as string. This is provided for backward compatibility only.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentName
 	 * @param studentUid
 	 * @return String of score
@@ -656,7 +615,7 @@ public interface GradebookService extends EntityProducer {
 	 * @deprecated See {@link #getAssignmentScoreString(String, Long, String)}
 	 */
 	@Deprecated
-	public String getAssignmentScoreString(String gradebookUid, String assignmentName, String studentUid)
+	public String getAssignmentScoreString(String gradebookUid, String siteId, String assignmentName, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
@@ -669,24 +628,26 @@ public interface GradebookService extends EntityProducer {
 	 * {@link #getAssignmentScoreString(String,Long)} if you always can use the Long instead.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentName
 	 * @param studentUid
 	 * @return String of score
 	 */
-	public String getAssignmentScoreStringByNameOrId(String gradebookUid, String assignmentName, String studentUid)
+	public String getAssignmentScoreStringByNameOrId(String gradebookUid, String siteId, String assignmentName, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 * Set student's score for assignment.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @param studentUid
 	 * @param score
 	 * @param clientServiceDescription
 	 *
 	 */
-	public void setAssignmentScoreString(String gradebookUid, Long assignmentId, String studentUid, String score,
+	public void setAssignmentScoreString(String gradebookUid, String siteId, Long assignmentId, String studentUid, String score,
 			String clientServiceDescription)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
@@ -694,6 +655,7 @@ public interface GradebookService extends EntityProducer {
 	 * Set student's score for assignment. This is provided for backward compatibility only.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentName
 	 * @param studentUid
 	 * @param score
@@ -702,7 +664,7 @@ public interface GradebookService extends EntityProducer {
 	 * @deprecated See {@link #setAssignmentScoreString(String, Long, String, String, String)}
 	 */
 	@Deprecated
-	public void setAssignmentScoreString(String gradebookUid, String assignmentName, String studentUid, String score,
+	public void setAssignmentScoreString(String gradebookUid, String siteId, String assignmentName, String studentUid, String score,
 			String clientServiceDescription)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
@@ -711,14 +673,16 @@ public interface GradebookService extends EntityProducer {
 	 * Finalize the gradebook's course grades by setting all still-unscored assignments to zero scores.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @throws GradebookNotFoundException
 	 */
-	public void finalizeGrades(String gradebookUid)
+	public void finalizeGrades(String gradebookUid, String siteId)
 			throws GradebookNotFoundException;
 
 	/**
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param assignmentId
 	 * @return the lowest possible grade allowed for the given assignmentId. For example, in a points or %-based gradebook, the lowest
 	 *         possible grade for a gradebook item is 0. In a letter-grade gb, it may be 'F' depending on the letter grade mapping. Ungraded
@@ -726,35 +690,26 @@ public interface GradebookService extends EntityProducer {
 	 * @throws SecurityException if user does not have permission to view assignments in the given gradebook
 	 * @throws AssessmentNotFoundException if there is no gradebook item with the given gradebookItemId
 	 */
-	public String getLowestPossibleGradeForGbItem(final String gradebookUid, final Long assignmentId);
-
-	/**
-	 *
-	 * @param gradebookUid (non-null)
-	 * @param assignment (non-null) the Assignment object representing the gradebook item for which you are setting the points possible (aka
-	 *            relative weight). May be a new gradebook item without an id yet.
-	 * @param pointsPossible the points possible/relative weight you would like to validate for the gradebookItem above.
-	 * @return {@link PointsPossibleValidation} value indicating the validity of the given points possible/relative weight or a problem code
-	 *         defining why it is invalid
-	 */
-	public PointsPossibleValidation isPointsPossibleValid(String gradebookUid, Assignment assignment, Double pointsPossible);
+	public String getLowestPossibleGradeForGbItem(final String gradebookUid, final String siteId, final Long assignmentId);
 
 	/**
 	 * Computes the Average Course Grade as a letter.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @return
 	 */
-	public String getAverageCourseGrade(String gradebookUid);
+	public String getAverageCourseGrade(String gradebookUid, String siteId);
 
 	/**
 	 * Update the ordering of an assignment. This can be performed on internal and external assignments.
 	 * @param gradebookUid uid of the gradebook
+	 * @param siteId
 	 * @param assignmentId id of the assignment in the gradebook
 	 * @param order the new order for this assignment. Note it is 0 based index ordering.
 	 * @return
 	 */
-	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, final Integer order);
+	public void updateAssignmentOrder(final String gradebookUid, final String siteId, final Long assignmentId, final Integer order);
 
 	/**
 	 * Gets the grading events for the given student and the given assignment
@@ -801,47 +756,52 @@ public interface GradebookService extends EntityProducer {
 	 * Get the course grade for a student
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param userUuid uuid of the user
 	 * @return The {@link CourseGrade} for the student
 	 */
-	CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid);
+	CourseGrade getCourseGradeForStudent(String gradebookUid, String siteId, String userUuid);
 
 	/**
 	 * Get the course grade for a list of students
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param userUuids uuids of the users
 	 * @return a Map of {@link CourseGrade} for the students. Key is the student uuid.
 	 */
-	Map<String, CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids);
+	Map<String, CourseGrade> getCourseGradeForStudents(String gradebookUid, String siteId, List<String> userUuids);
 
 	/**
 	 * Get the course grade for a list of students using the given grading schema
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param userUuids uuids of the users
 	 * @param schema the grading schema (bottom percents) to use in the calculation
 	 * @return a Map of {@link CourseGrade} for the students. Key is the student uuid.
 	 */
-	Map<String, CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids, Map<String, Double> schema);
+	Map<String, CourseGrade> getCourseGradeForStudents(String gradebookUid, String siteId, List<String> userUuids, Map<String, Double> schema);
 
 	/**
 	 * Get a list of CourseSections that the current user has access to in the given gradebook. This is a combination of sections and groups
 	 * and is permission filtered.
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @return list of CourseSection objects.
 	 */
 	@SuppressWarnings("rawtypes")
-	List getViewableSections(String gradebookUid);
+	List getViewableSections(String gradebookUid, String siteId);
 
 	/**
 	 * Update the settings for this gradebook
 	 *
 	 * @param gradebookUid
+	 * @param siteId
 	 * @param gbInfo GradebookInformation object
 	 */
-	void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo);
+	void updateGradebookSettings(String gradebookUid, String siteId, GradebookInformation gbInfo);
 
 	/**
 	 * Return the GradeMappings for the given gradebook. The normal getGradebook(siteId) doesn't return the GradeMapping.
@@ -865,17 +825,18 @@ public interface GradebookService extends EntityProducer {
 	 * @param studentUuid uuid of the student
 	 * @param grade the new course grade
 	 */
-	void updateCourseGradeForStudent(String gradebookUid, String studentUuid, String grade, String gradeScale);
+	void updateCourseGradeForStudent(String gradebookUid, String siteId, String studentUuid, String grade, String gradeScale);
 
 	/**
 	 * Updates the categorized order of an assignment
 	 *
 	 * @param gradebookUid uuid of the gradebook
+	 * @param siteId id of the site
 	 * @param categoryId id of the category
 	 * @param assignmentId id of the assignment
 	 * @param order new position of the assignment
 	 */
-	void updateAssignmentCategorizedOrder(final String gradebookUid, final Long categoryId, final Long assignmentId, Integer order);
+	void updateAssignmentCategorizedOrder(final String gradebookUid, final String siteId, final Long categoryId, final Long assignmentId, Integer order);
 
 	/**
 	 * Return the grade changes made since a given time

@@ -54,7 +54,6 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidCategoryException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -68,9 +67,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager implements GradebookExternalAssessmentService {
-
-	@Setter
-	private ToolManager toolManager;
 
 	@Setter
 	private SiteService siteService;
@@ -327,7 +323,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 				// Try to reduce data contention by only updating when a score
 				// has changed or property has been set forcing a db update every time.
-				final boolean alwaysUpdate = isUpdateSameScore();
+				final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
 				final CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
 				final String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
@@ -376,7 +372,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 				// Try to reduce data contention by only updating when a score
 				// has changed or property has been set forcing a db update every time.
-				final boolean alwaysUpdate = isUpdateSameScore();
+				final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
 				final Double oldPointsEarned = agr.getPointsEarned();
 				final Double newPointsEarned = studentUidsToScores.get(studentUid);
@@ -441,7 +437,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 				// Try to reduce data contention by only updating when a score
 				// has changed or property has been set forcing a db update every time.
-				final boolean alwaysUpdate = isUpdateSameScore();
+				final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
 				// TODO: for ungraded items, needs to set ungraded-grades later...
 				final Double oldPointsEarned = agr.getPointsEarned();
@@ -564,7 +560,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		// introduced for the 2.9 release (SAK-11485 and SAK-19688), where a tool that does not have a provider
 		// implemented does not have its items filtered for student views and grading.
 		final List<org.sakaiproject.service.gradebook.shared.Assignment> gbAssignments = getGradebookService()
-				.getViewableAssignmentsForCurrentUser(gradebookUid);
+				.getViewableAssignmentsForCurrentUser(gradebookUid, gradebookUid);
 		for (final org.sakaiproject.service.gradebook.shared.Assignment assignment : gbAssignments) {
 			final String id = assignment.getExternalId();
 			if (assignment.isExternallyMaintained() && !providedAssignments.contains(id) && !visibleAssignments.containsKey(id)) {
@@ -626,7 +622,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		// to accommodate tools that use the external assessment mechanisms but have not
 		// implemented an ExternalAssignmentProvider.
 		final List<org.sakaiproject.service.gradebook.shared.Assignment> allAssignments = getGradebookService()
-				.getViewableAssignmentsForCurrentUser(gradebookUid);
+				.getViewableAssignmentsForCurrentUser(gradebookUid, gradebookUid);
 		for (final org.sakaiproject.service.gradebook.shared.Assignment assignment : allAssignments) {
 			final String id = assignment.getExternalId();
 			if (assignment.isExternallyMaintained() && !providedAssignments.contains(id)) {
@@ -824,7 +820,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		final HibernateCallback<?> hc = session -> {
 			// Try to reduce data contention by only updating when the
 			// score has actually changed or property has been set forcing a db update every time.
-			final boolean alwaysUpdate = isUpdateSameScore();
+			final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
 			final CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
 			final String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
@@ -869,7 +865,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 			// Try to reduce data contention by only updating when the
 			// score has actually changed or property has been set forcing a db update every time.
-			final boolean alwaysUpdate = isUpdateSameScore();
+			final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
 			// TODO: for ungraded items, needs to set ungraded-grades later...
 			final Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
@@ -967,10 +963,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	 * 'gradebook.externalAssessments.updateSameScore', but a site property by the same name can override it. That is to say, the site
 	 * property is checked first, and if it is not present, the sakai.property is used.
 	 */
-	private boolean isUpdateSameScore() {
+	private boolean isUpdateSameScore(String siteId) {
 		String siteProperty = null;
 		try {
-			final String siteId = this.toolManager.getCurrentPlacement().getContext();
 			final Site site = this.siteService.getSite(siteId);
 			siteProperty = site.getProperties().getProperty(UPDATE_SAME_SCORE_PROP);
 		} catch (final Exception e) {
