@@ -1928,7 +1928,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				.getShowStudentScore(), a.getShowStudentQuestionScore(), a
 				.getShowQuestionLevelFeedback(), a
 				.getShowSelectionLevelFeedback(), a.getShowGraderComments(), a
-				.getShowStatistics());
+				.getShowStatistics(), a.getShowCorrection());
 		newFeedback.setAssessmentBase(p);
 		return newFeedback;
 	}

@@ -246,6 +246,7 @@ public class SaveAssessmentSettings
 		feedback.setShowSelectionLevelFeedback(false);
 		feedback.setShowGraderComments(false);
 		feedback.setShowStatistics(false);
+		feedback.setShowCorrection(false);
     }
     else {
     		feedback.setShowQuestionText(assessmentSettings.getShowQuestionText());
@@ -257,6 +258,7 @@ public class SaveAssessmentSettings
     		feedback.setShowSelectionLevelFeedback(assessmentSettings.getShowSelectionLevelFeedback());
     		feedback.setShowGraderComments(assessmentSettings.getShowGraderComments());
     		feedback.setShowStatistics(assessmentSettings.getShowStatistics());
+    		feedback.setShowCorrection(assessmentSettings.getShowCorrectResponse() ? assessmentSettings.getShowCorrection() : false);
     }
     assessment.setAssessmentFeedback(feedback);
 

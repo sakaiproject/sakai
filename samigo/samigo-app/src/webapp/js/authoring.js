@@ -860,3 +860,16 @@ function setAccessibilityAttributes() {
 		$(settingQuerryIdent + ", " + settingQuerryOption).first().attr("aria-describredby", helpBlockId);
 	}
 }
+
+function toggleSection(sectionId, visible){
+	if(visible === "true"){
+		document.getElementById(sectionId).classList.remove('hidden');
+	} else {
+		document.getElementById(sectionId).classList.add('hidden');
+	}
+}
+function changeStatusCorrectResponseCheckbox() {
+  const hideCorrectResponse = document.getElementById('assessmentSettingsAction:hideCorrectResponse');
+
+  hideCorrectResponse.style.display = (hideCorrectResponse.style.display == "none") ? "block" : "none";
+}

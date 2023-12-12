@@ -686,8 +686,12 @@
                     <h:outputLabel for="feedbackCheckbox1" value="#{assessmentSettingsMessages.student_response}" />
                 </h:panelGroup>
                 <h:panelGroup styleClass="form-inline" layout="block">
-                    <h:selectBooleanCheckbox value="#{publishedSettings.showCorrectResponse}" id="feedbackCheckbox13"/>
+                    <h:selectBooleanCheckbox value="#{publishedSettings.showCorrectResponse}" id="feedbackCheckbox13" onclick="changeStatusCorrectResponseCheckbox()"/>
                     <h:outputLabel for="feedbackCheckbox3" value="#{assessmentSettingsMessages.correct_response}" />
+                </h:panelGroup>
+                <h:panelGroup styleClass="form-inline indent1" id="hideCorrectResponse" layout="block" style="display: #{(publishedSettings.showCorrectResponse) ? 'block' : 'none'}">
+                    <h:selectBooleanCheckbox value="#{publishedSettings.showCorrection}" id="feedbackCheckbox19"/>
+                    <h:outputLabel for="feedbackCheckbox19" value="#{assessmentSettingsMessages.show_correct_response}" />
                 </h:panelGroup>
                 <h:panelGroup styleClass="form-inline" layout="block">
                     <h:selectBooleanCheckbox value="#{publishedSettings.showQuestionLevelFeedback}" id="feedbackCheckbox12"/>
