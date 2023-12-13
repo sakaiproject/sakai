@@ -315,7 +315,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>pdf-js</artifactId>
-			<version>4.0.189</version>
+			<version>4.0.269</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
