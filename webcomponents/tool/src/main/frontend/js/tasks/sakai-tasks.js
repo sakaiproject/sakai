@@ -1,10 +1,11 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
-import {unsafeHTML} from '../assets/lit-html/directives/unsafe-html.js';
+import { unsafeHTML } from '../assets/lit-html/directives/unsafe-html.js';
 import { SakaiPageableElement } from '../sakai-pageable-element.js';
 import '../sakai-icon.js';
-import moment from "../assets/moment/dist/moment.js";
+import { sakaiFormatDistance } from "../sakai-date-fns.js";
 import "../assets/@lion/dialog/lion-dialog.js";
 import "./sakai-tasks-create-task.js";
+import * as constants from "./sakai-tasks-constants.js";
 
 export class SakaiTasks extends SakaiPageableElement {
 
@@ -21,8 +22,10 @@ export class SakaiTasks extends SakaiPageableElement {
 
     super();
 
+    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: Date.now(), assignationType: "", selectedGroups: [], siteId: "", owner: "", taskAssignedTo: "", complete: false };
+
     this.showPager = true;
-    this.currentFilter = "current";
+    this.currentFilter = constants.CURRENT;
     this.loadTranslations("tasks").then(r => this.i18n = r);
   }
 
@@ -45,7 +48,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
     t.visible = true;
     if (t.due) {
-      t.dueHuman = moment.duration(t.due - Date.now(), "milliseconds").humanize(true);
+      t.dueHuman = sakaiFormatDistance(new Date(t.due), new Date());
     } else {
       t.dueHuman = "No due date";
     }
@@ -68,7 +71,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
         this.data = response.tasks;
         this.canAddTask = response.canAddTask;
-        this.filter("current");
+        this.filter(constants.CURRENT);
       })
       .catch (error => console.error(error));
   }
@@ -104,28 +107,28 @@ export class SakaiTasks extends SakaiPageableElement {
     this.currentFilter = f;
 
     switch (f) {
-      case "priority_5":
+      case constants.PRIORITY_5:
         this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 5));
         break;
-      case "priority_4":
+      case constants.PRIORITY_4:
         this.data.forEach(t => t.visible = !!(!t.softDeleted && t.priority === 4));
         break;
-      case "priority_3":
+      case constants.PRIORITY_3:
         this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 3));
         break;
-      case "priority_2":
+      case constants.PRIORITY_2:
         this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 2));
         break;
-      case "priority_1":
+      case constants.PRIORITY_1:
         this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 1));
         break;
-      case "overdue":
+      case constants.OVERDUE:
         this.data.forEach(t => t.visible =  !t.complete && t.due && (t.due < Date.now()));
         break;
-      case "trash":
+      case constants.TRASH:
         this.data.forEach(t => t.visible = t.softDeleted);
         break;
-      case "complete":
+      case constants.COMPLETE:
         this.data.forEach(t => t.visible = t.complete);
         break;
       default:
@@ -136,6 +139,7 @@ export class SakaiTasks extends SakaiPageableElement {
   }
 
   filterChanged(e) {
+
     this.currentPage = 1;
     const sakaiPager = this.shadowRoot.querySelector('#pager sakai-pager');
     sakaiPager && (sakaiPager.current = this.currentPage);
@@ -144,10 +148,17 @@ export class SakaiTasks extends SakaiPageableElement {
 
   editTask(e) {
 
-    const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
-    this.shadowRoot.getElementById("add-edit-dialog").__toggle();
-    this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.task = task;
-    this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.mode = "edit";
+    e.stopPropagation();
+
+    const editDialog = this.shadowRoot.getElementById("add-edit-dialog");
+    editDialog.__toggle();
+    const taskId = e.currentTarget.dataset.taskId;
+    if (taskId) {
+      editDialog._overlayContentNode.task = { ...this.data.find(t => t.taskId == taskId) };
+      editDialog._overlayContentNode.mode = "edit";
+    } else {
+      editDialog._overlayContentNode.mode = "create";
+    }
   }
 
   deleteTask(e) {
@@ -168,7 +179,7 @@ export class SakaiTasks extends SakaiPageableElement {
         if (r.ok) {
           this.data.splice(this.data.findIndex(t => t.userTaskId == taskId), 1);
           if (this.data.filter(t => t.softDeleted).length == 0) {
-            this.filter("current");
+            this.filter(constants.CURRENT);
           } else {
             this.requestUpdate();
             this.repage();
@@ -177,9 +188,7 @@ export class SakaiTasks extends SakaiPageableElement {
           throw new Error(`Failed to delete task at ${url}`);
         }
       })
-      .catch(error => {
-        console.error(error);
-      });
+      .catch(error => console.error(error));
   }
 
   softDeleteTask(e) {
@@ -204,9 +213,7 @@ export class SakaiTasks extends SakaiPageableElement {
           throw new Error(`Failed to soft delete task at ${url}`);
         }
       })
-      .catch(error => {
-        console.error(error);
-      });
+      .catch(error => console.error(error));
   }
 
   restoreTask(e) {
@@ -226,17 +233,15 @@ export class SakaiTasks extends SakaiPageableElement {
 
         if (r.ok) {
           if (this.data.filter(t => t.softDeleted).length > 0) {
-            this.filter("trash");
+            this.filter(constants.TRASH);
           } else {
-            this.filter("current");
+            this.filter(constants.CURRENT);
           }
         } else {
           throw new Error(`Failed to soft delete task at ${url}`);
         }
       })
-      .catch(error => {
-        console.error(error);
-      });
+      .catch(error =>  console.error(error));
   }
 
   taskCreated(e) {
@@ -249,8 +254,8 @@ export class SakaiTasks extends SakaiPageableElement {
       this.data.splice(existingIndex, 1, this.decorateTask(e.detail.task));
     }
 
-    this.filter("current");
-    this.currentFilter = "current";
+    this.filter(constants.CURRENT);
+    this.currentFilter = constants.CURRENT;
     this.repage();
   }
 
@@ -276,8 +281,8 @@ export class SakaiTasks extends SakaiPageableElement {
           </sakai-tasks-create-task>
 
           <div slot="invoker">
-            <a @click=${this.add} href="javascript:;" title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}">
-              <button type="button" class="add-task-button"><sakai-icon type="add" size="small"></sakai-icon>${this.i18n.add_task}</button>
+            <a href="javascript:;" @click=${this.editTask} title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}">
+              <button type="button" @click=${this._addTask} class="add-task-button"><sakai-icon type="add" size="small"></sakai-icon>${this.i18n.add_task}</button>
             </a>
           </div>
 
@@ -288,14 +293,14 @@ export class SakaiTasks extends SakaiPageableElement {
         <div id="filter">
           <select @change=${this.filterChanged} .value=${this.currentFilter}>
             <option value="current">${this.i18n.filter_current}</option>
-            <option value="priority_5">${this.i18n.filter_priority_5}</option>
-            <option value="priority_4">${this.i18n.filter_priority_4}</option>
-            <option value="priority_3">${this.i18n.filter_priority_3}</option>
-            <option value="priority_2">${this.i18n.filter_priority_2}</option>
-            <option value="priority_1">${this.i18n.filter_priority_1}</option>
-            <option value="overdue">${this.i18n.filter_overdue}</option>
-            <option value="trash">${this.i18n.trash}</option>
-            <option value="complete">${this.i18n.completed}</option>
+            <option value="${constants.PRIORITY_5}">${this.i18n.filter_priority_5}</option>
+            <option value="${constants.PRIORITY_4}">${this.i18n.filter_priority_4}</option>
+            <option value="${constants.PRIORITY_3}">${this.i18n.filter_priority_3}</option>
+            <option value="${constants.PRIORITY_2}">${this.i18n.filter_priority_2}</option>
+            <option value="${constants.PRIORITY_1}">${this.i18n.filter_priority_1}</option>
+            <option value="${constants.OVERDUE}">${this.i18n.filter_overdue}</option>
+            <option value="${constants.TRASH}">${this.i18n.trash}</option>
+            <option value="${constants.COMPLETE}">${this.i18n.completed}</option>
           </select>
         </div>
         <div id="sort">
@@ -336,6 +341,7 @@ export class SakaiTasks extends SakaiPageableElement {
             ` : ""}
           </div>
           <div class="link-block cell ${i % 2 === 0 ? "even" : "odd"}">
+            ${!t.system ? html`
             <div class="edit">
               <a href="javascript:;"
                   data-task-id="${t.taskId}"
@@ -345,46 +351,47 @@ export class SakaiTasks extends SakaiPageableElement {
                 <sakai-icon type="edit" size="small"></sakai-icon>
               </a>
             </div>
-            ${t.softDeleted ? html`
-              <div class="delete">
-                <a href="javascript:;"
-                    data-task-id="${t.userTaskId}"
-                    @click=${this.deleteTask}
-                    title="${this.i18n.hard_delete}"
-                    aria-label="${this.i18n.hard_delete}">
-                  <sakai-icon type="delete" size="small"></sakai-icon>
-                </a>
-              </div>
-              <div class="restore">
-                <a href="javascript:;"
-                    data-task-id="${t.taskId}"
-                    @click=${this.restoreTask}
-                    title="${this.i18n.restore}"
-                    aria-label="${this.i18n.restore}">
-                  <sakai-icon type="restore" size="small"></sakai-icon>
-                </a>
-              </div>
-            ` : html`
-              <div class="delete">
-                <a href="javascript:;"
-                    data-task-id="${t.taskId}"
-                    @click=${this.softDeleteTask}
-                    title="${this.i18n.soft_delete}"
-                    aria-label="${this.i18n.soft_delete}">
-                  <sakai-icon type="delete" size="small"></sakai-icon>
-                </a>
-              </div>
-            `}
-            <div>
-              ${t.url ? html`
-                <div>
-                  <a href="${t.url}"
-                      title="${this.i18n.task_url}"
-                      aria-label="${this.i18n.task_url}">
-                    <sakai-icon type="right" size="small"></sakai-icon>
+              ${t.softDeleted ? html`
+                <div class="delete">
+                  <a href="javascript:;"
+                      data-task-id="${t.userTaskId}"
+                      @click=${this.deleteTask}
+                      title="${this.i18n.hard_delete}"
+                      aria-label="${this.i18n.hard_delete}">
+                    <sakai-icon type="delete" size="small"></sakai-icon>
                   </a>
                 </div>
-              ` : "" }
+                <div class="restore">
+                  <a href="javascript:;"
+                      data-task-id="${t.taskId}"
+                      @click=${this.restoreTask}
+                      title="${this.i18n.restore}"
+                      aria-label="${this.i18n.restore}">
+                    <sakai-icon type="restore" size="small"></sakai-icon>
+                  </a>
+                </div>
+              ` : html`
+                <div class="delete">
+                  <a href="javascript:;"
+                      data-task-id="${t.taskId}"
+                      @click=${this.softDeleteTask}
+                      title="${this.i18n.soft_delete}"
+                      aria-label="${this.i18n.soft_delete}">
+                    <sakai-icon type="delete" size="small"></sakai-icon>
+                  </a>
+                </div>
+              `}
+            ` : ""}
+            <div>
+            ${t.url ? html`
+              <div>
+                <a href="${t.url}"
+                    title="${this.i18n.task_url}"
+                    aria-label="${this.i18n.task_url}">
+                  <sakai-icon type="right" size="small"></sakai-icon>
+                </a>
+              </div>
+            ` : "" }
             </div>
           </div>
         `)}
