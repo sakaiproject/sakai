@@ -1957,4 +1957,14 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
         }).filter(spi -> spi != null).collect(Collectors.toList());
     }
+
+	public void deleteLogForLessonsItem(SimplePageItem item) {
+		try {
+			DetachedCriteria d2 = DetachedCriteria.forClass(SimplePageLogEntry.class).add(Restrictions.eq("itemId",item.getId()));
+			List<SimplePageLogEntry> logEntries = (List<SimplePageLogEntry>) getHibernateTemplate().findByCriteria(d2);
+			getHibernateTemplate().deleteAll(logEntries);
+		} catch (DataAccessException e) {
+			log.warn("Failed to delete lessons log for item {}", item.getId());
+		}
+	}
 }
