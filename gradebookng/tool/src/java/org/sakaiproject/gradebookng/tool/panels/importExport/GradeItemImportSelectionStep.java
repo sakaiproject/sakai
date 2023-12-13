@@ -262,6 +262,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 					((CreateGradeItemStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				} else {
 					newPanel = new GradeImportConfirmationStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
+					((GradeImportConfirmationStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				}
 
 				// AJAX the new panel into place
