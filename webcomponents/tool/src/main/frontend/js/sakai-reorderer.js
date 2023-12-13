@@ -183,7 +183,7 @@ export class SakaiReorderer extends LitElement {
         dragHandle = document.createElement("span");
         dragHandle.classList.add("si", "si-drag-handle", "drag-handle");
         dragHandle.style.cursor = "grab;";
-        reorderable.insertBefore(dragHandle, reorderable.firstChild)
+        reorderable.insertBefore(dragHandle, reorderable.firstChild);
       }
 
       reorderable.addEventListener("dragstart", this._dragStartListener);

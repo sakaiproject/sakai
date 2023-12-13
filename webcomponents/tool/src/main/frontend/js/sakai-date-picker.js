@@ -29,8 +29,6 @@ class SakaiDatePicker extends SakaiElement {
     super();
 
     this.hiddenPrefix = "";
-
-    this.instanceSalt = Math.floor(Math.random() * Date.now());
   }
 
   static get properties() {
@@ -55,7 +53,7 @@ class SakaiDatePicker extends SakaiElement {
       this.isoDate = null;
     }
 
-    const inputDate = document.getElementById(`date-picker-input-${this.instanceSalt}`);
+    const inputDate = this.querySelector("input[type='datetime-local']");
     inputDate && (inputDate.value = this.isoDate);
   }
 
@@ -125,9 +123,8 @@ class SakaiDatePicker extends SakaiElement {
 
     return html`
       <input type="datetime-local"
-          id="date-picker-input-${this.instanceSalt}"
           @change=${this.dateSelected}
-          value="${this.isoDate}"
+          .value=${this.isoDate}
           .disabled=${this.disabled}
           aria-label="${this.label}"
           title="${this.label}">
