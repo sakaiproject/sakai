@@ -4637,7 +4637,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (!simplePageBean.isStudentPage(currentPage)) {
 		    createGroupList(form, null, "", "#{simplePageBean.selectedGroups}");
 		}
-		UICommand.make(form, "delete-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "edit-item-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
