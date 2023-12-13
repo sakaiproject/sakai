@@ -633,6 +633,17 @@ public interface AssignmentService extends EntityProducer {
     String getSubmitterIdForAssignment(Assignment assignment, User user);
 
     /**
+     * Retrieves the selected group users based on the given parameters.
+     *
+     * @param allOrOneGroup           Determines if all groups or a specific group should be considered.
+     * @param contextString           The context string indicating the site title.
+     * @param assignment              The assignment object for which the users are selected.
+     * @param allowAddSubmissionUsers The list of users allowed to submit the assignment.
+     * @return The list of selected group users based on the specified criteria.
+     */
+    List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment assignment, List<User> allowAddSubmissionUsers);
+    
+    /**
      * @param accentedString
      * @return
      */
