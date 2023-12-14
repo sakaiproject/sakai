@@ -53,6 +53,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 @SessionScoped
 public class TotalScoresExportBean implements Serializable {
 
+	private final String EVALUATION_MESSAGES_BUNDLE = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
+
 	/**
 	 * Creates a new TotalScoresExportBean object.
 	 */
@@ -63,15 +65,15 @@ public class TotalScoresExportBean implements Serializable {
 	public void exportExcel(String assessmentName, List allAgents) {
 		// Now insert the header line
 		List<String> headerList = new ArrayList<>();
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","first_name"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","uid"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","role"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","submit_date"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","status"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","tot"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","adj"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","final"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","comment"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "first_name"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "uid"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "role"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "submit_date"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "status"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "tot"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "adj"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "final"));
+		headerList.add(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "comment"));
 
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
@@ -86,7 +88,7 @@ public class TotalScoresExportBean implements Serializable {
 		Date now = new Date();
 		String dateFormat = "yyyyMMdd";
 		DateFormat df = new SimpleDateFormat(dateFormat);
-		StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "assessment"));
+		StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "assessment"));
 		if(StringUtils.trimToNull(assessmentName) != null) {
 			assessmentName = assessmentName.replaceAll("\\s", "_"); // replace whitespace with '_'
 			fileName.append("-");
@@ -152,7 +154,7 @@ public class TotalScoresExportBean implements Serializable {
 			if (date!=null){
 				cell.setCellValue(date.toString());
 			}else{
-				cell.setCellValue(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","no_submission"));
+				cell.setCellValue(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE,"no_submission"));
 			}
 
 			cell = createCell(row, (short)4, null);
