@@ -2811,8 +2811,8 @@ function checkEditTitleForm() {
     $('#edit-title-error').text(msg("simplepage.title_notblank"));
     $('#edit-title-error-container').show();
     return false;
-  } else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseInt($("#page-points").val()))) {
-    $('#edit-title-error').text(intError(safeParseInt($("#page-points").val())));
+  } else if ($("#page-gradebook").prop("checked") && !isFinite(parseFloat($("#page-points").val()))) {
+    $('#edit-title-error').text(intError(parseFloat($("#page-points").val())));
     $('#edit-title-error-container').show();
   } else if (/[\[\]{}\\|\^\`]/.test($('#pageTitle').val())) {
     $('#edit-title-error').text(msg("simplepage.subpage_invalid_chars"));
@@ -2827,6 +2827,7 @@ function checkEditTitleForm() {
     }
     return true;
   }
+
 }
 
 // these tests assume \d finds all digits. This may not be true for non-Western charsets
