@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.time.cover.TimeService;
@@ -54,8 +55,10 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	private boolean openSwitch;
 	private Calendar openDate;
 	private boolean errorflag;
-	
+	private final String RESTRICT_EXTERNALLY_MANAGED_SECTIONS_PROP = "sections.restrict.externally.managed";
+
 	public void init() {
+
 		// We don't need to initialize the bean when we're in confirm mode
 		if(confirmMode) {
 			return;
@@ -77,6 +80,9 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 			management = EXTERNAL;
 		} else {
 			management = INTERNAL;
+			// Once manual has been chosen, prevent instructors to switch to externally managed.
+			boolean restrictExternallyManagedSections = ServerConfigurationService.getBoolean(RESTRICT_EXTERNALLY_MANAGED_SECTIONS_PROP, false);
+			managementToggleEnabled = ! (restrictExternallyManagedSections && !isSuperUser());
 		}
 		this.openDate = sm.getOpenDate(getCourse().getSiteContext());
 		if (this.openDate!=null){
