@@ -71,6 +71,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
+import org.sakaiproject.tool.assessment.ui.bean.util.TotalScoresExportBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -1307,5 +1308,10 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
 	public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
+	}
+
+	public void exportExcel() {
+		TotalScoresExportBean totalScoresExportBean = (TotalScoresExportBean) ContextUtil.lookupBean("totalScoresExportBean");
+		totalScoresExportBean.exportExcel(assessmentName, allAgents);
 	}
 }

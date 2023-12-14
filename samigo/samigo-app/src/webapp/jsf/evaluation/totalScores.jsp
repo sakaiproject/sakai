@@ -169,6 +169,10 @@ function showLoadingMessage() {
     <h:outputText value=" #{totalScores.allSubmissions ne '4' ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}"/>
   </h:panelGroup>
 
+  <h:panelGroup id="export-total-scores" layout="block" styleClass="mt-1 mb-1">
+    <h:commandButton value="#{commonMessages.export_action}" action="#{totalScores.exportExcel}"/>
+  </h:panelGroup>
+
 <h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
 
   <h:panelGroup styleClass="col-md-6" layout="block">
