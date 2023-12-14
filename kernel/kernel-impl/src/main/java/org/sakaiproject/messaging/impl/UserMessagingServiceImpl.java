@@ -318,7 +318,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             return sb.append("From: ")
                 .append(serverConfigurationService.getString("ui.service", "Sakai"))
                 .append(" <")
-                .append(serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName()))
+                .append(serverConfigurationService.getSmtpFrom())
                 .append(">").toString();
         }
 

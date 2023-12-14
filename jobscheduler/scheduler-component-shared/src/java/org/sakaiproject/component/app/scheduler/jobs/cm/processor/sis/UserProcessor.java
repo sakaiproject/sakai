@@ -194,9 +194,7 @@ public class UserProcessor extends AbstractUserProcessor {
 
         String from = "\"" +
                 serverConfigurationService.getString("ui.institution", "Sakai") +
-                " <no-reply@" +
-                serverConfigurationService.getServerName() +
-                ">\"";
+                " <" + serverConfigurationService.getSmtpFrom() + ">\"";
 
         String productionSiteName = serverConfigurationService.getString("ui.service", "Sakai");
 

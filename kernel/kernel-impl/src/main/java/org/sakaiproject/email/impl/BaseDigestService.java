@@ -411,7 +411,7 @@ public abstract class BaseDigestService implements DigestService, SingleStorageU
 			// if use has no email address we can't send it
 			if ((to == null) || (to.length() == 0)) return;
 
-			String from = serverConfigurationService.getString("setup.request", "postmaster@" + serverConfigurationService.getServerName());
+			String from = serverConfigurationService.getSmtpFrom();
 			String subject = serverConfigurationService.getString("ui.service", "Sakai") + " " + rb.getString("notif") + " "
 			+ period.firstTime().toStringLocalDate();
 

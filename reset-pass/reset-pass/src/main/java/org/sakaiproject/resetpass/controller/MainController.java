@@ -235,13 +235,7 @@ public class MainController {
     private void resetPassClassic(String email) {
 
         log.info("getting password for " + email);
-        String from = serverConfigurationService.getString("setup.request", null);
-
-        if (from == null) {
-
-            log.warn(this + " - no 'setup.request' in configuration");
-            from = "postmaster@".concat(serverConfigurationService.getServerName());
-        }
+        String from = serverConfigurationService.getSmtpFrom();
 
         //now we need to reset the password
         SecurityAdvisor sa = (String userId, String function, String reference) -> {
