@@ -94,10 +94,13 @@ function loadProperties(suppliedOptions) {
       .then(data => {
 
         data.split("\n").forEach((pair) => {
-
-          const keyValue = pair.split(/=(.*)/);
-          if (keyValue.length >= 2) {
-            window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
+          if (typeof pair === "string" && pair.length > 0) {
+            const keyValue = pair.split(/=(.*)/);
+            if (keyValue.length >= 2) {
+              window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
+            } else {
+              console.warn(`Omitting translation key: ${keyValue[0]}`);
+            }
           }
         });
 
