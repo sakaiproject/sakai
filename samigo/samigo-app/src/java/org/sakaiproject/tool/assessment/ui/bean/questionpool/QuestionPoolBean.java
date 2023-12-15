@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -1287,15 +1288,14 @@ public String getAddOrEdit()
 		ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
 		List<FinBean> fins = new ArrayList<FinBean>();
 		List<AnswerIfc> calcQuestionEntities = text.getAnswerArraySorted();
-		Iterator<AnswerIfc> iter = calcQuestionEntities.iterator();
-		while (iter.hasNext()) {
-			AnswerIfc answer = iter.next();
 
-			// Checks if the 'answer' object is a variable, a global variable or a real answer
-			if (StringUtils.isEmpty(answersMapValues.get(answer.getLabel()))) {
-				continue;
-			}
+		// Converting to map
+		Map<String, AnswerIfc> calcQuestionEntitiesMap = calcQuestionEntities.stream()
+			.collect(Collectors.toMap(AnswerIfc::getLabel, answerIfc -> answerIfc, (existing, replacement) -> existing, LinkedHashMap::new));
 
+		// AnswerMapValues contains real answers on right order
+		for (Map.Entry<String, String> entry : answersMapValues.entrySet()) {
+			AnswerIfc answer = calcQuestionEntitiesMap.get(entry.getKey());
 			ItemGradingData data = new ItemGradingData();
 			String answerKey = (String)answersMapValues.get(answer.getLabel());
 			int decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
@@ -1333,7 +1333,7 @@ public String getAddOrEdit()
 		itemBean.setItemGradingDataArray(datas);
 
 		FinBean fbean = new FinBean();
-		if (texts.toArray().length > i) {
+		if (texts.get(0).toArray().length > i) {
 			fbean.setText( (String) texts.get(0).toArray()[i]);
 		}
 		else {
