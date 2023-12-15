@@ -246,3 +246,7 @@
 .alertMessage{
 	@extend .bs-callout-danger;
 }
+
+iframe[type="application/pdf"] {
+    width: 100%;
+}
