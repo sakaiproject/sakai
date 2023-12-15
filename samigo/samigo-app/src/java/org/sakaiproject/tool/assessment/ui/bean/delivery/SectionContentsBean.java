@@ -107,14 +107,12 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   @Getter @Setter private SectionGradingData sectionGradingData;
   @Getter private String timeLimit;
   @Getter private boolean timedSection;
-  
-  //S2U-19
+
   @Setter private Integer numberToBeFixed;
   @Setter private Long poolIdToBeFixed;
   @Getter @Setter private String poolNameToBeFixed;
   @Getter @Setter private String fixedQuestionsDrawDate = "";
   @Getter @Setter private String fixedQuestionsDrawTime = "";
-  @Getter @Setter private List<ItemContentsBean> itemContentsFixed;
 
   public SectionContentsBean()
   {
@@ -266,11 +264,6 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return randomsample;
   }
 
-  public List<ItemContentsBean> getItemContentsForFixed()
-  {
-    return this.itemContentsFixed;
-  }
-
   public List getItemContentsForRandomQuestionOrdering()
   {
     // same ordering for each student
@@ -384,27 +377,26 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
       // do teh rest later
       Set<ItemDataIfc> itemSet = section.getItemSet();
 
-      // adding fixed questions (could be empty if not fixed and draw part)
-      Set<ItemDataIfc> sortedSet = itemSet.stream()
-          .filter(item -> ((ItemDataIfc) item).getIsFixed())
-          .collect(Collectors.toSet());
+      if (itemSet != null) {
+        // adding fixed questions (could be empty if not fixed and draw part)
+        Set<ItemDataIfc> sortedSet = itemSet.stream()
+            .filter(item -> ((ItemDataIfc) item).getIsFixed())
+            .collect(Collectors.toSet());
 
-      if (!sortedSet.isEmpty()) {
-           // getting all hashes from the sortedSet
-           List<String> distinctHashValues = sortedSet.stream()
-               .map(item -> ((ItemDataIfc) item).getHash())
-               .distinct()
-               .collect(Collectors.toList());
+        if (!sortedSet.isEmpty()) {
+             // getting all hashes from the sortedSet
+             List<String> distinctHashValues = sortedSet.stream()
+                 .map(item -> ((ItemDataIfc) item).getHash())
+                 .distinct()
+                 .collect(Collectors.toList());
 
-            // removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
-            itemSet.removeIf(item -> !item.getIsFixed() &&
-                                     distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+              // removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
+              itemSet.removeIf(item -> !item.getIsFixed() &&
+                                       distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
 
-            section.setItemSet(itemSet);
-      }
+              section.setItemSet(itemSet);
+        }
 
-      if (itemSet != null)
-      {
         setQuestions(itemSet.size());
         for (ItemDataIfc item : itemSet) {
           ItemContentsBean itemBean = new ItemContentsBean(item);
@@ -470,11 +462,6 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 		Integer numberfixed = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
 		setNumberToBeFixed(numberfixed);
 	}
-
-	/*OJOOO*/
-	/*if (section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS) != null) {
-		this.set
-	}*/
 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW) != null) {
 		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW));

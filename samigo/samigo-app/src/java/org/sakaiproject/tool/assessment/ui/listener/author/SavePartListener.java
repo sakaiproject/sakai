@@ -89,8 +89,8 @@ public class SavePartListener
 
     SectionBean sectionBean= (SectionBean) ContextUtil.lookupBean(
                          "sectionBean");
-    
-    String currentItemIdsString = (String) ContextUtil.lookupBean("currentItemIdsString");
+
+    //String currentItemIdsString = (String) ContextUtil.lookupBean("currentItemIdsString");
 
     List<String> destItems = ContextUtil.paramArrayValueLike("randomizationTypesFixed");
     sectionBean.setNumberSelectedFixed(Integer.toString(destItems.size()));
@@ -266,7 +266,8 @@ public class SavePartListener
     				}
     				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
     			}
-    			
+    			section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
+
     			if (!("".equals(sectionBean.getSelectedPoolFixed()))) {
     				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW, sectionBean.getSelectedPoolFixed());
     				String poolname = "";
@@ -278,10 +279,11 @@ public class SavePartListener
     				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW, poolname);
 
     				if (!destItems.isEmpty()) {
-    					//creating a fixed question list separated by comma
-    					String fixedQuestionIds = String.join(",", destItems);
-    					section.addSectionMetaData(SectionDataIfc.FIXED_QUESTION_IDS, fixedQuestionIds);
     					section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_FIXED, String.valueOf(destItems.size()));
+    					// creating a metadata for each fixed question
+    					for (int j=0; j<destItems.size(); j++) {
+    						section.addSectionMetaData(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + (j+1), destItems.get(j));
+    					}
     				}
     			}
     		}
@@ -376,9 +378,7 @@ public class SavePartListener
      String selectedPool = sectionBean.getSelectedPool();
      String selectedPoolFixed = sectionBean.getSelectedPoolFixed();
      List itemlist = qpservice.getAllItems(Long.valueOf(selectedPool));
-     List itemlistFixed = qpservice.getAllItems(Long.valueOf(selectedPoolFixed));
      int itemcount = itemlist.size();
-     int itemcountFixed = itemlistFixed.size();
      String itemcountString=" "+Integer.toString(itemcount);
 
      try{
@@ -390,25 +390,27 @@ public class SavePartListener
 
 	 }
 
-     if (StringUtils.isNotEmpty(numberSelectedFixed)) {
-		int numberSelectedInt = Integer.parseInt(numberSelectedFixed);
+     if (sectionBean.getType().equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL)) {
+		if ((StringUtils.isNotEmpty(numberSelectedFixed)) && (StringUtils.isNotEmpty(selectedPoolFixed))) {
+			int numberSelectedInt = Integer.parseInt(numberSelectedFixed);
 
-		// checking at least one fixed
-		if (numberSelectedInt == 0) {
-			err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notfixedquestionselected_error");
-			context.addMessage(null,new FacesMessage(err));
-			return false;
+			// checking at least one fixed
+			if (numberSelectedInt == 0) {
+				err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notfixedquestionselected_error");
+				context.addMessage(null,new FacesMessage(err));
+				return false;
+			}
+
+			int totalFixedPlusDrawInt = numberSelectedInt + numberDrawnInt;
+
+			// checking if selected same pool for fixed and drawn and there is not enough questions
+			if ((selectedPool.equals(selectedPoolFixed)) && (totalFixedPlusDrawInt > itemcount)) {
+				err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notenough_error");
+				context.addMessage(null,new FacesMessage(err));
+				return false;
+			}
 		}
-
-		int totalFixedPlusDrawInt = numberSelectedInt + numberDrawnInt;
-
-		// checking if selected same pool for fixed and drawn and there is not enough questions
-		if ((selectedPool.equals(selectedPoolFixed)) && (totalFixedPlusDrawInt > itemcount)) {
-			err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","notenough_error");
-			context.addMessage(null,new FacesMessage(err));
-			return false;
-		}
-     }
+    }
 
      } catch(NumberFormatException e){
 	 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_error");
@@ -504,27 +506,5 @@ public class SavePartListener
     return map;
   }
 
-  /*public void getCheckedQuestions() {
-
-	  	ContextUtil.paramArrayValueLike("randomizationTypesFixed");
-		List<Long> itemIds = new ArrayList<>();
-		List itemFacades = new ArrayList();
-
-		ItemService delegate = new ItemService();
-		Iterator<String> iter = destItems.iterator();
-
-		while (iter.hasNext()) {
-			Long itemId = NumberUtils.toLong(iter.next(), -1L);
-			ItemFacade itemfacade = delegate.getItem(itemId,
-					AgentFacade.getAgentString());
-			itemFacades.add(itemfacade);
-			itemIds.add(itemId);
-		}
-
-		setCurrentItemIds(itemIds);
-		setCurrentItems(itemFacades);
-
-		setCurrentItemIdsString(String.join(",", itemIds.stream().map(Object::toString).toArray(String[]::new)));
-	}*/
 
 }

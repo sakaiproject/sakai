@@ -698,7 +698,7 @@ public class PublishedAssessmentData
         ArrayList randomsample = new ArrayList();
         Integer numberToBeDrawn= Integer.valueOf(0);
         Integer numberToBeFixed= Integer.valueOf(0);
-        //OJOOO
+
         if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null ) {
             numberToBeFixed= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
         }

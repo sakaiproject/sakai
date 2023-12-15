@@ -60,7 +60,6 @@ public class SectionData
   private String lastModifiedBy;
   private Date lastModifiedDate;
   private Set itemSet;
-  private Set itemSetFixed;
   private Set sectionMetaDataSet;
   private HashMap sectionMetaDataMap;
   private Set sectionAttachmentSet;
@@ -241,15 +240,6 @@ public class SectionData
   public ArrayList getItemArray() {
     ArrayList list = new ArrayList();
     Iterator iter = itemSet.iterator();
-    while (iter.hasNext()){
-      list.add(iter.next());
-    }
-    return list;
-  }
-
-  public ArrayList getItemArrayFixed() {
-    ArrayList list = new ArrayList();
-    Iterator iter = itemSetFixed.iterator();
     while (iter.hasNext()){
       list.add(iter.next());
     }

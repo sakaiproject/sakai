@@ -1169,6 +1169,9 @@ public String getHistogramChartOptions() {
             if(!defaultStr.equals(section.getTitle())){
                 text.append(": " + section.getTitle());
             }
+            if(section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW) != null){
+                text.append(poolStr + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW));
+            }
             if(section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW) != null){
                 text.append(poolStr + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
             }

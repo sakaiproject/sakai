@@ -162,7 +162,7 @@
                     <h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" headerClass="columnCheckDelete">
                         <f:facet name="header">
                         </f:facet>
-                        <h:selectManyCheckbox immediate="true" id="randomizationTypesFixed"  value="#{questionpool.destItems}">
+                        <h:selectManyCheckbox immediate="true" id="randomizationTypesFixed"  value="#{sectionBean.fixedQuestionIds}">
                             <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
                          </h:selectManyCheckbox>
                     </h:column>

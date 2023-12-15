@@ -267,6 +267,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId);
 
   public boolean isRandomDrawPart(Long publishedAssessmentId, Long sectionId);
+
+  public boolean isFixedRandomDrawPart(Long publishedAssessmentId, Long sectionId);
  
   public PublishedAssessmentData getBasicInfoOfPublishedAssessment(Long publishedId);
   

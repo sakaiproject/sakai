@@ -110,7 +110,7 @@ public class EditAssessmentListener
 		AssessmentService assessmentService = new AssessmentService();
 		AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
 	    String assessmentId = ContextUtil.lookupParam("assessmentId");
-	    String fixedQuestionIds = ContextUtil.lookupParam("fixedQuestionIds");
+	    //String fixedQuestionIds = ContextUtil.lookupParam("fixedQuestionIds");
 		if (assessmentId == null || assessmentId.equals("")) {
 			assessmentId = assessmentSettings.getAssessmentId().toString();
 		}

@@ -771,6 +771,24 @@ public class PublishedAssessmentFacade
           randomsample.add(list.get(i));
         }
         iter2 = randomsample.iterator();
+      } else if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE
+).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+
+          List<ItemDataIfc> fixedAndRandom = new ArrayList();
+          List<ItemDataIfc> randomsample = new ArrayList();
+          Integer numberToBeDrawn= Integer.valueOf(0);
+          if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+            numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+          }
+
+          int samplesize = numberToBeDrawn.intValue();
+          for (int i=0; i<samplesize; i++){
+            randomsample.add(list.get(i));
+          }
+
+          fixedAndRandom.addAll(sortedList);
+          fixedAndRandom.addAll(randomsample);
+          iter2 = fixedAndRandom.iterator();
       }
       else {
         iter2 = list.iterator();

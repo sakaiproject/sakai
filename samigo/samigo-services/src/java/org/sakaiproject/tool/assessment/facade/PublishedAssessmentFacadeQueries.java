@@ -1898,6 +1898,26 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		return false;
 	}
 
+	public boolean isFixedRandomDrawPart(final Long publishedAssessmentId, final Long sectionId) {
+		final String key = SectionDataIfc.AUTHOR_TYPE;
+		final String value = SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+
+		final HibernateCallback<List<PublishedSectionData>> hcb = session -> session
+				.createQuery("select s from PublishedSectionData s, PublishedSectionMetaData m " +
+						" where s = m.section and s.assessment.publishedAssessmentId = :id and s.id = :section and m.label = :key and m.entry = :value")
+				.setParameter("id", publishedAssessmentId)
+				.setParameter("section", sectionId)
+				.setParameter("key", key)
+				.setParameter("value", value)
+				.list();
+		List<PublishedSectionData> l = getHibernateTemplate().execute(hcb);
+
+		if (!l.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * return an array list of the AssessmentGradingData that a user has
 	 * submitted for grade. one per published assessment, when allAssessments is false,

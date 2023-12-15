@@ -54,12 +54,12 @@ public interface SectionDataIfc
   public static final String POINT_VALUE_FOR_QUESTION = "POINT_VALUE_FOR_QUESTION";
   public static final String DISCOUNT_VALUE_FOR_QUESTION = "DISCOUNT_VALUE_FOR_QUESTION";
   
-  //S2U-19
   public static final String FIXED_QUESTION_IDS = "FIXED_QUESTION_IDS";
   public static final String POOLID_FOR_FIXED_AND_RANDOM_DRAW = "POOLID_FOR_FIXED_AND_RANDOM_DRAW";
   public static final String POOLNAME_FOR_FIXED_AND_RANDOM_DRAW = "POOLNAME_FOR_FIXED_AND_RANDOM_DRAW";
   public static final String NUM_QUESTIONS_FIXED = "NUM_QUESTIONS_FIXED";
   public static final String QUESTIONS_FIXED_DRAW_DATE = "QUESTIONS_FIXED_DRAW_DATE";
+  public static final String SEPARATOR_MULTI = "_";
 
   
    Long getSectionId() ;
@@ -124,8 +124,6 @@ public interface SectionDataIfc
    TypeIfc getType();
 
    ArrayList getItemArray();
-   
-   ArrayList getItemArrayFixed();
 
    ArrayList getItemArraySortedForGrading();
 

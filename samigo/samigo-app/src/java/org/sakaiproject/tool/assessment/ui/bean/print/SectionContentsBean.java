@@ -67,13 +67,12 @@ public class SectionContentsBean extends
 
 			items = super.getItemContents();
 
-			if (items == null) {
-				if (getPoolIdToBeDrawn() != null) {
-					items.addAll(super.getItemContentsForRandomDraw());
-				}
+			if (items == null && getPoolIdToBeDrawn() != null) {
+				items.addAll(super.getItemContentsForRandomDraw());
 			}
 			itemContents = items;
 		}
+
 		return itemContents;
 	}
 

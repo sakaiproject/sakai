@@ -25,7 +25,6 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -441,7 +440,6 @@ public class AssessmentService {
 			boolean isFixed = StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
 			int i = 0;
 
-			//
 			boolean hasRandomPartScore = false;
 			Double score = null;
 			String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
@@ -461,7 +459,7 @@ public class AssessmentService {
 				discount = new Double(requestedDiscount);
 			}
 
-			//OJOOO
+			// random section:
 			removeAllItems(section.getSectionId().toString());
 
 			String agentId = AgentFacade.getAgentString();
@@ -481,11 +479,12 @@ public class AssessmentService {
 			section = getSection(section.getSectionId().toString());
 
 			if (isFixed) {
-				String fixedQuestionIds = section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS);
-				List<String> fixedQuestionIdsList = Arrays.asList(fixedQuestionIds.split(","));
-				//iService.getItem();//sacar los items de fixedquestionids -- están separados por coma
-				//public ItemFacade getItem(String itemId) {
-				
+				int numQuestionsFixed = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+				List<String> fixedQuestionIdsList = new ArrayList<>();
+				for (int j=0; j<numQuestionsFixed; j++) {
+					fixedQuestionIdsList.add(section.getSectionMetaDataByLabel(SectionDataIfc.FIXED_QUESTION_IDS + SectionDataIfc.SEPARATOR_MULTI + (j+1)));
+				}
+
 				for (String itemId : fixedQuestionIdsList) {
 					ItemFacade item = itemService.getItem(itemId);
 					item = qpService.copyItemFacade2(item);
@@ -533,8 +532,6 @@ public class AssessmentService {
 							}
 						}
 //					}
-					//OJOOOOOOOOOOOOOO
-					//section.addItemFixed(item);
 					data.setIsFixed(true);
 					section.addItem(item);
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
@@ -551,30 +548,6 @@ public class AssessmentService {
 					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
 
 			if(verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))){
-				// random section: OJOOOOOO
-				/*if (!isFixed) {
-					removeAllItems(section.getSectionId().toString());
-				}
-
-				
-				String agentId = AgentFacade.getAgentString();
-
-				Iterator itemIter = section.getItemSet().iterator();
-				while (itemIter.hasNext()) {
-					ItemDataIfc item = (ItemDataIfc) itemIter.next();
-					List poolIds = qpService.getPoolIdsByItem(item.getItemId());
-					if (poolIds.isEmpty()) {
-						Long deleteId = item.getItemId();
-						itemService.deleteItem(deleteId, agentId);
-						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
-						itemIter.remove();
-					}
-				}
-				// need to reload
-				section = getSection(section.getSectionId().toString());*/
-
-				
-
 				Iterator iter = itemlist.iterator();
 				while (iter.hasNext()) {
 					ItemFacade item = (ItemFacade) iter.next();

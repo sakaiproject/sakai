@@ -1183,10 +1183,7 @@ public class DeliveryActionListener
     //SectionContentsBean sec = new SectionContentsBean();
     SectionContentsBean sec = new SectionContentsBean(part);
     List<ItemDataIfc> itemlist = part.getItemArray();
-    //List<ItemDataIfc> itemlistFixed = part.getItemArrayFixed();
     long seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
-    // Preparing itemSet first with fixed and later adding sorted draw
-    //List<ItemDataIfc> itemSet = itemlistFixed;
 
     // adding fixed questions
     List<ItemDataIfc> itemSet = itemlist.stream()

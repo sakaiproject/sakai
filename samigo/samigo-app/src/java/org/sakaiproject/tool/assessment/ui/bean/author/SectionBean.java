@@ -26,14 +26,12 @@ import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -43,7 +41,6 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -56,19 +53,13 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.SavePartAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -129,13 +120,10 @@ private Integer timedMinutes = 0;
 
 private List attachmentList;
 
-//S2U-19
 @Getter @Setter private List allItems;
-//@Getter @Setter private List currentItems;
-//@Getter @Setter private List currentItemIds;
-@Getter @Setter private String fixedQuestionIds; //fixedQuestionIds separated by comma
-private String numberSelectedFixed;
-private String selectedPoolFixed;  // pool fixed id for the item to be added to
+@Getter @Setter private String[] fixedQuestionIds;
+@Getter @Setter private String numberSelectedFixed;
+@Getter @Setter private String selectedPoolFixed;  // pool fixed id for the item to be added to
 
   public void setSection(SectionFacade section) {
     try {
@@ -368,8 +356,8 @@ private String selectedPoolFixed;  // pool fixed id for the item to be added to
     return assessmentSectionIdents.size();
   }
 
-  /**List of available question pools for random draw. 
-   * returns a list of pools that have not been used by other random drawn parts 
+  /**List of available question pools for fixed or random draw.
+   * returns a list of pools that have not been used by other fixed or random drawn parts
    * @return ArrayList of QuestionPoolFacade objects
    */
   public List getPoolsAvailable()
@@ -406,15 +394,17 @@ private String selectedPoolFixed;  // pool fixed id for the item to be added to
     for (int i=0; i<sectionList.size();i++){
       SelectItem s = (SelectItem) sectionList.get(i);
 
-      // need to remove the pools already used by random draw parts
+      // need to remove the pools already used by fixed or random draw parts
 
       SectionDataIfc section= assessdelegate.getSection(s.getValue().toString());
-      if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) &&
- (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
-	String poolid = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
-	if (allPoolsMap.containsKey(poolid) ) {
-	  allPoolsMap.remove(poolid);
-	}
+      String authorType = section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+      if (section != null && authorType != null) {
+          if (authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+              removePoolFromMap(allPoolsMap, section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+          } else if (authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+              removePoolFromMap(allPoolsMap, section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+              removePoolFromMap(allPoolsMap, section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW));
+          }
       }
     }
     
@@ -451,6 +441,25 @@ private String selectedPoolFixed;  // pool fixed id for the item to be added to
         else {
           // the pool has been deleted, 
         } 
+    }
+
+    //  add pool which is currently used in current Part for modify part - fixed random draw
+    if (StringUtils.isNotBlank(this.getSelectedPoolFixed()) && !currentPoolAlreadyAdded) {
+
+    //now we need to get the poolid and displayName
+
+	QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPoolFixed()), AgentFacade.getAgentString());
+    // now add the current pool used  to the list, so it's available in the pulldown
+        if (currPool!=null) {
+          // if the pool still exists, it's possible that the pool has been deleted
+          int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
+          if(currItems>0){
+              resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(currPool, currItems, allpoollist, delegate)));
+          }
+        }
+        else {
+          // the pool has been deleted,
+        }
     }
 
     Collections.sort(resultPoolList, new ItemComparator());
@@ -610,22 +619,6 @@ private String selectedPoolFixed;  // pool fixed id for the item to be added to
   /**
    * @param string the number selected
    */
-  public void setNumberSelectedFixed(String string)
-  {
-    numberSelectedFixed = string;
-  }
-
-  /**
-   * @return the number selected
-   */
-  public String getNumberSelectedFixed()
-  {
-    return numberSelectedFixed;
-  }
-
-  /**
-   * @param string the number selected
-   */
   public void setNumberSelected(String string)
   {
     numberSelected = string;
@@ -747,22 +740,6 @@ private String selectedPoolFixed;  // pool fixed id for the item to be added to
    */
   public void setSelectedPool(String selectedPool) {
     this.selectedPool = selectedPool;
-  }
-
-  /**
-   * String value of fixed selected pool id
-   * @return String value of fixed selected pool id
-   */
-  public String getSelectedPoolFixed() {
-    return selectedPoolFixed;
-  }
-
-  /**
-   * set the String value of fixed selected pool id
-   * @param selectedPool String value of fixed selected pool id
-   */
-  public void setSelectedPoolFixed(String selectedPoolFixed) {
-    this.selectedPoolFixed = selectedPoolFixed;
   }
 
    /**
@@ -1027,67 +1004,15 @@ private String selectedPoolFixed;  // pool fixed id for the item to be added to
 
 	    QuestionPoolService qpservice = new QuestionPoolService();
 	    String agentId = AgentFacade.getAgentString();
-	    /*String selectedPoolFixed = this.getSelectedPoolFixed();
-	    //if not select, get the first pool of the pools available
-	    if (StringUtils.isBlank(selectedPoolFixed)) {
-	        List questions = getPoolsAvailable();
-	        SelectItem question = (SelectItem) questions.get(0);
-	        selectedPoolFixed = (String) question.getValue();
-	    }*/
-	    
 	    selectedPoolFixed = (String) event.getNewValue();
 	    Long selectedPoolId = Long.parseLong(selectedPoolFixed);
 	    QuestionPoolFacade qp = qpservice.getPool(selectedPoolId, agentId);
 
 	    this.setAllItems(new ArrayList(qp.getQuestions()));
 	    List<ItemData> questions = this.allItems;
-	   // List<ItemData> questions = (List) qp.getQuestions();
-	    //List<SelectItem> checkboxItems = new ArrayList();
-	    //String text="";
-	    
-	    //getCheckedQuestions();
 
-	    /*for (ItemData item : questions) {
-	        SelectItem selection = new SelectItem();
-
-	        //get instructions
-	        if (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) {
-	            if (!(StringUtils.isEmpty(item.getThemeText()))){
-	                text = strip(item.getThemeText());
-	            } else {
-	                if (!(StringUtils.isEmpty(item.getLeadInText()))) {
-	                    text = strip(item.getLeadInText());
-	                }
-	            }
-	        } else if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
-	            text = strip(item.getInstruction());
-	        } else {
-	            text = strip(item.getText());
-	        }
-	        selection.setLabel(text);
-	        selection.setValue(item.getItemId());
-	        checkboxItems.add(selection);
-	    }
-
-	    return checkboxItems;*/
-
-        List<ItemFacade> listAllItems = new ArrayList<>(qp.getQuestions());
-
-		// Creating the itemContentsBean
-		/*List<ItemContentsBean> list = new ArrayList<>();
-		int number=0;
-		for (ItemDataIfc item : listAllItems) {
-			ItemContentsBean itemBean = new ItemContentsBean(item);
-			itemBean.setNumber(++number);
-			list.add(itemBean);
-		}
-		this.setQuestions(list);
-		return list;*/
-        
-        return questions;
-
-	    
-	  }
+	    return questions;
+  }
 
   public String getRandomizationType() {
       return randomizationType;
@@ -1151,72 +1076,15 @@ private String selectedPoolFixed;  // pool fixed id for the item to be added to
       this.timedMinutes = (timeLimit/60)%60;
   }
 
-  /*public List getQuestions() {
-    return questions;
+  /**
+   * Remove pool from the map
+   * @param poolMap
+   * @param poolId
+   */
+  private static void removePoolFromMap(Map<String, QuestionPoolFacade> poolMap, String poolId) {
+   if (poolMap.containsKey(poolId)) {
+       poolMap.remove(poolId);
+   }
   }
 
-  public void setQuestions(List questions) {
-    this.questions = questions;
-  }*/
-  
-  /*Map htmlStripped = new Map<String,String>() {
-	@Override
-	public int size() { return 0; }
-	@Override
-	public boolean isEmpty() { return false; }
-	@Override
-	public boolean containsKey(Object key) { return true; }
-	@Override
-	public boolean containsValue(Object value) { return false; }
-	@Override
-	public String get(Object key) { return strip((String)key); }
-	@Override
-	public String put(String key, String value) { return null; }
-	@Override
-	public String remove(Object key) { return null;	}
-	@Override
-	public void putAll(Map<? extends String, ? extends String> m) {}
-	@Override
-	public void clear() {}
-	@Override
-	public Set<String> keySet() { return null; }
-	@Override
-	public Collection<String> values() { return null; }
-	@Override
-	public Set<java.util.Map.Entry<String, String>> entrySet() { return null; }
-  };
-  
-  public Map<String,String> getHtmlStripped() {
-	return htmlStripped;  
-  }*/
-  
-	public String strip(String text) {
-		if (text != null) {
-			text = ComponentManager.get(FormattedText.class).stripHtmlFromText( text, false, false ).trim(); // We do not want escaped HTML to be un-escaped
-		}
-		return text;
-	}
-
-	/*public void getCheckedQuestions() {
-
-		List<String> destItems = ContextUtil.paramArrayValueLike("randomizationTypesFixed");
-		List<Long> itemIds = new ArrayList<>();
-		List itemFacades = new ArrayList();
-
-		ItemService delegate = new ItemService();
-		Iterator<String> iter = destItems.iterator();
-
-		while (iter.hasNext()) {
-			Long itemId = NumberUtils.toLong(iter.next(), -1L);
-			ItemFacade itemfacade = delegate.getItem(itemId,
-					AgentFacade.getAgentString());
-			itemFacades.add(itemfacade);
-			itemIds.add(itemId);
-		}
-
-		setCurrentItemIds(itemIds);
-		setCurrentItems(itemFacades);
-
-		setCurrentItemIdsString(String.join(",", itemIds.stream().map(Object::toString).toArray(String[]::new)));
-	}*/
 }
